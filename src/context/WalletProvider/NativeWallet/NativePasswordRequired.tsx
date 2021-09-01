@@ -29,8 +29,9 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 type StoredWallets = Record<string, string>
 
-export const NativePasswordRequired = (props: { onConnect: () => void }) => {
+export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWallet) => void }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const [showPw, setShowPw] = useState<boolean>(false)
   const { state } = useWallet()
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
@@ -44,12 +45,13 @@ export const NativePasswordRequired = (props: { onConnect: () => void }) => {
         const [deviceId, encryptedWalletString] = storedWallet
         // @TODO: Replace this encryption with a most robust method
         const encryptedWallet = await getEncryptedWallet(values.password, encryptedWalletString)
-        const wallet: NativeHDWallet | null = state.keyring.get(deviceId)
-        if (wallet) {
-          wallet.loadDevice({
+        const maybeWallet: NativeHDWallet | null = state.keyring.get(deviceId)
+        if (maybeWallet) {
+          maybeWallet.loadDevice({
             mnemonic: await encryptedWallet.decrypt(),
             deviceId: encryptedWallet.deviceId
           })
+          setWallet(maybeWallet)
         }
       } catch (e) {
         console.error('storedWallets', e)
@@ -90,12 +92,13 @@ export const NativePasswordRequired = (props: { onConnect: () => void }) => {
       state.keyring.on(['Native', '*', NativeEvents.READY], () => {
         clearErrors()
         onClose()
-        props.onConnect()
+        // safe to non-null assert here as the wallet as emitted a ready event
+        props.onConnect(wallet!)
       })
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [state.keyring])
+  }, [state.keyring, wallet])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>

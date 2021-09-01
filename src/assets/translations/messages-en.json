@@ -28,6 +28,7 @@
   },
   "transactionRow": {
     "sent": "Sent",
+    "received": "Received",
     "moreDetails": "More Details"
   },
   "modals": {

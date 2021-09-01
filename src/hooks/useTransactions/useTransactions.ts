@@ -5,16 +5,16 @@ import dayjs from 'dayjs'
 import { fromBaseUnit } from 'lib/math'
 import { useCallback, useEffect, useState } from 'react'
 
-type UseTransactionsReturnType = {
-  loading: boolean
-  txHistory: Record<string, Transaction[]>
-}
-
 export type FormatTransactionType = {
   type: string
   symbol: string
   amount: string
   date: string
+}
+
+type UseTransactionsReturnType = {
+  loading: boolean
+  txHistory: Record<string, FormatTransactionType[]>
 }
 
 export enum TransactionStatusEnum {
@@ -44,7 +44,7 @@ export const useTransactions = ({
   symbol: string | undefined
 }): UseTransactionsReturnType => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [txHistory, setTxHistory] = useState<Record<string, Transaction[]>>({})
+  const [txHistory, setTxHistory] = useState<Record<string, FormatTransactionType[]>>({})
   const {
     state: { wallet }
   } = useWallet()
@@ -61,7 +61,7 @@ export const useTransactions = ({
     if (chain) {
       if (!supportedAdapters.length) return
       const getAdapter = supportedAdapters.find(
-        (adapter: ChainAdapter) => adapter().getType() === chain
+        (adapter: () => ChainAdapter) => adapter().getType() === chain
       )
       if (!getAdapter) return
       const chainAdapter = getAdapter()
@@ -79,8 +79,8 @@ export const useTransactions = ({
       return { txs: formatTransactions(txHistoryBySymbol, address) }
     }
 
-    const acc: Record<string, Transaction[]> = {}
-    const transactions: Transaction[] = []
+    const acc: Record<string, FormatTransactionType[]> = {}
+    const transactions: FormatTransactionType[] = []
 
     // Get transaction history for all chians that are supported.
     for (const getAdapter of supportedAdapters) {
@@ -92,8 +92,8 @@ export const useTransactions = ({
         contract: contractAddress
       })
       if (!txHistoryResponse) continue
-      formatTransactions(txHistoryResponse.transactions, address).forEach((tx: Transaction) =>
-        transactions.push(tx)
+      formatTransactions(txHistoryResponse.transactions, address).forEach(
+        (tx: FormatTransactionType) => transactions.push(tx)
       )
     }
     acc['txs'] = transactions
@@ -104,7 +104,7 @@ export const useTransactions = ({
     if (wallet) {
       setLoading(true)
       getTxHistory()
-        .then((txHistoryResponse: Record<string, Transaction[]> | undefined) => {
+        .then((txHistoryResponse: Record<string, FormatTransactionType[]> | undefined) => {
           txHistoryResponse && setTxHistory(txHistoryResponse)
         })
         .finally(() => setLoading(false))

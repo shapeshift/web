@@ -26,8 +26,6 @@ import {
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { FC } from 'react'
 
-import { DarkModeSwitch } from './DarkModeSwitch'
-
 type WalletImageProps = {
   isConnected: Boolean
 } & Pick<InitialState, 'walletInfo'>
@@ -122,8 +120,6 @@ export const WalletButton: FC<FlexProps> = () => {
         >
           Disconnect
         </MenuItem>
-        <MenuDivider />
-        <DarkModeSwitch />
       </MenuList>
     </Menu>
   )

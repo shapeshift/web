@@ -1,5 +1,3 @@
-import './styles.css'
-
 import { Button, Input, ModalBody, ModalHeader, SimpleGrid } from '@chakra-ui/react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { RawText } from 'components/Text'
@@ -31,7 +29,7 @@ export const PinModal = () => {
           ))}
         </SimpleGrid>
         <Input type='password' ref={pinFieldRef} size='lg' variant='filled' mb={6} />
-        <Button isFullWidth size='lg' colorScheme='blue' className='hd-connect--btn'>
+        <Button isFullWidth size='lg' colorScheme='blue'>
           Unlock
         </Button>
       </ModalBody>

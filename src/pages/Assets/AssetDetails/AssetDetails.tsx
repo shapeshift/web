@@ -20,7 +20,7 @@ export const AssetDetails = ({ asset }: AssetDetailProps) => (
         mx={{ base: 0, lg: 'auto' }}
       >
         <AssetHeader asset={asset} />
-        <AssetHistory />
+        <AssetHistory asset={asset} />
       </Stack>
     </Flex>
   </Page>

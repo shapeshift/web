@@ -12,9 +12,10 @@ import {
 } from '@chakra-ui/react'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { FormatTransactionType, TransactionStatusEnum } from 'hooks/useTransactions/useTransactions'
 import { useState } from 'react'
 
-export const TransactionRow = () => {
+export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   return (
@@ -34,10 +35,16 @@ export const TransactionRow = () => {
             <ArrowDownIcon /> {/* receive */}
             <ArrowUpIcon /> {/* send */}
           </Center>
-          <Text translation='transactionRow.sent' />
-          <RawText ml={2}>0.111 BTC</RawText>
+          <Text
+            translation={
+              tx.type === TransactionStatusEnum.Sent
+                ? 'transactionRow.sent'
+                : 'transactionRow.received'
+            }
+          />
+          <RawText ml={2}>{`${tx.amount} ${tx.symbol}`}</RawText>
         </Flex>
-        <RawText>Jan 5, 2021</RawText>
+        <RawText>{`${tx.date}`}</RawText>
       </Flex>
       <Collapse in={isOpen}>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>

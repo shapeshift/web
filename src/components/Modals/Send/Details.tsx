@@ -35,7 +35,7 @@ export const Details = () => {
     getValues,
     formState: { isValid }
   } = useFormContext()
-  const modal = useModal()
+  const { send } = useModal()
 
   const toggleCurrency = () => {
     setFiatInput(input => !input)
@@ -131,7 +131,7 @@ export const Details = () => {
         </FormControl>
       </ModalBody>
       <ModalFooter>
-        <Button variant='ghost' size='lg' mr={3} onClick={() => modal.close('send')}>
+        <Button variant='ghost' size='lg' mr={3} onClick={send.close}>
           <Text translation='common.cancel' />
         </Button>
         <Button isDisabled={!isValid} colorScheme='blue' size='lg' onClick={onNext}>

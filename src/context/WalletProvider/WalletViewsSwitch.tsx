@@ -7,6 +7,7 @@ import {
   ModalContent,
   ModalOverlay
 } from '@chakra-ui/react'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { SlideTransition } from 'components/SlideTransition'
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
@@ -42,7 +43,10 @@ export const WalletViewsSwitch = (props: WalletViewProps) => {
   return (
     <>
       <NativePasswordRequired
-        onConnect={() => dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })}
+        onConnect={(wallet: NativeHDWallet) => {
+          dispatch({ type: WalletActions.SET_WALLET, payload: wallet })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        }}
       />
       <Modal isOpen={props.modalOpen} onClose={onClose} isCentered>
         <ModalOverlay />

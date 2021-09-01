@@ -1,0 +1,108 @@
+{
+  "common": {
+    "next": "Next",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "noResultsFound": "No results found."
+  },
+  "dashboard": {
+    "portfolio": {
+      "addAsset": "Add Asset",
+      "yourAssets": "Your Assets",
+      "asset": "Asset",
+      "portfolioBalance": "Portfolio Balance",
+      "balance": "Balance",
+      "price": "Price",
+      "allocation": "Allocation"
+    },
+    "recentTransactions": {
+      "recentTransactions": "Recent Transactions"
+    }
+  },
+  "navBar": {
+    "dashboard": "Dashboard",
+    "assets": "Assets",
+    "earn": "Earn",
+    "tradeHistory": "Trade History",
+    "foxToken": "FOX Token"
+  },
+  "transactionRow": {
+    "sent": "Sent",
+    "moreDetails": "More Details"
+  },
+  "modals": {
+    "send": {
+      "confirm": {
+        "send": "Send",
+        "sendAssetTo": "Send %{asset} To",
+        "edit": "Edit",
+        "total": "Total",
+        "amount": "Amount",
+        "transactionFee": "Transaction Fee",
+        "fees": "Fees %{feeType}"
+      },
+      "sendForm": {
+        "sendAsset": "Send %{asset}",
+        "sendTo": "Send To",
+        "sendAmount": "Send Amount",
+        "max": "Max",
+        "transactionFee": "Transaction Fee",
+        "slow": "Slow",
+        "average": "Average",
+        "fast": "Fast",
+        "enterAmount": "Enter Amount"
+      }
+    },
+    "receive": {
+      "receiveAsset": "Receive Bitcoin",
+      "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
+      "copy": "Copy",
+      "setAmount": "Set Amount",
+      "verify": "Verify"
+    }
+  },
+  "graph": {
+    "timeControls": {
+      "1H": "1H",
+      "24H": "24H",
+      "1W": "1W",
+      "1M": "1M",
+      "1Y": "1Y",
+      "all": "All"
+    }
+  },
+  "assets": {
+    "assetDetails": {
+      "assetHeader": {
+        "balance": "Balance",
+        "price": "Price",
+        "marketCap": "Market Cap",
+        "24HrVolume": "24hr Volume",
+        "dayChange": "Day Change",
+        "aboutAsset": "About %{asset}"
+      },
+      "assetHistory": {
+        "transactionHistory": "Transaction History"
+      }
+    },
+    "assetCards": {
+      "assetActions": {
+        "buy": "Buy",
+        "sell": "Sell",
+        "trade": "Trade"
+      },
+      "rewards": {
+        "farmingRewards": "Farming Rewards",
+        "currentRewards": "Current Rewards",
+        "currentAPR": "Current APR",
+        "yourRewards": "Your Rewards",
+        "currentAPRLabel": "The current APR for your rewards",
+        "claimRewards": "Claim Rewards"
+      },
+      "accounts": "Accounts",
+      "staking": "Staking",
+      "pools": "Pools"
+    }
+  },
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+}

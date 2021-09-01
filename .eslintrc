@@ -1,0 +1,37 @@
+{
+  "extends": ["react-app", "react-app/jest", "plugin:jsx-a11y/recommended", "prettier"],
+  "plugins": ["jest", "prettier", "simple-import-sort"],
+  "env": {
+    "browser": true,
+    "jest/globals": true
+  },
+  "rules": {
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/no-autofocus": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error", "info", "group", "groupEnd"]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        "printWidth": 100,
+        "endOfLine": "lf",
+        "tabWidth": 2,
+        "useTabs": false,
+        "singleQuote": true,
+        "semi": false,
+        "arrowParens": "avoid",
+        "jsxSingleQuote": true,
+        "trailingComma": "none"
+      }
+    ],
+    "default-case": "error",
+    "simple-import-sort/exports": "error",
+    "simple-import-sort/imports": "error",
+    "import/no-default-export": "error"
+  }
+}

@@ -1,0 +1,165 @@
+.hd-connect-modal {
+  --hdconnect-primary: #3761f9;
+  --hdconnect-primary-hover: #2d4ec9;
+  --hdconnect-primary-active: #243ea1;
+  --hdconnect-modal-bg: #fff;
+  --hdconnect-border: #e2e8f0;
+  --hdconnect-border-active: #191e2a;
+  --hdconnect-overlay: #00000020;
+  --hdconnect-btn-text: #fff;
+  --hdconnect-secondary: #edf2f7;
+  --hdconnect-secondary-hover: #f7fafc;
+  --hdconnect-secondary-active: #edf2f7;
+  --hdconnect-text: #191d28;
+  --hdconnect-text-secondary: #718096;
+  --hdconnect-input-bg: #f7fafc;
+  --hdconnect-input-placeholder: #cbd5e0;
+  --hdconnect-box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+}
+
+.hd-connect-modal.dark {
+  --hdconnect-modal-bg: #181c27;
+  --hdconnect-text: #fff;
+  --hdconnect-border: #2d3748;
+  --hdconnect-border-active: #4a5568;
+  --hdconnect-secondary-hover: #212631;
+  --hdconnect-secondary-active: #1a202c;
+  --hdconnect-input-bg: #191d28;
+  --hdconnect-input-placeholder: #4a5568;
+  --hdconnect-box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px, rgba(0, 0, 0, 0.2) 0px 5px 10px 0px,
+    rgba(0, 0, 0, 0.4) 0px 15px 40px 0px;
+}
+
+.hd-connect-modal {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  overflow: auto;
+  color: var(--hdconnect-text);
+}
+
+.hd-connect-close-btn {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--hdconnect-border);
+  cursor: pointer;
+}
+.hd-connect-close-btn:hover {
+  color: var(--hdconnect-border-active);
+}
+
+.hd-connect--btn {
+  width: 100%;
+  border: 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--hdconnect-primary);
+  cursor: pointer;
+  color: var(--hdconnect-btn-text);
+  font-weight: bold;
+}
+.hd-connect--btn:hover {
+  background: var(--hdconnect-primary-hover);
+}
+
+.hd-connect--btn:active {
+  background: var(--hdconnect-primary-active);
+}
+
+.hd-connect--input {
+  border: 1px solid var(--hdconnect-border);
+  background: var(--hdconnect-input-bg);
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: var(--hdconnect-text);
+}
+.hd-connect--input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--hdconnect-primary);
+}
+
+.hd-connect--input::placeholder {
+  color: var(--hdconnect-input-placeholder);
+}
+
+.hd-connect-modal h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+.hd-connect-modal p {
+  color: var(--hdconnect-text-secondary);
+}
+
+.hd-connect--overlay {
+  background: var(--hdconnect-overlay);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hd-connect-modal .hd-connect--modal-content {
+  width: 100%;
+  background: var(--hdconnect-modal-bg);
+  border-radius: 1rem;
+  max-width: 350px;
+  position: relative;
+  padding: 3rem 2rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--hdconnect-box-shadow);
+}
+
+.pin-pad-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 75px);
+  grid-template-rows: repeat(3, 75px);
+  align-items: center;
+  justify-items: center;
+  margin-bottom: 1.5rem;
+  grid-gap: 1.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1rem;
+}
+.pin-button {
+  align-items: center;
+  border-radius: 6px;
+  border: 1px solid var(--hdconnect-border);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+  overflow: hidden;
+  padding: 0;
+  background-color: unset;
+  width: 100%;
+  height: 100%;
+  color: var(--hdconnect-text);
+}
+
+.pin-button:after {
+  content: '•';
+  font-size: 5rem;
+}
+.pin-button:hover {
+  background: var(--hdconnect-secondary-hover);
+}
+.pin-button:active {
+  border-color: var(--hdconnect-border-active);
+  background: var(--hdconnect-secondary-active);
+}

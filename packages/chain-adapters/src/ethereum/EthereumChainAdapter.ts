@@ -7,7 +7,9 @@ import {
   FeeData,
   FeeEstimateInput,
   BalanceResponse,
-  ChainIdentifier
+  ChainIdentifier,
+  ValidAddressResult,
+  ValidAddressResultType
 } from '../api'
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
 import { PaginationParams } from '../types/PaginationParams.type'
@@ -17,6 +19,7 @@ import { numberToHex } from 'web3-utils'
 import { Contract } from '@ethersproject/contracts'
 import erc20Abi from './erc20Abi.json'
 import { BigNumber } from 'bignumber.js'
+import WAValidator from 'multicoin-address-validator'
 
 export type EthereumChainAdapterDependencies = {
   provider: BlockchainProvider
@@ -137,5 +140,11 @@ export class EthereumChainAdapter implements ChainAdapter {
       showDisplay: false
     })
     return ethAddress as string
+  }
+
+  async validateAddress(address: string): Promise<ValidAddressResult> {
+    const isValidAddress = WAValidator.validate(address, this.getType())
+    if (isValidAddress) return { valid: true, result: ValidAddressResultType.Valid }
+    return { valid: false, result: ValidAddressResultType.Invalid }
   }
 }

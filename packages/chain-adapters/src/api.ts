@@ -96,6 +96,22 @@ export enum ChainIdentifier {
   Ethereum = 'ethereum'
 }
 
+export enum ValidAddressResultType {
+  Valid = 'valid',
+  Invalid = 'invalid'
+}
+
+export type ValidAddressResult = {
+  /**
+   * Is this Address valid
+   */
+  valid: boolean
+  /**
+   * Result type of valid address
+   */
+  result: ValidAddressResultType
+}
+
 export interface ChainAdapter {
   /**
    * Get type of adapter
@@ -121,4 +137,6 @@ export interface ChainAdapter {
   getFeeData(input: FeeEstimateInput): Promise<FeeData>
 
   broadcastTransaction(hex: string): Promise<string>
+
+  validateAddress(address: string): Promise<ValidAddressResult>
 }

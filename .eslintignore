@@ -1,0 +1,5 @@
+dist
+node_modules
+config
+babel.config.js
+generated

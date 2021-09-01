@@ -1,0 +1,27 @@
+{
+  "name": "@shapeshiftoss/market-service",
+  "version": "0.0.11",
+  "description": "Package to share reusable code",
+  "homepage": "",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shapeshift/lib"
+  },
+  "scripts": {
+    "build": "yarn clean && tsc --project tsconfig.build.json",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest test"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dayjs": "^1.10.6"
+  },
+  "gitHead": "0004bdf69eb56b7ce358bb8e1f995ddd5cbb87ee"
+}

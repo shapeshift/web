@@ -1,0 +1,26 @@
+{
+  "name": "asset-service",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "homepage": "",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shapeshift/lib"
+  },
+  "scripts": {
+    "build": "yarn clean && tsc --project tsconfig.build.json",
+    "generate": "node ./dist/GenerateAssetData.js",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest test"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.172"
+  }
+}

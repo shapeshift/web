@@ -1,0 +1,14 @@
+{
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "command": {
+    "publish": {
+      "message": "lib(release): release new package versions",
+      "ignoreChanges": [
+        "**/*.md",
+        "**/lib/**"
+      ]
+    }
+  },
+  "version": "independent"
+}

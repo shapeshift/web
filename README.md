@@ -38,6 +38,12 @@ ShapeShiftsOSS 2nd generation Web application. (Under Development)
 
 ## Developer Onboarding
 
+- Copy sample env file:
+
+  ```sh
+  cp sample.env .env
+  ```
+
 - Install Dependencies:
 
   ```sh

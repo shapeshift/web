@@ -3,7 +3,9 @@
     "next": "Next",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "noResultsFound": "No results found."
+    "noResultsFound": "No results found.",
+    "insufficientFunds": "Insufficient Funds",
+    "invalidAddress": "Invalid Address"
   },
   "dashboard": {
     "portfolio": {
@@ -44,8 +46,9 @@
   "modals": {
     "send": {
       "confirm": {
+        "sendAsset": "Send %{asset}",
         "send": "Send",
-        "sendAssetTo": "Send %{asset} To",
+        "sendTo": "Send To",
         "edit": "Edit",
         "total": "Total",
         "amount": "Amount",
@@ -62,6 +65,9 @@
         "average": "Average",
         "fast": "Fast",
         "enterAmount": "Enter Amount"
+      },
+      "qrScanner": {
+        "scanQrCode": "Scan QR Code"
       }
     },
     "receive": {

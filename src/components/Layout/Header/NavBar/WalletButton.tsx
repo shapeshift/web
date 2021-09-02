@@ -29,7 +29,7 @@ type WalletImageProps = {
   isConnected: Boolean
 } & Pick<InitialState, 'walletInfo'>
 
-const WalletImage: React.FC<WalletImageProps> = ({ isConnected, walletInfo }) => {
+const WalletImage = ({ isConnected, walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon
   if (isConnected && Icon) {
     return <Icon width='30px' height='auto' />

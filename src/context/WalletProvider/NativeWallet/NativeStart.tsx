@@ -1,17 +1,17 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import React from 'react'
 
 import { NativeSetupProps } from './setup'
 
 export const NativeStart = ({ history, location }: NativeSetupProps) => (
   <>
-    <ModalHeader>Create or import a wallet</ModalHeader>
+    <ModalHeader>
+      <Text translation={'wProvider.shapeShift.nStart.header'} />
+    </ModalHeader>
     <ModalBody>
-      <RawText mb={4} color='gray.500'>
-        Would you like to create a new wallet or import an existing one?
-      </RawText>
+      <Text mb={4} color='gray.500' translation={'wProvider.shapeShift.nStart.body'} />
       <Stack my={6} spacing={4}>
         <Button
           variant='ghost-filled'
@@ -26,7 +26,7 @@ export const NativeStart = ({ history, location }: NativeSetupProps) => (
             history.push('/native/import', { encryptedWallet: location.state.encryptedWallet })
           }
         >
-          Import Wallet
+          <Text translation={'wProvider.shapeShift.nStart.button'} />
         </Button>
         <Button
           variant='ghost-filled'
@@ -41,7 +41,7 @@ export const NativeStart = ({ history, location }: NativeSetupProps) => (
             history.push('/native/seed', { encryptedWallet: location.state.encryptedWallet })
           }
         >
-          Create Wallet
+          <Text translation={'wProvider.shapeShift.nStart.button2'} />
         </Button>
       </Stack>
     </ModalBody>

@@ -7,7 +7,7 @@ import {
   Textarea
 } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import { FieldValues, useForm } from 'react-hook-form'
 
 import { NativeSetupProps } from './setup'
@@ -28,9 +28,11 @@ export const NativeImport = ({ history, location }: NativeSetupProps) => {
 
   return (
     <>
-      <ModalHeader>Import your wallet</ModalHeader>
+      <ModalHeader>
+        <Text translation={'wProvider.shapeShift.nImport.header'} />
+      </ModalHeader>
       <ModalBody>
-        <RawText mb={4}>Enter your 12 word seed phrase to import an exisiting wallet</RawText>
+        <Text mb={4} translation={'wProvider.shapeShift.nImport.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.mnemonic} mb={6} mt={6}>
             <Textarea
@@ -49,7 +51,7 @@ export const NativeImport = ({ history, location }: NativeSetupProps) => {
             <FormErrorMessage>{errors.mnemonic?.message}</FormErrorMessage>
           </FormControl>
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
-            Next
+            <Text translation={'wProvider.shapeShift.nImport.button'} />
           </Button>
         </form>
       </ModalBody>

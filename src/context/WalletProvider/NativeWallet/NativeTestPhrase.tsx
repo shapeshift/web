@@ -1,5 +1,6 @@
-import { Button, ModalBody, ModalFooter, ModalHeader, Tag, Text, Wrap } from '@chakra-ui/react'
+import { Button, ModalBody, ModalFooter, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
+import { RawText, Text } from 'components/Text'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
@@ -62,16 +63,19 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
 
   return !shuffledWords.length ? null : (
     <>
-      <ModalHeader>Lets practice your secret phrase</ModalHeader>
+      <ModalHeader>
+        <Text translation={'wProvider.shapeShift.nTest.header'} />
+      </ModalHeader>
       <ModalBody>
-        <Text>
-          Which of these is the{' '}
+        <RawText>
+          <Text translation={'wProvider.shapeShift.nTest.body1'} />{' '}
           <Tag colorScheme='green'>
             {shuffledWords[testCount - 1][0]}
-            {ordinalSuffix(shuffledWords[testCount - 1][0])} word
+            {ordinalSuffix(shuffledWords[testCount - 1][0])}{' '}
+            <Text translation={'wPrivder.shapeShift.nTest.body2'} />
           </Tag>{' '}
-          in your secret phrase.
-        </Text>
+          <Text translation={'wProvider.shapeShift.nTest.body3'} />
+        </RawText>
         <Wrap mt={12} mb={6}>
           {shuffledRandomWords &&
             shuffledRandomWords.map(word => (
@@ -91,7 +95,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
       </ModalBody>
       <ModalFooter>
         <Button colorScheme='blue' size='lg' isDisabled={!testWord} onClick={handleNext}>
-          Next
+          <Text translation={'wProvider.shapeShift.nTest.button'} />
         </Button>
       </ModalFooter>
     </>

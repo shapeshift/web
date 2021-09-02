@@ -8,9 +8,9 @@ import {
   ModalFooter,
   ModalHeader,
   Tag,
-  Text,
   Wrap
 } from '@chakra-ui/react'
+import { Text } from 'components/Text'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 
@@ -69,12 +69,11 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
 
   return (
     <>
-      <ModalHeader>Your seed phrase</ModalHeader>
+      <ModalHeader>
+        <Text translation={'wProvider.shapeShift.nSeed.header'} />
+      </ModalHeader>
       <ModalBody>
-        <Text>
-          Write these 12 words down and store them securely offline. This 12 word phrase is used to
-          recover your wallet private keys.
-        </Text>
+        <Text translation={'wProvider.shapeShift.nSeed.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -112,7 +111,7 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
               history.push('/native/seed-test', { encryptedWallet: location.state.encryptedWallet })
             }}
           >
-            Next
+            <Text translation={'wProvider.shapeShift.nSeed.button'} />
           </Button>
         )}
       </ModalFooter>

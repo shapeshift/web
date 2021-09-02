@@ -1,17 +1,16 @@
-import { Button, Image, ModalBody, ModalHeader, Stack, Text } from '@chakra-ui/react'
-import { RawText } from 'components/Text'
+import { Button, Image, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { RawText, Text } from 'components/Text'
 
 import { SUPPORTED_WALLETS } from './config'
 
 export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise<void> }) => {
   return (
     <>
-      <ModalHeader>Connect a wallet</ModalHeader>
+      <ModalHeader>
+        <Text translation={'wProvider.sModal.header'} />
+      </ModalHeader>
       <ModalBody>
-        <RawText mb={6} color='gray.500'>
-          By connecting a wallet, you agree to ShapeShifts’ Terms of Service and acknowledge that
-          you have read and understand the ShapeShift disclaimer.
-        </RawText>
+        <Text mb={6} color='gray.500' translation={'wProvider.sModal.body'} />
         <Stack mb={6}>
           {Object.keys(SUPPORTED_WALLETS).map(key => {
             const option = SUPPORTED_WALLETS[key]
@@ -28,7 +27,7 @@ export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise
                   justifyContent='space-between'
                   onClick={() => connect(key)}
                 >
-                  <Text fontWeight='semibold'>{option.name}</Text>
+                  <RawText fontWeight='semibold'>{option.name}</RawText>
                   <Image maxH={10} maxW={20} src={option.icon} />
                 </Button>
               </>

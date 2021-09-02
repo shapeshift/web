@@ -16,7 +16,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { NativeAdapter, NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
@@ -107,12 +107,11 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
         <Flex justifyContent='space-between' alignItems='center' position='relative'>
           <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         </Flex>
-        <ModalHeader>Enter your password</ModalHeader>
+        <ModalHeader>
+          <Text translation={'wProvider.shapeShift.nPassReq.header'} />
+        </ModalHeader>
         <ModalBody>
-          <RawText mb={6} color='gray.500'>
-            Enter a password to encrypt your wallet. In order to securely store your keys we will
-            encrypt them, choose a string password you can remember
-          </RawText>
+          <Text mb={6} color='gray.500' translation={'wProvider.shapeShift.nPassReq.body'} />
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={errors.password} mb={6}>
               <InputGroup size='lg' variant='filled'>
@@ -138,7 +137,7 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
             <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
-              Next
+              <Text translation={'wProvider.shapeShift.nPassReq.button'} />
             </Button>
           </form>
         </ModalBody>

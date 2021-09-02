@@ -9,7 +9,7 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import { getEncryptedWallet } from 'lib/nativeWallet'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -33,12 +33,11 @@ export const NativePassword = ({ history }: RouteComponentProps) => {
 
   return (
     <>
-      <ModalHeader>Enter your password</ModalHeader>
+      <ModalHeader>
+        <Text translation={'wProvider.shapeShift.nPasswd.header'} />
+      </ModalHeader>
       <ModalBody>
-        <RawText mb={6} color='gray.500'>
-          Enter a password to encrypt your wallet. In order to securely store your keys we will
-          encrypt them, choose a string password you can remember
-        </RawText>
+        <Text mb={6} color='gray.500' translation={'wProvider.shapeShift.nPasswd.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.name} mb={6}>
             <InputGroup size='lg' variant='filled'>
@@ -64,7 +63,7 @@ export const NativePassword = ({ history }: RouteComponentProps) => {
             <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
           </FormControl>
           <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
-            Next
+            <Text translation={'wProvider.shapeShift.nPasswd.button'} />
           </Button>
         </form>
       </ModalBody>

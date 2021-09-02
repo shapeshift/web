@@ -1,6 +1,7 @@
 import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { Card } from 'components/Card'
+import { Text } from 'components/Text'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useEffect, useState } from 'react'
 
@@ -41,14 +42,16 @@ export const NativeSuccess = ({ location }: NativeSetupProps & WalletViewProps) 
 
   return (
     <>
-      <ModalHeader>Wallet Connected</ModalHeader>
+      <ModalHeader>
+        <Text translation={'wProvider.shapeShift.nSuccess.header'} />
+      </ModalHeader>
       <ModalBody>
         <Card mb={4}>
           <Card.Body fontSize='sm'>
             {isSuccessful === true ? (
-              'Your wallet has been connected'
+              <Text translation={'wProvider.shapeShift.nSuccess.success'} />
             ) : isSuccessful === false ? (
-              'There was an error connecting your wallet'
+              <Text translation={'wProvider.shapeShift.nSuccess.error'} />
             ) : (
               <Spinner />
             )}

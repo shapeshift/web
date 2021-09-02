@@ -14810,6 +14810,11 @@ use-callback-ref@^1.2.1, use-callback-ref@^1.2.3:
   resolved "https://registry.yarnpkg.com/use-callback-ref/-/use-callback-ref-1.2.5.tgz#6115ed242cfbaed5915499c0a9842ca2912f38a5"
   integrity sha512-gN3vgMISAgacF7sqsLPByqoePooY3n2emTH59Ur5d/M8eg4WTWu1xp8i8DHjohftIyEx0S08RiYxbffr4j8Peg==
 
+use-metamask@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/use-metamask/-/use-metamask-1.2.2.tgz#0067b83ea6ed4212c1feb267286685f287a374a3"
+  integrity sha512-aqEnT9pTvgwZ1JFHKGIxmUr3DffzW8g/qmGCytVb7F5icxP0ZBEFSKHReGitZQ0vmjkfKyjqv52slIm5AYIy/A==
+
 use-sidecar@^1.0.1:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/use-sidecar/-/use-sidecar-1.0.5.tgz#ffff2a17c1df42e348624b699ba6e5c220527f2b"

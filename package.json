@@ -50,6 +50,7 @@
     "react-window": "^1.8.6",
     "redux-persist": "^6.0.0",
     "scrypt-js": "^3.0.1",
+    "use-metamask": "^1.2.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {

@@ -80,7 +80,7 @@
       },
       "nPassReq": {
         "header": "Enter your password",
-        "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
+        "body": "Enter your native wallet password to decrypt the wallet stored in your browser.",
         "button": "Next"
       }, 
       "nSeed": {

@@ -34,7 +34,7 @@ export const Form = () => {
   const location = useLocation()
   const history = useHistory()
   const toast = useToast()
-  const modal = useModal()
+  const { send } = useModal()
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -58,7 +58,7 @@ export const Form = () => {
 
   const handleSubmit = (data: any) => {
     console.info(data)
-    modal.close('send')
+    send.close()
     toast({
       title: 'Bitcoin Sent.',
       description: 'You have successfully sent 0.005 BTC',

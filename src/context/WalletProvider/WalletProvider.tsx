@@ -18,7 +18,6 @@ export enum WalletActions {
   SET_WALLET = 'SET_WALLET',
   SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
   SET_INITAL_ROUTE = 'SET_INITAL_ROUTE',
-  SET_INITIALIZED = 'SET_INITIALIZED',
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   RESET_STATE = 'RESET_STATE'
@@ -32,7 +31,6 @@ export interface InitialState {
   initalRoute: string | null
   walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps> } | null
   isConnected: boolean
-  initialized: boolean
   modal: boolean
 }
 
@@ -44,7 +42,6 @@ const initialState: InitialState = {
   initalRoute: null,
   walletInfo: null,
   isConnected: false,
-  initialized: false,
   modal: false
 }
 
@@ -61,7 +58,6 @@ export type ActionTypes =
       type: WalletActions.SET_WALLET
       payload: { wallet: HDWallet | null; name: string; icon: ComponentWithAs<'svg', IconProps> }
     }
-  | { type: WalletActions.SET_INITIALIZED; payload: boolean }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: string }
   | { type: WalletActions.SET_INITAL_ROUTE; payload: string }
@@ -78,8 +74,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         wallet: action.payload.wallet,
         walletInfo: { name: action?.payload?.name, icon: action?.payload?.icon }
       }
-    case WalletActions.SET_INITIALIZED:
-      return { ...state, initialized: action.payload }
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:

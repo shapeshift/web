@@ -1,3 +1,6 @@
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable import/no-default-export */
+
 import {
   ArrowForwardIcon,
   ChevronDownIcon,
@@ -17,9 +20,8 @@ import {
 } from '@chakra-ui/react'
 import { FaFacebook, FaTwitter } from 'react-icons/fa'
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default {
-  title: 'Button',
+  title: 'Forms/Button',
   decorators: [
     (Story: any) => (
       <Container mt='40px'>

@@ -13,7 +13,7 @@ import {
   StatNumber
 } from '@chakra-ui/react'
 import { AssetMarketData, HistoryTimeframe } from '@shapeshiftoss/market-service'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'

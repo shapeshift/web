@@ -9,7 +9,7 @@ import {
   InputProps,
   Text
 } from '@chakra-ui/react'
-import { HelperToolTip } from 'components/HelperTooltip'
+import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'

@@ -1,6 +1,6 @@
 import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useEffect, useState } from 'react'
 

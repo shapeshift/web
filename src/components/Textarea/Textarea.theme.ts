@@ -1,6 +1,6 @@
 import { mode } from '@chakra-ui/theme-tools'
 
-import { InputStyle } from './Input'
+import { InputStyle } from '../Input/Input.theme'
 export const TextareaStyle = {
   // Styles for the base style
   baseStyle: (props: Record<string, any>) => ({

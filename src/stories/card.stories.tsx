@@ -1,9 +1,11 @@
-import { Container, Stack, Text } from '@chakra-ui/react'
-import { Card } from 'components/Card'
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable import/no-default-export */
 
-// eslint-disable-next-line import/no-anonymous-default-export
+import { Container, Stack, Text } from '@chakra-ui/react'
+import { Card } from 'components/Card/Card'
+
 export default {
-  title: 'Card',
+  title: 'Layout/Card',
   decorators: [
     (Story: any) => (
       <Container mt='40px'>

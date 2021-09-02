@@ -5,5 +5,6 @@ module.exports = {
     "@storybook/addon-essentials",
     "@storybook/preset-create-react-app",
     "@snek-at/storybook-addon-chakra-ui",
+    "storybook-dark-mode",
   ],
 };

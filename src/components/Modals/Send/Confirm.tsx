@@ -8,8 +8,8 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { HelperToolTip } from 'components/HelperTooltip'
-import { Row } from 'components/Row'
+import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
+import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useFormContext } from 'react-hook-form'

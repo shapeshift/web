@@ -13,7 +13,7 @@ import {
   ModalOverlay,
   useColorModeValue
 } from '@chakra-ui/react'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { QRCode } from 'components/QRCode/QRCode'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'

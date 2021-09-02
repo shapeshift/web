@@ -9,7 +9,7 @@ import { ParentSize } from '@visx/responsive'
 import BigNumber from 'bignumber.js'
 import { memo, useEffect, useState } from 'react'
 
-import { CircularProgress } from '../CircularProgress'
+import { CircularProgress } from '../CircularProgress/CircularProgress'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 
 type GraphProps = {

@@ -1,8 +1,8 @@
-import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import KEEPKEY_ICON from 'assets/svg/keepkey-logo.svg'
-import SS_NATIVE_ICON from 'assets/svg/sswallet.svg'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
 import { RouteProps } from 'react-router-dom'
 
 import { PinModal } from './KeepKey/PinModal'
@@ -15,20 +15,16 @@ import { NativeTestPhrase } from './NativeWallet/NativeTestPhrase'
 
 export interface SupportedWalletInfo {
   adapter: any
-  icon: string
+  icon: ComponentWithAs<'svg', IconProps>
   name: string
-  init: (keyring: Keyring) => NativeAdapter
-  setup: () => any
   routes: RouteProps[]
 }
 
 export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
   native: {
     adapter: NativeAdapter,
-    icon: SS_NATIVE_ICON,
+    icon: ShapeShiftVertical,
     name: 'ShapeShift',
-    init: NativeAdapter.useKeyring,
-    setup: () => {},
     routes: [
       { path: '/native/password', component: NativePassword },
       { path: '/native/start', component: NativeStart },
@@ -40,10 +36,8 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
   },
   keepkey: {
     adapter: WebUSBKeepKeyAdapter,
-    icon: KEEPKEY_ICON,
+    icon: KeepKeyIcon,
     name: 'KeepKey',
-    init: WebUSBKeepKeyAdapter.useKeyring,
-    setup: () => {},
     routes: [{ path: '/keepkey/pin', component: PinModal }]
   }
 }

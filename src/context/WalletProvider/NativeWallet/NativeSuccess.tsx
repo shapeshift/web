@@ -4,11 +4,11 @@ import { Card } from 'components/Card'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useEffect, useState } from 'react'
 
+import { SUPPORTED_WALLETS } from '../config'
 import { useWallet, WalletActions } from '../WalletProvider'
-import { WalletViewProps } from '../WalletViewsRouter'
 import { NativeSetupProps } from './setup'
 
-export const NativeSuccess = ({ location }: NativeSetupProps & WalletViewProps) => {
+export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const [isSuccessful, setIsSuccessful] = useState<boolean | null>(null)
   const [, setLocalStorageWallet] = useLocalStorage<Record<string, string>>('wallet', null)
   const { state, dispatch } = useWallet()
@@ -29,6 +29,8 @@ export const NativeSuccess = ({ location }: NativeSetupProps & WalletViewProps) 
           })
           setIsSuccessful(true)
           dispatch({ type: WalletActions.SET_WALLET, payload: wallet })
+          const { name, icon } = SUPPORTED_WALLETS['native']
+          dispatch({ type: WalletActions.SET_WALLET_INFO, payload: { name, icon } })
         } catch (error) {
           console.warn('Failed to load device', error)
           setIsSuccessful(false)

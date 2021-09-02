@@ -14,7 +14,6 @@ import {
   FlexProps,
   HStack,
   IconButton,
-  Image,
   Menu,
   MenuButton,
   MenuDivider,
@@ -30,17 +29,13 @@ type WalletImageProps = {
   isConnected: Boolean
 } & Pick<InitialState, 'walletInfo'>
 
-const WalletImage: React.FC<WalletImageProps> = ({ isConnected, walletInfo }) =>
-  isConnected ? (
-    <Image
-      boxSize='24px'
-      loading='lazy'
-      showBorder={false}
-      objectFit='contain'
-      bg='transparent'
-      src={walletInfo?.icon}
-    />
-  ) : null
+const WalletImage: React.FC<WalletImageProps> = ({ isConnected, walletInfo }) => {
+  const Icon = walletInfo?.icon
+  if (isConnected && Icon) {
+    return <Icon width='30px' height='auto' />
+  }
+  return null
+}
 
 export const WalletButton: FC<FlexProps> = () => {
   const { state, dispatch, disconnect } = useWallet()

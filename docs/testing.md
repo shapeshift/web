@@ -1,6 +1,6 @@
 ## Testing
 
-Bug fixes and features should always come with tests. If you want a visual representation of the test coverage of your code run [yarn test:coverage](README.md#yarn-test:coverage).
+Bug fixes and features should always come with tests.
 
 ### Testing Tools
 

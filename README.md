@@ -71,15 +71,10 @@ Launches the test runner in the interactive watch mode.<br /> See the section
 about
 [running tests](https://facebook.github.io/create-react-app/docs/running-tests)
 for more information.
+It also creates an html page you can interact with at the root level of the project in `/coverage`.
 
 ```sh
     yarn test
-```
-
-Launches the test runner and prints out the coverage of the tests that were run. It also creates an html page you can interact with at the root level of the project in `/coverage`.
-
-```sh
-    yarn test:coverage
 ```
 
 Builds the app for production to the `build` folder.<br /> It correctly bundles

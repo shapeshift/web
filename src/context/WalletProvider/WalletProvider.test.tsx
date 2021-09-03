@@ -15,27 +15,30 @@ const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon
 }
-const setup = () => {
+const setup = async () => {
   // @ts-ignore
   WebUSBKeepKeyAdapter.useKeyring.mockImplementation(() => ({
     initialize: jest.fn(() => Promise.resolve())
   }))
   const wrapper: React.FC = ({ children }) => <WalletProvider>{children}</WalletProvider>
-  return renderHook(() => useWallet(), { wrapper })
+  const hookResult = renderHook(() => useWallet(), { wrapper })
+  // Since there is a dispatch doing async state changes
+  // in a useEffect on mount we must wait for that state
+  // to finish updating before doing anything else to avoid errors
+  await hookResult.waitForValueToChange(() => hookResult.result.current.state.adapters)
+  return hookResult
 }
 
 describe('WalletProvider', () => {
   describe('dispatch', () => {
     it('can SET_ADAPTERS on mount', async () => {
-      const { result, waitForValueToChange } = setup()
-      await waitForValueToChange(() => result.current.state.adapters)
+      const { result } = await setup()
 
       expect(result.current.state.adapters).toBeTruthy()
     })
 
     it('can SET_WALLET sets a wallet in state', async () => {
-      const { result, waitForValueToChange } = setup()
-      await waitForValueToChange(() => result.current.state.adapters)
+      const { result } = await setup()
 
       act(() => {
         result.current.dispatch({
@@ -48,8 +51,7 @@ describe('WalletProvider', () => {
     })
 
     it('can SET_WALLET_INFO', async () => {
-      const { result, waitForValueToChange } = setup()
-      await waitForValueToChange(() => result.current.state.adapters)
+      const { result } = await setup()
 
       expect(result.current.state.walletInfo).toBe(null)
       act(() => {
@@ -62,8 +64,7 @@ describe('WalletProvider', () => {
     })
 
     it('can SET_IS_CONNECTED', async () => {
-      const { result, waitForValueToChange } = setup()
-      await waitForValueToChange(() => result.current.state.adapters)
+      const { result } = await setup()
 
       expect(result.current.state.isConnected).toBe(false)
       act(() => {
@@ -77,8 +78,7 @@ describe('WalletProvider', () => {
     })
 
     it('can SET_WALLET_MODAL state to open and close', async () => {
-      const { result, waitForValueToChange } = setup()
-      await waitForValueToChange(() => result.current.state.adapters)
+      const { result } = await setup()
 
       expect(result.current.state.modal).toBe(false)
       act(() => {
@@ -95,8 +95,7 @@ describe('WalletProvider', () => {
   describe('disconnect', () => {
     it('disconnects and calls RESET_STATE', async () => {
       const walletDisconnect = jest.fn()
-      const { result, waitForValueToChange } = setup()
-      await waitForValueToChange(() => result.current.state.adapters)
+      const { result } = await setup()
 
       expect(result.current.state.wallet).toBe(null)
       expect(result.current.state.walletInfo).toBe(null)

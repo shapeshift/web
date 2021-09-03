@@ -16,22 +16,20 @@ export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise
           {Object.keys(SUPPORTED_WALLETS).map(key => {
             const option = SUPPORTED_WALLETS[key]
             return (
-              <>
-                <Button
-                  variant='ghost-filled'
-                  colorScheme='blue'
-                  key={key}
-                  w='full'
-                  h='auto'
-                  px={6}
-                  py={4}
-                  justifyContent='space-between'
-                  onClick={() => connect(key)}
-                >
-                  <Text fontWeight='semibold'>{option.name}</Text>
-                  <Image maxH={10} maxW={20} src={option.icon} />
-                </Button>
-              </>
+              <Button
+                variant='ghost-filled'
+                colorScheme='blue'
+                key={key}
+                w='full'
+                h='auto'
+                px={6}
+                py={4}
+                justifyContent='space-between'
+                onClick={() => connect(key)}
+              >
+                <Text fontWeight='semibold'>{option.name}</Text>
+                <Image maxH={10} maxW={20} src={option.icon} />
+              </Button>
             )
           })}
         </Stack>

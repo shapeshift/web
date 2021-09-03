@@ -18,20 +18,20 @@ export const SelectModal = ({ connect }: { connect: IWalletContext['connect'] })
             const option = SUPPORTED_WALLETS[key]
             const Icon = option.icon
             return (
-                <Button
-                  variant='ghost-filled'
-                  colorScheme='blue'
-                  key={key}
-                  w='full'
-                  h='auto'
-                  px={6}
-                  py={4}
-                  justifyContent='space-between'
-                  onClick={() => connect(key)}
-                >
-                  <Text fontWeight='semibold'>{option.name}</Text>
-                  <Icon height='auto' w='45px' />
-                </Button>
+              <Button
+                variant='ghost-filled'
+                colorScheme='blue'
+                key={key}
+                w='full'
+                h='auto'
+                px={6}
+                py={4}
+                justifyContent='space-between'
+                onClick={() => connect(key)}
+              >
+                <Text fontWeight='semibold'>{option.name}</Text>
+                <Icon height='auto' w='45px' />
+              </Button>
             )
           })}
         </Stack>

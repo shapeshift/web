@@ -17,10 +17,10 @@ export const PinModal = () => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'wProvider.keepKey.header'} />
+        <Text translation={'walletProvider.keepKey.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text color='gray.500' translation={'wProvider.keepKey.body'} />
+        <Text color='gray.500' translation={'walletProvider.keepKey.body'} />
         <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
           {pinNumbers.map(number => (
             <Button size='lg' p={8} onClick={() => handlePinPress(number)}>
@@ -30,7 +30,7 @@ export const PinModal = () => {
         </SimpleGrid>
         <Input type='password' ref={pinFieldRef} size='lg' variant='filled' mb={6} />
         <Button isFullWidth size='lg' colorScheme='blue'>
-          <Text translation={'wProvider.keepKey.button'} />
+          <Text translation={'walletProvider.keepKey.button'} />
         </Button>
       </ModalBody>
     </>

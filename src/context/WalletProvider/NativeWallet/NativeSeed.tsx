@@ -70,10 +70,10 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'wProvider.shapeShift.nSeed.header'} />
+        <Text translation={'walletProvider.shapeShift.nativeSeed.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text translation={'wProvider.shapeShift.nSeed.body'} />
+        <Text translation={'walletProvider.shapeShift.nativeSeed.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -111,7 +111,7 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
               history.push('/native/seed-test', { encryptedWallet: location.state.encryptedWallet })
             }}
           >
-            <Text translation={'wProvider.shapeShift.nSeed.button'} />
+            <Text translation={'walletProvider.shapeShift.nativeSeed.button'} />
           </Button>
         )}
       </ModalFooter>

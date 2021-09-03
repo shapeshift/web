@@ -61,45 +61,45 @@
       "verify": "Verify"
     }
   },
-  "wProvider": {
+  "walletProvider": {
     "keepKey": {
       "header": "Enter Your Pin",
       "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
       "button": "Unlock"
     },
     "shapeShift": {
-      "nImport": {
+      "nativeImport": {
         "header": "Import your wallet",
         "body": "Enter your 12 word seed phrase to import an exisiting wallet",
         "button": "Next"
       },
-      "nPasswd": {
+      "nativePasswd": {
         "header": "Enter your password",
         "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
         "button": "Next"
       },
-      "nPassReq": {
+      "nativePassReq": {
         "header": "Enter your password",
         "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
         "button": "Next"
       }, 
-      "nSeed": {
+      "nativeSeed": {
         "header": "Your seed phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
         "button": "Next"
       }, 
-      "nStart": {
+      "nativeStart": {
         "header": "Create or import a wallet",
         "body": "Would you like to create a new wallet or import an existing one?",
         "button": "Import Wallet",
         "button2": "Create Wallet"
       }, 
-      "nSuccess": {
+      "nativeSuccess": {
         "header": "Wallet Conected",
         "success": "Your wallet has been connected",
         "error": "There was an error connecting your wallet"
       },
-      "nTest": {
+      "nativeTestPhrase": {
         "header": "Let's practice your secret phrase",
         "body": "Which of these is the",
         "body2": " word",
@@ -107,7 +107,7 @@
         "button": "Next"
       }
     },
-    "sModal": {
+    "selectModal": { 
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
     }

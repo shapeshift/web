@@ -8,10 +8,10 @@ import { NativeSetupProps } from './setup'
 export const NativeStart = ({ history, location }: NativeSetupProps) => (
   <>
     <ModalHeader>
-      <Text translation={'wProvider.shapeShift.nStart.header'} />
+      <Text translation={'walletProvider.shapeShift.nativeStart.header'} />
     </ModalHeader>
     <ModalBody>
-      <Text mb={4} color='gray.500' translation={'wProvider.shapeShift.nStart.body'} />
+      <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.nativeStart.body'} />
       <Stack my={6} spacing={4}>
         <Button
           variant='ghost-filled'
@@ -26,7 +26,7 @@ export const NativeStart = ({ history, location }: NativeSetupProps) => (
             history.push('/native/import', { encryptedWallet: location.state.encryptedWallet })
           }
         >
-          <Text translation={'wProvider.shapeShift.nStart.button'} />
+          <Text translation={'walletProvider.shapeShift.nativeStart.button'} />
         </Button>
         <Button
           variant='ghost-filled'
@@ -41,7 +41,7 @@ export const NativeStart = ({ history, location }: NativeSetupProps) => (
             history.push('/native/seed', { encryptedWallet: location.state.encryptedWallet })
           }
         >
-          <Text translation={'wProvider.shapeShift.nStart.button2'} />
+          <Text translation={'walletProvider.shapeShift.nativeStart.button2'} />
         </Button>
       </Stack>
     </ModalBody>

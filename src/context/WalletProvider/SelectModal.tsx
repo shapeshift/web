@@ -7,10 +7,10 @@ export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise
   return (
     <>
       <ModalHeader>
-        <Text translation={'wProvider.sModal.header'} />
+        <Text translation={'walletProvider.selectModal.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'wProvider.sModal.body'} />
+        <Text mb={6} color='gray.500' translation={'walletProvider.selectModal.body'} />
         <Stack mb={6}>
           {Object.keys(SUPPORTED_WALLETS).map(key => {
             const option = SUPPORTED_WALLETS[key]

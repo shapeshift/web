@@ -34,10 +34,10 @@ export const NativePassword = ({ history }: RouteComponentProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'wProvider.shapeShift.nPasswd.header'} />
+        <Text translation={'walletProvider.shapeShift.nativePasswd.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'wProvider.shapeShift.nPasswd.body'} />
+        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.nativePasswd.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.name} mb={6}>
             <InputGroup size='lg' variant='filled'>
@@ -63,7 +63,7 @@ export const NativePassword = ({ history }: RouteComponentProps) => {
             <FormErrorMessage>{errors.name && errors.name.message}</FormErrorMessage>
           </FormControl>
           <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
-            <Text translation={'wProvider.shapeShift.nPasswd.button'} />
+            <Text translation={'walletProvider.shapeShift.nativePasswd.button'} />
           </Button>
         </form>
       </ModalBody>

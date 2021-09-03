@@ -108,10 +108,14 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
           <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         </Flex>
         <ModalHeader>
-          <Text translation={'wProvider.shapeShift.nPassReq.header'} />
+          <Text translation={'walletProvider.shapeShift.nativePassReq.header'} />
         </ModalHeader>
         <ModalBody>
-          <Text mb={6} color='gray.500' translation={'wProvider.shapeShift.nPassReq.body'} />
+          <Text
+            mb={6}
+            color='gray.500'
+            translation={'walletProvider.shapeShift.nativePassReq.body'}
+          />
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={errors.password} mb={6}>
               <InputGroup size='lg' variant='filled'>
@@ -137,7 +141,7 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
             <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
-              <Text translation={'wProvider.shapeShift.nPassReq.button'} />
+              <Text translation={'walletProvider.shapeShift.nativePassReq.button'} />
             </Button>
           </form>
         </ModalBody>

@@ -43,15 +43,15 @@ export const NativeSuccess = ({ location }: NativeSetupProps & WalletViewProps) 
   return (
     <>
       <ModalHeader>
-        <Text translation={'wProvider.shapeShift.nSuccess.header'} />
+        <Text translation={'walletProvider.shapeShift.nativeSuccess.header'} />
       </ModalHeader>
       <ModalBody>
         <Card mb={4}>
           <Card.Body fontSize='sm'>
             {isSuccessful === true ? (
-              <Text translation={'wProvider.shapeShift.nSuccess.success'} />
+              <Text translation={'walletProvider.shapeShift.nativeSuccess.success'} />
             ) : isSuccessful === false ? (
-              <Text translation={'wProvider.shapeShift.nSuccess.error'} />
+              <Text translation={'walletProvider.shapeShift.nativeSuccess.error'} />
             ) : (
               <Spinner />
             )}

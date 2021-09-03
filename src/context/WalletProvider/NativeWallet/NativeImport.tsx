@@ -29,10 +29,10 @@ export const NativeImport = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'wProvider.shapeShift.nImport.header'} />
+        <Text translation={'walletProvider.shapeShift.nativeImport.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} translation={'wProvider.shapeShift.nImport.body'} />
+        <Text mb={4} translation={'walletProvider.shapeShift.nativeImport.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.mnemonic} mb={6} mt={6}>
             <Textarea
@@ -51,7 +51,7 @@ export const NativeImport = ({ history, location }: NativeSetupProps) => {
             <FormErrorMessage>{errors.mnemonic?.message}</FormErrorMessage>
           </FormControl>
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
-            <Text translation={'wProvider.shapeShift.nImport.button'} />
+            <Text translation={'walletProvider.shapeShift.nativeImport.button'} />
           </Button>
         </form>
       </ModalBody>

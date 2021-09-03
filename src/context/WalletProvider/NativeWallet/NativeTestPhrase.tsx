@@ -64,17 +64,17 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   return !shuffledWords.length ? null : (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.nativeTest.header'} />
+        <Text translation={'walletProvider.shapeShift.nativeTestPhrase.header'} />
       </ModalHeader>
       <ModalBody>
         <RawText>
-          <Text translation={'walletProvider.shapeShift.nativeTest.body1'} />{' '}
+          <Text translation={'walletProvider.shapeShift.nativeTestPhrase.body1'} />{' '}
           <Tag colorScheme='green'>
             {shuffledWords[testCount - 1][0]}
             {ordinalSuffix(shuffledWords[testCount - 1][0])}{' '}
-            <Text translation={'walletPrivder.shapeShift.nativeTest.body2'} />
+            <Text translation={'walletPrivder.shapeShift.nativeTestPhrase.body2'} />
           </Tag>{' '}
-          <Text translation={'walletProvider.shapeShift.nativeTest.body3'} />
+          <Text translation={'walletProvider.shapeShift.nativeTestPhrase.body3'} />
         </RawText>
         <Wrap mt={12} mb={6}>
           {shuffledRandomWords &&
@@ -95,7 +95,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
       </ModalBody>
       <ModalFooter>
         <Button colorScheme='blue' size='lg' isDisabled={!testWord} onClick={handleNext}>
-          <Text translation={'walletProvider.shapeShift.nativeTest.button'} />
+          <Text translation={'walletProvider.shapeShift.nativeTestPhrase.button'} />
         </Button>
       </ModalFooter>
     </>

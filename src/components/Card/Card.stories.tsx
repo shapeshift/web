@@ -47,6 +47,16 @@ export const withVariants = () => (
       <Card.Body>
         <Text>Default Variant</Text>
       </Card.Body>
+      <Card.Footer>Card Footer</Card.Footer>
+    </Card>
+    <Card variant='footer-stub'>
+      <Card.Header>
+        <Card.Heading>Heading</Card.Heading>
+      </Card.Header>
+      <Card.Body>
+        <Text>Default Variant</Text>
+      </Card.Body>
+      <Card.Footer>Card Footer</Card.Footer>
     </Card>
     <Card variant='inverted'>
       <Card.Header>
@@ -55,6 +65,7 @@ export const withVariants = () => (
       <Card.Body>
         <Text>Inverted Variant</Text>
       </Card.Body>
+      <Card.Footer>Card Footer</Card.Footer>
     </Card>
   </Stack>
 )

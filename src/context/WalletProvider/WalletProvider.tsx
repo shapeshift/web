@@ -43,7 +43,7 @@ const initialState: InitialState = {
 export interface IWalletContext {
   state: InitialState
   dispatch: React.Dispatch<ActionTypes>
-  connect: (adapter: any, icon: string, name: string) => Promise<void>
+  connect: (type: string) => Promise<void>
   disconnect: () => void
 }
 

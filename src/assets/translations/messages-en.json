@@ -54,9 +54,11 @@
       }
     },
     "receive": {
-      "receiveAsset": "Receive Bitcoin",
+      "connectAWallet": "Connect a wallet to receive %{symbol}",
+      "receiveAsset": "Receive %{asset}",
       "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
       "copy": "Copy",
+      "copied": "%{symbol} receive address copied to clipboard",
       "setAmount": "Set Amount",
       "verify": "Verify"
     }

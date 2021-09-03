@@ -27,7 +27,7 @@ export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise
                   justifyContent='space-between'
                   onClick={() => connect(key)}
                 >
-                  <RawText fontWeight='semibold'>{option.name}</RawText>
+                  <RawText fontWeight='semibold'>{option.name} </RawText>
                   <Image maxH={10} maxW={20} src={option.icon} />
                 </Button>
               </>

@@ -17,7 +17,7 @@ export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
         <Transactions
           chain={network}
           contractAddress={contractAddress}
-          symbol={symbol.toUpperCase()}
+          symbol={symbol?.toUpperCase()}
         />
       </Card.Body>
     </Card>

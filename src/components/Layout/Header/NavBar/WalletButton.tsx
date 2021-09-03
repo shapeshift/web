@@ -35,7 +35,6 @@ const WalletImage: React.FC<WalletImageProps> = ({ isConnected, walletInfo }) =>
     <Image
       boxSize='24px'
       loading='lazy'
-      showBorder={false}
       objectFit='contain'
       bg='transparent'
       src={walletInfo?.icon}

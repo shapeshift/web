@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { NativeAdapter, NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Text } from 'components/Text'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
 import head from 'lodash/head'
@@ -37,7 +37,7 @@ export const NativePasswordRequired = ({
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const [showPw, setShowPw] = useState<boolean>(false)
-  const { state } = useWallet()
+  const { state, dispatch } = useWallet()
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
 
   const handleShowClick = () => setShowPw(!showPw)
@@ -50,6 +50,14 @@ export const NativePasswordRequired = ({
         // @TODO: Replace this encryption with a most robust method
         const encryptedWallet = await getEncryptedWallet(values.password, encryptedWalletString)
         const maybeWallet: NativeHDWallet | null = state.keyring.get(deviceId)
+        dispatch({
+          type: WalletActions.SET_WALLET_INFO,
+          payload: {
+            name: 'test',
+            icon: 'icon',
+            deviceId
+          }
+        })
         if (maybeWallet) {
           maybeWallet.loadDevice({
             mnemonic: await encryptedWallet.decrypt(),

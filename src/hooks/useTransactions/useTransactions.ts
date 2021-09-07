@@ -29,9 +29,12 @@ export enum TxStatusEnum {
   Failed = 'failed'
 }
 
+export const getDate = (timestamp: number) =>
+  dayjs(Number(timestamp) * 1000).format('MM/DD/YYYY h:mm A')
+
 const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTransactionType[] => {
   return txs.map((tx: Transaction) => {
-    const date = dayjs(Number(tx.timestamp) * 1000).format('MM/DD/YYYY h:mm A')
+    const date = getDate(tx.timestamp)
     return {
       ...tx,
       type: walletAddress === tx.from ? TxTypeEnum.Sent : TxTypeEnum.Received,
@@ -55,7 +58,7 @@ export const useTransactions = ({
   const [loading, setLoading] = useState<boolean>(false)
   const [txHistory, setTxHistory] = useState<Record<string, FormatTransactionType[]>>({})
   const {
-    state: { wallet }
+    state: { wallet, walletInfo }
   } = useWallet()
   const chainAdapterManager = useChainAdapters()
 
@@ -90,7 +93,8 @@ export const useTransactions = ({
       const txHistoryBySymbol = txHistoryResponse.transactions.filter(
         (tx: Transaction) => tx.symbol === symbol
       )
-      return { txs: formatTransactions(txHistoryBySymbol, address) }
+      const formattedTransactions = formatTransactions(txHistoryBySymbol, address)
+      return { txs: formattedTransactions }
     }
 
     const acc: Record<string, FormatTransactionType[]> = {}
@@ -117,7 +121,11 @@ export const useTransactions = ({
     }
     acc['txs'] = transactions
     return acc
-  }, [wallet, chainAdapterManager, chain, contractAddress, symbol])
+    // TODO: remove below linter disable comment when we consolidate the 'walletInfo' and 'wallet' in state, we will
+    // then be able to check for deviceId on the wallet object rather than checking on the walletInfo object. Until
+    // that time, this should not be a problem because 'wallet' and 'walletInfo' are set in state at the same time.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletInfo?.deviceId, chain, contractAddress, symbol])
 
   useEffect(() => {
     if (wallet) {
@@ -128,7 +136,9 @@ export const useTransactions = ({
         })
         .finally(() => setLoading(false))
     }
-  }, [wallet, getTxHistory])
+    // TODO: Same as above dependency list for 'getTxHistory' function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletInfo?.deviceId, getTxHistory])
 
   return {
     loading,

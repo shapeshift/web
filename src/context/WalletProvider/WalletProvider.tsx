@@ -29,7 +29,7 @@ export interface InitialState {
   wallet: HDWallet | NativeHDWallet | null
   type: string | null
   initalRoute: string | null
-  walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps> } | null
+  walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps>; deviceId: string } | null
   isConnected: boolean
   modal: boolean
 }
@@ -56,7 +56,12 @@ export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Record<string, unknown> }
   | {
       type: WalletActions.SET_WALLET
-      payload: { wallet: HDWallet | null; name: string; icon: ComponentWithAs<'svg', IconProps> }
+      payload: {
+        wallet: HDWallet | null
+        name: string
+        icon: ComponentWithAs<'svg', IconProps>
+        deviceId: string
+      }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: string }
@@ -72,7 +77,11 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return {
         ...state,
         wallet: action.payload.wallet,
-        walletInfo: { name: action?.payload?.name, icon: action?.payload?.icon }
+        walletInfo: {
+          name: action?.payload?.name,
+          icon: action?.payload?.icon,
+          deviceId: action?.payload?.deviceId
+        }
       }
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }

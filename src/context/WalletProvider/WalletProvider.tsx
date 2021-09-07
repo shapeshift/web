@@ -16,7 +16,6 @@ import { WalletViewsRouter } from './WalletViewsRouter'
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
   SET_WALLET = 'SET_WALLET',
-  SET_WALLET_INFO = 'SET_WALLET_INFO',
   SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
   SET_INITAL_ROUTE = 'SET_INITAL_ROUTE',
   SET_INITIALIZED = 'SET_INITIALIZED',
@@ -58,10 +57,9 @@ export interface IWalletContext {
 
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Record<string, unknown> }
-  | { type: WalletActions.SET_WALLET; payload: HDWallet | null }
   | {
-      type: WalletActions.SET_WALLET_INFO
-      payload: { name: string; icon: ComponentWithAs<'svg', IconProps> }
+      type: WalletActions.SET_WALLET
+      payload: { wallet: HDWallet | null; name: string; icon: ComponentWithAs<'svg', IconProps> }
     }
   | { type: WalletActions.SET_INITIALIZED; payload: boolean }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
@@ -75,9 +73,11 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      return { ...state, wallet: action.payload }
-    case WalletActions.SET_WALLET_INFO:
-      return { ...state, walletInfo: { name: action?.payload?.name, icon: action?.payload?.icon } }
+      return {
+        ...state,
+        wallet: action.payload.wallet,
+        walletInfo: { name: action?.payload?.name, icon: action?.payload?.icon }
+      }
     case WalletActions.SET_INITIALIZED:
       return { ...state, initialized: action.payload }
     case WalletActions.SET_IS_CONNECTED:

@@ -43,10 +43,9 @@ export const WalletViewsSwitch = () => {
     <>
       <NativePasswordRequired
         onConnect={(wallet: NativeHDWallet) => {
-          dispatch({ type: WalletActions.SET_WALLET, payload: wallet })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           const { name, icon } = SUPPORTED_WALLETS['native']
-          dispatch({ type: WalletActions.SET_WALLET_INFO, payload: { name, icon } })
+          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }}
       />
       <Modal isOpen={state.modal} onClose={onClose} isCentered>

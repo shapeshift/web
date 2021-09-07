@@ -1,6 +1,6 @@
 import { Button, Input, ModalBody, ModalHeader, SimpleGrid } from '@chakra-ui/react'
 import { CircleIcon } from 'components/Icons/Circle'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import React, { useRef } from 'react'
 
 export const PinModal = () => {
@@ -16,11 +16,11 @@ export const PinModal = () => {
 
   return (
     <>
-      <ModalHeader>Enter Your Pin</ModalHeader>
+      <ModalHeader>
+        <Text translation={'walletProvider.keepKey.header'} />
+      </ModalHeader>
       <ModalBody>
-        <RawText color='gray.500'>
-          Use PIN layout shown on your device to find the location to press on this pin pad.
-        </RawText>
+        <Text color='gray.500' translation={'walletProvider.keepKey.body'} />
         <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
           {pinNumbers.map(number => (
             <Button size='lg' p={8} onClick={() => handlePinPress(number)}>
@@ -30,7 +30,7 @@ export const PinModal = () => {
         </SimpleGrid>
         <Input type='password' ref={pinFieldRef} size='lg' variant='filled' mb={6} />
         <Button isFullWidth size='lg' colorScheme='blue'>
-          Unlock
+          <Text translation={'walletProvider.keepKey.button'} />
         </Button>
       </ModalBody>
     </>

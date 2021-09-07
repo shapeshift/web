@@ -1,18 +1,21 @@
 {
-  "name": "asset-service",
+  "name": "@shapeshiftoss/asset-service",
   "version": "0.0.1",
-  "description": "> TODO: description",
+  "description": "Service to return supported asset details",
   "homepage": "",
   "license": "MIT",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/shapeshift/lib"
   },
   "scripts": {
     "build": "yarn clean && tsc --project tsconfig.build.json",
-    "generate": "node ./dist/GenerateAssetData.js",
+    "generate": "node ./dist/generateAssetData/GenerateAssetData.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "jest test"

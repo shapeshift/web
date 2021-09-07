@@ -29,15 +29,13 @@ export function AppProviders({ children }: ProvidersProps) {
         <ColorModeScript />
         <BrowserRouter>
           <I18n locale={locale} messages={messages}>
-            <ModalProvider>
-              <AssetProvider>
-                <WalletProvider>
-                  <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                    {children}
-                  </ChainAdaptersProvider>
-                </WalletProvider>
-              </AssetProvider>
-            </ModalProvider>
+            <AssetProvider>
+              <WalletProvider>
+                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                  <ModalProvider>{children}</ModalProvider>
+                </ChainAdaptersProvider>
+              </WalletProvider>
+            </AssetProvider>
           </I18n>
         </BrowserRouter>
       </ChakraProvider>

@@ -17,13 +17,12 @@ import { SUPPORTED_WALLETS } from './config'
 import { NativePasswordRequired } from './NativeWallet/NativePasswordRequired'
 import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
-import { WalletViewProps } from './WalletViewsRouter'
 
-export const WalletViewsSwitch = (props: WalletViewProps) => {
+export const WalletViewsSwitch = () => {
   const history = useHistory()
   const location = useLocation()
   const match = useRouteMatch('/')
-  const { dispatch } = useWallet()
+  const { state, dispatch, connect } = useWallet()
 
   const onClose = () => {
     history.replace('/')
@@ -35,20 +34,21 @@ export const WalletViewsSwitch = (props: WalletViewProps) => {
   }
 
   useEffect(() => {
-    if (props.routePath) {
-      history.push(props.routePath as string)
+    if (state?.initalRoute) {
+      history.push(state.initalRoute)
     }
-  }, [history, props.routePath])
+  }, [history, state?.initalRoute])
 
   return (
     <>
       <NativePasswordRequired
         onConnect={(wallet: NativeHDWallet) => {
-          dispatch({ type: WalletActions.SET_WALLET, payload: wallet })
+          const { name, icon } = SUPPORTED_WALLETS['native']
+          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }}
       />
-      <Modal isOpen={props.modalOpen} onClose={onClose} isCentered>
+      <Modal isOpen={state.modal} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
@@ -68,21 +68,20 @@ export const WalletViewsSwitch = (props: WalletViewProps) => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
-                {props.type &&
-                  SUPPORTED_WALLETS[props.type].routes.map((route, index) => {
+                {state.type &&
+                  SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
                     const Component = route.component
                     return !Component ? null : (
                       <Route
                         exact
                         key={index}
                         path={route.path}
-                        render={routeProps => <Component {...props} {...routeProps} />}
-                        {...props}
+                        render={routeProps => <Component {...routeProps} />}
                       />
                     )
                   })}
 
-                <Route {...props} children={() => <SelectModal connect={props.connect} />} />
+                <Route children={() => <SelectModal connect={connect} />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

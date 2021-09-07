@@ -69,15 +69,13 @@ describe('useNativePasswordRequired', () => {
         }
       })
 
-      expect(on).toBeCalledTimes(2)
-
       act(() => {
         result.current.onSubmit({ password: '12341234' })
       })
 
       await waitFor(() => expect(loadDevice).toBeCalled())
 
-      await waitFor(() => expect(on).toBeCalledTimes(4))
+      await waitFor(() => expect(on).toBeCalledTimes(2))
     })
 
     it('sets error if it fails', async () => {

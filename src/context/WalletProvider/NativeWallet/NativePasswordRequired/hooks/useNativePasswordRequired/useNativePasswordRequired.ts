@@ -50,7 +50,7 @@ export const useNativePasswordRequired = ({
   }
 
   useEffect(() => {
-    if (state.keyring) {
+    if (state.keyring && wallet) {
       state.keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], onOpen)
       state.keyring.on(['Native', '*', NativeEvents.READY], () => {
         clearErrors()

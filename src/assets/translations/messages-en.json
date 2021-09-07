@@ -45,6 +45,8 @@
   },
   "modals": {
     "send": {
+      "getBalanceError": "Error getting wallet balances",
+      "broadcastingTransaction": "Broadcasting Transaction",
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",

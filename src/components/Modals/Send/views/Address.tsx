@@ -24,8 +24,8 @@ import { AddressInput } from '../AddressInput/AddressInput'
 import { SendRoutes } from '../Send'
 
 export const Address = () => {
-  const translate = useTranslate()
   const history = useHistory()
+  const translate = useTranslate()
   const {
     formState: { errors }
   } = useFormContext()
@@ -34,7 +34,7 @@ export const Address = () => {
   const adapter = chainAdapters.byChain(ChainIdentifier.Ethereum)
   const { send } = useModal()
 
-  const onNext = () => history.push(SendRoutes.Details)
+  const handleNext = () => history.push(SendRoutes.Details)
 
   const addressError = get(errors, 'address.message', null)
 
@@ -81,7 +81,7 @@ export const Address = () => {
             isDisabled={!address}
             colorScheme={addressError ? 'red' : 'blue'}
             size='lg'
-            onClick={onNext}
+            onClick={handleNext}
           >
             <Text translation={addressError || 'common.next'} />
           </Button>

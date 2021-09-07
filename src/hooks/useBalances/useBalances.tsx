@@ -4,17 +4,19 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 type UseBalancesReturnType = {
-  loading: boolean
   balances: Record<string, BalanceResponse>
+  error?: Error
+  loading: boolean
 }
 
 export const useBalances = (): UseBalancesReturnType => {
+  const [balances, setBalances] = useState<Record<string, BalanceResponse>>({})
+  const [error, setError] = useState<Error>()
+  const [loading, setLoading] = useState<boolean>(false)
+  const chainAdapter = useChainAdapters()
   const {
     state: { wallet }
   } = useWallet()
-  const [loading, setLoading] = useState<boolean>(false)
-  const chainAdapter = useChainAdapters()
-  const [balances, setBalances] = useState<Record<string, BalanceResponse>>({})
 
   const getBalances = useCallback(async () => {
     if (wallet) {
@@ -39,12 +41,14 @@ export const useBalances = (): UseBalancesReturnType => {
         .then((balances: Record<string, BalanceResponse> | undefined) => {
           balances && setBalances(balances)
         })
+        .catch(setError)
         .finally(() => setLoading(false))
     }
   }, [wallet, getBalances])
 
   return {
-    loading,
-    balances
+    balances,
+    error,
+    loading
   }
 }

@@ -39,12 +39,12 @@ const feesOrder: FeeDataKey[] = [FeeDataKey.Slow, FeeDataKey.Average, FeeDataKey
 export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   const { control } = useFormContext()
   const { field } = useController({
-    name: 'fee',
+    name: 'feeType',
     control,
     rules: { required: true },
     defaultValue: 'average'
   })
-  const activeFee = useWatch({ name: 'fee' })
+  const activeFee = useWatch({ name: 'feeType' })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 

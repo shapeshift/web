@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
+import { ChainIdentifier, FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
@@ -18,17 +18,18 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
-import { QrCodeScanner } from './QrCodeScanner/QrCodeScanner'
 import { SendRoutes } from './Send'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
+import { QrCodeScanner } from './views/QrCodeScanner'
 
 // @TODO Determine if we should use symbol for display purposes or some other identifier for display
 type SendInput = {
   address: string
   asset: any
-  fee: string
+  feeType: FeeDataKey
+  estimatedFees: FeeData
   crypto: {
     amount: string
     symbol: string
@@ -59,7 +60,7 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
     defaultValues: {
       address: '',
       asset: initalAsset,
-      fee: 'average',
+      feeType: FeeDataKey.Average,
       crypto: {
         amount: '',
         symbol: initalAsset?.symbol
@@ -80,19 +81,22 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
-        const path = "m/44'/60'/0'/0/0" // TODO get from asset service
+        const path = "m/44'/60'/0'/0/0" // TODO (technojak) get path and asset precision from asset-service
         const adapter = chainAdapter.byChain(ChainIdentifier.Ethereum)
         const value = bnOrZero(data.crypto.amount)
-          .times(bnOrZero(10).exponentiatedBy(data.asset.decimals))
-          .toString()
-        const txToSign = await adapter.buildSendTransaction({
+          .times(bnOrZero(10).exponentiatedBy(data.asset.decimals || 18))
+          .toFixed(0)
+        const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
           erc20ContractAddress: data.asset.contractAddress,
           wallet,
-          path
+          path,
+          fee: data.estimatedFees[data.feeType].feeUnitPrice,
+          limit: data.estimatedFees[data.feeType].feeUnits
         })
         const signedTx = await adapter.signTransaction({ txToSign, wallet })
+        console.info('signedTx', signedTx)
         await adapter.broadcastTransaction(signedTx)
         send.close()
         toast({

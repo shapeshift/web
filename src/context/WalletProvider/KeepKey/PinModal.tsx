@@ -23,7 +23,7 @@ export const PinModal = () => {
         <Text color='gray.500' translation={'walletProvider.keepKey.body'} />
         <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
           {pinNumbers.map(number => (
-            <Button size='lg' p={8} onClick={() => handlePinPress(number)}>
+            <Button key={number} size='lg' p={8} onClick={() => handlePinPress(number)}>
               <CircleIcon boxSize={4} />
             </Button>
           ))}

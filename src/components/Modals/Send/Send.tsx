@@ -1,6 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { useRef } from 'react'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Form } from './Form'
@@ -21,8 +22,11 @@ export const entries = [
   SendRoutes.Select
 ]
 
-// explicitly type some props so they're not reflected as unknown
-export const SendModal: React.FC<{}> = () => {
+type SendModalProps = {
+  asset: AssetMarketData
+}
+
+export const SendModal = ({ asset }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -33,7 +37,10 @@ export const SendModal: React.FC<{}> = () => {
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
           <Switch>
-            <Route path='/' component={Form} />
+            <Route
+              path='/'
+              component={(props: RouteComponentProps) => <Form asset={asset} {...props} />}
+            />
           </Switch>
         </MemoryRouter>
       </ModalContent>

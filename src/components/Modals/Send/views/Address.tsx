@@ -32,7 +32,7 @@ export const Address = () => {
   const [address, asset] = useWatch({ name: ['address', 'asset'] })
   const chainAdapters = useChainAdapters()
   const adapter = chainAdapters.byChain(ChainIdentifier.Ethereum)
-  const modal = useModal()
+  const { send } = useModal()
 
   const onNext = () => history.push(SendRoutes.Details)
 
@@ -85,7 +85,7 @@ export const Address = () => {
           >
             <Text translation={addressError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => modal.close('send')}>
+          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

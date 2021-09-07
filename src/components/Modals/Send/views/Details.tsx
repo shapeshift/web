@@ -64,7 +64,7 @@ export const Details = () => {
     state: { wallet }
   } = useWallet()
   const chainAdapter = useChainAdapters()
-  const modal = useModal()
+  const { send } = useModal()
 
   const toggleCurrency = () => {
     setFieldName(fieldName === AmountFieldName.Fiat ? AmountFieldName.Crypto : AmountFieldName.Fiat)
@@ -278,7 +278,7 @@ export const Details = () => {
           >
             <Text translation={balanceError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => modal.close('send')}>
+          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

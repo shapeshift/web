@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
+import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -39,7 +40,11 @@ type SendInput = {
   transaction: unknown
 }
 
-export const Form = ({ asset }) => {
+type SendFormProps = {
+  asset: AssetMarketData
+}
+
+export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const toast = useToast()
@@ -53,11 +58,11 @@ export const Form = ({ asset }) => {
     mode: 'onChange',
     defaultValues: {
       address: '',
-      asset,
+      asset: initalAsset,
       fee: 'average',
       crypto: {
         amount: '',
-        symbol: asset?.symbol
+        symbol: initalAsset?.symbol
       },
       fiat: {
         amount: '',
@@ -78,7 +83,7 @@ export const Form = ({ asset }) => {
         const path = "m/44'/60'/0'/0/0" // TODO get from asset service
         const adapter = chainAdapter.byChain(ChainIdentifier.Ethereum)
         const value = bnOrZero(data.crypto.amount)
-          .times(bnOrZero(10).exponentiatedBy(asset.decimals))
+          .times(bnOrZero(10).exponentiatedBy(data.asset.decimals))
           .toString()
         const txToSign = await adapter.buildSendTransaction({
           to: data.address,

@@ -29,7 +29,11 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 type StoredWallets = Record<string, string>
 
-export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWallet) => void }) => {
+export const NativePasswordRequired = ({
+  onConnect
+}: {
+  onConnect: (wallet: NativeHDWallet) => void
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const [showPw, setShowPw] = useState<boolean>(false)
@@ -93,7 +97,16 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
         clearErrors()
         onClose()
         // safe to non-null assert here as the wallet as emitted a ready event
-        props.onConnect(wallet!)
+        onConnect(wallet!)
+      })
+    }
+    return () => {
+      state.keyring.off(NativeEvents.MNEMONIC_REQUIRED, onOpen)
+      state.keyring.off(NativeEvents.READY, () => {
+        clearErrors()
+        onClose()
+        // safe to non-null assert here as the wallet as emitted a ready event
+        onConnect(wallet!)
       })
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect

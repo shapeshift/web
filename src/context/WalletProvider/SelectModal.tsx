@@ -1,9 +1,9 @@
-import { Button, Image, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { RawText, Text } from 'components/Text'
+import { Button, ModalBody, ModalHeader, Stack, Text } from '@chakra-ui/react'
 
 import { SUPPORTED_WALLETS } from './config'
+import { IWalletContext } from './WalletProvider'
 
-export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise<void> }) => {
+export const SelectModal = ({ connect }: { connect: IWalletContext['connect'] }) => {
   return (
     <>
       <ModalHeader>
@@ -14,23 +14,22 @@ export const SelectModal = ({ connect }: { connect: (adapter: string) => Promise
         <Stack mb={6}>
           {Object.keys(SUPPORTED_WALLETS).map(key => {
             const option = SUPPORTED_WALLETS[key]
+            const Icon = option.icon
             return (
-              <>
-                <Button
-                  variant='ghost-filled'
-                  colorScheme='blue'
-                  key={key}
-                  w='full'
-                  h='auto'
-                  px={6}
-                  py={4}
-                  justifyContent='space-between'
-                  onClick={() => connect(key)}
-                >
-                  <RawText fontWeight='semibold'>{option.name} </RawText>
-                  <Image maxH={10} maxW={20} src={option.icon} />
-                </Button>
-              </>
+              <Button
+                variant='ghost-filled'
+                colorScheme='blue'
+                key={key}
+                w='full'
+                h='auto'
+                px={6}
+                py={4}
+                justifyContent='space-between'
+                onClick={() => connect(key)}
+              >
+                <Text fontWeight='semibold'>{option.name}</Text>
+                <Icon height='auto' w='45px' />
+              </Button>
             )
           })}
         </Stack>

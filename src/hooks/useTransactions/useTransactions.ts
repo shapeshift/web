@@ -47,14 +47,14 @@ const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTr
 }
 
 export const useTransactions = ({
-  chain,
-  contractAddress,
-  symbol
+  chain = '',
+  contractAddress = '',
+  symbol = ''
 }: {
-  chain: string | undefined
-  contractAddress: string | undefined
-  symbol: string | undefined
-}): UseTransactionsReturnType => {
+  chain?: string | undefined
+  contractAddress?: string | undefined
+  symbol?: string | undefined
+} = {}): UseTransactionsReturnType => {
   const [loading, setLoading] = useState<boolean>(false)
   const [txHistory, setTxHistory] = useState<Record<string, FormatTransactionType[]>>({})
   const {

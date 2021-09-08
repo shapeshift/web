@@ -14,7 +14,7 @@ import {
   ModalHeader,
   ModalOverlay
 } from '@chakra-ui/react'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
@@ -38,16 +38,19 @@ export const NativePasswordRequired = () => {
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent>
-        <Flex justifyContent='space-between' alignItems='center' position='relative'>
+        <Flex justifyContent='spacebetween' alignItems='center' position='relative'>
           <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         </Flex>
-        <ModalHeader>Enter your password</ModalHeader>
+        <ModalHeader>
+          <Text translation={'walletProvider.shapeShift.nativePassReq.header'} />
+        </ModalHeader>
         <ModalBody>
-          <RawText mb={6} color='gray.500'>
-            Enter a password to encrypt your wallet. In order to securely store your keys we will
-            encrypt them, choose a string password you can remember
-          </RawText>
-          <form onSubmit={() => handleSubmit(onSubmit)}>
+          <Text
+            mb={6}
+            color='gray.500'
+            translation={'walletProvider.shapeShift.nativePassReq.body'}
+          />
+          <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={errors.password} mb={6}>
               <InputGroup size='lg' variant='filled'>
                 <Input
@@ -71,8 +74,15 @@ export const NativePasswordRequired = () => {
               </InputGroup>
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
-            <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
-              Next
+            <Button
+              colorScheme='blue'
+              size='lg'
+              isFullWidth
+              type='submit'
+              isLoading={isSubmitting}
+              mb={6}
+            >
+              <Text translation={'walletProvider.shapeShift.nativePassReq.button'} />
             </Button>
           </form>
         </ModalBody>

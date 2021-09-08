@@ -1,6 +1,7 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { act, renderHook } from '@testing-library/react-hooks'
+import { TestProviders } from 'jest/TestProviders'
 
 import { SUPPORTED_WALLETS } from './config'
 import { useWallet, WalletActions, WalletProvider } from './WalletProvider'
@@ -20,7 +21,11 @@ const setup = async () => {
   WebUSBKeepKeyAdapter.useKeyring.mockImplementation(() => ({
     initialize: jest.fn(() => Promise.resolve())
   }))
-  const wrapper: React.FC = ({ children }) => <WalletProvider>{children}</WalletProvider>
+  const wrapper: React.FC = ({ children }) => (
+    <TestProviders>
+      <WalletProvider>{children}</WalletProvider>
+    </TestProviders>
+  )
   const hookResult = renderHook(() => useWallet(), { wrapper })
   // Since there is a dispatch doing async state changes
   // in a useEffect on mount we must wait for that state

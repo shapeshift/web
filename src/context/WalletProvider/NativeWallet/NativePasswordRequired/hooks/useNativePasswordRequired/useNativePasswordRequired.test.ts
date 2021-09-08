@@ -71,13 +71,16 @@ describe('useNativePasswordRequired', () => {
         }
       })
 
+      // on is initially set up to make sure it responds to wallet changes
+      await waitFor(() => expect(on).toBeCalledTimes(2))
+
       act(() => {
         result.current.onSubmit({ password: '12341234' })
       })
 
       await waitFor(() => expect(loadDevice).toBeCalled())
 
-      await waitFor(() => expect(on).toBeCalledTimes(2))
+      await waitFor(() => expect(on).toBeCalledTimes(4))
     })
 
     it('removes keyring listeners on unmount', async () => {

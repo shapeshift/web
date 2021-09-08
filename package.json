@@ -28,6 +28,7 @@
     "bip39": "^3.0.4",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
+    "envalid": "^7.2.1",
     "framer-motion": "^4",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

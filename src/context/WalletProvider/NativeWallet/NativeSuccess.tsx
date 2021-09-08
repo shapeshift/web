@@ -15,7 +15,7 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const { state, dispatch } = useWallet()
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       if (location.state.encryptedWallet?.encryptedWallet && state.adapters?.native) {
         try {
           let mnemonic = await location.state.encryptedWallet.decrypt()
@@ -30,7 +30,10 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
           })
           setIsSuccessful(true)
           const { name, icon } = SUPPORTED_WALLETS['native']
-          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name, icon, deviceId: location.state.encryptedWallet.deviceId }
+          })
         } catch (error) {
           console.warn('Failed to load device', error)
           setIsSuccessful(false)

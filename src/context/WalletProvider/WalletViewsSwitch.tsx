@@ -44,7 +44,11 @@ export const WalletViewsSwitch = () => {
       <NativePasswordRequired
         onConnect={(wallet: NativeHDWallet) => {
           const { name, icon } = SUPPORTED_WALLETS['native']
-          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            // deviceId is an empty string because it will be set onSubmit of the password form.
+            payload: { wallet, name, icon, deviceId: '' }
+          })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }}
       />

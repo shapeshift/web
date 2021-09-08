@@ -27,6 +27,8 @@ import { useEffect } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
+import { SUPPORTED_WALLETS } from '../config'
+
 type StoredWallets = Record<string, string>
 
 export const NativePasswordRequired = ({
@@ -50,18 +52,20 @@ export const NativePasswordRequired = ({
         // @TODO: Replace this encryption with a most robust method
         const encryptedWallet = await getEncryptedWallet(values.password, encryptedWalletString)
         const maybeWallet: NativeHDWallet | null = state.keyring.get(deviceId)
-        dispatch({
-          type: WalletActions.SET_WALLET_INFO,
-          payload: {
-            name: 'test',
-            icon: 'icon',
-            deviceId
-          }
-        })
         if (maybeWallet) {
           maybeWallet.loadDevice({
             mnemonic: await encryptedWallet.decrypt(),
             deviceId: encryptedWallet.deviceId
+          })
+          const { name, icon } = SUPPORTED_WALLETS['native']
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet: maybeWallet,
+              name,
+              icon,
+              deviceId
+            }
           })
           setWallet(maybeWallet)
         }

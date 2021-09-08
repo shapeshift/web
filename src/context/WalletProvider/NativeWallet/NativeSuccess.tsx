@@ -1,6 +1,6 @@
 import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useEffect, useState } from 'react'
@@ -15,7 +15,7 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const { state, dispatch } = useWallet()
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       if (location.state.encryptedWallet?.encryptedWallet && state.adapters?.native) {
         try {
           let mnemonic = await location.state.encryptedWallet.decrypt()

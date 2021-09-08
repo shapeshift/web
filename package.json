@@ -58,10 +58,22 @@
     "dev": "react-scripts start",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
-    "test": "react-scripts test --coverage"
+    "test": "react-scripts test --coverage",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
   },
   "browserslist": {
     "production": [
@@ -76,6 +88,13 @@
     ]
   },
   "devDependencies": {
+    "@snek-at/storybook-addon-chakra-ui": "^1.0.0-beta.1",
+    "@storybook/addon-actions": "^6.3.7",
+    "@storybook/addon-essentials": "^6.3.7",
+    "@storybook/addon-links": "^6.3.7",
+    "@storybook/node-logger": "^6.3.7",
+    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/react": "^6.3.7",
     "@testing-library/jest-dom": "^5.9.0",
     "@testing-library/react": "^12.0.0",
     "@testing-library/react-hooks": "^7.0.1",
@@ -103,7 +122,11 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.3.2",
+    "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",
     "typescript": "^4.1.6"
+  },
+  "resolutions": {
+    "babel-loader": "8.1.0"
   }
 }

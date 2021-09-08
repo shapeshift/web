@@ -1,6 +1,6 @@
 import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 
 export const Rewards = () => {

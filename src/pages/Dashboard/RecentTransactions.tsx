@@ -1,4 +1,4 @@
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { Transactions } from 'components/Transactions/Transactions'
 

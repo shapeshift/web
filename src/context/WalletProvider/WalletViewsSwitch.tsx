@@ -7,14 +7,13 @@ import {
   ModalContent,
   ModalOverlay
 } from '@chakra-ui/react'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { SlideTransition } from 'components/SlideTransition'
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 
 import { SUPPORTED_WALLETS } from './config'
-import { NativePasswordRequired } from './NativeWallet/NativePasswordRequired'
+import { NativePasswordRequired } from './NativeWallet/NativePasswordRequired/NativePasswordRequired'
 import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
 
@@ -41,13 +40,7 @@ export const WalletViewsSwitch = () => {
 
   return (
     <>
-      <NativePasswordRequired
-        onConnect={(wallet: NativeHDWallet) => {
-          const { name, icon } = SUPPORTED_WALLETS['native']
-          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        }}
-      />
+      <NativePasswordRequired />
       <Modal isOpen={state.modal} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>

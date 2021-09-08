@@ -23,7 +23,8 @@ const setup = ({
   walletState = {
     keyring: {
       get: jest.fn(() => ({ loadDevice: jest.fn() } as unknown as NativeHDWallet)),
-      on: jest.fn()
+      on: jest.fn(),
+      off: jest.fn()
     }
   }
 } = {}) => {
@@ -64,7 +65,8 @@ describe('useNativePasswordRequired', () => {
         walletState: {
           keyring: {
             get: jest.fn(() => ({ loadDevice } as unknown as NativeHDWallet)),
-            on
+            on,
+            off: jest.fn()
           }
         }
       })
@@ -76,6 +78,37 @@ describe('useNativePasswordRequired', () => {
       await waitFor(() => expect(loadDevice).toBeCalled())
 
       await waitFor(() => expect(on).toBeCalledTimes(2))
+    })
+
+    it('removes keyring listeners on unmount', async () => {
+      const loadDevice = jest.fn()
+      const on = jest.fn()
+      const off = jest.fn()
+      //@ts-ignore
+      getEncryptedWallet.mockImplementation(() =>
+        Promise.resolve({
+          deviceId: 'deviceId',
+          decrypt: jest.fn(() => 'mnemonic')
+        })
+      )
+      const { result, waitFor, unmount } = setup({
+        localStorageWallet: { deviceId: 'wallet' },
+        walletState: {
+          keyring: {
+            get: jest.fn(() => ({ loadDevice } as unknown as NativeHDWallet)),
+            on,
+            off
+          }
+        }
+      })
+
+      act(() => {
+        result.current.onSubmit({ password: '12341234' })
+      })
+
+      await waitFor(() => expect(on).toBeCalledTimes(2))
+      unmount()
+      await waitFor(() => expect(off).toBeCalled())
     })
 
     it('sets error if it fails', async () => {

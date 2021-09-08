@@ -1,5 +1,6 @@
 import { useDisclosure } from '@chakra-ui/react'
 import { NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
@@ -22,6 +23,12 @@ export const useNativePasswordRequired = ({
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const { state, dispatch } = useWallet()
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
+
+  const onConnect = (wallet: NativeHDWallet) => {
+    const { name, icon } = SUPPORTED_WALLETS['native']
+    dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+  }
 
   const onSubmit = async (values: FieldValues) => {
     // @TODO: Grab the wallet that emitted the event by deviceId
@@ -55,9 +62,17 @@ export const useNativePasswordRequired = ({
       state.keyring.on(['Native', '*', NativeEvents.READY], () => {
         clearErrors()
         onClose()
-
-        dispatch({ type: WalletActions.SET_WALLET, payload: wallet })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        // safe to non-null assert here as the wallet as emitted a ready event
+        onConnect(wallet!)
+      })
+    }
+    return () => {
+      state.keyring.off(NativeEvents.MNEMONIC_REQUIRED, onOpen)
+      state.keyring.off(NativeEvents.READY, () => {
+        clearErrors()
+        onClose()
+        // safe to non-null assert here as the wallet as emitted a ready event
+        onConnect(wallet!)
       })
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect

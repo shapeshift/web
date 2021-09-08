@@ -28,6 +28,7 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
   const blockHeight = 13043667
   const confirmations = 111311
   const value = '100000000000000'
+  const chain = 'ETH'
   const date = getDate(timestamp)
   const dateFromNow = dayjs(date).fromNow()
 
@@ -79,7 +80,8 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
         timestamp,
         to,
         txid,
-        value
+        value,
+        chain
       }
     })
   }

@@ -24,7 +24,7 @@ describe('useStateIfMounted hook tied to component', () => {
         act(() => {
           result.current[1](1)
         }),
-      5000
+      0
     )
 
     expect(result.current[0]).toBe(0)

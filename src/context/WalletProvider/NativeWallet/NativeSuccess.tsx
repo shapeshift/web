@@ -15,7 +15,7 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const { state, dispatch } = useWallet()
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       if (location.state.encryptedWallet?.encryptedWallet && state.adapters?.native) {
         try {
           let mnemonic = await location.state.encryptedWallet.decrypt()

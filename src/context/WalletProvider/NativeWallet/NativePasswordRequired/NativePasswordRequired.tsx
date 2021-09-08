@@ -12,7 +12,8 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalOverlay
+  ModalOverlay,
+  useDisclosure
 } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 import { useForm } from 'react-hook-form'
@@ -21,10 +22,9 @@ import { useTranslate } from 'react-polyglot'
 
 import { useInitializeWalletFromStorage } from './hooks/useInitializeWalletFromStorage/useInitializeWalletFromStorage'
 import { useNativePasswordRequired } from './hooks/useNativePasswordRequired/useNativePasswordRequired'
-import { useStateToggle } from './hooks/useStateToggle/useStateToggle'
 
 export const NativePasswordRequired = () => {
-  const [showPw, toggleShowPw] = useStateToggle()
+  const { isOpen: showPw, onToggle: toggleShowPw } = useDisclosure()
   const translate = useTranslate()
   const {
     handleSubmit,

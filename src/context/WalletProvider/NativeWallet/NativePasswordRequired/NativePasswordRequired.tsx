@@ -17,6 +17,7 @@ import {
 import { Text } from 'components/Text'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import { useInitializeWalletFromStorage } from './hooks/useInitializeWalletFromStorage/useInitializeWalletFromStorage'
 import { useNativePasswordRequired } from './hooks/useNativePasswordRequired/useNativePasswordRequired'
@@ -24,6 +25,7 @@ import { useStateToggle } from './hooks/useStateToggle/useStateToggle'
 
 export const NativePasswordRequired = () => {
   const [showPw, toggleShowPw] = useStateToggle()
+  const translate = useTranslate()
   const {
     handleSubmit,
     register,
@@ -55,12 +57,15 @@ export const NativePasswordRequired = () => {
               <InputGroup size='lg' variant='filled'>
                 <Input
                   {...register('password', {
-                    required: 'This is required',
-                    minLength: { value: 8, message: 'Minimum length should be 8' }
+                    required: translate('walletProvider.shapeShift.nativePassReq.required'),
+                    minLength: {
+                      value: 8,
+                      message: translate('walletProvider.shapeShift.nativePassReq.minLength')
+                    }
                   })}
                   pr='4.5rem'
                   type={showPw ? 'text' : 'password'}
-                  placeholder='Enter password'
+                  placeholder={translate('walletProvider.shapeShift.nativePassReq.placeholder')}
                 />
                 <InputRightElement>
                   <IconButton

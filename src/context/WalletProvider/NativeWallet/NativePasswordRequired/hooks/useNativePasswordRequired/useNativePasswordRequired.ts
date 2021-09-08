@@ -6,7 +6,7 @@ import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
 import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useEffect } from 'react'
 import { FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form'
 
@@ -23,12 +23,6 @@ export const useNativePasswordRequired = ({
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const { state, dispatch } = useWallet()
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
-
-  const onConnect = (wallet: NativeHDWallet) => {
-    const { name, icon } = SUPPORTED_WALLETS['native']
-    dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
-    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-  }
 
   const onSubmit = async (values: FieldValues) => {
     // @TODO: Grab the wallet that emitted the event by deviceId
@@ -56,24 +50,23 @@ export const useNativePasswordRequired = ({
     }
   }
 
+  const readyCallback = useCallback(() => {
+    clearErrors()
+    onClose()
+    // safe to non-null assert here as the wallet as emitted a ready event
+    const { name, icon } = SUPPORTED_WALLETS['native']
+    dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+  }, [clearErrors, dispatch, onClose, wallet])
+
   useEffect(() => {
     if (state.keyring) {
       state.keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], onOpen)
-      state.keyring.on(['Native', '*', NativeEvents.READY], () => {
-        clearErrors()
-        onClose()
-        // safe to non-null assert here as the wallet as emitted a ready event
-        onConnect(wallet!)
-      })
+      state.keyring.on(['Native', '*', NativeEvents.READY], readyCallback)
     }
     return () => {
       state.keyring.off(NativeEvents.MNEMONIC_REQUIRED, onOpen)
-      state.keyring.off(NativeEvents.READY, () => {
-        clearErrors()
-        onClose()
-        // safe to non-null assert here as the wallet as emitted a ready event
-        onConnect(wallet!)
-      })
+      state.keyring.off(NativeEvents.READY, readyCallback)
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect
     /* eslint-disable-next-line react-hooks/exhaustive-deps */

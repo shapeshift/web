@@ -16,7 +16,6 @@ export const useInitializeWalletFromStorage = () => {
         try {
           const device = await (state.adapters?.native as NativeAdapter).pairDevice(deviceId)
           await device?.initialize()
-          console.info('Found native wallet', deviceId)
         } catch (e) {
           console.error('Error pairing native wallet', deviceId)
         }

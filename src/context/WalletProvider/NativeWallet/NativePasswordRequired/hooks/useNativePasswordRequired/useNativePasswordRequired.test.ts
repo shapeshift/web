@@ -28,7 +28,7 @@ const setup = ({
     }
   }
 } = {}) => {
-  //@ts-ignore
+  // @ts-ignore
   useWallet.mockImplementation(() => ({ state: walletState, dispatch: () => {} }))
   //@ts-ignore
   useLocalStorage.mockImplementation(() => [localStorageWallet])

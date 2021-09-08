@@ -1,6 +1,6 @@
 {
   "extends": ["react-app", "react-app/jest", "plugin:jsx-a11y/recommended", "prettier"],
-  "plugins": ["jest", "prettier", "simple-import-sort"],
+  "plugins": ["jest", "prettier"],
   "env": {
     "browser": true,
     "jest/globals": true
@@ -30,8 +30,6 @@
       }
     ],
     "default-case": "error",
-    "simple-import-sort/exports": "error",
-    "simple-import-sort/imports": "error",
     "import/no-default-export": "error"
   }
 }

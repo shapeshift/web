@@ -1,4 +1,4 @@
-import { SwapCurrency } from '@shapeshiftoss/market-service'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { AnimatePresence } from 'framer-motion'
 import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'
@@ -13,11 +13,11 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
   const { setValue } = useFormContext()
-  const handleSellClick = (asset: SwapCurrency) => {
+  const handleSellClick = (asset: Asset) => {
     setValue('sellAsset.currency', asset)
     history.push('/trade/input')
   }
-  const handleBuyClick = (asset: SwapCurrency) => {
+  const handleBuyClick = (asset: Asset) => {
     setValue('buyAsset.currency', asset)
     history.push('/trade/input')
   }

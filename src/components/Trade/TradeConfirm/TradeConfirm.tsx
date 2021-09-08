@@ -29,14 +29,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           </SimpleGrid>
           <AssetToAsset
             buyAsset={{
-              symbol: buyAsset?.currency?.symbol,
+              symbol: buyAsset?.symbol,
               amount: buyAsset.amount,
-              icon: buyAsset?.currency?.logoURI
+              icon: buyAsset?.icon
             }}
             sellAsset={{
-              symbol: sellAsset?.currency?.symbol,
+              symbol: sellAsset?.symbol,
               amount: sellAsset.amount,
-              icon: sellAsset?.currency?.logoURI
+              icon: sellAsset?.icon
             }}
             mt={6}
           />

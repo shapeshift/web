@@ -1,8 +1,8 @@
-import dayjs from 'dayjs'
 import { renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import dayjs from 'dayjs'
 
-import { useTransactions, getDate } from './useTransactions'
+import { getDate, useTransactions } from './useTransactions'
 
 jest.mock('context/WalletProvider/WalletProvider', () => ({
   useWallet: () => ({ state: { wallet: {}, walletInfo: { deviceId: 'test' } } })
@@ -65,7 +65,9 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
   ]
 
   // If filteredSymbol is passed in, filter any other symbols out when creating the payload
-  const filteredPayloadBySymbol = !filteredSymbol ? symbols : symbols.filter(symbol => symbol === filteredSymbol)
+  const filteredPayloadBySymbol = !filteredSymbol
+    ? symbols
+    : symbols.filter(symbol => symbol === filteredSymbol)
 
   const payload = {
     txs: filteredPayloadBySymbol.map(symbol => {

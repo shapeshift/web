@@ -3,8 +3,9 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { fromBaseUnit } from 'lib/math'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 dayjs.extend(relativeTime)
 
 export type FormatTransactionType = Transaction & {
@@ -55,8 +56,8 @@ export const useTransactions = ({
   contractAddress?: string | undefined
   symbol?: string | undefined
 } = {}): UseTransactionsReturnType => {
-  const [loading, setLoading] = useState<boolean>(false)
-  const [txHistory, setTxHistory] = useState<Record<string, FormatTransactionType[]>>({})
+  const [loading, setLoading] = useStateIfMounted<boolean>(false)
+  const [txHistory, setTxHistory] = useStateIfMounted<Record<string, FormatTransactionType[]>>({})
   const {
     state: { wallet, walletInfo }
   } = useWallet()

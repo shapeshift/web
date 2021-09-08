@@ -37,8 +37,7 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
       <Flex alignItems='center' flex={1} justifyContent='space-between'>
         <Flex alignItems='center'>
           <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
-            <ArrowDownIcon /> {/* receive */}
-            <ArrowUpIcon /> {/* send */}
+            {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
           <Text translation={sentTx ? 'transactionRow.sent' : 'transactionRow.received'} />
           <RawText ml={2}>{`${tx.amount} ${tx.symbol}`}</RawText>
@@ -68,8 +67,7 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
             <Row.Label>
               <Text translation='transactionRow.fee' />
             </Row.Label>
-            {/* TODO: make fee coin symbol denomination dynamic */}
-            <Row.Value>{`${tx.fee} ETH`}</Row.Value>
+            <Row.Value>{`${tx.fee} ${tx.chain}`}</Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>

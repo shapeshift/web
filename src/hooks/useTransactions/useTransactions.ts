@@ -13,11 +13,18 @@ export type FormatTransactionType = Transaction & {
   amount: string
   date: string
   dateFromNow: string
+  chain: string
 }
 
 export type UseTransactionsReturnType = {
   loading: boolean | undefined
   txHistory: Record<string, FormatTransactionType[]> | undefined
+}
+
+export type UseTransactionsPropType = {
+  chain?: string | undefined
+  contractAddress?: string | undefined
+  symbol?: string | undefined
 }
 
 export enum TxTypeEnum {
@@ -42,7 +49,8 @@ const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTr
       amount: fromBaseUnit(tx.value, 18 /** TODO: get precision from asset service **/),
       date,
       dateFromNow: dayjs(date).fromNow(),
-      fee: fromBaseUnit(tx.fee, 18)
+      fee: fromBaseUnit(tx.fee, 18),
+      chain: 'ETH' /* TODO: get chian from asset service */
     }
   })
 }
@@ -51,11 +59,7 @@ export const useTransactions = ({
   chain = '',
   contractAddress = '',
   symbol = ''
-}: {
-  chain?: string | undefined
-  contractAddress?: string | undefined
-  symbol?: string | undefined
-} = {}): UseTransactionsReturnType => {
+}: UseTransactionsPropType = {}): UseTransactionsReturnType => {
   const [loading, setLoading] = useStateIfMounted<boolean | undefined>(false)
   const [txHistory, setTxHistory] = useStateIfMounted<
     Record<string, FormatTransactionType[]> | undefined

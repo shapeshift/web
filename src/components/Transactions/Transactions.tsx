@@ -1,18 +1,14 @@
 import { Center, Stack } from '@chakra-ui/react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { FormatTransactionType, useTransactions } from 'hooks/useTransactions/useTransactions'
+import {
+  FormatTransactionType,
+  useTransactions,
+  UseTransactionsPropType
+} from 'hooks/useTransactions/useTransactions'
 
 import { TransactionRow } from './TransactionRow'
 
-export const Transactions = ({
-  chain,
-  contractAddress,
-  symbol
-}: {
-  chain?: string
-  contractAddress?: string
-  symbol?: string
-}) => {
+export const Transactions = ({ chain, contractAddress, symbol }: UseTransactionsPropType = {}) => {
   const { loading, txHistory } = useTransactions({ chain, contractAddress, symbol })
   const txs = txHistory?.txs ?? []
 

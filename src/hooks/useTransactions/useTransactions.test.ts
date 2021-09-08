@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import dayjs from 'dayjs'
 
-import { getDate, useTransactions } from './useTransactions'
+import { getDate, useTransactions, UseTransactionsPropType } from './useTransactions'
 
 jest.mock('context/WalletProvider/WalletProvider', () => ({
   useWallet: () => ({ state: { wallet: {}, walletInfo: { deviceId: 'test' } } })
@@ -12,15 +12,7 @@ jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider', () => ({
   useChainAdapters: jest.fn()
 }))
 
-function setup({
-  chain,
-  contractAddress,
-  symbol
-}: {
-  chain?: string
-  contractAddress?: string
-  symbol?: string
-} = {}) {
+function setup({ chain, contractAddress, symbol }: UseTransactionsPropType = {}) {
   return renderHook(() => useTransactions({ chain, contractAddress, symbol }))
 }
 

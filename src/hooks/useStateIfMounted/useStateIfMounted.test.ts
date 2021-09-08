@@ -45,7 +45,7 @@ describe('useStateIfMounted hook tied to component', () => {
         act(() => {
           setState(1)
         }),
-      1000
+      0
     )
 
     unmount()

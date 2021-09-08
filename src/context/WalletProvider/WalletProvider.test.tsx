@@ -43,23 +43,11 @@ describe('WalletProvider', () => {
       act(() => {
         result.current.dispatch({
           type: WalletActions.SET_WALLET,
-          payload: {} as unknown as HDWallet
+          payload: { wallet: {} as unknown as HDWallet, ...walletInfoPayload }
         })
       })
 
       expect(result.current.state.wallet).toBeTruthy()
-    })
-
-    it('can SET_WALLET_INFO', async () => {
-      const { result } = await setup()
-
-      expect(result.current.state.walletInfo).toBe(null)
-      act(() => {
-        result.current.dispatch({
-          type: WalletActions.SET_WALLET_INFO,
-          payload: walletInfoPayload
-        })
-      })
       expect(result.current.state.walletInfo).toEqual(walletInfoPayload)
     })
 
@@ -104,13 +92,12 @@ describe('WalletProvider', () => {
       act(() => {
         result.current.dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { disconnect: walletDisconnect } as unknown as HDWallet
+          payload: {
+            wallet: { disconnect: walletDisconnect } as unknown as HDWallet,
+            ...walletInfoPayload
+          }
         })
         result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        result.current.dispatch({
-          type: WalletActions.SET_WALLET_INFO,
-          payload: walletInfoPayload
-        })
       })
 
       expect(result.current.state.wallet).toBeTruthy()

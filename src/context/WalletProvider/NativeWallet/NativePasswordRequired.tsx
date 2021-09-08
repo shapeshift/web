@@ -16,7 +16,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { NativeAdapter, NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
@@ -29,7 +29,11 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 
 type StoredWallets = Record<string, string>
 
-export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWallet) => void }) => {
+export const NativePasswordRequired = ({
+  onConnect
+}: {
+  onConnect: (wallet: NativeHDWallet) => void
+}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const [showPw, setShowPw] = useState<boolean>(false)
@@ -93,7 +97,16 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
         clearErrors()
         onClose()
         // safe to non-null assert here as the wallet as emitted a ready event
-        props.onConnect(wallet!)
+        onConnect(wallet!)
+      })
+    }
+    return () => {
+      state.keyring.off(NativeEvents.MNEMONIC_REQUIRED, onOpen)
+      state.keyring.off(NativeEvents.READY, () => {
+        clearErrors()
+        onClose()
+        // safe to non-null assert here as the wallet as emitted a ready event
+        onConnect(wallet!)
       })
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect
@@ -107,12 +120,15 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
         <Flex justifyContent='space-between' alignItems='center' position='relative'>
           <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         </Flex>
-        <ModalHeader>Enter your password</ModalHeader>
+        <ModalHeader>
+          <Text translation={'walletProvider.shapeShift.nativePassReq.header'} />
+        </ModalHeader>
         <ModalBody>
-          <RawText mb={6} color='gray.500'>
-            Enter a password to encrypt your wallet. In order to securely store your keys we will
-            encrypt them, choose a string password you can remember
-          </RawText>
+          <Text
+            mb={6}
+            color='gray.500'
+            translation={'walletProvider.shapeShift.nativePassReq.body'}
+          />
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={errors.password} mb={6}>
               <InputGroup size='lg' variant='filled'>
@@ -138,7 +154,7 @@ export const NativePasswordRequired = (props: { onConnect: (wallet: NativeHDWall
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
             <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
-              Next
+              <Text translation={'walletProvider.shapeShift.nativePassReq.button'} />
             </Button>
           </form>
         </ModalBody>

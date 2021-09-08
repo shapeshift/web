@@ -16,8 +16,8 @@ export type FormatTransactionType = Transaction & {
 }
 
 export type UseTransactionsReturnType = {
-  loading: boolean
-  txHistory: Record<string, FormatTransactionType[]>
+  loading: boolean | undefined
+  txHistory: Record<string, FormatTransactionType[]> | undefined
 }
 
 export enum TxTypeEnum {
@@ -56,8 +56,10 @@ export const useTransactions = ({
   contractAddress?: string | undefined
   symbol?: string | undefined
 } = {}): UseTransactionsReturnType => {
-  const [loading, setLoading] = useStateIfMounted<boolean>(false)
-  const [txHistory, setTxHistory] = useStateIfMounted<Record<string, FormatTransactionType[]>>({})
+  const [loading, setLoading] = useStateIfMounted<boolean | undefined>(false)
+  const [txHistory, setTxHistory] = useStateIfMounted<
+    Record<string, FormatTransactionType[]> | undefined
+  >({})
   const {
     state: { wallet, walletInfo }
   } = useWallet()

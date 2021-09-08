@@ -14,7 +14,7 @@ export const Transactions = ({
   symbol?: string
 }) => {
   const { loading, txHistory } = useTransactions({ chain, contractAddress, symbol })
-  const txs = txHistory.txs ?? []
+  const txs = txHistory?.txs ?? []
 
   return loading ? (
     <Center width='full'>

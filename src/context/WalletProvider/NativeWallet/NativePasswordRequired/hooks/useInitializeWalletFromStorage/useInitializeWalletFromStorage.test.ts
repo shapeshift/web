@@ -13,25 +13,15 @@ jest.mock('hooks/useLocalStorage/useLocalStorage', () => ({
 }))
 
 const setup = ({ localStorageWallet = {}, walletState = {} } = {}) => {
-  //@ts-ignore
+  // @ts-ignore
   useWallet.mockImplementation(() => ({ state: walletState, dispatch: () => {} }))
-  //@ts-ignore
+  // @ts-ignore
   useLocalStorage.mockImplementation(() => [localStorageWallet])
 
   return renderHook(() => useInitializeWalletFromStorage())
 }
 
-const original = console.error
-
 describe('useInitializeWalletFromStorage', () => {
-  beforeEach(() => {
-    console.error = jest.fn()
-  })
-
-  afterEach(() => {
-    console.error = original
-  })
-
   it('initializes device', async () => {
     const initialize = jest.fn(() => Promise.resolve())
     const pairDevice = jest.fn(() => Promise.resolve({ initialize }))
@@ -47,6 +37,7 @@ describe('useInitializeWalletFromStorage', () => {
   })
 
   it('does not initialize device', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
     const pairDevice = jest.fn(() => Promise.reject())
 
     const { waitFor } = setup({
@@ -57,5 +48,6 @@ describe('useInitializeWalletFromStorage', () => {
     })
 
     await waitFor(() => expect(console.error).toBeCalled())
+    consoleError.mockRestore()
   })
 })

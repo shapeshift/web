@@ -58,7 +58,7 @@
     "dev": "react-scripts start",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
-    "test": "react-scripts test",
+    "test": "react-scripts test --coverage",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },

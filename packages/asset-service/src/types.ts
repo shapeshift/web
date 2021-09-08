@@ -1,5 +1,5 @@
 export type TokenAsset = {
-  displayName: string
+  name: string
   precision: number
   tokenId: string
   contractType: ContractTypes
@@ -14,7 +14,7 @@ export type BaseAsset = {
   chain: string
   network: NetworkTypes
   symbol: string
-  displayName: string
+  name: string
   precision: number
   slip44: number
   color: string
@@ -31,7 +31,7 @@ export type Asset = {
   chain: string
   network: NetworkTypes
   symbol: string
-  displayName: string
+  name: string
   precision: number
   color: string
   secondaryColor: string

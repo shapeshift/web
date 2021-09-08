@@ -53,7 +53,7 @@ describe('useNativePasswordRequired', () => {
     it('sets keyring events for wallet', async () => {
       const loadDevice = jest.fn()
       const on = jest.fn()
-      //@ts-ignore
+      // @ts-ignore
       getEncryptedWallet.mockImplementation(() =>
         Promise.resolve({
           deviceId: 'deviceId',
@@ -87,7 +87,7 @@ describe('useNativePasswordRequired', () => {
       const loadDevice = jest.fn()
       const on = jest.fn()
       const off = jest.fn()
-      //@ts-ignore
+      // @ts-ignore
       getEncryptedWallet.mockImplementation(() =>
         Promise.resolve({
           deviceId: 'deviceId',
@@ -115,7 +115,7 @@ describe('useNativePasswordRequired', () => {
     })
 
     it('sets error if it fails', async () => {
-      //@ts-ignore
+      // @ts-ignore
       getEncryptedWallet.mockImplementation(() => Promise.reject())
       const { result, waitFor, setError } = setup({
         localStorageWallet: { deviceId: 'wallet' }

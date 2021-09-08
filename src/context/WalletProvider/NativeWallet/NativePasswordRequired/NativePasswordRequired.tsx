@@ -69,7 +69,11 @@ export const NativePasswordRequired = () => {
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={!showPw ? 'Show password' : 'Hide password'}
+                    aria-label={
+                      !showPw
+                        ? translate('walletProvider.shapeShift.nativePassReq.showPassword')
+                        : translate('walletProvider.shapeShift.nativePassReq.hidePassword')
+                    }
                     h='1.75rem'
                     size='sm'
                     onClick={toggleShowPw}

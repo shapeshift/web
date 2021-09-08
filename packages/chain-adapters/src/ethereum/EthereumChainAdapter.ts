@@ -12,7 +12,7 @@ import {
   ValidAddressResultType
 } from '../api'
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
-import { PaginationParams } from '../types/PaginationParams.type'
+import { Params } from '../types/Params.type'
 import { ErrorHandler } from '../error/ErrorHandler'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { numberToHex } from 'web3-utils'
@@ -47,10 +47,10 @@ export class EthereumChainAdapter implements ChainAdapter {
 
   getTxHistory = async (
     address: string,
-    paginationParams?: PaginationParams
+    params?: Params
   ): Promise<TxHistoryResponse> => {
     try {
-      return this.provider.getTxHistory(address, paginationParams)
+      return this.provider.getTxHistory(address, params)
     } catch (err) {
       return ErrorHandler(err)
     }

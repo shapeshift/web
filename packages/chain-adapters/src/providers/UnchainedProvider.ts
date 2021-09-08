@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { PaginationParams } from '../types/PaginationParams.type'
+import { Params } from '../types/Params.type'
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
 import { TxHistoryResponse, BalanceResponse, BroadcastTxResponse, FeeEstimateInput } from '..'
 import https from 'https'
@@ -24,9 +24,9 @@ export class UnchainedProvider implements BlockchainProvider {
     return data
   }
 
-  async getTxHistory(address: string, paginationParams?: PaginationParams) {
+  async getTxHistory(address: string, params?: Params) {
     const { data } = await this.axios.get<TxHistoryResponse>(`/txs/${address}`, {
-      params: paginationParams
+      params: params
     })
     return data
   }

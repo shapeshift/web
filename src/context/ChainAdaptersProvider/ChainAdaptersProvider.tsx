@@ -17,12 +17,14 @@ export const ChainAdaptersProvider = ({
   const chainAdapterManager = useRef<ChainAdapterManager | null>(
     new ChainAdapterManager(unchainedUrls)
   )
+
   useEffect(() => {
     chainAdapterManager.current = new ChainAdapterManager(unchainedUrls)
     return () => {
       chainAdapterManager.current = null
     }
   }, [unchainedUrls])
+
   return (
     <ChainAdaptersContext.Provider value={chainAdapterManager.current}>
       {children}

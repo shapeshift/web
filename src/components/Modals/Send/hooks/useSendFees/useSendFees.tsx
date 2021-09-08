@@ -1,11 +1,11 @@
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getAssetData } from '@shapeshiftoss/market-service'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero } from 'lib/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-import { FeePrice } from '../views/Confirm'
+import { FeePrice } from '../../views/Confirm'
 
 export const useSendFees = () => {
   const [fees, setFees] = useState<FeePrice | null>(null)
@@ -42,7 +42,7 @@ export const useSendFees = () => {
     })()
     // We only want this effect to run on mount or when the estimatedFees in state change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estimatedFees, wallet])
+  }, [estimatedFees])
 
   return { fees }
 }

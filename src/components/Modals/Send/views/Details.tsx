@@ -20,7 +20,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 
-import { AmountFieldName, useSendDetails } from '../hooks/useSendDetails'
+import { AmountFieldName, useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendRoutes } from '../Send'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 

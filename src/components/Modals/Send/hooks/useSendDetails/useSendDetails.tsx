@@ -4,35 +4,21 @@ import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { getAssetData } from '@shapeshiftoss/market-service'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useBalances } from 'hooks/useBalances/useBalances'
-import { bnOrZero } from 'lib/bignumber'
+import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import get from 'lodash/get'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 
-import { SendRoutes } from '../Send'
+import { SendRoutes } from '../../Send'
+import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
 export enum AmountFieldName {
   Fiat = 'fiat.amount',
   Crypto = 'crypto.amount'
 }
-
-// TODO (technojak) this should be removed in favor of the asset-service. For now assume the fallback is eth
-const ETH_PRECISION = 18
-
-const flattenTokenBalances = (balances: any) =>
-  Object.keys(balances).reduce((acc: any, key) => {
-    const value = balances[key]
-    acc[key] = value
-    if (value.tokens) {
-      value.tokens.forEach((token: any) => {
-        acc[token.contract.toLowerCase()] = token
-      })
-    }
-    return acc
-  }, {})
 
 type UseSendDetailsReturnType = {
   amountFieldError: string
@@ -47,10 +33,12 @@ type UseSendDetailsReturnType = {
   validateFiatAmount(value: string): boolean | string
 }
 
+// TODO (technojak) this should be removed in favor of the asset-service. For now assume the fallback is eth
+const ETH_PRECISION = 18
+
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(AmountFieldName.Fiat)
   const [loading, setLoading] = useState<boolean>(false)
-
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
@@ -62,16 +50,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     formState: { errors }
   } = useFormContext()
   const [asset, address] = useWatch({ name: ['asset', 'address'] })
-
-  const { balances, error: balancesError, loading: balancesLoading } = useBalances()
-
+  const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
+  const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapter = useChainAdapters()
   const {
     state: { wallet }
   } = useWallet()
 
   useEffect(() => {
-    if (balancesError) {
+    if (balanceError) {
       toast({
         status: 'error',
         description: translate(`modals.send.getBalanceError`),
@@ -81,42 +68,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       })
       history.push(SendRoutes.Address)
     }
-  }, [balancesError, toast, history, translate])
+  }, [balanceError, toast, history, translate])
 
-  const cryptoError = get(errors, 'crypto.amount.message', null)
-  const fiatError = get(errors, 'fiat.amount.message', null)
-  const amountFieldError = cryptoError || fiatError
-
-  const toggleCurrency = () => {
-    if (amountFieldError) {
-      const clearErrorKey = fiatError ? AmountFieldName.Fiat : AmountFieldName.Crypto
-      const setErrorKey = fiatError ? AmountFieldName.Crypto : AmountFieldName.Fiat
-      clearErrors(clearErrorKey)
-      setError(setErrorKey, { message: 'common.insufficientFunds' })
-    }
-    setFieldName(fieldName === AmountFieldName.Fiat ? AmountFieldName.Crypto : AmountFieldName.Fiat)
-  }
-
-  /** When selecting new assets the network (CHAIN) is not returned from the market service. This will break */
+  /** When selecting new assets the network (CHAIN) is not returned from the market service. This will break. We should get this from the */
   const adapter = chainAdapter.byChain(asset.network)
-
-  const flattenedBalances = flattenTokenBalances(balances)
-  const assetBalance = asset?.contractAddress
-    ? flattenedBalances[asset?.contractAddress]
-    : flattenedBalances[asset.network]
-
-  const accountBalances = useMemo(() => {
-    // TODO (technojak) decimals should come from asset-service not on the market data for the asset
-    // Hard coding to eths decimals for now
-    const crypto = bnOrZero(assetBalance?.balance).div(
-      `1e${assetBalance?.decimals || ETH_PRECISION}`
-    )
-    const fiat = crypto.times(asset.price)
-    return {
-      crypto,
-      fiat
-    }
-  }, [assetBalance, asset])
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx
@@ -161,7 +116,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleSendMax = async () => {
-    if (wallet) {
+    if (assetBalance && wallet) {
       setLoading(true)
       const path = "m/44'/60'/0'/0/0"
       const fromAddress = await adapter.getAddress({ wallet, path })
@@ -171,13 +126,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         value: asset.contractAddress ? '0' : assetBalance.balance,
         contractAddress: asset.contractAddress
       })
-      // Assume average fee for send max
-      const averageFee = adapterFees[FeeDataKey.Average]
+      // Assume fast fee for send max
+      const fastFee = adapterFees[FeeDataKey.Fast]
       const chainAsset = await getAssetData(asset.network)
-      // TODO (technojak) replace precision with data from asset service. Currently ETH specific
-      const networkFee = bnOrZero(averageFee.networkFee)
-        .div(`1e${ETH_PRECISION}`)
-        .times(chainAsset?.price || 0)
+      // TODO (technojak) replace precision with data from asset-service. Currently ETH specific
+      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${ETH_PRECISION}`)
 
       // TODO (technojak): change to tokenId when integrated with asset-service
       if (asset.contractAddress) {
@@ -211,6 +164,21 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const validateFiatAmount = (value: string) => {
     const hasValidBalance = accountBalances.fiat.gte(value)
     return hasValidBalance || 'common.insufficientFunds'
+  }
+
+  const cryptoError = get(errors, 'crypto.amount.message', null)
+  const fiatError = get(errors, 'fiat.amount.message', null)
+  const amountFieldError = cryptoError || fiatError
+
+  const toggleCurrency = () => {
+    if (amountFieldError) {
+      // Toggles an existing error to the other field if present
+      const clearErrorKey = fiatError ? AmountFieldName.Fiat : AmountFieldName.Crypto
+      const setErrorKey = fiatError ? AmountFieldName.Crypto : AmountFieldName.Fiat
+      clearErrors(clearErrorKey)
+      setError(setErrorKey, { message: 'common.insufficientFunds' })
+    }
+    setFieldName(fieldName === AmountFieldName.Fiat ? AmountFieldName.Crypto : AmountFieldName.Fiat)
   }
 
   return {

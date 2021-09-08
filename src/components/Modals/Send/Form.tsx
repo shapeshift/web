@@ -15,7 +15,7 @@ import {
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero } from 'lib/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { SendRoutes } from './Send'

@@ -3,12 +3,12 @@ import axios from 'axios'
 import localAssetData from './generatedAssetData.json'
 
 export class AssetService {
-  private assetFileUrl: string
+  private assetFileUrl: string | undefined
 
   private assetData: BaseAsset[]
   private flatAssetData: Asset[]
 
-  constructor(assetFileUrl: string) {
+  constructor(assetFileUrl?: string) {
     this.assetFileUrl = assetFileUrl
   }
 
@@ -25,6 +25,7 @@ export class AssetService {
    */
   async initialize() {
     try {
+      if (!this.assetFileUrl) throw new Error()
       const { data } = await axios.get<BaseAsset[]>(this.assetFileUrl)
       this.assetData = data
     } catch (err) {
@@ -63,5 +64,19 @@ export class AssetService {
     return network
       ? this.flatAssetData.filter((asset) => asset.network == network)
       : this.flatAssetData
+  }
+
+  async description(name: string, tokenId?: string): Promise<string | null> {
+    if (typeof name !== 'string') throw new Error('Invalid asset name')
+    const contractUrl = typeof tokenId === 'string' ? `/contract/${tokenId?.toLowerCase()}` : ''
+    try {
+      const { data } = await axios.get(
+        `https://api.coingecko.com/api/v3/coins/${name.toLowerCase()}${contractUrl}`
+      )
+      return data?.description?.en || null
+    } catch (e) {
+      console.error('AssetService:description:error', e)
+      return null
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { Center, Stack } from '@chakra-ui/react'
-import { CircularProgress } from 'components/CircularProgress'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FormatTransactionType, useTransactions } from 'hooks/useTransactions/useTransactions'
 
 import { TransactionRow } from './TransactionRow'

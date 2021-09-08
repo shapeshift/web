@@ -92,6 +92,7 @@ describe('useTransactions', () => {
     const filteredSymbol = 'FOX'
     const { adapter, payload } = createMockData(['FOX'], filteredSymbol)
 
+    //@ts-ignore
     useChainAdapters.mockImplementation(() => ({
       getSupportedAdapters: jest.fn(() => adapter)
     }))
@@ -110,6 +111,7 @@ describe('useTransactions', () => {
   it('returns all formatted tx history when chain, contractAddress, and symbol are NOT provided', async () => {
     const { adapter, payload } = createMockData(['FOX', 'LINK'])
 
+    //@ts-ignore
     useChainAdapters.mockImplementation(() => ({
       getSupportedAdapters: jest.fn(() => adapter)
     }))

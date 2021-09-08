@@ -80,6 +80,23 @@ describe('WalletProvider', () => {
     })
   })
 
+  describe('connect', () => {
+    it('dispatches SET_CONNECTOR_TYPE and SET_INITAL_ROUTE', async () => {
+      const { result } = await setup()
+      const type = 'native'
+      expect(result.current.state.wallet).toBe(null)
+      expect(result.current.state.walletInfo).toBe(null)
+      expect(result.current.state.isConnected).toBe(false)
+
+      act(() => {
+        result.current.connect(type)
+      })
+
+      expect(result.current.state.type).toBe(type)
+      expect(result.current.state.initalRoute).toBe(SUPPORTED_WALLETS[type].routes[0].path)
+    })
+  })
+
   describe('disconnect', () => {
     it('disconnects and calls RESET_STATE', async () => {
       const walletDisconnect = jest.fn()

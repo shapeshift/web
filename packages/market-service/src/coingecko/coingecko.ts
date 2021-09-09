@@ -35,10 +35,10 @@ export class CoinGeckoMarketService implements MarketService {
   ): Promise<AssetMarketData | null> => {
     try {
       const isToken = !!contractAddress
-      const contractUrl = isToken ? `contract/${contractAddress}` : ''
+      const contractUrl = isToken ? `/contract/${contractAddress}` : ''
 
       const { data }: { data: CoinGeckoAssetData } = await axios.get(
-        `${this.baseUrl}/coins/${network}/${contractUrl}`
+        `${this.baseUrl}/coins/${network}${contractUrl}`
       )
 
       // TODO: get correct localizations

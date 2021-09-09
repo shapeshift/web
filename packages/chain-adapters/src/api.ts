@@ -55,41 +55,47 @@ export type BroadcastTxResponse = {
 export type BuildSendTxInput = {
   to: string
   value: string
-  /**
-   * Optional param for eth txs indicating what ERC20 is being sent
-   */
-  erc20ContractAddress?: string
   wallet: HDWallet
   path: string
-  chainId?: number
+  /*** In base units */
+  fee?: string
+  /*** Optional param for eth txs indicating what ERC20 is being sent */
+  erc20ContractAddress?: string
+  limit?: string
 }
 
 export type SignTxInput = {
   txToSign: ETHSignTx
   wallet: HDWallet
 }
-
 export type GetAddressInput = {
   wallet: HDWallet
   path: string
 }
 
-export type FeeData = {
-  /**
-   * gas (ethereum), vbytes (btc), etc
-   */
-  units: string
-  /**
-   * price per unit
-   */
-  price: string
+export type GetFeeDataInput = {
+  contractAddress?: string
+  from: string
+  to: string
+  value: string
 }
 
-export type FeeEstimateInput = {
-  to: string
-  from: string
-  data: string
-  value: string
+export enum FeeDataKey {
+  Slow = 'slow',
+  Average = 'average',
+  Fast = 'fast'
+}
+
+export type FeeDataType = {
+  feeUnitPrice: string
+  networkFee: string
+  feeUnits: string
+}
+
+export type FeeData = {
+  [FeeDataKey.Slow]: FeeDataType
+  [FeeDataKey.Average]: FeeDataType
+  [FeeDataKey.Fast]: FeeDataType
 }
 
 export enum ChainIdentifier {
@@ -112,6 +118,13 @@ export type ValidAddressResult = {
   result: ValidAddressResultType
 }
 
+export type FeeEstimateInput = {
+  to: string
+  from: string
+  data: string
+  value: string
+}
+
 export interface ChainAdapter {
   /**
    * Get type of adapter
@@ -128,13 +141,15 @@ export interface ChainAdapter {
    */
   getTxHistory(address: string, params?: Params): Promise<TxHistoryResponse>
 
-  buildSendTransaction(input: BuildSendTxInput): Promise<any>
+  buildSendTransaction(
+    input: BuildSendTxInput
+  ): Promise<{ txToSign: ETHSignTx; estimatedFees: FeeData }>
 
   getAddress(input: GetAddressInput): Promise<string>
 
   signTransaction(signTxInput: SignTxInput): Promise<string>
 
-  getFeeData(input: FeeEstimateInput): Promise<FeeData>
+  getFeeData(input: Partial<GetFeeDataInput>): Promise<FeeData>
 
   broadcastTransaction(hex: string): Promise<string>
 

@@ -23,5 +23,5 @@ const generateAssetData = async () => {
 }
 
 generateAssetData().then(() => {
-  console.log('done')
+  console.info('done')
 })

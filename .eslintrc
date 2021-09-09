@@ -27,7 +27,18 @@
     "jsx-a11y/no-autofocus": "warn",
     "prettier/prettier": "error",
     "default-case": "off",
-    "no-console": "warn",
+    "no-console": [
+      "warn",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "group",
+          "groupEnd"
+        ]
+      }
+    ],
     "@typescript-eslint/no-use-before-define": "error",
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",

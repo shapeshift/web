@@ -4,8 +4,8 @@ import { Asset } from '@shapeshiftoss/asset-service'
 import sortBy from 'lodash/sortBy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useAssets } from 'context/AssetProvider/AssetProvider'
 
-import { useAssets } from '../../context/AssetProvider/AssetProvider'
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 

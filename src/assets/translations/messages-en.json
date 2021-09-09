@@ -96,7 +96,12 @@
       "nativePassReq": {
         "header": "Enter your password",
         "body": "Enter your native wallet password to decrypt the wallet stored in your browser.",
-        "button": "Next"
+        "button": "Next",
+        "minLength": "Minimum length should be 8",
+        "required": "This is required",
+        "placeholder": "Enter password",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password"
       }, 
       "nativeSeed": {
         "header": "Your seed phrase",

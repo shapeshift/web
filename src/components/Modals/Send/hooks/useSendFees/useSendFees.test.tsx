@@ -36,19 +36,17 @@ const ethAsset = {
 }
 
 const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
-  // @ts-ignore
-  useWallet.mockImplementation(() => ({ state: { wallet } }))
-  // @ts-ignore
-  useWatch.mockImplementation(() => ({ asset, estimatedFees }))
+  ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+    state: { wallet }
+  }))
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
   return renderHook(() => useSendFees())
 }
 
 describe('useSendFees', () => {
   beforeEach(() => {
-    // @ts-ignore
-    useFormContext.mockImplementation(() => ({ control: {} }))
-    // @ts-ignore
-    getAssetData.mockImplementation(() => ({
+    ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
+    ;(getAssetData as jest.Mock<unknown>).mockImplementation(() => ({
       price: 3500,
       network: 'ethereum'
     }))

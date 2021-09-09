@@ -102,23 +102,20 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn()
 }) => {
-  // @ts-ignore
-  useWallet.mockImplementation(() => ({ state: { wallet: {} } }))
-  // @ts-ignore
-  useWatch.mockImplementation(() => [asset, '0x3155BA85D5F96b2d030a4966AF206230e46849cb'])
-  // @ts-ignore
-  useAccountBalances.mockImplementation(() => ({
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
+    asset,
+    '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
+  ])
+  ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
     assetBalance,
     accountBalances
   }))
-  // @ts-ignore
-  useFlattenedBalances.mockImplementation(() => ({
+  ;(useFlattenedBalances as jest.Mock<unknown>).mockImplementation(() => ({
     balances,
     error: balanceError,
     loading: false
   }))
-  // @ts-ignore
-  useFormContext.mockImplementation(() => ({
+  ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     clearErrors: jest.fn(),
     setError,
     setValue,
@@ -133,10 +130,9 @@ const setup = ({
 
 describe('useSendDetails', () => {
   beforeEach(() => {
-    // @ts-ignore
-    useHistory.mockImplementation(() => ({ push: jest.fn() }))
-    // @ts-ignore
-    useChainAdapters.mockImplementation(() => ({
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
+    ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: () => ({
         getAddress: () => '0xMyWalletsAddress',
         getFeeData: () => estimatedFees,
@@ -146,8 +142,7 @@ describe('useSendDetails', () => {
         })
       })
     }))
-    // @ts-ignore
-    getAssetData.mockImplementation(() => ({
+    ;(getAssetData as jest.Mock<unknown>).mockImplementation(() => ({
       price: 3500,
       network: 'ethereum'
     }))

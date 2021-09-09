@@ -19,7 +19,7 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
-const unchainedUrls = { ethereum: getConfig().REACT_APP_UNCHAINED_URL }
+const unchainedUrls = { ethereum: getConfig().REACT_APP_UNCHAINED_ETHEREUM_URL }
 
 export function AppProviders({ children }: ProvidersProps) {
   return (

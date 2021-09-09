@@ -5,17 +5,17 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 type UseBalancesReturnType = {
   balances: Record<string, BalanceResponse>
-  error?: Error
+  error?: Error | unknown
   loading: boolean
 }
 
 export const useBalances = (): UseBalancesReturnType => {
   const [balances, setBalances] = useState<Record<string, BalanceResponse>>({})
-  const [error, setError] = useState<Error>()
+  const [error, setError] = useState<Error | unknown>()
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapter = useChainAdapters()
   const {
-    state: { wallet }
+    state: { wallet, walletInfo }
   } = useWallet()
 
   const getBalances = useCallback(async () => {
@@ -32,19 +32,27 @@ export const useBalances = (): UseBalancesReturnType => {
       }
       return acc
     }
-  }, [wallet, chainAdapter])
+    // We aren't passing chainAdapter as it will always be the same object and should never change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletInfo?.deviceId])
 
   useEffect(() => {
     if (wallet) {
-      setLoading(true)
-      getBalances()
-        .then((balances: Record<string, BalanceResponse> | undefined) => {
+      ;(async () => {
+        try {
+          setLoading(true)
+          const balances = await getBalances()
           balances && setBalances(balances)
-        })
-        .catch(setError)
-        .finally(() => setLoading(false))
+        } catch (error) {
+          setError(error)
+        } finally {
+          setLoading(false)
+        }
+      })()
     }
-  }, [wallet, getBalances])
+    // Here we rely on the deviceId vs the wallet class
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletInfo?.deviceId, getBalances])
 
   return {
     balances,

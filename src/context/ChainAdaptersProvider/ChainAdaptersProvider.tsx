@@ -1,5 +1,5 @@
 import { ChainAdapterManager, UnchainedUrls } from '@shapeshiftoss/chain-adapters'
-import React, { createContext, useContext, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useMemo, useRef } from 'react'
 
 type ChainAdaptersProviderProps = {
   children: React.ReactNode
@@ -18,18 +18,9 @@ export const ChainAdaptersProvider = ({
     new ChainAdapterManager(unchainedUrls)
   )
 
-  useEffect(() => {
-    chainAdapterManager.current = new ChainAdapterManager(unchainedUrls)
-    return () => {
-      chainAdapterManager.current = null
-    }
-  }, [unchainedUrls])
+  const context = useMemo(() => chainAdapterManager.current, [])
 
-  return (
-    <ChainAdaptersContext.Provider value={chainAdapterManager.current}>
-      {children}
-    </ChainAdaptersContext.Provider>
-  )
+  return <ChainAdaptersContext.Provider value={context}>{children}</ChainAdaptersContext.Provider>
 }
 
 export const useChainAdapters = () => {

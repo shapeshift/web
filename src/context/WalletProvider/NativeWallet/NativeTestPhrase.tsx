@@ -1,11 +1,11 @@
 import { Button, ModalBody, ModalFooter, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
-import { RawText, Text } from 'components/Text'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
+import { RawText, Text } from 'components/Text'
 
 import { NativeSetupProps } from './setup'
 

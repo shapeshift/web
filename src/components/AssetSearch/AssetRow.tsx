@@ -1,8 +1,8 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { AssetIcon } from 'components/AssetIcon'
 import { useRouteMatch } from 'react-router-dom'
 import { ListChildComponentProps } from 'react-window'
+import { AssetIcon } from 'components/AssetIcon'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
   const token: Asset = data.items[index]

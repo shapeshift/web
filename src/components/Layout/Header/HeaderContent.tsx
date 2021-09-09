@@ -9,10 +9,10 @@ import {
   useColorModeValue,
   useMediaQuery
 } from '@chakra-ui/react'
-import { ColorModeSwitcher } from 'components/ColorModeSwitcher/ColorModeSwitcher'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Link as RouterLink } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
+import { ColorModeSwitcher } from 'components/ColorModeSwitcher/ColorModeSwitcher'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { breakpoints } from 'theme/theme'
 
 import { NavBar } from './NavBar/NavBar'

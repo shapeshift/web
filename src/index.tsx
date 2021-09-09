@@ -1,10 +1,10 @@
 import 'lib/polyfills'
 
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { renderConsoleArt } from 'lib/consoleArt'
 import { reportWebVitals } from 'lib/reportWebVitals'
 import * as serviceWorker from 'lib/serviceWorker'
-import React from 'react'
-import ReactDOM from 'react-dom'
 
 import { App } from './App'
 import { AppProviders } from './AppProviders'

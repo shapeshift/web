@@ -1,12 +1,12 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
 // import { HistoryTimeframe } from 'lib/assets/getAssetData'
 import { useBalances } from 'hooks/useBalances/useBalances'
-import { useState } from 'react'
 
 import { AssetList } from './components/AssetList/AssetList'
 

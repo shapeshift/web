@@ -1,6 +1,6 @@
 import { Box, Button, ButtonGroup, Radio, useColorModeValue } from '@chakra-ui/react'
-import { RawText, Text } from 'components/Text'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
+import { RawText, Text } from 'components/Text'
 
 // @TODO: Read from state
 const fees = [

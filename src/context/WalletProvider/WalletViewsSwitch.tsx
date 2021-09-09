@@ -8,10 +8,10 @@ import {
   ModalOverlay
 } from '@chakra-ui/react'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SlideTransition } from 'components/SlideTransition'
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
 
 import { SUPPORTED_WALLETS } from './config'
 import { NativePasswordRequired } from './NativeWallet/NativePasswordRequired'

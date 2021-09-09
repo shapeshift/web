@@ -1,9 +1,9 @@
 import { Flex, Image, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { BalanceResponse } from '@shapeshiftoss/chain-adapters'
 import BigNumber from 'bignumber.js'
+import { Link } from 'react-router-dom'
 import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
-import { Link } from 'react-router-dom'
 
 type AssetListProps = {
   balances: Record<string, BalanceResponse>

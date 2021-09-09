@@ -1,11 +1,11 @@
 import { ChainAdapter, Transaction } from '@shapeshiftoss/chain-adapters'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useCallback, useEffect } from 'react'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { fromBaseUnit } from 'lib/math'
-import { useCallback, useEffect } from 'react'
 dayjs.extend(relativeTime)
 
 export type FormatTransactionType = Transaction & {

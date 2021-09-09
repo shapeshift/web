@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useRef } from 'react'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Form } from './Form'
 

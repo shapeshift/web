@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
-import { Text } from 'components/Text'
 import React from 'react'
+import { Text } from 'components/Text'
 
 import { NativeSetupProps } from './setup'
 

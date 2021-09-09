@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import dayjs from 'dayjs'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 
 import { getDate, useTransactions, UseTransactionsPropType } from './useTransactions'
 

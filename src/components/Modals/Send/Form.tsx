@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { AnimatePresence } from 'framer-motion'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
@@ -10,6 +9,7 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { Confirm } from './Confirm'

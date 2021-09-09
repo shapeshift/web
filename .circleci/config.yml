@@ -76,11 +76,8 @@ jobs:
             git config --global -l
             git config --global user.name "CircleCI"
       - run:
-          name: Bump version
-          command: npx lerna version patch --yes -m "[skip ci]"
-      - run:
-          name: 'Publish Packages'
-          command: npx lerna publish from-package --yes
+          name: Cut Release
+          command: npx lerna exec --concurrency 1 -- npx --no-install semantic-release -e semantic-release-monorepo
 
 workflows:
   version: 2

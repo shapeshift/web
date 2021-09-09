@@ -1,6 +1,6 @@
 {
   "name": "lib",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "workspaces": {
     "packages": [
@@ -22,6 +22,8 @@
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
     "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
@@ -36,6 +38,8 @@
     "jest-mock-extended": "^1.0.9",
     "lerna": "^4.0.0",
     "prettier": "1.19.1",
+    "semantic-release": "^17.4.7",
+    "semantic-release-monorepo": "^7.0.5",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
     "typescript": "^4.2.4"

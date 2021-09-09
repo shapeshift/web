@@ -11,7 +11,7 @@ export const RecentTransactions = () => {
         </Card.Heading>
       </Card.Header>
       <Card.Body px={2} pt={0}>
-        <Transactions limit={8} />
+        <Transactions />
       </Card.Body>
     </Card>
   )

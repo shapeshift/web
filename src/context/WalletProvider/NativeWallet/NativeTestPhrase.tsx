@@ -35,7 +35,7 @@ export const NativeTestPhrase = () => {
         </RawText>
         <Wrap mt={12} mb={6}>
           {shuffledRandomWords &&
-            shuffledRandomWords.map(word => (
+            shuffledRandomWords.map((word: string) => (
               <Button
                 key={word}
                 flex='1'

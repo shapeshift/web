@@ -1,13 +1,13 @@
 import { Flex } from '@chakra-ui/react'
-import { SwapCurrency } from '@shapeshiftoss/market-service'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Page } from 'components/Layout/Page'
-import { useHistory } from 'react-router-dom'
 
 export const Assets = () => {
   const history = useHistory()
-  const onClick = (asset: SwapCurrency) => {
-    history.push(`/assets/ethereum/${asset.address}`)
+  const onClick = (asset: Asset) => {
+    history.push(`/assets/ethereum/${asset.tokenId}`)
   }
   return (
     <Page style={{ flex: 1 }}>

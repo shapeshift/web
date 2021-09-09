@@ -1,9 +1,9 @@
 import { Flex, Image, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { BalanceResponse } from '@shapeshiftoss/chain-adapters'
 import BigNumber from 'bignumber.js'
-import { RawText } from 'components/Text'
-import React from 'react'
 import { Link } from 'react-router-dom'
+import { RawText } from 'components/Text'
+import { fromBaseUnit } from 'lib/math'
 
 type AssetListProps = {
   balances: Record<string, BalanceResponse>
@@ -16,10 +16,6 @@ type Asset = {
   fiatPrice: string
   fiatValue: string
   displayBalance: string
-}
-
-const fromBaseUnit = (value: string, decimals: number, displayDecimals = 6): string => {
-  return new BigNumber(value).div(`1e+${decimals}`).decimalPlaces(displayDecimals).toString()
 }
 
 export const AssetList = ({ balances }: AssetListProps) => {

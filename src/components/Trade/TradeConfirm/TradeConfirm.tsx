@@ -1,11 +1,11 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { useFormContext } from 'react-hook-form'
+import { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { useFormContext } from 'react-hook-form'
-import { RouterProps } from 'react-router-dom'
 
 import { AssetToAsset } from './AssetToAsset'
 
@@ -29,14 +29,14 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           </SimpleGrid>
           <AssetToAsset
             buyAsset={{
-              symbol: buyAsset?.currency?.symbol,
+              symbol: buyAsset?.symbol,
               amount: buyAsset.amount,
-              icon: buyAsset?.currency?.logoURI
+              icon: buyAsset?.icon
             }}
             sellAsset={{
-              symbol: sellAsset?.currency?.symbol,
+              symbol: sellAsset?.symbol,
               amount: sellAsset.amount,
-              icon: sellAsset?.currency?.logoURI
+              icon: sellAsset?.icon
             }}
             mt={6}
           />

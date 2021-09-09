@@ -1,26 +1,27 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
 // import { HistoryTimeframe } from 'lib/assets/getAssetData'
 import { useBalances } from 'hooks/useBalances/useBalances'
-import { useState } from 'react'
 
 import { AssetList } from './components/AssetList/AssetList'
 
 // TODO: Combined Portfolio Asset Chart
 const asset = {
   icon: 'https://static.coincap.io/assets/icons/256/btc.png',
-  name: 'Bitcoin',
+  displayName: 'Bitcoin',
   network: 'bitcoin',
   symbol: 'BTC',
   price: '1000',
   marketCap: '1000',
   volume: '1000',
   changePercent24Hr: 25,
-  description: 'loremIpsum'
+  description: 'loremIpsum',
+  name: 'bitcoin'
 }
 
 export const Portfolio = () => {

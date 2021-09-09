@@ -1,6 +1,15 @@
 {
-  "extends": ["react-app", "react-app/jest", "plugin:jsx-a11y/recommended", "prettier"],
-  "plugins": ["jest", "prettier", "simple-import-sort"],
+  "extends": [
+    "react-app",
+    "react-app/jest",
+    "plugin:jsx-a11y/recommended",
+    "prettier"
+  ],
+  "plugins": [
+    "jest",
+    "prettier",
+    "simple-import-sort"
+  ],
   "env": {
     "browser": true,
     "jest/globals": true
@@ -11,7 +20,13 @@
     "no-console": [
       "error",
       {
-        "allow": ["warn", "error", "info", "group", "groupEnd"]
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "group",
+          "groupEnd"
+        ]
       }
     ],
     "@typescript-eslint/no-unused-vars": "error",
@@ -30,8 +45,33 @@
       }
     ],
     "default-case": "error",
-    "simple-import-sort/exports": "error",
-    "simple-import-sort/imports": "error",
-    "import/no-default-export": "error"
+    "import/no-default-export": "error",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          [
+            "^\\u0000"
+          ],
+          [
+            "^@?\\w",
+            "^assets(/.*|$)",
+            "^components(/.*|$)",
+            "^context(/.*|$)",
+            "^hooks(/.*|$)",
+            "^jest(/.*|$)",
+            "^lib(/.*|$)",
+            "^pages(/.*|$)",
+            "^services(/.*|$)",
+            "^state(/.*|$)",
+            "^theme(/.*|$)",
+            "^types(/.*|$)"
+          ],
+          [
+            "^\\."
+          ]
+        ]
+      }
+    ]
   }
 }

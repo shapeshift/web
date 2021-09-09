@@ -1,8 +1,8 @@
 import { Button, ButtonProps, Tooltip } from '@chakra-ui/react'
-import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
 import { useEffect } from 'react'
 import { useRef, useState } from 'react'
+import { AssetIcon } from 'components/AssetIcon'
+import { RawText } from 'components/Text'
 
 type TokenButtonProps = {
   logo: string

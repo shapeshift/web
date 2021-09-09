@@ -1,12 +1,12 @@
-import { SwapCurrency } from '@shapeshiftoss/market-service'
+import { Asset } from '@shapeshiftoss/asset-service'
+import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { LeftSidebarChildProps } from 'components/Layout/LeftSidebar'
-import { useHistory } from 'react-router-dom'
 
 export const AssetSidebar = ({ onToggle }: LeftSidebarChildProps) => {
   const history = useHistory()
-  const onClick = (asset: SwapCurrency) => {
-    history.push(`/assets/ethereum/${asset.address}`)
+  const onClick = (asset: Asset) => {
+    history.push(`/assets/ethereum/${asset.tokenId}`)
     onToggle && onToggle()
   }
   return <AssetSearch onClick={onClick} />

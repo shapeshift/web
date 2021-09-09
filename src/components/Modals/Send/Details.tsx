@@ -14,15 +14,15 @@ import {
   ModalFooter,
   ModalHeader
 } from '@chakra-ui/react'
+import { useState } from 'react'
+import { Controller, useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { QRCode } from 'components/Icons/QRCode'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useState } from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 
 import { TxFeeRadioGroup } from './TxFeeRadioGroup'
 

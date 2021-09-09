@@ -16,16 +16,18 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { NativeAdapter, NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { Text } from 'components/Text'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
-import { getEncryptedWallet } from 'lib/nativeWallet'
 import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { Text } from 'components/Text'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
+import { getEncryptedWallet } from 'lib/nativeWallet'
+
+import { SUPPORTED_WALLETS } from '../config'
 
 type StoredWallets = Record<string, string>
 
@@ -37,7 +39,7 @@ export const NativePasswordRequired = ({
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const [showPw, setShowPw] = useState<boolean>(false)
-  const { state } = useWallet()
+  const { state, dispatch } = useWallet()
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
 
   const handleShowClick = () => setShowPw(!showPw)
@@ -54,6 +56,16 @@ export const NativePasswordRequired = ({
           maybeWallet.loadDevice({
             mnemonic: await encryptedWallet.decrypt(),
             deviceId: encryptedWallet.deviceId
+          })
+          const { name, icon } = SUPPORTED_WALLETS['native']
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet: maybeWallet,
+              name,
+              icon,
+              deviceId
+            }
           })
           setWallet(maybeWallet)
         }

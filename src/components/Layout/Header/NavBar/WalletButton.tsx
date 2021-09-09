@@ -22,8 +22,8 @@ import {
   MenuList,
   Tooltip
 } from '@chakra-ui/react'
-import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { FC } from 'react'
+import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 type WalletImageProps = {
   isConnected: Boolean

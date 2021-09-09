@@ -1,16 +1,16 @@
 import { ListProps } from '@chakra-ui/react'
-import { SwapCurrency } from '@shapeshiftoss/market-service/'
-import { Text } from 'components/Text'
-import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
+import { Text } from 'components/Text'
+import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
 
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
-  handleClick: (asset: SwapCurrency) => void
-  assets: SwapCurrency[]
+  handleClick: (asset: Asset) => void
+  assets: Asset[]
 } & ListProps
 
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
@@ -18,7 +18,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   const [tokenListRef] = useRefCallback<FixedSizeList>({
     onInit: node => {
       const index = node.props.itemData.items.findIndex(
-        ({ address }: SwapCurrency) => address === match.params.address
+        ({ tokenId: address }: Asset) => address === match.params.address
       )
       node.scrollToItem?.(index, 'center')
     }

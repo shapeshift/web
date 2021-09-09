@@ -6,7 +6,6 @@ import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
 import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
-import { useCallback } from 'react'
 import { useEffect } from 'react'
 import { FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form'
 
@@ -58,20 +57,20 @@ export const useNativePasswordRequired = ({
     }
   }
 
-  const readyCallback = useCallback(() => {
-    clearErrors()
-    onClose()
-    // safe to non-null assert here as the wallet as emitted a ready event
-    const { name, icon } = SUPPORTED_WALLETS?.['native']
-    // deviceId is an empty string because it will be set onSubmit of the password form.
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: { wallet: state.wallet, name, icon, deviceId: '' }
-    })
-    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-  }, [clearErrors, dispatch, onClose, state.wallet])
-
   useEffect(() => {
+    const readyCallback = () => {
+      clearErrors()
+      onClose()
+      // safe to non-null assert here as the wallet as emitted a ready event
+      const { name, icon } = SUPPORTED_WALLETS?.['native']
+      // deviceId is an empty string because it will be set onSubmit of the password form.
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: { wallet: state.wallet, name, icon, deviceId: '' }
+      })
+      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+    }
+
     if (state.keyring) {
       state.keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], onOpen)
       state.keyring.on(['Native', '*', NativeEvents.READY], readyCallback)

@@ -1,9 +1,9 @@
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getAssetData } from '@shapeshiftoss/market-service'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FeePrice } from '../../views/Confirm'
 

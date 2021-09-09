@@ -11,14 +11,14 @@ import {
   Stack
 } from '@chakra-ui/react'
 import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import get from 'lodash/get'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
+import { Text } from 'components/Text'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import { SendRoutes } from '../Send'

@@ -1,8 +1,8 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
-import { QRCode } from 'components/Icons/QRCode'
 import { Controller, ControllerProps, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { QRCode } from 'components/Icons/QRCode'
 
 import { SendRoutes } from '../Send'
 

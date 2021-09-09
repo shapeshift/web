@@ -12,13 +12,13 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useFormContext, useWatch } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
 
 import { AmountFieldName, useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendRoutes } from '../Send'

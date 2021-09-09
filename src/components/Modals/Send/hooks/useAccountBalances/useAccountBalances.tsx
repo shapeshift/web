@@ -1,6 +1,6 @@
 import { BalanceResponse, Token } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useMemo } from 'react'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 // TODO (technojak) this should be removed in favor of the asset-service. For now assume the fallback is eth
 const ETH_PRECISION = 18

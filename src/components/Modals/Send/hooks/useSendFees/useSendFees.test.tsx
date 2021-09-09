@@ -1,8 +1,8 @@
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getAssetData } from '@shapeshiftoss/market-service'
 import { act, renderHook } from '@testing-library/react-hooks'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 import { useSendFees } from './useSendFees'
 

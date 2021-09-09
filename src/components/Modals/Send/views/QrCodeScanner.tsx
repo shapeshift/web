@@ -1,10 +1,10 @@
 import { Button, ModalBody, ModalCloseButton, ModalFooter, ModalHeader } from '@chakra-ui/react'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
 import { lazy, Suspense } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
+import { Text } from 'components/Text'
 
 import { SendRoutes } from '../Send'
 

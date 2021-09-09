@@ -10,9 +10,9 @@ import {
   Tag,
   Wrap
 } from '@chakra-ui/react'
-import { Text } from 'components/Text'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
+import { Text } from 'components/Text'
 
 import { NativeSetupProps } from './setup'
 

@@ -1,13 +1,13 @@
 import { useDisclosure } from '@chakra-ui/react'
 import { NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
-import { getEncryptedWallet } from 'lib/nativeWallet'
 import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
 import { useEffect } from 'react'
 import { FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form'
+import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
+import { getEncryptedWallet } from 'lib/nativeWallet'
 
 type StoredWallets = Record<string, string>
 type useNativePasswordRequiredProps = {

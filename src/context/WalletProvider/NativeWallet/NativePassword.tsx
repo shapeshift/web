@@ -9,12 +9,12 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
-import { Text } from 'components/Text'
-import { getEncryptedWallet } from 'lib/nativeWallet'
 import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { RouteComponentProps } from 'react-router-dom'
+import { Text } from 'components/Text'
+import { getEncryptedWallet } from 'lib/nativeWallet'
 
 export const NativePassword = ({ history }: RouteComponentProps) => {
   const [showPw, setShowPw] = useState<boolean>(false)

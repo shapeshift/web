@@ -7,8 +7,8 @@ import {
   UseRadioProps
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/market-service'
-import { Text } from 'components/Text'
 import { memo } from 'react'
+import { Text } from 'components/Text'
 
 interface RadioCardProps extends UseRadioProps {
   label: string

@@ -1,7 +1,7 @@
 import { Button, Input, ModalBody, ModalHeader, SimpleGrid } from '@chakra-ui/react'
+import React, { useRef } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
-import React, { useRef } from 'react'
 
 export const PinModal = () => {
   const pinFieldRef = useRef<HTMLInputElement | null>(null)

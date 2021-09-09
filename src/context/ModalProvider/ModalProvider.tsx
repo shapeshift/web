@@ -1,8 +1,8 @@
-import { ReceiveModal } from 'components/Modals/Receive/Receive'
-import { SendModal } from 'components/Modals/Send/Send'
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { ReceiveModal } from 'components/Modals/Receive/Receive'
+import { SendModal } from 'components/Modals/Send/Send'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the

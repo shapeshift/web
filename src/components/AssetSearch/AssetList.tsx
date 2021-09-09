@@ -1,10 +1,10 @@
 import { ListProps } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
-import { Text } from 'components/Text'
-import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
+import { Text } from 'components/Text'
+import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
 
 import { AssetRow } from './AssetRow'
 

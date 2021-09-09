@@ -9,7 +9,7 @@ import {
   InputProps,
   Text
 } from '@chakra-ui/react'
-import { HelperToolTip } from 'components/HelperTooltip'
+import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
@@ -81,7 +81,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
-                logo={getValues('sellAsset.currency.logoURI')}
+                logo={getValues('sellAsset.icon')}
                 symbol={getValues('sellAsset.currency.symbol')}
               />
             }
@@ -121,8 +121,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}
-                logo={getValues('buyAsset.currency.logoURI')}
-                symbol={getValues('buyAsset.currency.symbol')}
+                logo={getValues('buyAsset.icon')}
+                symbol={getValues('buyAsset.symbol')}
               />
             }
           />

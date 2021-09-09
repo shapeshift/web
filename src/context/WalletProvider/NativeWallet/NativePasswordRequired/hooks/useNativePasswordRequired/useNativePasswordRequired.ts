@@ -6,7 +6,7 @@ import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
 import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useEffect } from 'react'
 import { FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form'
 
@@ -20,7 +20,6 @@ export const useNativePasswordRequired = ({
   clearErrors
 }: useNativePasswordRequiredProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const { state, dispatch } = useWallet()
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
 
@@ -38,7 +37,16 @@ export const useNativePasswordRequired = ({
             mnemonic: await encryptedWallet.decrypt(),
             deviceId: encryptedWallet.deviceId
           })
-          setWallet(maybeWallet)
+          const { name, icon } = SUPPORTED_WALLETS?.['native']
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet: maybeWallet,
+              name,
+              icon,
+              deviceId
+            }
+          })
         }
       } catch (e) {
         console.error('storedWallets', e)
@@ -54,10 +62,14 @@ export const useNativePasswordRequired = ({
     clearErrors()
     onClose()
     // safe to non-null assert here as the wallet as emitted a ready event
-    const { name, icon } = SUPPORTED_WALLETS['native']
-    dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+    const { name, icon } = SUPPORTED_WALLETS?.['native']
+    // deviceId is an empty string because it will be set onSubmit of the password form.
+    dispatch({
+      type: WalletActions.SET_WALLET,
+      payload: { wallet: state.wallet, name, icon, deviceId: '' }
+    })
     dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-  }, [clearErrors, dispatch, onClose, wallet])
+  }, [clearErrors, dispatch, onClose, state.wallet])
 
   useEffect(() => {
     if (state.keyring) {
@@ -70,7 +82,7 @@ export const useNativePasswordRequired = ({
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [state.keyring, wallet])
+  }, [state.keyring, state.wallet])
 
   return {
     onSubmit,

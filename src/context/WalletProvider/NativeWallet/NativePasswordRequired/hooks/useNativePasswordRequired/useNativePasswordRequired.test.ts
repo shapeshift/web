@@ -7,6 +7,7 @@ import { getEncryptedWallet } from 'lib/nativeWallet'
 import { useNativePasswordRequired } from './useNativePasswordRequired'
 
 jest.mock('context/WalletProvider/WalletProvider', () => ({
+  WalletActions: { SET_WALLET: 'SET_WALLET' },
   useWallet: jest.fn()
 }))
 
@@ -26,30 +27,21 @@ const setup = ({
       on: jest.fn(),
       off: jest.fn()
     }
-  }
+  },
+  dispatch = jest.fn()
 } = {}) => {
-  // @ts-ignore
-  useWallet.mockImplementation(() => ({ state: walletState, dispatch: () => {} }))
-  //@ts-ignore
-  useLocalStorage.mockImplementation(() => [localStorageWallet])
   const setError = jest.fn()
   const clearErrors = jest.fn()
+  // @ts-ignore
+  useWallet.mockImplementation(() => ({ state: walletState, dispatch }))
+  //@ts-ignore
+  useLocalStorage.mockImplementation(() => [localStorageWallet])
   const comp = renderHook(() => useNativePasswordRequired({ setError, clearErrors }))
-  return { ...comp, setError, clearErrors }
+  return { ...comp, setError, clearErrors, dispatch }
 }
-
-const original = console.error
 
 describe('useNativePasswordRequired', () => {
   describe('onSumbit', () => {
-    beforeEach(() => {
-      console.error = jest.fn()
-    })
-
-    afterEach(() => {
-      console.error = original
-    })
-
     it('sets keyring events for wallet', async () => {
       const loadDevice = jest.fn()
       const on = jest.fn()
@@ -60,15 +52,16 @@ describe('useNativePasswordRequired', () => {
           decrypt: jest.fn(() => 'mnemonic')
         })
       )
-      const { result, waitFor } = setup({
-        localStorageWallet: { deviceId: 'wallet' },
-        walletState: {
-          keyring: {
-            get: jest.fn(() => ({ loadDevice } as unknown as NativeHDWallet)),
-            on,
-            off: jest.fn()
-          }
+      const walletState = {
+        keyring: {
+          get: jest.fn(() => ({ loadDevice } as unknown as NativeHDWallet)),
+          on,
+          off: jest.fn()
         }
+      }
+      const { result, waitFor, dispatch, rerender } = setup({
+        localStorageWallet: { deviceId: 'wallet' },
+        walletState
       })
 
       // on is initially set up to make sure it responds to wallet changes
@@ -80,6 +73,12 @@ describe('useNativePasswordRequired', () => {
 
       await waitFor(() => expect(loadDevice).toBeCalled())
 
+      await waitFor(() => expect(dispatch).toBeCalled())
+      // rerender with new wallet state
+      // @ts-ignore
+      useWallet.mockImplementation(() => ({ state: { ...walletState, wallet: {} }, dispatch }))
+      rerender()
+      // calls two more times after onSubmit is successfully called
       await waitFor(() => expect(on).toBeCalledTimes(4))
     })
 
@@ -115,6 +114,8 @@ describe('useNativePasswordRequired', () => {
     })
 
     it('sets error if it fails', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation()
+
       // @ts-ignore
       getEncryptedWallet.mockImplementation(() => Promise.reject())
       const { result, waitFor, setError } = setup({
@@ -128,6 +129,7 @@ describe('useNativePasswordRequired', () => {
       await waitFor(() =>
         expect(setError).toBeCalledWith('password', { message: 'Invalid password' })
       )
+      consoleError.mockRestore()
     })
   })
 })

@@ -1,5 +1,5 @@
 import { Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/react'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
 export const AssetBalance = () => {

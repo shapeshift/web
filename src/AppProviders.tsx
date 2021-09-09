@@ -1,5 +1,6 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { translations } from 'assets/translations'
+import { getConfig } from 'config'
 import { AssetProvider } from 'context/AssetProvider/AssetProvider'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
@@ -18,9 +19,7 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
-const unchainedUrls = {
-  ethereum: 'http://localhost:31300/api/v1'
-}
+const unchainedUrls = { ethereum: getConfig().REACT_APP_UNCHAINED_URL }
 
 export function AppProviders({ children }: ProvidersProps) {
   return (

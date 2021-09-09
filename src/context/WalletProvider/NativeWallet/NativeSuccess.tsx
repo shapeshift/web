@@ -1,6 +1,6 @@
 import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useEffect, useState } from 'react'
@@ -30,7 +30,10 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
           })
           setIsSuccessful(true)
           const { name, icon } = SUPPORTED_WALLETS['native']
-          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name, icon, deviceId: location.state.encryptedWallet.deviceId }
+          })
         } catch (error) {
           console.warn('Failed to load device', error)
           setIsSuccessful(false)

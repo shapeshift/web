@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
 import { AssetMarketData } from '@shapeshiftoss/market-service'
-import { Card } from 'components/Card'
+import { Card } from 'components/Card/Card'
 import { QRCode } from 'components/QRCode/QRCode'
 import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -57,19 +57,24 @@ const Receive = ({ asset }: ReceivePropsType) => {
   const hoverColor = useColorModeValue('gray.900', 'white')
   const bg = useColorModeValue('gray.100', 'gray.700')
 
-  const copyHandler = useMemo(
-    () => () => {
-      navigator.clipboard.writeText(receiveAddress)
-      toast({
-        title: translate('modals.receive.copied', { symbol: symbol.toUpperCase() }),
-        description: receiveAddress,
-        status: 'success',
-        duration: 2500,
-        isClosable: true
-      })
-    },
-    [receiveAddress, symbol, toast, translate]
-  )
+  const copyHandler = async () => {
+    const duration = 2500
+    const isClosable = true
+    const translatePayload = { symbol: symbol.toUpperCase() }
+    const toastPayload = { duration, isClosable }
+    try {
+      await navigator.clipboard.writeText(receiveAddress)
+      const title = translate('modals.receive.copied', translatePayload)
+      const status = 'success'
+      const description = receiveAddress
+      toast({ description, title, status, ...toastPayload })
+    } catch (e) {
+      const title = translate('modals.receive.copyFailed', translatePayload)
+      const status = 'error'
+      const description = translate('modals.receive.copyFailedDescription')
+      toast({ description, title, status })
+    }
+  }
 
   const Verify = useMemo(
     () => (
@@ -130,19 +135,15 @@ const Receive = ({ asset }: ReceivePropsType) => {
           </Box>
           <HStack my={6} spacing={8}>
             <Button
+              onClick={copyHandler}
+              padding={2}
               color='gray.500'
               flexDir='column'
               role='group'
               variant='link'
               _hover={{ textDecoration: 'none', color: hoverColor }}
             >
-              <Circle
-                bg={bg}
-                mb={2}
-                size='40px'
-                _groupHover={{ bg: 'blue.500', color: 'white' }}
-                onClick={copyHandler}
-              >
+              <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
                 <CopyIcon />
               </Circle>
               <Text translation='modals.receive.copy' />

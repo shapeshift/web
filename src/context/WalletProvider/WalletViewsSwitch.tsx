@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { SlideTransition } from 'components/SlideTransition'
 import { AnimatePresence } from 'framer-motion'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 
 import { SUPPORTED_WALLETS } from './config'

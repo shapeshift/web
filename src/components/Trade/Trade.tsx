@@ -1,4 +1,4 @@
-import { SwapCurrency } from '@shapeshiftoss/market-service'
+import { Asset } from '@shapeshiftoss/asset-service'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
@@ -7,11 +7,11 @@ import { entries, TradeRoutes } from './TradeRoutes'
 type TTradeInput = {
   fiatAmount?: string
   sellAsset: {
-    currency: SwapCurrency
+    currency: Asset
     amount?: string
   }
   buyAsset: {
-    currency: SwapCurrency
+    currency: Asset
     amount?: string
   }
 }

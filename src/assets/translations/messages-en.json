@@ -28,7 +28,18 @@
   },
   "transactionRow": {
     "sent": "Sent",
-    "moreDetails": "More Details"
+    "received": "Received",
+    "moreDetails": "More Details",
+    "date": "Date",
+    "txid": "Transaction ID",
+    "fee": "Fee",
+    "status": "Status",
+    "confirmed": "Confirmed",
+    "failed": "Failed",
+    "network": "Network",
+    "blockHeight": "Block Height",
+    "to": "To",
+    "from": "From"
   },
   "modals": {
     "send": {
@@ -59,6 +70,8 @@
       "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
       "copy": "Copy",
       "copied": "%{symbol} receive address copied to clipboard",
+      "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
+      "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
       "verify": "Verify"
     }

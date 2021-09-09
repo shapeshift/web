@@ -66,7 +66,7 @@ export const useNativePasswordRequired = ({
       // deviceId is an empty string because it will be set onSubmit of the password form.
       dispatch({
         type: WalletActions.SET_WALLET,
-        payload: { wallet: state.wallet, name, icon, deviceId: '' }
+        payload: { wallet: state.wallet, name, icon, deviceId: state.walletInfo?.deviceId ?? '' }
       })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
     }
@@ -81,7 +81,7 @@ export const useNativePasswordRequired = ({
     }
     // We don't want to add a bunch of event listeners by re-rendering this effect
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [state.keyring, state.wallet])
+  }, [state.keyring, state.walletInfo?.deviceId])
 
   return {
     onSubmit,

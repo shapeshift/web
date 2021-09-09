@@ -14969,6 +14969,11 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-middle-ellipsis@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/react-middle-ellipsis/-/react-middle-ellipsis-1.2.1.tgz#2f71b6b7ba2b13713ca7bbe52f57575dd4a701f9"
+  integrity sha512-BUQWVXIWwkY7qBqZx0qyeCnPIh188t0lLS0ftfBsU41HB6k769HyBwE23eP+qNXr4vEnmKTEmlicrypVdWYs0w==
+
 react-number-format@^4.7.3:
   version "4.7.3"
   resolved "https://registry.yarnpkg.com/react-number-format/-/react-number-format-4.7.3.tgz#e1706204a23c40fa17365a19f5059aabfca1886f"
@@ -15000,6 +15005,15 @@ react-popper@^2.2.4:
   dependencies:
     react-fast-compare "^3.0.1"
     warning "^4.0.2"
+
+react-qr-reader@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-qr-reader/-/react-qr-reader-2.2.1.tgz#dc89046d1c1a1da837a683dd970de5926817d55b"
+  integrity sha512-EL5JEj53u2yAOgtpAKAVBzD/SiKWn0Bl7AZy6ZrSf1lub7xHwtaXe6XSx36Wbhl1VMGmvmrwYMRwO1aSCT2fwA==
+  dependencies:
+    jsqr "^1.2.0"
+    prop-types "^15.7.2"
+    webrtc-adapter "^7.2.1"
 
 react-redux@^7.2.4:
   version "7.2.4"

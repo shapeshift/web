@@ -8,7 +8,7 @@ export const flattenTokenBalances = (balances: Record<string, BalanceResponse>) 
     (acc: Record<string, Partial<BalanceResponse & Token>>, key: string) => {
       const value = balances[key]
       acc[key] = value
-      if (value.tokens) {
+      if (value.tokens?.length) {
         value.tokens.forEach((token: Token) => {
           token.contract && (acc[token.contract.toLowerCase()] = token)
         })

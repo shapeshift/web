@@ -1,5 +1,6 @@
 import { AssetService } from '@shapeshiftoss/asset-service'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 type AssetProviderProps = {
   children: React.ReactNode
@@ -18,7 +19,11 @@ export const AssetProvider = ({ children }: AssetProviderProps): JSX.Element => 
     })()
   }, [])
 
-  return <AssetContext.Provider value={assetService}>{children}</AssetContext.Provider>
+  const context = useMemo(() => assetService, [assetService])
+
+  if (!context) return <CircularProgress />
+
+  return <AssetContext.Provider value={context}>{children}</AssetContext.Provider>
 }
 
 export const useAssets = () => {

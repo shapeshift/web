@@ -30,9 +30,7 @@ export const QrCodeScanner = () => {
   return (
     <Suspense fallback={null}>
       <SlideTransition>
-        <ModalHeader textAlign='center'>
-          {translate('modals.send.qrScanner.scanQrCode')}
-        </ModalHeader>
+        <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
         <ModalCloseButton borderRadius='full' />
         <ModalBody>
           <QrReader

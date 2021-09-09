@@ -1,5 +1,6 @@
 {
   "common": {
+    "back": "Back",
     "next": "Next",
     "cancel": "Cancel",
     "confirm": "Confirm",
@@ -47,6 +48,10 @@
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
+      "youHaveSent": "You have successfully sent %{amount} %{symbol}",
+      "tokenAddress": "Token Address",
+      "scanQrCode": "Scan QR Code",
+      "sent": "%{asset} sent",
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",
@@ -67,9 +72,6 @@
         "average": "Average",
         "fast": "Fast",
         "enterAmount": "Enter Amount"
-      },
-      "qrScanner": {
-        "scanQrCode": "Scan QR Code"
       }
     },
     "receive": {
@@ -110,18 +112,18 @@
         "placeholder": "Enter password",
         "showPassword": "Show password",
         "hidePassword": "Hide password"
-      }, 
+      },
       "nativeSeed": {
         "header": "Your seed phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
         "button": "Next"
-      }, 
+      },
       "nativeStart": {
         "header": "Create or import a wallet",
         "body": "Would you like to create a new wallet or import an existing one?",
         "button": "Import Wallet",
         "button2": "Create Wallet"
-      }, 
+      },
       "nativeSuccess": {
         "header": "Wallet Conected",
         "success": "Your wallet has been connected",
@@ -135,7 +137,7 @@
         "button": "Next"
       }
     },
-    "selectModal": { 
+    "selectModal": {
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
     }

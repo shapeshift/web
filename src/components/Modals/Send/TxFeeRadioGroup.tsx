@@ -44,7 +44,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
     rules: { required: true },
     defaultValue: 'average'
   })
-  const activeFee = useWatch({ name: 'feeType' })
+  const [asset, activeFee] = useWatch({ name: ['asset', 'feeType'] })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
@@ -107,7 +107,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
               fontSize='sm'
               fontWeight='normal'
               maximumFractionDigits={4}
-              symbol='ETH'
+              symbol={asset.contractAddress ? 'ETH' : asset.symbol}
               value={current.fee}
             />
             <Amount.Fiat

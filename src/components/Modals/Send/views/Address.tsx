@@ -43,7 +43,7 @@ export const Address = () => {
       <IconButton
         variant='ghost'
         icon={<ArrowBackIcon />}
-        aria-label='Back'
+        aria-label={translate('common.back')}
         position='absolute'
         top={2}
         left={3}

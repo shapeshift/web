@@ -4,6 +4,7 @@ import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import {
   Redirect,
   Route,
@@ -54,6 +55,7 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const {
     state: { wallet }
   } = useWallet()
+  const translate = useTranslate()
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -96,12 +98,14 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
           limit: data.estimatedFees[data.feeType].feeUnits
         })
         const signedTx = await adapter.signTransaction({ txToSign, wallet })
-        console.info('signedTx', signedTx)
         await adapter.broadcastTransaction(signedTx)
         send.close()
         toast({
-          title: `${data.asset.name} sent`,
-          description: `You have successfully sent ${data.crypto.amount} ${data.crypto.symbol}`,
+          title: translate('modals.send.sent', { asset: data.asset.name }),
+          description: translate('modals.send.youHaveSent', {
+            amount: data.crypto.amount,
+            symbol: data.crypto.symbol
+          }),
           status: 'success',
           duration: 9000,
           isClosable: true,

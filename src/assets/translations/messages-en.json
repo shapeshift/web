@@ -28,7 +28,18 @@
   },
   "transactionRow": {
     "sent": "Sent",
-    "moreDetails": "More Details"
+    "received": "Received",
+    "moreDetails": "More Details",
+    "date": "Date",
+    "txid": "Transaction ID",
+    "fee": "Fee",
+    "status": "Status",
+    "confirmed": "Confirmed",
+    "failed": "Failed",
+    "network": "Network",
+    "blockHeight": "Block Height",
+    "to": "To",
+    "from": "From"
   },
   "modals": {
     "send": {

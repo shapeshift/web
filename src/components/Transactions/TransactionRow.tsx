@@ -2,7 +2,6 @@ import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@ch
 import {
   Box,
   Center,
-  CircularProgress,
   Collapse,
   Flex,
   Link,
@@ -12,11 +11,18 @@ import {
 } from '@chakra-ui/react'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import {
+  FormatTransactionType,
+  TxStatusEnum,
+  TxTypeEnum
+} from 'hooks/useTransactions/useTransactions'
 import { useState } from 'react'
 
-export const TransactionRow = () => {
+export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
+  const sentTx = tx.type === TxTypeEnum.Sent
+
   return (
     <Box
       as='button'
@@ -31,66 +37,81 @@ export const TransactionRow = () => {
       <Flex alignItems='center' flex={1} justifyContent='space-between'>
         <Flex alignItems='center'>
           <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
-            <ArrowDownIcon /> {/* receive */}
-            <ArrowUpIcon /> {/* send */}
+            {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          <Text translation='transactionRow.sent' />
-          <RawText ml={2}>0.111 BTC</RawText>
+          <Text translation={sentTx ? 'transactionRow.sent' : 'transactionRow.received'} />
+          <RawText ml={2}>{`${tx.amount} ${tx.symbol}`}</RawText>
         </Flex>
-        <RawText>Jan 5, 2021</RawText>
+        <RawText>{tx.dateFromNow}</RawText>
       </Flex>
       <Collapse in={isOpen}>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>
           <Row variant='vertical'>
-            <Row.Label>Date</Row.Label>
-            <Row.Value>08/20/21 @ 10:44 AM</Row.Value>
+            <Row.Label>
+              <Text translation='transactionRow.date' />
+            </Row.Label>
+            <Row.Value>{tx.date}</Row.Value>
           </Row>
           <Row variant='vertical'>
-            <Row.Label>Transaction ID</Row.Label>
+            <Row.Label>
+              <Text translation='transactionRow.txid' />
+            </Row.Label>
             <Row.Value>
               <Link isExternal color='blue.500'>
-                0x3....
+                {/* TODO: add ellipsis */}
+                {`${tx.txid?.substr(0, 7)}...`}
               </Link>
             </Row.Value>
           </Row>
           <Row variant='vertical'>
-            <Row.Label>Fee</Row.Label>
-            <Row.Value>0.002625 ETH</Row.Value>
+            <Row.Label>
+              <Text translation='transactionRow.fee' />
+            </Row.Label>
+            <Row.Value>{`${tx.fee} ${tx.chain}`}</Row.Value>
           </Row>
           <Row variant='vertical'>
-            <Row.Label>Status</Row.Label>
+            <Row.Label>
+              <Text translation='transactionRow.status' />
+            </Row.Label>
             <Row.Value textAlign='left'>
-              <Tag colorScheme='green' size='lg'>
-                <CheckCircleIcon mr={2} />
-                Confirmed
-              </Tag>
-              <Tag colorScheme='yellow' size='lg'>
-                <CircularProgress
-                  color='yellow.500'
-                  trackColor='transparent'
-                  isIndeterminate
-                  size={4}
-                  mr={2}
-                />
-                Pending
-              </Tag>
-              <Tag colorScheme='red' size='lg'>
-                <WarningTwoIcon mr={2} />
-                Failed
-              </Tag>
+              {tx.status === TxStatusEnum.Confirmed && (
+                <Tag colorScheme='green' size='lg'>
+                  <CheckCircleIcon mr={2} />
+                  <Text translation='transactionRow.confirmed' />
+                </Tag>
+              )}
+              {tx.status === TxStatusEnum.Failed && (
+                <Tag colorScheme='red' size='lg'>
+                  <WarningTwoIcon mr={2} />
+                  <Text translation='transactionRow.failed' />
+                </Tag>
+              )}
             </Row.Value>
           </Row>
           <Row variant='vertical'>
-            <Row.Label>Network</Row.Label>
-            <Row.Value>Ethereum</Row.Value>
+            <Row.Label>
+              <Text translation='transactionRow.network' />
+            </Row.Label>
+            <Row.Value>{tx.network}</Row.Value>
           </Row>
           <Row variant='vertical'>
-            <Row.Label>Block Height</Row.Label>
-            <Row.Value>00000</Row.Value>
+            <Row.Label>
+              <Text translation='transactionRow.blockHeight' />
+            </Row.Label>
+            <Row.Value>{tx.blockHeight}</Row.Value>
           </Row>
           <Row variant='vertical'>
-            <Row.Label>To</Row.Label>
-            <Row.Value>0x....</Row.Value>
+            <Row.Label>
+              {sentTx ? (
+                <Text translation='transactionRow.to' />
+              ) : (
+                <Text translation='transactionRow.from' />
+              )}
+            </Row.Label>
+            {/* TODO: add ellipsis */}
+            <Row.Value>
+              {sentTx ? `${tx.to?.substr(0, 7)}...` : `${tx.from?.substr(0, 7)}...`}
+            </Row.Value>
           </Row>
         </SimpleGrid>
       </Collapse>

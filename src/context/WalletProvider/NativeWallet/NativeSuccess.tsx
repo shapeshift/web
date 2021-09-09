@@ -30,7 +30,10 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
           })
           setIsSuccessful(true)
           const { name, icon } = SUPPORTED_WALLETS['native']
-          dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon } })
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name, icon, deviceId: location.state.encryptedWallet.deviceId }
+          })
         } catch (error) {
           console.warn('Failed to load device', error)
           setIsSuccessful(false)

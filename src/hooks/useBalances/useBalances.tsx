@@ -1,7 +1,7 @@
 import { BalanceResponse } from '@shapeshiftoss/chain-adapters'
+import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useCallback, useEffect, useState } from 'react'
 
 type UseBalancesReturnType = {
   loading: boolean

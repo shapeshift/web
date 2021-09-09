@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react'
 import { AssetMarketData, getAssetData } from '@shapeshiftoss/market-service'
-import { Page } from 'components/Layout/Page'
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { Page } from 'components/Layout/Page'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 

@@ -7,8 +7,8 @@ import {
   Textarea
 } from '@chakra-ui/react'
 import * as bip39 from 'bip39'
-import { Text } from 'components/Text'
 import { FieldValues, useForm } from 'react-hook-form'
+import { Text } from 'components/Text'
 
 import { NativeSetupProps } from './setup'
 

@@ -1,8 +1,8 @@
 import { Flex } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/asset-service'
+import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Page } from 'components/Layout/Page'
-import { useHistory } from 'react-router-dom'
 
 export const Assets = () => {
   const history = useHistory()

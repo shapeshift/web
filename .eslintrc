@@ -45,6 +45,33 @@
       }
     ],
     "default-case": "error",
-    "import/no-default-export": "error"
+    "import/no-default-export": "error",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          [
+            "^\\u0000"
+          ],
+          [
+            "^@?\\w",
+            "^assets(/.*|$)",
+            "^components(/.*|$)",
+            "^context(/.*|$)",
+            "^hooks(/.*|$)",
+            "^jest(/.*|$)",
+            "^lib(/.*|$)",
+            "^pages(/.*|$)",
+            "^services(/.*|$)",
+            "^state(/.*|$)",
+            "^theme(/.*|$)",
+            "^types(/.*|$)"
+          ],
+          [
+            "^\\."
+          ]
+        ]
+      }
+    ]
   }
 }

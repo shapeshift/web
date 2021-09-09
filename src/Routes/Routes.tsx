@@ -1,4 +1,5 @@
 import { TimeIcon } from '@chakra-ui/icons'
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
@@ -10,7 +11,6 @@ import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
 import { NotFound } from 'pages/NotFound/NotFound'
 import { TradeHistory } from 'pages/TradeHistory/TradeHistory'
-import { Redirect, Route, Switch } from 'react-router-dom'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 

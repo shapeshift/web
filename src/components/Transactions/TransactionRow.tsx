@@ -9,6 +9,7 @@ import {
   Tag,
   useColorModeValue
 } from '@chakra-ui/react'
+import { useState } from 'react'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import {
@@ -16,7 +17,6 @@ import {
   TxStatusEnum,
   TxTypeEnum
 } from 'hooks/useTransactions/useTransactions'
-import { useState } from 'react'
 
 export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
   const [isOpen, setIsOpen] = useState(false)

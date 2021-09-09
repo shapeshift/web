@@ -1,5 +1,5 @@
-import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { useCallback, useMemo } from 'react'
+import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 
 const CRYPTO_PRECISION = 8
 

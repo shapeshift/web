@@ -13,14 +13,14 @@ import {
   StatNumber
 } from '@chakra-ui/react'
 import { AssetMarketData, HistoryTimeframe } from '@shapeshiftoss/market-service'
-import { Card } from 'components/Card/Card'
-import { Graph } from 'components/Graph/Graph'
-import { TimeControls } from 'components/Graph/TimeControls'
-import { RawText, Text } from 'components/Text'
 import numeral from 'numeral'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { Graph } from 'components/Graph/Graph'
+import { TimeControls } from 'components/Graph/TimeControls'
+import { RawText, Text } from 'components/Text'
 
 import { AssetActions } from './AssetActions'
 

@@ -8,12 +8,12 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
+import { useFormContext } from 'react-hook-form'
+import { useHistory } from 'react-router-dom'
 import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useFormContext } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
 
 export const Confirm = () => {
   const history = useHistory()

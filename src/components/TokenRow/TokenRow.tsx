@@ -6,9 +6,9 @@ import {
   InputProps,
   InputRightElement
 } from '@chakra-ui/react'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { Control, Controller, ControllerProps } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 const CryptoInput = (props: InputProps) => (
   <Input

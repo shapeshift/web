@@ -9,14 +9,14 @@ import {
   InputProps,
   Text
 } from '@chakra-ui/react'
+import { Controller, useFormContext } from 'react-hook-form'
+import NumberFormat from 'react-number-format'
+import { RouterProps } from 'react-router-dom'
 import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { Controller, useFormContext } from 'react-hook-form'
-import NumberFormat from 'react-number-format'
-import { RouterProps } from 'react-router-dom'
 
 const FiatInput = (props: InputProps) => (
   <Input

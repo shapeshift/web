@@ -1,6 +1,6 @@
 import { useDisclosure, useMediaQuery } from '@chakra-ui/react'
-import { Rail } from 'components/Layout/Rail'
 import React from 'react'
+import { Rail } from 'components/Layout/Rail'
 
 export type LeftSidebarChildProps = {
   isOpen?: boolean

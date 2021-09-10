@@ -1,4 +1,5 @@
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import { ActionTypes } from '../WalletProvider'

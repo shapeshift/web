@@ -14,11 +14,12 @@
     "url": "https://github.com/shapeshift/lib"
   },
   "scripts": {
+    "adapterCli": "yarn build && node ./dist/ChainAdapterCLI.js",
     "build": "yarn clean && tsc --project tsconfig.build.json",
-    "dev": "tsc --watch",
     "clean": "rm -rf dist",
+    "dev": "tsc --watch",
     "test": "jest test",
-    "adapterCli": "yarn build && node ./dist/ChainAdapterCLI.js"
+    "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.15.5-alpha.0",

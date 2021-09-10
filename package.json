@@ -9,15 +9,16 @@
     "version": "independent"
   },
   "scripts": {
+    "build": "lerna run build --include-dependencies",
+    "dev": "lerna run dev --stream --parallel",
     "lint": "eslint --cache .",
     "test": "jest",
     "test:dev": "jest --watch",
-    "build": "lerna run build --include-dependencies",
-    "dev": "lerna run dev --stream --parallel",
+    "type-check": "lerna run type-check",
+    "publish:lerna": "lerna publish from-package --no-private --yes",
     "version:patch": "lerna version patch --yes --no-git-tag-version --no-push",
     "version:minor": "lerna version minor --yes --no-git-tag-version --no-push",
-    "version:major": "lerna version major --yes --no-git-tag-version --no-push",
-    "publish:lerna": "lerna publish from-package --no-private --yes"
+    "version:major": "lerna version major --yes --no-git-tag-version --no-push"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",

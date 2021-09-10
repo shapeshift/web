@@ -18,7 +18,8 @@
     "generate": "node ./dist/generateAssetData/GenerateAssetData.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "test": "jest test"
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
     "lodash": "^4.17.21"

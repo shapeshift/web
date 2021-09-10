@@ -100,7 +100,7 @@ export class CoinGeckoMarketService implements MarketService {
       const { data: historyData } = await axios.get(
         `${url}/market_chart/range?id=${network}&vs_currency=${currency}&from=${from}&to=${to}`
       )
-      return historyData?.prices?.map((data: any) => {
+      return historyData?.prices?.map((data: [string, number]) => {
         return {
           date: new Date(data[0]),
           price: data[1]

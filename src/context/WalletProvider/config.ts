@@ -11,7 +11,7 @@ import { NativePassword } from './NativeWallet/NativePassword'
 import { NativeSeed } from './NativeWallet/NativeSeed'
 import { NativeStart } from './NativeWallet/NativeStart'
 import { NativeSuccess } from './NativeWallet/NativeSuccess'
-import { NativeTestPhrase } from './NativeWallet/NativeTestPhrase'
+import { NativeTestPhrase } from './NativeWallet/NativeTestPhrase/NativeTestPhrase'
 
 export interface SupportedWalletInfo {
   adapter: any

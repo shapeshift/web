@@ -12,12 +12,9 @@ const randomWords =
   'thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty cow pig cat dog'
 
 const setup = ({ state = {}, push = jest.fn() } = {}) => {
-  // @ts-ignore
-  useLocation.mockImplementation(() => ({ state }))
-  // @ts-ignore
-  useHistory.mockImplementation(() => ({ push }))
-  // @ts-ignore
-  bip39.generateMnemonic.mockImplementation(() => randomWords)
+  ;(useLocation as jest.Mock<unknown>).mockImplementation(() => ({ state }))
+  ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push }))
+  ;(bip39.generateMnemonic as jest.Mock<unknown>).mockImplementation(() => randomWords)
   return renderHook(() => useNativeTestPhrase())
 }
 

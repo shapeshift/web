@@ -76,7 +76,10 @@ describe('useNativePasswordRequired', () => {
       await waitFor(() => expect(dispatch).toBeCalled())
       // rerender with new wallet state
       // @ts-ignore
-      useWallet.mockImplementation(() => ({ state: { ...walletState, wallet: {}, walletInfo: { deviceId: 1 } }, dispatch }))
+      useWallet.mockImplementation(() => ({
+        state: { ...walletState, wallet: {}, walletInfo: { deviceId: 1 } },
+        dispatch
+      }))
       rerender()
       // calls two more times after onSubmit is successfully called
       await waitFor(() => expect(on).toBeCalledTimes(4))

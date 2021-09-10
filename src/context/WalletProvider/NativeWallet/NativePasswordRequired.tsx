@@ -128,7 +128,7 @@ export const NativePasswordRequired = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <Flex justifyContent='space-between' alignItems='center' position='relative'>
           <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         </Flex>

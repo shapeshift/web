@@ -15,10 +15,10 @@ import {
   ModalOverlay,
   useDisclosure
 } from '@chakra-ui/react'
-import { Text } from 'components/Text'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 
 import { useInitializeWalletFromStorage } from './hooks/useInitializeWalletFromStorage/useInitializeWalletFromStorage'
 import { useNativePasswordRequired } from './hooks/useNativePasswordRequired/useNativePasswordRequired'

@@ -1,5 +1,5 @@
-import { translations } from 'assets/translations'
 import { I18n } from 'react-polyglot'
+import { translations } from 'assets/translations'
 
 const locale: string = navigator?.language?.split('-')[0] ?? 'en'
 const messages = translations[locale]

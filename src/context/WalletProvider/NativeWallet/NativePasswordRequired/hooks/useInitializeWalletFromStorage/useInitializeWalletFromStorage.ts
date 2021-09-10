@@ -1,7 +1,7 @@
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
+import { useEffect } from 'react'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
-import { useEffect } from 'react'
 
 type StoredWallets = Record<string, string>
 

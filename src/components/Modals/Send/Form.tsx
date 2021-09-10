@@ -41,6 +41,20 @@ type SendFormProps = {
   asset: AssetMarketData
 }
 
+export enum SendFormFields {
+  Address = 'address',
+  Asset = 'asset',
+  FeeType = 'feeType',
+  EstimatedFees = 'estimatedFees',
+  Crypto = 'crypto',
+  CryptoAmount = 'crypto.amount',
+  CryptoSymbol = 'crypto.symbol',
+  FiatAmount = 'fiat.amount',
+  Fiat = 'fiat',
+  FiatSymbol = 'fiat.symbol',
+  Transaction = 'transaction'
+}
+
 export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()

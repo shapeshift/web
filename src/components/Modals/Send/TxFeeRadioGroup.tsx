@@ -4,6 +4,7 @@ import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
+import { SendFormFields } from './Form'
 import { FeePrice } from './views/Confirm'
 
 type TxFeeRadioGroupProps = {
@@ -39,12 +40,12 @@ const feesOrder: FeeDataKey[] = [FeeDataKey.Slow, FeeDataKey.Average, FeeDataKey
 export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   const { control } = useFormContext()
   const { field } = useController({
-    name: 'feeType',
+    name: SendFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: 'average'
+    defaultValue: FeeDataKey.Average
   })
-  const [asset, activeFee] = useWatch({ name: ['asset', 'feeType'] })
+  const [asset, activeFee] = useWatch({ name: [SendFormFields.Asset, SendFormFields.FeeType] })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 

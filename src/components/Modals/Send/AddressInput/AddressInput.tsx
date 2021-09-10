@@ -4,6 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCode } from 'components/Icons/QRCode'
 
+import { SendFormFields } from '../Form'
 import { SendRoutes } from '../Send'
 
 type AddressInputProps = {
@@ -34,7 +35,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
           />
         )}
         control={control}
-        name='address'
+        name={SendFormFields.Address}
         rules={rules}
       />
       <InputRightElement>

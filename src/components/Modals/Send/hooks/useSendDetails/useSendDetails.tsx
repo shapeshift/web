@@ -12,13 +12,11 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
-export enum AmountFieldName {
-  Fiat = 'fiat.amount',
-  Crypto = 'crypto.amount'
-}
+type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 
 type UseSendDetailsReturnType = {
   amountFieldError: string
@@ -37,7 +35,7 @@ type UseSendDetailsReturnType = {
 const ETH_PRECISION = 18
 
 export const useSendDetails = (): UseSendDetailsReturnType => {
-  const [fieldName, setFieldName] = useState<AmountFieldName>(AmountFieldName.Fiat)
+  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const toast = useToast()
@@ -49,7 +47,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setError,
     formState: { errors }
   } = useFormContext()
-  const [asset, address] = useWatch({ name: ['asset', 'address'] })
+  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] })
   const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapter = useChainAdapters()
@@ -147,10 +145,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleInputChange = (inputValue: string) => {
-    const key = fieldName !== AmountFieldName.Fiat ? AmountFieldName.Fiat : AmountFieldName.Crypto
+    const key =
+      fieldName !== SendFormFields.FiatAmount
+        ? SendFormFields.FiatAmount
+        : SendFormFields.CryptoAmount
     const assetPrice = asset.price
     const amount =
-      fieldName === AmountFieldName.Fiat
+      fieldName === SendFormFields.FiatAmount
         ? bnOrZero(inputValue).div(assetPrice).toString()
         : bnOrZero(inputValue).times(assetPrice).toString()
     setValue(key, amount)
@@ -173,12 +174,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const toggleCurrency = () => {
     if (amountFieldError) {
       // Toggles an existing error to the other field if present
-      const clearErrorKey = fiatError ? AmountFieldName.Fiat : AmountFieldName.Crypto
-      const setErrorKey = fiatError ? AmountFieldName.Crypto : AmountFieldName.Fiat
+      const clearErrorKey = fiatError ? SendFormFields.FiatAmount : SendFormFields.CryptoAmount
+      const setErrorKey = fiatError ? SendFormFields.CryptoAmount : SendFormFields.FiatAmount
       clearErrors(clearErrorKey)
       setError(setErrorKey, { message: 'common.insufficientFunds' })
     }
-    setFieldName(fieldName === AmountFieldName.Fiat ? AmountFieldName.Crypto : AmountFieldName.Fiat)
+    setFieldName(
+      fieldName === SendFormFields.FiatAmount
+        ? SendFormFields.CryptoAmount
+        : SendFormFields.FiatAmount
+    )
   }
 
   return {

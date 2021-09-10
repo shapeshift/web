@@ -20,7 +20,8 @@ import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
-import { AmountFieldName, useSendDetails } from '../hooks/useSendDetails/useSendDetails'
+import { SendFormFields } from '../Form'
+import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendRoutes } from '../Send'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
@@ -31,7 +32,9 @@ export const Details = () => {
   } = useFormContext()
   const history = useHistory()
   const translate = useTranslate()
-  const [asset, crypto, fiat] = useWatch({ name: ['asset', 'crypto', 'fiat'] })
+  const [asset, crypto, fiat] = useWatch({
+    name: [SendFormFields.Asset, SendFormFields.Crypto, SendFormFields.Fiat]
+  })
 
   const { send } = useModal()
   const {
@@ -81,15 +84,15 @@ export const Details = () => {
               _hover={{ color: 'white' }}
             >
               ≈{' '}
-              {fieldName === AmountFieldName.Fiat
+              {fieldName === SendFormFields.FiatAmount
                 ? `${crypto.amount ?? 0} ${crypto.symbol}`
                 : `${fiat.amount ?? 0} ${fiat.symbol}`}
             </FormHelperText>
           </Box>
-          {fieldName === AmountFieldName.Crypto && (
+          {fieldName === SendFormFields.CryptoAmount && (
             <TokenRow
               control={control}
-              fieldName={AmountFieldName.Crypto}
+              fieldName={SendFormFields.CryptoAmount}
               onInputChange={handleInputChange}
               inputLeftElement={
                 <Button
@@ -110,10 +113,10 @@ export const Details = () => {
               }}
             />
           )}
-          {fieldName === AmountFieldName.Fiat && (
+          {fieldName === SendFormFields.FiatAmount && (
             <TokenRow
               control={control}
-              fieldName={AmountFieldName.Fiat}
+              fieldName={SendFormFields.FiatAmount}
               onInputChange={handleInputChange}
               inputLeftElement={
                 <Button

@@ -48,7 +48,7 @@ export const useNativeTestPhrase = () => {
   }, [state, shuffledNumbers])
 
   useEffect(() => {
-    decrypt().catch()
+    decrypt()
   }, [decrypt])
 
   const handleNext = () => {

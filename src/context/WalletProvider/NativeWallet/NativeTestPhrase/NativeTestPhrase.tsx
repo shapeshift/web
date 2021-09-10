@@ -25,13 +25,13 @@ export const NativeTestPhrase = () => {
       </ModalHeader>
       <ModalBody>
         <RawText>
-          <Text translation={'walletProvider.shapeShift.nativeTestPhrase.body1'} />{' '}
+          <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body'} />{' '}
           <Tag colorScheme='green'>
             {shuffledWords[testCount - 1][0]}
             {ordinalSuffix(shuffledWords[testCount - 1][0])}{' '}
-            <Text translation={'walletPrivder.shapeShift.nativeTestPhrase.body2'} />
+            <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body2'} />
           </Tag>{' '}
-          <Text translation={'walletProvider.shapeShift.nativeTestPhrase.body3'} />
+          <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body3'} />
         </RawText>
         <Wrap mt={12} mb={6}>
           {shuffledRandomWords &&

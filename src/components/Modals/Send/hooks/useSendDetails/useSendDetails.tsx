@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
 import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { getAssetData } from '@shapeshiftoss/market-service'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -12,6 +12,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { useGetAssetData } from '../../../../../hooks/useAsset/useAsset'
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
@@ -54,6 +55,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const {
     state: { wallet }
   } = useWallet()
+
+  const getAssetData = useGetAssetData()
 
   useEffect(() => {
     if (balanceError) {
@@ -126,7 +129,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       })
       // Assume fast fee for send max
       const fastFee = adapterFees[FeeDataKey.Fast]
-      const chainAsset = await getAssetData(asset.network)
+      const chainAsset = await getAssetData({
+        chain: ChainTypes.ETH,
+        network: NetworkTypes.MAINNET,
+        tokenId: address
+      })
       // TODO (technojak) replace precision with data from asset-service. Currently ETH specific
       const networkFee = bnOrZero(fastFee.networkFee).div(`1e${ETH_PRECISION}`)
 

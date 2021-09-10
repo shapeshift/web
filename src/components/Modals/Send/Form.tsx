@@ -1,5 +1,4 @@
 import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -12,6 +11,7 @@ import {
   useLocation
 } from 'react-router-dom'
 
+import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendRoutes } from './Send'

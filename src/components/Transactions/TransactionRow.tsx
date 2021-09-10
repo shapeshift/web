@@ -10,6 +10,8 @@ import {
   useColorModeValue
 } from '@chakra-ui/react'
 import { useState } from 'react'
+import { Amount } from 'components/Amount/Amount'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import {
@@ -40,11 +42,11 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
           <Text translation={sentTx ? 'transactionRow.sent' : 'transactionRow.received'} />
-          <RawText ml={2}>{`${tx.amount} ${tx.symbol}`}</RawText>
+          <Amount.Crypto ml={2} value={tx.amount} symbol={tx.symbol} maximumFractionDigits={4} />
         </Flex>
         <RawText>{tx.dateFromNow}</RawText>
       </Flex>
-      <Collapse in={isOpen}>
+      <Collapse in={isOpen} unmountOnExit>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>
           <Row variant='vertical'>
             <Row.Label>
@@ -58,8 +60,7 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
             </Row.Label>
             <Row.Value>
               <Link isExternal color='blue.500'>
-                {/* TODO: add ellipsis */}
-                {`${tx.txid?.substr(0, 7)}...`}
+                <MiddleEllipsis maxWidth='180px'>{tx.txid}</MiddleEllipsis>
               </Link>
             </Row.Value>
           </Row>
@@ -67,7 +68,9 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
             <Row.Label>
               <Text translation='transactionRow.fee' />
             </Row.Label>
-            <Row.Value>{`${tx.fee} ${tx.chain}`}</Row.Value>
+            <Row.Value>
+              <Amount.Crypto ml={2} value={tx.fee} symbol={tx.chain} maximumFractionDigits={4} />
+            </Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>
@@ -102,15 +105,10 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
           </Row>
           <Row variant='vertical'>
             <Row.Label>
-              {sentTx ? (
-                <Text translation='transactionRow.to' />
-              ) : (
-                <Text translation='transactionRow.from' />
-              )}
+              <Text translation={sentTx ? 'transactionRow.to' : 'transactionRow.from'} />
             </Row.Label>
-            {/* TODO: add ellipsis */}
             <Row.Value>
-              {sentTx ? `${tx.to?.substr(0, 7)}...` : `${tx.from?.substr(0, 7)}...`}
+              <MiddleEllipsis maxWidth='180px'>{sentTx ? tx.to : tx.from}</MiddleEllipsis>
             </Row.Value>
           </Row>
         </SimpleGrid>

@@ -52,6 +52,8 @@
       "tokenAddress": "Token Address",
       "scanQrCode": "Scan QR Code",
       "sent": "%{asset} sent",
+      "errorTitle": "Something went wrong",
+      "errorDescription": "Your send of %{asset} failed.",
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",

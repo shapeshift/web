@@ -1,7 +1,7 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { Page } from 'components/Layout/Page'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
 import { AssetHeader } from './AssetHeader'
 import { AssetHistory } from './AssetHistory'
 type AssetDetailProps = {

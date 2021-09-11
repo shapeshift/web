@@ -1,8 +1,7 @@
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Transactions } from 'components/Transactions/Transactions'
-
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
   const translate = useTranslate()
   const { network, tokenId, symbol } = asset

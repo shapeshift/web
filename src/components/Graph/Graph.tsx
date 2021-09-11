@@ -3,8 +3,8 @@ import { getPriceHistory, HistoryData, HistoryTimeframe } from '@shapeshiftoss/m
 import { ParentSize } from '@visx/responsive'
 import BigNumber from 'bignumber.js'
 import { memo, useEffect, useState } from 'react'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-import { AssetMarketData } from '../../hooks/useAsset/useAsset'
 import { CircularProgress } from '../CircularProgress/CircularProgress'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 type GraphProps = {

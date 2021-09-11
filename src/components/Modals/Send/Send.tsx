@@ -2,8 +2,8 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
 import { Form } from './Form'
 
 export enum SendRoutes {

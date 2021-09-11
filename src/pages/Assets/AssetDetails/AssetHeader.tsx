@@ -21,8 +21,8 @@ import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
 import { AssetActions } from './AssetActions'
 
 export const AssetHeader = ({ asset }: { asset: AssetMarketData }) => {

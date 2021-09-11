@@ -3,8 +3,8 @@ import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
+import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 
-import { AssetMarketData, useGetAssetData } from '../../hooks/useAsset/useAsset'
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
 export interface MatchParams {

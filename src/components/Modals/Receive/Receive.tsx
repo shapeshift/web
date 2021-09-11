@@ -23,8 +23,7 @@ import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 type ReceivePropsType = {
   asset: AssetMarketData

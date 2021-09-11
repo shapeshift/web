@@ -10,8 +10,8 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendRoutes } from './Send'
@@ -23,7 +23,7 @@ import { QrCodeScanner } from './views/QrCodeScanner'
 // @TODO Determine if we should use symbol for display purposes or some other identifier for display
 export type SendInput = {
   address: string
-  asset: any
+  asset: AssetMarketData
   feeType: FeeDataKey
   estimatedFees: FeeData
   crypto: {

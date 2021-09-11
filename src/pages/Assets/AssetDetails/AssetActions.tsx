@@ -2,8 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup } from '@chakra-ui/react'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-
-import { AssetMarketData } from '../../../hooks/useAsset/useAsset'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 export const AssetActions = ({ asset }: { asset: AssetMarketData }) => {
   const { send, receive } = useModal()

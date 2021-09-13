@@ -18,18 +18,18 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
         try {
           let mnemonic = await encryptedWallet.decrypt()
           const wallet = await (state.adapters.native as NativeAdapter).pairDevice(
-            encryptedWallet?.deviceId
+            encryptedWallet.deviceId
           )
           await wallet?.loadDevice({ mnemonic })
           mnemonic = '' // Clear out the mnemonic as soon as we're done with it
           setLocalStorageWallet({
-            [encryptedWallet?.deviceId]: encryptedWallet?.encryptedWallet
+            [encryptedWallet.deviceId]: encryptedWallet.encryptedWallet
           })
           setIsSuccessful(true)
           const { name, icon } = SUPPORTED_WALLETS['native']
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId: encryptedWallet?.deviceId }
+            payload: { wallet, name, icon, deviceId: encryptedWallet.deviceId }
           })
         } catch (error) {
           console.warn('Failed to load device', error)

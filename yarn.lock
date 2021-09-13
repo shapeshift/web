@@ -3094,6 +3094,13 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
+"@shapeshiftoss/asset-service@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.0.0.tgz#7eadd5b61ad919e5e908222d185df519f1ea5f5e"
+  integrity sha512-6fqNgRubZA8Z09sXk1493oyc6gepRqzcdonsfLF5drhBfVABR6NDygzDTmZ3rpB9rv8yCLr+6M2JtygRuA3ElQ==
+  dependencies:
+    lodash "^4.17.21"
+
 "@shapeshiftoss/chain-adapters@^0.0.16":
   version "0.0.16"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-0.0.16.tgz#1cf5d72961058b4da8913b3ad12b173fb00b38b2"

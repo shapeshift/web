@@ -1,10 +1,9 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { Page } from 'components/Layout/Page'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 import { AssetHeader } from './AssetHeader'
 import { AssetHistory } from './AssetHistory'
-
 type AssetDetailProps = {
   asset: AssetMarketData
 }

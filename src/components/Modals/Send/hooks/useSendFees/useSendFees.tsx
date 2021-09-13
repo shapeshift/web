@@ -1,5 +1,6 @@
+import { ChainTypes } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { getAssetData } from '@shapeshiftoss/market-service'
+import { getMarketData } from '@shapeshiftoss/market-service'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -26,7 +27,7 @@ export const useSendFees = () => {
          * Also important to note that asset service has a contract type.
          */
         const precision = 18
-        const feeMarketData = await getAssetData(asset?.network)
+        const feeMarketData = await getMarketData(ChainTypes.ETH, asset?.network)
         const txFees = (Object.keys(estimatedFees) as FeeDataKey[]).reduce(
           (acc: FeePrice, key: FeeDataKey) => {
             const current = estimatedFees[key]

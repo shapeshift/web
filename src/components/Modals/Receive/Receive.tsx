@@ -15,7 +15,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
-import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -24,6 +23,7 @@ import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 type ReceivePropsType = {
   asset: AssetMarketData

@@ -71,7 +71,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [balanceError, toast, history, translate])
 
   /** When selecting new assets the network (CHAIN) is not returned from the market service. This will break. We should get this from the */
-  const adapter = chainAdapter.byChain(asset.network)
+  const adapter = chainAdapter.byChain('ethereum')
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx

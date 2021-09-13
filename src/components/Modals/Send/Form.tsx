@@ -1,5 +1,7 @@
-import { useToast } from '@chakra-ui/react'
+import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { AssetMarketData } from '@shapeshiftoss/market-service'
 import { AnimatePresence } from 'framer-motion'
+import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
   Redirect,
@@ -9,17 +11,21 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
-import { Confirm } from './Confirm'
-import { Details } from './Details'
+import { useFormSend } from './hooks/useFormSend/useFormSend'
+import { SendRoutes } from './Send'
+import { Address } from './views/Address'
+import { Confirm } from './views/Confirm'
+import { Details } from './views/Details'
+import { QrCodeScanner } from './views/QrCodeScanner'
 
 // @TODO Determine if we should use symbol for display purposes or some other identifier for display
-type SendInput = {
+export type SendInput = {
   address: string
-  asset: string
-  fee: string
+  asset: any
+  feeType: FeeDataKey
+  estimatedFees: FeeData
   crypto: {
     amount: string
     symbol: string
@@ -28,61 +34,76 @@ type SendInput = {
     amount: string
     symbol: string
   }
+  transaction: unknown
 }
 
-export const Form = () => {
+type SendFormProps = {
+  asset: AssetMarketData
+}
+
+export enum SendFormFields {
+  Address = 'address',
+  Asset = 'asset',
+  FeeType = 'feeType',
+  EstimatedFees = 'estimatedFees',
+  Crypto = 'crypto',
+  CryptoAmount = 'crypto.amount',
+  CryptoSymbol = 'crypto.symbol',
+  FiatAmount = 'fiat.amount',
+  Fiat = 'fiat',
+  FiatSymbol = 'fiat.symbol',
+  Transaction = 'transaction'
+}
+
+export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
-  const toast = useToast()
-  const { send } = useModal()
+  const { handleSend } = useFormSend()
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
       address: '',
-      fee: 'Average',
+      asset: initalAsset,
+      feeType: FeeDataKey.Average,
       crypto: {
         amount: '',
-        symbol: 'BTC' // @TODO wire up to state
+        symbol: initalAsset?.symbol
       },
       fiat: {
         amount: '',
-        symbol: 'USD' // @TODO wire up to state
+        symbol: 'USD' // TODO: localize currency
       }
     }
   })
 
-  const handleClick = () => {
-    history.push('/send/details')
+  const handleAssetSelect = () => {
+    /** @todo wire up asset select */
+    // methods.setValue('asset', asset)
+    history.push(SendRoutes.Details)
   }
 
-  const handleSubmit = (data: any) => {
-    console.info(data)
-    send.close()
-    toast({
-      title: 'Bitcoin Sent.',
-      description: 'You have successfully sent 0.005 BTC',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right'
-    })
+  const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === 'Enter') event.preventDefault()
   }
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(handleSubmit)}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+      <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             <Route
-              path='/send/select'
+              path={SendRoutes.Select}
               component={(props: RouteComponentProps) => (
-                <SelectAssets onClick={handleClick} {...props} />
+                <SelectAssets onClick={handleAssetSelect} {...props} />
               )}
             />
-            <Route path='/send/details' component={Details} />
-            <Route path='/send/confirm' component={Confirm} />
-            <Redirect exact from='/' to='/send/select' />
+            <Route path={SendRoutes.Address} component={Address} />
+            <Route path={SendRoutes.Details} component={Details} />
+            <Route path={SendRoutes.Scan} component={QrCodeScanner} />
+            <Route path={SendRoutes.Confirm} component={Confirm} />
+            <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>
         </AnimatePresence>
       </form>

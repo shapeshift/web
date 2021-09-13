@@ -13,8 +13,9 @@ export const AssetActions = ({ asset }: { asset: AssetMarketData }) => {
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleSendClick = () => (isConnected ? send.open({}) : handleWalletModalOpen())
+  const handleSendClick = () => (isConnected ? send.open({ asset }) : handleWalletModalOpen())
   const handleReceiveClick = () => (isConnected ? receive.open({ asset }) : handleWalletModalOpen())
+
   return (
     <ButtonGroup
       ml={{ base: 0, lg: 'auto' }}

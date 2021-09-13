@@ -13,8 +13,8 @@ const setup = (encryptedWallet?: EncryptedWallet) => {
 }
 
 describe('useRevocableSeed', () => {
-  it('generates wallet and sets seed', async () => {
-    return await act(async () => {
+  describe('getSeed', () => {
+    it('returns mnemonic', async () => {
       const encryptedWallet = {
         encryptedWallet: '',
         decrypt: jest.fn().mockResolvedValue(mnemonic),
@@ -25,6 +25,24 @@ describe('useRevocableSeed', () => {
       await waitFor(() => expect(result.current.generating).toBe(false))
 
       expect(result.current.getSeed()).toBe(mnemonic)
+    })
+
+    it('returns null after revoked', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation()
+      const encryptedWallet = {
+        encryptedWallet: '',
+        decrypt: jest.fn().mockResolvedValue(mnemonic),
+        createWallet: jest.fn().mockResolvedValue('')
+      }
+      const { result, waitFor } = setup(encryptedWallet as unknown as EncryptedWallet)
+
+      await waitFor(() => expect(result.current.generating).toBe(false))
+
+      expect(result.current.getSeed()).toBe(mnemonic)
+      result.current.revoke()
+      expect(result.current.getSeed()).toBe(null)
+      await waitFor(() => expect(console.error).toBeCalled())
+      consoleError.mockRestore()
     })
   })
 

@@ -1,17 +1,16 @@
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 
-export type AssetMarketData = {
-  name: string
-  symbol: string
-  network: string
-  identifier?: string
+export enum ChainTypes {
+  ETH = 'ETH',
+  BTC = 'BTC',
+  LTC = 'LTC'
+}
+
+export type MarketData = {
   price: string
   marketCap: string
   volume: string
-  icon: string
   changePercent24Hr: number
-  description?: string
-  contractAddress?: string
 }
 
 export enum HistoryTimeframe {
@@ -28,18 +27,18 @@ export type HistoryData = {
   date: string
 }
 
-type AssetDataType = (network: string, contractAddress?: string) => Promise<AssetMarketData | null>
+type MarketDataType = (chain: ChainTypes, tokenId?: string) => Promise<MarketData | null>
 
 type PriceHistoryType = (
-  network: string,
+  name: string,
   timeframe: HistoryTimeframe,
-  contractAddress?: string
+  tokenId?: string
 ) => Promise<HistoryData[]>
 
 export interface MarketService {
   baseUrl: string
 
-  getAssetData: AssetDataType
+  getMarketData: MarketDataType
 
   getPriceHistory: PriceHistoryType
 }
@@ -48,14 +47,14 @@ export const getDefaultMarketService = (): MarketService => {
   return new CoinGeckoMarketService()
 }
 
-export const getAssetData: AssetDataType = async (network, contractAddress) => {
-  return getDefaultMarketService().getAssetData(network, contractAddress)
+export const getMarketData: MarketDataType = async (network, tokenId) => {
+  return getDefaultMarketService().getMarketData(network, tokenId)
 }
 
-export const getAssetHistory: PriceHistoryType = (
-  network,
+export const getPriceHistory: PriceHistoryType = (
+  name,
   timeline,
-  contractAddress
+  tokenId
 ): Promise<HistoryData[]> => {
-  return getDefaultMarketService().getPriceHistory(network, timeline, contractAddress)
+  return getDefaultMarketService().getPriceHistory(name, timeline, tokenId)
 }

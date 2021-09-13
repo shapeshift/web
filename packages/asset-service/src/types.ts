@@ -11,7 +11,7 @@ export type TokenAsset = {
   symbol: string
 }
 export type BaseAsset = {
-  chain: string
+  chain: ChainTypes
   network: NetworkTypes
   symbol: string
   name: string
@@ -28,7 +28,7 @@ export type BaseAsset = {
 }
 
 export type Asset = {
-  chain: string
+  chain: ChainTypes
   network: NetworkTypes
   symbol: string
   name: string
@@ -52,9 +52,15 @@ export enum ContractTypes {
   NONE = 'NONE'
 }
 
+export enum ChainTypes {
+  ETH = 'ETH',
+  BTC = 'BTC',
+  LTC = 'LTC'
+}
+
 export enum NetworkTypes {
-  BTC_MAINNET = 'BTC_MAINNET',
-  BTC_TESTNET = 'BTC_TESTNET',
-  ETH_MAINNET = 'ETH_MAINNET',
-  ETH_ROPSTEN = 'ETH_ROPSTEN'
+  MAINNET = 'MAINNET',
+  TESTNET = 'TESTNET', // BTC, lTC, etc...
+  ETH_ROPSTEN = 'ETH_ROPSTEN',
+  ETH_RINKEBY = 'ETH_RINKEBY'
 }

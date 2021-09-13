@@ -1,9 +1,9 @@
-import { BaseAsset, ContractTypes, NetworkTypes } from '../types'
+import { BaseAsset, ContractTypes, NetworkTypes, ChainTypes } from '../types'
 
 export const baseAssets: Array<BaseAsset> = [
   {
-    chain: 'ETH',
-    network: NetworkTypes.ETH_MAINNET,
+    chain: ChainTypes.ETH,
+    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
     precision: 18,
@@ -17,8 +17,8 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: true
   },
   {
-    chain: 'BTC',
-    network: NetworkTypes.BTC_MAINNET,
+    chain: ChainTypes.BTC,
+    network: NetworkTypes.MAINNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,
@@ -32,7 +32,22 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: false
   },
   {
-    chain: 'ETH',
+    chain: ChainTypes.BTC,
+    network: NetworkTypes.TESTNET,
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    precision: 8,
+    slip44: 1,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
+    explorer: 'https://live.blockcypher.com/btc-testnet/',
+    explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/',
+    sendSupport: false,
+    receiveSupport: false
+  },
+  {
+    chain: ChainTypes.ETH,
     network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',
     name: 'Ropsten Testnet Ethereum',

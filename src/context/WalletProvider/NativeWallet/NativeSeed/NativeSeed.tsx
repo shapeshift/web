@@ -21,7 +21,7 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const [isRevoked, setIsRevoked] = useState(false)
-  const { revocableSeed } = useRevocableSeed(location.state.encryptedWallet)
+  const { getSeed, revoke } = useRevocableSeed(location.state.encryptedWallet)
   const handleShow = () => {
     revealedOnce.current = true
     setRevealed(!revealed)
@@ -42,19 +42,21 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
         )}
         <Wrap mt={12} mb={6}>
           {!isRevoked &&
-            revocableSeed.proxy.seed?.split(' ')?.map((word, index) => (
-              <Tag
-                p={2}
-                flexBasis='31%'
-                justifyContent='flex-start'
-                fontSize='md'
-                key={word}
-                colorScheme='blue'
-              >
-                <Code mr={2}>{index + 1}</Code>
-                {revealed ? word : '•••••••'}
-              </Tag>
-            ))}
+            getSeed()
+              ?.split(' ')
+              ?.map((word, index) => (
+                <Tag
+                  p={2}
+                  flexBasis='31%'
+                  justifyContent='flex-start'
+                  fontSize='md'
+                  key={word}
+                  colorScheme='blue'
+                >
+                  <Code mr={2}>{index + 1}</Code>
+                  {revealed ? word : '•••••••'}
+                </Tag>
+              ))}
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
@@ -67,7 +69,7 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
             size='lg'
             onClick={() => {
               setIsRevoked(true)
-              revocableSeed.revoke()
+              revoke()
               history.push('/native/seed-test', { encryptedWallet: location.state.encryptedWallet })
             }}
           >

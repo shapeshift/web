@@ -91,6 +91,13 @@ more information.
     yarn build
 ```
 
+Runs the component documentation.<br /> Open
+[http://localhost:6006](http://localhost:6006) to view it in the browser.
+
+```sh
+    yarn storybook
+```
+
 ### Linking
 
 If you are working with any @shapeshiftoss dependencies use `yarn link`

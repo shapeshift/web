@@ -14,16 +14,6 @@ jest.mock('hooks/useLocalStorage/useLocalStorage', () => ({
   useLocalStorage: jest.fn()
 }))
 
-jest.mock('@shapeshiftoss/hdwallet-native/dist/crypto', () => {
-  return function () {
-    return {
-      deviceId: '1234',
-      encryptedWallet: 'test'
-    }
-  }
-})
-
-
 const setup = ({
   encryptedWallet,
   walletState
@@ -35,7 +25,6 @@ const setup = ({
   useWallet.mockImplementation(() => ({ state: walletState, dispatch: () => {} }))
   // @ts-ignore
   useLocalStorage.mockImplementation(() => [jest.fn(), jest.fn()])
-  const encryptedWallet = new EncryptedWallet()
 
   return renderHook(() => useNativeSuccess({ encryptedWallet }))
 }
@@ -49,14 +38,8 @@ describe('useNativeSuccess', () => {
       encryptedWallet: {
         deviceId: '1234',
         encryptedWallet: 'test',
-        isInitialized: true,
-        email: 'test',
-        passwordHash: '1234',
-        init: jest.fn(),
-        createWallet: jest.fn(),
         decrypt: jest.fn(() => Promise.resolve(mnemonic)),
-        reset: jest.fn()
-      },
+      } as unknown as EncryptedWallet,
       walletState: {
         adapters: { native: { pairDevice } }
       }
@@ -68,7 +51,7 @@ describe('useNativeSuccess', () => {
 
   it('unsuccesffully initialize wallet if no native adapter is provided', async () => {
     const { result } = setup({
-      encryptedWallet: { deviceId: '1234', encryptedWallet: 'test' },
+      encryptedWallet: { deviceId: '1234', encryptedWallet: 'test' } as unknown as EncryptedWallet,
       walletState: { adapters: { native: null } }
     })
 
@@ -78,7 +61,7 @@ describe('useNativeSuccess', () => {
   it('unsuccesffully initialize wallet if no encryptedWallet string is provided', async () => {
     const pairDevice = jest.fn(() => ({ loadDevice: jest.fn(() => Promise.resolve()) }))
     const { result } = setup({
-      encryptedWallet: { deviceId: '1234' },
+      encryptedWallet: { deviceId: '1234' } as unknown as EncryptedWallet,
       walletState: { adapters: { native: { pairDevice } } }
     })
 

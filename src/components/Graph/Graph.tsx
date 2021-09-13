@@ -21,7 +21,7 @@ export const Graph = memo(({ asset, timeframe, setPercentChange }: GraphProps) =
     if (asset?.name) {
       ;(async () => {
         setLoading(true)
-        const data = await getPriceHistory(asset.network?.toLowerCase(), timeframe, asset.tokenId)
+        const data = await getPriceHistory(asset.chain, timeframe, asset.tokenId)
         setData(data)
         setLoading(false)
         const startValue = data[0]?.price

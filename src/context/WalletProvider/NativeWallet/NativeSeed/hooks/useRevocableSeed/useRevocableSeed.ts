@@ -2,7 +2,7 @@ import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 export const useRevocableSeed = (encryptedWallet?: EncryptedWallet) => {
-  const [, setIsGenerating] = useState(true)
+  const [generating, setIsGenerating] = useState(true)
 
   const revocableSeed = useMemo(
     () =>
@@ -52,6 +52,7 @@ export const useRevocableSeed = (encryptedWallet?: EncryptedWallet) => {
         return null
       }
     },
-    revoke: revocableSeed.revoke
+    revoke: revocableSeed.revoke,
+    generating
   }
 }

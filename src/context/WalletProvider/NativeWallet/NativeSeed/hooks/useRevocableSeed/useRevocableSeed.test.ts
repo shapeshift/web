@@ -1,5 +1,5 @@
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
-import { renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react-hooks'
 
 import { useRevocableSeed } from './useRevocableSeed'
 
@@ -14,16 +14,18 @@ const setup = (encryptedWallet?: EncryptedWallet) => {
 
 describe('useRevocableSeed', () => {
   it('generates wallet and sets seed', async () => {
-    const encryptedWallet = {
-      encryptedWallet: '',
-      decrypt: jest.fn().mockResolvedValue(mnemonic),
-      createWallet: jest.fn().mockResolvedValue('')
-    }
-    const { result, waitFor } = setup(encryptedWallet as unknown as EncryptedWallet)
+    return await act(async () => {
+      const encryptedWallet = {
+        encryptedWallet: '',
+        decrypt: jest.fn().mockResolvedValue(mnemonic),
+        createWallet: jest.fn().mockResolvedValue('')
+      }
+      const { result, waitFor } = setup(encryptedWallet as unknown as EncryptedWallet)
 
-    await waitFor(() => expect(result.current.loading).toBe(false))
+      await waitFor(() => expect(result.current.generating).toBe(false))
 
-    expect(result.current.revocableSeed.proxy.seed).toBe(mnemonic)
+      expect(result.current.getSeed()).toBe(mnemonic)
+    })
   })
 
   it('errors when creating and decrypting', async () => {
@@ -35,7 +37,7 @@ describe('useRevocableSeed', () => {
     }
     const { result, waitFor } = setup(encryptedWallet as unknown as EncryptedWallet)
 
-    await waitFor(() => expect(result.current.loading).toBe(false))
+    await waitFor(() => expect(result.current.generating).toBe(false))
 
     expect(console.error).toBeCalled()
     consoleError.mockRestore()

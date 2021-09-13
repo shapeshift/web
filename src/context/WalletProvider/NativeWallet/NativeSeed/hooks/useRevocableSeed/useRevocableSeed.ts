@@ -1,4 +1,5 @@
-import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+import { crypto } from '@shapeshiftoss/hdwallet-native'
+const { EncryptedWallet } = crypto
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 export const useRevocableSeed = (encryptedWallet?: EncryptedWallet) => {

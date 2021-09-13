@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { ChainIdentifier, FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { NetworkTypes } from '@shapeshiftoss/asset-service'
+import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
@@ -16,6 +16,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
+
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 
 type UseSendDetailsReturnType = {
@@ -70,8 +71,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }, [balanceError, toast, history, translate])
 
-  /** When selecting new assets the network (CHAIN) is not returned from the market service. This will break. We should get this from the */
-  const adapter = chainAdapter.byChain(ChainIdentifier.Ethereum)
+  const adapter = chainAdapter.byChain(asset.chain)
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx
@@ -129,14 +129,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       // Assume fast fee for send max
       const fastFee = adapterFees[FeeDataKey.Fast]
       const chainAsset = await getAssetData({
-        chain: ChainTypes.Ethereum,
+        chain: asset.chain,
         network: NetworkTypes.MAINNET,
         tokenId: asset.tokenId
       })
-      // TODO (technojak) replace precision with data from asset-service. Currently ETH specific
-      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${ETH_PRECISION}`)
 
-      // TODO (technojak): change to tokenId when integrated with asset-service
+      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${chainAsset.precision}`)
+
       if (asset.tokenId) {
         setValue('crypto.amount', accountBalances.crypto.toPrecision())
         setValue('fiat.amount', accountBalances.fiat.toPrecision())

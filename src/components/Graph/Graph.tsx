@@ -22,6 +22,7 @@ export const Graph = ({ asset, timeframe, setPercentChange, isLoaded }: GraphPro
     setLoading(true)
     if (asset?.name) {
       ;(async () => {
+        setLoading(true)
         const data = await getPriceHistory(asset.chain, timeframe, asset.tokenId)
         setData(data)
         setLoading(false)

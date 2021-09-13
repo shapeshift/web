@@ -77,10 +77,11 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
     }
   })
 
-  const handleAssetSelect = () => {
-    /** @todo wire up asset select */
-    // methods.setValue('asset', asset)
-    history.push(SendRoutes.Details)
+  const handleAssetSelect = (asset: AssetMarketData) => {
+    methods.setValue('asset', asset)
+    methods.setValue('crypto', { symbol: asset.symbol, amount: '' })
+    methods.setValue('fiat.amount', '')
+    history.push(SendRoutes.Address)
   }
 
   const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {

@@ -1,26 +1,27 @@
-import { Center, SlideFade } from '@chakra-ui/react'
+import { Center, Fade, SlideFade } from '@chakra-ui/react'
 import { getPriceHistory, HistoryData, HistoryTimeframe } from '@shapeshiftoss/market-service'
 import { ParentSize } from '@visx/responsive'
 import BigNumber from 'bignumber.js'
-import { memo, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-import { CircularProgress } from '../CircularProgress/CircularProgress'
+import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 type GraphProps = {
   asset?: AssetMarketData
   timeframe: HistoryTimeframe
   setPercentChange?: (percentChange: number) => void
+  isLoaded?: boolean
 }
 
-export const Graph = memo(({ asset, timeframe, setPercentChange }: GraphProps) => {
+export const Graph = ({ asset, timeframe, setPercentChange, isLoaded }: GraphProps) => {
   const [data, setData] = useState<HistoryData[]>([])
   const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
+    setLoading(true)
     if (asset?.name) {
       ;(async () => {
-        setLoading(true)
         const data = await getPriceHistory(asset.chain, timeframe, asset.tokenId)
         setData(data)
         setLoading(false)
@@ -41,10 +42,12 @@ export const Graph = memo(({ asset, timeframe, setPercentChange }: GraphProps) =
   return (
     <ParentSize debounceTime={10}>
       {parent =>
-        loading ? (
-          <Center width='full' height={parent.height}>
-            <CircularProgress isIndeterminate />
-          </Center>
+        loading || !isLoaded ? (
+          <Fade in={loading || !isLoaded}>
+            <Center width='full' height={parent.height}>
+              <GraphLoading />
+            </Center>
+          </Fade>
         ) : data?.length ? (
           <SlideFade in={!loading}>
             <PrimaryChart
@@ -63,4 +66,4 @@ export const Graph = memo(({ asset, timeframe, setPercentChange }: GraphProps) =
       }
     </ParentSize>
   )
-})
+}

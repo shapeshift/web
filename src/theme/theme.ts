@@ -11,6 +11,7 @@ import { MenuStyle as Menu } from 'components/Menu/Menu.theme'
 import { ModalStyle as Modal } from 'components/Modal/Modal.theme'
 import { ProgressStyle as Progress } from 'components/Progres/Progress.theme'
 import { RowStyle as Row } from 'components/Row/Row.theme'
+import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
 import { SpinnerStyle as Spinner } from 'components/Spinner/Spinner.theme'
 import { StatStyle as Stat } from 'components/Stat/Stat.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
@@ -108,7 +109,8 @@ export const theme = extendTheme({
     Progress,
     Row,
     Drawer,
-    Textarea
+    Textarea,
+    Skeleton
   },
   shadows: {
     xl: '0 2px 4px 2px rgba(0,0,0,.15),0 2px 10px 2px rgba(0,0,0,.2)',

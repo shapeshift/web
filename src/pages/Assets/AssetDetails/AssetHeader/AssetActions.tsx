@@ -1,10 +1,16 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup, Skeleton } from '@chakra-ui/react'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
-export const AssetActions = ({ asset }: { asset: AssetMarketData }) => {
+export const AssetActions = ({
+  asset,
+  isLoaded
+}: {
+  asset: AssetMarketData
+  isLoaded: boolean
+}) => {
   const { send, receive } = useModal()
   const {
     state: { isConnected },
@@ -22,12 +28,16 @@ export const AssetActions = ({ asset }: { asset: AssetMarketData }) => {
       mt={{ base: 6, lg: 0 }}
       width={{ base: 'full', lg: 'auto' }}
     >
-      <Button onClick={handleSendClick} isFullWidth leftIcon={<ArrowUpIcon />}>
-        Send
-      </Button>
-      <Button onClick={handleReceiveClick} isFullWidth leftIcon={<ArrowDownIcon />}>
-        Receive
-      </Button>
+      <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
+        <Button onClick={handleSendClick} isFullWidth leftIcon={<ArrowUpIcon />}>
+          Send
+        </Button>
+      </Skeleton>
+      <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
+        <Button onClick={handleReceiveClick} isFullWidth leftIcon={<ArrowDownIcon />}>
+          Receive
+        </Button>
+      </Skeleton>
     </ButtonGroup>
   )
 }

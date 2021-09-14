@@ -1,5 +1,5 @@
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react-hooks'
 
 import { useRevocableSeed } from './useRevocableSeed'
 

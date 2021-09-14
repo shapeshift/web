@@ -38,7 +38,7 @@ describe('useNativeSuccess', () => {
       encryptedWallet: {
         deviceId: '1234',
         encryptedWallet: 'test',
-        decrypt: jest.fn(() => Promise.resolve(mnemonic)),
+        decrypt: jest.fn(() => Promise.resolve(mnemonic))
       } as unknown as EncryptedWallet,
       walletState: {
         adapters: { native: { pairDevice } }
@@ -66,5 +66,22 @@ describe('useNativeSuccess', () => {
     })
 
     expect(result.current.isSuccessful).toBeFalsy()
+  })
+
+  it('unsuccesffully initialize wallet if error occurs', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
+    const pairDevice = jest.fn(() => ({ loadDevice: jest.fn(() => Promise.resolve()) }))
+    const { result, waitFor } = setup({
+      encryptedWallet: {
+        deviceId: '1234',
+        encryptedWallet: 'test',
+        decrypt: jest.fn(() => Promise.reject('An error occured with decrypt'))
+      } as unknown as EncryptedWallet,
+      walletState: { adapters: { native: { pairDevice } } }
+    })
+
+    await waitFor(() => expect(console.error).toBeCalled())
+    expect(result.current.isSuccessful).toBeFalsy()
+    consoleError.mockRestore()
   })
 })

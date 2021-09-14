@@ -25,14 +25,14 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
           setLocalStorageWallet({
             [encryptedWallet.deviceId]: encryptedWallet.encryptedWallet
           })
-          setIsSuccessful(true)
           const { name, icon } = SUPPORTED_WALLETS['native']
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name, icon, deviceId: encryptedWallet.deviceId }
           })
+          setIsSuccessful(true)
         } catch (error) {
-          console.warn('Failed to load device', error)
+          console.error('Failed to load device', error)
           setIsSuccessful(false)
         }
       } else {

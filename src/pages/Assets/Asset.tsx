@@ -13,6 +13,24 @@ export interface MatchParams {
   address: string
 }
 
+const initAsset = {
+  chain: ChainTypes.ETH,
+  network: NetworkTypes.MAINNET,
+  symbol: '',
+  name: '',
+  precision: 18,
+  color: '',
+  secondaryColor: '',
+  icon: '',
+  sendSupport: true,
+  receiveSupport: true,
+  price: '',
+  marketCap: '',
+  volume: '',
+  changePercent24Hr: 0,
+  description: ''
+}
+
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const [asset, setAsset] = useStateIfMounted<AssetMarketData | undefined>(undefined)
@@ -43,7 +61,7 @@ export const Asset = () => {
   return (
     <Page style={{ flex: 1 }} key={address}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetDetails asset={asset ?? ({} as AssetMarketData)} isLoaded={isLoaded} />
+        <AssetDetails asset={asset ?? initAsset} isLoaded={isLoaded} />
       </Flex>
     </Page>
   )

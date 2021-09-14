@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
+import { SendFormFields } from '../Form'
 import { SendRoutes } from '../Send'
 
 const QrReader = lazy(() => import('react-qr-reader'))
@@ -22,7 +23,7 @@ export const QrCodeScanner = () => {
 
   const handleScan = (value: string | null) => {
     if (value) {
-      setValue('address', value)
+      setValue(SendFormFields.Address, value)
       history.push(SendRoutes.Address)
     }
   }

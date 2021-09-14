@@ -105,8 +105,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     try {
       setLoading(true)
       const { txToSign, estimatedFees } = await buildTransaction()
-      setValue('transaction', txToSign)
-      setValue('estimatedFees', estimatedFees)
+      setValue(SendFormFields.Transaction, txToSign)
+      setValue(SendFormFields.EstimatedFees, estimatedFees)
       history.push(SendRoutes.Confirm)
     } catch (error) {
       console.error(error)
@@ -137,13 +137,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const networkFee = bnOrZero(fastFee.networkFee).div(`1e${chainAsset.precision}`)
 
       if (asset.tokenId) {
-        setValue('crypto.amount', accountBalances.crypto.toPrecision())
-        setValue('fiat.amount', accountBalances.fiat.toPrecision())
+        setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())
+        setValue(SendFormFields.FiatAmount, accountBalances.fiat.toFixed(2))
       } else {
         const maxCrypto = accountBalances.crypto.minus(networkFee)
         const maxFiat = maxCrypto.times(chainAsset?.price || 0)
-        setValue('crypto.amount', maxCrypto.toPrecision())
-        setValue('fiat.amount', maxFiat.toPrecision())
+        setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
+        setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       }
       setLoading(false)
     }

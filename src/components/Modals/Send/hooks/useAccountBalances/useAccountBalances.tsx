@@ -27,7 +27,6 @@ export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps)
 
   const accountBalances = useMemo(() => {
     const crypto = bnOrZero(assetBalance?.balance).div(`1e${asset.precision}`)
-    console.log('crypto', crypto.toPrecision())
     const fiat = crypto.times(assetData?.price || 0)
     return {
       crypto,

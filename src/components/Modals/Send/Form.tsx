@@ -1,3 +1,4 @@
+import { Asset, NetworkTypes } from '@shapeshiftoss/asset-service'
 import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
@@ -10,7 +11,7 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { AssetMarketData } from 'hooks/useAsset/useAsset'
+import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -19,27 +20,6 @@ import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
-
-// @TODO Determine if we should use symbol for display purposes or some other identifier for display
-export type SendInput = {
-  address: string
-  asset: AssetMarketData
-  feeType: FeeDataKey
-  estimatedFees: FeeData
-  crypto: {
-    amount: string
-    symbol: string
-  }
-  fiat: {
-    amount: string
-    symbol: string
-  }
-  transaction: unknown
-}
-
-type SendFormProps = {
-  asset: AssetMarketData
-}
 
 export enum SendFormFields {
   Address = 'address',
@@ -55,10 +35,31 @@ export enum SendFormFields {
   Transaction = 'transaction'
 }
 
+export type SendInput = {
+  [SendFormFields.Address]: string
+  [SendFormFields.Asset]: AssetMarketData
+  [SendFormFields.FeeType]: FeeDataKey
+  [SendFormFields.EstimatedFees]: FeeData
+  [SendFormFields.Crypto]: {
+    amount: string
+    symbol: string
+  }
+  [SendFormFields.Fiat]: {
+    amount: string
+    symbol: string
+  }
+  [SendFormFields.Transaction]: unknown
+}
+
+type SendFormProps = {
+  asset: AssetMarketData
+}
+
 export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
+  const getAssetData = useGetAssetData()
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -77,10 +78,17 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
     }
   })
 
-  const handleAssetSelect = (asset: AssetMarketData) => {
-    methods.setValue('asset', asset)
-    methods.setValue('crypto', { symbol: asset.symbol, amount: '' })
-    methods.setValue('fiat.amount', '')
+  const handleAssetSelect = async (asset: Asset) => {
+    const assetMarketData = await getAssetData({
+      chain: asset.chain,
+      network: NetworkTypes.MAINNET,
+      tokenId: asset.tokenId
+    })
+
+    methods.setValue(SendFormFields.Asset, assetMarketData)
+    methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
+    methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })
+
     history.push(SendRoutes.Address)
   }
 

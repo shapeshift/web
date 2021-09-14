@@ -44,7 +44,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
           </SkeletonCircle>
           <Box ml={3} textAlign='left'>
             <Skeleton isLoaded={isLoaded}>
-              <Heading fontSize='2xl' mb={1}>
+              <Heading fontSize='2xl' mb={1} lineHeight={1}>
                 {name}
               </Heading>
             </Skeleton>

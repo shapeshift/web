@@ -4,7 +4,7 @@ import { theme } from 'theme/theme'
 
 export const GraphLoading = () => {
   const speed = '0.8s'
-  const startColor = useColorModeValue('gray.100', 'gray.600')
+  const startColor = useColorModeValue('gray.300', 'gray.600')
   const endColor = useColorModeValue('white', 'gray.700')
 
   const start = getColor(theme, startColor)

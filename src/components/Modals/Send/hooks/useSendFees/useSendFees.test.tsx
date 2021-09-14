@@ -1,14 +1,17 @@
+import { ChainTypes } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { getMarketData } from '@shapeshiftoss/market-service'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useGetAssetData } from 'hooks/useAsset/useAsset'
+import { TestProviders } from 'jest/TestProviders'
 
 import { useSendFees } from './useSendFees'
 
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
+jest.mock('hooks/useAsset/useAsset')
 
 const fees = {
   [FeeDataKey.Slow]: {
@@ -35,21 +38,30 @@ const ethAsset = {
   symbol: 'eth'
 }
 
+const getAssetData = () =>
+  Promise.resolve({
+    name: 'Ethereum',
+    chain: ChainTypes.Ethereum,
+    price: '3500',
+    symbol: 'ETH',
+    precision: 18
+  })
+
 const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
     state: { wallet }
   }))
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
-  return renderHook(() => useSendFees())
+
+  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+
+  return renderHook(() => useSendFees(), { wrapper })
 }
 
 describe('useSendFees', () => {
   beforeEach(() => {
     ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
-    ;(getMarketData as jest.Mock<unknown>).mockImplementation(() => ({
-      price: 3500,
-      network: 'ethereum'
-    }))
+    ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   })
 
   it('returns the fees with market data', async () => {

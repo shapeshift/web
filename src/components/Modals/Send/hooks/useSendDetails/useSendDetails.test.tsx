@@ -1,11 +1,14 @@
+import { ChainTypes } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { getAssetData } from '@shapeshiftoss/market-service'
+import { getMarketData } from '@shapeshiftoss/market-service'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { TestProviders } from 'jest/TestProviders'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
@@ -13,11 +16,12 @@ import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
-jest.mock('react-polyglot')
+// jest.mock('react-polyglot')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('components/Modals/Send/hooks/useAccountBalances/useAccountBalances')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('hooks/useAsset/useAsset')
 jest.mock('hooks/useBalances/useFlattenedBalances')
 
 const balances = {
@@ -56,15 +60,17 @@ const ethAsset = {
   name: 'Ethereum',
   network: 'ethereum',
   price: 3500,
-  symbol: 'eth'
+  symbol: 'eth',
+  precision: 18
 }
 
 const erc20RuneAsset = {
-  contractAddress: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
+  tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
   name: 'THORChain (ERC20)',
   network: 'ethereum',
   price: 10,
-  symbol: 'rune'
+  symbol: 'rune',
+  precision: 18
 }
 
 const estimatedFees = {
@@ -93,6 +99,15 @@ const getRuneAccountBalances = () => {
   }
 }
 
+const getAssetData = () =>
+  Promise.resolve({
+    name: 'Ethereum',
+    chain: ChainTypes.Ethereum,
+    price: '3500',
+    symbol: 'ETH',
+    precision: 18
+  })
+
 const setup = ({
   asset = ethAsset,
   assetBalance = {},
@@ -102,6 +117,7 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn()
 }) => {
+  ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
     asset,
     '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
@@ -125,7 +141,9 @@ const setup = ({
       asset
     })
   }))
-  return renderHook(() => useSendDetails())
+
+  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  return renderHook(() => useSendDetails(), { wrapper })
 }
 
 describe('useSendDetails', () => {
@@ -142,7 +160,7 @@ describe('useSendDetails', () => {
         })
       })
     }))
-    ;(getAssetData as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(getMarketData as jest.Mock<unknown>).mockImplementation(() => ({
       price: 3500,
       network: 'ethereum'
     }))
@@ -282,7 +300,7 @@ describe('useSendDetails', () => {
       await act(async () => {
         await result.current.handleSendMax()
         expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '4.994')
-        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '17479')
+        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '17479.00')
       })
     })
   })
@@ -299,7 +317,7 @@ describe('useSendDetails', () => {
       await act(async () => {
         await result.current.handleSendMax()
         expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '21')
-        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '210')
+        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '210.00')
       })
     })
   })

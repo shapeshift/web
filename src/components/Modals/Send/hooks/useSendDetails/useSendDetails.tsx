@@ -133,7 +133,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         network: NetworkTypes.MAINNET,
         tokenId: asset.tokenId
       })
-
       const networkFee = bnOrZero(fastFee.networkFee).div(`1e${chainAsset.precision}`)
 
       if (asset.tokenId) {

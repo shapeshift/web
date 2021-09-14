@@ -1,5 +1,5 @@
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { getAssetData } from '@shapeshiftoss/market-service'
+import { getMarketData } from '@shapeshiftoss/market-service'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -46,7 +46,7 @@ const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
 describe('useSendFees', () => {
   beforeEach(() => {
     ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
-    ;(getAssetData as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(getMarketData as jest.Mock<unknown>).mockImplementation(() => ({
       price: 3500,
       network: 'ethereum'
     }))

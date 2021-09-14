@@ -10,6 +10,7 @@ const MockAsset = new AssetService()
 
 export const TestProviders: React.FC = ({ children }) => (
   <I18n locale={locale} messages={messages}>
+    {/* @ts-ignore remove error */}
     <AssetContext.Provider value={MockAsset}>{children}</AssetContext.Provider>
   </I18n>
 )

@@ -1,4 +1,3 @@
-import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -6,19 +5,14 @@ import slice from 'lodash/slice'
 import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
+import { LocationState } from 'context/WalletProvider/NativeWallet/setup'
 
 const TEST_COUNT_REQUIRED = 3
 
 type Tuples = [number, string][]
 
 export const useNativeTestPhrase = () => {
-  const { state } = useLocation<{
-    encryptedWallet?: EncryptedWallet
-    error?: {
-      message: string
-    }
-  }>()
-
+  const { state } = useLocation<LocationState>()
   const { push } = useHistory()
   const [shuffledWords, setShuffledWords] = useState<Tuples>([])
   const [shuffledRandomWords, setShuffledRandomWords] = useState<string[]>([])

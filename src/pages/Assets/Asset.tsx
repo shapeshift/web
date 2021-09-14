@@ -1,7 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { throttle } from 'lodash'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'

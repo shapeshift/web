@@ -22,6 +22,7 @@ import { FaFacebook, FaTwitter } from 'react-icons/fa'
 
 export default {
   title: 'Forms/Button',
+  component: Button,
   decorators: [
     (Story: any) => (
       <Container mt='40px'>

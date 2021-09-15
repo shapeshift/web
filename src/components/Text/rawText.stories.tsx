@@ -46,8 +46,8 @@ export default {
 
 const Template: Story<TextProps> = args => <RawText {...args} />
 
-export const Default = Template.bind({})
-Default.args = {
+export const Basic = Template.bind({})
+Basic.args = {
   fontSize: undefined,
   children: 'RawText Children'
 }

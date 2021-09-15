@@ -49,8 +49,8 @@ export default {
 
 const Template: Story<TextPropTypes> = args => <Text {...args} />
 
-export const Default = Template.bind({})
-Default.args = {
+export const Basic = Template.bind({})
+Basic.args = {
   fontSize: undefined,
   translation: 'common.cancel'
 }

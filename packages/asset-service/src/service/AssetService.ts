@@ -2,14 +2,56 @@ import { BaseAsset, Asset, NetworkTypes, ChainTypes } from '../types'
 import axios from 'axios'
 import localAssetData from './generatedAssetData.json'
 
+export const flattenAssetData = (assetData: BaseAsset[]): Asset[] => {
+  const flatAssetData: Asset[] = []
+  for (const baseAsset of assetData) {
+    const newAsset = { ...baseAsset }
+    delete newAsset.tokens
+    flatAssetData.push(newAsset)
+    if (baseAsset.tokens) {
+      for (const tokenAsset of baseAsset.tokens) {
+        flatAssetData.push({
+          ...tokenAsset,
+          chain: baseAsset.chain,
+          network: baseAsset.network,
+          slip44: baseAsset.slip44,
+          explorer: baseAsset.explorer,
+          explorerTxLink: baseAsset.explorerTxLink
+        })
+      }
+    }
+  }
+  return flatAssetData
+}
+
+const getDataIndexKey = (chain: ChainTypes, network: NetworkTypes, tokenId?: string): string => {
+  return chain + '_' + network + (tokenId ? '_' + tokenId : '')
+}
+
+export const indexAssetData = (flatAssetData: Asset[]): IndexedAssetData => {
+  return flatAssetData.reduce((acc, val) => {
+    return { ...acc, [getDataIndexKey(val.chain, val.network, val.tokenId)]: val }
+  }, {})
+}
+
+export type IndexedAssetData = {
+  [k: string]: Asset
+}
+
+type ByTokenIdArgs = {
+  chain: ChainTypes
+  network?: NetworkTypes
+  tokenId?: string
+}
+
 export class AssetService {
-  private assetFileUrl: string | undefined
+  private assetFileUrl: string
 
   private assetData: BaseAsset[]
   private flatAssetData: Asset[]
-  private indexedAssetData: { [key: string]: Asset }
+  private indexedAssetData: IndexedAssetData
 
-  constructor(assetFileUrl?: string) {
+  constructor(assetFileUrl: string) {
     this.assetFileUrl = assetFileUrl
   }
 
@@ -21,49 +63,19 @@ export class AssetService {
     if (!this.isInitialized) throw new Error('Asset service not initialized')
   }
 
-  private getDataIndexKey(chain: ChainTypes, network: NetworkTypes, tokenId?: string): string {
-    return chain + '_' + network + (tokenId ? '_' + tokenId : '')
-  }
-
   /**
    * Get asset data from assetFileUrl and flatten it for easier use
    */
   async initialize() {
     try {
-      if (!this.assetFileUrl) throw new Error()
       const { data } = await axios.get<BaseAsset[]>(this.assetFileUrl)
       this.assetData = data
     } catch (err) {
       this.assetData = localAssetData as BaseAsset[]
     }
 
-    const flatAssetData: Asset[] = []
-
-    for (const baseAsset of this.assetData) {
-      const newAsset = { ...baseAsset }
-      delete newAsset.tokens
-      flatAssetData.push(newAsset)
-      if (baseAsset.tokens) {
-        for (const tokenAsset of baseAsset.tokens) {
-          flatAssetData.push({
-            ...tokenAsset,
-            chain: baseAsset.chain,
-            network: baseAsset.network,
-            slip44: baseAsset.slip44,
-            explorer: baseAsset.explorer,
-            explorerTxLink: baseAsset.explorerTxLink
-          })
-        }
-      }
-    }
-
-    this.flatAssetData = flatAssetData
-
-    const indexedAssetData: { [key: string]: Asset } = flatAssetData.reduce((acc, val) => {
-      return { ...acc, [this.getDataIndexKey(val.chain, val.network, val.tokenId)]: val }
-    }, {})
-
-    this.indexedAssetData = indexedAssetData
+    this.flatAssetData = flattenAssetData(this.assetData)
+    this.indexedAssetData = indexAssetData(this.flatAssetData)
   }
 
   /**
@@ -85,16 +97,10 @@ export class AssetService {
    * @param tokenId token identifier (contract address on eth)
    * @returns First asset found
    */
-  byTokenId(chain: ChainTypes, network?: NetworkTypes, tokenId?: string): Asset | undefined {
+  byTokenId({ chain, network, tokenId }: ByTokenIdArgs): Asset | undefined {
     this.checkInitialized()
-
-    // TODO use the indexed lookup here
-    return this.flatAssetData.find(
-      (asset: Asset) =>
-        asset.chain === chain &&
-        asset.tokenId?.toLowerCase() === tokenId?.toLowerCase() &&
-        (network ? asset.network === network : asset.network === NetworkTypes.MAINNET)
-    )
+    const index = getDataIndexKey(chain, network ?? NetworkTypes.MAINNET, tokenId)
+    return this.indexedAssetData[index]
   }
 
   async description(chain: ChainTypes, tokenId?: string): Promise<string | null> {

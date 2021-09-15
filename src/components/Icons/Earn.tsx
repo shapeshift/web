@@ -1,6 +1,6 @@
 import { createIcon } from '@chakra-ui/react'
 
-export const Earn = createIcon({
+export const EarnIcon = createIcon({
   displayName: 'CircularGraphIcon',
   path: (
     <path

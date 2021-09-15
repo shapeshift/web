@@ -8,7 +8,8 @@ import { RawText } from './Text'
 
 export default {
   title: 'Typography/RawText',
-  component: CText,
+  component: RawText,
+  subComponents: { Text: CText },
   argTypes: {
     fontSize: {
       options: [

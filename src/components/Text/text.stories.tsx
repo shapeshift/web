@@ -9,7 +9,8 @@ import { Text, TextPropTypes } from './Text'
 
 export default {
   title: 'Typography/Text',
-  component: CText,
+  component: Text,
+  subComponents: { Text: CText },
   argTypes: {
     fontSize: {
       options: [

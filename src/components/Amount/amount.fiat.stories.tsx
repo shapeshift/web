@@ -9,7 +9,7 @@ import { Amount } from './Amount'
 export default {
   title: 'Typography/Amount/Amount.Fiat',
   component: Amount.Fiat,
-  subComponents: RawText,
+  subComponents: { RawText },
   decorators: [
     (Story: any) => (
       <Container mt='40px'>

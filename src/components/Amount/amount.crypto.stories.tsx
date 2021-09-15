@@ -9,7 +9,7 @@ import { Amount } from './Amount'
 export default {
   title: 'Typography/Amount/Amount.Crypto',
   component: Amount.Crypto,
-  subComponents: RawText,
+  subComponents: { RawText },
   decorators: [
     (Story: any) => (
       <Container mt='40px'>

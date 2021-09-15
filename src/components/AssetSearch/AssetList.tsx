@@ -14,18 +14,29 @@ type AssetListProps = {
   assets: Asset[]
 } & ListProps
 
+type ItemData<T> = {
+  items: Asset[]
+  handleClick: T
+}
+
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
+  type HandleClick = ReturnType<typeof handleClick>
+
   const match = useRouteMatch<{ address: string }>()
-  const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList>({
+  const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<ItemData<HandleClick>>>({
     onInit: node => {
-      const index = node.props.itemData.items.findIndex(
+      if (!node) return
+      const index = node.props.itemData?.items.findIndex(
         ({ tokenId: address }: Asset) => address === match.params.address
       )
-      node.scrollToItem?.(index, 'center')
+      if (typeof index === 'number' && index >= 0) {
+        node.scrollToItem?.(index, 'center')
+      }
     }
   })
 
   useEffect(() => {
+    if (!tokenListRef) return
     tokenListRef?.scrollTo(0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets])

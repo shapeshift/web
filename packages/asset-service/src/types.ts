@@ -10,6 +10,7 @@ export type TokenAsset = {
   receiveSupport: boolean
   symbol: string
 }
+
 export type BaseAsset = {
   chain: ChainTypes
   network: NetworkTypes
@@ -53,9 +54,9 @@ export enum ContractTypes {
 }
 
 export enum ChainTypes {
-  ETH = 'ETH',
-  BTC = 'BTC',
-  LTC = 'LTC'
+  Ethereum = 'ethereum',
+  Bitcoin = 'bitcoin',
+  Litecoin = 'litecoin'
 }
 
 export enum NetworkTypes {

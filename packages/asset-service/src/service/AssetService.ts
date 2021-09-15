@@ -98,14 +98,10 @@ export class AssetService {
   }
 
   async description(chain: ChainTypes, tokenId?: string): Promise<string | null> {
-    let coingecko_id
-    if (chain === ChainTypes.ETH) coingecko_id = 'ethereum'
-    else throw new Error('Unsupported chain type')
-
     const contractUrl = typeof tokenId === 'string' ? `/contract/${tokenId?.toLowerCase()}` : ''
     try {
       const { data } = await axios.get(
-        `https://api.coingecko.com/api/v3/coins/${coingecko_id}${contractUrl}`
+        `https://api.coingecko.com/api/v3/coins/${chain}${contractUrl}`
       )
       return data?.description?.en || null
     } catch (e) {

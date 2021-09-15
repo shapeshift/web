@@ -2,7 +2,7 @@ import { BaseAsset, ContractTypes, NetworkTypes, ChainTypes } from '../types'
 
 export const baseAssets: Array<BaseAsset> = [
   {
-    chain: ChainTypes.ETH,
+    chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
@@ -17,7 +17,7 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: true
   },
   {
-    chain: ChainTypes.BTC,
+    chain: ChainTypes.Bitcoin,
     network: NetworkTypes.MAINNET,
     symbol: 'BTC',
     name: 'Bitcoin',
@@ -32,7 +32,7 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: false
   },
   {
-    chain: ChainTypes.BTC,
+    chain: ChainTypes.Bitcoin,
     network: NetworkTypes.TESTNET,
     symbol: 'BTC',
     name: 'Bitcoin',
@@ -47,7 +47,22 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: false
   },
   {
-    chain: ChainTypes.ETH,
+    chain: ChainTypes.Litecoin,
+    network: NetworkTypes.MAINNET,
+    symbol: 'LTC',
+    name: 'Litecoin',
+    precision: 8,
+    slip44: 2,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/ltc@2x.png',
+    explorer: 'https://live.blockcypher.com',
+    explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
+    sendSupport: false,
+    receiveSupport: false
+  },
+  {
+    chain: ChainTypes.Ethereum,
     network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',
     name: 'Ropsten Testnet Ethereum',

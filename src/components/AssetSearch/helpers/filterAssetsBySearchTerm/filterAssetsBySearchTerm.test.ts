@@ -1,4 +1,3 @@
-import { Asset } from '@shapeshiftoss/asset-service'
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 
 const assets = [
@@ -18,22 +17,22 @@ const assets = [
 
 describe('filterAssetsBySearchTerm', () => {
   it('returns based on symbol', () => {
-    const returnedAssets = filterAssetsBySearchTerm('btc', assets as unknown as Asset[])
+    const returnedAssets = filterAssetsBySearchTerm('btc', assets)
     expect(returnedAssets[0].symbol).toBe('BTC')
   })
 
   it('returns based on displayName', () => {
-    const returnedAssets = filterAssetsBySearchTerm('Bitcoin', assets as unknown as Asset[])
+    const returnedAssets = filterAssetsBySearchTerm('Bitcoin', assets)
     expect(returnedAssets[0].name).toBe('Bitcoin')
   })
 
   it('returns based on address', () => {
-    const returnedAssets = filterAssetsBySearchTerm(assets[0].tokenId, assets as unknown as Asset[])
+    const returnedAssets = filterAssetsBySearchTerm(assets[0].tokenId, assets)
     expect(returnedAssets[0].symbol).toBe('ETH')
   })
 
   it('returns closest match instead of the first one in the array', () => {
-    const returnedAssets = filterAssetsBySearchTerm('DAI', assets as unknown as Asset[])
+    const returnedAssets = filterAssetsBySearchTerm('DAI', assets)
     expect(returnedAssets[0].symbol).toBe('DAI')
   })
 })

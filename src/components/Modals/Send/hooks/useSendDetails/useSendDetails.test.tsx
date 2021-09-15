@@ -16,7 +16,6 @@ import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
-// jest.mock('react-polyglot')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('components/Modals/Send/hooks/useAccountBalances/useAccountBalances')
 jest.mock('context/WalletProvider/WalletProvider')

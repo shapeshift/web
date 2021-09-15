@@ -9,6 +9,7 @@ export const CircularProgress = (props: CircularProgressProps) => {
     <CKCircularProgress
       color='blue.500'
       trackColor={useColorModeValue('gray.50', 'gray.700')}
+      isIndeterminate={true}
       {...props}
     />
   )

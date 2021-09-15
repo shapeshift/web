@@ -3,7 +3,6 @@ import { getColor } from '@chakra-ui/theme-tools'
 import { theme } from 'theme/theme'
 
 export const GraphLoading = () => {
-  const speed = '0.8s'
   const startColor = useColorModeValue('gray.300', 'gray.600')
   const endColor = useColorModeValue('white', 'gray.700')
 
@@ -18,11 +17,11 @@ export const GraphLoading = () => {
       <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 766 300'>
         <defs>
           <linearGradient id='linear-gradient'>
-            <stop offset='0%' stop-color={end} />
-            <stop offset='33%' stop-color={end} />
-            <stop offset='50%' stop-color={start} />
-            <stop offset='67%' stop-color={end} />
-            <stop offset='100%' stop-color={end} />
+            <stop offset='0%' stopColor={end} />
+            <stop offset='33%' stopColor={end} />
+            <stop offset='50%' stopColor={start} />
+            <stop offset='67%' stopColor={end} />
+            <stop offset='100%' stopColor={end} />
             <animateTransform
               attributeName='gradientTransform'
               type='translate'
@@ -34,8 +33,8 @@ export const GraphLoading = () => {
             />
           </linearGradient>
           <linearGradient id='area' x1='50%' y1='-104.497044%' x2='50%' y2='85.1203676%'>
-            <stop offset='0%' stop-color={start} />
-            <stop offset='100%' stop-color={bg} />
+            <stop offset='0%' stopColor={start} />
+            <stop offset='100%' stopColor={bg} />
           </linearGradient>
         </defs>
         <g fill='none' fillRule='evenodd' className='graph-example'>
@@ -52,28 +51,6 @@ export const GraphLoading = () => {
           />
         </g>
       </svg>
-      <style type='text/css'>
-        {`
-          @keyframes areaLoader {
-            0% {
-              stop-color: ${start}
-            }
-            to {
-              stop-color: ${end}
-            }
-          }
-          .graph-area {
-            opacity: 1;
-          }
-          .area-start {
-            stop-color: ${start}
-            animation: areaLoader ${speed} linear infinite alternate;
-          }
-          .area-end {
-            stop-color: ${end}
-          }
-         `}
-      </style>
     </>
   )
 }

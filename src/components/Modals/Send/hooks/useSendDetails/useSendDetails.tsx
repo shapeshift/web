@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { ChainIdentifier, FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
@@ -71,7 +71,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [balanceError, toast, history, translate])
 
   /** When selecting new assets the network (CHAIN) is not returned from the market service. This will break. We should get this from the */
-  const adapter = chainAdapter.byChain('ethereum')
+  const adapter = chainAdapter.byChain(ChainIdentifier.Ethereum)
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx
@@ -129,7 +129,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       // Assume fast fee for send max
       const fastFee = adapterFees[FeeDataKey.Fast]
       const chainAsset = await getAssetData({
-        chain: ChainTypes.ETH,
+        chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         tokenId: asset.tokenId
       })

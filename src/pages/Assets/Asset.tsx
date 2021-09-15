@@ -14,7 +14,7 @@ export interface MatchParams {
 }
 
 const initAsset = {
-  chain: ChainTypes.ETH,
+  chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   symbol: '',
   name: '',
@@ -39,7 +39,7 @@ export const Asset = () => {
   const getAssetData = useGetAssetData()
   const getPrice = useCallback(async () => {
     const asset = await getAssetData({
-      chain: ChainTypes.ETH,
+      chain: ChainTypes.Ethereum,
       network: NetworkTypes.MAINNET,
       tokenId: address
     })

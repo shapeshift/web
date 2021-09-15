@@ -6,7 +6,7 @@ type AssetProviderProps = {
   children: React.ReactNode
 }
 
-const AssetContext = createContext<AssetService | null>(null)
+export const AssetContext = createContext<AssetService | null>(null)
 
 export const AssetProvider = ({ children }: AssetProviderProps): JSX.Element => {
   const [assetService, setAssetService] = useState<AssetService | null>(null)

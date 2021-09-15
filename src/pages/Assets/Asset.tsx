@@ -9,7 +9,7 @@ import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
 export interface MatchParams {
-  network: string
+  network: ChainTypes
   address: string
 }
 
@@ -31,21 +31,29 @@ const initAsset = {
   description: ''
 }
 
+const ALLOWED_CHAINS = {
+  [ChainTypes.Ethereum]: true,
+  [ChainTypes.Bitcoin]: true,
+  [ChainTypes.Litecoin]: true
+}
+
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const [asset, setAsset] = useStateIfMounted<AssetMarketData | undefined>(undefined)
 
   let { network, address } = useParams<MatchParams>()
   const getAssetData = useGetAssetData()
+
   const getPrice = useCallback(async () => {
-    const asset = await getAssetData({
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
-      tokenId: address
-    })
-    if (asset) setAsset(asset)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, getAssetData])
+    if (ALLOWED_CHAINS[network]) {
+      const asset = await getAssetData({
+        chain: network,
+        network: NetworkTypes.MAINNET,
+        tokenId: address
+      })
+      if (asset) setAsset(asset)
+    }
+  }, [address, getAssetData, network]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     ;(async () => {
@@ -55,8 +63,7 @@ export const Asset = () => {
         setIsLoaded(true)
       }, 750)
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [network, address])
+  }, [network, address]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Page style={{ flex: 1 }} key={address}>

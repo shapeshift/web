@@ -1,6 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset, NetworkTypes } from '@shapeshiftoss/asset-service'
 import sortBy from 'lodash/sortBy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -30,7 +30,7 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
 
   const fetchTokens = useCallback(async () => {
     try {
-      const data = await assetService.byNetwork()
+      const data = assetService.byNetwork(NetworkTypes.MAINNET)
       const sorted = sortBy(data, ['name', 'symbol'])
       setSortedAssets(sorted)
     } catch (e) {

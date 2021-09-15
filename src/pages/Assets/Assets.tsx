@@ -7,7 +7,8 @@ import { Page } from 'components/Layout/Page'
 export const Assets = () => {
   const history = useHistory()
   const onClick = (asset: Asset) => {
-    history.push(`/assets/ethereum/${asset.tokenId}`)
+    const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
+    history.push(url)
   }
   return (
     <Page style={{ flex: 1 }}>

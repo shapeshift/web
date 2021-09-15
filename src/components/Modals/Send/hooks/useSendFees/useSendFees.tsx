@@ -1,9 +1,9 @@
-import { ChainTypes } from '@shapeshiftoss/asset-service'
+import { NetworkTypes } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { getMarketData } from '@shapeshiftoss/market-service'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FeePrice } from '../../views/Confirm'
@@ -11,6 +11,7 @@ import { FeePrice } from '../../views/Confirm'
 export const useSendFees = () => {
   const [fees, setFees] = useState<FeePrice | null>(null)
   const { control } = useFormContext()
+  const getAssetData = useGetAssetData()
   const { asset, estimatedFees } = useWatch({
     control
   })
@@ -21,18 +22,15 @@ export const useSendFees = () => {
   useEffect(() => {
     ;(async () => {
       if (wallet) {
-        /**
-         * TODO (technojak) Hardcoded to eth precision. When using the asset-service check if ERC20
-         * and default to eth precision. Asset service will use tokenId vs contractAddress.
-         * Also important to note that asset service has a contract type.
-         */
-        const precision = 18
-        const feeMarketData = await getMarketData(ChainTypes.Ethereum, asset?.network)
+        const assetData = await getAssetData({
+          chain: asset?.chain,
+          network: NetworkTypes.MAINNET
+        })
         const txFees = (Object.keys(estimatedFees) as FeeDataKey[]).reduce(
           (acc: FeePrice, key: FeeDataKey) => {
             const current = estimatedFees[key]
-            const fee = bnOrZero(current.networkFee).div(`1e${precision}`).toPrecision()
-            const amount = bnOrZero(fee).times(bnOrZero(feeMarketData?.price)).toPrecision()
+            const fee = bnOrZero(current.networkFee).div(`1e${assetData.precision}`).toPrecision()
+            const amount = bnOrZero(fee).times(bnOrZero(assetData.price)).toPrecision()
             acc[key] = { ...current, fee, amount }
             return acc
           },

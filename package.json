@@ -79,6 +79,9 @@
       }
     ]
   },
+  "jest": {
+    "collectCoverageFrom": null
+  },
   "browserslist": {
     "production": [
       ">0.2%",

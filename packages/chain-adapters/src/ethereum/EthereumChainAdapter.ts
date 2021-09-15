@@ -93,7 +93,7 @@ export class EthereumChainAdapter implements ChainAdapter {
 
       const addressNList = bip32ToAddressNList(path)
 
-      const data = await getErc20Data(to, value, erc20ContractAddress)
+      const data = await getErc20Data(to, tx?.value, erc20ContractAddress)
       const from = await this.getAddress({ wallet, path })
       const nonce = await this.provider.getNonce(from)
 

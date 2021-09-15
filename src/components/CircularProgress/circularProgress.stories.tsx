@@ -2,6 +2,7 @@
 /* eslint-disable import/no-default-export */
 
 import {
+  Center,
   CircularProgress as CCircularProgress,
   CircularProgressProps,
   Container
@@ -18,7 +19,7 @@ export default {
   argTypes: {
     isIndeterminate: {
       control: { type: 'boolean' },
-      description: 'Size of text',
+      description: 'makes it spin',
       default: undefined
     }
   },
@@ -33,6 +34,10 @@ export default {
   ]
 }
 
-const Template: Story<CircularProgressProps> = args => <CircularProgress {...args} />
+const Template: Story<CircularProgressProps> = args => (
+  <Center>
+    <CircularProgress {...args} />
+  </Center>
+)
 
 export const Basic = Template.bind({})

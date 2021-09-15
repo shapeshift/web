@@ -22,5 +22,5 @@ export function useRefCallback<T>({ onInit, onDestroy }: RefCallback<T>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return [setRef]
+  return [ref?.current, setRef]
 }

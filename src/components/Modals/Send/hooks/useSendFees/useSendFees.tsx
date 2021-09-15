@@ -27,7 +27,7 @@ export const useSendFees = () => {
          * Also important to note that asset service has a contract type.
          */
         const precision = 18
-        const feeMarketData = await getMarketData(ChainTypes.ETH, asset?.network)
+        const feeMarketData = await getMarketData(ChainTypes.Ethereum, asset?.network)
         const txFees = (Object.keys(estimatedFees) as FeeDataKey[]).reduce(
           (acc: FeePrice, key: FeeDataKey) => {
             const current = estimatedFees[key]

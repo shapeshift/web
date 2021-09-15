@@ -26,7 +26,7 @@ const asset = {
   precision: 18,
   color: '0',
   secondaryColor: '0',
-  chain: ChainTypes.BTC,
+  chain: ChainTypes.Bitcoin,
   sendSupport: false,
   receiveSupport: false
 }

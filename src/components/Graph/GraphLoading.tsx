@@ -3,7 +3,6 @@ import { getColor } from '@chakra-ui/theme-tools'
 import { theme } from 'theme/theme'
 
 export const GraphLoading = () => {
-  const speed = '0.8s'
   const startColor = useColorModeValue('gray.300', 'gray.600')
   const endColor = useColorModeValue('white', 'gray.700')
 
@@ -52,28 +51,6 @@ export const GraphLoading = () => {
           />
         </g>
       </svg>
-      <style type='text/css'>
-        {`
-          @keyframes areaLoader {
-            0% {
-              stopColor: ${start}
-            }
-            to {
-              stopColor: ${end}
-            }
-          }
-          .graph-area {
-            opacity: 1;
-          }
-          .area-start {
-            stopColor: ${start}
-            animation: areaLoader ${speed} linear infinite alternate;
-          }
-          .area-end {
-            stopColor: ${end}
-          }
-         `}
-      </style>
     </>
   )
 }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { useIsComponentMounted } from '../useIsComponentMounted/useIsComponentMounted'
 
-export function useStateIfMounted<T>(initialValue?: T): [T | undefined, (value: T) => void] {
+export function useStateIfMounted<T>(initialValue: T): [T, (value: T) => void] {
   const isComponentMounted = useIsComponentMounted()
   const [state, setState] = useState(initialValue)
   function newSetState(value: T) {

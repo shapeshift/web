@@ -1,9 +1,10 @@
 import { Flex } from '@chakra-ui/react'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
@@ -12,31 +13,55 @@ export interface MatchParams {
   address: string
 }
 
+const initAsset = {
+  chain: ChainTypes.ETH,
+  network: NetworkTypes.MAINNET,
+  symbol: '',
+  name: '',
+  precision: 18,
+  color: '',
+  secondaryColor: '',
+  icon: '',
+  sendSupport: true,
+  receiveSupport: true,
+  price: '',
+  marketCap: '',
+  volume: '',
+  changePercent24Hr: 0,
+  description: ''
+}
+
 export const Asset = () => {
-  const [asset, setAsset] = useState<AssetMarketData>()
-  const [loading, setLoading] = useState<boolean>(false)
+  const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
+  const [asset, setAsset] = useStateIfMounted<AssetMarketData | undefined>(undefined)
+
   let { network, address } = useParams<MatchParams>()
   const getAssetData = useGetAssetData()
   const getPrice = useCallback(async () => {
-    setLoading(true)
     const asset = await getAssetData({
       chain: ChainTypes.ETH,
       network: NetworkTypes.MAINNET,
       tokenId: address
     })
     if (asset) setAsset(asset)
-    setLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, getAssetData])
 
   useEffect(() => {
-    getPrice()
+    ;(async () => {
+      setIsLoaded(false)
+      setTimeout(async () => {
+        await getPrice()
+        setIsLoaded(true)
+      }, 750)
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [network, address])
 
   return (
-    <Page style={{ flex: 1 }} loading={loading} error={!asset}>
+    <Page style={{ flex: 1 }} key={address}>
       <Flex role='main' flex={1} height='100%'>
-        {asset && <AssetDetails asset={asset} />}
+        <AssetDetails asset={asset ?? initAsset} isLoaded={isLoaded} />
       </Flex>
     </Page>
   )

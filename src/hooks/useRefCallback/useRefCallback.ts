@@ -1,16 +1,21 @@
 import { useCallback, useRef } from 'react'
 
+type Nullable<T> = T | null
+
 type RefCallback<T> = {
-  onInit: (node: T) => void
-  onDestroy?: (node: T) => void
+  onInit: (node: Nullable<T>) => void
+  onDestroy?: (node: Nullable<T>) => void
 }
 
 // Refs do not work as dependencies on useEffects.
 // This will allow a function to be called when the ref.current is initialized or updated
-export function useRefCallback<T>({ onInit, onDestroy }: RefCallback<T>) {
-  const ref = useRef(null)
-  const setRef = useCallback(node => {
-    if (ref.current) {
+export function useRefCallback<T>({
+  onInit,
+  onDestroy
+}: RefCallback<T>): [Nullable<T>, (node: Nullable<T>) => Nullable<T>] {
+  const ref = useRef<Nullable<T>>(null)
+  const setRef = useCallback((node: Nullable<T>) => {
+    if (ref.current && node) {
       // Make sure to cleanup any events/references added to the last instance
       onDestroy?.(node)
     }
@@ -19,8 +24,9 @@ export function useRefCallback<T>({ onInit, onDestroy }: RefCallback<T>) {
     }
     // Save a reference to the node
     ref.current = node
+    return node
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return [setRef]
+  return [ref?.current, setRef]
 }

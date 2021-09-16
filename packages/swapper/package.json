@@ -1,0 +1,19 @@
+{
+  "name": "@shapeshiftoss/swapper",
+  "version": "1.0.0",
+  "description": "TODO: description",
+  "repository": "https://github.com/shapeshift/lib",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "yarn clean && tsc --project tsconfig.build.json",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.json --noEmit"
+  }
+}

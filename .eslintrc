@@ -23,12 +23,12 @@
     "process": "readonly"
   },
   "rules": {
-    "jsx-a11y/alt-text": "warn",
-    "jsx-a11y/no-autofocus": "warn",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/no-autofocus": "error",
     "prettier/prettier": "error",
     "default-case": "off",
     "no-console": [
-      "warn",
+      "error",
       {
         "allow": [
           "warn",

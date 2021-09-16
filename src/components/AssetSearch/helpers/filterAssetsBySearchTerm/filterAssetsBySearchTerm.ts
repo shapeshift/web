@@ -5,10 +5,7 @@ const isAddress = (address: string) => {
   return /^(0x)?[0-9a-fA-F]{40}$/.test(address)
 }
 
-export const filterAssetsBySearchTerm = (
-  search: string,
-  assets: Pick<Asset, 'tokenId' | 'symbol' | 'name'>[]
-) => {
+export const filterAssetsBySearchTerm = (search: string, assets: Asset[]) => {
   if (!assets) return []
 
   const searchLower = search.toLowerCase()

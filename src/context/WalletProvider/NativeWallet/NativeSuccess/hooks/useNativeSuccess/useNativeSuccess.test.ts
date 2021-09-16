@@ -1,7 +1,7 @@
-import { renderHook, act } from '@testing-library/react-hooks'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+import { renderHook } from '@testing-library/react-hooks'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 
 import { useNativeSuccess } from './useNativeSuccess'
 

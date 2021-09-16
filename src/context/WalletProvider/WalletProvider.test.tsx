@@ -14,7 +14,8 @@ jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
 
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
-  icon: SUPPORTED_WALLETS.native.icon
+  icon: SUPPORTED_WALLETS.native.icon,
+  deviceId: ''
 }
 const setup = async () => {
   // @ts-ignore

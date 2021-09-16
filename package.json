@@ -60,9 +60,11 @@
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
     "build": "react-scripts build",
     "dev": "react-scripts start",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "test": "react-scripts test --coverage",
+    "test:dev": "react-scripts test --watch",
+    "type-check": "tsc --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },

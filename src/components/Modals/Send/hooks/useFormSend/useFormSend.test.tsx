@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -21,7 +22,24 @@ jest.mock('context/WalletProvider/WalletProvider')
 const formData: SendInput = {
   address: '0xMyWalletAddres',
   asset: {
-    symbol: 'ETH'
+    description: '',
+    price: '',
+    marketCap: '',
+    volume: '',
+    changePercent24Hr: 0,
+    chain: ChainTypes.Ethereum,
+    network: NetworkTypes.MAINNET,
+    symbol: 'ETH',
+    name: 'Ethereum',
+    precision: 18,
+    slip44: 60,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+    explorer: 'https://etherscan.io',
+    explorerTxLink: 'https://etherscan.io/tx/',
+    sendSupport: true,
+    receiveSupport: true
   },
   feeType: FeeDataKey.Average,
   estimatedFees: {

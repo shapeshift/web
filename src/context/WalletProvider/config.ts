@@ -10,7 +10,7 @@ import { NativeImport } from './NativeWallet/NativeImport'
 import { NativePassword } from './NativeWallet/NativePassword'
 import { NativeSeed } from './NativeWallet/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/NativeStart'
-import { NativeSuccess } from './NativeWallet/NativeSuccess'
+import { NativeSuccess } from './NativeWallet/NativeSuccess/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/NativeTestPhrase/NativeTestPhrase'
 
 export interface SupportedWalletInfo {

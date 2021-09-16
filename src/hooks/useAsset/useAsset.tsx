@@ -20,7 +20,7 @@ export const useGetAssetData = (): any => {
       network: NetworkTypes
       tokenId?: string
     }) => {
-      const marketData: MarketData | null = await getMarketData(chain, tokenId)
+      const marketData: MarketData | null = await getMarketData({ chain, tokenId })
       const assetData: Asset | undefined = assetService.byTokenId({ chain, network, tokenId })
       const description = await assetService.description(chain, tokenId)
 

@@ -15,7 +15,7 @@ type GraphProps = {
 }
 
 export const Graph = ({ asset, timeframe, setPercentChange, isLoaded }: GraphProps) => {
-  const [data, setData] = useState<HistoryData[]>([])
+  const [data, setData] = useState<HistoryData[] | null>([])
   const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
@@ -23,7 +23,12 @@ export const Graph = ({ asset, timeframe, setPercentChange, isLoaded }: GraphPro
     if (asset?.name) {
       ;(async () => {
         setLoading(true)
-        const data = await getPriceHistory(asset.chain, timeframe, asset.tokenId)
+        const data = await getPriceHistory({
+          chain: asset.chain,
+          timeframe,
+          tokenId: asset.tokenId
+        })
+        if (!data) return
         setData(data)
         setLoading(false)
         const startValue = data[0]?.price

@@ -25,13 +25,20 @@ export type HistoryData = {
   date: string
 }
 
-export type MarketDataType = (chain: ChainTypes, tokenId?: string) => Promise<MarketData | null>
-
-export type PriceHistoryType = (
-  chain: ChainTypes,
-  timeframe: HistoryTimeframe,
+export type PriceHistoryArgs = {
+  chain: ChainTypes
+  timeframe: HistoryTimeframe
   tokenId?: string
-) => Promise<HistoryData[]>
+}
+
+export type MarketDataArgs = {
+  chain: ChainTypes
+  tokenId?: string
+}
+
+export type MarketDataType = (args: MarketDataArgs) => Promise<MarketData | null>
+
+export type PriceHistoryType = (args: PriceHistoryArgs) => Promise<HistoryData[] | null>
 
 export interface MarketService {
   baseUrl: string

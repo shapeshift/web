@@ -7,14 +7,14 @@ export const getDefaultMarketService = (): api.MarketService => {
   return new CoinGeckoMarketService()
 }
 
-export const getMarketData: api.MarketDataType = async (chain, tokenId) => {
-  return getDefaultMarketService().getMarketData(chain, tokenId)
+export const getMarketData: api.MarketDataType = async ({ chain, tokenId }: api.MarketDataArgs) => {
+  return getDefaultMarketService().getMarketData({ chain, tokenId })
 }
 
-export const getPriceHistory: api.PriceHistoryType = (
+export const getPriceHistory: api.PriceHistoryType = ({
   chain,
-  timeline,
+  timeframe,
   tokenId
-): Promise<api.HistoryData[]> => {
-  return getDefaultMarketService().getPriceHistory(chain, timeline, tokenId)
+}: api.PriceHistoryArgs): Promise<api.HistoryData[] | null> => {
+  return getDefaultMarketService().getPriceHistory({ chain, timeframe, tokenId })
 }

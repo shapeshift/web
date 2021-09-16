@@ -1,6 +1,14 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { ChainTypes, MarketService, MarketData, HistoryData, HistoryTimeframe } from '../api'
+import {
+  ChainTypes,
+  MarketService,
+  MarketData,
+  HistoryData,
+  HistoryTimeframe,
+  PriceHistoryArgs,
+  MarketDataArgs
+} from '../api'
 
 // tons more parms here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {
@@ -17,7 +25,11 @@ type CoinGeckoAssetData = {
   }
 }
 
-const coingeckoIDMap = Object.freeze({
+type CoinGeckoIDMap = {
+  [k in ChainTypes]: string
+}
+
+const coingeckoIDMap: CoinGeckoIDMap = Object.freeze({
   [ChainTypes.Ethereum]: 'ethereum',
   [ChainTypes.Bitcoin]: 'bitcoin',
   [ChainTypes.Litecoin]: 'litecoin'
@@ -26,9 +38,8 @@ const coingeckoIDMap = Object.freeze({
 export class CoinGeckoMarketService implements MarketService {
   baseUrl = 'https://api.coingecko.com/api/v3'
 
-  getMarketData = async (chain: ChainTypes, tokenId?: string): Promise<MarketData | null> => {
+  getMarketData = async ({ chain, tokenId }: MarketDataArgs): Promise<MarketData | null> => {
     const id = coingeckoIDMap[chain]
-    if (!id) return null
     try {
       const isToken = !!tokenId
       const contractUrl = isToken ? `/contract/${tokenId}` : ''
@@ -52,13 +63,12 @@ export class CoinGeckoMarketService implements MarketService {
     }
   }
 
-  getPriceHistory = async (
-    chain: ChainTypes,
-    timeframe: HistoryTimeframe,
-    contractAddress?: string
-  ): Promise<HistoryData[]> => {
+  getPriceHistory = async ({
+    chain,
+    timeframe,
+    tokenId
+  }: PriceHistoryArgs): Promise<HistoryData[] | null> => {
     const id = coingeckoIDMap[chain]
-    if (!id) return []
 
     const end = dayjs().startOf('minute')
     let start
@@ -78,14 +88,17 @@ export class CoinGeckoMarketService implements MarketService {
       case HistoryTimeframe.YEAR:
         start = end.subtract(1, 'year')
         break
-      default:
+      case HistoryTimeframe.ALL:
         start = end.subtract(20, 'years')
+        break
+      default:
+        start = end
     }
 
     try {
       const from = start.valueOf() / 1000
       const to = end.valueOf() / 1000
-      const contract = contractAddress ? `/contract/${contractAddress}` : ''
+      const contract = tokenId ? `/contract/${tokenId}` : ''
       const url = `${this.baseUrl}/coins/${id}${contract}`
       // TODO: change vs_currency to localized currency
       const currency = 'usd'
@@ -100,7 +113,7 @@ export class CoinGeckoMarketService implements MarketService {
       })
     } catch (e) {
       console.warn(e)
-      return []
+      return null
     }
   }
 }

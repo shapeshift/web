@@ -8,7 +8,7 @@ export const Assets = () => {
   const history = useHistory()
   const onClick = (asset: Asset) => {
     const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
-    history.push(url)
+    history.push(url) // TODO deploy this
   }
   return (
     <Page style={{ flex: 1 }}>

@@ -22,6 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
@@ -174,7 +175,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
           </Skeleton>
 
           <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
-            <RawText color='gray.500'>{description}</RawText>
+            <SanitizedHtml color='gray.500' dirtyHtml={description} />
           </SkeletonText>
         </Card.Footer>
       )}

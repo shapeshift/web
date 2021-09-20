@@ -8,17 +8,15 @@ const chainAdapterMap = {
   [ChainIdentifier.Ethereum]: EthereumChainAdapter
 } as const
 
-type ChainAdapterKeys = keyof typeof chainAdapterMap
-
 export class ChainAdapterManager {
-  private supported: Map<ChainAdapterKeys, () => ChainAdapter> = new Map()
+  private supported: Map<ChainIdentifier, () => ChainAdapter> = new Map()
   private instances: Map<string, ChainAdapter> = new Map()
 
   constructor(unchainedUrls: UnchainedUrls) {
     if (!unchainedUrls) {
       throw new Error('Blockchain urls required')
     }
-    ;(Object.keys(unchainedUrls) as Array<ChainAdapterKeys>).forEach((key: ChainAdapterKeys) => {
+    ;(Object.keys(unchainedUrls) as Array<ChainIdentifier>).forEach((key: ChainIdentifier) => {
       const Adapter = chainAdapterMap[key]
       if (!Adapter) throw new Error(`No chain adapter for ${key}`)
       this.addChain(key, () => new Adapter({ provider: new UnchainedProvider(unchainedUrls[key]) }))
@@ -31,18 +29,18 @@ export class ChainAdapterManager {
    * @example
    * import { ChainAdapterManager, UtxoChainAdapter } from 'chain-adapters'
    * const manager = new ChainAdapterManager(client)
-   * manager.addChain('BTG', () => new UtxoChainAdapter('BTG', client))
-   * @param {ChainAdapterKeys} network - Coin/network symbol from Asset query
+   * manager.addChain('bitcoin', () => new UtxoChainAdapter('BTG', client))
+   * @param {ChainIdentifier} network - Coin/network symbol from Asset query
    * @param {Function} factory - A function that returns a ChainAdapter instance
    */
-  addChain(chain: ChainAdapterKeys, factory: () => ChainAdapter): void {
+  addChain(chain: ChainIdentifier, factory: () => ChainAdapter): void {
     if (typeof chain !== 'string' || typeof factory !== 'function') {
       throw new Error('Parameter validation error')
     }
     this.supported.set(chain, factory)
   }
 
-  getSupportedChains(): Array<ChainAdapterKeys> {
+  getSupportedChains(): Array<ChainIdentifier> {
     return Array.from(this.supported.keys())
   }
 
@@ -50,10 +48,8 @@ export class ChainAdapterManager {
     return Array.from(this.supported.values())
   }
 
-  /**
-   * Get a ChainAdapter instance for a network
-   */
-  byChain(chain: ChainAdapterKeys): ChainAdapter {
+  /*** Get a ChainAdapter instance for a network */
+  byChain(chain: ChainIdentifier): ChainAdapter {
     let adapter = this.instances.get(chain)
     if (!adapter) {
       const factory = this.supported.get(chain)

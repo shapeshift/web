@@ -23,11 +23,22 @@
     "process": "readonly"
   },
   "rules": {
-    "jsx-a11y/alt-text": "warn",
-    "jsx-a11y/no-autofocus": "warn",
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/no-autofocus": "error",
     "prettier/prettier": "error",
     "default-case": "off",
-    "no-console": "warn",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "group",
+          "groupEnd"
+        ]
+      }
+    ],
     "@typescript-eslint/no-use-before-define": "error",
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",

@@ -4,7 +4,6 @@ import lodash from 'lodash'
 import { tokensToOverride } from './overrides'
 
 type CoingeckoTokenData = {
-  chainId: number
   address: string
   name: string
   symbol: string
@@ -26,7 +25,7 @@ export async function getTokens(): Promise<TokenAsset[]> {
     if (overrideToken) return overrideToken
 
     return {
-      displayName: token.name,
+      name: token.name,
       precision: token.decimals,
       tokenId: token.address.toLowerCase(),
       contractType: ContractTypes.ERC20,

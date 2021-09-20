@@ -1,6 +1,6 @@
 {
   "name": "lib",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "workspaces": {
     "packages": [
@@ -9,17 +9,22 @@
     "version": "independent"
   },
   "scripts": {
+    "build": "lerna run build --include-dependencies",
+    "dev": "lerna run dev --stream --parallel",
     "lint": "eslint --cache .",
     "test": "jest",
     "test:dev": "jest --watch",
-    "build": "lerna run build --include-dependencies",
-    "dev": "lerna run dev --stream --parallel",
+    "type-check": "lerna run type-check",
+    "publish:lerna": "lerna publish from-package --no-private --yes",
     "version:patch": "lerna version patch --yes --no-git-tag-version --no-push",
     "version:minor": "lerna version minor --yes --no-git-tag-version --no-push",
-    "version:major": "lerna version major --yes --no-git-tag-version --no-push",
-    "publish:lerna": "lerna publish from-package --no-private --yes"
+    "version:major": "lerna version major --yes --no-git-tag-version --no-push"
   },
   "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/git": "^9.0.0",
     "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
@@ -34,6 +39,8 @@
     "jest-mock-extended": "^1.0.9",
     "lerna": "^4.0.0",
     "prettier": "1.19.1",
+    "semantic-release": "^17.4.7",
+    "semantic-release-monorepo": "^7.0.5",
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
     "typescript": "^4.2.4"

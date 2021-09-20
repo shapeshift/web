@@ -8,6 +8,8 @@
 
 describe('EthereumChainAdapter', () => {
   describe('getBalance', () => {
-    console.info('getBalance test')
+    it('is unimplemented', () => {
+      expect(true).toBeTruthy()
+    })
   })
 })

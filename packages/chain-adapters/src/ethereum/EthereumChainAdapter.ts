@@ -4,25 +4,55 @@ import {
   BuildSendTxInput,
   SignTxInput,
   GetAddressInput,
+  GetFeeDataInput,
   FeeData,
-  FeeEstimateInput,
   BalanceResponse,
   ChainIdentifier,
   ValidAddressResult,
   ValidAddressResultType
 } from '../api'
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
-import { PaginationParams } from '../types/PaginationParams.type'
+import { Params } from '../types/Params.type'
 import { ErrorHandler } from '../error/ErrorHandler'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { numberToHex } from 'web3-utils'
 import { Contract } from '@ethersproject/contracts'
 import erc20Abi from './erc20Abi.json'
-import { BigNumber } from 'bignumber.js'
 import WAValidator from 'multicoin-address-validator'
+import axios from 'axios'
+import BigNumber from 'bignumber.js'
 
 export type EthereumChainAdapterDependencies = {
   provider: BlockchainProvider
+}
+
+type ZrxFeeResult = {
+  fast: number
+  instant: number
+  low: number
+  source:
+    | 'ETH_GAS_STATION'
+    | 'ETHERSCAN'
+    | 'ETHERCHAIN'
+    | 'GAS_NOW'
+    | 'MY_CRYPTO'
+    | 'UP_VEST'
+    | 'GETH_PENDING'
+    | 'MEDIAN'
+    | 'AVERAGE'
+  standard: number
+  timestamp: number
+}
+
+type ZrxGasApiResponse = {
+  result: ZrxFeeResult[]
+}
+
+async function getErc20Data(to: string, value: string, contractAddress?: string) {
+  if (!contractAddress) return ''
+  const erc20Contract = new Contract(contractAddress, erc20Abi)
+  const { data: callData } = await erc20Contract.populateTransaction.transfer(to, value)
+  return callData || ''
 }
 
 export class EthereumChainAdapter implements ChainAdapter {
@@ -45,53 +75,54 @@ export class EthereumChainAdapter implements ChainAdapter {
     }
   }
 
-  getTxHistory = async (
-    address: string,
-    paginationParams?: PaginationParams
-  ): Promise<TxHistoryResponse> => {
+  getTxHistory = async (address: string, params?: Params): Promise<TxHistoryResponse> => {
     try {
-      return this.provider.getTxHistory(address, paginationParams)
+      return this.provider.getTxHistory(address, params)
     } catch (err) {
       return ErrorHandler(err)
     }
   }
 
-  buildSendTransaction = async (tx: BuildSendTxInput): Promise<ETHSignTx> => {
+  buildSendTransaction = async (
+    tx: BuildSendTxInput
+  ): Promise<{ txToSign: ETHSignTx; estimatedFees: FeeData }> => {
     try {
-      const { to, erc20ContractAddress, path, wallet, chainId } = tx
+      const { to, erc20ContractAddress, path, wallet, fee, limit } = tx
       const value = erc20ContractAddress ? '0' : tx?.value
       const destAddress = erc20ContractAddress ?? to
 
       const addressNList = bip32ToAddressNList(path)
 
-      let data = ''
-      if (erc20ContractAddress) {
-        const erc20Contract = new Contract(erc20ContractAddress, erc20Abi)
-        const { data: callData } = await erc20Contract.populateTransaction.transfer(to, value)
-        data = callData || ''
-      }
-
+      const data = await getErc20Data(to, tx?.value, erc20ContractAddress)
       const from = await this.getAddress({ wallet, path })
       const nonce = await this.provider.getNonce(from)
 
-      const { price: gasPrice, units: gasLimit } = await this.getFeeData({
+      let gasPrice = fee
+      let gasLimit = limit
+      const estimatedFees = await this.getFeeData({
+        to,
         from,
-        to: destAddress,
         value,
-        data
+        contractAddress: erc20ContractAddress
       })
+
+      if (!gasPrice || !gasLimit) {
+        // Default to average gas price if fee is not passed
+        !gasPrice && (gasPrice = estimatedFees.average.feeUnitPrice)
+        !gasLimit && (gasLimit = estimatedFees.average.feeUnits)
+      }
 
       const txToSign: ETHSignTx = {
         addressNList,
         value: numberToHex(value),
         to: destAddress,
-        chainId: chainId || 1,
+        chainId: 1, // TODO: implement for multiple chains
         data,
         nonce: String(nonce),
         gasPrice: numberToHex(gasPrice),
         gasLimit: numberToHex(gasLimit)
       }
-      return txToSign
+      return { txToSign, estimatedFees }
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -100,8 +131,8 @@ export class EthereumChainAdapter implements ChainAdapter {
   signTransaction = async (signTxInput: SignTxInput): Promise<string> => {
     try {
       const { txToSign, wallet } = signTxInput
-
       const signedTx = await (wallet as ETHWallet).ethSignTx(txToSign)
+
       if (!signedTx) throw new Error('Error signing tx')
 
       return signedTx.serialized
@@ -114,21 +145,39 @@ export class EthereumChainAdapter implements ChainAdapter {
     return this.provider.broadcastTx(hex)
   }
 
-  getFeeData = async (feeEstimateInput: FeeEstimateInput): Promise<FeeData> => {
-    const [price, units] = await Promise.all([
-      this.provider.getFeePrice(),
-      this.provider.getFeeUnits(feeEstimateInput) // Returns estimated gas for ETH
-    ])
+  getFeeData = async ({ to, from, contractAddress, value }: GetFeeDataInput): Promise<FeeData> => {
+    const { data: responseData } = await axios.get<ZrxGasApiResponse>('https://gas.api.0x.org/')
+    const fees = responseData.result.find((result) => result.source === 'MEDIAN')
 
-    // The node seems to be often estimating low gas price
-    // Hard code 1.5x multiplier to get it working for now
-    const adjustedPrice = new BigNumber(price).times(1.5).decimalPlaces(0)
-    // Hard code 2x gas limit multipiler
-    const adjustedGas = new BigNumber(units).times(2).decimalPlaces(0)
+    if (!fees) throw new TypeError('ETH Gas Fees should always exist')
+
+    const data = await getErc20Data(to, value, contractAddress)
+    const feeUnits = await this.provider.getFeeUnits({
+      from,
+      to,
+      value,
+      data
+    })
+
+    // PAD LIMIT
+    const gasLimit = new BigNumber(feeUnits).times(2).toString()
 
     return {
-      units: adjustedGas.toString(),
-      price: adjustedPrice.toString()
+      fast: {
+        feeUnits: gasLimit,
+        feeUnitPrice: String(fees.instant),
+        networkFee: new BigNumber(fees.instant).times(gasLimit).toPrecision()
+      },
+      average: {
+        feeUnits: gasLimit,
+        feeUnitPrice: String(fees.fast),
+        networkFee: new BigNumber(fees.fast).times(gasLimit).toPrecision()
+      },
+      slow: {
+        feeUnits: gasLimit,
+        feeUnitPrice: String(fees.low),
+        networkFee: new BigNumber(fees.low).times(gasLimit).toPrecision()
+      }
     }
   }
 

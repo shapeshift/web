@@ -1,5 +1,5 @@
 export type TokenAsset = {
-  displayName: string
+  name: string
   precision: number
   tokenId: string
   contractType: ContractTypes
@@ -10,11 +10,12 @@ export type TokenAsset = {
   receiveSupport: boolean
   symbol: string
 }
+
 export type BaseAsset = {
-  chain: string
+  chain: ChainTypes
   network: NetworkTypes
   symbol: string
-  displayName: string
+  name: string
   precision: number
   slip44: number
   color: string
@@ -28,10 +29,10 @@ export type BaseAsset = {
 }
 
 export type Asset = {
-  chain: string
+  chain: ChainTypes
   network: NetworkTypes
   symbol: string
-  displayName: string
+  name: string
   precision: number
   color: string
   secondaryColor: string
@@ -52,9 +53,15 @@ export enum ContractTypes {
   NONE = 'NONE'
 }
 
+export enum ChainTypes {
+  Ethereum = 'ethereum',
+  Bitcoin = 'bitcoin',
+  Litecoin = 'litecoin'
+}
+
 export enum NetworkTypes {
-  BTC_MAINNET = 'BTC_MAINNET',
-  BTC_TESTNET = 'BTC_TESTNET',
-  ETH_MAINNET = 'ETH_MAINNET',
-  ETH_ROPSTEN = 'ETH_ROPSTEN'
+  MAINNET = 'MAINNET',
+  TESTNET = 'TESTNET', // BTC, lTC, etc...
+  ETH_ROPSTEN = 'ETH_ROPSTEN',
+  ETH_RINKEBY = 'ETH_RINKEBY'
 }

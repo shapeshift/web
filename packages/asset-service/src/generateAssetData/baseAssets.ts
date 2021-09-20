@@ -1,11 +1,11 @@
-import { BaseAsset, ContractTypes, NetworkTypes } from '../types'
+import { BaseAsset, ContractTypes, NetworkTypes, ChainTypes } from '../types'
 
 export const baseAssets: Array<BaseAsset> = [
   {
-    chain: 'ETH',
-    network: NetworkTypes.ETH_MAINNET,
+    chain: ChainTypes.Ethereum,
+    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
-    displayName: 'Ethereum',
+    name: 'Ethereum',
     precision: 18,
     slip44: 60,
     color: '#FFFFFF',
@@ -17,10 +17,10 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: true
   },
   {
-    chain: 'BTC',
-    network: NetworkTypes.BTC_MAINNET,
+    chain: ChainTypes.Bitcoin,
+    network: NetworkTypes.MAINNET,
     symbol: 'BTC',
-    displayName: 'Bitcoin',
+    name: 'Bitcoin',
     precision: 8,
     slip44: 0,
     color: '#FFFFFF',
@@ -32,10 +32,40 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: false
   },
   {
-    chain: 'ETH',
+    chain: ChainTypes.Bitcoin,
+    network: NetworkTypes.TESTNET,
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    precision: 8,
+    slip44: 1,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
+    explorer: 'https://live.blockcypher.com/btc-testnet/',
+    explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/',
+    sendSupport: false,
+    receiveSupport: false
+  },
+  {
+    chain: ChainTypes.Litecoin,
+    network: NetworkTypes.MAINNET,
+    symbol: 'LTC',
+    name: 'Litecoin',
+    precision: 8,
+    slip44: 2,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/ltc@2x.png',
+    explorer: 'https://live.blockcypher.com',
+    explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
+    sendSupport: false,
+    receiveSupport: false
+  },
+  {
+    chain: ChainTypes.Ethereum,
     network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',
-    displayName: 'Ropsten Testnet Ethereum',
+    name: 'Ropsten Testnet Ethereum',
     precision: 18,
     slip44: 1,
     color: '#FFFFFF',
@@ -47,7 +77,7 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: false,
     tokens: [
       {
-        displayName: 'Test Token',
+        name: 'Test Token',
         precision: 18,
         tokenId: '0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
         contractType: ContractTypes.ERC20,

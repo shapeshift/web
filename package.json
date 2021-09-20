@@ -15,6 +15,7 @@
     "test": "jest",
     "test:dev": "jest --watch",
     "type-check": "lerna run type-check",
+    "release": "lerna exec --concurrency 1 -- npx --no-install semantic-release -e semantic-release-monorepo",
     "publish:lerna": "lerna publish from-package --no-private --yes",
     "version:patch": "lerna version patch --yes --no-git-tag-version --no-push",
     "version:minor": "lerna version minor --yes --no-git-tag-version --no-push",

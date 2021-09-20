@@ -1,13 +1,12 @@
-name: Commitlint Lint Test & Build
-
+name: Release
 on:
-  pull_request:
+  push:
     branches:
       - main
-      - develop
 
 jobs:
-  commitlint-lint-test-build:
+  release:
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,9 +20,6 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Install
         run: yarn install --frozen-lockfile
-      # needs to run after install
-      - name: Commitlint PR title
-        run: echo ${{ github.event.pull_request.title }} | npx commitlint
       - name: Type check
         run: yarn type-check
       - name: Lint
@@ -32,3 +28,8 @@ jobs:
         run: yarn test
       - name: Build
         run: yarn build
+      - name: Release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: yarn release

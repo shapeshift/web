@@ -1,17 +1,4 @@
-export type TokenAsset = {
-  name: string
-  precision: number
-  tokenId: string
-  contractType: ContractTypes
-  color: string
-  secondaryColor: string
-  icon: string
-  sendSupport: boolean
-  receiveSupport: boolean
-  symbol: string
-}
-
-export type BaseAsset = {
+type AbstractAsset = {
   chain: ChainTypes
   network: NetworkTypes
   symbol: string
@@ -25,26 +12,16 @@ export type BaseAsset = {
   explorerTxLink: string
   sendSupport: boolean
   receiveSupport: boolean
-  tokens?: TokenAsset[]
 }
 
-export type Asset = {
-  chain: ChainTypes
-  network: NetworkTypes
-  symbol: string
-  name: string
-  precision: number
-  color: string
-  secondaryColor: string
-  icon: string
-  sendSupport: boolean
-  receiveSupport: boolean
-  explorer?: string
-  explorerTxLink?: string
-  slip44?: number
-  tokenId?: string
-  contractType?: ContractTypes
+type OmittedTokenAssetFields = 'chain' | 'network' | 'slip44' | 'explorer' | 'explorerTxLink'
+type TokenAssetFields = {
+  tokenId: string
+  contractType: ContractTypes
 }
+export type TokenAsset = Omit<AbstractAsset, OmittedTokenAssetFields> & TokenAssetFields
+export type BaseAsset = AbstractAsset & { tokens?: TokenAsset[] }
+export type Asset = AbstractAsset & Partial<TokenAssetFields>
 
 export enum ContractTypes {
   ERC20 = 'ERC20',

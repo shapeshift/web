@@ -25,6 +25,7 @@ ShapeShiftsOSS 2nd generation Web application. (Under Development)
 - [State Management](docs/state-management.md)
 - [Styles](docs/styles.md)
 - [Testing](docs/testing.md)
+- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ## Resources
 
@@ -89,6 +90,13 @@ more information.
 
 ```sh
     yarn build
+```
+
+Runs the component documentation.<br /> Open
+[http://localhost:6006](http://localhost:6006) to view it in the browser.
+
+```sh
+    yarn storybook
 ```
 
 ### Linking

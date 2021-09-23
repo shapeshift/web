@@ -1,9 +1,14 @@
 export const StatStyle = {
-  parts: ['label'],
+  parts: ['label', 'number'],
   // Styles for the base style
   baseStyle: {
     label: {
-      color: 'gray.500'
+      color: 'gray.500',
+      lineHeight: 1,
+      mb: 2
+    },
+    number: {
+      lineHeight: 1
     }
   },
   // Styles for the size variations

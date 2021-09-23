@@ -1,6 +1,6 @@
 import { createIcon } from '@chakra-ui/react'
 
-export const QRCode = createIcon({
+export const QRCodeIcon = createIcon({
   displayName: 'QRCodeIcon',
   path: (
     <path

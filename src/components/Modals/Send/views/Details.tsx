@@ -2,6 +2,7 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -15,6 +16,7 @@ import {
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
@@ -32,6 +34,7 @@ export const Details = () => {
   } = useFormContext()
   const history = useHistory()
   const translate = useTranslate()
+
   const [asset, crypto, fiat] = useWatch({
     name: [SendFormFields.Asset, SendFormFields.Crypto, SendFormFields.Fiat]
   })
@@ -81,12 +84,15 @@ export const Details = () => {
               color='gray.500'
               onClick={toggleCurrency}
               textTransform='uppercase'
-              _hover={{ color: 'white' }}
+              _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
-              ≈{' '}
-              {fieldName === SendFormFields.FiatAmount
-                ? `${crypto.amount ?? 0} ${crypto.symbol}`
-                : `${fiat.amount ?? 0} ${fiat.symbol}`}
+              {fieldName === SendFormFields.FiatAmount ? (
+                <Amount.Crypto value={crypto.amount} symbol={crypto.symbol} />
+              ) : (
+                <Flex>
+                  <Amount.Fiat value={fiat.amount} mr={1} /> {fiat.symbol}
+                </Flex>
+              )}
             </FormHelperText>
           </Box>
           {fieldName === SendFormFields.CryptoAmount && (

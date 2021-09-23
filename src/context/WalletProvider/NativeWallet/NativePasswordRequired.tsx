@@ -18,16 +18,14 @@ import {
 import { NativeAdapter, NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
-import React, { useState } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Text } from 'components/Text'
+import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
-
-import { SUPPORTED_WALLETS } from '../config'
 
 type StoredWallets = Record<string, string>
 

@@ -12,7 +12,7 @@ import {
 import { Controller, useFormContext } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
-import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
@@ -110,7 +110,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           <IconButton aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
             <Text fontSize='sm'>1 BTC = 40,100.45 USDC</Text>
-            <HelperToolTip label='The price is ' />
+            <HelperTooltip label='The price is ' />
           </Box>
         </FormControl>
         <FormControl mb={6}>

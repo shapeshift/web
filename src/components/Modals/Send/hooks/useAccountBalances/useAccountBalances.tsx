@@ -1,31 +1,38 @@
+import { Asset, NetworkTypes } from '@shapeshiftoss/asset-service'
 import { BalanceResponse, Token } from '@shapeshiftoss/chain-adapters'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-// TODO (technojak) this should be removed in favor of the asset-service. For now assume the fallback is eth
-const ETH_PRECISION = 18
-
 type UseAccountBalancesProps = {
-  asset: any
+  asset: Asset
   balances: Record<string, Partial<BalanceResponse & Token>>
 }
 
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {
-  const assetBalance = asset?.contractAddress
-    ? balances[asset?.contractAddress]
-    : balances[asset.network]
+  const [assetData, setAssetData] = useState<AssetMarketData>()
+  const getAssetData = useGetAssetData()
+  const assetBalance = asset?.tokenId ? balances[asset?.tokenId] : balances[asset.chain]
+
+  useEffect(() => {
+    ;(async () => {
+      const data = await getAssetData({
+        chain: asset.chain,
+        network: NetworkTypes.MAINNET,
+        tokenId: asset.tokenId
+      })
+      setAssetData(data)
+    })()
+  }, [asset.chain, asset.tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const accountBalances = useMemo(() => {
-    // TODO (technojak) decimals should come from asset-service not on the market data for the asset
-    // Hard coding to eths decimals for now
-    const precision = assetBalance?.decimals || ETH_PRECISION
-    const crypto = bnOrZero(assetBalance?.balance).div(`1e${precision}`)
-    const fiat = crypto.times(asset.price)
+    const crypto = bnOrZero(assetBalance?.balance).div(`1e${asset.precision}`)
+    const fiat = crypto.times(assetData?.price || 0)
     return {
       crypto,
       fiat
     }
-  }, [assetBalance, asset])
+  }, [assetBalance, assetData, asset])
 
   return { assetBalance, accountBalances }
 }

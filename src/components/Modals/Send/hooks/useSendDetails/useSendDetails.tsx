@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
+import { NetworkTypes } from '@shapeshiftoss/asset-service'
 import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { getAssetData } from '@shapeshiftoss/market-service'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -9,6 +9,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -55,6 +56,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet }
   } = useWallet()
 
+  const getAssetData = useGetAssetData()
+
   useEffect(() => {
     if (balanceError) {
       toast({
@@ -68,8 +71,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }, [balanceError, toast, history, translate])
 
-  /** When selecting new assets the network (CHAIN) is not returned from the market service. This will break. We should get this from the */
-  const adapter = chainAdapter.byChain(asset.network)
+  const adapter = chainAdapter.byChain(asset.chain)
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx
@@ -80,14 +82,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       // TODO (technojak) get path and decimals from asset-service
       const path = "m/44'/60'/0'/0/0"
       const value = bnOrZero(values.crypto.amount)
-        .times(bnOrZero(10).exponentiatedBy(values.asset.decimals || ETH_PRECISION))
+        .times(bnOrZero(10).exponentiatedBy(values.asset.precision || ETH_PRECISION))
         .toFixed(0)
 
       try {
         const data = await adapter.buildSendTransaction({
           to: values.address,
           value,
-          erc20ContractAddress: values.asset.contractAddress,
+          erc20ContractAddress: values.asset.tokenId,
           wallet,
           path
         })
@@ -103,8 +105,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     try {
       setLoading(true)
       const { txToSign, estimatedFees } = await buildTransaction()
-      setValue('transaction', txToSign)
-      setValue('estimatedFees', estimatedFees)
+      setValue(SendFormFields.Transaction, txToSign)
+      setValue(SendFormFields.EstimatedFees, estimatedFees)
       history.push(SendRoutes.Confirm)
     } catch (error) {
       console.error(error)
@@ -121,24 +123,26 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const adapterFees = await adapter.getFeeData({
         to: address,
         from: fromAddress,
-        value: asset.contractAddress ? '0' : assetBalance.balance,
-        contractAddress: asset.contractAddress
+        value: asset.tokenId ? '0' : assetBalance.balance,
+        contractAddress: asset.tokenId
       })
       // Assume fast fee for send max
       const fastFee = adapterFees[FeeDataKey.Fast]
-      const chainAsset = await getAssetData(asset.network)
-      // TODO (technojak) replace precision with data from asset-service. Currently ETH specific
-      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${ETH_PRECISION}`)
+      const chainAsset = await getAssetData({
+        chain: asset.chain,
+        network: NetworkTypes.MAINNET,
+        tokenId: asset.tokenId
+      })
+      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${chainAsset.precision}`)
 
-      // TODO (technojak): change to tokenId when integrated with asset-service
-      if (asset.contractAddress) {
-        setValue('crypto.amount', accountBalances.crypto.toPrecision())
-        setValue('fiat.amount', accountBalances.fiat.toPrecision())
+      if (asset.tokenId) {
+        setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())
+        setValue(SendFormFields.FiatAmount, accountBalances.fiat.toFixed(2))
       } else {
         const maxCrypto = accountBalances.crypto.minus(networkFee)
         const maxFiat = maxCrypto.times(chainAsset?.price || 0)
-        setValue('crypto.amount', maxCrypto.toPrecision())
-        setValue('fiat.amount', maxFiat.toPrecision())
+        setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
+        setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       }
       setLoading(false)
     }

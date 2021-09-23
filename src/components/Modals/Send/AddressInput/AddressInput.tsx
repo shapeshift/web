@@ -2,7 +2,7 @@ import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/rea
 import { Controller, ControllerProps, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { QRCode } from 'components/Icons/QRCode'
+import { QRCodeIcon } from 'components/Icons/QRCode'
 
 import { SendFormFields } from '../Form'
 import { SendRoutes } from '../Send'
@@ -41,7 +41,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
       <InputRightElement>
         <IconButton
           aria-label={translate('modals.send.scanQrCode')}
-          icon={<QRCode />}
+          icon={<QRCodeIcon />}
           onClick={handleQrClick}
           size='sm'
           variant='ghost'

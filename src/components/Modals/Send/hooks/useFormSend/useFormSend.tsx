@@ -21,15 +21,15 @@ export const useFormSend = () => {
     if (wallet) {
       try {
         const path = "m/44'/60'/0'/0/0" // TODO (technojak) get path and asset precision from asset-service
-        const adapter = chainAdapter.byChain(ChainIdentifier.Ethereum)
+        const adapter = chainAdapter.byChain(data.asset.chain as unknown as ChainIdentifier)
         const value = bnOrZero(data.crypto.amount)
-          .times(bnOrZero(10).exponentiatedBy(data.asset.decimals || 18))
+          .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
-          erc20ContractAddress: data.asset.contractAddress,
+          erc20ContractAddress: data.asset.tokenId,
           wallet,
           path,
           fee: data.estimatedFees[data.feeType].feeUnitPrice,

@@ -10,6 +10,7 @@
     "@formatjs/intl-numberformat": "^7.2.2",
     "@formatjs/intl-pluralrules": "^4.1.2",
     "@reduxjs/toolkit": "^1.6.1",
+    "@shapeshiftoss/asset-service": "^1.0.0",
     "@shapeshiftoss/chain-adapters": "^0.0.16",
     "@shapeshiftoss/hdwallet-core": "^1.16.1",
     "@shapeshiftoss/hdwallet-keepkey": "^1.16.1",
@@ -28,6 +29,7 @@
     "bip39": "^3.0.4",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
+    "dompurify": "^2.3.2",
     "envalid": "^7.2.1",
     "framer-motion": "^4",
     "localforage": "^1.10.0",
@@ -59,9 +61,11 @@
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
     "build": "react-scripts build",
     "dev": "react-scripts start",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "test": "react-scripts test --coverage",
+    "test:dev": "react-scripts test --watch",
+    "type-check": "tsc --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public"
   },
@@ -77,6 +81,9 @@
         }
       }
     ]
+  },
+  "jest": {
+    "collectCoverageFrom": null
   },
   "browserslist": {
     "production": [
@@ -106,6 +113,7 @@
     "@types/crypto-js": "^4.0.2",
     "@types/d3-array": "^3.0.1",
     "@types/d3-time-format": "^4.0.0",
+    "@types/dompurify": "^2.2.3",
     "@types/jest": "^26.0.24",
     "@types/lodash": "^4.14.171",
     "@types/node": "^16.4.10",

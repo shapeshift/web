@@ -11,10 +11,10 @@ import {
 } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
-import { ColorModeSwitcher } from 'components/ColorModeSwitcher/ColorModeSwitcher'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { breakpoints } from 'theme/theme'
 
+import { ColorModeSwitcher } from './ColorModeSwitcher/ColorModeSwitcher'
 import { NavBar } from './NavBar/NavBar'
 import { WalletButton } from './NavBar/WalletButton'
 
@@ -41,18 +41,22 @@ export const HeaderContent = ({ route }: { route: Route }) => {
               )}
             </div>
           ))}
+          <RouterLink to='/dashboard'>
+            <FoxIcon
+              w={{ base: '30px', lg: '40px' }}
+              h={{ base: '30px', lg: '40px' }}
+              display={{ base: 'none', md: 'block' }}
+            />
+          </RouterLink>
+        </Box>
+        <RouterLink to='/dashboard'>
           <FoxIcon
             w={{ base: '30px', lg: '40px' }}
             h={{ base: '30px', lg: '40px' }}
-            display={{ base: 'none', md: 'block' }}
+            display={{ base: 'block', md: 'none' }}
+            justifySelf='flex-end'
           />
-        </Box>
-        <FoxIcon
-          w={{ base: '30px', lg: '40px' }}
-          h={{ base: '30px', lg: '40px' }}
-          display={{ base: 'block', md: 'none' }}
-          justifySelf='flex-end'
-        />
+        </RouterLink>
         <NavBar display={{ base: 'none', md: 'flex' }} />
         <Flex alignItems='center' justifyContent='flex-end' flex={2}>
           <HStack spacing={8} alignItems={'center'}>

@@ -3,7 +3,7 @@ import { Box, Button, Divider, IconButton, SimpleGrid, Stack, Text } from '@chak
 import { useFormContext } from 'react-hook-form'
 import { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
-import { HelperToolTip } from 'components/HelperTooltip/HelperTooltip'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 
@@ -45,24 +45,24 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         <Card.Body pb={0} px={0}>
           <Stack spacing={4}>
             <Row>
-              <HelperToolTip label='This is the rate'>
+              <HelperTooltip label='This is the rate'>
                 <Row.Label>Rate</Row.Label>
-              </HelperToolTip>
+              </HelperTooltip>
               <Box textAlign='right'>
                 <Text>1 ETH = 3,557.29 USDC</Text>
                 <Text color='gray.500'>@0x</Text>
               </Box>
             </Row>
             <Row>
-              <HelperToolTip label='This is the Miner Fee'>
+              <HelperTooltip label='This is the Miner Fee'>
                 <Row.Label>Miner Fee</Row.Label>
-              </HelperToolTip>
+              </HelperTooltip>
               <Row.Value>$67.77</Row.Value>
             </Row>
             <Row>
-              <HelperToolTip label='This is the Miner Fee'>
+              <HelperTooltip label='This is the Miner Fee'>
                 <Row.Label>ShapeShift Fee</Row.Label>
-              </HelperToolTip>
+              </HelperTooltip>
               <Row.Value>$0.00</Row.Value>
             </Row>
           </Stack>

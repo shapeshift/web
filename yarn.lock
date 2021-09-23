@@ -2250,6 +2250,15 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
 
+"@shapeshiftoss/hdwallet-core@^1.16.2-alpha.0":
+  version "1.16.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.16.2-alpha.0.tgz#191105ce22ba62b4082cf7ee4cc028af51fdc0dc"
+  integrity sha512-7klS5VWGiW49E/A6Hfhb1zCFDwGZz+ps+r3WwNEIGrPzCYx8wStee9Y/Pe/pry0fOwHWGiIfBWfXFtCE7CDv+Q==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+
 "@shapeshiftoss/hdwallet-native@^1.15.5-alpha.1":
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.16.1.tgz#ee3c7253b7e192a80154c7480e311c4e30baf4bb"
@@ -2927,7 +2936,7 @@ axios@0.21.1:
   dependencies:
     follow-redirects "^1.10.0"
 
-axios@^0.21.1, axios@^0.21.2:
+axios@^0.21.1, axios@^0.21.2, axios@^0.21.4:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==

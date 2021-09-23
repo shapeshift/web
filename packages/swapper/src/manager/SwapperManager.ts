@@ -1,4 +1,5 @@
-import { Swapper, SwapperType } from '..'
+import { GetQuoteInput, Swapper, SwapperType } from '..'
+import { Quote } from '../api'
 
 export class SwapperError extends Error {
   constructor(message: string) {
@@ -54,5 +55,10 @@ export class SwapperManager<T extends SwapperType> {
     if (!swapper) throw new SwapperError(`removeSwapper - ${swapperType} doesn't exist`)
     this.swappers.delete(swapperType)
     return this
+  }
+
+  async getQuote(swapperType: T, quoteParams: GetQuoteInput): Promise<Quote | undefined> {
+    const swapper = this.getSwapper(swapperType)
+    return swapper.getQuote(quoteParams)
   }
 }

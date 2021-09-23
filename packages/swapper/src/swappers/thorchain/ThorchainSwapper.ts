@@ -4,4 +4,8 @@ export class ThorchainSwapper implements Swapper {
   getType() {
     return SwapperType.Thorchain
   }
+
+  async getQuote() {
+    return undefined
+  }
 }

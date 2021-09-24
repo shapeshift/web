@@ -98,6 +98,8 @@
     ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
     "@snek-at/storybook-addon-chakra-ui": "^1.0.0-beta.1",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",

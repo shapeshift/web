@@ -62,13 +62,34 @@ describe('getZrxQuote', () => {
       })
     )
     const quote = await swapper.getQuote(quoteInput)
-    expect(quote?.success).toBeTruthy()
-    expect(quote?.feeData).toStrictEqual({
+    expect(quote.success).toBeTruthy()
+    expect(quote.feeData).toStrictEqual({
       fee: '1500000000',
       estimatedGas: '1500000',
       gasPrice: '1000',
       approvalFee: '100000000'
     })
+    expect(quote.rate).toBe('100')
+  })
+  it('quote fails with no error message', async () => {
+    const { quoteInput } = setupQuote()
+    const swapper = new ZrxSwapper()
+    ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve(undefined))
+    const quote = await swapper.getQuote(quoteInput)
+    expect(quote.statusCode).toBe(-1)
+    expect(quote.success).toBe(false)
+    expect(quote.statusReason).toBe('Unknown Error')
+  })
+  it('quote fails with validation error message', async () => {
+    const { quoteInput } = setupQuote()
+    const swapper = new ZrxSwapper()
+    ;(zrxService.get as jest.Mock<unknown>).mockRejectedValue({
+      response: { data: { code: 502, reason: 'Failed to do some stuff' } }
+    } as never)
+    const quote = await swapper.getQuote(quoteInput)
+    expect(quote.statusCode).toBe(502)
+    expect(quote.success).toBe(false)
+    expect(quote.statusReason).toBe('Failed to do some stuff')
   })
   it('returns quote without fee data', async () => {
     const { quoteInput } = setupQuote()

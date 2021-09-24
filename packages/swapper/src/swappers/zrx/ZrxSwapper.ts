@@ -1,3 +1,4 @@
+import { Asset, ChainTypes } from '@shapeshiftoss/asset-service'
 import { GetQuoteInput, Quote, Swapper, SwapperType } from '../../api'
 import { getZrxQuote } from './getQuote/getQuote'
 export class ZrxError extends Error {
@@ -11,11 +12,16 @@ export class ZrxSwapper implements Swapper {
     return SwapperType.Zrx
   }
 
-  /**
-   * Get a basic quote (rate) for the pair
-   * @param input
-   */
-  async getQuote(input: GetQuoteInput): Promise<Quote | undefined> {
+  async getQuote(input: GetQuoteInput): Promise<Quote> {
     return getZrxQuote(input)
+  }
+
+  getAvailableAssets(assets: Asset[]): Asset[] {
+    return assets.filter((asset) => asset.chain === ChainTypes.Ethereum)
+  }
+
+  canTradePair(sellAsset: Asset, buyAsset: Asset): boolean {
+    const availableAssets = this.getAvailableAssets([sellAsset, buyAsset])
+    return availableAssets.length === 2
   }
 }

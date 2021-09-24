@@ -93,4 +93,17 @@ export interface Swapper {
    * @param input
    */
   getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote | undefined>
+
+  /**
+   * Get a list of available assets based on the array of assets you send it
+   * @param assets
+   */
+  getAvailableAssets(assets: Asset[]): Asset[]
+
+  /**
+   * Get a boolean if the trade pair will work
+   * @param sellAsset
+   * @param buyAsset
+   */
+  canTradePair(sellAsset: Asset, buyAsset: Asset): boolean
 }

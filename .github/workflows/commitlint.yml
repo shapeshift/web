@@ -1,8 +1,5 @@
-name: Lint Commit Messages
+name: Lint PR Title
 on:
-  push:
-    branches-ignore:
-      - main
   pull_request:
     branches:
       - main
@@ -12,7 +9,17 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v4
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: Install
+        run: yarn install --frozen-lockfile
+      # needs to run after install
+      - name: Commitlint PR title
+        run: echo ${{ github.event.pull_request.title }} | npx commitlint

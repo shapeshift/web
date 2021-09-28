@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "lerna run build --include-dependencies",
+    "clean": "rimraf node_modules dist packages/**/dist",
     "dev": "lerna run dev --stream --parallel",
     "lint": "eslint --cache .",
     "test": "jest",
@@ -40,6 +41,7 @@
     "jest-mock-extended": "^1.0.9",
     "lerna": "^4.0.0",
     "prettier": "1.19.1",
+    "rimraf": "^3.0.2",
     "semantic-release": "^17.4.7",
     "semantic-release-monorepo": "^7.0.5",
     "ts-jest": "^27.0.5",

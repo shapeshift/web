@@ -34,6 +34,7 @@ const WETH = {
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
+  slip44: 0,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   sendSupport: true,
@@ -51,6 +52,9 @@ const FOX = {
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
   sendSupport: true,
+  slip44: 0,
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
   receiveSupport: true,
   symbol: 'FOX'
 }

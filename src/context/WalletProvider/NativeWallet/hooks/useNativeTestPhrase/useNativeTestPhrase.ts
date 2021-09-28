@@ -5,7 +5,7 @@ import slice from 'lodash/slice'
 import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
-import { LocationState } from 'context/WalletProvider/NativeWallet/setup'
+import { LocationState } from 'context/WalletProvider/NativeWallet/types'
 
 const TEST_COUNT_REQUIRED = 3
 

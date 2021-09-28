@@ -1,7 +1,7 @@
 import { Button, ModalBody, ModalFooter, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
 import { RawText, Text } from 'components/Text'
 
-import { useNativeTestPhrase } from './hooks/useNativeTestPhrase/useNativeTestPhrase'
+import { useNativeTestPhrase } from '../../hooks/useNativeTestPhrase/useNativeTestPhrase'
 
 const ordinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'

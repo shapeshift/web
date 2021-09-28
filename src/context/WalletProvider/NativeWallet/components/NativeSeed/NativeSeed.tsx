@@ -14,8 +14,8 @@ import { useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../setup'
-import { useRevocableSeed } from './hooks/useRevocableSeed/useRevocableSeed'
+import { useRevocableSeed } from '../../hooks/useRevocableSeed/useRevocableSeed'
+import { NativeSetupProps } from '../../types'
 
 export const NativeSeed = ({ history, location }: NativeSetupProps) => {
   const [revealed, setRevealed] = useState<boolean>(false)

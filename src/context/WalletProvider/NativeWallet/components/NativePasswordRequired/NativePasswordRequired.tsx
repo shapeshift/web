@@ -20,8 +20,8 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
-import { useInitializeWalletFromStorage } from './hooks/useInitializeWalletFromStorage/useInitializeWalletFromStorage'
-import { useNativePasswordRequired } from './hooks/useNativePasswordRequired/useNativePasswordRequired'
+import { useInitializeWalletFromStorage } from '../../hooks/useInitializeWalletFromStorage/useInitializeWalletFromStorage'
+import { useNativePasswordRequired } from '../../hooks/useNativePasswordRequired/useNativePasswordRequired'
 
 export const NativePasswordRequired = () => {
   const { isOpen: showPw, onToggle: toggleShowPw } = useDisclosure()

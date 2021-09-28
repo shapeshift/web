@@ -6,12 +6,12 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
 
 import { PinModal } from './KeepKey/PinModal'
-import { NativeImport } from './NativeWallet/NativeImport'
-import { NativePassword } from './NativeWallet/NativePassword'
-import { NativeSeed } from './NativeWallet/NativeSeed/NativeSeed'
-import { NativeStart } from './NativeWallet/NativeStart'
-import { NativeSuccess } from './NativeWallet/NativeSuccess/NativeSuccess'
-import { NativeTestPhrase } from './NativeWallet/NativeTestPhrase/NativeTestPhrase'
+import { NativeImport } from './NativeWallet/components/NativeImport'
+import { NativePassword } from './NativeWallet/components/NativePassword'
+import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
+import { NativeStart } from './NativeWallet/components/NativeStart'
+import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
+import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
 
 export interface SupportedWalletInfo {
   adapter: any

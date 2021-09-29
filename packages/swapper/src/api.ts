@@ -6,6 +6,8 @@ export enum SwapperType {
   Thorchain = 'Thorchain'
 }
 
+export class SwapError extends Error {}
+
 export interface FeeData {
   fee?: string
   gas?: string
@@ -84,9 +86,21 @@ export interface GetQuoteInput {
   minimum?: string
 }
 
+export type BuildQuoteTxArgs = {
+  input: GetQuoteInput
+  wallet: HDWallet
+}
+
 export interface Swapper {
   /** Returns the swapper type */
   getType(): SwapperType
+
+  /**
+   * Get a Quote along with an unsigned transaction that can be signed and broadcast to execute the swap
+   * @param input
+   * @param wallet
+   **/
+  buildQuoteTx(args: BuildQuoteTxArgs): Promise<Quote | undefined>
 
   /**
    * Get a basic quote (rate) for a trading pair

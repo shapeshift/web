@@ -23,7 +23,9 @@ jobs:
         run: yarn install --frozen-lockfile
       # needs to run after install
       - name: Commitlint PR title
-        run: echo '${{ github.event.pull_request.title }}' | npx commitlint
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s' "$TITLE" | npx commitlint
       - name: Build
         run: yarn build
       - name: Lint

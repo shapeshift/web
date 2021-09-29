@@ -20,14 +20,12 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
       - name: Install
         run: yarn install --frozen-lockfile
-      - name: Type check
-        run: yarn type-check
+      - name: Build
+        run: yarn build
       - name: Lint
         run: yarn lint
       - name: Test
         run: yarn test
-      - name: Build
-        run: yarn build
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

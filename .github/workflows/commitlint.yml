@@ -24,4 +24,4 @@ jobs:
       - name: Commitlint PR title
         env:
           TITLE: ${{ github.event.pull_request.title }}
-        run: echo $TITLE | npx commitlint
+        run: printf '%s' "$TITLE" | npx commitlint

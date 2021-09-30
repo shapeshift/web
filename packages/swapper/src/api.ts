@@ -32,4 +32,10 @@ export interface Swapper {
    * @param buyAsset
    */
   canTradePair(sellAsset: Asset, buyAsset: Asset): boolean
+
+  /**
+   * Get the usd rate from either the assets symbol or tokenId
+   * @param input
+   */
+  getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
 }

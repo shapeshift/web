@@ -1,11 +1,15 @@
 import Web3 from 'web3'
+import { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
+import { zrxService } from './utils/zrxService'
 import {
   Asset,
   BuildQuoteTxArgs,
   ChainTypes,
   GetQuoteInput,
   Quote,
-  SwapperType
+  SwapperType,
+  QuoteResponse
 } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Swapper } from '../../api'
@@ -43,6 +47,23 @@ export class ZrxSwapper implements Swapper {
 
   async getQuote(input: GetQuoteInput): Promise<Quote> {
     return getZrxQuote(input)
+  }
+
+  async getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
+    const { symbol, tokenId } = input
+    const rateResponse: AxiosResponse<QuoteResponse> = await zrxService.get<QuoteResponse>(
+      '/swap/v1/price',
+      {
+        params: {
+          buyToken: 'USDC',
+          buyAmount: '1000000', // $1
+          sellToken: tokenId || symbol
+        }
+      }
+    )
+    if (!rateResponse.data.price) throw new ZrxError('getUsdRate - Failed to get price data')
+
+    return new BigNumber(1).dividedBy(rateResponse.data.price).toString()
   }
 
   getAvailableAssets(assets: Asset[]): Asset[] {

@@ -3,7 +3,7 @@ import { Button, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import React from 'react'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from './setup'
+import { NativeSetupProps } from '../types'
 
 export const NativeStart = ({ history, location }: NativeSetupProps) => (
   <>

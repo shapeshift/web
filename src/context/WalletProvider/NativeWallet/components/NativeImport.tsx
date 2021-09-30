@@ -10,7 +10,7 @@ import * as bip39 from 'bip39'
 import { FieldValues, useForm } from 'react-hook-form'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from './setup'
+import { NativeSetupProps } from '../types'
 
 export const NativeImport = ({ history, location }: NativeSetupProps) => {
   const onSubmit = async (values: FieldValues) => {

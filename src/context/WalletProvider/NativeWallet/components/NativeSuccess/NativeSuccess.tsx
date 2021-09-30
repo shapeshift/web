@@ -2,8 +2,8 @@ import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../setup'
-import { useNativeSuccess } from './hooks/useNativeSuccess/useNativeSuccess'
+import { useNativeSuccess } from '../../hooks/useNativeSuccess/useNativeSuccess'
+import { NativeSetupProps } from '../../types'
 
 export const NativeSuccess = ({ location }: NativeSetupProps) => {
   const { isSuccessful } = useNativeSuccess({ encryptedWallet: location.state.encryptedWallet })

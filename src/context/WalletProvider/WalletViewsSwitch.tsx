@@ -13,7 +13,7 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { SlideTransition } from 'components/SlideTransition'
 
 import { SUPPORTED_WALLETS } from './config'
-import { NativePasswordRequired } from './NativeWallet/NativePasswordRequired/NativePasswordRequired'
+import { NativePasswordRequired } from './NativeWallet/components/NativePasswordRequired/NativePasswordRequired'
 import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
 

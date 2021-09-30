@@ -1,5 +1,4 @@
-import { Asset, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { BalanceResponse, Token } from '@shapeshiftoss/chain-adapters'
+import { Asset, BalanceResponse, NetworkTypes, Token } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'

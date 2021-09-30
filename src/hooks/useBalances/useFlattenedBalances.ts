@@ -1,4 +1,4 @@
-import { BalanceResponse, Token } from '@shapeshiftoss/chain-adapters'
+import { BalanceResponse, Token } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { useBalances } from './useBalances'

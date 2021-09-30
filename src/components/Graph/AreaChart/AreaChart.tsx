@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/market-service'
+import { HistoryData } from '@shapeshiftoss/types'
 import { AxisScale } from '@visx/axis'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { LinearGradient } from '@visx/gradient'

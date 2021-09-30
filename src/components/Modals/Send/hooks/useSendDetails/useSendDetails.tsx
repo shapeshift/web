@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { NetworkTypes } from '@shapeshiftoss/asset-service'
-import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
+import { FeeDataEstimate, FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -75,7 +74,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx
-    estimatedFees: FeeData
+    estimatedFees: FeeDataEstimate
   }> => {
     const values = getValues()
     if (wallet) {

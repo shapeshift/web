@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset } from '@shapeshiftoss/types'
 import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Page } from 'components/Layout/Page'

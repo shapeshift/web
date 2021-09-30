@@ -14,7 +14,7 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import numeral from 'numeral'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'

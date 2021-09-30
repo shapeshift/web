@@ -1,5 +1,6 @@
 import { Center, Fade, SlideFade } from '@chakra-ui/react'
-import { getPriceHistory, HistoryData, HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { getPriceHistory } from '@shapeshiftoss/market-service'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { ParentSize } from '@visx/responsive'
 import BigNumber from 'bignumber.js'
 import { useEffect, useState } from 'react'

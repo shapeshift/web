@@ -1,5 +1,5 @@
 import { Flex, Image, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import { BalanceResponse } from '@shapeshiftoss/chain-adapters'
+import { BalanceResponse } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { Link } from 'react-router-dom'
 import { RawText } from 'components/Text'

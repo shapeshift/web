@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
@@ -28,6 +28,9 @@ const initAsset = {
   marketCap: '',
   volume: '',
   changePercent24Hr: 0,
+  slip44: 60,
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
   description: ''
 }
 

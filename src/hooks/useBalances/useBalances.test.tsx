@@ -1,4 +1,4 @@
-import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -33,7 +33,7 @@ const wallet = {}
 
 const setup = ({
   adapter = () => ({
-    getType: () => ChainIdentifier.Ethereum,
+    getType: () => ChainTypes.Ethereum,
     getAddress: () => Promise.resolve('0xMyWalletAddress'),
     getBalance: () => Promise.resolve(balances)
   })
@@ -56,7 +56,7 @@ describe('useBalances', () => {
 
       expect(result.current.loading).toBe(false)
       expect(result.current.error).toBeUndefined()
-      expect(result.current.balances).toEqual({ [ChainIdentifier.Ethereum]: balances })
+      expect(result.current.balances).toEqual({ [ChainTypes.Ethereum]: balances })
     })
   })
 
@@ -64,7 +64,7 @@ describe('useBalances', () => {
     await act(async () => {
       const { waitForValueToChange, result } = setup({
         adapter: () => ({
-          getType: () => ChainIdentifier.Ethereum,
+          getType: () => ChainTypes.Ethereum,
           getAddress: () => Promise.reject('Error while getting address'),
           getBalance: () => Promise.reject('No balances for you')
         })

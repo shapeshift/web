@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -21,7 +20,7 @@ export const useFormSend = () => {
     if (wallet) {
       try {
         const path = "m/44'/60'/0'/0/0" // TODO (technojak) get path and asset precision from asset-service
-        const adapter = chainAdapter.byChain(data.asset.chain as unknown as ChainIdentifier)
+        const adapter = chainAdapter.byChain(data.asset.chain)
         const value = bnOrZero(data.crypto.amount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)

@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/market-service'
+import { HistoryData } from '@shapeshiftoss/types'
 import { Brush } from '@visx/brush'
 import BaseBrush from '@visx/brush/lib/BaseBrush'
 import { Bounds } from '@visx/brush/lib/types'

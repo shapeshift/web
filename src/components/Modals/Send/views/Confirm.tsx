@@ -10,7 +10,7 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { FeeDataKey, FeeDataType } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey, FeeDataType } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'

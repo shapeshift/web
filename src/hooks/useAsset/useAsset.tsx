@@ -1,6 +1,5 @@
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { Asset } from '@shapeshiftoss/asset-service'
-import { getMarketData, MarketData } from '@shapeshiftoss/market-service'
+import { getMarketData } from '@shapeshiftoss/market-service'
+import { Asset, ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 
 import { useAssets } from '../../context/AssetProvider/AssetProvider'

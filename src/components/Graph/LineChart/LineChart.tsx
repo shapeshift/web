@@ -1,5 +1,5 @@
 import { useColorModeValue } from '@chakra-ui/react'
-import { HistoryData } from '@shapeshiftoss/market-service'
+import { HistoryData } from '@shapeshiftoss/types'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { AxisScale } from '@visx/axis'
 import { Group } from '@visx/group'

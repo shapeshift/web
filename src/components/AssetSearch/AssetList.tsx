@@ -1,5 +1,5 @@
 import { ListProps } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'

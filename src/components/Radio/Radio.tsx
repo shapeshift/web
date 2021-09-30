@@ -6,7 +6,7 @@ import {
   useRadioGroup,
   UseRadioProps
 } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { memo } from 'react'
 import { Text } from 'components/Text'
 

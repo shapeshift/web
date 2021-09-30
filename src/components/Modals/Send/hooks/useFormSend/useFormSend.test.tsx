@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes, FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'

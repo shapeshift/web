@@ -14,7 +14,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { ChainIdentifier } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -42,7 +42,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
       if (!wallet) return
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
       // TODO(0xdef1cafe): remove this when we unchained supports more than eth
-      const chainAdapter = chainAdapterManager.byChain(ChainIdentifier.Ethereum)
+      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
       // TODO(0xdef1cafe): remove this when chain adapters has a default path
       const path = `m/44'/60'/0'/0/0`
       setReceiveAddress(await chainAdapter.getAddress({ wallet, path }))

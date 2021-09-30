@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'

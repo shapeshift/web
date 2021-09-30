@@ -1,5 +1,4 @@
-import { ChainTypes } from '@shapeshiftoss/asset-service'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes, FeeDataKey } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'

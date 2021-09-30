@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset } from '@shapeshiftoss/types'
 import { useHistory } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { LeftSidebarChildProps } from 'components/Layout/LeftSidebar'

@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { Radio } from 'components/Radio/Radio'
 
 type TimeControlsProps = {

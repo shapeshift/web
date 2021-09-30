@@ -1,6 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { Asset, NetworkTypes } from '@shapeshiftoss/asset-service'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import sortBy from 'lodash/sortBy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'

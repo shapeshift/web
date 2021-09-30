@@ -1,4 +1,4 @@
-import { BalanceResponse } from '@shapeshiftoss/chain-adapters'
+import { BalanceResponse } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'

@@ -1,5 +1,4 @@
-import { Asset, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { FeeData, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { Asset, FeeDataEstimate, FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -39,7 +38,7 @@ export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.Asset]: AssetMarketData
   [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeData
+  [SendFormFields.EstimatedFees]: FeeDataEstimate
   [SendFormFields.Crypto]: {
     amount: string
     symbol: string

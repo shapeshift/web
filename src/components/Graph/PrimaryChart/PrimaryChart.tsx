@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/market-service'
+import { HistoryData } from '@shapeshiftoss/types'
 import { localPoint } from '@visx/event'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'

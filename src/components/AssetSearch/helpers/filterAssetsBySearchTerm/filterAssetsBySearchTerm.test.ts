@@ -1,4 +1,4 @@
-import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
+import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 
@@ -43,6 +43,7 @@ const assets: Asset[] = [
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/17197/thumb/aAMMDAI_2x.png?1626940032',
+    slip44: 60,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
@@ -59,6 +60,7 @@ const assets: Asset[] = [
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/9956/thumb/dai-multi-collateral-mcd.png?1574218774',
+    slip44: 60,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,

@@ -1,6 +1,5 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/asset-service'
-import { HistoryTimeframe } from '@shapeshiftoss/market-service'
+import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
@@ -23,6 +22,9 @@ const asset = {
   changePercent24Hr: 25,
   description: 'loremIpsum',
   name: 'bitcoin',
+  slip44: 0,
+  explorer: 'https://live.blockcypher.com',
+  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   precision: 18,
   color: '0',
   secondaryColor: '0',

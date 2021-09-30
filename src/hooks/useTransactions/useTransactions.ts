@@ -1,4 +1,5 @@
-import { ChainAdapter, Transaction } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { Transaction } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'

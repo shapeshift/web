@@ -1,5 +1,5 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset } from '@shapeshiftoss/types'
 import { useRouteMatch } from 'react-router-dom'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'

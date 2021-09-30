@@ -1,6 +1,5 @@
-import { ChainTypes } from '@shapeshiftoss/asset-service'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { getMarketData } from '@shapeshiftoss/market-service'
+import { ChainTypes, FeeDataKey } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'

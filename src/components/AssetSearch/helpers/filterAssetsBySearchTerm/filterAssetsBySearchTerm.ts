@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/asset-service'
+import { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
 
 const isAddress = (address: string) => {

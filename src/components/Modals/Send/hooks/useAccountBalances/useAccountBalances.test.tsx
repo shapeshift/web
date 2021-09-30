@@ -1,4 +1,4 @@
-import { Asset, ChainTypes } from '@shapeshiftoss/asset-service'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { TestProviders } from 'jest/TestProviders'

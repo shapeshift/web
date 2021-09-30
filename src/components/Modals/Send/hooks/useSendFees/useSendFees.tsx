@@ -1,5 +1,4 @@
-import { NetworkTypes } from '@shapeshiftoss/asset-service'
-import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'

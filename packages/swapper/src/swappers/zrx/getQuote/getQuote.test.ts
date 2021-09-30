@@ -1,4 +1,4 @@
-import { ChainTypes, ContractTypes, NetworkTypes, Asset } from '@shapeshiftoss/asset-service'
+import { ChainTypes, ContractTypes, NetworkTypes, Asset } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 import BigNumber from 'bignumber.js'

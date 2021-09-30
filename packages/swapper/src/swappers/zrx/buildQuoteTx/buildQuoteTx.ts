@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
-import { ChainAdapter, ChainIdentifier } from '@shapeshiftoss/chain-adapters'
-import { Quote, SwapError, BuildQuoteTxArgs } from '../../..'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { SwapError } from '../../..'
+import { ChainTypes, Quote, BuildQuoteTxArgs } from '@shapeshiftoss/types'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { erc20AllowanceAbi } from '../utils/abi/erc20-abi'
@@ -81,10 +82,7 @@ export async function buildQuoteTx(
     )
   }
 
-  // TODO: (ryankk) Remove the type cast when we unify ChainIdentifier and ChainTypes
-  const adapter: ChainAdapter = adapterManager.byChain(
-    (buyAsset.chain as unknown) as ChainIdentifier
-  )
+  const adapter: ChainAdapter = adapterManager.byChain(buyAsset.chain)
   const receiveAddress = await adapter.getAddress({ wallet, path: DEFAULT_ETH_PATH })
 
   if (new BigNumber(slippage || 0).gt(MAX_SLIPPAGE)) {

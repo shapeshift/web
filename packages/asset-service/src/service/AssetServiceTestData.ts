@@ -1,5 +1,5 @@
 import { IndexedAssetData } from '..'
-import { Asset, BaseAsset, ChainTypes, ContractTypes, NetworkTypes } from '../types'
+import { Asset, BaseAsset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const mockBaseAssets: BaseAsset[] = [
   {

@@ -1,8 +1,7 @@
 import fs from 'fs'
 import { baseAssets } from './baseAssets'
 import { getTokens } from './ethTokens'
-import { BaseAsset, NetworkTypes } from '../types'
-import { ChainTypes } from '..'
+import { BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 const generateAssetData = async () => {
   const generatedAssetData = await Promise.all(

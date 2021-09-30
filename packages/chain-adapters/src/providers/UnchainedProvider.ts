@@ -1,7 +1,12 @@
 import axios, { AxiosInstance } from 'axios'
 import { Params } from '../types/Params.type'
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
-import { TxHistoryResponse, BalanceResponse, BroadcastTxResponse, FeeEstimateInput } from '..'
+import {
+  TxHistoryResponse,
+  BalanceResponse,
+  BroadcastTxResponse,
+  FeeEstimateInput
+} from '@shapeshiftoss/types'
 import https from 'https'
 
 const axiosClient = (baseURL: string) =>

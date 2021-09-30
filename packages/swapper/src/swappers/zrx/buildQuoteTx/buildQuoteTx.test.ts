@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js'
-import { ChainAdapterManager, ChainIdentifier } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import Web3 from 'web3'
 import { buildQuoteTx } from './buildQuoteTx'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
-import { GetQuoteInput } from '../../../api'
 import { zrxService } from '../utils/zrxService'
 import { APPROVAL_GAS_LIMIT, MAX_SLIPPAGE } from '../utils/constants'
+import { ChainTypes, GetQuoteInput } from '@shapeshiftoss/types'
 
 jest.mock('web3')
 
@@ -51,6 +51,7 @@ const mockQuoteResponse = {
     name: 'WETH',
     network: 'MAINNET',
     precision: 18,
+    slip44: 60,
     receiveSupport: true,
     secondaryColor: '#FFFFFF',
     sendSupport: true,
@@ -70,7 +71,10 @@ const mockQuoteResponse = {
     color: '#FFFFFF',
     contractType: 'ERC20',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-    name: 'Fox',
+    name: 'FOX',
+    slip44: 60,
+    explorer: 'https://etherscan.io',
+    explorerTxLink: 'https://etherscan.io/tx/',
     network: 'MAINNET',
     precision: 18,
     receiveSupport: true,
@@ -89,7 +93,7 @@ const mockQuoteResponse = {
 
 const setup = () => {
   const unchainedUrls = {
-    [ChainIdentifier.Ethereum]: 'http://localhost:31300/api/v1'
+    [ChainTypes.Ethereum]: 'http://localhost:31300/api/v1'
   }
   const ethNodeUrl = 'http://localhost:1000'
   const adapterManager = new ChainAdapterManager(unchainedUrls)

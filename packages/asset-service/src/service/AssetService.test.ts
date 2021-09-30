@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Asset, ChainTypes, NetworkTypes } from '../types'
+import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { AssetService, flattenAssetData, indexAssetData } from './AssetService'
 import { mockBaseAssets, mockAssets, mockIndexedAssetData } from './AssetServiceTestData'
 

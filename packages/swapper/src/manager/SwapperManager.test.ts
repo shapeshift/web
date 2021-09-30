@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Web3 from 'web3'
-import { SwapperType } from '../api'
 import { ThorchainSwapper, ZrxSwapper } from '../swappers'
 import { SwapperManager } from './SwapperManager'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { SwapperType } from '@shapeshiftoss/types'
 
 describe('SwapperManager', () => {
   const zrxSwapperDeps = {

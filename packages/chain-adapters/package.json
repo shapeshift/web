@@ -24,6 +24,7 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.15.5-alpha.0",
     "@shapeshiftoss/hdwallet-native": "^1.15.5-alpha.1",
+    "@shapeshiftoss/types": "^1.0.0",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "ethers": "^5.4.4",

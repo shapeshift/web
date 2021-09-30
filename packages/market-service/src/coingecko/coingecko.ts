@@ -2,13 +2,14 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 import {
   ChainTypes,
-  MarketService,
   MarketData,
   HistoryData,
   HistoryTimeframe,
   PriceHistoryArgs,
   MarketDataArgs
-} from '../api'
+} from '@shapeshiftoss/types'
+
+import { MarketService } from '../api'
 
 // tons more parms here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {

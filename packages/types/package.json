@@ -1,7 +1,7 @@
 {
-  "name": "@shapeshiftoss/swapper",
+  "name": "@shapeshiftoss/types",
   "version": "1.0.0",
-  "description": "TODO: description",
+  "description": "Common types shared across packages",
   "repository": "https://github.com/shapeshift/lib",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -16,16 +16,7 @@
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
-  "dependencies": {
-    "@shapeshiftoss/chain-adapters": "^1.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.16.2-alpha.0",
-    "@shapeshiftoss/types": "^1.0.0",
-    "axios": "^0.21.4",
-    "web3": "^1.5.2",
-    "bignumber.js": "^9.0.1",
-    "retry-axios": "^2.6.0"
-  },
   "devDependencies": {
-    "web3-utils": "^1.5.2"
+    "@shapeshiftoss/hdwallet-core": "^1.16.3"
   }
 }

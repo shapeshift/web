@@ -1,5 +1,5 @@
 import { Params } from './Params.type'
-import { TxHistoryResponse, FeeEstimateInput, BalanceResponse } from '../api'
+import { TxHistoryResponse, FeeEstimateInput, BalanceResponse } from '@shapeshiftoss/types'
 
 export interface BlockchainProvider {
   getBalance: (address: string) => Promise<BalanceResponse | undefined>

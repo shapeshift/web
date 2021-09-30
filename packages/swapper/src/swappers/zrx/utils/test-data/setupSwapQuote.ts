@@ -1,9 +1,9 @@
-import { ContractTypes, NetworkTypes, ChainTypes, Asset } from '@shapeshiftoss/asset-service'
+import { ContractTypes, NetworkTypes, ChainTypes } from '@shapeshiftoss/types'
 import { DEFAULT_SLIPPAGE } from '../constants'
 
 export const setupQuote = () => {
-  const sellAsset = ({
-    name: 'Fox',
+  const sellAsset = {
+    name: 'FOX',
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
     precision: 18,
@@ -12,12 +12,14 @@ export const setupQuote = () => {
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+    slip44: 60,
+    explorer: 'https://etherscan.io',
+    explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
     symbol: 'FOX'
-    // TODO: remove the type casts from test files when we unify `ChainTypes` and `ChainIdentifier`
-  } as unknown) as Asset
-  const buyAsset = ({
+  }
+  const buyAsset = {
     name: 'WETH',
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
@@ -27,12 +29,13 @@ export const setupQuote = () => {
     color: '#FFFFFF',
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
+    slip44: 60,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
     symbol: 'WETH'
-  } as unknown) as Asset
+  }
 
   const quoteInput = {
     sellAsset,

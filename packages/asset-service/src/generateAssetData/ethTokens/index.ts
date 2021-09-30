@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ContractTypes, TokenAsset } from '../../types'
+import { ContractTypes, TokenAsset } from '@shapeshiftoss/types'
 import lodash from 'lodash'
 import { tokensToOverride } from './overrides'
 

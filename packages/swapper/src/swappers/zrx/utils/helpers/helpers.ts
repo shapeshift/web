@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { AbiItem } from 'web3-utils'
 import Web3 from 'web3'
-import { Quote, SwapError } from '../../../../api'
+import { SwapError } from '../../../../api'
+import { Quote } from '@shapeshiftoss/types'
 
 export type GetAllowanceRequiredArgs = {
   quote: Quote

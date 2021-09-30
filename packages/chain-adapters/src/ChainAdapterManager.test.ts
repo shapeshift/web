@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { ChainIdentifier } from './api'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from './ChainAdapterManager'
 import { EthereumChainAdapter } from './ethereum'
 
@@ -40,7 +40,7 @@ describe('ChainAdapterManager', () => {
     it('should add a network', () => {
       expect(
         // @ts-ignore
-        getCAM().addChain(ChainIdentifier.Ethereum, () => new EthereumChainAdapter())
+        getCAM().addChain(ChainTypes.Ethereum, () => new EthereumChainAdapter())
       ).toBeUndefined()
     })
   })
@@ -54,8 +54,8 @@ describe('ChainAdapterManager', () => {
 
     it('should get an adapter factory', () => {
       const cam = getCAM()
-      const adapter = cam.byChain(ChainIdentifier.Ethereum)
-      const adapter2 = cam.byChain(ChainIdentifier.Ethereum)
+      const adapter = cam.byChain(ChainTypes.Ethereum)
+      const adapter2 = cam.byChain(ChainTypes.Ethereum)
       // @ts-ignore
       expect(adapter).toBeInstanceOf(EthereumChainAdapter)
       expect(adapter2).toBe(adapter)
@@ -64,7 +64,7 @@ describe('ChainAdapterManager', () => {
 
   describe('getSupportedChains', () => {
     it('should return array of keys', () => {
-      expect(getCAM().getSupportedChains()).toStrictEqual([ChainIdentifier.Ethereum])
+      expect(getCAM().getSupportedChains()).toStrictEqual([ChainTypes.Ethereum])
     })
   })
 

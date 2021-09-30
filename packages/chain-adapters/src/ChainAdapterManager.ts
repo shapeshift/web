@@ -1,26 +1,33 @@
-import { ChainAdapter, ChainIdentifier } from './api'
+import { ChainAdapter } from './api'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { EthereumChainAdapter } from './ethereum'
 import { UnchainedProvider } from './providers'
 
-export type UnchainedUrls = Record<ChainIdentifier.Ethereum, string>
+export type UnchainedUrls = Record<ChainTypes.Ethereum, string>
 
 const chainAdapterMap = {
-  [ChainIdentifier.Ethereum]: EthereumChainAdapter
+  [ChainTypes.Ethereum]: EthereumChainAdapter
 } as const
 
 export class ChainAdapterManager {
-  private supported: Map<ChainIdentifier, () => ChainAdapter> = new Map()
+  private supported: Map<ChainTypes, () => ChainAdapter> = new Map()
   private instances: Map<string, ChainAdapter> = new Map()
 
   constructor(unchainedUrls: UnchainedUrls) {
     if (!unchainedUrls) {
       throw new Error('Blockchain urls required')
     }
-    ;(Object.keys(unchainedUrls) as Array<ChainIdentifier>).forEach((key: ChainIdentifier) => {
-      const Adapter = chainAdapterMap[key]
-      if (!Adapter) throw new Error(`No chain adapter for ${key}`)
-      this.addChain(key, () => new Adapter({ provider: new UnchainedProvider(unchainedUrls[key]) }))
-    })
+    // TODO(0xdef1cafe): loosen this from ChainTypes.Ethereum to ChainTypes once we implement more than ethereum
+    ;(Object.keys(unchainedUrls) as Array<ChainTypes.Ethereum>).forEach(
+      (key: ChainTypes.Ethereum) => {
+        const Adapter = chainAdapterMap[key]
+        if (!Adapter) throw new Error(`No chain adapter for ${key}`)
+        this.addChain(
+          key,
+          () => new Adapter({ provider: new UnchainedProvider(unchainedUrls[key]) })
+        )
+      }
+    )
   }
 
   /**
@@ -30,17 +37,17 @@ export class ChainAdapterManager {
    * import { ChainAdapterManager, UtxoChainAdapter } from 'chain-adapters'
    * const manager = new ChainAdapterManager(client)
    * manager.addChain('bitcoin', () => new UtxoChainAdapter('BTG', client))
-   * @param {ChainIdentifier} network - Coin/network symbol from Asset query
+   * @param {ChainTypes} network - Coin/network symbol from Asset query
    * @param {Function} factory - A function that returns a ChainAdapter instance
    */
-  addChain(chain: ChainIdentifier, factory: () => ChainAdapter): void {
+  addChain(chain: ChainTypes, factory: () => ChainAdapter): void {
     if (typeof chain !== 'string' || typeof factory !== 'function') {
       throw new Error('Parameter validation error')
     }
     this.supported.set(chain, factory)
   }
 
-  getSupportedChains(): Array<ChainIdentifier> {
+  getSupportedChains(): Array<ChainTypes> {
     return Array.from(this.supported.keys())
   }
 
@@ -49,7 +56,7 @@ export class ChainAdapterManager {
   }
 
   /*** Get a ChainAdapter instance for a network */
-  byChain(chain: ChainIdentifier): ChainAdapter {
+  byChain(chain: ChainTypes): ChainAdapter {
     let adapter = this.instances.get(chain)
     if (!adapter) {
       const factory = this.supported.get(chain)

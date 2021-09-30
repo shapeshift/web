@@ -1,5 +1,5 @@
 import { ChainAdapterManager } from './ChainAdapterManager'
-import { ChainIdentifier } from '.'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import dotenv from 'dotenv'
@@ -20,14 +20,14 @@ const getWallet = async (): Promise<HDWallet> => {
 }
 
 const unchainedUrls = {
-  [ChainIdentifier.Ethereum]: 'http://localhost:31300/api/v1'
+  [ChainTypes.Ethereum]: 'http://localhost:31300/api/v1'
 }
 
 const main = async () => {
   try {
     const chainAdapterManager = new ChainAdapterManager(unchainedUrls)
     const wallet = await getWallet()
-    const ethChainAdapter = chainAdapterManager.byChain(ChainIdentifier.Ethereum)
+    const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
     const address = await ethChainAdapter.getAddress({ wallet, path: defaultEthPath })
 
     const balanceInfo = await ethChainAdapter.getBalance(address)

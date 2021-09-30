@@ -1,5 +1,5 @@
-import { Asset } from '@shapeshiftoss/asset-service'
-import { Swapper, SwapperType } from '../../api'
+import { Asset, SwapperType } from '@shapeshiftoss/types'
+import { Swapper } from '../../api'
 
 export class ThorchainSwapper implements Swapper {
   getType() {

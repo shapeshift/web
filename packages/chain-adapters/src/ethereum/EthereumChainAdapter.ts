@@ -1,26 +1,27 @@
+import WAValidator from 'multicoin-address-validator'
+import axios from 'axios'
+import BigNumber from 'bignumber.js'
+import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { numberToHex } from 'web3-utils'
+import { Contract } from '@ethersproject/contracts'
 import {
-  ChainAdapter,
   TxHistoryResponse,
   BuildSendTxInput,
   SignTxInput,
   GetAddressInput,
   GetFeeDataInput,
-  FeeData,
   BalanceResponse,
-  ChainIdentifier,
+  ChainTypes,
   ValidAddressResult,
-  ValidAddressResultType
-} from '../api'
+  ValidAddressResultType,
+  FeeDataEstimate
+} from '@shapeshiftoss/types'
+
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
 import { Params } from '../types/Params.type'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { numberToHex } from 'web3-utils'
-import { Contract } from '@ethersproject/contracts'
 import erc20Abi from './erc20Abi.json'
-import WAValidator from 'multicoin-address-validator'
-import axios from 'axios'
-import BigNumber from 'bignumber.js'
+import { ChainAdapter } from '..'
 
 export type EthereumChainAdapterDependencies = {
   provider: BlockchainProvider
@@ -62,8 +63,8 @@ export class EthereumChainAdapter implements ChainAdapter {
     this.provider = deps.provider
   }
 
-  getType = (): ChainIdentifier => {
-    return ChainIdentifier.Ethereum
+  getType = (): ChainTypes => {
+    return ChainTypes.Ethereum
   }
 
   getBalance = async (address: string): Promise<BalanceResponse | undefined> => {
@@ -85,7 +86,7 @@ export class EthereumChainAdapter implements ChainAdapter {
 
   buildSendTransaction = async (
     tx: BuildSendTxInput
-  ): Promise<{ txToSign: ETHSignTx; estimatedFees: FeeData }> => {
+  ): Promise<{ txToSign: ETHSignTx; estimatedFees: FeeDataEstimate }> => {
     try {
       const { to, erc20ContractAddress, path, wallet, fee, limit } = tx
       const value = erc20ContractAddress ? '0' : tx?.value
@@ -145,7 +146,12 @@ export class EthereumChainAdapter implements ChainAdapter {
     return this.provider.broadcastTx(hex)
   }
 
-  getFeeData = async ({ to, from, contractAddress, value }: GetFeeDataInput): Promise<FeeData> => {
+  getFeeData = async ({
+    to,
+    from,
+    contractAddress,
+    value
+  }: GetFeeDataInput): Promise<FeeDataEstimate> => {
     const { data: responseData } = await axios.get<ZrxGasApiResponse>('https://gas.api.0x.org/')
     const fees = responseData.result.find((result) => result.source === 'MEDIAN')
 

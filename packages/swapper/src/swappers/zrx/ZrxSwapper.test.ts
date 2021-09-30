@@ -1,9 +1,16 @@
 import Web3 from 'web3'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes, NetworkTypes, ContractTypes, Asset } from '@shapeshiftoss/asset-service'
+import {
+  ChainTypes,
+  NetworkTypes,
+  ContractTypes,
+  Asset,
+  GetQuoteInput,
+  SwapperType
+} from '@shapeshiftoss/types'
 import { ZrxSwapper } from '..'
-import { GetQuoteInput, SwapperType, ZrxError } from '../..'
+import { ZrxError } from '../..'
 import { DEFAULT_SLIPPAGE } from './utils/constants'
 import { buildQuoteTx } from '../zrx/buildQuoteTx/buildQuoteTx'
 import { getZrxQuote } from './getQuote/getQuote'
@@ -16,7 +23,7 @@ jest.mock('./getQuote/getQuote', () => ({
   getZrxQuote: jest.fn()
 }))
 
-const BTC = ({
+const BTC = {
   name: 'bitcoin',
   chain: ChainTypes.Bitcoin,
   network: NetworkTypes.MAINNET,
@@ -31,9 +38,8 @@ const BTC = ({
   sendSupport: false,
   receiveSupport: false,
   symbol: 'BTC'
-  // TODO: remove the type casts from test files when we unify `ChainTypes` and `ChainIdentifier`
-} as unknown) as Asset
-const WETH = ({
+}
+const WETH = {
   name: 'WETH',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
@@ -49,8 +55,8 @@ const WETH = ({
   sendSupport: true,
   receiveSupport: true,
   symbol: 'WETH'
-} as unknown) as Asset
-const FOX = ({
+}
+const FOX = {
   name: 'Fox',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
@@ -66,7 +72,7 @@ const FOX = ({
   explorerTxLink: 'https://etherscan.io/tx/',
   receiveSupport: true,
   symbol: 'FOX'
-} as unknown) as Asset
+}
 
 const setupQuote = () => {
   const sellAmount = '1000000000000000000'

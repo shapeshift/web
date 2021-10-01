@@ -1,3 +1,4 @@
+import { ChainTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import dayjs from 'dayjs'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -28,13 +29,14 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
   const blockHeight = 13043667
   const confirmations = 111311
   const value = '100000000000000'
-  const chain = 'ETH'
+  const chain = ChainTypes.Ethereum
   const date = getDate(timestamp)
   const dateFromNow = dayjs(date).fromNow()
 
   const transactions = symbols.map(symbol => {
     return {
       fee: '3459277000000000',
+      chain,
       blockHash,
       blockHeight,
       confirmations,
@@ -96,11 +98,12 @@ describe('useTransactions', () => {
 
     //@ts-ignore
     useChainAdapters.mockImplementation(() => ({
-      getSupportedAdapters: jest.fn(() => adapter)
+      getSupportedAdapters: jest.fn(() => adapter),
+      byChain: jest.fn(() => adapter[0]())
     }))
 
     const { result, waitForValueToChange } = setup({
-      chain: 'ethereum',
+      chain: ChainTypes.Ethereum,
       contractAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
       symbol: filteredSymbol
     })

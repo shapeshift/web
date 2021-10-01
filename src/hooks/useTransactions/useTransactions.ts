@@ -1,5 +1,5 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { Transaction } from '@shapeshiftoss/types'
+import { EthereumChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes, Transaction } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'
@@ -9,17 +9,17 @@ import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { fromBaseUnit } from 'lib/math'
 dayjs.extend(relativeTime)
 
-export type FormatTransactionType = Transaction & {
+export type FormatTransactionType<T extends ChainTypes> = Transaction<T> & {
   type: string
   amount: string
   date: string
   dateFromNow: string
-  chain: string
+  chain: T
 }
 
-export type UseTransactionsReturnType = {
+export type UseTransactionsReturnType<T extends ChainTypes> = {
   loading: boolean | undefined
-  txHistory: Record<string, FormatTransactionType[]> | undefined
+  txHistory: Record<string, FormatTransactionType<T>[]> | undefined
 }
 
 export type UseTransactionsPropType = {
@@ -41,8 +41,13 @@ export enum TxStatusEnum {
 export const getDate = (timestamp: number) =>
   dayjs(Number(timestamp) * 1000).format('MM/DD/YYYY h:mm A')
 
-const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTransactionType[] => {
-  return txs.map((tx: Transaction) => {
+const formatTransactions = <T extends ChainTypes>(
+  txs: Transaction<T>[],
+  walletAddress: string,
+  chain: T
+): FormatTransactionType<T>[] => {
+  if (!(txs ?? []).length) return []
+  return txs.map((tx: Transaction<T>) => {
     const date = getDate(tx.timestamp)
     return {
       ...tx,
@@ -51,7 +56,7 @@ const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTr
       date,
       dateFromNow: dayjs(date).fromNow(),
       fee: fromBaseUnit(tx.fee, 18),
-      chain: 'ETH' /* TODO: get chian from asset service */
+      chain
     }
   })
 }
@@ -60,10 +65,10 @@ export const useTransactions = ({
   chain = '',
   contractAddress = '',
   symbol = ''
-}: UseTransactionsPropType = {}): UseTransactionsReturnType => {
+}: UseTransactionsPropType = {}): UseTransactionsReturnType<ChainTypes> => {
   const [loading, setLoading] = useStateIfMounted<boolean | undefined>(false)
   const [txHistory, setTxHistory] = useStateIfMounted<
-    Record<string, FormatTransactionType[]> | undefined
+    Record<string, FormatTransactionType<ChainTypes>[]> | undefined
   >({})
   const {
     state: { wallet, walletInfo }
@@ -80,52 +85,71 @@ export const useTransactions = ({
     // Get transaction history for chain that is provided.
     if (chain) {
       if (!supportedAdapters.length) return
-      const getAdapter = supportedAdapters.find(
-        (adapter: () => ChainAdapter) => adapter().getType() === chain
-      )
-      if (!getAdapter) return
-      const chainAdapter = getAdapter()
-      const address = await chainAdapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
-      if (!chainAdapter) return
-      let txHistoryResponse
-      try {
-        txHistoryResponse = await chainAdapter.getTxHistory(address, {
-          page,
-          pageSize,
-          contract: contractAddress
-        })
-      } catch (err) {
-        console.error(err)
+      const adapterFactory = supportedAdapters.filter(adap => adap().getType() === chain)[0]
+      if (!adapterFactory) {
+        throw new Error(`useTransactions no adapter available for ${chain} chain`)
       }
-      if (!symbol || !txHistoryResponse) return
-      const txHistoryBySymbol = txHistoryResponse.transactions.filter(
-        (tx: Transaction) => tx.symbol === symbol
-      )
-      const formattedTransactions = formatTransactions(txHistoryBySymbol, address)
-      return { txs: formattedTransactions }
+      const genericChainAdapter = adapterFactory()
+      const adapterType = genericChainAdapter.getType()
+
+      switch (adapterType) {
+        case ChainTypes.Ethereum: {
+          const chainAdapter = genericChainAdapter as EthereumChainAdapter
+          const address = await chainAdapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
+          let txHistoryResponse
+          try {
+            txHistoryResponse = await chainAdapter.getTxHistory(address, {
+              page,
+              pageSize,
+              contract: contractAddress
+            })
+          } catch (err) {
+            console.error(err)
+          }
+          const formattedTransactions = formatTransactions(
+            txHistoryResponse?.transactions ?? [],
+            address,
+            ChainTypes.Ethereum
+          )
+          return { txs: formattedTransactions }
+        }
+        default: {
+          throw new Error(`useTransactions unsupported adapter type ${adapterType}`)
+        }
+      }
     }
 
-    const acc: Record<string, FormatTransactionType[]> = {}
-    const transactions: FormatTransactionType[] = []
+    const acc: Record<string, FormatTransactionType<ChainTypes>[]> = {}
+    const transactions: FormatTransactionType<ChainTypes>[] = []
 
     // Get transaction history for all chians that are supported.
     for (const getAdapter of supportedAdapters) {
-      const adapter = getAdapter()
-      const address = await adapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
-      let txHistoryResponse
-      try {
-        txHistoryResponse = await adapter.getTxHistory(address, {
-          page,
-          pageSize,
-          contract: contractAddress
-        })
-      } catch (err) {
-        console.error(err)
+      const genericAdapter = getAdapter()
+      const adapterType = genericAdapter.getType()
+      switch (adapterType) {
+        case ChainTypes.Ethereum: {
+          const adapter = genericAdapter as EthereumChainAdapter
+          const address = await adapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
+          let txHistoryResponse
+          try {
+            txHistoryResponse = await adapter.getTxHistory(address, {
+              page,
+              pageSize,
+              contract: contractAddress
+            })
+          } catch (err) {
+            console.error(err)
+          }
+          if (!txHistoryResponse) continue
+          formatTransactions(txHistoryResponse.transactions, address, ChainTypes.Ethereum).forEach(
+            (tx: FormatTransactionType<ChainTypes.Ethereum>) => transactions.push(tx)
+          )
+          break
+        }
+        default: {
+          throw new Error(``)
+        }
       }
-      if (!txHistoryResponse) continue
-      formatTransactions(txHistoryResponse.transactions, address).forEach(
-        (tx: FormatTransactionType) => transactions.push(tx)
-      )
     }
     acc['txs'] = transactions
     return acc
@@ -139,9 +163,11 @@ export const useTransactions = ({
     if (wallet) {
       setLoading(true)
       getTxHistory()
-        .then((txHistoryResponse: Record<string, FormatTransactionType[]> | undefined) => {
-          txHistoryResponse && setTxHistory(txHistoryResponse)
-        })
+        .then(
+          (txHistoryResponse: Record<string, FormatTransactionType<ChainTypes>[]> | undefined) => {
+            txHistoryResponse && setTxHistory(txHistoryResponse)
+          }
+        )
         .finally(() => setLoading(false))
     }
     // TODO: Same as above dependency list for 'getTxHistory' function

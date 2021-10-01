@@ -1,3 +1,4 @@
+import { ChainTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import dayjs from 'dayjs'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -28,7 +29,7 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
   const blockHeight = 13043667
   const confirmations = 111311
   const value = '100000000000000'
-  const chain = 'ETH'
+  const chain = ChainTypes.Ethereum
   const date = getDate(timestamp)
   const dateFromNow = dayjs(date).fromNow()
 

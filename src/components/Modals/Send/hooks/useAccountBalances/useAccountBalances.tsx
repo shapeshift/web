@@ -1,11 +1,11 @@
-import { Asset, BalanceResponse, NetworkTypes, Token } from '@shapeshiftoss/types'
+import { Asset, BalanceResponse, ChainTypes, NetworkTypes, Token } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type UseAccountBalancesProps = {
   asset: Asset
-  balances: Record<string, Partial<BalanceResponse & Token>>
+  balances: Record<string, Partial<BalanceResponse<ChainTypes> & Token>>
 }
 
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {

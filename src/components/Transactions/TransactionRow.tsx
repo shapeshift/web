@@ -9,6 +9,7 @@ import {
   Tag,
   useColorModeValue
 } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -20,7 +21,7 @@ import {
   TxTypeEnum
 } from 'hooks/useTransactions/useTransactions'
 
-export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
+export const TransactionRow = ({ tx }: { tx: FormatTransactionType<ChainTypes> }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const sentTx = tx.type === TxTypeEnum.Sent

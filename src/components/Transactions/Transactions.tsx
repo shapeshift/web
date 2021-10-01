@@ -1,4 +1,5 @@
 import { Center, Stack } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import {
   FormatTransactionType,
@@ -18,7 +19,7 @@ export const Transactions = ({ chain, contractAddress, symbol }: UseTransactions
     </Center>
   ) : (
     <Stack spacing={0}>
-      {txs.map((tx: FormatTransactionType, index: number) => (
+      {txs.map((tx: FormatTransactionType<ChainTypes>, index: number) => (
         <TransactionRow key={index} tx={tx} />
       ))}
     </Stack>

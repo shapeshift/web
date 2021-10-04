@@ -57,7 +57,7 @@ export class SwapperManager<T extends SwapperType> {
     return this
   }
 
-  async getQuote(swapperType: T, quoteParams: GetQuoteInput): Promise<Quote | undefined> {
+  async getBestQuote(swapperType: T, quoteParams: GetQuoteInput): Promise<Quote | undefined> {
     const swapper = this.getSwapper(swapperType)
     return swapper.getQuote(quoteParams)
   }

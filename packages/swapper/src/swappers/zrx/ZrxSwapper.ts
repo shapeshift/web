@@ -67,6 +67,12 @@ export class ZrxSwapper implements Swapper {
     return availableAssets.length === 2
   }
 
+  getDefaultPair(): Partial<Asset>[] {
+    const ETH = { name: 'Ethereum', chain: ChainTypes.Ethereum, symbol: 'ETH' }
+    const USDC = { name: 'USDC', chain: ChainTypes.Ethereum, symbol: 'USDC' }
+    return [ETH, USDC]
+  }
+
   async executeQuote(args: ExecQuoteInput): Promise<ExecQuoteOutput> {
     return executeQuote(this.deps, args)
   }

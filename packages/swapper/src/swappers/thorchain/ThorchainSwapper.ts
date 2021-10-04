@@ -43,4 +43,8 @@ export class ThorchainSwapper implements Swapper {
   async executeQuote(): Promise<ExecQuoteOutput> {
     throw new Error('ThorchainSwapper: executeQuote unimplemented')
   }
+
+  getDefaultPair(): Partial<Asset>[] {
+    throw new Error('Method not implemented.')
+  }
 }

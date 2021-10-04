@@ -1,17 +1,22 @@
 import Web3 from 'web3'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { GetQuoteInput, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes, GetQuoteInput, SwapperType, Quote } from '@shapeshiftoss/types'
 import { ZrxSwapper } from '..'
 import { ZrxError } from '../..'
 import { DEFAULT_SLIPPAGE } from './utils/constants'
 import { buildQuoteTx } from '../zrx/buildQuoteTx/buildQuoteTx'
+import { executeQuote } from '../zrx/executeQuote/executeQuote'
 import { getZrxQuote } from './getQuote/getQuote'
 import { FOX, WETH, BTC } from './utils/test-data/assets'
 import { getUsdRate } from './utils/helpers/helpers'
 import { getMinMax } from './getMinMax/getMinMax'
 
 jest.mock('./utils/helpers/helpers')
+jest.mock('../zrx/executeQuote/executeQuote', () => ({
+  executeQuote: jest.fn()
+}))
+
 jest.mock('../zrx/buildQuoteTx/buildQuoteTx', () => ({
   buildQuoteTx: jest.fn()
 }))
@@ -40,6 +45,7 @@ const setupQuote = () => {
 
 describe('ZrxSwapper', () => {
   const input = <GetQuoteInput>{}
+  const quote = <Quote>{}
   const wallet = <HDWallet>{}
   const web3 = <Web3>{}
   const adapterManager = <ChainAdapterManager>{}
@@ -81,6 +87,20 @@ describe('ZrxSwapper', () => {
     const args = { input, wallet }
     await swapper.buildQuoteTx(args)
     expect(buildQuoteTx).toHaveBeenCalled()
+  })
+  it('calls executeQuote on swapper.executeQuote', async () => {
+    const swapper = new ZrxSwapper(zrxSwapperDeps)
+    const args = { quote, wallet }
+    await swapper.executeQuote(args)
+    expect(executeQuote).toHaveBeenCalled()
+  })
+  it('gets default pair', () => {
+    const swapper = new ZrxSwapper(zrxSwapperDeps)
+    const pair = swapper.getDefaultPair()
+    expect(pair).toHaveLength(2)
+    pair.forEach((asset) => {
+      expect(asset.chain).toBe(ChainTypes.Ethereum)
+    })
   })
   it('calls getUsdRate on swapper.getUsdRate', async () => {
     const swapper = new ZrxSwapper(zrxSwapperDeps)

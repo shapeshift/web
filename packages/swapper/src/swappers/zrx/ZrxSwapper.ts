@@ -4,18 +4,21 @@ import BigNumber from 'bignumber.js'
 import { zrxService } from './utils/zrxService'
 import {
   Asset,
-  BuildQuoteTxArgs,
+  BuildQuoteTxInput,
   ChainTypes,
   GetQuoteInput,
   Quote,
   SwapperType,
-  QuoteResponse
+  QuoteResponse,
+  ExecQuoteInput,
+  ExecQuoteOutput
 } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { Swapper } from '../../api'
 
 import { buildQuoteTx } from './buildQuoteTx/buildQuoteTx'
 import { getZrxQuote } from './getQuote/getQuote'
+import { executeQuote } from './executeQuote/executeQuote'
 
 export type ZrxSwapperDeps = {
   adapterManager: ChainAdapterManager
@@ -41,8 +44,8 @@ export class ZrxSwapper implements Swapper {
     return SwapperType.Zrx
   }
 
-  async buildQuoteTx({ input, wallet }: BuildQuoteTxArgs): Promise<Quote> {
-    return buildQuoteTx(this.deps, { input, wallet })
+  async buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote> {
+    return buildQuoteTx(this.deps, args)
   }
 
   async getQuote(input: GetQuoteInput): Promise<Quote> {
@@ -73,5 +76,9 @@ export class ZrxSwapper implements Swapper {
   canTradePair(sellAsset: Asset, buyAsset: Asset): boolean {
     const availableAssets = this.getAvailableAssets([sellAsset, buyAsset])
     return availableAssets.length === 2
+  }
+
+  async executeQuote(args: ExecQuoteInput): Promise<ExecQuoteOutput> {
+    return executeQuote(this.deps, args)
   }
 }

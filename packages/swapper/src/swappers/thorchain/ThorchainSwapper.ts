@@ -1,4 +1,4 @@
-import { Asset, SwapperType } from '@shapeshiftoss/types'
+import { Asset, SwapperType, Quote, ExecQuoteOutput } from '@shapeshiftoss/types'
 import { Swapper } from '../../api'
 
 export class ThorchainSwapper implements Swapper {
@@ -6,25 +6,29 @@ export class ThorchainSwapper implements Swapper {
     return SwapperType.Thorchain
   }
 
-  async getQuote() {
-    return undefined
+  async getQuote(): Promise<Quote> {
+    throw new Error('ThorchainSwapper: getQuote unimplemented')
   }
 
-  async buildQuoteTx() {
-    return undefined
+  async buildQuoteTx(): Promise<Quote> {
+    throw new Error('ThorchainSwapper: getQuote unimplemented')
   }
 
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
     console.info(input)
-    throw new Error('Method not implemented.')
+    throw new Error('ThorchainSwapper: getUsdRate unimplemented')
   }
 
   getAvailableAssets(assets: Asset[]): Asset[] {
     console.info(assets)
-    throw new Error('Method not implemented.')
+    throw new Error('ThorchainSwapper: getAvailableAssets unimplemented')
   }
   canTradePair(sellAsset: Asset, buyAsset: Asset): boolean {
     console.info(sellAsset, buyAsset)
-    throw new Error('Method not implemented.')
+    throw new Error('ThorchainSwapper: canTradePair unimplemented')
+  }
+
+  async executeQuote(): Promise<ExecQuoteOutput> {
+    throw new Error('ThorchainSwapper: executeQuote unimplemented')
   }
 }

@@ -170,9 +170,18 @@ export type GetQuoteInput = {
   minimum?: string
 }
 
-export type BuildQuoteTxArgs = {
+export type BuildQuoteTxInput = {
   input: GetQuoteInput
   wallet: HDWallet
+}
+
+export type ExecQuoteInput = {
+  quote: Quote
+  wallet: HDWallet
+}
+
+export type ExecQuoteOutput = {
+  txid: string
 }
 
 // chain-adapters

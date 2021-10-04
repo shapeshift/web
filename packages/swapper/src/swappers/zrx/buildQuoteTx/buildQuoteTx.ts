@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { SwapError } from '../../..'
-import { Quote, BuildQuoteTxArgs } from '@shapeshiftoss/types'
+import { Quote, BuildQuoteTxInput } from '@shapeshiftoss/types'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { erc20AllowanceAbi } from '../utils/abi/erc20-abi'
@@ -44,7 +44,7 @@ type QuoteResponse = {
 
 export async function buildQuoteTx(
   { adapterManager, web3 }: ZrxSwapperDeps,
-  { input, wallet }: BuildQuoteTxArgs
+  { input, wallet }: BuildQuoteTxInput
 ): Promise<Quote> {
   const {
     sellAsset,

@@ -1,5 +1,13 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Asset, BuildQuoteTxArgs, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
+import {
+  Asset,
+  BuildQuoteTxInput,
+  GetQuoteInput,
+  Quote,
+  SwapperType,
+  ExecQuoteInput,
+  ExecQuoteOutput
+} from '@shapeshiftoss/types'
 
 export class SwapError extends Error {}
 
@@ -12,13 +20,13 @@ export interface Swapper {
    * @param input
    * @param wallet
    **/
-  buildQuoteTx(args: BuildQuoteTxArgs): Promise<Quote | undefined>
+  buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote>
 
   /**
    * Get a basic quote (rate) for a trading pair
    * @param input
    */
-  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote | undefined>
+  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote>
 
   /**
    * Get a list of available assets based on the array of assets you send it
@@ -38,4 +46,11 @@ export interface Swapper {
    * @param input
    */
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
+
+  /**
+   * Execute a quote built with buildQuoteTx by signing and broadcasting
+   * @param input
+   * @param wallet
+   */
+  executeQuote(args: ExecQuoteInput): Promise<ExecQuoteOutput>
 }

@@ -1,4 +1,11 @@
-import { Asset, SwapperType, Quote, ExecQuoteOutput } from '@shapeshiftoss/types'
+import {
+  Asset,
+  SwapperType,
+  Quote,
+  ExecQuoteOutput,
+  MinMaxOutput,
+  GetQuoteInput
+} from '@shapeshiftoss/types'
 import { Swapper } from '../../api'
 
 export class ThorchainSwapper implements Swapper {
@@ -17,6 +24,11 @@ export class ThorchainSwapper implements Swapper {
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> {
     console.info(input)
     throw new Error('ThorchainSwapper: getUsdRate unimplemented')
+  }
+
+  getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
+    console.info(input)
+    throw new Error('Method not implemented.')
   }
 
   getAvailableAssets(assets: Asset[]): Asset[] {

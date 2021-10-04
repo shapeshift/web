@@ -2,7 +2,10 @@ import BigNumber from 'bignumber.js'
 import { AbiItem } from 'web3-utils'
 import Web3 from 'web3'
 import { SwapError } from '../../../../api'
-import { Quote } from '@shapeshiftoss/types'
+import { Asset, Quote, QuoteResponse } from '@shapeshiftoss/types'
+import { AxiosResponse } from 'axios'
+import { zrxService } from '../zrxService'
+import { ZrxError } from '../../ZrxSwapper'
 
 export type GetAllowanceRequiredArgs = {
   quote: Quote
@@ -48,4 +51,21 @@ export const getAllowanceRequired = async ({
   }
   const allowanceRequired = new BigNumber(quote.sellAmount || 0).minus(allowanceOnChain)
   return allowanceRequired.lt(0) ? new BigNumber(0) : allowanceRequired
+}
+
+export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> => {
+  const { symbol, tokenId } = input
+  const rateResponse: AxiosResponse<QuoteResponse> = await zrxService.get<QuoteResponse>(
+    '/swap/v1/price',
+    {
+      params: {
+        buyToken: 'USDC',
+        buyAmount: '1000000', // $1
+        sellToken: tokenId || symbol
+      }
+    }
+  )
+  if (!rateResponse.data.price) throw new ZrxError('getUsdRate - Failed to get price data')
+
+  return new BigNumber(1).dividedBy(rateResponse.data.price).toString()
 }

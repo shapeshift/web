@@ -6,7 +6,8 @@ import {
   Quote,
   SwapperType,
   ExecQuoteInput,
-  ExecQuoteOutput
+  ExecQuoteOutput,
+  MinMaxOutput
 } from '@shapeshiftoss/types'
 
 export class SwapError extends Error {}
@@ -46,6 +47,12 @@ export interface Swapper {
    * @param input
    */
   getUsdRate(input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string>
+
+  /**
+   * Get the minimum and maximum trade value of the sellAsset and buyAsset
+   * @param input
+   */
+  getMinMax(input: GetQuoteInput): Promise<MinMaxOutput>
 
   /**
    * Execute a quote built with buildQuoteTx by signing and broadcasting

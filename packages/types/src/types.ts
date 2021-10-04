@@ -108,6 +108,12 @@ export type SwapSource = {
   proportion: string
 }
 
+export interface MinMaxOutput {
+  minimum: string
+  maximum: string
+  minimumPrice?: string
+}
+
 export type QuoteResponse = {
   price: string
   guaranteedPrice: string

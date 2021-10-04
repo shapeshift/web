@@ -1,25 +1,17 @@
 import Web3 from 'web3'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import {
-  ChainTypes,
-  NetworkTypes,
-  ContractTypes,
-  GetQuoteInput,
-  SwapperType
-} from '@shapeshiftoss/types'
+import { GetQuoteInput, SwapperType } from '@shapeshiftoss/types'
 import { ZrxSwapper } from '..'
 import { ZrxError } from '../..'
 import { DEFAULT_SLIPPAGE } from './utils/constants'
 import { buildQuoteTx } from '../zrx/buildQuoteTx/buildQuoteTx'
 import { getZrxQuote } from './getQuote/getQuote'
-import { zrxService } from './utils/zrxService'
+import { FOX, WETH, BTC } from './utils/test-data/assets'
+import { getUsdRate } from './utils/helpers/helpers'
+import { getMinMax } from './getMinMax/getMinMax'
 
-const axios = jest.createMockFromModule('axios')
-//@ts-ignore
-axios.create = jest.fn(() => axios)
 jest.mock('./utils/helpers/helpers')
-jest.mock('./utils/zrxService')
 jest.mock('../zrx/buildQuoteTx/buildQuoteTx', () => ({
   buildQuoteTx: jest.fn()
 }))
@@ -28,56 +20,9 @@ jest.mock('./getQuote/getQuote', () => ({
   getZrxQuote: jest.fn()
 }))
 
-const BTC = {
-  name: 'bitcoin',
-  chain: ChainTypes.Bitcoin,
-  network: NetworkTypes.MAINNET,
-  precision: 8,
-  slip44: 0,
-  contractType: ContractTypes.ERC20,
-  color: '#FFFFFF',
-  secondaryColor: '#FFFFFF',
-  icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
-  explorer: 'https://live.blockcypher.com',
-  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
-  sendSupport: false,
-  receiveSupport: false,
-  symbol: 'BTC'
-}
-const WETH = {
-  name: 'WETH',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
-  precision: 18,
-  tokenId: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  contractType: ContractTypes.ERC20,
-  color: '#FFFFFF',
-  secondaryColor: '#FFFFFF',
-  icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
-  slip44: 0,
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  sendSupport: true,
-  receiveSupport: true,
-  symbol: 'WETH'
-}
-const FOX = {
-  name: 'Fox',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
-  precision: 18,
-  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  contractType: ContractTypes.ERC20,
-  color: '#FFFFFF',
-  secondaryColor: '#FFFFFF',
-  icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-  sendSupport: true,
-  slip44: 0,
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  receiveSupport: true,
-  symbol: 'FOX'
-}
+jest.mock('./getMinMax/getMinMax', () => ({
+  getMinMax: jest.fn()
+}))
 
 const setupQuote = () => {
   const sellAmount = '1000000000000000000'
@@ -137,21 +82,15 @@ describe('ZrxSwapper', () => {
     await swapper.buildQuoteTx(args)
     expect(buildQuoteTx).toHaveBeenCalled()
   })
-  describe('getUsdRate', () => {
-    it('getUsdRate gets the usd rate of the symbol', async () => {
-      const swapper = new ZrxSwapper(zrxSwapperDeps)
-      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
-        Promise.resolve({ data: { price: '2' } })
-      )
-      const rate = await swapper.getUsdRate({ symbol: 'FOX' })
-      expect(rate).toBe('0.5')
-    })
-    it('getUsdRate fails', async () => {
-      const swapper = new ZrxSwapper(zrxSwapperDeps)
-      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
-      await expect(swapper.getUsdRate({ symbol: 'WETH', tokenId: '0x0001' })).rejects.toThrow(
-        'getUsdRate - Failed to get price data'
-      )
-    })
+  it('calls getUsdRate on swapper.getUsdRate', async () => {
+    const swapper = new ZrxSwapper(zrxSwapperDeps)
+    await swapper.getUsdRate(FOX)
+    expect(getUsdRate).toHaveBeenCalled()
+  })
+  it('calls getMinMax on swapper.getMinMax', async () => {
+    const swapper = new ZrxSwapper(zrxSwapperDeps)
+    const { quoteInput } = setupQuote()
+    await swapper.getMinMax(quoteInput)
+    expect(getMinMax).toHaveBeenCalled()
   })
 })

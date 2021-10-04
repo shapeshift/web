@@ -2,9 +2,14 @@ import Web3 from 'web3'
 import BigNumber from 'bignumber.js'
 import { setupQuote } from '../test-data/setupSwapQuote'
 import { erc20AllowanceAbi } from '../../utils/abi/erc20-abi'
-import { normalizeAmount, getAllowanceRequired } from '../helpers/helpers'
+import { normalizeAmount, getAllowanceRequired, getUsdRate } from '../helpers/helpers'
+import { zrxService } from '../zrxService'
 
 jest.mock('web3')
+const axios = jest.createMockFromModule('axios')
+//@ts-ignore
+axios.create = jest.fn(() => axios)
+jest.mock('../zrxService')
 
 // @ts-ignore
 Web3.mockImplementation(() => ({
@@ -30,6 +35,22 @@ const setup = () => {
 describe('utils', () => {
   const { quoteInput, sellAsset } = setupQuote()
   const { web3Instance } = setup()
+
+  describe('getUsdRate', () => {
+    it('getUsdRate gets the usd rate of the symbol', async () => {
+      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(
+        Promise.resolve({ data: { price: '2' } })
+      )
+      const rate = await getUsdRate({ symbol: 'FOX' })
+      expect(rate).toBe('0.5')
+    })
+    it('getUsdRate fails', async () => {
+      ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))
+      await expect(getUsdRate({ symbol: 'WETH', tokenId: '0x0001' })).rejects.toThrow(
+        'getUsdRate - Failed to get price data'
+      )
+    })
+  })
 
   describe('normalizeAmount', () => {
     it('should return undefined if not amount is given', () => {

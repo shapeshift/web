@@ -13,6 +13,17 @@ export type GetAllowanceRequiredArgs = {
   erc20AllowanceAbi: AbiItem[]
 }
 
+export type GetERC20AllowanceDeps = {
+  erc20AllowanceAbi: AbiItem[]
+  web3: Web3
+}
+
+export type GetERC20AllowanceArgs = {
+  tokenId: string
+  ownerAddress: string
+  spenderAddress: string
+}
+
 /**
  * Very large amounts like those found in ERC20s with a precision of 18 get converted
  * to exponential notation ('1.6e+21') in javascript. The 0x api doesn't play well with
@@ -26,6 +37,14 @@ export const normalizeAmount = (amount: string | undefined): string | undefined 
   return new BigNumber(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
 }
 
+export const getERC20Allowance = (
+  { erc20AllowanceAbi, web3 }: GetERC20AllowanceDeps,
+  { tokenId, ownerAddress, spenderAddress }: GetERC20AllowanceArgs
+) => {
+  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, tokenId)
+  return erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
+}
+
 export const getAllowanceRequired = async ({
   quote,
   web3,
@@ -35,11 +54,14 @@ export const getAllowanceRequired = async ({
     return new BigNumber(0)
   }
 
-  const ownerAddress = quote.receiveAddress
-  const spenderAddress = quote.allowanceContract
+  const ownerAddress = quote.receiveAddress as string
+  const spenderAddress = quote.allowanceContract as string
+  const tokenId = quote.sellAsset.tokenId as string
 
-  const erc20Contract = new web3.eth.Contract(erc20AllowanceAbi, quote.sellAsset.tokenId)
-  const allowanceOnChain = erc20Contract.methods.allowance(ownerAddress, spenderAddress).call()
+  const allowanceOnChain = getERC20Allowance(
+    { web3, erc20AllowanceAbi },
+    { ownerAddress, spenderAddress, tokenId }
+  )
 
   if (allowanceOnChain === '0') {
     return new BigNumber(quote.sellAmount || 0)

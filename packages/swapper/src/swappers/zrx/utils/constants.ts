@@ -14,3 +14,4 @@ export const DEFAULT_SLIPPAGE = '3.0' // 3%
 export const MAX_SLIPPAGE = '30.0' // 30%
 export const DEFAULT_ETH_PATH = `m/44'/60'/0'/0/0` // TODO: remove when `adapter.getAddress` changes to take an account instead of default path
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+export const APPROVAL_BUY_AMOUNT = '100000000000000000' // A valid buy amount - 0.1 ETH

@@ -1,12 +1,13 @@
 import Web3 from 'web3'
 import BigNumber from 'bignumber.js'
 import { setupQuote } from '../test-data/setupSwapQuote'
-import { erc20AllowanceAbi } from '../../utils/abi/erc20-abi'
+import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
 import { normalizeAmount, getAllowanceRequired, getUsdRate } from '../helpers/helpers'
 import { zrxService } from '../zrxService'
 
 jest.mock('web3')
 const axios = jest.createMockFromModule('axios')
+
 //@ts-ignore
 axios.create = jest.fn(() => axios)
 jest.mock('../zrxService')

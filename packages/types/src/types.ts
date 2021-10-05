@@ -190,6 +190,17 @@ export type ExecQuoteOutput = {
   txid: string
 }
 
+export type ApprovalNeededInput = {
+  quote: Quote
+  wallet: HDWallet
+}
+
+export type ApprovalNeededOutput = {
+  approvalNeeded: boolean
+  gas?: string
+  gasPrice?: string
+}
+
 // chain-adapters
 
 export type Transaction = {

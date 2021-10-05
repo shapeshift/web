@@ -1,6 +1,8 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   Asset,
+  ApprovalNeededInput,
+  ApprovalNeededOutput,
   BuildQuoteTxInput,
   GetQuoteInput,
   Quote,
@@ -65,4 +67,10 @@ export interface Swapper {
    * @param wallet
    */
   executeQuote(args: ExecQuoteInput): Promise<ExecQuoteOutput>
+
+  /**
+   * Get a boolean if a quote needs approval
+   */
+
+  approvalNeeded(args: ApprovalNeededInput): Promise<ApprovalNeededOutput>
 }

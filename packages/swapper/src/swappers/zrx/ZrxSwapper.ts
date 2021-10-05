@@ -1,6 +1,8 @@
 import Web3 from 'web3'
 import {
   Asset,
+  ApprovalNeededInput,
+  ApprovalNeededOutput,
   BuildQuoteTxInput,
   ChainTypes,
   GetQuoteInput,
@@ -17,6 +19,7 @@ import { getZrxQuote } from './getQuote/getQuote'
 import { getUsdRate } from './utils/helpers/helpers'
 import { getMinMax } from './getMinMax/getMinMax'
 import { executeQuote } from './executeQuote/executeQuote'
+import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 
 export type ZrxSwapperDeps = {
   adapterManager: ChainAdapterManager
@@ -75,5 +78,9 @@ export class ZrxSwapper implements Swapper {
 
   async executeQuote(args: ExecQuoteInput): Promise<ExecQuoteOutput> {
     return executeQuote(this.deps, args)
+  }
+
+  async approvalNeeded(args: ApprovalNeededInput): Promise<ApprovalNeededOutput> {
+    return approvalNeeded(this.deps, args)
   }
 }

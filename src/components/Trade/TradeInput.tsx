@@ -17,6 +17,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useSwapper } from '../../hooks/useSwapper/useSwapper'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -35,11 +36,17 @@ export const TradeInput = ({ history }: RouterProps) => {
     control,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors, isDirty, isValid }
   } = useFormContext()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const { getBestQuote } = useSwapper()
+
+  const quote = getValues('quote')
+  const buyAsset = getValues('buyAsset.currency')
+  const sellAsset = getValues('sellAsset.currency')
 
   const onSubmit = () => {
     history.push('/trade/confirm')
@@ -59,7 +66,9 @@ export const TradeInput = ({ history }: RouterProps) => {
                 suffix={localeParts.postfix}
                 value={value}
                 customInput={FiatInput}
-                onValueChange={e => onChange(e.value)}
+                onValueChange={e => {
+                  onChange(e.value)
+                }}
               />
             )}
             name='fiatAmount'
@@ -81,8 +90,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
-                logo={getValues('sellAsset.icon')}
-                symbol={getValues('sellAsset.currency.symbol')}
+                logo={sellAsset?.icon}
+                symbol={sellAsset?.symbol}
               />
             }
             inputRightElement={
@@ -109,7 +118,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         >
           <IconButton aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            <Text fontSize='sm'>1 BTC = 40,100.45 USDC</Text>
+            {quote && <Text fontSize='sm'>1 BTC = 40,100.45 USDC</Text>}
             <HelperTooltip label='The price is ' />
           </Box>
         </FormControl>
@@ -121,8 +130,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}
-                logo={getValues('buyAsset.icon')}
-                symbol={getValues('buyAsset.symbol')}
+                logo={buyAsset?.icon}
+                symbol={buyAsset?.symbol}
               />
             }
           />

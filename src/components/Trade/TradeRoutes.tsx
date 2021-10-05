@@ -13,14 +13,17 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
   const { setValue } = useFormContext()
+
   const handleSellClick = (asset: Asset) => {
     setValue('sellAsset.currency', asset)
     history.push('/trade/input')
   }
+
   const handleBuyClick = (asset: Asset) => {
     setValue('buyAsset.currency', asset)
     history.push('/trade/input')
   }
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>

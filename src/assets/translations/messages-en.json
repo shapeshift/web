@@ -164,6 +164,10 @@
         "dayChange": "Day Change",
         "aboutAsset": "About %{asset}"
       },
+      "assetDescription": {
+        "showMore": "Show More",
+        "showLess": "Show Less"
+      },
       "assetHistory": {
         "transactionHistory": "Transaction History"
       }

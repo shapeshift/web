@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Collapse,
   Flex,
   Heading,
   HStack,
@@ -35,6 +36,8 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
   const [graphPercentChange, setGraphPercentChange] = useState(percentChange)
   const translate = useTranslate()
+  const [showDescription, setShowDescription] = useState(false)
+  const handleToggle = () => setShowDescription(!showDescription)
 
   return (
     <Card variant='footer-stub'>
@@ -174,9 +177,16 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
             </Card.Heading>
           </Skeleton>
 
-          <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
-            <SanitizedHtml color='gray.500' dirtyHtml={description} />
-          </SkeletonText>
+          <Collapse startingHeight={70} in={showDescription}>
+            <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
+              <SanitizedHtml color='gray.500' dirtyHtml={description} />
+            </SkeletonText>
+          </Collapse>
+          <Button size='sm' onClick={handleToggle} mt='1rem'>
+            {showDescription
+              ? translate('assets.assetDetails.assetDescription.showLess')
+              : translate('assets.assetDetails.assetDescription.showMore')}
+          </Button>
         </Card.Footer>
       )}
     </Card>

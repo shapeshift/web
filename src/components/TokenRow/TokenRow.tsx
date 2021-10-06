@@ -25,6 +25,7 @@ const CryptoInput = (props: InputProps) => (
 type TokenRowProps = {
   control: Control
   fieldName: string
+  loading?: boolean
   rules?: ControllerProps['rules']
   inputLeftElement?: React.ReactNode
   inputRightElement?: React.ReactNode
@@ -34,6 +35,7 @@ type TokenRowProps = {
 export const TokenRow = ({
   control,
   fieldName,
+  loading,
   rules,
   inputLeftElement,
   inputRightElement,
@@ -60,6 +62,8 @@ export const TokenRow = ({
               decimalSeparator={localeParts.decimal}
               customInput={CryptoInput}
               value={value}
+              asdfsdf=''
+              loading={loading}
               onValueChange={e => {
                 onChange(e.value)
                 onInputChange && onInputChange(e.value)

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
 import { entries, TradeRoutes } from './TradeRoutes'
 
-type TTradeInput = {
+export type TradeState = {
   fiatAmount?: string
   sellAsset: {
     currency: Asset
@@ -17,7 +17,7 @@ type TTradeInput = {
 }
 
 export const Trade = () => {
-  const methods = useForm<TTradeInput>({
+  const methods = useForm<TradeState>({
     mode: 'onChange',
     defaultValues: {
       fiatAmount: undefined,

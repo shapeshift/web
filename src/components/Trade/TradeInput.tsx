@@ -18,6 +18,7 @@ import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useSwapper } from '../../hooks/useSwapper/useSwapper'
+import { Quote } from '@shapeshiftoss/types'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -37,17 +38,23 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
+    watch,
     formState: { errors, isDirty, isValid }
   } = useFormContext()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const { getBestQuote } = useSwapper()
-
+  const { getBuyAssetQuote, getSellAssetQuote } = useSwapper({
+    setQuote: (quote: Quote) => {
+      setValue('quote', quote)
+    },
+    ...watch()
+  })
   const quote = getValues('quote')
   const buyAsset = getValues('buyAsset.currency')
   const sellAsset = getValues('sellAsset.currency')
 
+  console.log('quote', quote)
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
@@ -87,6 +94,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
+            onInputChange={getSellAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
@@ -127,6 +135,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
+            onInputChange={getBuyAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}

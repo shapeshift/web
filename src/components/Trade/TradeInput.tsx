@@ -57,7 +57,6 @@ export const TradeInput = ({ history }: RouterProps) => {
   const buyAsset = getValues('buyAsset.currency')
   const sellAsset = getValues('sellAsset.currency')
 
-  console.log('quote', quote)
   const onSubmit = () => {
     history.push('/trade/confirm')
   }

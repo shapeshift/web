@@ -7,7 +7,7 @@ import { TradeState } from 'components/Trade/Trade'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { debounce } from 'lodash'
 
-const debounceTime = 1000
+const debounceTime = 500
 
 export const useSwapper = ({
   sellAsset,

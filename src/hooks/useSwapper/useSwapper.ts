@@ -9,11 +9,6 @@ import { debounce } from 'lodash'
 import { bn } from 'lib/bignumber/bignumber'
 
 const debounceTime = 500
-export enum updatingFrom {
-  BUY,
-  SELL,
-  FIAT
-}
 
 export const useSwapper = ({
   sellAsset,
@@ -23,6 +18,7 @@ export const useSwapper = ({
 }: TradeState & { setValue: any }) => {
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const adapterManager = useChainAdapters()
+  const [debounceObj, setDebounceObj] = useState<any>({ buyAsset: {}, sellAsset: {} })
 
   // console.log('sellAsset', sellAsset)
   // console.log('buyAsset', buyAsset)
@@ -34,34 +30,45 @@ export const useSwapper = ({
     setSwapperManager(manager)
   }, [adapterManager])
 
-  const getBuyAssetQuote = debounce(async () => {
+  const getBuyAssetQuote = async () => {
     console.log('getBuyAssetQuote')
-    if (!buyAsset.currency || !buyAsset.amount) return
-    const quote = await getBestQuote({
-      buyAmount: toBaseUnit(buyAsset.amount, buyAsset.currency.precision)
-    })
-    if (quote?.sellAmount && quote.rate) {
-      setValue('sellAsset.amount', fromBaseUnit(quote.sellAmount, sellAsset.currency.precision))
-      setValue('quote', { ...quote, rate: bn(1).div(quote.rate) })
-    }
-    setValue('quoteInput', undefined)
-  }, debounceTime)
+    if (debounceObj.buyAsset.cancel) debounceObj.buyAsset.cancel()
+    const buyAssetDebounce = debounce(async () => {
+      if (!buyAsset.currency || !buyAsset.amount) return
+      const quote = await getBestQuote({
+        buyAmount: toBaseUnit(buyAsset.amount, buyAsset.currency.precision)
+      })
+      if (quote?.sellAmount && quote.rate) {
+        setValue('sellAsset.amount', fromBaseUnit(quote.sellAmount, sellAsset.currency.precision))
+        setValue('quote', { ...quote, rate: bn(1).div(quote.rate) })
+      }
+      setValue('quoteInput', undefined)
+    }, debounceTime)
+    buyAssetDebounce()
+    setDebounceObj((state: any) => ({ ...state, buyAsset: buyAssetDebounce }))
+  }
 
-  const getSellAssetQuote = debounce(async () => {
+  const getSellAssetQuote = async () => {
     console.log('getSellAssetQuote')
-    if (!sellAsset.currency || !sellAsset.amount) return
-    const quote = await getBestQuote({
-      sellAmount: toBaseUnit(sellAsset.amount, sellAsset.currency.precision)
-    })
-    if (quote?.buyAmount) {
-      setValue('buyAsset.amount', fromBaseUnit(quote.buyAmount, buyAsset.currency.precision))
-      setValue('quote', quote)
-    }
-    setValue('quoteInput', undefined)
-  }, debounceTime)
+    if (debounceObj.sellAsset.cancel) debounceObj.sellAsset.cancel()
+    const sellAssetDebounce = debounce(async () => {
+      if (!sellAsset.currency || !sellAsset.amount) return
+      const quote = await getBestQuote({
+        sellAmount: toBaseUnit(sellAsset.amount, sellAsset.currency.precision)
+      })
+      if (quote?.buyAmount) {
+        setValue('buyAsset.amount', fromBaseUnit(quote.buyAmount, buyAsset.currency.precision))
+        setValue('quote', quote)
+      }
+      setValue('quoteInput', undefined)
+    }, debounceTime)
+    sellAssetDebounce()
+    setDebounceObj((state: any) => ({ ...state, sellAsset: sellAssetDebounce }))
+  }
 
   const getBestQuote = useCallback(
     async (amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>) => {
+      console.log('getQuote')
       if (!sellAsset.currency || !buyAsset.currency) return
       const quoteInput = {
         sellAsset: sellAsset.currency,

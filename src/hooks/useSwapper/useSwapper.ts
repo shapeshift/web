@@ -5,6 +5,9 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { web3Instance } from 'lib/web3-instance'
 import { TradeState } from 'components/Trade/Trade'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { debounce } from 'lodash'
+
+const debounceTime = 1000
 
 export const useSwapper = ({
   sellAsset,
@@ -25,7 +28,7 @@ export const useSwapper = ({
     setSwapperManager(manager)
   }, [adapterManager])
 
-  const getBuyAssetQuote = async () => {
+  const getBuyAssetQuote = debounce(async () => {
     console.log('getBuyAssetQuote')
     if (!buyAsset.currency || !buyAsset.amount) return
     const quote = await getBestQuote({
@@ -35,9 +38,9 @@ export const useSwapper = ({
       setValue('sellAsset.amount', fromBaseUnit(quote.sellAmount, sellAsset.currency.precision))
       setValue('quoteInput', undefined)
     }
-  }
+  }, debounceTime)
 
-  const getSellAssetQuote = async () => {
+  const getSellAssetQuote = debounce(async () => {
     console.log('getSellAssetQuote')
     if (!sellAsset.currency || !sellAsset.amount) return
     const quote = await getBestQuote({
@@ -47,7 +50,7 @@ export const useSwapper = ({
       setValue('buyAsset.amount', fromBaseUnit(quote.buyAmount, buyAsset.currency.precision))
       setValue('quoteInput', undefined)
     }
-  }
+  }, debounceTime)
 
   const getBestQuote = useCallback(
     async (amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>) => {

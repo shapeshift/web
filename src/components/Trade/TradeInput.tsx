@@ -20,6 +20,9 @@ import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useSwapper } from '../../hooks/useSwapper/useSwapper'
 import { TradeState } from './Trade'
+import { RawText } from 'components/Text'
+import { bn } from 'lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -59,12 +62,12 @@ export const TradeInput = ({ history }: RouterProps) => {
     history.push('/trade/confirm')
   }
 
-  const canChangeSellAmount = useMemo(() => {
-    return !quoteInput || !('buyAmount' in quoteInput)
+  const changingBuyAmount = useMemo(() => {
+    return quoteInput && ('buyAmount' in quoteInput)
   }, [quoteInput])
 
-  const canChangeBuyAmount = useMemo(() => {
-    return !quoteInput || !('sellAmount' in quoteInput)
+  const changingSellAmount = useMemo(() => {
+    return quoteInput && ('sellAmount' in quoteInput)
   }, [quoteInput])
 
   return (
@@ -102,7 +105,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            onInputChange={canChangeSellAmount && getSellAssetQuote}
+            onInputChange={!changingBuyAmount && getSellAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
@@ -134,7 +137,11 @@ export const TradeInput = ({ history }: RouterProps) => {
         >
           <IconButton aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            {quote && <Text fontSize='sm'>1 BTC = 40,100.45 USDC</Text>}
+            {quote && (
+              <RawText fontSize='sm'>{`1 ${sellAsset.symbol} = ${firstNonZeroDecimal(
+                bn(quote.rate)
+              )} ${buyAsset.symbol}`}</RawText>
+            )}
             <HelperTooltip label='The price is ' />
           </Box>
         </FormControl>
@@ -143,7 +150,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            onInputChange={canChangeBuyAmount && getBuyAssetQuote}
+            onInputChange={!changingSellAmount && getBuyAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}

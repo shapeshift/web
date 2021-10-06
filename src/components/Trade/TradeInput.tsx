@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
   Box,
@@ -18,7 +19,7 @@ import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useSwapper } from '../../hooks/useSwapper/useSwapper'
-import { Quote } from '@shapeshiftoss/types'
+import { TradeState } from './Trade'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -45,11 +46,10 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const { getBuyAssetQuote, getSellAssetQuote } = useSwapper({
-    setQuote: (quote: Quote) => {
-      setValue('quote', quote)
-    },
-    ...watch()
+    setValue,
+    ...(watch() as TradeState)
   })
+  const quoteInput = getValues('quoteInput')
   const quote = getValues('quote')
   const buyAsset = getValues('buyAsset.currency')
   const sellAsset = getValues('sellAsset.currency')
@@ -58,6 +58,14 @@ export const TradeInput = ({ history }: RouterProps) => {
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
+
+  const canChangeSellAmount = useMemo(() => {
+    return !quoteInput || !('buyAmount' in quoteInput)
+  }, [quoteInput])
+
+  const canChangeBuyAmount = useMemo(() => {
+    return !quoteInput || !('sellAmount' in quoteInput)
+  }, [quoteInput])
 
   return (
     <SlideTransition>
@@ -94,7 +102,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            onInputChange={getSellAssetQuote}
+            onInputChange={canChangeSellAmount && getSellAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
@@ -135,7 +143,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            onInputChange={getBuyAssetQuote}
+            onInputChange={canChangeBuyAmount && getBuyAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}

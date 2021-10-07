@@ -47,21 +47,6 @@ export const baseAssets: Array<BaseAsset> = [
     receiveSupport: false
   },
   {
-    chain: ChainTypes.Litecoin,
-    network: NetworkTypes.MAINNET,
-    symbol: 'LTC',
-    name: 'Litecoin',
-    precision: 8,
-    slip44: 2,
-    color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
-    icon: 'https://assets.coincap.io/assets/icons/ltc@2x.png',
-    explorer: 'https://live.blockcypher.com',
-    explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
-    sendSupport: false,
-    receiveSupport: false
-  },
-  {
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.ETH_ROPSTEN,
     symbol: 'ETH',

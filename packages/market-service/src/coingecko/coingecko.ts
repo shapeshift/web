@@ -32,8 +32,7 @@ type CoinGeckoIDMap = {
 
 const coingeckoIDMap: CoinGeckoIDMap = Object.freeze({
   [ChainTypes.Ethereum]: 'ethereum',
-  [ChainTypes.Bitcoin]: 'bitcoin',
-  [ChainTypes.Litecoin]: 'litecoin'
+  [ChainTypes.Bitcoin]: 'bitcoin'
 })
 
 export class CoinGeckoMarketService implements MarketService {

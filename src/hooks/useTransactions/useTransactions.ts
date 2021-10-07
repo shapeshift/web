@@ -1,5 +1,4 @@
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { Transaction } from '@shapeshiftoss/types'
+import { ChainTypes, Transaction } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'
@@ -14,7 +13,7 @@ export type FormatTransactionType = Transaction & {
   amount: string
   date: string
   dateFromNow: string
-  chain: string
+  chain: ChainTypes
 }
 
 export type UseTransactionsReturnType = {
@@ -23,7 +22,7 @@ export type UseTransactionsReturnType = {
 }
 
 export type UseTransactionsPropType = {
-  chain?: string | undefined
+  chain?: ChainTypes | undefined
   contractAddress?: string | undefined
   symbol?: string | undefined
 }
@@ -42,6 +41,7 @@ export const getDate = (timestamp: number) =>
   dayjs(Number(timestamp) * 1000).format('MM/DD/YYYY h:mm A')
 
 const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTransactionType[] => {
+  if (!(txs ?? []).length) return []
   return txs.map((tx: Transaction) => {
     const date = getDate(tx.timestamp)
     return {
@@ -51,13 +51,13 @@ const formatTransactions = (txs: Transaction[], walletAddress: string): FormatTr
       date,
       dateFromNow: dayjs(date).fromNow(),
       fee: fromBaseUnit(tx.fee, 18),
-      chain: 'ETH' /* TODO: get chian from asset service */
+      chain: tx.chain
     }
   })
 }
 
 export const useTransactions = ({
-  chain = '',
+  chain,
   contractAddress = '',
   symbol = ''
 }: UseTransactionsPropType = {}): UseTransactionsReturnType => {
@@ -73,20 +73,15 @@ export const useTransactions = ({
   const getTxHistory = useCallback(async () => {
     if (!wallet) return
     const supportedAdapters = chainAdapterManager.getSupportedAdapters()
+    if (!supportedAdapters.length) return
     // TODO: remove hard coded pagination info after implementing web sockets and/or infinite scrolling
     const page = 1
     const pageSize = 35
 
     // Get transaction history for chain that is provided.
     if (chain) {
-      if (!supportedAdapters.length) return
-      const getAdapter = supportedAdapters.find(
-        (adapter: () => ChainAdapter) => adapter().getType() === chain
-      )
-      if (!getAdapter) return
-      const chainAdapter = getAdapter()
+      const chainAdapter = chainAdapterManager.byChain(chain)
       const address = await chainAdapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
-      if (!chainAdapter) return
       let txHistoryResponse
       try {
         txHistoryResponse = await chainAdapter.getTxHistory(address, {
@@ -97,11 +92,10 @@ export const useTransactions = ({
       } catch (err) {
         console.error(err)
       }
-      if (!symbol || !txHistoryResponse) return
-      const txHistoryBySymbol = txHistoryResponse.transactions.filter(
-        (tx: Transaction) => tx.symbol === symbol
+      const formattedTransactions = formatTransactions(
+        txHistoryResponse?.transactions ?? [],
+        address
       )
-      const formattedTransactions = formatTransactions(txHistoryBySymbol, address)
       return { txs: formattedTransactions }
     }
 
@@ -110,11 +104,11 @@ export const useTransactions = ({
 
     // Get transaction history for all chians that are supported.
     for (const getAdapter of supportedAdapters) {
-      const adapter = getAdapter()
-      const address = await adapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
+      const genericAdapter = getAdapter()
+      const address = await genericAdapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
       let txHistoryResponse
       try {
-        txHistoryResponse = await adapter.getTxHistory(address, {
+        txHistoryResponse = await genericAdapter.getTxHistory(address, {
           page,
           pageSize,
           contract: contractAddress
@@ -127,6 +121,7 @@ export const useTransactions = ({
         (tx: FormatTransactionType) => transactions.push(tx)
       )
     }
+
     acc['txs'] = transactions
     return acc
     // TODO: remove below linter disable comment when we consolidate the 'walletInfo' and 'wallet' in state, we will

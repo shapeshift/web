@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/chain-adapters": "^1.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.16.2-alpha.0",
+    "@shapeshiftoss/hdwallet-core": "^1.16.3",
     "@shapeshiftoss/types": "^1.0.0",
     "axios": "^0.21.4",
     "web3": "^1.5.2",

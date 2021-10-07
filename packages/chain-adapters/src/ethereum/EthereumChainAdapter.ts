@@ -24,7 +24,7 @@ import erc20Abi from './erc20Abi.json'
 import { ChainAdapter } from '..'
 
 export type EthereumChainAdapterDependencies = {
-  provider: BlockchainProvider
+  provider: BlockchainProvider<ChainTypes.Ethereum>
 }
 
 type ZrxFeeResult = {
@@ -56,18 +56,18 @@ async function getErc20Data(to: string, value: string, contractAddress?: string)
   return callData || ''
 }
 
-export class EthereumChainAdapter implements ChainAdapter {
-  private readonly provider: BlockchainProvider
+export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
+  private readonly provider: BlockchainProvider<ChainTypes.Ethereum>
 
   constructor(deps: EthereumChainAdapterDependencies) {
     this.provider = deps.provider
   }
 
-  getType = (): ChainTypes => {
+  getType(): ChainTypes.Ethereum {
     return ChainTypes.Ethereum
   }
 
-  getBalance = async (address: string): Promise<BalanceResponse | undefined> => {
+  async getBalance(address: string): Promise<BalanceResponse> {
     try {
       const balanceData = await this.provider.getBalance(address)
       return balanceData
@@ -76,7 +76,10 @@ export class EthereumChainAdapter implements ChainAdapter {
     }
   }
 
-  getTxHistory = async (address: string, params?: Params): Promise<TxHistoryResponse> => {
+  async getTxHistory(
+    address: string,
+    params?: Params
+  ): Promise<TxHistoryResponse<ChainTypes.Ethereum>> {
     try {
       return this.provider.getTxHistory(address, params)
     } catch (err) {
@@ -84,9 +87,9 @@ export class EthereumChainAdapter implements ChainAdapter {
     }
   }
 
-  buildSendTransaction = async (
+  async buildSendTransaction(
     tx: BuildSendTxInput
-  ): Promise<{ txToSign: ETHSignTx; estimatedFees: FeeDataEstimate }> => {
+  ): Promise<{ txToSign: ETHSignTx; estimatedFees: FeeDataEstimate }> {
     try {
       const { to, erc20ContractAddress, path, wallet, fee, limit } = tx
       const value = erc20ContractAddress ? '0' : tx?.value
@@ -129,7 +132,7 @@ export class EthereumChainAdapter implements ChainAdapter {
     }
   }
 
-  signTransaction = async (signTxInput: SignTxInput): Promise<string> => {
+  async signTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
       const signedTx = await (wallet as ETHWallet).ethSignTx(txToSign)
@@ -142,16 +145,16 @@ export class EthereumChainAdapter implements ChainAdapter {
     }
   }
 
-  broadcastTransaction = async (hex: string) => {
+  async broadcastTransaction(hex: string) {
     return this.provider.broadcastTx(hex)
   }
 
-  getFeeData = async ({
+  async getFeeData({
     to,
     from,
     contractAddress,
     value
-  }: GetFeeDataInput): Promise<FeeDataEstimate> => {
+  }: GetFeeDataInput): Promise<FeeDataEstimate> {
     const { data: responseData } = await axios.get<ZrxGasApiResponse>('https://gas.api.0x.org/')
     const fees = responseData.result.find((result) => result.source === 'MEDIAN')
 
@@ -187,7 +190,7 @@ export class EthereumChainAdapter implements ChainAdapter {
     }
   }
 
-  getAddress = async (input: GetAddressInput): Promise<string> => {
+  async getAddress(input: GetAddressInput): Promise<string> {
     const { wallet, path } = input
     const addressNList = bip32ToAddressNList(path)
     const ethAddress = await (wallet as ETHWallet).ethGetAddress({

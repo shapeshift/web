@@ -1,9 +1,14 @@
 import { Params } from './Params.type'
-import { TxHistoryResponse, FeeEstimateInput, BalanceResponse } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  TxHistoryResponse,
+  FeeEstimateInput,
+  BalanceResponse
+} from '@shapeshiftoss/types'
 
-export interface BlockchainProvider {
-  getBalance: (address: string) => Promise<BalanceResponse | undefined>
-  getTxHistory: (address: string, params?: Params) => Promise<TxHistoryResponse>
+export interface BlockchainProvider<T extends ChainTypes> {
+  getBalance: (address: string) => Promise<BalanceResponse>
+  getTxHistory: (address: string, params?: Params) => Promise<TxHistoryResponse<T>>
   getNonce: (address: string) => Promise<number>
   broadcastTx: (hex: string) => Promise<string>
   getFeePrice: () => Promise<string>

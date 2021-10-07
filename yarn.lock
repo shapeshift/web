@@ -2281,19 +2281,10 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.16.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.15.5-alpha.0":
+"@shapeshiftoss/hdwallet-core@1.16.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0":
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.16.1.tgz#90caf85f14e446d545cdadce8c68738e6e971b82"
   integrity sha512-7aQrhSdEe7z+rY1220utQHzNnhFPrJiyT6MRrh/Exg6PGqurrMsmAr4k0vFWMlLVr8pwwvDrPfPo6juGtOHsoQ==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-
-"@shapeshiftoss/hdwallet-core@^1.16.2-alpha.0":
-  version "1.16.2-alpha.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.16.2-alpha.0.tgz#191105ce22ba62b4082cf7ee4cc028af51fdc0dc"
-  integrity sha512-7klS5VWGiW49E/A6Hfhb1zCFDwGZz+ps+r3WwNEIGrPzCYx8wStee9Y/Pe/pry0fOwHWGiIfBWfXFtCE7CDv+Q==
   dependencies:
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
@@ -10868,6 +10859,11 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
   integrity sha1-WuaBd/GS1EViadEIr6k/+HQ/T2Q=
+
+type-assertions@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/type-assertions/-/type-assertions-1.1.0.tgz#51c5189fc6c1bdc1c19f48bf5ace6cc619917977"
+  integrity sha512-LJ5h6n63vxS8fSdfTPqIc6IrbCo9X3g6Se+wSikCGsqaAI3ajN0iputclNG07wdWfBoQZIrpASjBQo5BeVNrAg==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

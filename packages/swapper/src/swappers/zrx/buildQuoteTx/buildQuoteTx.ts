@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { SwapError } from '../../..'
-import { Quote, QuoteResponse, BuildQuoteTxInput } from '@shapeshiftoss/types'
+import { ChainTypes, Quote, QuoteResponse, BuildQuoteTxInput } from '@shapeshiftoss/types'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
@@ -58,7 +58,13 @@ export async function buildQuoteTx(
     )
   }
 
-  const adapter: ChainAdapter = adapterManager.byChain(buyAsset.chain)
+  if (buyAsset.chain !== ChainTypes.Ethereum) {
+    throw new SwapError(
+      `ZrxSwapper:buildQuoteTx buyAsset must be on chain [${ChainTypes.Ethereum}]`
+    )
+  }
+
+  const adapter: ChainAdapter<ChainTypes.Ethereum> = adapterManager.byChain(buyAsset.chain)
   const receiveAddress = await adapter.getAddress({ wallet, path: DEFAULT_ETH_PATH })
 
   if (new BigNumber(slippage || 0).gt(MAX_SLIPPAGE)) {

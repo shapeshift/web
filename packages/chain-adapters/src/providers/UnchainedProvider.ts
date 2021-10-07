@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios'
 import { Params } from '../types/Params.type'
 import { BlockchainProvider } from '../types/BlockchainProvider.type'
 import {
+  ChainTypes,
   TxHistoryResponse,
   BalanceResponse,
   BroadcastTxResponse,
@@ -18,19 +19,42 @@ const axiosClient = (baseURL: string) =>
     })
   })
 
-export class UnchainedProvider implements BlockchainProvider {
+export function isUnchainedProviderOfType<U extends ChainTypes>(
+  chainType: U,
+  x: UnchainedProvider<ChainTypes>
+): x is UnchainedProvider<U> {
+  return x.getType() === chainType
+}
+
+export interface UnchainedProviderFactory<T extends ChainTypes> {
+  new (baseURL: string): UnchainedProvider<T>
+}
+
+type UnchainedProviderDeps<T> = {
+  baseURL: string
+  type: T
+}
+
+export class UnchainedProvider<T extends ChainTypes> implements BlockchainProvider<T> {
   axios: AxiosInstance
-  constructor(baseURL: string) {
+  type: T
+
+  constructor({ baseURL, type }: UnchainedProviderDeps<T>) {
     this.axios = axiosClient(baseURL)
+    this.type = type
   }
 
-  async getBalance(address: string): Promise<BalanceResponse | undefined> {
+  getType(): T {
+    return this.type
+  }
+
+  async getBalance(address: string): Promise<BalanceResponse> {
     const { data } = await this.axios.get<BalanceResponse>(`/balance/${address}`)
     return data
   }
 
   async getTxHistory(address: string, params?: Params) {
-    const { data } = await this.axios.get<TxHistoryResponse>(`/txs/${address}`, {
+    const { data } = await this.axios.get<TxHistoryResponse<T>>(`/account/${address}/txs`, {
       params: params
     })
     return data

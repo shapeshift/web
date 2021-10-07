@@ -20,7 +20,9 @@ describe('ChainAdapterManager', () => {
 
     it('should throw an error if no adapter is found', () => {
       // @ts-ignore
-      expect(() => getCAM({ ripple: 'x' })).toThrow('No chain adapter for ripple')
+      expect(() => getCAM({ ripple: 'x' })).toThrow(
+        'ChainAdapterManager: cannot instantiate ripple chain adapter'
+      )
     })
   })
 

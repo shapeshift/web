@@ -35,7 +35,7 @@ export async function approvalNeeded(
     throw new SwapError('ZrxSwapper:approvalNeeded only Ethereum chain type is supported')
   }
 
-  const adapter: ChainAdapter = adapterManager.byChain(sellAsset.chain)
+  const adapter: ChainAdapter<ChainTypes> = adapterManager.byChain(sellAsset.chain)
   const receiveAddress = await adapter.getAddress({ wallet, path: DEFAULT_ETH_PATH })
 
   /**

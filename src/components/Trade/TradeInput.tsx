@@ -53,13 +53,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     ...(watch() as TradeState)
   })
   const quote = getValues('quote')
+  const fiatAmount = getValues('fiatAmount')
   const buyAsset = getValues('buyAsset.currency')
   const sellAsset = getValues('sellAsset.currency')
 
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
-
+  
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -76,7 +77,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 customInput={FiatInput}
                 onValueChange={e => {
                   onChange(e.value)
-                  getFiatQuote()
+                  if (e.value !== value) getFiatQuote(e.value)
                 }}
               />
             )}

@@ -61,14 +61,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     history.push('/trade/confirm')
   }
 
-  const changingBuyAmount = useMemo(() => {
-    return quoteInput && ('buyAmount' in quoteInput)
-  }, [quoteInput])
-
-  const changingSellAmount = useMemo(() => {
-    return quoteInput && ('sellAmount' in quoteInput)
-  }, [quoteInput])
-
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -104,7 +96,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            onInputChange={!changingBuyAmount && getSellAssetQuote}
+            onInputChange={getSellAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
@@ -149,7 +141,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            onInputChange={!changingSellAmount && getBuyAssetQuote}
+            onInputChange={getBuyAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}

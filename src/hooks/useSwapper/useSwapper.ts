@@ -8,7 +8,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { debounce } from 'lodash'
 import { bn } from 'lib/bignumber/bignumber'
 
-const debounceTime = 500
+const debounceTime = 1000
 
 export const useSwapper = ({
   sellAsset,
@@ -18,11 +18,7 @@ export const useSwapper = ({
 }: TradeState & { setValue: any }) => {
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const adapterManager = useChainAdapters()
-  const [debounceObj, setDebounceObj] = useState<any>({ buyAsset: {}, sellAsset: {} })
-
-  // console.log('sellAsset', sellAsset)
-  // console.log('buyAsset', buyAsset)
-  // console.log('fiatAmount', fiatAmount)
+  const [debounceObj, setDebounceObj] = useState<any>()
 
   useEffect(() => {
     const manager = new SwapperManager()
@@ -32,7 +28,8 @@ export const useSwapper = ({
 
   const getBuyAssetQuote = async () => {
     console.log('getBuyAssetQuote')
-    if (debounceObj.buyAsset.cancel) debounceObj.buyAsset.cancel()
+    if (debounceObj?.cancel) debounceObj.cancel()
+    // if (debounceObj.sellAsset.cancel) debounceObj.sellAsset.cancel()
     const buyAssetDebounce = debounce(async () => {
       if (!buyAsset.currency || !buyAsset.amount) return
       const quote = await getBestQuote({
@@ -45,12 +42,14 @@ export const useSwapper = ({
       setValue('quoteInput', undefined)
     }, debounceTime)
     buyAssetDebounce()
-    setDebounceObj((state: any) => ({ ...state, buyAsset: buyAssetDebounce }))
+    setDebounceObj({ ...buyAssetDebounce })
   }
 
   const getSellAssetQuote = async () => {
     console.log('getSellAssetQuote')
-    if (debounceObj.sellAsset.cancel) debounceObj.sellAsset.cancel()
+    if (debounceObj?.cancel) debounceObj.cancel()
+    // if (debounceObj.buyAsset.cancel) debounceObj.buyAsset.cancel()
+    console.log('selfffl', sellAsset.amount)
     const sellAssetDebounce = debounce(async () => {
       if (!sellAsset.currency || !sellAsset.amount) return
       const quote = await getBestQuote({
@@ -63,7 +62,7 @@ export const useSwapper = ({
       setValue('quoteInput', undefined)
     }, debounceTime)
     sellAssetDebounce()
-    setDebounceObj((state: any) => ({ ...state, sellAsset: sellAssetDebounce }))
+    setDebounceObj({ ...sellAssetDebounce })
   }
 
   const getBestQuote = useCallback(

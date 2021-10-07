@@ -62,11 +62,10 @@ export const TokenRow = ({
               decimalSeparator={localeParts.decimal}
               customInput={CryptoInput}
               value={value}
-              asdfsdf=''
               loading={loading}
               onValueChange={e => {
                 onChange(e.value)
-                onInputChange && onInputChange(e.value)
+                onInputChange && e.value !== value && onInputChange(e.value)
               }}
             />
           )
@@ -74,6 +73,7 @@ export const TokenRow = ({
         name={fieldName}
         control={control}
         rules={rules}
+        defaultValue=''
       />
       {inputRightElement && (
         <InputRightElement width='4.5rem'>{inputRightElement}</InputRightElement>

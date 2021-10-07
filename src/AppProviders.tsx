@@ -13,7 +13,7 @@ import { store } from 'state/store'
 import { theme } from 'theme/theme'
 
 const locale: string = navigator?.language?.split('-')[0] ?? 'en'
-const messages = translations[locale]
+const messages = translations[locale] || translations['en']
 
 type ProvidersProps = {
   children: React.ReactNode

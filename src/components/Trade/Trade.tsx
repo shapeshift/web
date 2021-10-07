@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, Quote } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
@@ -14,6 +14,7 @@ export type TradeState = {
     currency: Asset
     amount?: string
   }
+  quote: Quote
 }
 
 export const Trade = () => {

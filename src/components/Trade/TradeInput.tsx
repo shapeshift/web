@@ -48,11 +48,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const { getBuyAssetQuote, getSellAssetQuote } = useSwapper({
+  const { getBuyAssetQuote, getSellAssetQuote, getFiatQuote } = useSwapper({
     setValue,
     ...(watch() as TradeState)
   })
-  const quoteInput = getValues('quoteInput')
   const quote = getValues('quote')
   const buyAsset = getValues('buyAsset.currency')
   const sellAsset = getValues('sellAsset.currency')
@@ -77,6 +76,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 customInput={FiatInput}
                 onValueChange={e => {
                   onChange(e.value)
+                  getFiatQuote()
                 }}
               />
             )}

@@ -14,19 +14,21 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
   const { setValue, watch } = useFormContext()
-  const { getBuyAssetQuote, getSellAssetQuote } = useSwapper({
+  const { getBuyAssetQuote, getSellAssetQuote, getBestSwapper } = useSwapper({
     setValue,
     ...watch() as TradeState
   })
 
-  const handleSellClick = (asset: Asset) => {
+  const handleSellClick = async (asset: Asset) => {
     setValue('sellAsset.currency', asset)
+    await getBestSwapper()
     getSellAssetQuote()
     history.push('/trade/input')
   }
 
-  const handleBuyClick = (asset: Asset) => {
+  const handleBuyClick = async (asset: Asset) => {
     setValue('buyAsset.currency', asset)
+    await getBestSwapper()
     getBuyAssetQuote()
     history.push('/trade/input')
   }

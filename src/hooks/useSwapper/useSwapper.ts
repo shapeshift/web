@@ -10,6 +10,12 @@ import { bn } from 'lib/bignumber/bignumber'
 
 const debounceTime = 1000
 
+export enum FetchActions {
+  BUY = 'BUY',
+  SELL = 'SELL',
+  FIAT = 'FIAT'
+}
+
 export const useSwapper = ({
   sellAsset,
   buyAsset,
@@ -84,9 +90,10 @@ export const useSwapper = ({
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
         onFinish(quote)
-        setValue('action', undefined)
       } catch (e) {
         console.log('error', e)
+      } finally {
+        setValue('action', undefined)
       }
     }, debounceTime)
     quoteDebounce()
@@ -95,6 +102,7 @@ export const useSwapper = ({
 
   const getBuyAssetQuote = async () => {
     if (!buyAsset.currency) return
+    setValue('action', FetchActions.BUY)
     getQuote(
       { buyAmount: toBaseUnit(buyAsset?.amount || '0', buyAsset.currency.precision) },
       quote => {
@@ -114,6 +122,7 @@ export const useSwapper = ({
 
   const getSellAssetQuote = async () => {
     if (!sellAsset.currency) return
+    setValue('action', FetchActions.SELL)
     getQuote(
       { sellAmount: toBaseUnit(sellAsset?.amount || '0', sellAsset.currency.precision) },
       quote => {

@@ -17,7 +17,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useSwapper } from '../../hooks/useSwapper/useSwapper'
+import { FetchActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
 import { TradeState } from './Trade'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
@@ -34,12 +34,6 @@ const FiatInput = (props: InputProps) => (
     {...props}
   />
 )
-
-enum FetchActions {
-  BUY = 'BUY',
-  SELL = 'SELL',
-  FIAT = 'FIAT'
-}
 
 export const TradeInput = ({ history }: RouterProps) => {
   const {
@@ -107,10 +101,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             fieldName='sellAsset.amount'
             rules={{ required: true }}
             disabled={!!action && action !== FetchActions.SELL}
-            onInputChange={() => {
-              setValue('action', FetchActions.SELL)
-              getSellAssetQuote()
-            }}
+            onInputChange={getSellAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
@@ -146,6 +137,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               const buyAsset = getValues('buyAsset')
               setValue('buyAsset', sellAsset)
               setValue('sellAsset', buyAsset)
+              getSellAssetQuote()
             }}
             aria-label='Switch'
             isRound
@@ -166,10 +158,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             fieldName='buyAsset.amount'
             rules={{ required: true }}
             disabled={!!action && action !== FetchActions.BUY}
-            onInputChange={() => {
-              setValue('action', FetchActions.BUY)
-              getBuyAssetQuote()
-            }}
+            onInputChange={getBuyAssetQuote}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}

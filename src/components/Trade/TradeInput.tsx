@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
   Box,
@@ -23,6 +22,7 @@ import { TradeState } from './Trade'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { useState } from 'react'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -35,6 +35,12 @@ const FiatInput = (props: InputProps) => (
     {...props}
   />
 )
+
+enum FetchActions {
+  BUY = 'BUY',
+  SELL = 'SELL',
+  FIAT = 'FIAT'
+}
 
 export const TradeInput = ({ history }: RouterProps) => {
   const {
@@ -52,15 +58,17 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue,
     ...(watch() as TradeState)
   })
+  const action = getValues('action')
   const quote = getValues('quote')
-  const fiatAmount = getValues('fiatAmount')
   const buyAsset = getValues('buyAsset.currency')
   const sellAsset = getValues('sellAsset.currency')
 
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
-  
+
+  console.log('fetch', action)
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -72,12 +80,16 @@ export const TradeInput = ({ history }: RouterProps) => {
                 thousandSeparator={localeParts.group}
                 decimalSeparator={localeParts.decimal}
                 prefix={localeParts.prefix}
-                suffix={localeParts.postfix}
+                suffix={localeParts.action}
+                disabled={!!action && action !== FetchActions.FIAT}
                 value={value}
                 customInput={FiatInput}
                 onValueChange={e => {
                   onChange(e.value)
-                  if (e.value !== value) getFiatQuote(e.value)
+                  if (e.value !== value) {
+                    setValue('action', FetchActions.FIAT)
+                    getFiatQuote(e.value)
+                  }
                 }}
               />
             )}
@@ -97,7 +109,11 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            onInputChange={getSellAssetQuote}
+            disabled={!!action && action !== FetchActions.SELL}
+            onInputChange={() => {
+              setValue('action', FetchActions.SELL)
+              getSellAssetQuote()
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
@@ -142,7 +158,11 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            onInputChange={getBuyAssetQuote}
+            disabled={!!action && action !== FetchActions.BUY}
+            onInputChange={() => {
+              setValue('action', FetchActions.BUY)
+              getBuyAssetQuote()
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}

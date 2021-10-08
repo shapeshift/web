@@ -17,7 +17,7 @@ export const useSwapper = ({
   setValue
 }: TradeState & { setValue: any }) => {
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
-  const [bestSwapper, setBestSwapper] = useState(SwapperType.Zrx)
+  const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const adapterManager = useChainAdapters()
   const [debounceObj, setDebounceObj] = useState<any>()
 
@@ -28,7 +28,7 @@ export const useSwapper = ({
   }, [adapterManager])
 
   const getDefaultPair = () => {
-    const swapper = swapperManager?.getSwapper(bestSwapper)
+    const swapper = swapperManager?.getSwapper(bestSwapperType)
     return swapper?.getDefaultPair()
   }
 
@@ -42,7 +42,7 @@ export const useSwapper = ({
         if (!swapperManager) throw new Error('getQuote - Swapper needs to be initialized')
         if (!sellAsset.currency || !buyAsset.currency)
           throw new Error('getQuote - needs buyAsset and sellAsset to get quote')
-        const swapper = swapperManager.getSwapper(bestSwapper)
+        const swapper = swapperManager.getSwapper(bestSwapperType)
         const quoteInput = {
           sellAsset: sellAsset.currency,
           buyAsset: buyAsset.currency,
@@ -79,6 +79,7 @@ export const useSwapper = ({
         setValue('quote', quote)
         setValue('rates', rates)
         onFinish(quote)
+        setValue('action', undefined)
       } catch (e) {
         console.error('error', e)
       }
@@ -145,7 +146,7 @@ export const useSwapper = ({
     }
     const bestSwapper = await swapperManager.getBestSwapper(input)
 
-    setBestSwapper(bestSwapper)
+    setBestSwapperType(bestSwapper)
   }
 
   return {
@@ -154,6 +155,7 @@ export const useSwapper = ({
     getSellAssetQuote,
     getFiatQuote,
     getBestSwapper,
-    getDefaultPair
+    getDefaultPair,
+    debounceObj
   }
 }

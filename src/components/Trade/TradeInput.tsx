@@ -66,8 +66,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     history.push('/trade/confirm')
   }
 
-  console.log('fetch', action)
-
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>

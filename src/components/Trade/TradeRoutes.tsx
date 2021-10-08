@@ -24,7 +24,7 @@ export const TradeRoutes = () => {
     const sellAsset = getValues('sellAsset')
     if (asset === buyAsset.currency) setValue('buyAsset.currency', getValues('sellAsset.currency'))
     setValue('sellAsset.currency', asset)
-    await getBestSwapper()
+    await getBestSwapper({ sellAsset, buyAsset })
     getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset)
     history.push('/trade/input')
   }
@@ -34,7 +34,7 @@ export const TradeRoutes = () => {
     const buyAsset = getValues('buyAsset')
     if (asset === sellAsset.currency) setValue('sellAsset.currency', getValues('buyAsset.currency'))
     setValue('buyAsset.currency', asset)
-    await getBestSwapper()
+    await getBestSwapper({ sellAsset, buyAsset })
     getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset)
     history.push('/trade/input')
   }

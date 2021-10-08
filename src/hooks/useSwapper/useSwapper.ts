@@ -16,12 +16,12 @@ export enum FetchActions {
   FIAT = 'FIAT'
 }
 
-export const useSwapper = ({
-  sellAsset,
-  buyAsset,
-  quote: previousQuote,
-  setValue
-}: TradeState & { setValue: any }) => {
+type UseSwapper = {
+  quote: Quote
+  setValue: any
+}
+
+export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const adapterManager = useChainAdapters()
@@ -142,7 +142,7 @@ export const useSwapper = ({
     })
   }
 
-  const getBestSwapper = async () => {
+  const getBestSwapper = async ({ sellAsset, buyAsset }: TradeState) => {
     if (!sellAsset.currency || !buyAsset.currency || !swapperManager) return
     const input = {
       sellAsset: sellAsset.currency,

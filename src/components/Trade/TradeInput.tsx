@@ -48,7 +48,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useLocaleFormatter({ fiatType: 'USD' })
   const { getCryptoQuote, getFiatQuote } = useSwapper({
     setValue,
-    ...(watch() as TradeState)
+    ...(watch() as TradeState) // TODO: send it correct args
   })
   const action = getValues('action')
   const quote = getValues('quote')

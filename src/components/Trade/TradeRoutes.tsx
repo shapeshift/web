@@ -1,6 +1,8 @@
-import { Asset, Quote } from '@shapeshiftoss/types'
+import { Asset, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { AnimatePresence } from 'framer-motion'
 import { useSwapper } from 'hooks/useSwapper/useSwapper'
+import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAsset } from './SelectAsset'
@@ -14,10 +16,34 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
   const { getValues, setValue, watch } = useFormContext()
-  const { getCryptoQuote, getBestSwapper } = useSwapper({
+  const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper({
     setValue,
     ...(watch() as TradeState)
   })
+
+  const assetService = useAssets()
+
+  const setDefaultAssets = async () => {
+    try {
+      const defaultPair = getDefaultPair()
+      console.log('default', defaultPair)
+      const data = assetService.byNetwork(NetworkTypes.MAINNET)
+      const sellAsset = data.find(asset => defaultPair[0]?.symbol === asset.symbol)
+      const buyAsset = data.find(asset => defaultPair[1]?.symbol === asset.symbol)
+      console.log('sellAsset', sellAsset)
+      console.log('buyAsset', buyAsset)
+      setValue('sellAsset.currency', sellAsset)
+      setValue('buyAsset.currency', buyAsset)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+  console.log('asdfs', watch())
+
+  useEffect(() => {
+    setDefaultAssets()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSellClick = async (asset: Asset) => {
     const buyAsset = getValues('buyAsset')

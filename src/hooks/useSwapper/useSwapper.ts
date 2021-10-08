@@ -17,25 +17,23 @@ export enum FetchActions {
 }
 
 type UseSwapper = {
-  quote: Quote
+  quote?: Quote
   setValue: any
 }
 
 export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
-  const [swapperManager, setSwapperManager] = useState<SwapperManager>()
-  const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const adapterManager = useChainAdapters()
-  const [debounceObj, setDebounceObj] = useState<any>()
-
-  useEffect(() => {
+  const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
     manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3: web3Instance, adapterManager }))
-    setSwapperManager(manager)
-  }, [adapterManager])
+    return manager
+  })
+  const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
+  const [debounceObj, setDebounceObj] = useState<any>()
 
   const getDefaultPair = () => {
-    const swapper = swapperManager?.getSwapper(bestSwapperType)
-    return swapper?.getDefaultPair()
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    return swapper.getDefaultPair()
   }
 
   const getQuote = async (

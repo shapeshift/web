@@ -11,27 +11,17 @@ export type TradeAsset = {
 }
 
 export type TradeState = {
-  fiatAmount?: string
   sellAsset: TradeAsset
   buyAsset: TradeAsset
-  quote: Quote
+  fiatAmount?: string
+  quote?: Quote
 }
 
 export const Trade = () => {
   const methods = useForm<TradeState>({
     mode: 'onChange',
     defaultValues: {
-      fiatAmount: undefined,
-      sellAsset: {
-        currency: undefined,
-        amount: undefined,
-        fiatRate: undefined
-      },
-      buyAsset: {
-        currency: undefined,
-        amount: undefined,
-        fiatRate: undefined
-      }
+      fiatAmount: undefined
     }
   })
   return (

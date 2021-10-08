@@ -72,18 +72,15 @@ export const useSwapper = ({
         }
         const sellAssetFiatRate = bn(sellAssetUsdRate).times(1) // TODO: Implement fiatPerUsd here
         const buyAssetFiatRate = bn(buyAssetUsdRate).times(1) // TODO: Implement fiatPerUsd here
-        const marketRate = bn(sellAssetFiatRate).dividedBy(buyAssetFiatRate)
         const rates = {
           sellAssetFiatRate,
-          buyAssetFiatRate,
-          marketRate
+          buyAssetFiatRate
         }
-        console.log('marketRate', marketRate.toString())
         setValue('quote', quote)
         setValue('rates', rates)
         onFinish(quote)
       } catch (e) {
-        console.error('e', e)
+        console.error('error', e)
       }
     }, debounceTime)
     quoteDebounce()
@@ -91,35 +88,17 @@ export const useSwapper = ({
   }
 
   const getBuyAssetQuote = async () => {
-    console.log('getBuyAssetQuote')
     if (!buyAsset.currency) return
     getQuote(
       { buyAmount: toBaseUnit(buyAsset?.amount || '0', buyAsset.currency.precision) },
       quote => {
         const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        if (sellAmount) {
+        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+        if (sellAmount && buyAmount === buyAsset.amount) {
           const fiatAmount = bn(sellAmount)
             .times(quote?.rate || 0)
             .toFixed(2)
           setValue('sellAsset.amount', sellAmount)
-          fiatAmount && setValue('fiatAmount', fiatAmount)
-        }
-      }
-    )
-  }
-
-  const getSellAssetQuote = async () => {
-    console.log('getSellAssetQuote')
-    if (!sellAsset.currency) return
-    getQuote(
-      { sellAmount: toBaseUnit(sellAsset?.amount || '0', sellAsset.currency.precision) },
-      quote => {
-        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        if (buyAmount) {
-          const fiatAmount = bn(sellAmount)
-            .times(quote?.rate || 0)
-            .toFixed(2)
           setValue('buyAsset.amount', buyAmount)
           fiatAmount && setValue('fiatAmount', fiatAmount)
         }
@@ -127,8 +106,26 @@ export const useSwapper = ({
     )
   }
 
+  const getSellAssetQuote = async () => {
+    if (!sellAsset.currency) return
+    getQuote(
+      { sellAmount: toBaseUnit(sellAsset?.amount || '0', sellAsset.currency.precision) },
+      quote => {
+        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+        const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+        if (buyAmount && sellAmount === sellAsset.amount) {
+          const fiatAmount = bn(sellAmount)
+            .times(quote?.rate || 0)
+            .toFixed(2)
+          setValue('buyAsset.amount', buyAmount)
+          setValue('sellAsset.amount', sellAmount)
+          fiatAmount && setValue('fiatAmount', fiatAmount)
+        }
+      }
+    )
+  }
+
   const getFiatQuote = async (fiatAmount: string) => {
-    console.log('getFiatQuote', fiatAmount)
     const rate = previousQuote?.rate
     if (!fiatAmount || !rate) return
     const sellAmount = toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)

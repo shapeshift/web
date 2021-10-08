@@ -1,4 +1,5 @@
-name: Lint PR Title
+name: Commitlint, Lint, Type Check, Test & Build
+
 on:
   pull_request:
     branches:
@@ -6,7 +7,7 @@ on:
       - develop
 
 jobs:
-  commitlint:
+  commitlint-lint-typecheck-test-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,3 +26,11 @@ jobs:
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$TITLE" | npx commitlint
+      - name: Lint
+        run: yarn lint
+      - name: Type check
+        run: yarn type-check
+      - name: Test
+        run: yarn test
+      - name: Build
+        run: yarn build

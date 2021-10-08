@@ -74,7 +74,7 @@ export const mockBaseAssets: BaseAsset[] = [
   },
   {
     chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.MAINNET, // <---------- mainnet
+    network: NetworkTypes.MAINNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,
@@ -89,7 +89,7 @@ export const mockBaseAssets: BaseAsset[] = [
   },
   {
     chain: ChainTypes.Bitcoin,
-    network: NetworkTypes.TESTNET, // <---------- testnet
+    network: NetworkTypes.TESTNET,
     symbol: 'BTC',
     name: 'Bitcoin',
     precision: 8,

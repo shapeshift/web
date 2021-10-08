@@ -6,8 +6,7 @@ import {
   FormErrorMessage,
   IconButton,
   Input,
-  InputProps,
-  Text
+  InputProps
 } from '@chakra-ui/react'
 import { Controller, useFormContext } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
@@ -19,7 +18,7 @@ import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { FetchActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
 import { TradeState } from './Trade'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
@@ -53,8 +52,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   })
   const action = getValues('action')
   const quote = getValues('quote')
-  const buyAsset = getValues('buyAsset.currency')
-  const sellAsset = getValues('sellAsset.currency')
+  const buyAsset = getValues('buyAsset')
+  const sellAsset = getValues('sellAsset')
 
   const onSubmit = () => {
     history.push('/trade/confirm')
@@ -79,7 +78,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   onChange(e.value)
                   if (e.value !== value) {
                     setValue('action', FetchActions.FIAT)
-                    getFiatQuote(e.value)
+                    getFiatQuote(e.value, sellAsset, buyAsset)
                   }
                 }}
               />
@@ -101,12 +100,14 @@ export const TradeInput = ({ history }: RouterProps) => {
             fieldName='sellAsset.amount'
             rules={{ required: true }}
             disabled={!!action && action !== FetchActions.SELL}
-            onInputChange={getSellAssetQuote}
+            onInputChange={(value: string) => {
+              getSellAssetQuote(value, sellAsset, buyAsset)
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
-                logo={sellAsset?.icon}
-                symbol={sellAsset?.symbol}
+                logo={sellAsset.currency?.icon}
+                symbol={sellAsset.currency?.symbol}
               />
             }
             inputRightElement={
@@ -133,23 +134,27 @@ export const TradeInput = ({ history }: RouterProps) => {
         >
           <IconButton
             onClick={() => {
-              const sellAsset = getValues('sellAsset')
-              const buyAsset = getValues('buyAsset')
-              setValue('buyAsset', sellAsset)
-              setValue('sellAsset', buyAsset)
-              getSellAssetQuote()
+              const currentSellAsset = getValues('sellAsset')
+              const currentBuyAsset = getValues('buyAsset')
+              setValue('sellAsset', currentBuyAsset)
+              setValue('buyAsset', currentSellAsset)
+              getSellAssetQuote(currentBuyAsset.amount, currentBuyAsset, currentSellAsset)
             }}
             aria-label='Switch'
             isRound
             icon={<ArrowDownIcon />}
           />
           <Box display='flex' alignItems='center' color='gray.500'>
-            {quote && (
-              <RawText fontSize='sm'>{`1 ${sellAsset.symbol} = ${firstNonZeroDecimal(
-                bn(quote.rate)
-              )} ${buyAsset.symbol}`}</RawText>
+            {!quote || action ? (
+              <Text fontSize='sm' translation='trade.searchingRate' />
+            ) : (
+              <>
+                <RawText fontSize='sm'>{`1 ${sellAsset.currency?.symbol} = ${firstNonZeroDecimal(
+                  bn(quote.rate)
+                )} ${buyAsset.currency?.symbol}`}</RawText>
+                <HelperTooltip label='The price is ' />
+              </>
             )}
-            <HelperTooltip label='The price is ' />
           </Box>
         </FormControl>
         <FormControl mb={6}>
@@ -158,12 +163,14 @@ export const TradeInput = ({ history }: RouterProps) => {
             fieldName='buyAsset.amount'
             rules={{ required: true }}
             disabled={!!action && action !== FetchActions.BUY}
-            onInputChange={getBuyAssetQuote}
+            onInputChange={(value: string) => {
+              getBuyAssetQuote(value, sellAsset, buyAsset)
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}
-                logo={buyAsset?.icon}
-                symbol={buyAsset?.symbol}
+                logo={buyAsset.currency?.icon}
+                symbol={buyAsset.currency?.symbol}
               />
             }
           />

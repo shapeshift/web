@@ -4,18 +4,16 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
 import { entries, TradeRoutes } from './TradeRoutes'
 
+export type TradeAsset = {
+  currency: Asset
+  amount?: string
+  fiatRate?: string
+}
+
 export type TradeState = {
   fiatAmount?: string
-  sellAsset: {
-    currency: Asset
-    amount?: string
-    fiatRate?: string
-  }
-  buyAsset: {
-    currency: Asset
-    amount?: string
-    fiatRate?: string
-  }
+  sellAsset: TradeAsset
+  buyAsset: TradeAsset
   quote: Quote
 }
 

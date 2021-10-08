@@ -14,7 +14,6 @@ export const useSwapper = ({
   sellAsset,
   buyAsset,
   quote: previousQuote,
-  rates,
   setValue
 }: TradeState & { setValue: any }) => {
   const [swapperManager, setSwapperManager] = useState<SwapperManager>()
@@ -82,6 +81,8 @@ export const useSwapper = ({
         }
         setValue('quote', quote)
         setValue('rates', rates)
+        setValue('sellAsset.fiatRate', sellAssetFiatRate)
+        setValue('buyAsset.fiatRate', buyAssetFiatRate)
         onFinish(quote)
         setValue('action', undefined)
       } catch (e) {
@@ -101,7 +102,7 @@ export const useSwapper = ({
         const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
         if (sellAmount && buyAmount === buyAsset.amount) {
           const fiatAmount = bn(sellAmount)
-            .times(rates.sellAssetFiatRate || 0)
+            .times(sellAsset.fiatRate || 0)
             .toFixed(2)
           setValue('sellAsset.amount', sellAmount)
           setValue('buyAsset.amount', buyAmount)
@@ -120,7 +121,7 @@ export const useSwapper = ({
         const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
         if (buyAmount && sellAmount === sellAsset.amount) {
           const fiatAmount = bn(sellAmount)
-            .times(rates.sellAssetFiatRate || 0)
+            .times(sellAsset.fiatRate || 0)
             .toFixed(2)
           setValue('buyAsset.amount', buyAmount)
           setValue('sellAsset.amount', sellAmount)

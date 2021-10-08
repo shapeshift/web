@@ -9,10 +9,12 @@ export type TradeState = {
   sellAsset: {
     currency: Asset
     amount?: string
+    fiatRate?: string
   }
   buyAsset: {
     currency: Asset
     amount?: string
+    fiatRate?: string
   }
   quote: Quote
 }
@@ -24,11 +26,13 @@ export const Trade = () => {
       fiatAmount: undefined,
       sellAsset: {
         currency: undefined,
-        amount: undefined
+        amount: undefined,
+        fiatRate: undefined
       },
       buyAsset: {
         currency: undefined,
-        amount: undefined
+        amount: undefined,
+        fiatRate: undefined
       }
     }
   })

@@ -14,7 +14,7 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
   const { getValues, setValue, watch } = useFormContext()
-  const { getBuyAssetQuote, getSellAssetQuote, getBestSwapper } = useSwapper({
+  const { getCryptoQuote, getBestSwapper } = useSwapper({
     setValue,
     ...(watch() as TradeState)
   })
@@ -25,7 +25,7 @@ export const TradeRoutes = () => {
     if (asset === buyAsset.currency) setValue('buyAsset.currency', getValues('sellAsset.currency'))
     setValue('sellAsset.currency', asset)
     await getBestSwapper()
-    getSellAssetQuote(sellAsset.amount, sellAsset, buyAsset)
+    getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset)
     history.push('/trade/input')
   }
 
@@ -35,7 +35,7 @@ export const TradeRoutes = () => {
     if (asset === sellAsset.currency) setValue('sellAsset.currency', getValues('buyAsset.currency'))
     setValue('buyAsset.currency', asset)
     await getBestSwapper()
-    getBuyAssetQuote(buyAsset.amount, sellAsset, buyAsset)
+    getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset)
     history.push('/trade/input')
   }
 

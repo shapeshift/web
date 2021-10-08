@@ -46,7 +46,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const { getBuyAssetQuote, getSellAssetQuote, getFiatQuote } = useSwapper({
+  const { getCryptoQuote, getFiatQuote } = useSwapper({
     setValue,
     ...(watch() as TradeState)
   })
@@ -101,7 +101,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             rules={{ required: true }}
             disabled={!!action && action !== FetchActions.SELL}
             onInputChange={(value: string) => {
-              getSellAssetQuote(value, sellAsset, buyAsset)
+              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton
@@ -138,7 +138,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               const currentBuyAsset = getValues('buyAsset')
               setValue('sellAsset', currentBuyAsset)
               setValue('buyAsset', currentSellAsset)
-              getSellAssetQuote(currentBuyAsset.amount, currentBuyAsset, currentSellAsset)
+              getCryptoQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
             }}
             aria-label='Switch'
             isRound
@@ -164,7 +164,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             rules={{ required: true }}
             disabled={!!action && action !== FetchActions.BUY}
             onInputChange={(value: string) => {
-              getBuyAssetQuote(value, sellAsset, buyAsset)
+              getCryptoQuote({ buyAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton

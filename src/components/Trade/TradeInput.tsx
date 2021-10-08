@@ -22,7 +22,6 @@ import { TradeState } from './Trade'
 import { RawText } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import { useState } from 'react'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -80,7 +79,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 thousandSeparator={localeParts.group}
                 decimalSeparator={localeParts.decimal}
                 prefix={localeParts.prefix}
-                suffix={localeParts.action}
+                suffix={localeParts.postfix}
                 disabled={!!action && action !== FetchActions.FIAT}
                 value={value}
                 customInput={FiatInput}
@@ -143,7 +142,17 @@ export const TradeInput = ({ history }: RouterProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <IconButton aria-label='Switch' isRound icon={<ArrowDownIcon />} />
+          <IconButton
+            onClick={() => {
+              const sellAsset = getValues('sellAsset')
+              const buyAsset = getValues('buyAsset')
+              setValue('buyAsset', sellAsset)
+              setValue('sellAsset', buyAsset)
+            }}
+            aria-label='Switch'
+            isRound
+            icon={<ArrowDownIcon />}
+          />
           <Box display='flex' alignItems='center' color='gray.500'>
             {quote && (
               <RawText fontSize='sm'>{`1 ${sellAsset.symbol} = ${firstNonZeroDecimal(

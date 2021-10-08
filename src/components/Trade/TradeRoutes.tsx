@@ -13,13 +13,15 @@ export const entries = ['/send/details', '/send/confirm']
 export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
-  const { setValue, watch } = useFormContext()
+  const { getValues, setValue, watch } = useFormContext()
   const { getBuyAssetQuote, getSellAssetQuote, getBestSwapper } = useSwapper({
     setValue,
-    ...watch() as TradeState
+    ...(watch() as TradeState)
   })
 
   const handleSellClick = async (asset: Asset) => {
+    const buyAsset = getValues('buyAsset.currency')
+    if (asset === buyAsset) setValue('buyAsset.currency', getValues('sellAsset.currency'))
     setValue('sellAsset.currency', asset)
     await getBestSwapper()
     getSellAssetQuote()
@@ -27,6 +29,8 @@ export const TradeRoutes = () => {
   }
 
   const handleBuyClick = async (asset: Asset) => {
+    const sellAsset = getValues('sellAsset.currency')
+    if (asset === sellAsset) setValue('sellAsset.currency', getValues('buyAsset.currency'))
     setValue('buyAsset.currency', asset)
     await getBestSwapper()
     getBuyAssetQuote()

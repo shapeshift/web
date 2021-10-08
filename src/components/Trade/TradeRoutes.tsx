@@ -26,19 +26,15 @@ export const TradeRoutes = () => {
   const setDefaultAssets = async () => {
     try {
       const defaultPair = getDefaultPair()
-      console.log('default', defaultPair)
       const data = assetService.byNetwork(NetworkTypes.MAINNET)
       const sellAsset = data.find(asset => defaultPair[0]?.symbol === asset.symbol)
       const buyAsset = data.find(asset => defaultPair[1]?.symbol === asset.symbol)
-      console.log('sellAsset', sellAsset)
-      console.log('buyAsset', buyAsset)
       setValue('sellAsset.currency', sellAsset)
       setValue('buyAsset.currency', buyAsset)
     } catch (e) {
       console.warn(e)
     }
   }
-  console.log('asdfs', watch())
 
   useEffect(() => {
     setDefaultAssets()

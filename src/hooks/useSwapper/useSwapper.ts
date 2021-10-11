@@ -13,8 +13,7 @@ const debounceTime = 1000
 export enum TradeActions {
   BUY = 'BUY',
   SELL = 'SELL',
-  FIAT = 'FIAT',
-  NONE = 'NONE'
+  FIAT = 'FIAT'
 }
 
 type UseSwapper = {

@@ -195,7 +195,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme='blue'
-          isDisabled={!isDirty || !isValid}
+          isDisabled={!isDirty || !isValid || !!action}
         >
           Preview Trade
         </Button>

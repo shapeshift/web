@@ -78,10 +78,10 @@ export const TradeInput = ({ history }: RouterProps) => {
                 onValueChange={e => {
                   onChange(e.value)
                   if (e.value !== value) {
-                    console.log('e0', e.value)
                     const action = !!e.value ? TradeActions.FIAT : undefined
-                    action ? setValue('action', action) : reset()
-                    console.log('action', action)
+                    if (action) {
+                      setValue('action', action)
+                    } else reset()
                     getFiatQuote(e.value, sellAsset, buyAsset, action)
                   }
                 }}
@@ -178,7 +178,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             onInputChange={(value: string) => {
               const action = value ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
-              getCryptoQuote({ buyAmount: value }, sellAsset, buyAsset, action)
+              const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
+              getCryptoQuote(amount, sellAsset, buyAsset, action)
             }}
             inputLeftElement={
               <TokenButton

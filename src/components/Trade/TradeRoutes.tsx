@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'
 import { useAssets } from 'context/AssetProvider/AssetProvider'
-import { useSwapper } from 'hooks/useSwapper/useSwapper'
+import { FetchActions, useSwapper } from 'hooks/useSwapper/useSwapper'
 
 import { SelectAsset } from './SelectAsset'
 import { TradeState } from './Trade'
@@ -32,6 +32,7 @@ export const TradeRoutes = () => {
       const buyAsset = data.find(asset => defaultPair[1]?.symbol === asset.symbol)
       setValue('sellAsset.currency', sellAsset)
       setValue('buyAsset.currency', buyAsset)
+      getCryptoQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
     } catch (e) {
       console.warn(e)
     }
@@ -47,6 +48,7 @@ export const TradeRoutes = () => {
     const sellAsset = getValues('sellAsset')
     if (asset === buyAsset.currency) setValue('buyAsset.currency', getValues('sellAsset.currency'))
     setValue('sellAsset.currency', asset)
+    setValue('actions', FetchActions.SELL)
     await getBestSwapper({ sellAsset, buyAsset })
     getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset)
     history.push('/trade/input')
@@ -57,6 +59,7 @@ export const TradeRoutes = () => {
     const buyAsset = getValues('buyAsset')
     if (asset === sellAsset.currency) setValue('sellAsset.currency', getValues('buyAsset.currency'))
     setValue('buyAsset.currency', asset)
+    setValue('actions', FetchActions.BUY)
     await getBestSwapper({ sellAsset, buyAsset })
     getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset)
     history.push('/trade/input')

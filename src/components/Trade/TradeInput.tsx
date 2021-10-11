@@ -55,7 +55,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const quote = getValues('quote')
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
-
+  console.log('action', action)
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
@@ -100,8 +100,9 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            disabled={!!action && action !== FetchActions.SELL}
+            disabled={action && action !== FetchActions.SELL}
             onInputChange={(value: string) => {
+              setValue('action', FetchActions.SELL)
               getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={
@@ -139,6 +140,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               const currentBuyAsset = getValues('buyAsset')
               setValue('sellAsset', currentBuyAsset)
               setValue('buyAsset', currentSellAsset)
+              setValue('action', FetchActions.SELL)
               getCryptoQuote(
                 { sellAmount: currentBuyAsset.amount },
                 currentBuyAsset,
@@ -167,8 +169,10 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            disabled={!!action && action !== FetchActions.BUY}
+            disabled={action && action !== FetchActions.BUY}
             onInputChange={(value: string) => {
+              console.log('eeey')
+              setValue('action', FetchActions.BUY)
               getCryptoQuote({ buyAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={

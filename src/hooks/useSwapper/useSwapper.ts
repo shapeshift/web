@@ -106,12 +106,10 @@ export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
     buyAsset: TradeAsset
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    console.log('eeyy')
     const key = Object.keys(amount)[0]
     const value = Object.values(amount)[0]
     const isSellQuote = key === 'sellAmount'
     const precision = isSellQuote ? sellAsset.currency.precision : buyAsset.currency.precision
-    setValue('action', isSellQuote ? FetchActions.SELL : FetchActions.BUY)
     getQuote(
       { [key]: toBaseUnit(value || '0', precision) },
       sellAsset.currency,
@@ -122,8 +120,10 @@ export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
         const fiatAmount = bn(sellAmount)
           .times(sellAsset.fiatRate || 0)
           .toFixed(2)
-        setValue('buyAsset.amount', buyAmount)
-        setValue('sellAsset.amount', sellAmount)
+        isSellQuote
+          ? setValue('buyAsset.amount', buyAmount)
+          : setValue('sellAsset.amount', sellAmount)
+
         fiatAmount && setValue('fiatAmount', fiatAmount)
       }
     )
@@ -134,10 +134,11 @@ export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
     if (!fiatAmount || !rate) return
     const sellAmount = toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)
     getQuote({ sellAmount }, sellAsset.currency, buyAsset.currency, quote => {
-      if (quote?.buyAmount && quote?.sellAmount) {
-        setValue('buyAsset.amount', fromBaseUnit(quote.buyAmount, buyAsset.currency.precision))
-        setValue('sellAsset.amount', fromBaseUnit(quote.sellAmount, sellAsset.currency.precision))
-      }
+      setValue('buyAsset.amount', fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision))
+      setValue(
+        'sellAsset.amount',
+        fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+      )
     })
   }
 

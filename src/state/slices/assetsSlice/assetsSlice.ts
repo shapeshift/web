@@ -19,7 +19,7 @@ export const fetchAsset = createAsyncThunk(
       if (!service) service = new AssetService('')
       !service.isInitialized && (await service.initialize())
 
-      const assetData: Asset | undefined = service.byTokenId({ chain, network, tokenId })
+      const assetData = service.byTokenId({ chain, network, tokenId })
       const description = await service.description(chain, tokenId)
 
       if (!assetData) return {}

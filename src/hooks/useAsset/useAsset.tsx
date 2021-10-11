@@ -3,7 +3,7 @@ import { Asset, ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/type
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
-import { fetchAsset } from 'state/slices/assetsSlice'
+import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 
 export type AssetMarketData = Asset & MarketData & { description?: string }
 

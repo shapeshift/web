@@ -2,7 +2,7 @@ import { AssetService } from '@shapeshiftoss/asset-service'
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { store } from 'state/store'
 
-import { fetchAsset } from './assetsSlice'
+import { fetchAsset } from '../assetsSlice'
 
 jest.mock('@shapeshiftoss/asset-service', () => ({ AssetService: jest.fn() }))
 

@@ -11,8 +11,8 @@ import { ReduxState } from 'state/reducer'
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
 export interface MatchParams {
-  network: ChainTypes
-  address: string
+  chain: ChainTypes
+  tokenId: string
 }
 
 const initAsset = {
@@ -39,19 +39,19 @@ const initAsset = {
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
-  let { network, address } = useParams<MatchParams>()
-  const getAssetData = useGetAssetData({ chain: network, tokenId: address })
-  const asset = useSelector((state: ReduxState) => state.assets[address ?? network])
+  let { chain, tokenId } = useParams<MatchParams>()
+  const getAssetData = useGetAssetData({ chain, tokenId })
+  const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
 
   const getPrice = useCallback(async () => {
-    if (ALLOWED_CHAINS[network]) {
+    if (ALLOWED_CHAINS[chain]) {
       const market = await getAssetData({
-        chain: network,
-        tokenId: address
+        chain,
+        tokenId
       })
       if (market) setMarketData(market)
     }
-  }, [address, getAssetData, network]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tokenId, getAssetData, chain]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     ;(async () => {
@@ -61,10 +61,10 @@ export const Asset = () => {
         setIsLoaded(true)
       }, 750)
     })()
-  }, [network, address]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [chain, tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Page style={{ flex: 1 }} key={address}>
+    <Page style={{ flex: 1 }} key={tokenId}>
       <Flex role='main' flex={1} height='100%'>
         <AssetDetails
           asset={asset && marketData ? { ...asset, ...marketData } : initAsset}

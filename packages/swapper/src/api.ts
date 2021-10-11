@@ -53,7 +53,7 @@ export interface Swapper {
   /**
    * Get the default pair of the swapper
    */
-  getDefaultPair(): Partial<Asset>[]
+  getDefaultPair(): Pick<Asset, 'chain' | 'symbol' | 'name'>[]
 
   /**
    * Get the minimum and maximum trade value of the sellAsset and buyAsset

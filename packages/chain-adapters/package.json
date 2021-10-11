@@ -32,7 +32,7 @@
     "bignumber.js": "^9.0.1",
     "ethers": "^5.4.4",
     "multicoin-address-validator": "^0.5.2",
-    "web3-utils": "^1.5.1"
+    "web3-utils": "^1.5.2"
   },
   "gitHead": "0004bdf69eb56b7ce358bb8e1f995ddd5cbb87ee",
   "devDependencies": {

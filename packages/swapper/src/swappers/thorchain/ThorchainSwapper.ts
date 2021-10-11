@@ -46,7 +46,7 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: executeQuote unimplemented')
   }
 
-  getDefaultPair(): Partial<Asset>[] {
+  getDefaultPair(): Pick<Asset, 'chain' | 'symbol' | 'name'>[] {
     throw new Error('ThorchainSwapper: getDefaultPair unimplemented')
   }
 

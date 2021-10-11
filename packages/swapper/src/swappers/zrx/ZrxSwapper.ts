@@ -70,7 +70,7 @@ export class ZrxSwapper implements Swapper {
     return availableAssets.length === 2
   }
 
-  getDefaultPair(): Partial<Asset>[] {
+  getDefaultPair(): Pick<Asset, 'chain' | 'symbol' | 'name'>[] {
     const ETH = { name: 'Ethereum', chain: ChainTypes.Ethereum, symbol: 'ETH' }
     const USDC = { name: 'USDC', chain: ChainTypes.Ethereum, symbol: 'USDC' }
     return [ETH, USDC]

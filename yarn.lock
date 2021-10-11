@@ -3280,21 +3280,7 @@
     "@shapeshiftoss/types" "^1.0.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/chain-adapters@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.0.0.tgz#59a5f006ced13071294a8dfce534f86d43b184a8"
-  integrity sha512-zAhE9c+fU9S6y2EkbBgHp3wyciB5yun0HvRpMi48PSIaYnfszcthHKnSZoQ7JbyvHEAe3BdXvMwhki68hMizTQ==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.16.3"
-    "@shapeshiftoss/hdwallet-native" "^1.15.5-alpha.1"
-    "@shapeshiftoss/types" "^1.0.0"
-    axios "^0.21.1"
-    bignumber.js "^9.0.1"
-    ethers "^5.4.4"
-    multicoin-address-validator "^0.5.2"
-    web3-utils "^1.5.1"
-
-"@shapeshiftoss/chain-adapters@^1.0.0":
+"@shapeshiftoss/chain-adapters@1.0.1", "@shapeshiftoss/chain-adapters@^1.0.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.0.1.tgz#6344efef2d45d92ecbad6cf8320e8540b3cf0f0e"
   integrity sha512-tVkiJL7KXjU+nBCPv4b8InQN7LP/G628Awu1AiEqkfZRbIE5+lhKOe2XMRkAlifvZy4EcRU+ma4gyANbQyHFxw==
@@ -3454,7 +3440,7 @@
     retry-axios "^2.6.0"
     web3 "^1.5.2"
 
-"@shapeshiftoss/types@^1.0.0", "@shapeshiftoss/types@^1.0.1":
+"@shapeshiftoss/types@^1.0.0", "@shapeshiftoss/types@^1.0.1", "@shapeshiftoss/types@^1.1.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.0.1.tgz#ab2de8f07e01d7801f0eb8c9d9bd3551076c8147"
   integrity sha512-cTO9nAvaGTR9PZqqLeLyQtz5M+MEkUEERAVjepNvC/WpAVenidl5DWNViITX1cIB9ihU0+2NHIHm0XgoyD6Emw==

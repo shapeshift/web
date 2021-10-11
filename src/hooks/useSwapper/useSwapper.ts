@@ -18,10 +18,11 @@ export enum FetchActions {
 
 type UseSwapper = {
   quote?: Quote
+  action?: FetchActions
   setValue: any
 }
 
-export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
+export const useSwapper = ({ quote: previousQuote, action, setValue }: UseSwapper) => {
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -82,7 +83,7 @@ export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
         setValue('quote', quote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
-        onFinish(quote)
+        action && onFinish(quote)
       } catch (e) {
         console.log('error', e)
       } finally {

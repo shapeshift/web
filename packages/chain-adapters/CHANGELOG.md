@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.0.0...@shapeshiftoss/chain-adapters-v1.0.1) (2021-10-11)
+
+
+### Bug Fixes
+
+* update vulnerable axios version ([#102](https://github.com/shapeshift/lib/issues/102)) ([04f132d](https://github.com/shapeshift/lib/commit/04f132d75a5f3f19068857bc32e77830a7f86f6e))
+
 # @shapeshiftoss/chain-adapters-v1.0.0 (2021-10-07)
 
 

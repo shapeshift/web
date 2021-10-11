@@ -28,7 +28,7 @@
     "@shapeshiftoss/hdwallet-core": "^1.16.3",
     "@shapeshiftoss/hdwallet-native": "^1.15.5-alpha.1",
     "@shapeshiftoss/types": "^1.0.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bignumber.js": "^9.0.1",
     "ethers": "^5.4.4",
     "multicoin-address-validator": "^0.5.2",

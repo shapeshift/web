@@ -21,7 +21,6 @@ import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
 import { TradeActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
-import { TradeState } from './Trade'
 
 const FiatInput = (props: InputProps) => (
   <Input

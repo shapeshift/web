@@ -1,7 +1,7 @@
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'
 import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
@@ -17,12 +17,7 @@ export const TradeRoutes = () => {
   const location = useLocation()
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState>()
-  const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
-  const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper({
-    setValue,
-    quote,
-    trade
-  })
+  const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper()
 
   const assetService = useAssets()
 

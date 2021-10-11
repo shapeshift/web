@@ -27,7 +27,7 @@ type GetQuote = {
 
 export const useSwapper = () => {
   const { setValue } = useFormContext()
-  const [ quote, trade ] = useWatch({ name: ['quote', 'trade'] })
+  const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()

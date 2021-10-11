@@ -8,7 +8,7 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -41,18 +41,18 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    watch,
     formState: { errors, isDirty, isValid }
-  } = useFormContext()
+  } = useFormContext<TradeState>()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
   const { getCryptoQuote, getFiatQuote, reset } = useSwapper({
     setValue,
-    ...(watch() as TradeState) // TODO: send it correct args
+    quote,
+    trade
   })
   const action = getValues('action')
-  const quote = getValues('quote')
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.0.0...@shapeshiftoss/swapper-v1.1.0) (2021-10-11)
+
+
+### Features
+
+* add buy amount ([#108](https://github.com/shapeshift/lib/issues/108)) ([c7037df](https://github.com/shapeshift/lib/commit/c7037dfb64c599106ba7d10e8073bb60a556cf4f))
+
 # @shapeshiftoss/swapper-v1.0.0 (2021-10-07)
 
 

@@ -1,4 +1,4 @@
-import { BalanceResponse } from '@shapeshiftoss/chain-adapters'
+import { BalanceResponse, NetworkTypes } from '@shapeshiftoss/types'
 
 import { flattenTokenBalances } from './useFlattenedBalances'
 
@@ -7,7 +7,7 @@ jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
 const balances: Record<string, BalanceResponse> = {
   ethereum: {
-    network: 'ethereum',
+    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     address: '0xMyWalletAddress',
     balance: '50000000000000000',
@@ -33,7 +33,7 @@ describe('flattenTokenBalances', () => {
     const result = flattenTokenBalances(balances)
     const expected = {
       ethereum: {
-        network: 'ethereum',
+        network: NetworkTypes.MAINNET,
         symbol: 'ETH',
         address: '0xMyWalletAddress',
         balance: '50000000000000000',
@@ -69,7 +69,7 @@ describe('flattenTokenBalances', () => {
     const result = flattenTokenBalances({ ethereum: { ...balances.ethereum, tokens: [] } })
     const expected = {
       ethereum: {
-        network: 'ethereum',
+        network: NetworkTypes.MAINNET,
         symbol: 'ETH',
         address: '0xMyWalletAddress',
         balance: '50000000000000000',

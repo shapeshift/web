@@ -178,26 +178,6 @@ describe('useLocaleFormatter', () => {
         'BHD 0.00000123',
         '<BHD 0.000001'
       ]
-    ],
-    [
-      'pl-PL',
-      FiatTypeEnum.USD,
-      [
-        '123,45 USD', // 0
-        '1 234,45 USD', // 1 polyfill adds the separator here while node icu doesn't
-        '123 456 USD', // 2
-        '123 456 USD', // 3
-        '123,45 mln USD', // 4
-        '123,45 mld USD', // 5
-        '123 456 789,45 USD', // 6
-        '0,123 USD', // 7
-        '0,0123 USD', // 8
-        '0,00123 USD', // 9
-        '0,000123 USD', // 10
-        '0,0000123 USD', // 12
-        '0,00000123 USD', // 13
-        '<0,000001 USD' // 14
-      ]
     ]
   ]
 

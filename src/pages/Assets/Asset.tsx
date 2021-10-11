@@ -36,8 +36,7 @@ const initAsset = {
 
 const ALLOWED_CHAINS = {
   [ChainTypes.Ethereum]: true,
-  [ChainTypes.Bitcoin]: true,
-  [ChainTypes.Litecoin]: true
+  [ChainTypes.Bitcoin]: true
 }
 
 export const Asset = () => {

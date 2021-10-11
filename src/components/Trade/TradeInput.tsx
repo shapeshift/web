@@ -42,17 +42,12 @@ export const TradeInput = ({ history }: RouterProps) => {
     getValues,
     setValue,
     formState: { errors, isDirty, isValid }
-  } = useFormContext<TradeState>()
+  } = useFormContext()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
-  const { getCryptoQuote, getFiatQuote, reset } = useSwapper({
-    setValue,
-    quote,
-    trade
-  })
-  const action = getValues('action')
+  const [quote, action] = useWatch({ name: ['quote', 'action'] })
+  const { getCryptoQuote, getFiatQuote, reset } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
 

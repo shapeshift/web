@@ -2,7 +2,7 @@ import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useState } from 'react'
-import { UseFormSetValue } from 'react-hook-form'
+import { useFormContext, UseFormSetValue, useWatch } from 'react-hook-form'
 import { MinMax, TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { bn } from 'lib/bignumber/bignumber'
@@ -17,13 +17,6 @@ export enum TradeActions {
   FIAT = 'FIAT'
 }
 
-type UseSwapper = {
-  quote?: Quote
-  action?: TradeActions
-  trade?: MinMax
-  setValue: UseFormSetValue<TradeState>
-}
-
 type GetQuote = {
   amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>
   sellAsset: Asset
@@ -32,7 +25,9 @@ type GetQuote = {
   action?: TradeActions
 }
 
-export const useSwapper = ({ quote: previousQuote, trade, setValue }: UseSwapper) => {
+export const useSwapper = () => {
+  const { setValue } = useFormContext()
+  const [ quote, trade ] = useWatch({ name: ['quote', 'trade'] })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -61,21 +56,21 @@ export const useSwapper = ({ quote: previousQuote, trade, setValue }: UseSwapper
         }
         let minMax = trade
         if (
-          previousQuote?.sellAsset?.symbol !== sellAsset.symbol &&
-          previousQuote?.buyAsset?.symbol !== buyAsset.symbol
+          quote?.sellAsset?.symbol !== sellAsset.symbol &&
+          quote?.buyAsset?.symbol !== buyAsset.symbol
         ) {
           minMax = await swapper.getMinMax(quoteInput)
           minMax && setValue('trade', minMax)
         }
-        const quote = await swapper.getQuote({ ...quoteInput, ...minMax })
-        if (!quote?.success) throw new Error('getQuote - quote not successful')
+        const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
+        if (!newQuote?.success) throw new Error('getQuote - quote not successful')
         const sellAssetUsdRate = await swapper.getUsdRate({
           symbol: sellAsset.symbol,
           tokenId: sellAsset.tokenId
         })
         let buyAssetUsdRate
-        if (quote?.rate) {
-          buyAssetUsdRate = bn(sellAssetUsdRate).dividedBy(quote?.rate).toString()
+        if (newQuote?.rate) {
+          buyAssetUsdRate = bn(sellAssetUsdRate).dividedBy(newQuote?.rate).toString()
         } else {
           buyAssetUsdRate = await swapper.getUsdRate({
             symbol: buyAsset.symbol,
@@ -85,11 +80,11 @@ export const useSwapper = ({ quote: previousQuote, trade, setValue }: UseSwapper
         const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
         const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
 
-        setValue('quote', quote)
+        setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
 
-        if (action) onFinish(quote)
+        if (action) onFinish(newQuote)
         else {
           setValue('sellAsset.amount', '')
           setValue('buyAsset.amount', '')

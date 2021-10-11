@@ -5,12 +5,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
 import { fetchAsset } from 'state/slices/assetsSlice'
 
-export type AssetMarketData = Asset & MarketData & { description: string }
+export type AssetMarketData = Asset & MarketData & { description?: string }
 
 export const ALLOWED_CHAINS = {
   [ChainTypes.Ethereum]: true,
-  [ChainTypes.Bitcoin]: true,
-  [ChainTypes.Litecoin]: true
+  [ChainTypes.Bitcoin]: true
 }
 
 export const useGetAssetData = ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }) => {

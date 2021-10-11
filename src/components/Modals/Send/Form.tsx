@@ -85,7 +85,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
       chain: asset.chain,
       tokenId: asset.tokenId
     })
-
+    if (!assetMarketData) return console.error('Failed to get marketData')
     methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
     methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
     methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })

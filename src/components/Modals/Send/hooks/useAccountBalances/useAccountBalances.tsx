@@ -1,6 +1,6 @@
-import { Asset, BalanceResponse, Token } from '@shapeshiftoss/types'
+import { Asset, BalanceResponse, MarketData, Token } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
-import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type UseAccountBalancesProps = {
@@ -9,7 +9,7 @@ type UseAccountBalancesProps = {
 }
 
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {
-  const [marketData, setMarketData] = useState<AssetMarketData>()
+  const [marketData, setMarketData] = useState<MarketData | null>(null)
   const getAssetData = useGetAssetData({
     chain: asset.chain,
     tokenId: asset.tokenId

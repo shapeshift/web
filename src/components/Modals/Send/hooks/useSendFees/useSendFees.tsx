@@ -28,7 +28,7 @@ export const useSendFees = () => {
           (acc: FeePrice, key: FeeDataKey) => {
             const current = estimatedFees[key]
             const fee = bnOrZero(current.networkFee).div(`1e${asset.precision}`).toPrecision()
-            const amount = bnOrZero(fee).times(bnOrZero(assetData.price)).toPrecision()
+            const amount = bnOrZero(fee).times(bnOrZero(assetData?.price)).toPrecision()
             acc[key] = { ...current, fee, amount }
             return acc
           },

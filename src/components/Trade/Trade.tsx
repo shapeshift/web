@@ -1,4 +1,5 @@
 import { Asset, Quote } from '@shapeshiftoss/types'
+import { TradeActions } from 'hooks/useSwapper/useSwapper'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 
@@ -13,6 +14,7 @@ export type TradeAsset = {
 export type TradeState = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset
+  action?: TradeActions
   fiatAmount?: string
   quote?: Quote
 }
@@ -21,7 +23,7 @@ export const Trade = () => {
   const methods = useForm<TradeState>({
     mode: 'onChange',
     defaultValues: {
-      fiatAmount: undefined
+      fiatAmount: undefined,
     }
   })
   return (

@@ -20,7 +20,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
-import { FetchActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
+import { TradeActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
 import { TradeState } from './Trade'
 
 const FiatInput = (props: InputProps) => (
@@ -47,7 +47,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const { getCryptoQuote, getFiatQuote } = useSwapper({
+  const { getCryptoQuote, getFiatQuote, reset } = useSwapper({
     setValue,
     ...(watch() as TradeState) // TODO: send it correct args
   })
@@ -55,7 +55,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const quote = getValues('quote')
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
-  console.log('action', action)
+
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
@@ -72,14 +72,17 @@ export const TradeInput = ({ history }: RouterProps) => {
                 decimalSeparator={localeParts.decimal}
                 prefix={localeParts.prefix}
                 suffix={localeParts.postfix}
-                disabled={!!action && action !== FetchActions.FIAT}
+                disabled={!!action && action !== TradeActions.FIAT}
                 value={value}
                 customInput={FiatInput}
                 onValueChange={e => {
                   onChange(e.value)
                   if (e.value !== value) {
-                    setValue('action', FetchActions.FIAT)
-                    getFiatQuote(e.value, sellAsset, buyAsset)
+                    console.log('e0', e.value)
+                    const action = !!e.value ? TradeActions.FIAT : undefined
+                    action ? setValue('action', action) : reset()
+                    console.log('action', action)
+                    getFiatQuote(e.value, sellAsset, buyAsset, action)
                   }
                 }}
               />
@@ -100,10 +103,11 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            disabled={action && action !== FetchActions.SELL}
+            disabled={action && action !== TradeActions.SELL}
             onInputChange={(value: string) => {
-              setValue('action', FetchActions.SELL)
-              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset)
+              const action = value ? TradeActions.SELL : undefined
+              action ? setValue('action', action) : reset()
+              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset, action)
             }}
             inputLeftElement={
               <TokenButton
@@ -140,11 +144,12 @@ export const TradeInput = ({ history }: RouterProps) => {
               const currentBuyAsset = getValues('buyAsset')
               setValue('sellAsset', currentBuyAsset)
               setValue('buyAsset', currentSellAsset)
-              setValue('action', FetchActions.SELL)
+              setValue('action', TradeActions.SELL)
               getCryptoQuote(
                 { sellAmount: currentBuyAsset.amount },
                 currentBuyAsset,
-                currentSellAsset
+                currentSellAsset,
+                action
               )
             }}
             aria-label='Switch'
@@ -169,11 +174,11 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            disabled={action && action !== FetchActions.BUY}
+            disabled={action && action !== TradeActions.BUY}
             onInputChange={(value: string) => {
-              console.log('eeey')
-              setValue('action', FetchActions.BUY)
-              getCryptoQuote({ buyAmount: value }, sellAsset, buyAsset)
+              const action = value ? TradeActions.BUY : undefined
+              action ? setValue('action', action) : reset()
+              getCryptoQuote({ buyAmount: value }, sellAsset, buyAsset, action)
             }}
             inputLeftElement={
               <TokenButton

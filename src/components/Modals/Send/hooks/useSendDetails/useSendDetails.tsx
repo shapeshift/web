@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { FeeDataEstimate, FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
+import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -55,7 +55,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet }
   } = useWallet()
 
-  const getAssetData = useGetAssetData()
+  const getAssetData = useGetAssetData({
+    chain: asset.chain,
+    tokenId: asset.tokenId
+  })
 
   useEffect(() => {
     if (balanceError) {
@@ -127,19 +130,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       })
       // Assume fast fee for send max
       const fastFee = adapterFees[FeeDataKey.Fast]
-      const chainAsset = await getAssetData({
+      const marketData = await getAssetData({
         chain: asset.chain,
-        network: NetworkTypes.MAINNET,
         tokenId: asset.tokenId
       })
-      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${chainAsset.precision}`)
+      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${asset.precision}`)
 
       if (asset.tokenId) {
         setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())
         setValue(SendFormFields.FiatAmount, accountBalances.fiat.toFixed(2))
       } else {
         const maxCrypto = accountBalances.crypto.minus(networkFee)
-        const maxFiat = maxCrypto.times(chainAsset?.price || 0)
+        const maxFiat = maxCrypto.times(marketData?.price || 0)
         setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       }

@@ -1,10 +1,12 @@
 import { Flex } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
-import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { ALLOWED_CHAINS, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+import { ReduxState } from 'state/reducer'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
@@ -34,27 +36,20 @@ const initAsset = {
   description: ''
 }
 
-const ALLOWED_CHAINS = {
-  [ChainTypes.Ethereum]: true,
-  [ChainTypes.Bitcoin]: true,
-  [ChainTypes.Litecoin]: true
-}
-
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
-  const [asset, setAsset] = useStateIfMounted<AssetMarketData | undefined>(undefined)
-
+  const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
   let { network, address } = useParams<MatchParams>()
-  const getAssetData = useGetAssetData()
+  const getAssetData = useGetAssetData({ chain: network, tokenId: address })
+  const asset = useSelector((state: ReduxState) => state.assets[address ?? network])
 
   const getPrice = useCallback(async () => {
     if (ALLOWED_CHAINS[network]) {
-      const asset = await getAssetData({
+      const market = await getAssetData({
         chain: network,
-        network: NetworkTypes.MAINNET,
         tokenId: address
       })
-      if (asset) setAsset(asset)
+      if (market) setMarketData(market)
     }
   }, [address, getAssetData, network]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -71,7 +66,10 @@ export const Asset = () => {
   return (
     <Page style={{ flex: 1 }} key={address}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetDetails asset={asset ?? initAsset} isLoaded={isLoaded} />
+        <AssetDetails
+          asset={asset && marketData ? { ...asset, ...marketData } : initAsset}
+          isLoaded={isLoaded}
+        />
       </Flex>
     </Page>
   )

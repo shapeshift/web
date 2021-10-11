@@ -3440,7 +3440,7 @@
     retry-axios "^2.6.0"
     web3 "^1.5.2"
 
-"@shapeshiftoss/types@^1.0.0", "@shapeshiftoss/types@^1.0.1", "@shapeshiftoss/types@^1.1.0":
+"@shapeshiftoss/types@^1.0.0", "@shapeshiftoss/types@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.0.1.tgz#ab2de8f07e01d7801f0eb8c9d9bd3551076c8147"
   integrity sha512-cTO9nAvaGTR9PZqqLeLyQtz5M+MEkUEERAVjepNvC/WpAVenidl5DWNViITX1cIB9ihU0+2NHIHm0XgoyD6Emw==

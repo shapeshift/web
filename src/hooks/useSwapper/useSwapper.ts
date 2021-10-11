@@ -2,8 +2,8 @@ import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useState } from 'react'
-import { useFormContext, UseFormSetValue, useWatch } from 'react-hook-form'
-import { MinMax, TradeAsset, TradeState } from 'components/Trade/Trade'
+import { useFormContext, useWatch } from 'react-hook-form'
+import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -137,7 +137,7 @@ export const useSwapper = () => {
     buyAsset: TradeAsset,
     action?: TradeActions
   ) => {
-    const rate = previousQuote?.rate
+    const rate = quote?.rate
     if (!rate) return
     const sellAmount = toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)
     getQuote({

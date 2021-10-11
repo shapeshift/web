@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.1.0...@shapeshiftoss/swapper-v1.2.0) (2021-10-11)
+
+
+### Features
+
+* be more descriptive with getDefaultPair ([#111](https://github.com/shapeshift/lib/issues/111)) ([13448c2](https://github.com/shapeshift/lib/commit/13448c234c21269c0592ea8dded827dd36f20a60))
+
 # [@shapeshiftoss/swapper-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.0.0...@shapeshiftoss/swapper-v1.1.0) (2021-10-11)
 
 

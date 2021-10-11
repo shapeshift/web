@@ -77,6 +77,7 @@ export const getAllowanceRequired = async ({
 
 export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Promise<string> => {
   const { symbol, tokenId } = input
+  if (symbol === 'USDC') return '1' // Will break if comparing against usdc
   const rateResponse: AxiosResponse<QuoteResponse> = await zrxService.get<QuoteResponse>(
     '/swap/v1/price',
     {

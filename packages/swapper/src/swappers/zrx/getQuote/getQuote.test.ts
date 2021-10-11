@@ -121,11 +121,11 @@ describe('getZrxQuote', () => {
       gasPrice: undefined
     })
   })
-  it('fails on no sellAmount', async () => {
+  it('fails on no sellAmount or buyAmount', async () => {
     const { quoteInput } = setupQuote()
     const swapper = new ZrxSwapper(zrxSwapperDeps)
     await expect(swapper.getQuote({ ...quoteInput, sellAmount: undefined })).rejects.toThrow(
-      'ZrxError:getQuote - sellAmount is required'
+      'ZrxError:getQuote - sellAmount or buyAmount amount is required'
     )
   })
   it('slippage is undefined', async () => {

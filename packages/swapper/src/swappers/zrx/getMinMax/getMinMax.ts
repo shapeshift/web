@@ -13,7 +13,6 @@ export const getMinMax = async (
   if (sellAsset.chain !== ChainTypes.Ethereum || buyAsset.chain !== ChainTypes.Ethereum) {
     throw new ZrxError('getMinMax - must be eth assets')
   }
-
   const buyToken = buyAsset.tokenId || buyAsset.symbol
   const sellToken = sellAsset.tokenId || sellAsset.symbol
 
@@ -27,7 +26,6 @@ export const getMinMax = async (
     .times(new BigNumber(10).exponentiatedBy(sellAsset.precision))
 
   const minimum = new BigNumber(1).dividedBy(new BigNumber(usdRate)).toString()
-
   const minimumPriceResult = await zrxService.get<QuoteResponse>('/swap/v1/price', {
     params: {
       sellToken,

@@ -13,11 +13,11 @@ function validateSwapper(swapper: Swapper) {
     throw new SwapperError('validateSwapper - invalid swapper instance')
 }
 
-export class SwapperManager<T extends SwapperType> {
-  public swappers: Map<T, Swapper>
+export class SwapperManager {
+  public swappers: Map<SwapperType, Swapper>
 
   constructor() {
-    this.swappers = new Map<T, Swapper>()
+    this.swappers = new Map<SwapperType, Swapper>()
   }
 
   /**
@@ -26,7 +26,7 @@ export class SwapperManager<T extends SwapperType> {
    * @param swapperInstance swapper instance {Swapper}
    * @returns {SwapperManager}
    */
-  addSwapper(swapperType: T, swapperInstance: Swapper): this {
+  addSwapper(swapperType: SwapperType, swapperInstance: Swapper): this {
     const swapper = this.swappers.get(swapperType)
     if (swapper) throw new SwapperError(`addSwapper - ${swapperType} already exists`)
     validateSwapper(swapperInstance)
@@ -39,7 +39,7 @@ export class SwapperManager<T extends SwapperType> {
    * @param swapperType swapper type {SwapperType|string}
    * @returns {Swapper}
    */
-  getSwapper(swapperType: T): Swapper {
+  getSwapper(swapperType: SwapperType): Swapper {
     const swapper = this.swappers.get(swapperType)
     if (!swapper) throw new SwapperError(`getSwapper - ${swapperType} doesn't exist`)
     return swapper
@@ -50,15 +50,15 @@ export class SwapperManager<T extends SwapperType> {
    * @param swapperType swapper type {SwapperType|string}
    * @returns {SwapperManager}
    */
-  removeSwapper(swapperType: T): this {
+  removeSwapper(swapperType: SwapperType): this {
     const swapper = this.swappers.get(swapperType)
     if (!swapper) throw new SwapperError(`removeSwapper - ${swapperType} doesn't exist`)
     this.swappers.delete(swapperType)
     return this
   }
 
-  async getBestQuote(swapperType: T, quoteParams: GetQuoteInput): Promise<Quote | undefined> {
-    const swapper = this.getSwapper(swapperType)
-    return swapper.getQuote(quoteParams)
+  async getBestSwapper(quoteParams: GetQuoteInput): Promise<SwapperType> {
+    console.info('quote', quoteParams)
+    return SwapperType.Zrx // TODO: implement getBestSwapper
   }
 }

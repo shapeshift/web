@@ -78,15 +78,8 @@ export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
         }
         const sellAssetFiatRate = bn(sellAssetUsdRate).times(1) // TODO: Implement fiatPerUsd here
         const buyAssetFiatRate = bn(buyAssetUsdRate).times(1) // TODO: Implement fiatPerUsd here
-        const marketRate = bn(sellAssetFiatRate).dividedBy(buyAssetFiatRate)
 
-        const rates = {
-          sellAssetFiatRate,
-          buyAssetFiatRate,
-          marketRate
-        }
         setValue('quote', quote)
-        setValue('rates', rates)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
         onFinish(quote)

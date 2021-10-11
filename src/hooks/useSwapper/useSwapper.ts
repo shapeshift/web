@@ -1,8 +1,9 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
-import { debounce, DebouncedFunc, DebounceSettings } from 'lodash'
+import { debounce } from 'lodash'
 import { useState } from 'react'
-import { TradeAsset, TradeState } from 'components/Trade/Trade'
+import { UseFormSetValue } from 'react-hook-form'
+import { MinMax, TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -19,8 +20,8 @@ export enum TradeActions {
 type UseSwapper = {
   quote?: Quote
   action?: TradeActions
-  fees?: any
-  setValue: any
+  trade?: MinMax
+  setValue: UseFormSetValue<TradeState>
 }
 
 type GetQuote = {
@@ -31,7 +32,7 @@ type GetQuote = {
   action?: TradeActions
 }
 
-export const useSwapper = ({ quote: previousQuote, fees, setValue }: UseSwapper) => {
+export const useSwapper = ({ quote: previousQuote, trade, setValue }: UseSwapper) => {
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -58,12 +59,13 @@ export const useSwapper = ({ quote: previousQuote, fees, setValue }: UseSwapper)
           buyAsset: buyAsset,
           ...amount
         }
-        let minMax = fees
+        let minMax = trade
         if (
           previousQuote?.sellAsset?.symbol !== sellAsset.symbol &&
           previousQuote?.buyAsset?.symbol !== buyAsset.symbol
         ) {
           minMax = await swapper.getMinMax(quoteInput)
+          minMax && setValue('trade', minMax)
         }
         const quote = await swapper.getQuote({ ...quoteInput, ...minMax })
         if (!quote?.success) throw new Error('getQuote - quote not successful')
@@ -80,11 +82,10 @@ export const useSwapper = ({ quote: previousQuote, fees, setValue }: UseSwapper)
             tokenId: buyAsset.tokenId
           })
         }
-        const sellAssetFiatRate = bn(sellAssetUsdRate).times(1) // TODO: Implement fiatPerUsd here
-        const buyAssetFiatRate = bn(buyAssetUsdRate).times(1) // TODO: Implement fiatPerUsd here
+        const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
+        const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
 
         setValue('quote', quote)
-        setValue('fees', minMax)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
 
@@ -95,7 +96,7 @@ export const useSwapper = ({ quote: previousQuote, fees, setValue }: UseSwapper)
           setValue('fiatAmount', '')
         }
       } catch (e) {
-        console.log('error', e)
+        console.error('error', e)
       } finally {
         setValue('action', undefined)
       }

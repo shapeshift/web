@@ -1,4 +1,4 @@
-import { Asset, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'

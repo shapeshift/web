@@ -10,6 +10,7 @@ import { SelectAsset } from './SelectAsset'
 import { TradeState } from './Trade'
 import { TradeConfirm } from './TradeConfirm/TradeConfirm'
 import { TradeInput } from './TradeInput'
+import { getByIdentifier } from 'lib/math'
 
 export const entries = ['/send/details', '/send/confirm']
 
@@ -25,7 +26,7 @@ export const TradeRoutes = () => {
     try {
       const defaultPair = getDefaultPair()
       const data = assetService.byNetwork(NetworkTypes.MAINNET)
-      const sellAsset = data.find(asset => defaultPair[0]?.symbol === asset.symbol)
+      const sellAsset = data.find(asset => getByIdentifier(defaultPair[0]) === getByIdentifier(asset))
       const buyAsset = data.find(asset => defaultPair[1]?.symbol === asset.symbol)
       if (sellAsset && buyAsset) {
         setValue('sellAsset.currency', sellAsset)

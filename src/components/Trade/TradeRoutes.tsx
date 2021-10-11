@@ -27,9 +27,11 @@ export const TradeRoutes = () => {
       const data = assetService.byNetwork(NetworkTypes.MAINNET)
       const sellAsset = data.find(asset => defaultPair[0]?.symbol === asset.symbol)
       const buyAsset = data.find(asset => defaultPair[1]?.symbol === asset.symbol)
-      setValue('sellAsset.currency', sellAsset)
-      setValue('buyAsset.currency', buyAsset)
-      getCryptoQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
+      if (sellAsset && buyAsset) {
+        setValue('sellAsset.currency', sellAsset)
+        setValue('buyAsset.currency', buyAsset)
+        getCryptoQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
+      }
     } catch (e) {
       console.warn(e)
     }
@@ -37,7 +39,6 @@ export const TradeRoutes = () => {
 
   useEffect(() => {
     setDefaultAssets()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleSellClick = async (asset: Asset) => {

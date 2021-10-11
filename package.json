@@ -65,6 +65,7 @@
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "test": "react-scripts test --coverage",
+    "clean": "rimraf node_modules",
     "test:dev": "react-scripts test --watch",
     "type-check": "tsc --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",

@@ -13,14 +13,15 @@ import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { FetchActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
-import { TradeState } from './Trade'
-import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+
+import { FetchActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
+import { TradeState } from './Trade'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -138,7 +139,11 @@ export const TradeInput = ({ history }: RouterProps) => {
               const currentBuyAsset = getValues('buyAsset')
               setValue('sellAsset', currentBuyAsset)
               setValue('buyAsset', currentSellAsset)
-              getCryptoQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
+              getCryptoQuote(
+                { sellAmount: currentBuyAsset.amount },
+                currentBuyAsset,
+                currentSellAsset
+              )
             }}
             aria-label='Switch'
             isRound

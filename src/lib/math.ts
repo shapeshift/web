@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
-import { bnOrZero, BN } from './bignumber/bignumber'
+
+import { BN, bnOrZero } from './bignumber/bignumber'
 
 export const fromBaseUnit = (value: string, decimals: number, displayDecimals = 6): string => {
   return new BigNumber(value).div(`1e+${decimals}`).decimalPlaces(displayDecimals).toString()

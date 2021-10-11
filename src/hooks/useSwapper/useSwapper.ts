@@ -1,12 +1,12 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { web3Instance } from 'lib/web3-instance'
-import { TradeAsset, TradeState } from 'components/Trade/Trade'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { debounce } from 'lodash'
+import { useState } from 'react'
+import { TradeAsset, TradeState } from 'components/Trade/Trade'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { web3Instance } from 'lib/web3-instance'
 
 const debounceTime = 1000
 
@@ -106,6 +106,7 @@ export const useSwapper = ({ quote: previousQuote, setValue }: UseSwapper) => {
     buyAsset: TradeAsset
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
+    console.log('eeyy')
     const key = Object.keys(amount)[0]
     const value = Object.values(amount)[0]
     const isSellQuote = key === 'sellAmount'

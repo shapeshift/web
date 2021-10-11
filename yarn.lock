@@ -3441,14 +3441,14 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.0.0.tgz#80b3d98a903f64cf327b993fed810f7f0c3423a9"
-  integrity sha512-q4USTIe7ONUcxRrMsRKLuE/OiEgFaqNFzmmIAiKxMGvMR5lQp8QLyjmkuW/jaM/qjP5umPvOxwvq0ZiRJi/iXg==
+"@shapeshiftoss/swapper@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.1.0.tgz#744346edd24aa8deacdbab9fa604447967dcc7ca"
+  integrity sha512-qqLUVYgwaYfCbBVlRoNX75Nza4X2c2oVXpBj0vkP52417euzQx+CT3d+KnXMpNe98s48YwDLWC4STNSu/Vvhsw==
   dependencies:
     "@shapeshiftoss/chain-adapters" "^1.0.0"
     "@shapeshiftoss/hdwallet-core" "^1.16.3"
-    "@shapeshiftoss/types" "^1.0.0"
+    "@shapeshiftoss/types" "^1.0.1"
     axios "^0.21.4"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"

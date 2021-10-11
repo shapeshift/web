@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.0.1...@shapeshiftoss/chain-adapters-v1.1.0) (2021-10-11)
+
+
+### Features
+
+* be more descriptive with getDefaultPair ([#111](https://github.com/shapeshift/lib/issues/111)) ([13448c2](https://github.com/shapeshift/lib/commit/13448c234c21269c0592ea8dded827dd36f20a60))
+
 # [@shapeshiftoss/chain-adapters-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.0.0...@shapeshiftoss/chain-adapters-v1.0.1) (2021-10-11)
 
 

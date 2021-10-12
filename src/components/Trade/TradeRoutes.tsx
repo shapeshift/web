@@ -19,7 +19,8 @@ export const TradeRoutes = () => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState>()
   const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper()
-
+  const buyAsset = getValues('buyAsset')
+  const sellAsset = getValues('sellAsset')
   const assetService = useAssets()
 
   const setDefaultAssets = useCallback(async () => {
@@ -42,31 +43,33 @@ export const TradeRoutes = () => {
 
   useEffect(() => {
     setDefaultAssets()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSellClick = async (asset: Asset) => {
-    const buyAsset = getValues('buyAsset')
-    const sellAsset = getValues('sellAsset')
-    const action = TradeActions.SELL
-    if (asset === buyAsset.currency) setValue('buyAsset.currency', getValues('sellAsset.currency'))
-    setValue('sellAsset.currency', asset)
-    setValue('action', action)
-    await getBestSwapper({ sellAsset, buyAsset })
-    getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset, action)
-    history.push('/trade/input')
-  }
+  const handleSellClick = useCallback(
+    async (asset: Asset) => {
+      const action = TradeActions.SELL
+      if (asset === buyAsset.currency) setValue('buyAsset.currency', sellAsset.currency)
+      setValue('sellAsset.currency', asset)
+      setValue('action', action)
+      await getBestSwapper({ sellAsset, buyAsset })
+      getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset, action)
+      history.push('/trade/input')
+    },
+    [buyAsset, sellAsset, history, setValue, getBestSwapper, getCryptoQuote]
+  )
 
-  const handleBuyClick = async (asset: Asset) => {
-    const sellAsset = getValues('sellAsset')
-    const buyAsset = getValues('buyAsset')
-    const action = TradeActions.BUY
-    if (asset === sellAsset.currency) setValue('sellAsset.currency', getValues('buyAsset.currency'))
-    setValue('buyAsset.currency', asset)
-    setValue('action', action)
-    await getBestSwapper({ sellAsset, buyAsset })
-    getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset, action)
-    history.push('/trade/input')
-  }
+  const handleBuyClick = useCallback(
+    async (asset: Asset) => {
+      const action = TradeActions.BUY
+      if (asset === sellAsset.currency) setValue('sellAsset.currency', buyAsset.currency)
+      setValue('buyAsset.currency', asset)
+      setValue('action', action)
+      await getBestSwapper({ sellAsset, buyAsset })
+      getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset, action)
+      history.push('/trade/input')
+    },
+    [buyAsset, sellAsset, history, setValue, getBestSwapper, getCryptoQuote]
+  )
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

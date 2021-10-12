@@ -1,7 +1,7 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -37,10 +37,10 @@ export const useSwapper = () => {
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
-  const getDefaultPair = () => {
+  const getDefaultPair = useCallback(() => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     return swapper.getDefaultPair()
-  }
+  }, [swapperManager, bestSwapperType])
 
   const getQuote = async ({ amount, sellAsset, buyAsset, onFinish, action }: GetQuote) => {
     if (debounceObj?.cancel) debounceObj.cancel()
@@ -158,18 +158,18 @@ export const useSwapper = () => {
     })
   }
 
-  const getBestSwapper = async ({
-    sellAsset,
-    buyAsset
-  }: Pick<TradeState, 'sellAsset' | 'buyAsset'>) => {
-    if (!sellAsset.currency || !buyAsset.currency || !swapperManager) return
-    const input = {
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency
-    }
-    const bestSwapper = await swapperManager.getBestSwapper(input)
-    setBestSwapperType(bestSwapper)
-  }
+  const getBestSwapper = useCallback(
+    async ({ sellAsset, buyAsset }: Pick<TradeState, 'sellAsset' | 'buyAsset'>) => {
+      if (!sellAsset.currency || !buyAsset.currency) return
+      const input = {
+        sellAsset: sellAsset.currency,
+        buyAsset: buyAsset.currency
+      }
+      const bestSwapper = await swapperManager.getBestSwapper(input)
+      setBestSwapperType(bestSwapper)
+    },
+    [swapperManager, setBestSwapperType]
+  )
 
   const reset = () => {
     setValue('buyAsset.amount', '')

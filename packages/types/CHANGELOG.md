@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.0.1...@shapeshiftoss/types-v1.0.2) (2021-10-12)
+
+
+### Bug Fixes
+
+* remove unused type causing circular reference until we implement ([#113](https://github.com/shapeshift/lib/issues/113)) ([d096690](https://github.com/shapeshift/lib/commit/d0966904a008190470e2f12f215a4da15649890a))
+
 # [@shapeshiftoss/types-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.0.0...@shapeshiftoss/types-v1.0.1) (2021-10-07)
 
 # @shapeshiftoss/types-v1.0.0 (2021-10-06)

@@ -13,6 +13,8 @@
     "clean": "rimraf node_modules dist packages/**/dist",
     "dev": "lerna run dev --stream --parallel",
     "lint": "eslint --cache .",
+    "link-packages": "node scripts/linkPackages.js link",
+    "unlink-packages": "node scripts/linkPackages.js unlink",
     "test": "jest",
     "test:dev": "jest --watch",
     "type-check": "lerna run type-check",

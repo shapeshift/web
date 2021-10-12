@@ -146,12 +146,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <IconButton
-            onClick={switchAssets}
-            aria-label='Switch'
-            isRound
-            icon={<ArrowDownIcon />}
-          />
+          <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
             {!quote || action ? (
               <Text fontSize='sm' translation='trade.searchingRate' />

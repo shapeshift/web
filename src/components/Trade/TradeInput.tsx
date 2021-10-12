@@ -143,7 +143,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 { sellAmount: currentBuyAsset.amount },
                 currentBuyAsset,
                 currentSellAsset,
-                action
+                TradeActions.SELL
               )
             }}
             aria-label='Switch'

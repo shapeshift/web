@@ -4,7 +4,7 @@ import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import sortBy from 'lodash/sortBy'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { getAssetService, service as assetService } from 'lib/assetService'
+import { getAssetService } from 'lib/assetService'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
@@ -28,14 +28,14 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
 
   const fetchTokens = useCallback(async () => {
     try {
-      if (!assetService) await getAssetService()
+      const assetService = await getAssetService()
       const data = assetService?.byNetwork(NetworkTypes.MAINNET)
       const sorted = sortBy(data, ['name', 'symbol'])
       setSortedAssets(sorted)
     } catch (e) {
       console.warn(e)
     }
-  }, [assetService])
+  }, [])
 
   useEffect(() => {
     fetchTokens()

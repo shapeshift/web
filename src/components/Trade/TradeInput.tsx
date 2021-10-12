@@ -54,6 +54,20 @@ export const TradeInput = ({ history }: RouterProps) => {
     history.push('/trade/confirm')
   }
 
+  const switchAssets = () => {
+    const currentSellAsset = getValues('sellAsset')
+    const currentBuyAsset = getValues('buyAsset')
+    setValue('sellAsset', currentBuyAsset)
+    setValue('buyAsset', currentSellAsset)
+    setValue('action', TradeActions.SELL)
+    getCryptoQuote(
+      { sellAmount: currentBuyAsset.amount },
+      currentBuyAsset,
+      currentSellAsset,
+      TradeActions.SELL
+    )
+  }
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -133,19 +147,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           justifyContent='space-between'
         >
           <IconButton
-            onClick={() => {
-              const currentSellAsset = getValues('sellAsset')
-              const currentBuyAsset = getValues('buyAsset')
-              setValue('sellAsset', currentBuyAsset)
-              setValue('buyAsset', currentSellAsset)
-              setValue('action', TradeActions.SELL)
-              getCryptoQuote(
-                { sellAmount: currentBuyAsset.amount },
-                currentBuyAsset,
-                currentSellAsset,
-                TradeActions.SELL
-              )
-            }}
+            onClick={switchAssets}
             aria-label='Switch'
             isRound
             icon={<ArrowDownIcon />}

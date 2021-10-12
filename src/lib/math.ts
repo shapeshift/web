@@ -10,7 +10,7 @@ export const toBaseUnit = (amount: string, precision: number): string => {
   return bnOrZero(amount).times(bnOrZero(10).exponentiatedBy(precision)).toFixed(0)
 }
 
-export const firstNonZeroDecimal = (number: BN, decimalAmount = 2) => {
+export const firstNonZeroDecimal = (number: BN) => {
   return number.toFixed(20).match(/^-?\d*\.?0*\d{0,2}/)?.[0]
 }
 

@@ -3280,19 +3280,19 @@
     "@shapeshiftoss/types" "^1.0.2"
     lodash "^4.17.21"
 
-"@shapeshiftoss/chain-adapters@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.1.1.tgz#db3a64db72a70213c500acb22dc79fd0b1b2817b"
-  integrity sha512-Ak96Q5sGCQo4ZuWYOztI9uV/9Njogu0oNFBypEE32F4FSqcSEEkQnbvyWTEwikjscE1VGYL6sEubTR6opS5b4A==
+"@shapeshiftoss/chain-adapters@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.0.0.tgz#59a5f006ced13071294a8dfce534f86d43b184a8"
+  integrity sha512-zAhE9c+fU9S6y2EkbBgHp3wyciB5yun0HvRpMi48PSIaYnfszcthHKnSZoQ7JbyvHEAe3BdXvMwhki68hMizTQ==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.16.3"
     "@shapeshiftoss/hdwallet-native" "^1.15.5-alpha.1"
-    "@shapeshiftoss/types" "^1.0.2"
-    axios "^0.21.2"
+    "@shapeshiftoss/types" "^1.0.0"
+    axios "^0.21.1"
     bignumber.js "^9.0.1"
     ethers "^5.4.4"
     multicoin-address-validator "^0.5.2"
-    web3-utils "^1.5.2"
+    web3-utils "^1.5.1"
 
 "@shapeshiftoss/chain-adapters@^1.0.0":
   version "1.0.1"

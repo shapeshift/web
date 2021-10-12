@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.2.0...@shapeshiftoss/swapper-v1.2.1) (2021-10-12)
+
+
+### Bug Fixes
+
+* upgrade to latest version of web3 in swapper ([#112](https://github.com/shapeshift/lib/issues/112)) ([150b4fe](https://github.com/shapeshift/lib/commit/150b4fe79e3ae006cdabbb93c0aeaed8980ac2ac))
+
 # [@shapeshiftoss/swapper-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.1.0...@shapeshiftoss/swapper-v1.2.0) (2021-10-11)
 
 

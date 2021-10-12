@@ -1,8 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { AssetService } from '@shapeshiftoss/asset-service'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-
-let service: AssetService | null = null
+import { getAssetService, service } from 'lib/assetService'
 
 export const fetchAsset = createAsyncThunk(
   'asset/fetchAsset',
@@ -16,11 +14,10 @@ export const fetchAsset = createAsyncThunk(
     network: NetworkTypes
   }) => {
     try {
-      if (!service) service = new AssetService('')
-      !service.isInitialized && (await service.initialize())
+      if (!service) await getAssetService()
 
-      const assetData = service.byTokenId({ chain, network, tokenId })
-      const description = await service.description(chain, tokenId)
+      const assetData = service?.byTokenId({ chain, network, tokenId })
+      const description = await service?.description(chain, tokenId)
 
       if (!assetData) return {}
       if (!description) return { [tokenId || chain]: assetData }

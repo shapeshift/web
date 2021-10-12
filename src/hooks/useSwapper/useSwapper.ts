@@ -85,11 +85,7 @@ export const useSwapper = () => {
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
 
         if (action) onFinish(newQuote)
-        else {
-          setValue('sellAsset.amount', '')
-          setValue('buyAsset.amount', '')
-          setValue('fiatAmount', '')
-        }
+        else reset()
       } catch (e) {
         console.error('error', e)
       } finally {

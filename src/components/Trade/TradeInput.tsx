@@ -20,7 +20,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
-import { TradeActions, useSwapper } from '../../hooks/useSwapper/useSwapper'
+import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
 
 const FiatInput = (props: InputProps) => (
   <Input

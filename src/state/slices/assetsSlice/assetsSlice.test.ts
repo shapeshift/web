@@ -1,10 +1,16 @@
-import { AssetService } from '@shapeshiftoss/asset-service'
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { service } from 'lib/assetService'
 import { store } from 'state/store'
 
 import { fetchAsset } from './assetsSlice'
 
-jest.mock('@shapeshiftoss/asset-service', () => ({ AssetService: jest.fn() }))
+jest.mock('lib/assetService', () => ({
+  service: {
+    byTokenId: jest.fn(),
+    description: jest.fn()
+  },
+  getAssetService: jest.fn()
+}))
 
 const runeAsset = {
   name: 'THORChain  ERC20 ',
@@ -29,21 +35,13 @@ const runeDescription =
 
 const setup = ({
   assetData,
-  description,
-  isInitialized
+  description
 }: {
   assetData: Asset | undefined
   description: string | null
-  isInitialized: boolean
 }) => {
-  const initialize = jest.fn().mockResolvedValue(undefined)
-  ;(AssetService as jest.Mock<unknown>).mockImplementation(() => ({
-    isInitialized,
-    initialize,
-    byTokenId: jest.fn().mockReturnValue(assetData),
-    description: jest.fn().mockResolvedValue(description)
-  }))
-  return { initialize }
+  ;(service?.byTokenId as unknown as jest.Mock<unknown>).mockImplementation(() => assetData)
+  ;(service?.description as unknown as jest.Mock<unknown>).mockImplementation(() => description)
 }
 
 describe('assetsSlice', () => {
@@ -52,49 +50,8 @@ describe('assetsSlice', () => {
   })
 
   describe('fetchAsset', () => {
-    beforeEach(() => {
-      jest.clearAllMocks()
-      jest.resetAllMocks()
-    })
-
-    describe('initialize', () => {
-      it('initializes if not initialized', async () => {
-        const { initialize } = setup({
-          assetData: undefined,
-          description: null,
-          isInitialized: false
-        })
-        expect(initialize).toBeCalledTimes(0)
-        await store.dispatch(
-          fetchAsset({
-            tokenId: runeAsset.tokenId,
-            chain: ChainTypes.Ethereum,
-            network: NetworkTypes.MAINNET
-          })
-        )
-        expect(initialize).toBeCalledTimes(1)
-      })
-
-      it('does not initialize if initialized', async () => {
-        const { initialize } = setup({
-          assetData: undefined,
-          description: null,
-          isInitialized: true
-        })
-        expect(initialize).toBeCalledTimes(0)
-        await store.dispatch(
-          fetchAsset({
-            tokenId: runeAsset.tokenId,
-            chain: ChainTypes.Ethereum,
-            network: NetworkTypes.MAINNET
-          })
-        )
-        expect(initialize).toBeCalledTimes(0)
-      })
-    })
-
     it('does not update state if assetData does not exist', async () => {
-      setup({ assetData: undefined, description: null, isInitialized: false })
+      setup({ assetData: undefined, description: null })
       expect(store.getState().assets[runeAsset.tokenId]).toBeFalsy()
       await store.dispatch(
         fetchAsset({
@@ -107,7 +64,7 @@ describe('assetsSlice', () => {
     })
 
     it('updates state if assetData exists but description does not', async () => {
-      setup({ assetData: runeAsset, description: null, isInitialized: false })
+      setup({ assetData: runeAsset, description: null })
       expect(store.getState().assets[runeAsset.tokenId]).toBeFalsy()
       await store.dispatch(
         fetchAsset({
@@ -121,37 +78,39 @@ describe('assetsSlice', () => {
     })
 
     it('updates state if assetData & description exists', async () => {
-      setup({ assetData: runeAsset, description: runeDescription, isInitialized: false })
-      expect(store.getState().assets[runeAsset.tokenId]).toBeFalsy()
+      const asset = { ...runeAsset, tokenId: 'tokenId2WithDescription' }
+      setup({ assetData: asset, description: runeDescription })
       await store.dispatch(
         fetchAsset({
-          tokenId: runeAsset.tokenId,
+          tokenId: asset.tokenId,
           chain: ChainTypes.Ethereum,
           network: NetworkTypes.MAINNET
         })
       )
-      expect(store.getState().assets[runeAsset.tokenId]).toBeTruthy()
-      expect(store.getState().assets[runeAsset.tokenId].description).toBeTruthy()
+      expect(store.getState().assets[asset.tokenId]).toBeTruthy()
+      expect(store.getState().assets[asset.tokenId].description).toBeTruthy()
     })
 
     it('does not update state if error is thrown', async () => {
+      const asset = { ...runeAsset, tokenId: 'tokenId3Error' }
       const consoleError = jest.spyOn(console, 'error').mockImplementation()
-      ;(AssetService as jest.Mock<unknown>).mockImplementation(() => ({
-        isInitialized: true,
-        initialize: jest.fn().mockResolvedValue(undefined),
-        byTokenId: jest.fn().mockRejectedValue(undefined),
-        description: jest.fn().mockRejectedValue(undefined)
-      }))
-
-      expect(store.getState().assets[runeAsset.tokenId]).toBeFalsy()
+      ;(service?.byTokenId as unknown as jest.Mock<unknown>).mockRejectedValue(
+        // @ts-ignore
+        'Network error: Something went wrong'
+      )
+      ;(service?.description as unknown as jest.Mock<unknown>).mockRejectedValue(
+        // @ts-ignore
+        'Network error: Something went wrong'
+      )
+      expect(store.getState().assets[asset.tokenId]).toBeFalsy()
       await store.dispatch(
         fetchAsset({
-          tokenId: runeAsset.tokenId,
+          tokenId: asset.tokenId,
           chain: ChainTypes.Ethereum,
           network: NetworkTypes.MAINNET
         })
       )
-      expect(store.getState().assets[runeAsset.tokenId]).toBeFalsy()
+      expect(store.getState().assets[asset.tokenId]).toBeFalsy()
       expect(console.error).toBeCalled()
       consoleError.mockRestore()
     })

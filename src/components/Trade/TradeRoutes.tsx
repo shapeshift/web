@@ -42,7 +42,7 @@ export const TradeRoutes = () => {
 
   useEffect(() => {
     setDefaultAssets()
-  }, [setDefaultAssets])
+  }, [])
 
   const handleSellClick = async (asset: Asset) => {
     const buyAsset = getValues('buyAsset')

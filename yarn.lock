@@ -3280,33 +3280,19 @@
     "@shapeshiftoss/types" "^1.0.2"
     lodash "^4.17.21"
 
-"@shapeshiftoss/chain-adapters@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.0.0.tgz#59a5f006ced13071294a8dfce534f86d43b184a8"
-  integrity sha512-zAhE9c+fU9S6y2EkbBgHp3wyciB5yun0HvRpMi48PSIaYnfszcthHKnSZoQ7JbyvHEAe3BdXvMwhki68hMizTQ==
+"@shapeshiftoss/chain-adapters@1.1.1", "@shapeshiftoss/chain-adapters@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.1.1.tgz#db3a64db72a70213c500acb22dc79fd0b1b2817b"
+  integrity sha512-Ak96Q5sGCQo4ZuWYOztI9uV/9Njogu0oNFBypEE32F4FSqcSEEkQnbvyWTEwikjscE1VGYL6sEubTR6opS5b4A==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.16.3"
     "@shapeshiftoss/hdwallet-native" "^1.15.5-alpha.1"
-    "@shapeshiftoss/types" "^1.0.0"
-    axios "^0.21.1"
-    bignumber.js "^9.0.1"
-    ethers "^5.4.4"
-    multicoin-address-validator "^0.5.2"
-    web3-utils "^1.5.1"
-
-"@shapeshiftoss/chain-adapters@^1.0.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.0.1.tgz#6344efef2d45d92ecbad6cf8320e8540b3cf0f0e"
-  integrity sha512-tVkiJL7KXjU+nBCPv4b8InQN7LP/G628Awu1AiEqkfZRbIE5+lhKOe2XMRkAlifvZy4EcRU+ma4gyANbQyHFxw==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.16.3"
-    "@shapeshiftoss/hdwallet-native" "^1.15.5-alpha.1"
-    "@shapeshiftoss/types" "^1.0.0"
+    "@shapeshiftoss/types" "^1.0.2"
     axios "^0.21.2"
     bignumber.js "^9.0.1"
     ethers "^5.4.4"
     multicoin-address-validator "^0.5.2"
-    web3-utils "^1.5.1"
+    web3-utils "^1.5.2"
 
 "@shapeshiftoss/fiojs@1.0.1-shapeshift.2":
   version "1.0.1-shapeshift.2"
@@ -3450,23 +3436,18 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.2.2":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.2.2.tgz#23e9cada64f337db4503332a20f1f15ad1083247"
-  integrity sha512-ns/uRzAfJ2lg9f/fzu9v0mYoPr2Q7LH8qI2CbsisS/9Kcs/8ZBDK0wGEQX+I1o4bSXtAxXFJloF6gKHOF7OVEg==
+"@shapeshiftoss/swapper@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.2.3.tgz#f2b729e3314d4ea65857ed45483995ab2e41b006"
+  integrity sha512-j30OBoZf+ewOwMeF/0YGoUOzswY12F9fgg1Ulyj+fZgY+edGd4SfwI9x+YNSyFahqjPAjkdGHdcoW/rIe+yyyw==
   dependencies:
-    "@shapeshiftoss/chain-adapters" "^1.0.0"
+    "@shapeshiftoss/chain-adapters" "^1.1.1"
     "@shapeshiftoss/hdwallet-core" "^1.16.3"
     "@shapeshiftoss/types" "^1.0.2"
     axios "^0.21.4"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
     web3 "1.6.0"
-
-"@shapeshiftoss/types@^1.0.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.0.1.tgz#ab2de8f07e01d7801f0eb8c9d9bd3551076c8147"
-  integrity sha512-cTO9nAvaGTR9PZqqLeLyQtz5M+MEkUEERAVjepNvC/WpAVenidl5DWNViITX1cIB9ihU0+2NHIHm0XgoyD6Emw==
 
 "@shapeshiftoss/types@^1.0.2":
   version "1.0.2"
@@ -19296,19 +19277,6 @@ web3-utils@1.6.0, web3-utils@^1.5.2:
     bn.js "^4.11.9"
     ethereum-bloom-filters "^1.0.6"
     ethereumjs-util "^7.1.0"
-    ethjs-unit "0.1.6"
-    number-to-bn "1.7.0"
-    randombytes "^2.1.0"
-    utf8 "3.0.0"
-
-web3-utils@^1.5.1:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.5.2.tgz#150982dcb1918ffc54eba87528e28f009ebc03aa"
-  integrity sha512-quTtTeQJHYSxAwIBOCGEcQtqdVcFWX6mCFNoqnp+mRbq+Hxbs8CGgO/6oqfBx4OvxIOfCpgJWYVHswRXnbEu9Q==
-  dependencies:
-    bn.js "^4.11.9"
-    eth-lib "0.2.8"
-    ethereum-bloom-filters "^1.0.6"
     ethjs-unit "0.1.6"
     number-to-bn "1.7.0"
     randombytes "^2.1.0"

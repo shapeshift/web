@@ -17,10 +17,9 @@ import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-
-import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
 
 const FiatInput = (props: InputProps) => (
   <Input

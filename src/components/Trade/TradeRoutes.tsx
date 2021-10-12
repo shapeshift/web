@@ -1,16 +1,16 @@
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'
 import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
+import { getByIdentifier } from 'lib/math'
 
 import { SelectAsset } from './SelectAsset'
 import { TradeState } from './Trade'
 import { TradeConfirm } from './TradeConfirm/TradeConfirm'
 import { TradeInput } from './TradeInput'
-import { getByIdentifier } from 'lib/math'
 
 export const entries = ['/send/details', '/send/confirm']
 
@@ -22,11 +22,13 @@ export const TradeRoutes = () => {
 
   const assetService = useAssets()
 
-  const setDefaultAssets = async () => {
+  const setDefaultAssets = useCallback(async () => {
     try {
       const defaultPair = getDefaultPair()
       const data = assetService.byNetwork(NetworkTypes.MAINNET)
-      const sellAsset = data.find(asset => getByIdentifier(defaultPair[0]) === getByIdentifier(asset))
+      const sellAsset = data.find(
+        asset => getByIdentifier(defaultPair[0]) === getByIdentifier(asset)
+      )
       const buyAsset = data.find(asset => defaultPair[1]?.symbol === asset.symbol)
       if (sellAsset && buyAsset) {
         setValue('sellAsset.currency', sellAsset)
@@ -36,11 +38,11 @@ export const TradeRoutes = () => {
     } catch (e) {
       console.warn(e)
     }
-  }
+  }, [setValue, getCryptoQuote, assetService, getDefaultPair])
 
   useEffect(() => {
     setDefaultAssets()
-  }, [])
+  }, [setDefaultAssets])
 
   const handleSellClick = async (asset: Asset) => {
     const buyAsset = getValues('buyAsset')

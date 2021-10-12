@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# storybook
+storybook-static
+
 # dependencies
 /node_modules
 /.pnp
@@ -25,7 +28,7 @@ yarn-error.log*
 
 # vs-code
 .history
-.vscode/settings.json 
+.vscode/settings.json
 
 # idea
 *.iml

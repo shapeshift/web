@@ -1,12 +1,10 @@
 {
-  "projectId": "627kg1",
-  "viewportWidth": 1280,
-  "viewportHeight": 720,
   "fixturesFolder": "fixtures",
   "integrationFolder": "integration",
   "pluginsFile": "plugins/index.js",
   "screenshotsFolder": "screenshots",
   "supportFile": "support/index.js",
   "videosFolder": "videos",
+  "videos": "false",
   "reporter": "json"
 }

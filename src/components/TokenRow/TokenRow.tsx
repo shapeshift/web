@@ -25,6 +25,7 @@ const CryptoInput = (props: InputProps) => (
 type TokenRowProps = {
   control: Control
   fieldName: string
+  disabled?: boolean
   rules?: ControllerProps['rules']
   inputLeftElement?: React.ReactNode
   inputRightElement?: React.ReactNode
@@ -38,6 +39,7 @@ export const TokenRow = ({
   inputLeftElement,
   inputRightElement,
   onInputChange,
+  disabled,
   ...rest
 }: TokenRowProps) => {
   const {
@@ -60,9 +62,10 @@ export const TokenRow = ({
               decimalSeparator={localeParts.decimal}
               customInput={CryptoInput}
               value={value}
+              disabled={disabled}
               onValueChange={e => {
                 onChange(e.value)
-                onInputChange && onInputChange(e.value)
+                onInputChange && e.value !== value && onInputChange(e.value)
               }}
             />
           )

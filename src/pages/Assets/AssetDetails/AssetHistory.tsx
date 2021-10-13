@@ -4,7 +4,7 @@ import { Transactions } from 'components/Transactions/Transactions'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
   const translate = useTranslate()
-  const { network, tokenId, symbol } = asset
+  const { chain, tokenId, symbol } = asset
   return (
     <Card>
       <Card.Header>
@@ -13,7 +13,7 @@ export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
         </Card.Heading>
       </Card.Header>
       <Card.Body px={2} pt={0}>
-        <Transactions chain={network} contractAddress={tokenId} symbol={symbol?.toUpperCase()} />
+        <Transactions chain={chain} contractAddress={tokenId} symbol={symbol?.toUpperCase()} />
       </Card.Body>
     </Card>
   )

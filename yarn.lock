@@ -3240,7 +3240,7 @@
     "@shapeshiftoss/types" "^1.0.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/chain-adapters@^1.0.0":
+"@shapeshiftoss/chain-adapters@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.0.0.tgz#59a5f006ced13071294a8dfce534f86d43b184a8"
   integrity sha512-zAhE9c+fU9S6y2EkbBgHp3wyciB5yun0HvRpMi48PSIaYnfszcthHKnSZoQ7JbyvHEAe3BdXvMwhki68hMizTQ==
@@ -3283,7 +3283,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.16.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.16.1":
+"@shapeshiftoss/hdwallet-core@1.16.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0":
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.16.1.tgz#90caf85f14e446d545cdadce8c68738e6e971b82"
   integrity sha512-7aQrhSdEe7z+rY1220utQHzNnhFPrJiyT6MRrh/Exg6PGqurrMsmAr4k0vFWMlLVr8pwwvDrPfPo6juGtOHsoQ==
@@ -3292,42 +3292,43 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
 
-"@shapeshiftoss/hdwallet-core@^1.16.3":
-  version "1.16.10"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.16.10.tgz#39667cb469d30d62c5b10513e2840d4a54377103"
-  integrity sha512-namIFZMLjycvFR+0fTb0aeZBuAvqZLfq/0qaJ3KAanc4vcX8K7Ksig6+VfQmArMRnDmHgOKvGpNo+j+ykBJMfg==
+"@shapeshiftoss/hdwallet-core@1.16.9", "@shapeshiftoss/hdwallet-core@^1.16.3", "@shapeshiftoss/hdwallet-core@^1.16.9":
+  version "1.16.9"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.16.9.tgz#9a3f360359ef4d9a390d4481d700b076f6623fa2"
+  integrity sha512-npEBItYd4vU7OcO25LELMU+aXnj90EF4ZwLhnVXtDREalYm+ogCO8RYQ9i6qAhhCwtItQCQcY7g1TnFC7cXDOQ==
   dependencies:
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
     rxjs "^6.4.0"
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@^1.16.1":
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.16.1.tgz#b8976c241acfc6446a1b7bb3df2dcb80d9d5249e"
-  integrity sha512-hlaZVWKmoOkFSph7WtbV4ROUpzBEYKymntpV/0Ll9gSjJH9nLXgNqKEQbO/JLA9Df5AWD/MbUMbYmWUHSiWW5Q==
+"@shapeshiftoss/hdwallet-keepkey-webusb@^1.16.9":
+  version "1.16.9"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.16.9.tgz#97f57a81a8c2a4e3e931a7b299a3604cfe818bb2"
+  integrity sha512-neZ9OY9/+s8naKi1lTD3ZTDqFfQfCrZzxnerNmb6maGxhC46Swb8kmcblEHBavU4jtl6ZfTNSWnT0Eeo19KcJA==
   dependencies:
-    "@shapeshiftoss/hdwallet-core" "1.16.1"
-    "@shapeshiftoss/hdwallet-keepkey" "1.16.1"
+    "@shapeshiftoss/hdwallet-core" "1.16.9"
+    "@shapeshiftoss/hdwallet-keepkey" "1.16.9"
 
-"@shapeshiftoss/hdwallet-keepkey@1.16.1", "@shapeshiftoss/hdwallet-keepkey@^1.16.1":
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.16.1.tgz#3747bccfe79b6a7ea73fa235cac29ea27fa5933c"
-  integrity sha512-W6Sg7eMBD0AVtk6QqWUXfgJstTkWIHJE6ud3aNlivbeoRhIhXCR2nJVVvw2DoXHudl1OJfEHzhnDr8edMFj/mg==
+"@shapeshiftoss/hdwallet-keepkey@1.16.9", "@shapeshiftoss/hdwallet-keepkey@^1.16.9":
+  version "1.16.9"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.16.9.tgz#1b18a5c8dd3fe1b3c61d9cb8f2b3a9df1b8b3b0e"
+  integrity sha512-YINz38O7m7Hj2+e7zFMPW30gdPL36uqLkULBeEHC+ChBR+ICBRNfskq0xB+7YToZzi2J8Xn0a58MCYcbBdYdOA==
   dependencies:
     "@ethereumjs/common" "^2.4.0"
     "@ethereumjs/tx" "^3.3.0"
     "@keepkey/device-protocol" "^7.2.4"
-    "@shapeshiftoss/hdwallet-core" "1.16.1"
+    "@shapeshiftoss/hdwallet-core" "1.16.9"
     bignumber.js "^9.0.1"
     bnb-javascript-sdk-nobroadcast "^2.16.14"
     crypto-js "^4.0.0"
     eip55 "^2.1.0"
     google-protobuf "^3.15.8"
+    icepick "^2.4.0"
     lodash "^4.17.21"
     semver "^6.3.0"
     tiny-secp256k1 "^1.1.6"
 
-"@shapeshiftoss/hdwallet-native@^1.15.5-alpha.1", "@shapeshiftoss/hdwallet-native@^1.16.1":
+"@shapeshiftoss/hdwallet-native@^1.15.5-alpha.1":
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.16.1.tgz#ee3c7253b7e192a80154c7480e311c4e30baf4bb"
   integrity sha512-DyyPOfueU8pWVcRJpeWZRqSzfYBGDWVh1G4kaethBdpVZu5UfpHeFScOrNaMAyC+UcpuQ4ja67x3uGrm/KhHGQ==
@@ -3352,7 +3353,32 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/market-service@^1.0.0":
+"@shapeshiftoss/hdwallet-native@^1.16.9":
+  version "1.16.9"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.16.9.tgz#7aa89861a707946b7b278c6adbd8a9b60c299004"
+  integrity sha512-C9bZBTPKwGmphEMOcTJWVYm+/Kprn/uSf5jvlpMwg5f8JygiEItMMcRDG/JLa0b4+c/VI5GQLdI0Vbuur5O12A==
+  dependencies:
+    "@bithighlander/bitcoin-cash-js-lib" "5.2.1"
+    "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.4"
+    "@shapeshiftoss/hdwallet-core" "1.16.9"
+    "@zxing/text-encoding" "^0.9.0"
+    bchaddrjs "^0.4.9"
+    bignumber.js "^9.0.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bnb-javascript-sdk-nobroadcast "^2.16.14"
+    crypto-js "^4.0.0"
+    ethers "5.4.4"
+    eventemitter2 "^5.0.1"
+    funtypes "^3.0.1"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
+    scrypt-js "^3.0.1"
+    tendermint-tx-builder "^1.0.9"
+    tiny-secp256k1 "^1.1.6"
+    web-encoding "^1.1.0"
+
+"@shapeshiftoss/market-service@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.0.0.tgz#a07b94e21718b0453b86df4e49bd1032c3c1bb07"
   integrity sha512-jlssKynbFo/PEdoyo5uLvB1Zg+UCDHXXTQyrc99y8TyeVsim4BHmC1jx2zyASQq8EpmjdxAYFcUNvE+TDFYYZA==
@@ -10843,6 +10869,11 @@ human-signals@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
+
+icepick@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/icepick/-/icepick-2.4.0.tgz#1ff31e080d9b64ca5d164916ea725f8cb9514b7a"
+  integrity sha512-tr62H2DxpN9dEdgFZ4CGKiE0yzcz/kST4dJiRN6jkPn4CllniywYl1LvPTErWTBxJ2GAG4c7Em/pzy0WZi9eNw==
 
 iconv-lite@0.4.24:
   version "0.4.24"

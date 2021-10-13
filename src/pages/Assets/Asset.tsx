@@ -39,7 +39,7 @@ const initAsset = {
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
-  let { chain, tokenId } = useParams<MatchParams>()
+  const { chain, tokenId } = useParams<MatchParams>()
   const getAssetData = useGetAssetData({ chain, tokenId })
   const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
 

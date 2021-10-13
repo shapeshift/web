@@ -58,7 +58,18 @@ const initialState = {} as AssetsState
 export const assets = createSlice({
   name: 'asset',
   initialState,
-  reducers: {},
+  reducers: {
+    fetch() {
+      // this was added to create the asset/fetch action
+      // right now it does nothing because it is handled
+      // in the assetsMiddleware. There should be a better
+      // way of handling this.
+    },
+    resolvedFetch(state, { payload }) {
+      const tokenId = payload.tokenId ?? payload.chain
+      state[tokenId] = payload
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {

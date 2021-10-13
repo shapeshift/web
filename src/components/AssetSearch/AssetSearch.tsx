@@ -30,7 +30,6 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
 
   useEffect(() => {
     dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
 
   useEffect(() => {

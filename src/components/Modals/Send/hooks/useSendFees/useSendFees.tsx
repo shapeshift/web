@@ -21,14 +21,14 @@ export const useSendFees = () => {
   useEffect(() => {
     ;(async () => {
       if (wallet) {
-        const assetData = await getAssetData({
+        const marketData = await getAssetData({
           chain: asset?.chain
         })
         const txFees = (Object.keys(estimatedFees) as FeeDataKey[]).reduce(
           (acc: FeePrice, key: FeeDataKey) => {
             const current = estimatedFees[key]
             const fee = bnOrZero(current.networkFee).div(`1e${asset.precision}`).toPrecision()
-            const amount = bnOrZero(fee).times(bnOrZero(assetData?.price)).toPrecision()
+            const amount = bnOrZero(fee).times(bnOrZero(marketData?.price)).toPrecision()
             acc[key] = { ...current, fee, amount }
             return acc
           },

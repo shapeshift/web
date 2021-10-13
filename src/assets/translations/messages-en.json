@@ -44,6 +44,9 @@
     "to": "To",
     "from": "From"
   },
+  "trade": {
+    "searchingRate": "Searching for best rate..."
+  },
   "modals": {
     "send": {
       "getBalanceError": "Error getting wallet balances",

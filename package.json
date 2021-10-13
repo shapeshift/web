@@ -10,13 +10,15 @@
     "@formatjs/intl-numberformat": "^7.2.2",
     "@formatjs/intl-pluralrules": "^4.1.2",
     "@reduxjs/toolkit": "^1.6.1",
-    "@shapeshiftoss/asset-service": "^1.0.1",
-    "@shapeshiftoss/chain-adapters": "1.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.16.9",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.16.9",
-    "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.16.9",
-    "@shapeshiftoss/hdwallet-native": "^1.16.9",
-    "@shapeshiftoss/market-service": "1.0.0",
+    "@shapeshiftoss/asset-service": "^1.0.2",
+    "@shapeshiftoss/chain-adapters": "1.1.1",
+    "@shapeshiftoss/hdwallet-core": "^1.16.3",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.16.3",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.16.3",
+    "@shapeshiftoss/hdwallet-native": "^1.16.3",
+    "@shapeshiftoss/market-service": "1.0.1",
+    "@shapeshiftoss/swapper": "^1.2.3",
+    "@shapeshiftoss/types": "^1.0.2",
     "@visx/axis": "^1.17.1",
     "@visx/brush": "^1.18.1",
     "@visx/gradient": "^1.7.0",
@@ -55,7 +57,8 @@
     "react-window": "^1.8.6",
     "redux-persist": "^6.0.0",
     "scrypt-js": "^3.0.1",
-    "web-vitals": "^2.1.0"
+    "web-vitals": "^2.1.0",
+    "web3": "^1.6.0"
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
@@ -66,6 +69,7 @@
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "test": "react-scripts test --coverage",
+    "clean": "rimraf node_modules",
     "test:dev": "react-scripts test --watch",
     "type-check": "tsc --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
@@ -139,7 +143,8 @@
     "prettier": "^2.3.2",
     "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",
-    "typescript": "^4.1.6"
+    "typescript": "^4.1.6",
+    "web3-utils": "^1.5.2"
   },
   "resolutions": {
     "babel-loader": "8.1.0"

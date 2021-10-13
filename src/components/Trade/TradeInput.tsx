@@ -6,17 +6,20 @@ import {
   FormErrorMessage,
   IconButton,
   Input,
-  InputProps,
-  Text
+  InputProps
 } from '@chakra-ui/react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
+import { bn } from 'lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -35,14 +38,33 @@ export const TradeInput = ({ history }: RouterProps) => {
     control,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors, isDirty, isValid }
   } = useFormContext()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const [quote, action] = useWatch({ name: ['quote', 'action'] })
+  const { getCryptoQuote, getFiatQuote, reset } = useSwapper()
+  const buyAsset = getValues('buyAsset')
+  const sellAsset = getValues('sellAsset')
 
   const onSubmit = () => {
     history.push('/trade/confirm')
+  }
+
+  const switchAssets = () => {
+    const currentSellAsset = getValues('sellAsset')
+    const currentBuyAsset = getValues('buyAsset')
+    setValue('sellAsset', currentBuyAsset)
+    setValue('buyAsset', currentSellAsset)
+    setValue('action', TradeActions.SELL)
+    getCryptoQuote(
+      { sellAmount: currentBuyAsset.amount },
+      currentBuyAsset,
+      currentSellAsset,
+      TradeActions.SELL
+    )
   }
 
   return (
@@ -57,9 +79,19 @@ export const TradeInput = ({ history }: RouterProps) => {
                 decimalSeparator={localeParts.decimal}
                 prefix={localeParts.prefix}
                 suffix={localeParts.postfix}
+                disabled={!!action && action !== TradeActions.FIAT}
                 value={value}
                 customInput={FiatInput}
-                onValueChange={e => onChange(e.value)}
+                onValueChange={e => {
+                  onChange(e.value)
+                  if (e.value !== value) {
+                    const action = !!e.value ? TradeActions.FIAT : undefined
+                    if (action) {
+                      setValue('action', action)
+                    } else reset()
+                    getFiatQuote(e.value, sellAsset, buyAsset, action)
+                  }
+                }}
               />
             )}
             name='fiatAmount'
@@ -78,11 +110,17 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
+            disabled={action && action !== TradeActions.SELL}
+            onInputChange={(value: string) => {
+              const action = value ? TradeActions.SELL : undefined
+              action ? setValue('action', action) : reset()
+              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset, action)
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
-                logo={getValues('sellAsset.icon')}
-                symbol={getValues('sellAsset.currency.symbol')}
+                logo={sellAsset.currency?.icon}
+                symbol={sellAsset.currency?.symbol}
               />
             }
             inputRightElement={
@@ -107,10 +145,18 @@ export const TradeInput = ({ history }: RouterProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <IconButton aria-label='Switch' isRound icon={<ArrowDownIcon />} />
+          <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            <Text fontSize='sm'>1 BTC = 40,100.45 USDC</Text>
-            <HelperTooltip label='The price is ' />
+            {!quote || action ? (
+              <Text fontSize='sm' translation='trade.searchingRate' />
+            ) : (
+              <>
+                <RawText fontSize='sm'>{`1 ${sellAsset.currency?.symbol} = ${firstNonZeroDecimal(
+                  bn(quote.rate)
+                )} ${buyAsset.currency?.symbol}`}</RawText>
+                <HelperTooltip label='The price is ' />
+              </>
+            )}
           </Box>
         </FormControl>
         <FormControl mb={6}>
@@ -118,11 +164,18 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
+            disabled={action && action !== TradeActions.BUY}
+            onInputChange={(value: string) => {
+              const action = value ? TradeActions.BUY : undefined
+              action ? setValue('action', action) : reset()
+              const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
+              getCryptoQuote(amount, sellAsset, buyAsset, action)
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}
-                logo={getValues('buyAsset.icon')}
-                symbol={getValues('buyAsset.symbol')}
+                logo={buyAsset.currency?.icon}
+                symbol={buyAsset.currency?.symbol}
               />
             }
           />
@@ -132,7 +185,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme='blue'
-          isDisabled={!isDirty || !isValid}
+          isDisabled={!isDirty || !isValid || !!action}
         >
           Preview Trade
         </Button>

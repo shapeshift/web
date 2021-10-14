@@ -25,6 +25,7 @@ export const TradeRoutes = () => {
 
   const setDefaultAssets = useCallback(async () => {
     try {
+      console.log("GOOOOO")
       const defaultPair = getDefaultPair()
       const data = assetService.byNetwork(NetworkTypes.MAINNET)
       const sellAsset = data.find(

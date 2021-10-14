@@ -1,11 +1,13 @@
 import { render } from '@testing-library/react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { MemoryRouter } from 'react-router-dom'
 import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { useSwapper } from 'hooks/useSwapper/useSwapper'
 
 import { TradeRoutes } from './TradeRoutes'
 
 jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useLocation: () => ({ key: '2' }),
   useHistory: jest.fn()
 }))
@@ -29,7 +31,11 @@ function setup() {
     })
   }))
   const setDefaultAssets = jest.fn()
-  const component = render(<TradeRoutes />)
+  const component = render(
+    <MemoryRouter>
+      <TradeRoutes />
+    </MemoryRouter>
+  )
   return { ...component, setDefaultAssets }
 }
 

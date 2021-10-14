@@ -1,5 +1,4 @@
 import {
-  BalanceResponse,
   BuildSendTxInput,
   ChainTxType,
   ChainTypes,
@@ -8,20 +7,16 @@ import {
   GetFeeDataInput,
   SignTxInput,
   TxHistoryResponse,
-  ValidAddressResult
+  ValidAddressResult,
+  Account,
+  TxHistoryInput
 } from '@shapeshiftoss/types'
-import { BlockchainProvider } from './types/BlockchainProvider.type'
-import { Params } from './types/Params.type'
 
 export const isChainAdapterOfType = <U extends ChainTypes>(
   chainType: U,
   x: ChainAdapter<ChainTypes>
 ): x is ChainAdapter<U> => {
   return x.getType() === chainType
-}
-
-export interface ChainAdapterFactory<T extends ChainTypes> {
-  new ({ provider }: { provider: BlockchainProvider<T> }): ChainAdapter<T>
 }
 
 export interface ChainAdapter<T extends ChainTypes> {
@@ -33,8 +28,8 @@ export interface ChainAdapter<T extends ChainTypes> {
   /**
    * Get the balance of an address
    */
-  getBalance(address: string): Promise<BalanceResponse>
-  getTxHistory(address: string, params?: Params): Promise<TxHistoryResponse<T>>
+  getAccount(pubkey: string): Promise<Account<T>>
+  getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse<T>>
 
   buildSendTransaction(
     input: BuildSendTxInput

@@ -4,6 +4,7 @@ import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
+  BIP32Params,
   ChainTypes,
   QuoteResponse
 } from '@shapeshiftoss/types'
@@ -11,7 +12,6 @@ import {
   AFFILIATE_ADDRESS,
   APPROVAL_BUY_AMOUNT,
   APPROVAL_GAS_LIMIT,
-  DEFAULT_ETH_PATH,
   DEFAULT_SLIPPAGE
 } from '../utils/constants'
 
@@ -36,7 +36,13 @@ export async function approvalNeeded(
   }
 
   const adapter: ChainAdapter<ChainTypes> = adapterManager.byChain(sellAsset.chain)
-  const receiveAddress = await adapter.getAddress({ wallet, path: DEFAULT_ETH_PATH })
+  // TODO(0xdef1cafe): populate this
+  const bip32Params: BIP32Params = {
+    purpose: 0,
+    coinType: 0,
+    accountNumber: 0
+  }
+  const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
 
   /**
    * /swap/v1/quote

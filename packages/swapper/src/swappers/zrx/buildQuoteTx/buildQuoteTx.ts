@@ -3,7 +3,13 @@ import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { SwapError } from '../../..'
-import { ChainTypes, Quote, QuoteResponse, BuildQuoteTxInput } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  Quote,
+  QuoteResponse,
+  BuildQuoteTxInput,
+  BIP32Params
+} from '@shapeshiftoss/types'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
@@ -12,7 +18,6 @@ import { zrxService } from '../utils/zrxService'
 import {
   DEFAULT_SLIPPAGE,
   DEFAULT_SOURCE,
-  DEFAULT_ETH_PATH,
   AFFILIATE_ADDRESS,
   APPROVAL_GAS_LIMIT,
   MAX_SLIPPAGE
@@ -65,7 +70,13 @@ export async function buildQuoteTx(
   }
 
   const adapter: ChainAdapter<ChainTypes.Ethereum> = adapterManager.byChain(buyAsset.chain)
-  const receiveAddress = await adapter.getAddress({ wallet, path: DEFAULT_ETH_PATH })
+  // TODO(0xdef1cafe): populate this
+  const bip32Params: BIP32Params = {
+    purpose: 0,
+    coinType: 0,
+    accountNumber: 0
+  }
+  const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
 
   if (new BigNumber(slippage || 0).gt(MAX_SLIPPAGE)) {
     throw new SwapError(

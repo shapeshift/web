@@ -1,7 +1,8 @@
-import { ChainTypes } from '@shapeshiftoss/types'
 import { ChainAdapter, isChainAdapterOfType } from './api'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { EthereumChainAdapter } from './ethereum'
-import { UnchainedProvider } from './providers'
+import { BitcoinChainAdapter } from './bitcoin'
+import { BitcoinAPI, EthereumAPI } from '@shapeshiftoss/unchained-client'
 
 export type UnchainedUrls = Partial<Record<ChainTypes, string>>
 
@@ -17,8 +18,19 @@ export class ChainAdapterManager {
       ([type, baseURL]) => {
         switch (type) {
           case ChainTypes.Ethereum: {
-            const provider = new UnchainedProvider({ baseURL, type })
+            const provider = new EthereumAPI.V1Api(
+              new EthereumAPI.Configuration({ basePath: baseURL })
+            )
             return this.addChain(type, () => new EthereumChainAdapter({ provider }))
+          }
+          case ChainTypes.Bitcoin: {
+            const provider = new BitcoinAPI.V1Api(
+              new BitcoinAPI.Configuration({ basePath: baseURL })
+            )
+            return this.addChain(
+              type,
+              () => new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+            )
           }
         }
         throw new Error(`ChainAdapterManager: cannot instantiate ${type} chain adapter`)

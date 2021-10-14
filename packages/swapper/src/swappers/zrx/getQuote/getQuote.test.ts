@@ -32,7 +32,7 @@ const setupQuote = () => {
     sendSupport: true,
     receiveSupport: true,
     symbol: 'FOX'
-    // TODO: remove the type casts from test files when we unify `ChainTypes` and `ChainIdentifier`
+    // TODO: remove the type casts from test files when we unify `ChainTypes` and `ChainTypes`
   } as unknown) as Asset
   const buyAsset = ({
     name: 'WETH',

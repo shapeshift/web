@@ -1,5 +1,5 @@
 import { numberToHex } from 'web3-utils'
-import { ExecQuoteInput, ExecQuoteOutput } from '@shapeshiftoss/types'
+import { BIP32Params, ExecQuoteInput, ExecQuoteOutput } from '@shapeshiftoss/types'
 import { SwapError } from '../../../api'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { DEFAULT_ETH_PATH } from '../utils/constants'
@@ -34,13 +34,19 @@ export async function executeQuote(
   const value = sellAsset.symbol === 'ETH' ? numberToHex(quote.sellAmount || 0) : '0x0'
   const adapter = adapterManager.byChain(sellAsset.chain)
 
+  // TODO(0xdef1cafe): populate this
+  const bip32Params: BIP32Params = {
+    purpose: 0,
+    coinType: 0,
+    accountNumber: 0
+  }
   const { txToSign } = await adapter.buildSendTransaction({
     value,
     wallet,
     to: quote.depositAddress,
-    path: DEFAULT_ETH_PATH,
     fee: numberToHex(quote.feeData?.gasPrice || 0),
-    limit: numberToHex(quote.feeData?.estimatedGas || 0)
+    gasLimit: numberToHex(quote.feeData?.estimatedGas || 0),
+    bip32Params
   })
 
   const signedTx = await adapter.signTransaction({ txToSign, wallet })

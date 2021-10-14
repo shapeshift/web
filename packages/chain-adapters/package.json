@@ -25,17 +25,21 @@
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.16.3",
-    "@shapeshiftoss/hdwallet-native": "^1.15.5-alpha.1",
+    "@shapeshiftoss/hdwallet-core": "^1.16.6",
+    "@shapeshiftoss/unchained-client": "^1.3.1",
     "@shapeshiftoss/types": "^1.0.2",
     "axios": "^0.21.2",
     "bignumber.js": "^9.0.1",
+    "bitcoinjs-lib": "^5.2.0",
+    "coinselect": "^3.1.12",
     "ethers": "^5.4.4",
     "multicoin-address-validator": "^0.5.2",
     "web3-utils": "^1.5.2"
   },
   "gitHead": "0004bdf69eb56b7ce358bb8e1f995ddd5cbb87ee",
   "devDependencies": {
+    "@shapeshiftoss/hdwallet-native": "^1.16.6",
+    "@shapeshiftoss/types": "^1.0.2",
     "@types/multicoin-address-validator": "^0.5.0"
   }
 }

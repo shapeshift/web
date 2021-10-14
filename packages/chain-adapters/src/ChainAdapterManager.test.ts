@@ -4,6 +4,7 @@ import { ChainAdapterManager } from './ChainAdapterManager'
 import { EthereumChainAdapter } from './ethereum'
 
 const getCAM = (opts?: Record<string, string>) => {
+  // @ts-ignore
   return new ChainAdapterManager({ ethereum: 'http://localhost', ...opts })
 }
 

@@ -25,8 +25,23 @@ type GetQuote = {
   action?: TradeActions
 }
 
+export enum TRADE_ERRORS {
+  NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
+  AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
+  NEGATIVE_MAX = 'trade.errors.negativeMax',
+  INVALID_MAX = 'trade.errors.invalidMax',
+  INSUFFICIENT_FUNDS = 'trade.errors.insufficientFunds',
+  INSUFFICIENT_FUNDS_FOR_LIMIT = 'trade.errors.insufficientFundsForLimit',
+  INSUFFICIENT_FUNDS_FOR_AMOUNT = 'trade.errors.insufficientFundsForAmount',
+  NO_LIQUIDITY = 'trade.errors.noLiquidityError',
+  BALANCE_TO_LOW = 'trade.errors.balanceToLow',
+  DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',
+  QUOTE_FAILED = 'trade.errors.quoteFailed',
+  OVER_SLIP_SCORE = 'trade.errors.overSlipScore'
+}
+
 export const useSwapper = () => {
-  const { setValue } = useFormContext()
+  const { setValue, setError, clearErrors } = useFormContext()
   const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -46,6 +61,7 @@ export const useSwapper = () => {
     if (debounceObj?.cancel) debounceObj.cancel()
     const quoteDebounce = debounce(async () => {
       try {
+        clearErrors()
         if (!sellAsset || !buyAsset)
           throw new Error('getQuote - needs buyAsset and sellAsset to get quote')
         const swapper = swapperManager.getSwapper(bestSwapperType)
@@ -86,8 +102,10 @@ export const useSwapper = () => {
 
         if (action) onFinish(newQuote)
         else reset()
-      } catch (e) {
-        console.error('error', e)
+      } catch (err: any) {
+        const message = err?.response?.data?.validationErrors?.[0]?.reason
+        if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+        else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
       } finally {
         setValue('action', undefined)
       }

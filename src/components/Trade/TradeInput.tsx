@@ -20,6 +20,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { ErrorText } from 'components/Text/Text'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -41,6 +42,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue,
     formState: { errors, isDirty, isValid }
   } = useFormContext()
+  console.log('errors', errors)
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -179,7 +181,9 @@ export const TradeInput = ({ history }: RouterProps) => {
               />
             }
           />
+          <ErrorText textAlign='center' translation={errors?.getQuote?.message} />
         </FormControl>
+
         <Button
           type='submit'
           size='lg'

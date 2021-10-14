@@ -26,6 +26,8 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
+import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
+import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
 import { AssetActions } from './AssetActions'
 
@@ -34,10 +36,14 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const [graphPercentChange, setGraphPercentChange] = useState(percentChange)
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
+  const { data, loading } = usePriceHistory({
+    asset,
+    timeframe
+  })
+  const graphPercentChange = usePercentChange({ data })
 
   return (
     <Card variant='footer-stub'>
@@ -110,12 +116,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
         </Box>
       </Card.Body>
       <Card.Body px={0} py={0} position='relative' height='300px'>
-        <Graph
-          asset={asset}
-          timeframe={timeframe}
-          isLoaded={isLoaded}
-          setPercentChange={setGraphPercentChange}
-        />
+        <Graph data={data} loading={loading} isLoaded={isLoaded} />
       </Card.Body>
       <Card.Footer>
         <HStack>

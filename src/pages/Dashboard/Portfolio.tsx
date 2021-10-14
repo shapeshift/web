@@ -59,7 +59,7 @@ export const Portfolio = () => {
           <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
         </Card.Header>
         <Card.Body p={0} height='350px'>
-          <Graph asset={asset} timeframe={HistoryTimeframe.YEAR} />
+          <Graph data={[]} loading={true} />
         </Card.Body>
       </Card>
       <Card>

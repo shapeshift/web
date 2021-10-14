@@ -2,8 +2,14 @@ import { HistoryData } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { useEffect, useState } from 'react'
 
-export const usePercentChange = ({ data }: { data?: HistoryData[] }) => {
-  const [percentChange, setPercentChange] = useState(0)
+export const usePercentChange = ({
+  data,
+  percentChange
+}: {
+  data?: HistoryData[]
+  percentChange: number
+}) => {
+  const [percent, setPercentChange] = useState(percentChange)
 
   useEffect(() => {
     if (!data) return
@@ -19,5 +25,5 @@ export const usePercentChange = ({ data }: { data?: HistoryData[] }) => {
     }
   }, [data])
 
-  return percentChange
+  return percent
 }

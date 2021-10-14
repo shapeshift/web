@@ -7,10 +7,10 @@ import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
 import { getByIdentifier } from 'lib/math'
 
-import { SelectAsset } from './SelectAsset'
-import { TradeState } from './Trade'
-import { TradeConfirm } from './TradeConfirm/TradeConfirm'
-import { TradeInput } from './TradeInput'
+import { SelectAsset } from '../SelectAsset'
+import { TradeState } from '../Trade'
+import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
+import { TradeInput } from '../TradeInput'
 
 export const entries = ['/send/details', '/send/confirm']
 

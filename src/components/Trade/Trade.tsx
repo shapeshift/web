@@ -3,7 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { TradeActions } from 'hooks/useSwapper/useSwapper'
 
-import { entries, TradeRoutes } from './TradeRoutes'
+import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 
 export type TradeAsset = {
   currency: Asset

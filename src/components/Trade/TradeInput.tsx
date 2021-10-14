@@ -8,6 +8,7 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
+import { get } from 'lodash'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
@@ -66,6 +67,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       TradeActions.SELL
     )
   }
+
+  const getQuoteError = get(errors, `getQuote.message`, null)
 
   return (
     <SlideTransition>
@@ -159,7 +162,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             )}
           </Box>
         </FormControl>
-        <FormControl mb={6} isInvalid={errors.getQuote}>
+        <FormControl mb={6}>
           <TokenRow
             control={control}
             fieldName='buyAsset.amount'
@@ -179,19 +182,16 @@ export const TradeInput = ({ history }: RouterProps) => {
               />
             }
           />
-          <FormErrorMessage>
-            <Text translation={errors.getQuote?.message} />
-          </FormErrorMessage>
         </FormControl>
 
         <Button
           type='submit'
           size='lg'
           width='full'
-          colorScheme='blue'
+          colorScheme={getQuoteError ? 'red' : 'blue'}
           isDisabled={!isDirty || !isValid || !!action}
         >
-          Preview Trade
+          <Text translation={getQuoteError ?? 'trade.previewTrade'} />
         </Button>
       </Box>
     </SlideTransition>

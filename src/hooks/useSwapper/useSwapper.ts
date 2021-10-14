@@ -66,7 +66,7 @@ export const useSwapper = () => {
           throw new Error('getQuote - needs buyAsset and sellAsset to get quote')
         const swapper = swapperManager.getSwapper(bestSwapperType)
         const quoteInput = {
-          sellAsset: { ...sellAsset, symbol: 'flskjd' },
+          sellAsset: sellAsset,
           buyAsset: buyAsset,
           ...amount
         }

@@ -46,6 +46,7 @@
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
+    "previewTrade": "Preview Trade",
     "errors": {
       "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",

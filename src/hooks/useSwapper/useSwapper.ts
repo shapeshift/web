@@ -59,14 +59,14 @@ export const useSwapper = () => {
 
   const getQuote = async ({ amount, sellAsset, buyAsset, onFinish, action }: GetQuote) => {
     if (debounceObj?.cancel) debounceObj.cancel()
+    clearErrors()
     const quoteDebounce = debounce(async () => {
       try {
-        clearErrors()
         if (!sellAsset || !buyAsset)
           throw new Error('getQuote - needs buyAsset and sellAsset to get quote')
         const swapper = swapperManager.getSwapper(bestSwapperType)
         const quoteInput = {
-          sellAsset: sellAsset,
+          sellAsset: { ...sellAsset, symbol: 'flskjd' },
           buyAsset: buyAsset,
           ...amount
         }
@@ -152,8 +152,9 @@ export const useSwapper = () => {
     action?: TradeActions
   ) => {
     const rate = quote?.rate
-    if (!rate) return
-    const sellAmount = toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)
+    const sellAmount = !rate
+      ? '0'
+      : toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)
     getQuote({
       action,
       amount: { sellAmount },

@@ -27,7 +27,3 @@ export const Text = forwardRef<TextPropTypes, 'p'>((props, ref) => {
     </CText>
   )
 })
-
-export const ErrorText = forwardRef<TextPropTypes, 'p'>((props, ref) => {
-  return <Text color='red' fontWeight='bold' py={2} {...props} ref={ref} />
-})

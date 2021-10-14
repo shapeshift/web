@@ -5,7 +5,6 @@ import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { translations } from 'assets/translations'
-import { AssetProvider } from 'context/AssetProvider/AssetProvider'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
@@ -28,13 +27,11 @@ export function AppProviders({ children }: ProvidersProps) {
         <ColorModeScript />
         <BrowserRouter>
           <I18n locale={locale} messages={messages}>
-            <AssetProvider>
-              <WalletProvider>
-                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                  <ModalProvider>{children}</ModalProvider>
-                </ChainAdaptersProvider>
-              </WalletProvider>
-            </AssetProvider>
+            <WalletProvider>
+              <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                <ModalProvider>{children}</ModalProvider>
+              </ChainAdaptersProvider>
+            </WalletProvider>
           </I18n>
         </BrowserRouter>
       </ChakraProvider>

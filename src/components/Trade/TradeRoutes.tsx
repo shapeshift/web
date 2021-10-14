@@ -3,8 +3,8 @@ import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Redirect, Route, RouteProps, Switch, useHistory, useLocation } from 'react-router-dom'
-import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
+import { getAssetService } from 'lib/assetService'
 import { getByIdentifier } from 'lib/math'
 
 import { SelectAsset } from './SelectAsset'
@@ -21,12 +21,13 @@ export const TradeRoutes = () => {
   const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
-  const assetService = useAssets()
 
   const setDefaultAssets = useCallback(async () => {
     try {
       const defaultPair = getDefaultPair()
-      const data = assetService.byNetwork(NetworkTypes.MAINNET)
+      const service = await getAssetService()
+
+      const data = service?.byNetwork(NetworkTypes.MAINNET)
       const sellAsset = data.find(
         asset => getByIdentifier(defaultPair[0]) === getByIdentifier(asset)
       )
@@ -39,7 +40,7 @@ export const TradeRoutes = () => {
     } catch (e) {
       console.warn(e)
     }
-  }, [setValue, getCryptoQuote, assetService, getDefaultPair])
+  }, [setValue, getCryptoQuote, getDefaultPair])
 
   useEffect(() => {
     setDefaultAssets()

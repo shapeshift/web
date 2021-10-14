@@ -1,20 +1,22 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
-import sortBy from 'lodash/sortBy'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useAssets } from 'context/AssetProvider/AssetProvider'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { selectAndSortAssets } from './selectors/selectAndSortAssets/selectAndSortAssets'
 
 type AssetSearchProps = {
   onClick: (asset: any) => void
 }
 
 export const AssetSearch = ({ onClick }: AssetSearchProps) => {
-  const [sortedAssets, setSortedAssets] = useState<Asset[]>([])
+  const dispatch = useDispatch()
+  const assets = useSelector(selectAndSortAssets)
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -26,27 +28,12 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
   const searchString = watch('search')
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
-  const assetService = useAssets()
-
-  const fetchTokens = useCallback(async () => {
-    try {
-      const data = assetService.byNetwork(NetworkTypes.MAINNET)
-      const sorted = sortBy(data, ['name', 'symbol'])
-      setSortedAssets(sorted)
-    } catch (e) {
-      console.warn(e)
-    }
-  }, [assetService])
+  useEffect(() => {
+    dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+  }, [dispatch])
 
   useEffect(() => {
-    fetchTokens()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    setFilteredAssets(
-      searching ? filterAssetsBySearchTerm(searchString, sortedAssets) : sortedAssets
-    )
+    setFilteredAssets(searching ? filterAssetsBySearchTerm(searchString, assets) : assets)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])
 
@@ -67,11 +54,7 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
         </InputGroup>
       </Box>
       <Box flex={1}>
-        <AssetList
-          mb='10'
-          assets={searching ? filteredAssets : sortedAssets}
-          handleClick={onClick}
-        />
+        <AssetList mb='10' assets={searching ? filteredAssets : assets} handleClick={onClick} />
       </Box>
     </>
   )

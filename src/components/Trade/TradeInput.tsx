@@ -119,8 +119,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
-                logo={sellAsset.currency?.icon}
-                symbol={sellAsset.currency?.symbol}
+                logo={sellAsset?.currency?.icon}
+                symbol={sellAsset?.currency?.symbol}
               />
             }
             inputRightElement={
@@ -174,8 +174,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}
-                logo={buyAsset.currency?.icon}
-                symbol={buyAsset.currency?.symbol}
+                logo={buyAsset?.currency?.icon}
+                symbol={buyAsset?.currency?.symbol}
               />
             }
           />

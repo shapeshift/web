@@ -3,10 +3,10 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useAssets } from 'context/AssetProvider/AssetProvider'
-import { TradeActions, useSwapper } from 'hooks/useSwapper/useSwapper'
+import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { getByIdentifier } from 'lib/math'
 
-import { TradeState } from '../Trade'
+import { TradeState } from '../../Trade'
 
 export const useTradeRoutes = (): {
   handleSellClick: (asset: Asset) => Promise<void>

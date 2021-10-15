@@ -46,7 +46,7 @@ function setup() {
   return { hook, setValue, getCryptoQuote }
 }
 
-describe('TradeRoute', () => {
+describe('useSwapper', () => {
   it('sets the default assets', () => {
     const { getCryptoQuote, setValue } = setup()
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)

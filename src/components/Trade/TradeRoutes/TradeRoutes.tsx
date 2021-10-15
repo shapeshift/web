@@ -4,7 +4,7 @@ import { Redirect, Route, RouteProps, Switch, useLocation } from 'react-router-d
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
-import { useTradeRoutes } from './useTradeRotues'
+import { useTradeRoutes } from '../../TradeRoutes/useTradeRotues'
 
 export const entries = ['/send/details', '/send/confirm']
 

@@ -3,10 +3,10 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useAssets } from 'context/AssetProvider/AssetProvider'
-import { FOX, WETH } from 'jest/assets'
+import { FOX, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
 
-import { useTradeRoutes } from './useTradeRotues'
+import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({
   useHistory: () => ({

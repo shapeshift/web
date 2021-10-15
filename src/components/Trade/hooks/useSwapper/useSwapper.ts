@@ -1,6 +1,6 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
@@ -79,6 +79,7 @@ export const useSwapper = () => {
           minMax && setValue('trade', minMax)
         }
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
+
         if (!newQuote?.success) throw new Error('getQuote - quote not successful')
         const sellAssetUsdRate = await swapper.getUsdRate({
           symbol: sellAsset.symbol,

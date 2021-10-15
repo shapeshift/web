@@ -50,3 +50,44 @@ export const FOX = {
   receiveSupport: true,
   symbol: 'FOX'
 }
+export const USDC = {
+  name: 'USD Coin',
+  chain: ChainTypes.Ethereum,
+  network: NetworkTypes.MAINNET,
+  precision: 6,
+  tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  contractType: ContractTypes.ERC20,
+  color: '#FFFFFF',
+  secondaryColor: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/6319/thumb/USD_Coin_icon.png?1547042389',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  sendSupport: true,
+  receiveSupport: true,
+  symbol: 'USDC',
+  slip44: 60
+}
+
+export const QUOTE = {
+  sellAsset: WETH,
+  buyAsset: USDC,
+  priceImpact: '0.00353623343019489995',
+  success: true,
+  statusCode: 0,
+  rate: '3839.269108',
+  minimum: '0.000259545173425274',
+  maximum: '100000000000000000000000000',
+  feeData: {
+    fee: '153244500000000000',
+    estimatedGas: '424500',
+    gasPrice: '361000000000'
+  },
+  sellAmount: '324000000000000000000',
+  buyAmount: '1243923191084',
+  sources: [
+    {
+      name: 'Uniswap_V3',
+      proportion: '1'
+    }
+  ]
+}

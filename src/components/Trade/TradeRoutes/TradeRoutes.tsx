@@ -1,10 +1,10 @@
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteProps, Switch, useLocation } from 'react-router-dom'
 
+import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
-import { useTradeRoutes } from '../../TradeRoutes/useTradeRotues'
 
 export const entries = ['/send/details', '/send/confirm']
 

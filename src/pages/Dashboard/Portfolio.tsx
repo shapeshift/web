@@ -1,37 +1,13 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
-import { ChainTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
-// import { HistoryTimeframe } from 'lib/assets/getAssetData'
 import { useBalances } from 'hooks/useBalances/useBalances'
 
 import { AssetList } from './components/AssetList/AssetList'
-
-// TODO: Combined Portfolio Asset Chart
-const asset = {
-  icon: 'https://static.coincap.io/assets/icons/256/btc.png',
-  displayName: 'Bitcoin',
-  network: NetworkTypes.MAINNET,
-  symbol: 'BTC',
-  price: '1000',
-  marketCap: '1000',
-  volume: '1000',
-  changePercent24Hr: 25,
-  description: 'loremIpsum',
-  name: 'bitcoin',
-  slip44: 0,
-  explorer: 'https://live.blockcypher.com',
-  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
-  precision: 18,
-  color: '0',
-  secondaryColor: '0',
-  chain: ChainTypes.Bitcoin,
-  sendSupport: false,
-  receiveSupport: false
-}
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)

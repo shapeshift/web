@@ -27,6 +27,5 @@
     "@shapeshiftoss/types": "^1.0.2",
     "axios": "^0.21.2",
     "dayjs": "^1.10.6"
-  },
-  "gitHead": "0004bdf69eb56b7ce358bb8e1f995ddd5cbb87ee"
+  }
 }

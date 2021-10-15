@@ -1,8 +1,8 @@
-import { ChainAdapter, isChainAdapterOfType } from './api'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { EthereumChainAdapter } from './ethereum'
-import { BitcoinChainAdapter } from './bitcoin'
 import { BitcoinAPI, EthereumAPI } from '@shapeshiftoss/unchained-client'
+import { ChainAdapter, isChainAdapterOfType } from './api'
+import { BitcoinChainAdapter } from './bitcoin'
+import { EthereumChainAdapter } from './ethereum'
 
 export type UnchainedUrls = Partial<Record<ChainTypes, string>>
 
@@ -15,25 +15,20 @@ export class ChainAdapterManager {
       throw new Error('Blockchain urls required')
     }
     ;(Object.entries(unchainedUrls) as Array<[keyof UnchainedUrls, string]>).forEach(
-      ([type, baseURL]) => {
+      ([type, basePath]) => {
         switch (type) {
           case ChainTypes.Ethereum: {
-            const provider = new EthereumAPI.V1Api(
-              new EthereumAPI.Configuration({ basePath: baseURL })
-            )
+            const provider = new EthereumAPI.V1Api(new EthereumAPI.Configuration({ basePath }))
             return this.addChain(type, () => new EthereumChainAdapter({ provider }))
           }
           case ChainTypes.Bitcoin: {
-            const provider = new BitcoinAPI.V1Api(
-              new BitcoinAPI.Configuration({ basePath: baseURL })
-            )
-            return this.addChain(
-              type,
-              () => new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-            )
+            const coinName = 'Bitcoin'
+            const provider = new BitcoinAPI.V1Api(new BitcoinAPI.Configuration({ basePath }))
+            return this.addChain(type, () => new BitcoinChainAdapter({ provider, coinName }))
           }
+          default:
+            throw new Error(`ChainAdapterManager: cannot instantiate ${type} chain adapter`)
         }
-        throw new Error(`ChainAdapterManager: cannot instantiate ${type} chain adapter`)
       }
     )
   }

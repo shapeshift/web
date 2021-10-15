@@ -1,5 +1,5 @@
 import * as ta from 'type-assertions'
-import { ChainTypes, Transaction } from './types'
+import { ChainTypes } from '../base'
 
 // unit tests for types
 

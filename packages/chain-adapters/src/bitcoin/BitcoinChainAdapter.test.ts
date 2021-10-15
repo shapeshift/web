@@ -75,7 +75,6 @@ describe('BitcoinChainAdapter', () => {
         balance: '0'
       }
       const data = await btcChainAdapter.getAccount(address)
-
       expect(data).toMatchObject(exampleResponse)
     })
 

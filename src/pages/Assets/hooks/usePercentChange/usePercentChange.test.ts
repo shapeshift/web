@@ -11,11 +11,11 @@ describe('usePercentChange', () => {
     ] as HistoryData[]
 
     const { waitFor, result } = renderHook(
-      ({ data, percentChange }) => usePercentChange({ data, percentChange }),
+      ({ data, initPercentChange }) => usePercentChange({ data, initPercentChange }),
       {
         initialProps: {
           data: historyData,
-          percentChange: 2
+          initPercentChange: 2
         }
       }
     )
@@ -25,11 +25,11 @@ describe('usePercentChange', () => {
 
   it('returns passed in percent', async () => {
     const { waitFor, result } = renderHook(
-      ({ data, percentChange }) => usePercentChange({ data, percentChange }),
+      ({ data, initPercentChange }) => usePercentChange({ data, initPercentChange }),
       {
         initialProps: {
           data: undefined,
-          percentChange: 2
+          initPercentChange: 2
         }
       }
     )

@@ -43,7 +43,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
     asset,
     timeframe
   })
-  const graphPercentChange = usePercentChange({ data, percentChange })
+  const graphPercentChange = usePercentChange({ data, intitPercentChange: percentChange })
 
   return (
     <Card variant='footer-stub'>

@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react'
 
 export const usePercentChange = ({
   data,
-  percentChange
+  initPercentChange
 }: {
   data?: HistoryData[]
-  percentChange: number
+  initPercentChange: number
 }) => {
-  const [percent, setPercentChange] = useState(percentChange)
+  const [percent, setPercentChange] = useState(initPercentChange)
 
   useEffect(() => {
     if (!data) return

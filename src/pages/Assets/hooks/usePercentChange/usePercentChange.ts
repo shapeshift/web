@@ -6,7 +6,7 @@ export const usePercentChange = ({
   data,
   initPercentChange
 }: {
-  data?: HistoryData[]
+  data: HistoryData[] | null
   initPercentChange: number
 }) => {
   const [percent, setPercentChange] = useState(initPercentChange)

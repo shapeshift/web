@@ -6,7 +6,7 @@ import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 
 type GraphProps = {
-  data?: HistoryData[]
+  data: HistoryData[] | null
   isLoaded?: boolean
   loading?: boolean
 }

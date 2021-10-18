@@ -83,7 +83,9 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
         to,
         txid,
         value,
-        chain
+        chain,
+        transactionLink:
+          'https://etherscan.io/tx/0x3e8bad229754db284bbec6b6f40eccbda2f72801c03e181ffb253fcd23a40c26'
       }
     })
   }

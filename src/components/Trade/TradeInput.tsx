@@ -166,7 +166,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               const action = value ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
               const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
-              getCryptoQuote(amount, sellAsset, buyAsset, action)
+              getCryptoQuote(amount, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton

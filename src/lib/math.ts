@@ -11,7 +11,7 @@ export const toBaseUnit = (amount: string, precision: number): string => {
 }
 
 export const firstNonZeroDecimal = (number: BN) => {
-  return number.toFixed(20).match(/^-?\d*\.?0*\d{0,2}/)?.[0]
+  return number.toFixed(10).match(/^-?\d*\.?0*\d{0,2}/)?.[0]
 }
 
 export const getByIdentifier = (asset: Pick<Asset, 'chain' | 'symbol' | 'name'>) => {

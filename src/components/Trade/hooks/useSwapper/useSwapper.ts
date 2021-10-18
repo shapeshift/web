@@ -18,11 +18,11 @@ export enum TradeActions {
 }
 
 type GetQuote = {
-  amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>
+  amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
   sellAsset: Asset
   buyAsset: Asset
   onFinish: (quote: Quote) => void
-  action?: TradeActions
+  isFiat?: boolean
 }
 
 export enum TRADE_ERRORS {
@@ -62,16 +62,31 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const getQuote = async ({ amount, sellAsset, buyAsset, onFinish, action }: GetQuote) => {
+  const getQuote = async ({ amount, sellAsset, buyAsset, onFinish }: GetQuote) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
       try {
         const swapper = swapperManager.getSwapper(bestSwapperType)
+        let convertedAmount = amount
+        const isFiat = Object.keys(amount)[0].includes('fiat')
+        if (isFiat) {
+          const rate = await swapper.getUsdRate({
+            symbol: sellAsset.symbol,
+            tokenId: sellAsset.tokenId
+          })
+          const fiatAmount = Object.values(amount)[0]
+          convertedAmount = {
+            sellAmount: toBaseUnit(
+              bn(fiatAmount).div(rate).toString(),
+              sellAsset.precision
+            ).toString()
+          }
+        }
         const quoteInput = {
           sellAsset: sellAsset,
           buyAsset: buyAsset,
-          ...amount
+          ...convertedAmount
         }
         let minMax = trade
         if (
@@ -81,6 +96,7 @@ export const useSwapper = () => {
           minMax = await swapper.getMinMax(quoteInput)
           minMax && setValue('trade', minMax)
         }
+
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
 
         if (!newQuote?.success) throw new Error('getQuote - quote not successful')
@@ -128,8 +144,7 @@ export const useSwapper = () => {
     const value = Object.values(amount)[0]
     const isSellQuote = key === 'sellAmount'
     const precision = isSellQuote ? sellAsset.currency.precision : buyAsset.currency.precision
-    getQuote({
-      action,
+    await getQuote({
       amount: { [key]: toBaseUnit(value || '0', precision) },
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
@@ -150,16 +165,15 @@ export const useSwapper = () => {
 
   const getFiatQuote = async (fiatAmount: string, sellAsset: TradeAsset, buyAsset: TradeAsset) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    const rate = quote?.rate
-    const sellAmount = !rate
-      ? '0'
-      : toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)
+    swapperManager
     getQuote({
-      action,
-      amount: { sellAmount },
+      amount: { fiatAmount },
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
       onFinish: quote => {
+        console.log('qutoe', quote)
+        const sellAmount = quote.rate
+        console.log('sellAmount', sellAmount)
         setValue(
           'buyAsset.amount',
           fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
@@ -168,7 +182,8 @@ export const useSwapper = () => {
           'sellAsset.amount',
           fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
         )
-      }
+      },
+      isFiat: true
     })
   }
 

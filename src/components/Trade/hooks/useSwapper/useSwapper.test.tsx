@@ -17,6 +17,7 @@ function setup() {
   const setValue = jest.fn()
   const setError = jest.fn()
   const clearErrors = jest.fn()
+  const getBestSwapper = jest.fn()
   const getQuote = jest.fn(() => QUOTE)
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getSwapper: () => ({
@@ -26,7 +27,7 @@ function setup() {
       getQuote
     }),
     addSwapper: jest.fn(),
-    getBestSwapper: () => 'new ZrxySwapper'
+    getBestSwapper
   }))
   ;(debounce as jest.Mock<unknown>).mockImplementation(fn => fn)
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{ rate: '1.2' }, {}])
@@ -37,7 +38,7 @@ function setup() {
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
   const hook = renderHook(() => useSwapper(), { wrapper })
-  return { hook, setValue, setError, clearErrors, getQuote }
+  return { hook, setValue, setError, clearErrors, getQuote, getBestSwapper }
 }
 
 describe('useSwapper', () => {
@@ -116,22 +117,28 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
     expect(setValue).toHaveBeenNthCalledWith(5, 'sellAsset.amount', sellAmount)
   })
-  it('getBestSwapper gets best swapper', async () => {
-    const { hook } = setup()
+  it('getFiatQuote needs buyAsset or sellAsset', async () => {
+    const { hook, getQuote } = setup()
     await act(async () => {
-      const bestSwapper = await hook.result.current.getBestSwapper({
+      hook.result.current.getFiatQuote(
+        '2323',
+        //@ts-ignore
+        { currency: undefined },
+        { currency: undefined },
+        TradeActions.SELL
+      )
+    })
+    expect(getQuote).not.toHaveBeenCalled()
+  })
+  it('getBestSwapper gets best swapper', async () => {
+    const { hook, getBestSwapper } = setup()
+    await act(async () => {
+      await hook.result.current.getBestSwapper({
         sellAsset: { currency: WETH },
         buyAsset: { currency: FOX }
       })
-      console.log('bestSwapper', bestSwapper)
-      //TODO: check if bestSwapper changed in useState
     })
-    expect(true).toBe(true)
-  })
-  it('getQuote rejects', async () => {
-    const { hook } = setup()
-    //TODO: test getQuote rejecting promise
-    expect(true).toBe(true)
+    expect(getBestSwapper).toHaveBeenCalled()
   })
   it('reset resets', () => {
     const { hook, setValue } = setup()

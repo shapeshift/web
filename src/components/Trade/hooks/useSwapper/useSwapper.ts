@@ -62,8 +62,6 @@ export const useSwapper = () => {
     clearErrors()
     const quoteDebounce = debounce(async () => {
       try {
-        if (!sellAsset || !buyAsset)
-          throw new Error('getQuote - needs buyAsset and sellAsset to get quote')
         const swapper = swapperManager.getSwapper(bestSwapperType)
         const quoteInput = {
           sellAsset: sellAsset,
@@ -152,6 +150,7 @@ export const useSwapper = () => {
     buyAsset: TradeAsset,
     action?: TradeActions
   ) => {
+    if (!buyAsset?.currency || !sellAsset?.currency) return
     const rate = quote?.rate
     const sellAmount = !rate
       ? '0'

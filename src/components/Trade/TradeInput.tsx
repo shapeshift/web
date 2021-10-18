@@ -101,8 +101,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             rules={{
               validate: {
-                validNumber: value => !isNaN(Number(value)) || 'Amount must be a number',
-                greaterThanZero: value => Number(value) > 0 || 'Amount must be greater than 0'
+                validNumber: value => !isNaN(Number(value)) || 'Amount must be a number'
               }
             }}
           />

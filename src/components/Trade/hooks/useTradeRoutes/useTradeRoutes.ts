@@ -24,7 +24,7 @@ export const useTradeRoutes = (): {
       const service = await getAssetService()
       const data = service?.byNetwork(NetworkTypes.MAINNET)
       const sellAsset = data.find(
-        asset => getByIdentifier(defaultPair[0]) === getByIdentifier(asset)
+        asset => getByIdentifier(defaultPair?.[0]) === getByIdentifier(asset)
       )
       const buyAsset = data.find(
         asset => getByIdentifier(defaultPair?.[1]) === getByIdentifier(asset)

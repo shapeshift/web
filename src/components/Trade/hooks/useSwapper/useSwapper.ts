@@ -1,7 +1,7 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -42,6 +42,8 @@ export enum TRADE_ERRORS {
 
 export const useSwapper = () => {
   const { setValue, setError, clearErrors } = useFormContext()
+  const [action, setAction] = useState<TradeActions>()
+  const actionRef = useRef(action)
   const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -51,6 +53,10 @@ export const useSwapper = () => {
   })
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
+
+  useEffect(() => {
+    actionRef.current = action
+  }, [action])
 
   const getDefaultPair = useCallback(() => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
@@ -99,14 +105,14 @@ export const useSwapper = () => {
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
 
-        if (action) onFinish(newQuote)
+        if (actionRef.current) onFinish(newQuote)
         else reset()
       } catch (err: any) {
         const message = err?.response?.data?.validationErrors?.[0]?.reason
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
       } finally {
-        setValue('action', undefined)
+        setAction(undefined)
       }
     }, debounceTime)
     quoteDebounce()
@@ -116,8 +122,7 @@ export const useSwapper = () => {
   const getCryptoQuote = async (
     amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>,
     sellAsset: TradeAsset,
-    buyAsset: TradeAsset,
-    action?: TradeActions
+    buyAsset: TradeAsset
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const key = Object.keys(amount)[0]
@@ -144,12 +149,7 @@ export const useSwapper = () => {
     })
   }
 
-  const getFiatQuote = async (
-    fiatAmount: string,
-    sellAsset: TradeAsset,
-    buyAsset: TradeAsset,
-    action?: TradeActions
-  ) => {
+  const getFiatQuote = async (fiatAmount: string, sellAsset: TradeAsset, buyAsset: TradeAsset) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const rate = quote?.rate
     const sellAmount = !rate
@@ -190,10 +190,13 @@ export const useSwapper = () => {
     setValue('buyAsset.amount', '')
     setValue('sellAsset.amount', '')
     setValue('fiatAmount', '')
+    setAction(undefined)
   }
 
   return {
     swapperManager,
+    setAction,
+    action,
     getCryptoQuote,
     getFiatQuote,
     getBestSwapper,

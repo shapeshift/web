@@ -14,7 +14,7 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState>()
-  const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper()
+  const { getCryptoQuote, getBestSwapper, getDefaultPair, setAction } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
 
@@ -48,7 +48,7 @@ export const useTradeRoutes = (): {
       const action = TradeActions.SELL
       if (asset === buyAsset.currency) setValue('buyAsset.currency', sellAsset.currency)
       setValue('sellAsset.currency', asset)
-      setValue('action', action)
+      setAction(action)
       await getBestSwapper({ sellAsset, buyAsset })
       getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset, action)
       history.push('/trade/input')
@@ -61,7 +61,7 @@ export const useTradeRoutes = (): {
       const action = TradeActions.BUY
       if (asset === sellAsset.currency) setValue('sellAsset.currency', buyAsset.currency)
       setValue('buyAsset.currency', asset)
-      setValue('action', action)
+      setAction(action)
       await getBestSwapper({ sellAsset, buyAsset })
       getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset, action)
       history.push('/trade/input')

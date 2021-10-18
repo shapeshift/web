@@ -45,11 +45,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action] = useWatch({ name: ['quote', 'action'] })
-  const { getCryptoQuote, getFiatQuote, reset } = useSwapper()
+  const [quote] = useWatch({ name: ['quote'] })
+  const { getCryptoQuote, getFiatQuote, reset, setAction, action } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
-
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
@@ -59,13 +58,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentBuyAsset = getValues('buyAsset')
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
-    setValue('action', TradeActions.SELL)
-    getCryptoQuote(
-      { sellAmount: currentBuyAsset.amount },
-      currentBuyAsset,
-      currentSellAsset,
-      TradeActions.SELL
-    )
+    setAction(TradeActions.SELL)
+    getCryptoQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -90,9 +84,9 @@ export const TradeInput = ({ history }: RouterProps) => {
                   if (e.value !== value) {
                     const action = !!e.value ? TradeActions.FIAT : undefined
                     if (action) {
-                      setValue('action', action)
+                      setAction(action)
                     } else reset()
-                    getFiatQuote(e.value, sellAsset, buyAsset, action)
+                    getFiatQuote(e.value, sellAsset, buyAsset)
                   }
                 }}
               />
@@ -115,8 +109,8 @@ export const TradeInput = ({ history }: RouterProps) => {
             disabled={action && action !== TradeActions.SELL}
             onInputChange={(value: string) => {
               const action = value ? TradeActions.SELL : undefined
-              action ? setValue('action', action) : reset()
-              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset, action)
+              action ? setAction(action) : reset()
+              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton
@@ -172,7 +166,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             disabled={action && action !== TradeActions.BUY}
             onInputChange={(value: string) => {
               const action = value ? TradeActions.BUY : undefined
-              action ? setValue('action', action) : reset()
+              action ? setAction(action) : reset()
               const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
               getCryptoQuote(amount, sellAsset, buyAsset, action)
             }}

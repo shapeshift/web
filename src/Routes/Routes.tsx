@@ -29,7 +29,7 @@ export const routes: Array<NestedRoute> = [
     icon: <AssetsIcon color='inherit' />,
     routes: [
       {
-        path: '/:network/:address?',
+        path: '/:chain/:tokenId?',
         label: 'Asset Details',
         main: <Asset />,
         leftSidebar: <AssetSidebar />,

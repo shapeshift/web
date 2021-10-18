@@ -1,14 +1,15 @@
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
+import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
 export type UseNativeSuccessPropTypes = { encryptedWallet?: EncryptedWallet }
 
 export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes) => {
-  const [isSuccessful, setIsSuccessful] = useState<boolean | null>(null)
+  const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const [, setLocalStorageWallet] = useLocalStorage<Record<string, string>>('wallet', null)
   const { state, dispatch } = useWallet()
 
@@ -35,12 +36,10 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
           console.error('Failed to load device', error)
           setIsSuccessful(false)
         }
-      } else {
-        setIsSuccessful(false)
       }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [encryptedWallet?.encryptedWallet, dispatch, setLocalStorageWallet, state.adapters])
+  }, [encryptedWallet?.encryptedWallet])
 
   return { isSuccessful }
 }

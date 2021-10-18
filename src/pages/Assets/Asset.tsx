@@ -1,16 +1,18 @@
 import { Flex } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
-import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { ALLOWED_CHAINS, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+import { ReduxState } from 'state/reducer'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
 export interface MatchParams {
-  network: ChainTypes
-  address: string
+  chain: ChainTypes
+  tokenId: string
 }
 
 const initAsset = {
@@ -34,28 +36,22 @@ const initAsset = {
   description: ''
 }
 
-const ALLOWED_CHAINS = {
-  [ChainTypes.Ethereum]: true,
-  [ChainTypes.Bitcoin]: true
-}
-
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
-  const [asset, setAsset] = useStateIfMounted<AssetMarketData | undefined>(undefined)
-
-  let { network, address } = useParams<MatchParams>()
-  const getAssetData = useGetAssetData()
+  const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
+  const { chain, tokenId } = useParams<MatchParams>()
+  const getAssetData = useGetAssetData({ chain, tokenId })
+  const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
 
   const getPrice = useCallback(async () => {
-    if (ALLOWED_CHAINS[network]) {
-      const asset = await getAssetData({
-        chain: network,
-        network: NetworkTypes.MAINNET,
-        tokenId: address
+    if (ALLOWED_CHAINS[chain]) {
+      const market = await getAssetData({
+        chain,
+        tokenId
       })
-      if (asset) setAsset(asset)
+      if (market) setMarketData(market)
     }
-  }, [address, getAssetData, network]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tokenId, getAssetData, chain]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     ;(async () => {
@@ -65,12 +61,15 @@ export const Asset = () => {
         setIsLoaded(true)
       }, 750)
     })()
-  }, [network, address]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [chain, tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <Page style={{ flex: 1 }} key={address}>
+    <Page style={{ flex: 1 }} key={tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetDetails asset={asset ?? initAsset} isLoaded={isLoaded} />
+        <AssetDetails
+          asset={asset && marketData ? { ...asset, ...marketData } : initAsset}
+          isLoaded={isLoaded}
+        />
       </Flex>
     </Page>
   )

@@ -2,9 +2,9 @@ import { NetworkTypes, SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useAssets } from 'context/AssetProvider/AssetProvider'
 import { FOX, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
+import { getAssetService } from 'lib/assetService'
 
 import { useTradeRoutes } from './useTradeRoutes'
 
@@ -15,7 +15,7 @@ jest.mock('react-router-dom', () => ({
 }))
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
-jest.mock('context/AssetProvider/AssetProvider')
+jest.mock('lib/assetService')
 
 function setup() {
   const getCryptoQuote = jest.fn()
@@ -27,7 +27,7 @@ function setup() {
     getBestSwapper: () => SwapperType.Zrx,
     getDefaultPair: () => [FOX, WETH]
   }))
-  ;(useAssets as jest.Mock<unknown>).mockImplementation(() => ({
+  ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({
     byNetwork: (_: NetworkTypes) => [FOX, WETH]
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
@@ -47,8 +47,8 @@ function setup() {
 }
 
 describe('useTradeRoutes', () => {
-  it('sets the default assets', () => {
-    const { getCryptoQuote, setValue } = setup()
+  it('sets the default assets', async () => {
+    const { getCryptoQuote, setValue } = await setup()
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
     expect(getCryptoQuote).toHaveBeenCalled()

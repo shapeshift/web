@@ -34,7 +34,8 @@ const ethAsset = {
   name: 'Ethereum',
   network: 'ethereum',
   price: 3500,
-  symbol: 'eth'
+  symbol: 'eth',
+  precision: 18
 }
 
 const getAssetData = () =>

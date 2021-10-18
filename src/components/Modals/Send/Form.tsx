@@ -1,4 +1,4 @@
-import { Asset, FeeDataEstimate, FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -54,21 +54,24 @@ type SendFormProps = {
   asset: AssetMarketData
 }
 
-export const Form = ({ asset: initalAsset }: SendFormProps) => {
+export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
-  const getAssetData = useGetAssetData()
+  const getAssetData = useGetAssetData({
+    chain: initialAsset.chain,
+    tokenId: initialAsset.tokenId
+  })
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
       address: '',
-      asset: initalAsset,
+      asset: initialAsset,
       feeType: FeeDataKey.Average,
       crypto: {
         amount: '',
-        symbol: initalAsset?.symbol
+        symbol: initialAsset?.symbol
       },
       fiat: {
         amount: '',
@@ -80,11 +83,10 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const handleAssetSelect = async (asset: Asset) => {
     const assetMarketData = await getAssetData({
       chain: asset.chain,
-      network: NetworkTypes.MAINNET,
       tokenId: asset.tokenId
     })
-
-    methods.setValue(SendFormFields.Asset, assetMarketData)
+    if (!assetMarketData) return console.error('Failed to get marketData')
+    methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
     methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
     methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })
 

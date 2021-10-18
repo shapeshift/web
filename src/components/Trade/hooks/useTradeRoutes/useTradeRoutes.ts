@@ -2,11 +2,11 @@ import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { useAssets } from 'context/AssetProvider/AssetProvider'
-import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { getAssetService } from 'lib/assetService'
 import { getByIdentifier } from 'lib/math'
 
 import { TradeState } from '../../Trade'
+import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
 export const useTradeRoutes = (): {
   handleSellClick: (asset: Asset) => Promise<void>
@@ -17,22 +17,27 @@ export const useTradeRoutes = (): {
   const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
-  const assetService = useAssets()
+
   const setDefaultAssets = useCallback(async () => {
-    const defaultPair = getDefaultPair()
-    const data = assetService.byNetwork(NetworkTypes.MAINNET)
-    const sellAsset = data.find(
-      asset => getByIdentifier(defaultPair?.[0]) === getByIdentifier(asset)
-    )
-    const buyAsset = data.find(
-      asset => getByIdentifier(defaultPair?.[1]) === getByIdentifier(asset)
-    )
-    if (sellAsset && buyAsset) {
-      setValue('sellAsset.currency', sellAsset)
-      setValue('buyAsset.currency', buyAsset)
-      getCryptoQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
+    try {
+      const defaultPair = getDefaultPair()
+      const service = await getAssetService()
+      const data = service?.byNetwork(NetworkTypes.MAINNET)
+      const sellAsset = data.find(
+        asset => getByIdentifier(defaultPair[0]) === getByIdentifier(asset)
+      )
+      const buyAsset = data.find(
+        asset => getByIdentifier(defaultPair?.[1]) === getByIdentifier(asset)
+      )
+      if (sellAsset && buyAsset) {
+        setValue('sellAsset.currency', sellAsset)
+        setValue('buyAsset.currency', buyAsset)
+        getCryptoQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
+      }
+    } catch (e) {
+      console.warn(e)
     }
-  }, [setValue, getCryptoQuote, assetService, getDefaultPair])
+  }, [setValue, getCryptoQuote, getDefaultPair])
 
   useEffect(() => {
     setDefaultAssets()

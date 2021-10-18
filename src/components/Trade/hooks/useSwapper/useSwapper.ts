@@ -42,9 +42,8 @@ export enum TRADE_ERRORS {
 
 export const useSwapper = () => {
   const { setValue, setError, clearErrors } = useFormContext()
-  const [action, setAction] = useState<TradeActions>()
+  const [quote, trade, action] = useWatch({ name: ['quote', 'trade', 'action'] })
   const actionRef = useRef(action)
-  const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -112,7 +111,7 @@ export const useSwapper = () => {
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
       } finally {
-        setAction(undefined)
+        setValue('action', undefined)
       }
     }, debounceTime)
     quoteDebounce()
@@ -190,13 +189,11 @@ export const useSwapper = () => {
     setValue('buyAsset.amount', '')
     setValue('sellAsset.amount', '')
     setValue('fiatAmount', '')
-    setAction(undefined)
+    setValue('action', undefined)
   }
 
   return {
     swapperManager,
-    setAction,
-    action,
     getCryptoQuote,
     getFiatQuote,
     getBestSwapper,

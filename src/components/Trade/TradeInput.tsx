@@ -56,11 +56,17 @@ export const TradeInput = ({ history }: RouterProps) => {
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
+    const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
-    setValue('action', currentBuyAsset.amount ? TradeActions.SELL : undefined)
-    getCryptoQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
+    setValue('action', action)
+    getCryptoQuote(
+      { sellAmount: currentBuyAsset.amount },
+      currentBuyAsset,
+      currentSellAsset,
+      action
+    )
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -86,7 +92,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getFiatQuote(e.value, sellAsset, buyAsset)
+                    getCryptoQuote({ fiatAmount: e.value }, sellAsset, buyAsset, action)
                   }
                 }}
               />

@@ -17,8 +17,10 @@ export enum TradeActions {
   FIAT = 'FIAT'
 }
 
+type GetQuoteAmount = Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
+
 type GetQuote = {
-  amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
+  amount: GetQuoteAmount
   sellAsset: Asset
   buyAsset: Asset
   onFinish: (quote: Quote) => void
@@ -119,15 +121,13 @@ export const useSwapper = () => {
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
-
         if (actionRef.current) onFinish(newQuote)
-        else reset()
       } catch (err: any) {
         const message = err?.response?.data?.validationErrors?.[0]?.reason
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
       } finally {
-        setValue('action', undefined)
+        // setValue('action', undefined)
       }
     }, debounceTime)
     quoteDebounce()
@@ -135,17 +135,25 @@ export const useSwapper = () => {
   }
 
   const getCryptoQuote = async (
-    amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>,
+    newAmount: GetQuoteAmount,
     sellAsset: TradeAsset,
     buyAsset: TradeAsset
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    const key = Object.keys(amount)[0]
-    const value = Object.values(amount)[0]
-    const isSellQuote = key === 'sellAmount'
-    const precision = isSellQuote ? sellAsset.currency.precision : buyAsset.currency.precision
+    const key = Object.keys(newAmount)[0]
+    const value = Object.values(newAmount)[0]
+
+    let amount = { fiatAmount: value } as GetQuoteAmount
+    const precision =
+      key === 'sellAmount'
+        ? sellAsset.currency.precision
+        : key === 'buyAmount' && buyAsset.currency.precision
+
+    if (precision) {
+      amount = { [key]: toBaseUnit(value || '0', precision) }
+    }
     await getQuote({
-      amount: { [key]: toBaseUnit(value || '0', precision) },
+      amount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
       onFinish: quote => {
@@ -154,11 +162,25 @@ export const useSwapper = () => {
         const fiatAmount = bn(buyAmount)
           .times(buyAsset.fiatRate || 0)
           .toFixed(2)
-        isSellQuote
-          ? setValue('buyAsset.amount', buyAmount)
-          : setValue('sellAsset.amount', sellAmount)
-
-        fiatAmount && setValue('fiatAmount', fiatAmount)
+        if (actionRef.current === TradeActions.SELL && key === 'sellAmount') {
+          setValue('buyAsset.amount', buyAmount)
+          setValue('fiatAmount', fiatAmount)
+          setValue('action', undefined)
+        } else if (actionRef.current === TradeActions.BUY && key === 'buyAmount') {
+          setValue('sellAsset.amount', sellAmount)
+          setValue('fiatAmount', fiatAmount)
+          setValue('action', undefined)
+        } else if (actionRef.current === TradeActions.FIAT && key === 'fiatAmount') {
+          setValue(
+            'buyAsset.amount',
+            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+          )
+          setValue(
+            'sellAsset.amount',
+            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+          )
+          setValue('action', undefined)
+        }
       }
     })
   }
@@ -171,19 +193,18 @@ export const useSwapper = () => {
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
       onFinish: quote => {
-        console.log('qutoe', quote)
-        const sellAmount = quote.rate
-        console.log('sellAmount', sellAmount)
-        setValue(
-          'buyAsset.amount',
-          fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        )
-        setValue(
-          'sellAsset.amount',
-          fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        )
-      },
-      isFiat: true
+        if (actionRef.current === TradeActions.FIAT) {
+          setValue(
+            'buyAsset.amount',
+            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+          )
+          setValue(
+            'sellAsset.amount',
+            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+          )
+          setValue('action', undefined)
+        }
+      }
     })
   }
 

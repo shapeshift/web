@@ -149,8 +149,11 @@ export const TradeInput = ({ history }: RouterProps) => {
         >
           <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            {!quote || action ? (
-              <Text fontSize='sm' translation='trade.searchingRate' />
+            {!quote || action || getQuoteError ? (
+              <Text
+                fontSize='sm'
+                translation={getQuoteError ? 'common.error' : 'trade.searchingRate'}
+              />
             ) : (
               <>
                 <RawText fontSize='sm'>{`1 ${sellAsset.currency?.symbol} = ${firstNonZeroDecimal(

@@ -2,6 +2,7 @@
   "common": {
     "back": "Back",
     "next": "Next",
+    "error": "Error",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "noResultsFound": "No results found.",

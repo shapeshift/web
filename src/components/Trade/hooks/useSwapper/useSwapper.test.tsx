@@ -3,18 +3,20 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import { getConfig } from 'config'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import {
+  useChainAdapters
+} from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { FOX, USDC, WETH } from 'jest/constants'
+import { TestProviders } from 'jest/TestProviders'
 import { fromBaseUnit } from 'lib/math'
 
 import { QUOTE } from '../../../../jest/constants'
 import { TradeActions, useSwapper } from './useSwapper'
 
-const unchainedUrls = { ethereum: getConfig().REACT_APP_UNCHAINED_ETHEREUM_URL }
-
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
+jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
 function setup() {
   const setValue = jest.fn()
@@ -39,14 +41,20 @@ function setup() {
     setError,
     clearErrors
   }))
-  const wrapper: React.FC = ({ children }) => (
-    <ChainAdaptersProvider unchainedUrls={unchainedUrls}>{children}</ChainAdaptersProvider>
-  )
+  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
   const hook = renderHook(() => useSwapper(), { wrapper })
   return { hook, setValue, setError, clearErrors, getQuote, getBestSwapper }
 }
 
 describe('useSwapper', () => {
+  beforeEach(() => {
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: jest.fn(),
+      getSupportedAdapters: jest.fn(),
+      addChain: jest.fn(),
+      getSupportedChains: jest.fn()
+    }))
+  })
   it('gets default pair', () => {
     const { hook } = setup()
     const defaultPair = hook.result.current.getDefaultPair()

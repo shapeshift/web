@@ -51,7 +51,7 @@ const formatTransactions = (
   if (!(txs ?? []).length) return []
   return txs.map((tx: Transaction) => {
     const date = getDate(tx.timestamp)
-    const asset = assetService.byTokenId({
+    const asset = assetService?.byTokenId({
       chain: tx.chain,
       network: NetworkTypes.MAINNET,
       tokenId: contractAddress
@@ -59,10 +59,10 @@ const formatTransactions = (
     return {
       ...tx,
       type: walletAddress === tx.from ? TxTypeEnum.Sent : TxTypeEnum.Received,
-      amount: fromBaseUnit(tx.value, 18 /** TODO: get precision from asset service **/),
+      amount: fromBaseUnit(tx.value, asset?.precision | 18),
       date,
       dateFromNow: dayjs(date).fromNow(),
-      fee: fromBaseUnit(tx.fee, 18),
+      fee: fromBaseUnit(tx.fee, asset?.precision | 18),
       chain: tx.chain,
       transactionLink: asset?.explorerTxLink + tx.txid
     }

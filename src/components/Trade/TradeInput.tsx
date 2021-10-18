@@ -58,7 +58,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentBuyAsset = getValues('buyAsset')
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
-    setValue('action', TradeActions.SELL)
+    setValue('quote', undefined)
+    setValue('action', currentBuyAsset.amount ? TradeActions.SELL : undefined)
     getCryptoQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
   }
 

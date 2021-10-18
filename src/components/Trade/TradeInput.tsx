@@ -156,9 +156,9 @@ export const TradeInput = ({ history }: RouterProps) => {
               />
             ) : (
               <>
-                <RawText fontSize='sm'>{`1 ${sellAsset.currency?.symbol} = ${firstNonZeroDecimal(
-                  bn(quote.rate)
-                )} ${buyAsset?.currency?.symbol}`}</RawText>
+                <RawText textAlign='right' fontSize='sm'>{`1 ${
+                  sellAsset.currency?.symbol
+                } = ${firstNonZeroDecimal(bn(quote.rate))} ${buyAsset?.currency?.symbol}`}</RawText>
                 <HelperTooltip label='The price is ' />
               </>
             )}

@@ -69,3 +69,21 @@ export const zero = {
   symbol: 'ZERO',
   tokenId: '0xf0939011a9bb95c3b791f0cb546377ed2693a574'
 }
+
+export const fox = {
+  chain: ChainTypes.Ethereum,
+  network: NetworkTypes.MAINNET,
+  color: '#FFFFFF',
+  contractType: ContractTypes.ERC20,
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+  name: 'Fox',
+  precision: 18,
+  receiveSupport: true,
+  secondaryColor: '#FFFFFF',
+  sendSupport: true,
+  slip44: 60,
+  symbol: 'FOX',
+  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+}

@@ -1,7 +1,10 @@
+import { Asset } from '@shapeshiftoss/types'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import dayjs from 'dayjs'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { fox } from 'jest/mocks/assets'
+import { getAssetService } from 'lib/assetService'
 
 import { getDate, useTransactions, UseTransactionsPropType } from './useTransactions'
 
@@ -12,6 +15,19 @@ jest.mock('context/WalletProvider/WalletProvider', () => ({
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider', () => ({
   useChainAdapters: jest.fn()
 }))
+
+jest.mock('lib/assetService', () => ({
+  service: {
+    byTokenId: jest.fn()
+  },
+  getAssetService: jest.fn()
+}))
+
+function setupAsset({ assetData }: { assetData: Asset }) {
+  getAssetService.mockResolvedValue({
+    byTokenId: jest.fn(() => assetData)
+  })
+}
 
 function setup({ chain, contractAddress, symbol }: UseTransactionsPropType = {}) {
   return renderHook(() => useTransactions({ chain, contractAddress, symbol }))
@@ -83,7 +99,9 @@ const createMockData = (symbols: string[], filteredSymbol?: string) => {
         to,
         txid,
         value,
-        chain
+        chain,
+        transactionLink:
+          'https://etherscan.io/tx/0x3e8bad229754db284bbec6b6f40eccbda2f72801c03e181ffb253fcd23a40c26'
       }
     })
   }
@@ -95,6 +113,7 @@ describe('useTransactions', () => {
   it('returns formatted tx history with chain, contractAddress, and symbol provided', async () => {
     const filteredSymbol = 'FOX'
     const { adapter, payload } = createMockData(['FOX'], filteredSymbol)
+    setupAsset({ assetData: fox })
 
     //@ts-ignore
     useChainAdapters.mockImplementation(() => ({
@@ -115,6 +134,7 @@ describe('useTransactions', () => {
 
   it('returns all formatted tx history when chain, contractAddress, and symbol are NOT provided', async () => {
     const { adapter, payload } = createMockData(['FOX', 'LINK'])
+    setupAsset({ assetData: fox })
 
     //@ts-ignore
     useChainAdapters.mockImplementation(() => ({

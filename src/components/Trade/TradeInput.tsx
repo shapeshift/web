@@ -189,6 +189,10 @@ export const TradeInput = ({ history }: RouterProps) => {
           width='full'
           colorScheme={getQuoteError ? 'red' : 'blue'}
           isDisabled={!isDirty || !isValid || !!action}
+          style={{
+            whiteSpace: 'normal',
+            wordWrap: 'break-word'
+          }}
         >
           <Text translation={getQuoteError ?? 'trade.previewTrade'} />
         </Button>

@@ -45,10 +45,13 @@ export const useTradeRoutes = (): {
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
-      if (asset === buyAsset.currency) setValue('buyAsset.currency', sellAsset.currency)
+      if (getByIdentifier(asset) === getByIdentifier(buyAsset.currency))
+        setValue('buyAsset.currency', sellAsset.currency)
+      const action = buyAsset.amount ? TradeActions.BUY : undefined
       setValue('sellAsset.currency', asset)
-      setValue('sellAsset.amount', '0')
-      setValue('action', TradeActions.BUY)
+      setValue('sellAsset.amount', '')
+      setValue('action', action)
+      setValue('quote', undefined)
       await getBestSwapper({ sellAsset, buyAsset })
       getCryptoQuote({ buyAmount: buyAsset.amount }, sellAsset, buyAsset)
       history.push('/trade/input')
@@ -58,10 +61,13 @@ export const useTradeRoutes = (): {
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
-      if (asset === sellAsset.currency) setValue('sellAsset.currency', buyAsset.currency)
+      if (getByIdentifier(asset) === getByIdentifier(buyAsset.currency))
+        setValue('sellAsset.currency', buyAsset.currency)
+      const action = sellAsset.amount ? TradeActions.SELL : undefined
       setValue('buyAsset.currency', asset)
-      setValue('buyAsset.amount', '0')
-      setValue('action', TradeActions.SELL)
+      setValue('buyAsset.amount', '')
+      setValue('action', action)
+      setValue('quote', undefined)
       await getBestSwapper({ sellAsset, buyAsset })
       getCryptoQuote({ sellAmount: sellAsset.amount }, sellAsset, buyAsset)
       history.push('/trade/input')

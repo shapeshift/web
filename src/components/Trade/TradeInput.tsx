@@ -76,7 +76,6 @@ export const TradeInput = ({ history }: RouterProps) => {
                 decimalSeparator={localeParts.decimal}
                 prefix={localeParts.prefix}
                 suffix={localeParts.postfix}
-                disabled={!!action && action !== TradeActions.FIAT}
                 value={value}
                 customInput={FiatInput}
                 onValueChange={e => {
@@ -106,7 +105,6 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            disabled={action && action !== TradeActions.SELL}
             onInputChange={(value: string) => {
               const action = value ? TradeActions.SELL : undefined
               action ? setValue('action', action) : reset()
@@ -163,7 +161,6 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            disabled={action && action !== TradeActions.BUY}
             onInputChange={(value: string) => {
               const action = value ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()

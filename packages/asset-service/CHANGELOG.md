@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.2...@shapeshiftoss/asset-service-v1.0.3) (2021-10-19)
+
+
+### Bug Fixes
+
+* various tweaks to get web back in a working ergonomic state ([#135](https://github.com/shapeshift/lib/issues/135)) ([97e507d](https://github.com/shapeshift/lib/commit/97e507d9d52831309587c8e4ef5c8a7deba4c711))
+
 # [@shapeshiftoss/asset-service-v1.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.1...@shapeshiftoss/asset-service-v1.0.2) (2021-10-12)
 
 

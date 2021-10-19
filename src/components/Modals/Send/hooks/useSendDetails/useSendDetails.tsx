@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/types'
+import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -12,7 +11,7 @@ import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendFormFields } from '../../Form'
+import { SendFormFields, SendInput } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
@@ -47,7 +46,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setError,
     formState: { errors }
   } = useFormContext()
-  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapter = useChainAdapters()
@@ -55,10 +55,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet }
   } = useWallet()
 
-  const getAssetData = useGetAssetData({
-    chain: asset.chain,
-    tokenId: asset.tokenId
-  })
+  const { chain, tokenId } = asset
+
+  const getAssetData = useGetAssetData({ chain, tokenId })
 
   useEffect(() => {
     if (balanceError) {
@@ -76,13 +75,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const adapter = chainAdapter.byChain(asset.chain)
 
   const buildTransaction = async (): Promise<{
-    txToSign: ETHSignTx
-    estimatedFees: FeeDataEstimate
+    txToSign: ChainAdapters.ChainTxType<ChainTypes>
+    estimatedFees: ChainAdapters.FeeDataEstimate<ChainTypes>
   }> => {
     const values = getValues()
     if (wallet) {
-      // TODO (technojak) get path and decimals from asset-service
-      const path = "m/44'/60'/0'/0/0"
       const value = bnOrZero(values.crypto.amount)
         .times(bnOrZero(10).exponentiatedBy(values.asset.precision || ETH_PRECISION))
         .toFixed(0)
@@ -92,8 +89,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
-          wallet,
-          path
+          wallet
         })
         return data
       } catch (error) {
@@ -120,21 +116,34 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     if (assetBalance && wallet) {
       setLoading(true)
-      const path = "m/44'/60'/0'/0/0"
-      const fromAddress = await adapter.getAddress({ wallet, path })
-      const adapterFees = await adapter.getFeeData({
-        to: address,
-        from: fromAddress,
-        value: asset.tokenId ? '0' : assetBalance.balance,
-        contractAddress: asset.tokenId
-      })
+      const to = address
+      const from = await adapter.getAddress({ wallet })
+
       // Assume fast fee for send max
-      const fastFee = adapterFees[FeeDataKey.Fast]
-      const marketData = await getAssetData({
-        chain: asset.chain,
-        tokenId: asset.tokenId
-      })
-      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${asset.precision}`)
+      let fastFee: string = ''
+      switch (chain) {
+        case ChainTypes.Ethereum: {
+          const ethAdapter = chainAdapter.byChain(ChainTypes.Ethereum)
+          const contractAddress = tokenId
+          const value = asset.tokenId ? '0' : assetBalance.balance
+          const adapterFees = await ethAdapter.getFeeData({ to, from, value, contractAddress })
+          fastFee = adapterFees.fast.chainSpecific.feePerTx
+          break
+        }
+        case ChainTypes.Bitcoin: {
+          const btcAdapter = chainAdapter.byChain(ChainTypes.Bitcoin)
+          const value = assetBalance.balance
+          const adapterFees = await btcAdapter.getFeeData({ to, from, value })
+          fastFee = adapterFees.fast.feePerUnit
+          break
+        }
+        default: {
+          throw new Error(`useSendDetails(handleSendMax): no adapter available for chain ${chain}`)
+        }
+      }
+
+      const marketData = await getAssetData({ chain, tokenId })
+      const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
 
       if (asset.tokenId) {
         setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())

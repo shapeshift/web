@@ -3289,9 +3289,9 @@
     lodash "^4.17.21"
 
 "@shapeshiftoss/chain-adapters@^1.2.0", "@shapeshiftoss/chain-adapters@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.2.1.tgz#ab3854e113f44cfb5d363f021331f632e345a17a"
-  integrity sha512-rp/VCTxBmikGXjSV+Q2ysjie+qNPb1mvqP0wG/pB2WImxB9f8Dw5wjBvkRrY3BwK3eO0z2dcbuNDKdjbCOFYlw==
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.2.2.tgz#20cb4c9a9ad2b1a069aceac71da86a3d2827d3e3"
+  integrity sha512-ElE0GBz2VvUwjvCv/4k5ejr08RVNpV5xzkdIm6x95lF6bx6PcjNaU7hXOnwZXp4c0Ka1B+Vy1lA74DAwmJRY2A==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.17.0"
     "@shapeshiftoss/types" "^1.1.0"
@@ -4464,9 +4464,9 @@
   integrity sha512-sCVniU+h3GcGqxOmng11BRvf9TfN9yIs8KKjB8C8d75W69cpTfZG80gau9yTx5SxF3gvHGbJhdESzzvnjtf3Og==
 
 "@types/d3-array@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@types/d3-array/-/d3-array-3.0.1.tgz#0ff28ee7052a2e504cb951d17df7437c33d442d6"
-  integrity sha512-D/G7oG0czeszALrkdUiV68CDiHDxXf+M2mLVqAyKktGd12VKQQljj1sHJGBKjcK4jRH1biBd6ZPQPHpJ0mNa0w==
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/d3-array/-/d3-array-3.0.2.tgz#71c35bca8366a40d1b8fce9279afa4a77fb0065d"
+  integrity sha512-5mjGjz6XOXKOCdTajXTZ/pMsg236RdiwKPrRPWAEf/2S/+PzwY+LLYShUpeysWaMvsdS7LArh6GdUefoxpchsQ==
 
 "@types/d3-color@^1":
   version "1.4.2"
@@ -10051,9 +10051,9 @@ fork-ts-checker-webpack-plugin@4.1.6, fork-ts-checker-webpack-plugin@^4.1.6:
     worker-rpc "^0.1.0"
 
 fork-ts-checker-webpack-plugin@^6.0.4:
-  version "6.3.4"
-  resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-6.3.4.tgz#9af17de0a36caf6f1b4e1d2d081cf586f0a12b14"
-  integrity sha512-z0dns2NXH9NHH0wpW6iuUmyXYRN9BI2Lqnv+RCdL+9GXSW6tKUqYnwf+h3ZaucJsbsrdobdxuOELGgm1xVZITA==
+  version "6.3.5"
+  resolved "https://registry.yarnpkg.com/fork-ts-checker-webpack-plugin/-/fork-ts-checker-webpack-plugin-6.3.5.tgz#67ecd8475688c99405c7e92f70c152970a60c576"
+  integrity sha512-B0yvzgiVN/LerXUvqcVAgjFCJD4R6h460ULJ+pl+oaiYfZM0Cq03uL6sxMHXqp/CVDm0QznHsNjtYwBBYpe0Pw==
   dependencies:
     "@babel/code-frame" "^7.8.3"
     "@types/json-schema" "^7.0.5"

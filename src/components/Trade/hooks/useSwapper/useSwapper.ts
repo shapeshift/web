@@ -100,8 +100,8 @@ export const useSwapper = () => {
         }
 
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
-
         if (!newQuote?.success) throw new Error('getQuote - quote not successful')
+
         const sellAssetUsdRate = await swapper.getUsdRate({
           symbol: sellAsset.symbol,
           tokenId: sellAsset.tokenId
@@ -142,16 +142,18 @@ export const useSwapper = () => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const key = Object.keys(newAmount)[0]
     const value = Object.values(newAmount)[0]
+    const isSellAmount = key === 'sellAmount' && value !== '0'
+    const isBuyAmount = key === 'buyAmount'
+    const isFiatAmount = key === 'fiatAmount'
 
-    let amount = { fiatAmount: value } as GetQuoteAmount
-    const precision =
-      key === 'sellAmount'
-        ? sellAsset.currency.precision
-        : key === 'buyAmount' && buyAsset.currency.precision
-
+    let amount = newAmount
+    const precision = isSellAmount
+      ? sellAsset.currency.precision
+      : isBuyAmount && buyAsset.currency.precision
     if (precision) {
       amount = { [key]: toBaseUnit(value || '0', precision) }
     }
+
     await getQuoteFromSwapper({
       amount,
       sellAsset: sellAsset.currency,
@@ -162,15 +164,15 @@ export const useSwapper = () => {
         const fiatAmount = bn(buyAmount)
           .times(buyAsset.fiatRate || 0)
           .toFixed(2)
-        if (actionRef.current === TradeActions.SELL && key === 'sellAmount') {
+        if (actionRef.current === TradeActions.SELL && isSellAmount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('fiatAmount', fiatAmount)
           setValue('action', undefined)
-        } else if (actionRef.current === TradeActions.BUY && key === 'buyAmount') {
+        } else if (actionRef.current === TradeActions.BUY && isBuyAmount) {
           setValue('sellAsset.amount', sellAmount)
           setValue('fiatAmount', fiatAmount)
           setValue('action', undefined)
-        } else if (actionRef.current === TradeActions.FIAT && key === 'fiatAmount') {
+        } else if (actionRef.current === TradeActions.FIAT && isFiatAmount) {
           setValue(
             'buyAsset.amount',
             fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)

@@ -1,30 +1,30 @@
-import { BalanceResponse, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { flattenTokenBalances } from './useFlattenedBalances'
 
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
-const balances: Record<string, BalanceResponse> = {
-  ethereum: {
+const balances: Record<string, ChainAdapters.Account<ChainTypes.Ethereum>> = {
+  [ChainTypes.Ethereum]: {
+    chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
-    address: '0xMyWalletAddress',
+    pubkey: '0xMyWalletAddress',
     balance: '50000000000000000',
-    unconfirmedBalance: '0',
-    unconfirmedTxs: 0,
-    txs: 198,
-    tokens: [
-      {
-        type: 'ERC20',
-        name: 'THORChain ETH.RUNE',
-        contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-        transfers: 10,
-        symbol: 'RUNE',
-        decimals: 18,
-        balance: '21000000000000000000'
-      }
-    ]
+    chainSpecific: {
+      nonce: 0,
+      tokens: [
+        {
+          contractType: ContractTypes.ERC20,
+          name: 'THORChain ETH.RUNE',
+          contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
+          symbol: 'RUNE',
+          precision: 18,
+          balance: '21000000000000000000'
+        }
+      ]
+    }
   }
 }
 
@@ -66,7 +66,9 @@ describe('flattenTokenBalances', () => {
   })
 
   it('does nothing if a chain has no tokens', () => {
-    const result = flattenTokenBalances({ ethereum: { ...balances.ethereum, tokens: [] } })
+    const result = flattenTokenBalances({
+      ethereum: { ...balances.ethereum, chainSpecific: { nonce: 0, tokens: [] } }
+    })
     const expected = {
       ethereum: {
         network: NetworkTypes.MAINNET,

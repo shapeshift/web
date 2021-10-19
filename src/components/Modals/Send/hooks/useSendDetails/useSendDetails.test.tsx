@@ -1,5 +1,5 @@
 import { getMarketData } from '@shapeshiftoss/market-service'
-import { ChainTypes, FeeDataKey } from '@shapeshiftoss/types'
+import { ChainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
@@ -22,58 +22,62 @@ jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('hooks/useAsset/useAsset')
 jest.mock('hooks/useBalances/useFlattenedBalances')
 
-const balances = {
-  ethereum: {
-    network: 'ethereum',
+const balances: ReturnType<typeof useFlattenedBalances>['balances'] = {
+  [ChainTypes.Ethereum]: {
+    chain: ChainTypes.Ethereum,
+    network: NetworkTypes.MAINNET,
     symbol: 'ETH',
-    address: '0x0000000000000000000000000000000000000000',
+    pubkey: '0x0000000000000000000000000000000000000000',
     balance: '5000000000000000000',
-    unconfirmedBalance: '0',
-    unconfirmedTxs: 0,
-    txs: 198,
-    tokens: [
-      {
-        type: 'ERC20',
-        name: 'THORChain ETH.RUNE',
-        contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-        transfers: 10,
-        symbol: 'RUNE',
-        decimals: 18,
-        balance: '21000000000000000000'
-      }
-    ]
+    chainSpecific: {
+      nonce: 0,
+      tokens: [
+        {
+          contractType: ContractTypes.ERC20,
+          name: 'THORChain ETH.RUNE',
+          contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
+          symbol: 'RUNE',
+          precision: 18,
+          balance: '21000000000000000000'
+        }
+      ]
+    }
   },
   '0x3155ba85d5f96b2d030a4966af206230e46849cb': {
-    type: 'ERC20',
+    contractType: ContractTypes.ERC20,
     name: 'THORChain ETH.RUNE',
     contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-    transfers: 10,
     symbol: 'RUNE',
-    decimals: 18,
+    precision: 18,
     balance: '21000000000000000000'
   }
 }
 
 const ethAsset = {
+  chain: ChainTypes.Ethereum,
   name: 'Ethereum',
-  network: 'ethereum',
+  network: NetworkTypes.MAINNET,
   price: 3500,
   symbol: 'eth',
   precision: 18
 }
 
 const erc20RuneAsset = {
+  chain: ChainTypes.Ethereum,
   tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
   name: 'THORChain (ERC20)',
-  network: 'ethereum',
+  network: NetworkTypes.MAINNET,
   price: 10,
   symbol: 'rune',
   precision: 18
 }
 
 const estimatedFees = {
-  [FeeDataKey.Fast]: {
-    networkFee: '6000000000000000'
+  [ChainAdapters.FeeDataKey.Fast]: {
+    networkFee: '6000000000000000',
+    chainSpecific: {
+      feePerTx: '6000000000000000'
+    }
   }
 }
 
@@ -115,7 +119,7 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn()
 }) => {
-  ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
+  ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
     asset,
     '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
@@ -162,6 +166,10 @@ describe('useSendDetails', () => {
       price: 3500,
       network: 'ethereum'
     }))
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
   })
 
   it('returns the default useSendDetails state', async () => {

@@ -35,7 +35,7 @@ const setup = ({
   adapter = () => ({
     getType: () => ChainTypes.Ethereum,
     getAddress: () => Promise.resolve('0xMyWalletAddress'),
-    getBalance: () => Promise.resolve(balances)
+    getAccount: () => Promise.resolve(balances)
   })
 }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
@@ -66,7 +66,7 @@ describe('useBalances', () => {
         adapter: () => ({
           getType: () => ChainTypes.Ethereum,
           getAddress: () => Promise.reject('Error while getting address'),
-          getBalance: () => Promise.reject('No balances for you')
+          getAccount: () => Promise.reject('No balances for you')
         })
       })
 

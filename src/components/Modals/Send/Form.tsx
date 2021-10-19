@@ -1,4 +1,5 @@
-import { Asset, FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { ChainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -37,8 +38,8 @@ export enum SendFormFields {
 export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.Asset]: AssetMarketData
-  [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate
+  [SendFormFields.FeeType]: ChainAdapters.FeeDataKey
+  [SendFormFields.EstimatedFees]: ChainAdapters.FeeDataEstimate<ChainTypes>
   [SendFormFields.Crypto]: {
     amount: string
     symbol: string
@@ -68,7 +69,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
     defaultValues: {
       address: '',
       asset: initialAsset,
-      feeType: FeeDataKey.Average,
+      feeType: ChainAdapters.FeeDataKey.Average,
       crypto: {
         amount: '',
         symbol: initialAsset?.symbol

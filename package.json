@@ -22,7 +22,8 @@
     "publish:lerna": "lerna publish from-package --no-private --yes",
     "version:patch": "lerna version patch --yes --no-git-tag-version --no-push",
     "version:minor": "lerna version minor --yes --no-git-tag-version --no-push",
-    "version:major": "lerna version major --yes --no-git-tag-version --no-push"
+    "version:major": "lerna version major --yes --no-git-tag-version --no-push",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
@@ -50,5 +51,9 @@
     "ts-node": "^10.2.1",
     "type-assertions": "^1.1.0",
     "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0"
   }
 }

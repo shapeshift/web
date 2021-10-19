@@ -1,5 +1,5 @@
 import { ChainAdapterManager } from './ChainAdapterManager'
-import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
+import { BIP32Params, ChainTypes, ChainAdapters } from '@shapeshiftoss/types'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import dotenv from 'dotenv'
@@ -19,8 +19,8 @@ const getWallet = async (): Promise<NativeHDWallet> => {
 }
 
 const unchainedUrls = {
-  [ChainTypes.Bitcoin]: 'http://api.bitcoin.shapeshift.com',
-  [ChainTypes.Ethereum]: 'http://api.ethereum.shapeshift.com'
+  [ChainTypes.Bitcoin]: 'https://api.bitcoin.shapeshift.com',
+  [ChainTypes.Ethereum]: 'https://api.ethereum.shapeshift.com'
 }
 
 const main = async () => {
@@ -45,35 +45,32 @@ const main = async () => {
     })
     console.log('btcAddress: ', btcAddress)
 
-    const btcAccount = await btcChainAdapter.getAccount(btcAddress)
-    console.log('btcAccount: ', btcAccount)
+    const txInput = {
+      asset: { id: '123', symbol: 'BTC' },
+      recipients: [{ address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4', value: 400 }],
+      wallet,
+      opReturnData: 'sup fool',
+      bip32Params: btcBip32Params,
+      feeSpeed: ChainAdapters.FeeDataKey.Slow
+    }
 
-    //const txInput = {
-    //  asset: { id: '123', symbol: 'BTC' },
-    //  recipients: [{ address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4', value: 400 }],
-    //  wallet,
-    //  opReturnData: 'sup fool',
-    //  bip32Params: btcBip32Params,
-    //  feeSpeed: ChainAdapters.FeeDataKey.Slow
-    //}
-
-    //const unsignedTx = await btcChainAdapter.buildSendTransaction(txInput)
-    //const signedTx = await btcChainAdapter.signTransaction({
-    //  wallet,
-    //  txToSign: unsignedTx.txToSign
-    //})
-    //console.log('btcSignedTx: ', signedTx)
+    const unsignedTx = await btcChainAdapter.buildSendTransaction(txInput)
+    const signedTx = await btcChainAdapter.signTransaction({
+      wallet,
+      txToSign: unsignedTx.txToSign
+    })
+    console.log('btcSignedTx: ', signedTx)
 
     // const txid = await btcChainAdapter.broadcastTransaction(signedTx)
     // console.log('txid: ', txid)
 
     /** ETHEREUM CLI */
-    const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-    const ethBip32Params: BIP32Params = { purpose: 44, coinType: 60, accountNumber: 0 }
-    const ethAddress = await ethChainAdapter.getAddress({ wallet, bip32Params: ethBip32Params })
-    console.log('ethAddress:', ethAddress)
-    const ethAccount = await ethChainAdapter.getAccount(ethAddress)
-    console.log('ethAccount:', ethAccount)
+    // const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+    // const ethBip32Params: BIP32Params = { purpose: 44, coinType: 60, accountNumber: 0 }
+    // const ethAddress = await ethChainAdapter.getAddress({ wallet, bip32Params: ethBip32Params })
+    // console.log('ethAddress:', ethAddress)
+    // const ethAccount = await ethChainAdapter.getAccount(ethAddress)
+    // console.log('ethAccount:', ethAccount)
 
     // send eth example
     // const unsignedTx = await ethChainAdapter.buildSendTransaction({

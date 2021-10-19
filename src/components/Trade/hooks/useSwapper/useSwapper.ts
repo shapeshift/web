@@ -1,7 +1,7 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
-import { debounce } from 'lodash'
-import { useCallback, useState } from 'react'
+import debounce from 'lodash/debounce'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -17,17 +17,35 @@ export enum TradeActions {
   FIAT = 'FIAT'
 }
 
+type GetQuoteAmount = Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
+
 type GetQuote = {
-  amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>
+  amount: GetQuoteAmount
   sellAsset: Asset
   buyAsset: Asset
   onFinish: (quote: Quote) => void
-  action?: TradeActions
+  isFiat?: boolean
+}
+
+export enum TRADE_ERRORS {
+  NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
+  AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
+  NEGATIVE_MAX = 'trade.errors.negativeMax',
+  INVALID_MAX = 'trade.errors.invalidMax',
+  INSUFFICIENT_FUNDS = 'trade.errors.insufficientFunds',
+  INSUFFICIENT_FUNDS_FOR_LIMIT = 'trade.errors.insufficientFundsForLimit',
+  INSUFFICIENT_FUNDS_FOR_AMOUNT = 'trade.errors.insufficientFundsForAmount',
+  NO_LIQUIDITY = 'trade.errors.noLiquidityError',
+  BALANCE_TO_LOW = 'trade.errors.balanceToLow',
+  DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',
+  QUOTE_FAILED = 'trade.errors.quoteFailed',
+  OVER_SLIP_SCORE = 'trade.errors.overSlipScore'
 }
 
 export const useSwapper = () => {
-  const { setValue } = useFormContext()
-  const [quote, trade] = useWatch({ name: ['quote', 'trade'] })
+  const { setValue, setError, clearErrors } = useFormContext()
+  const [quote, trade, action] = useWatch({ name: ['quote', 'trade', 'action'] })
+  const actionRef = useRef(action)
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -37,22 +55,40 @@ export const useSwapper = () => {
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
+  useEffect(() => {
+    actionRef.current = action
+  }, [action])
+
   const getDefaultPair = useCallback(() => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const getQuote = async ({ amount, sellAsset, buyAsset, onFinish, action }: GetQuote) => {
+  const getQuoteFromSwapper = async ({ amount, sellAsset, buyAsset, onFinish }: GetQuote) => {
     if (debounceObj?.cancel) debounceObj.cancel()
+    clearErrors()
     const quoteDebounce = debounce(async () => {
       try {
-        if (!sellAsset || !buyAsset)
-          throw new Error('getQuote - needs buyAsset and sellAsset to get quote')
         const swapper = swapperManager.getSwapper(bestSwapperType)
+        let convertedAmount = amount
+        const isFiat = Object.keys(amount)[0].includes('fiat')
+        if (isFiat) {
+          const rate = await swapper.getUsdRate({
+            symbol: sellAsset.symbol,
+            tokenId: sellAsset.tokenId
+          })
+          const fiatAmount = Object.values(amount)[0]
+          convertedAmount = {
+            sellAmount: toBaseUnit(
+              bn(fiatAmount).div(rate).toString(),
+              sellAsset.precision
+            ).toString()
+          }
+        }
         const quoteInput = {
           sellAsset: sellAsset,
           buyAsset: buyAsset,
-          ...amount
+          ...convertedAmount
         }
         let minMax = trade
         if (
@@ -62,8 +98,10 @@ export const useSwapper = () => {
           minMax = await swapper.getMinMax(quoteInput)
           minMax && setValue('trade', minMax)
         }
+
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
         if (!newQuote?.success) throw new Error('getQuote - quote not successful')
+
         const sellAssetUsdRate = await swapper.getUsdRate({
           symbol: sellAsset.symbol,
           tokenId: sellAsset.tokenId
@@ -83,33 +121,41 @@ export const useSwapper = () => {
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
-
-        if (action) onFinish(newQuote)
-        else reset()
-      } catch (e) {
-        console.error('error', e)
+        if (actionRef.current) onFinish(newQuote)
+      } catch (err: any) {
+        const message = err?.response?.data?.validationErrors?.[0]?.reason
+        if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+        else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
       } finally {
-        setValue('action', undefined)
+        // setValue('action', undefined)
       }
     }, debounceTime)
     quoteDebounce()
     setDebounceObj({ ...quoteDebounce })
   }
 
-  const getCryptoQuote = async (
-    amount: Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'>,
+  const getQuote = async (
+    newAmount: GetQuoteAmount,
     sellAsset: TradeAsset,
-    buyAsset: TradeAsset,
-    action?: TradeActions
+    buyAsset: TradeAsset
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    const key = Object.keys(amount)[0]
-    const value = Object.values(amount)[0]
-    const isSellQuote = key === 'sellAmount'
-    const precision = isSellQuote ? sellAsset.currency.precision : buyAsset.currency.precision
-    getQuote({
-      action,
-      amount: { [key]: toBaseUnit(value || '0', precision) },
+    const key = Object.keys(newAmount)[0]
+    const value = Object.values(newAmount)[0]
+    const isSellAmount = key === 'sellAmount' && value !== '0'
+    const isBuyAmount = key === 'buyAmount'
+    const isFiatAmount = key === 'fiatAmount'
+
+    let amount = newAmount
+    const precision = isSellAmount
+      ? sellAsset.currency.precision
+      : isBuyAmount && buyAsset.currency.precision
+    if (precision) {
+      amount = { [key]: toBaseUnit(value || '0', precision) }
+    }
+
+    await getQuoteFromSwapper({
+      amount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
       onFinish: quote => {
@@ -118,38 +164,25 @@ export const useSwapper = () => {
         const fiatAmount = bn(buyAmount)
           .times(buyAsset.fiatRate || 0)
           .toFixed(2)
-        isSellQuote
-          ? setValue('buyAsset.amount', buyAmount)
-          : setValue('sellAsset.amount', sellAmount)
-
-        fiatAmount && setValue('fiatAmount', fiatAmount)
-      }
-    })
-  }
-
-  const getFiatQuote = async (
-    fiatAmount: string,
-    sellAsset: TradeAsset,
-    buyAsset: TradeAsset,
-    action?: TradeActions
-  ) => {
-    const rate = quote?.rate
-    if (!rate) return
-    const sellAmount = toBaseUnit(bn(fiatAmount).div(rate).toString(), sellAsset.currency.precision)
-    getQuote({
-      action,
-      amount: { sellAmount },
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency,
-      onFinish: quote => {
-        setValue(
-          'buyAsset.amount',
-          fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        )
-        setValue(
-          'sellAsset.amount',
-          fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        )
+        if (actionRef.current === TradeActions.SELL && isSellAmount) {
+          setValue('buyAsset.amount', buyAmount)
+          setValue('fiatAmount', fiatAmount)
+          setValue('action', undefined)
+        } else if (actionRef.current === TradeActions.BUY && isBuyAmount) {
+          setValue('sellAsset.amount', sellAmount)
+          setValue('fiatAmount', fiatAmount)
+          setValue('action', undefined)
+        } else if (actionRef.current === TradeActions.FIAT && isFiatAmount) {
+          setValue(
+            'buyAsset.amount',
+            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+          )
+          setValue(
+            'sellAsset.amount',
+            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+          )
+          setValue('action', undefined)
+        }
       }
     })
   }
@@ -171,12 +204,12 @@ export const useSwapper = () => {
     setValue('buyAsset.amount', '')
     setValue('sellAsset.amount', '')
     setValue('fiatAmount', '')
+    setValue('action', undefined)
   }
 
   return {
     swapperManager,
-    getCryptoQuote,
-    getFiatQuote,
+    getQuote,
     getBestSwapper,
     getDefaultPair,
     reset

@@ -2,6 +2,7 @@
   "common": {
     "back": "Back",
     "next": "Next",
+    "error": "Error",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "noResultsFound": "No results found.",
@@ -45,7 +46,22 @@
     "from": "From"
   },
   "trade": {
-    "searchingRate": "Searching for best rate..."
+    "searchingRate": "Searching for best rate...",
+    "previewTrade": "Preview Trade",
+    "errors": {
+      "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
+      "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
+      "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
+      "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
+      "insufficientFunds": "Insufficient funds for miner fee and amount",
+      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}.",
+      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount.",
+      "noLiquidityError": "No liquidity available for selected pair.",
+      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price.",
+      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}.",
+      "dexTradeFailed": "Trade Failed, Tokens Returned",
+      "quoteFailed": "An error occurred getting a quote for your trade."
+    }
   },
   "modals": {
     "send": {

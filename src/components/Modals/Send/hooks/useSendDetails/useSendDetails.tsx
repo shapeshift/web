@@ -12,7 +12,7 @@ import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendFormFields } from '../../Form'
+import { SendFormFields, SendInput } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
@@ -47,7 +47,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setError,
     formState: { errors }
   } = useFormContext()
-  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapter = useChainAdapters()

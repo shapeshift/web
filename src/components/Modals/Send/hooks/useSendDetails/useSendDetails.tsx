@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -11,7 +11,7 @@ import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendFormFields, SendInput } from '../../Form'
+import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
@@ -46,16 +46,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setError,
     formState: { errors }
   } = useFormContext()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
-  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] }) as [
+    Asset,
+    string
+  ]
   const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapter = useChainAdapters()
   const {
     state: { wallet }
   } = useWallet()
-
-  console.log('asset', asset)
 
   const { chain, tokenId } = asset
 
@@ -145,6 +145,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       const marketData = await getAssetData({ chain, tokenId })
+      // TODO: get network precision from network asset, not send asset
       const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
 
       if (asset.tokenId) {

@@ -48,6 +48,7 @@ export type SendInput = {
     amount: string
     symbol: string
   }
+  // TODO(0xdef1cafe): remove this from form state
   [SendFormFields.Transaction]: unknown
 }
 

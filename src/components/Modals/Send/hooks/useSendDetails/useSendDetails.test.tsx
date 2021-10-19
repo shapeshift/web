@@ -74,7 +74,10 @@ const erc20RuneAsset = {
 
 const estimatedFees = {
   [ChainAdapters.FeeDataKey.Fast]: {
-    networkFee: '6000000000000000'
+    networkFee: '6000000000000000',
+    chainSpecific: {
+      feePerTx: '6000000000000000'
+    }
   }
 }
 
@@ -117,10 +120,10 @@ const setup = ({
   setValue = jest.fn()
 }) => {
   ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
-  ;(useWatch as jest.Mock<unknown>).mockReturnValueOnce(asset)
-  // ;(useWatch as jest.Mock<unknown>).mockReturnValueOnce(
-  //   '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
-  // )
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
+    asset,
+    '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
+  ])
   ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
     assetBalance,
     accountBalances
@@ -182,7 +185,7 @@ describe('useSendDetails', () => {
     })
   })
 
-  fit('toggles the input field', async () => {
+  it('toggles the input field', async () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances.ethereum,

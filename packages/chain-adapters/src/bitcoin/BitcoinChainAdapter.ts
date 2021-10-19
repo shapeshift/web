@@ -13,13 +13,13 @@ import {
   supportsBTC
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP32Params, ChainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { BitcoinAPI } from '@shapeshiftoss/unchained-client'
+import { bitcoin } from '@shapeshiftoss/unchained-client'
 import { ChainAdapter } from '../api'
 import { toPath, toRootDerivationPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
 
 export type BitcoinChainAdapterDependencies = {
-  provider: BitcoinAPI.V1Api
+  provider: bitcoin.api.V1Api
 }
 
 type UtxoCoinName = {
@@ -27,7 +27,7 @@ type UtxoCoinName = {
 }
 
 export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
-  private readonly provider: BitcoinAPI.V1Api
+  private readonly provider: bitcoin.api.V1Api
   private readonly defaultBIP32Params: BIP32Params = {
     purpose: 84, // segwit native
     coinType: 0,
@@ -152,7 +152,7 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
       const estimatedFees = await this.getFeeData()
       const satoshiPerByte = estimatedFees[feeSpeed ?? ChainAdapters.FeeDataKey.Average].feePerUnit
 
-      type MappedUtxos = Omit<BitcoinAPI.Utxo, 'value'> & { value: number }
+      type MappedUtxos = Omit<bitcoin.api.Utxo, 'value'> & { value: number }
       const mappedUtxos: MappedUtxos[] = utxos.map((x) => ({ ...x, value: Number(x.value) }))
 
       const coinSelectResult = coinSelect<MappedUtxos, ChainAdapters.Bitcoin.Recipient>(

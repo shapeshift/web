@@ -1,12 +1,5 @@
 import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
-export const isChainAdapterOfType = <U extends ChainTypes>(
-  chainType: U,
-  x: ChainAdapter<ChainTypes>
-): x is ChainAdapter<U> => {
-  return x.getType() === chainType
-}
-
 export interface ChainAdapter<T extends ChainTypes> {
   /**
    * Get type of adapter

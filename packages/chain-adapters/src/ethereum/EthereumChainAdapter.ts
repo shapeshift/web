@@ -11,14 +11,14 @@ import {
   ContractTypes,
   NetworkTypes
 } from '@shapeshiftoss/types'
-import { EthereumAPI } from '@shapeshiftoss/unchained-client'
+import { ethereum } from '@shapeshiftoss/unchained-client'
 import { ChainAdapter } from '../api'
 import { toPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
 import erc20Abi from './erc20Abi.json'
 
 export type EthereumChainAdapterDependencies = {
-  provider: EthereumAPI.V1Api
+  provider: ethereum.api.V1Api
 }
 
 type ZrxFeeResult = {
@@ -51,7 +51,7 @@ async function getErc20Data(to: string, value: string, contractAddress?: string)
 }
 
 export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
-  private readonly provider: EthereumAPI.V1Api
+  private readonly provider: ethereum.api.V1Api
   private readonly defaultBIP32Params: BIP32Params = {
     purpose: 44,
     coinType: 60,
@@ -98,7 +98,7 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
 
   async getTxHistory({
     pubkey
-  }: EthereumAPI.V1ApiGetTxHistoryRequest): Promise<
+  }: ethereum.api.V1ApiGetTxHistoryRequest): Promise<
     ChainAdapters.TxHistoryResponse<ChainTypes.Ethereum>
   > {
     try {

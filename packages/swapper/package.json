@@ -20,9 +20,9 @@
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shapeshiftoss/chain-adapters": "^1.1.1",
-    "@shapeshiftoss/hdwallet-core": "^1.16.6",
-    "@shapeshiftoss/types": "^1.0.2",
+    "@shapeshiftoss/chain-adapters": "^1.2.0",
+    "@shapeshiftoss/hdwallet-core": "^1.17.0",
+    "@shapeshiftoss/types": "^1.1.0",
     "axios": "^0.21.4",
     "bignumber.js": "^9.0.1",
     "retry-axios": "^2.6.0",

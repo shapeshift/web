@@ -1,6 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { BitcoinAPI, EthereumAPI } from '@shapeshiftoss/unchained-client'
-import { ChainAdapter, isChainAdapterOfType } from './api'
+import { bitcoin, ethereum } from '@shapeshiftoss/unchained-client'
+import { ChainAdapter } from './api'
 import { BitcoinChainAdapter } from './bitcoin'
 import { EthereumChainAdapter } from './ethereum'
 
@@ -18,12 +18,12 @@ export class ChainAdapterManager {
       ([type, basePath]) => {
         switch (type) {
           case ChainTypes.Ethereum: {
-            const provider = new EthereumAPI.V1Api(new EthereumAPI.Configuration({ basePath }))
+            const provider = new ethereum.api.V1Api(new ethereum.api.Configuration({ basePath }))
             return this.addChain(type, () => new EthereumChainAdapter({ provider }))
           }
           case ChainTypes.Bitcoin: {
             const coinName = 'Bitcoin'
-            const provider = new BitcoinAPI.V1Api(new BitcoinAPI.Configuration({ basePath }))
+            const provider = new bitcoin.api.V1Api(new bitcoin.api.Configuration({ basePath }))
             return this.addChain(type, () => new BitcoinChainAdapter({ provider, coinName }))
           }
           default:
@@ -43,7 +43,7 @@ export class ChainAdapterManager {
    * @param {ChainTypes} network - Coin/network symbol from Asset query
    * @param {Function} factory - A function that returns a ChainAdapter instance
    */
-  addChain<T extends ChainTypes>(chain: T, factory: () => ChainAdapter<T>): void {
+  addChain<T extends ChainTypes>(chain: T, factory: () => ChainAdapter<ChainTypes>): void {
     if (typeof chain !== 'string' || typeof factory !== 'function') {
       throw new Error('Parameter validation error')
     }
@@ -65,12 +65,8 @@ export class ChainAdapterManager {
       const factory = this.supported.get(chain)
       if (factory) {
         adapter = factory()
-        if (!adapter || !isChainAdapterOfType(chain, adapter)) {
-          throw new Error(
-            `Adapter type [${
-              adapter ? adapter.getType() : typeof adapter
-            }] does not match requested type [${chain}]`
-          )
+        if (!adapter) {
+          throw new Error(`Adapter not available for [${chain}]`)
         }
         this.instances.set(chain, adapter)
       }

@@ -9,7 +9,7 @@ import { ChainAdapterManager } from '../ChainAdapterManager'
 import { BTCInputScriptType, BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapter } from '../'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BitcoinAPI } from '@shapeshiftoss/unchained-client'
+import { bitcoin } from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
 import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
 dotenv.config({
@@ -71,7 +71,7 @@ describe('BitcoinChainAdapter', () => {
 
   describe.skip('getAccount', () => {
     it('should return account info for a specified address', async () => {
-      const exampleResponse: BitcoinAPI.BitcoinAccount = {
+      const exampleResponse: bitcoin.api.BitcoinAccount = {
         pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
         balance: '0'
       }

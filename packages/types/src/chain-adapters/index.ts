@@ -58,6 +58,13 @@ type ChainSpecificFeeData<T> = ChainSpecific<
   }
 >
 
+// ChainTypes.Ethereum:
+// feePerUnit = gasPrice
+// feePerTx = estimateGas (estimated transaction cost)
+// feeLimit = gasLimit (max gas willing to pay)
+
+// ChainTypes.Bitcoin:
+// feePerUnit = sats/kbyte
 export type FeeData<T extends ChainTypes> = {
   feePerUnit: string
 } & ChainSpecificFeeData<T>

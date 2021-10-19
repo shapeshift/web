@@ -81,8 +81,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }> => {
     const values = getValues()
     if (wallet) {
-      // TODO (technojak) get path and decimals from asset-service
-      const path = "m/44'/60'/0'/0/0"
       const value = bnOrZero(values.crypto.amount)
         .times(bnOrZero(10).exponentiatedBy(values.asset.precision || ETH_PRECISION))
         .toFixed(0)
@@ -92,8 +90,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
-          wallet,
-          path
+          wallet
         })
         return data
       } catch (error) {
@@ -120,8 +117,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     if (assetBalance && wallet) {
       setLoading(true)
-      const path = "m/44'/60'/0'/0/0"
-      const fromAddress = await adapter.getAddress({ wallet, path })
+      const fromAddress = await adapter.getAddress({ wallet })
       const adapterFees = await adapter.getFeeData({
         to: address,
         from: fromAddress,

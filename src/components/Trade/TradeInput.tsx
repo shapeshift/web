@@ -61,7 +61,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
     setValue('action', action)
-    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset, action)
+    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -87,7 +87,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset, action)
+                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset)
                   }
                 }}
               />

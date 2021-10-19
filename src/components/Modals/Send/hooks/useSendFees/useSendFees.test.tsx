@@ -1,4 +1,5 @@
-import { ChainTypes, FeeDataKey } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -13,17 +14,17 @@ jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('hooks/useAsset/useAsset')
 
 const fees = {
-  [FeeDataKey.Slow]: {
+  [ChainAdapters.FeeDataKey.Slow]: {
     feeUnits: '42000',
     feeUnitPrice: '76000000000',
     networkFee: '3100000000000000'
   },
-  [FeeDataKey.Average]: {
+  [ChainAdapters.FeeDataKey.Average]: {
     feeUnits: '42000',
     feeUnitPrice: '118000000000',
     networkFee: '4900000000000000'
   },
-  [FeeDataKey.Fast]: {
+  [ChainAdapters.FeeDataKey.Fast]: {
     feeUnits: '42000',
     feeUnitPrice: '145845250000',
     networkFee: '6120000000000000'

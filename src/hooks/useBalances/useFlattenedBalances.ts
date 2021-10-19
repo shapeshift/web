@@ -14,10 +14,19 @@ export const flattenTokenBalances = (balances: Record<string, ChainAdapters.Acco
     ) => {
       const value = balances[key]
       acc[key] = value
-      if (value.tokens?.length) {
-        value.tokens.forEach((token: ChainAdapters.Ethereum.Token) => {
-          token.contract && (acc[token.contract.toLowerCase()] = token)
-        })
+      const { chain } = value
+      switch (chain) {
+        case ChainTypes.Ethereum: {
+          const ethValue = value as ChainAdapters.Account<ChainTypes.Ethereum>
+          const { tokens } = ethValue.chainSpecific
+          if (!tokens) return acc
+          tokens.forEach((token: ChainAdapters.Ethereum.Token) => {
+            token.contract && (acc[token.contract.toLowerCase()] = token)
+          })
+          break
+        }
+        default:
+          break
       }
       return acc
     },

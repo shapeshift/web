@@ -116,11 +116,11 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn()
 }) => {
-  ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
-    asset,
-    '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
-  ])
+  ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
+  ;(useWatch as jest.Mock<unknown>).mockReturnValueOnce(asset)
+  // ;(useWatch as jest.Mock<unknown>).mockReturnValueOnce(
+  //   '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
+  // )
   ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
     assetBalance,
     accountBalances
@@ -165,6 +165,10 @@ describe('useSendDetails', () => {
     }))
   })
 
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   it('returns the default useSendDetails state', async () => {
     return await act(async () => {
       const { result } = setup({
@@ -178,7 +182,7 @@ describe('useSendDetails', () => {
     })
   })
 
-  it('toggles the input field', async () => {
+  fit('toggles the input field', async () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances.ethereum,
@@ -218,7 +222,7 @@ describe('useSendDetails', () => {
     })
   })
 
-  fit('handles input change on fiat.amount', async () => {
+  it('handles input change on fiat.amount', async () => {
     const setValue = jest.fn()
     await act(async () => {
       const { waitForValueToChange, result } = setup({

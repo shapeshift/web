@@ -55,6 +55,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet }
   } = useWallet()
 
+  console.log('asset', asset)
+
   const { chain, tokenId } = asset
 
   const getAssetData = useGetAssetData({ chain, tokenId })

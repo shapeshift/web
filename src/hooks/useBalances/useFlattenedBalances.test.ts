@@ -31,34 +31,33 @@ const balances: Record<string, ChainAdapters.Account<ChainTypes.Ethereum>> = {
 describe('flattenTokenBalances', () => {
   it('flattens a token list associated with a chain', () => {
     const result = flattenTokenBalances(balances)
-    const expected = {
-      ethereum: {
+    const expected: ReturnType<typeof flattenTokenBalances> = {
+      [ChainTypes.Ethereum]: {
+        chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         symbol: 'ETH',
-        address: '0xMyWalletAddress',
+        pubkey: '0xMyWalletAddress',
         balance: '50000000000000000',
-        unconfirmedBalance: '0',
-        unconfirmedTxs: 0,
-        txs: 198,
-        tokens: [
-          {
-            type: 'ERC20',
-            name: 'THORChain ETH.RUNE',
-            contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-            transfers: 10,
-            symbol: 'RUNE',
-            decimals: 18,
-            balance: '21000000000000000000'
-          }
-        ]
+        chainSpecific: {
+          nonce: 0,
+          tokens: [
+            {
+              contractType: ContractTypes.ERC20,
+              name: 'THORChain ETH.RUNE',
+              contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
+              symbol: 'RUNE',
+              precision: 18,
+              balance: '21000000000000000000'
+            }
+          ]
+        }
       },
       '0x3155ba85d5f96b2d030a4966af206230e46849cb': {
-        type: 'ERC20',
+        contractType: ContractTypes.ERC20,
         name: 'THORChain ETH.RUNE',
         contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-        transfers: 10,
         symbol: 'RUNE',
-        decimals: 18,
+        precision: 18,
         balance: '21000000000000000000'
       }
     }
@@ -70,15 +69,16 @@ describe('flattenTokenBalances', () => {
       ethereum: { ...balances.ethereum, chainSpecific: { nonce: 0, tokens: [] } }
     })
     const expected = {
-      ethereum: {
+      [ChainTypes.Ethereum]: {
+        chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
         symbol: 'ETH',
-        address: '0xMyWalletAddress',
+        pubkey: '0xMyWalletAddress',
         balance: '50000000000000000',
-        unconfirmedBalance: '0',
-        unconfirmedTxs: 0,
-        txs: 198,
-        tokens: []
+        chainSpecific: {
+          nonce: 0,
+          tokens: []
+        }
       }
     }
     expect(result).toEqual(expected)

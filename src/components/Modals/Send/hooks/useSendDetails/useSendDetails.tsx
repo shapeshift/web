@@ -1,5 +1,4 @@
 import { useToast } from '@chakra-ui/react'
-import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
@@ -56,10 +55,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet }
   } = useWallet()
 
-  const getAssetData = useGetAssetData({
-    chain: asset.chain,
-    tokenId: asset.tokenId
-  })
+  const { chain, tokenId } = asset
+
+  const getAssetData = useGetAssetData({ chain, tokenId })
 
   useEffect(() => {
     if (balanceError) {
@@ -77,7 +75,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const adapter = chainAdapter.byChain(asset.chain)
 
   const buildTransaction = async (): Promise<{
-    txToSign: ETHSignTx
+    txToSign: ChainAdapters.ChainTxType<ChainTypes>
     estimatedFees: ChainAdapters.FeeDataEstimate<ChainTypes>
   }> => {
     const values = getValues()
@@ -118,20 +116,34 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     if (assetBalance && wallet) {
       setLoading(true)
-      const fromAddress = await adapter.getAddress({ wallet })
-      const adapterFees = await adapter.getFeeData({
-        to: address,
-        from: fromAddress,
-        value: asset.tokenId ? '0' : assetBalance.balance,
-        contractAddress: asset.tokenId
-      })
+      const to = address
+      const from = await adapter.getAddress({ wallet })
+
       // Assume fast fee for send max
-      const fastFee = adapterFees[ChainAdapters.FeeDataKey.Fast]
-      const marketData = await getAssetData({
-        chain: asset.chain,
-        tokenId: asset.tokenId
-      })
-      const networkFee = bnOrZero(fastFee.networkFee).div(`1e${asset.precision}`)
+      let fastFee: string = ''
+      switch (chain) {
+        case ChainTypes.Ethereum: {
+          const ethAdapter = chainAdapter.byChain(ChainTypes.Ethereum)
+          const contractAddress = tokenId
+          const value = asset.tokenId ? '0' : assetBalance.balance
+          const adapterFees = await ethAdapter.getFeeData({ to, from, value, contractAddress })
+          fastFee = adapterFees.fast.chainSpecific.feePerTx
+          break
+        }
+        case ChainTypes.Bitcoin: {
+          const btcAdapter = chainAdapter.byChain(ChainTypes.Bitcoin)
+          const value = assetBalance.balance
+          const adapterFees = await btcAdapter.getFeeData({ to, from, value })
+          fastFee = adapterFees.fast.feePerUnit
+          break
+        }
+        default: {
+          throw new Error(`useSendDetails(handleSendMax): no adapter available for chain ${chain}`)
+        }
+      }
+
+      const marketData = await getAssetData({ chain, tokenId })
+      const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
 
       if (asset.tokenId) {
         setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())

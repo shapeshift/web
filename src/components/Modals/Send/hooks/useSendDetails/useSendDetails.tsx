@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { FeeDataEstimate, FeeDataKey } from '@shapeshiftoss/types'
+import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -77,7 +77,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const buildTransaction = async (): Promise<{
     txToSign: ETHSignTx
-    estimatedFees: FeeDataEstimate
+    estimatedFees: ChainAdapters.FeeDataEstimate<ChainTypes>
   }> => {
     const values = getValues()
     if (wallet) {
@@ -129,7 +129,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         contractAddress: asset.tokenId
       })
       // Assume fast fee for send max
-      const fastFee = adapterFees[FeeDataKey.Fast]
+      const fastFee = adapterFees[ChainAdapters.FeeDataKey.Fast]
       const marketData = await getAssetData({
         chain: asset.chain,
         tokenId: asset.tokenId

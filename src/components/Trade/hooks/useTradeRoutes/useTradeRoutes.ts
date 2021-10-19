@@ -45,7 +45,7 @@ export const useTradeRoutes = (): {
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
-      if (getByIdentifier(asset) === getByIdentifier(buyAsset.currency))
+      if (buyAsset.currency && getByIdentifier(asset) === getByIdentifier(buyAsset.currency))
         setValue('buyAsset.currency', sellAsset.currency)
       const action = buyAsset.amount ? TradeActions.BUY : undefined
       setValue('sellAsset.currency', asset)
@@ -61,7 +61,7 @@ export const useTradeRoutes = (): {
 
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
-      if (getByIdentifier(asset) === getByIdentifier(sellAsset.currency))
+      if (sellAsset.currency && getByIdentifier(asset) === getByIdentifier(sellAsset.currency))
         setValue('sellAsset.currency', buyAsset.currency)
       const action = sellAsset.amount ? TradeActions.SELL : undefined
       setValue('buyAsset.currency', asset)

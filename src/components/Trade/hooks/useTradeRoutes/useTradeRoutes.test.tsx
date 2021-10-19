@@ -17,7 +17,7 @@ jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
 jest.mock('lib/assetService')
 
-function setup() {
+function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const getQuote = jest.fn()
   const setValue = jest.fn()
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
@@ -31,13 +31,19 @@ function setup() {
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
-    getValues: () => ({
-      buyAsset: {
-        currency: FOX
-      },
-      sellAsset: {
-        currency: WETH
+    getValues: jest.fn((search: string) => {
+      const data = {
+        buyAsset: {
+          currency: FOX,
+          amount: buyAmount
+        },
+        sellAsset: {
+          currency: WETH,
+          amount: sellAmount
+        }
       }
+      //@ts-ignore
+      return data[search]
     })
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
@@ -47,39 +53,51 @@ function setup() {
 
 describe('useTradeRoutes', () => {
   it('sets the default assets', async () => {
-    const { getQuote, setValue } = await setup()
+    const { getQuote, setValue } = await setup({})
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
     expect(getQuote).toHaveBeenCalled()
   })
-  it('handles sell click', async () => {
-    const { hook, setValue, getQuote } = setup()
+  it('handles sell click with no buy amount', async () => {
+    const { hook, setValue, getQuote } = setup({})
     await hook?.result?.current?.handleSellClick(WETH)
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', WETH)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.SELL)
+    expect(setValue).toHaveBeenCalledWith('action', undefined)
+    expect(getQuote).toHaveBeenCalled()
+  })
+  it('handles sell click with buy amount', async () => {
+    const { hook, setValue, getQuote } = setup({ buyAmount: '23' })
+    await hook?.result?.current?.handleSellClick(WETH)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', WETH)
+    expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on sell click', async () => {
-    const { hook, setValue, getQuote } = setup()
+    const { hook, setValue, getQuote } = setup({})
     await hook?.result?.current?.handleSellClick(FOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.SELL)
     expect(getQuote).toHaveBeenCalled()
   })
-  it('handles buy click', async () => {
-    const { hook, setValue, getQuote } = setup()
+  it('handles buy click with no sell amount', async () => {
+    const { hook, setValue, getQuote } = setup({})
     await hook?.result?.current?.handleBuyClick(FOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', FOX)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
+    expect(setValue).toHaveBeenCalledWith('action', undefined)
+    expect(getQuote).toHaveBeenCalled()
+  })
+  it('handles buy click with sell amount', async () => {
+    const { hook, setValue, getQuote } = setup({ sellAmount: '234' })
+    await hook?.result?.current?.handleBuyClick(FOX)
+    expect(setValue).toHaveBeenCalledWith('action', TradeActions.SELL)
+    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', FOX)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on buy click', async () => {
-    const { hook, setValue, getQuote } = setup()
+    const { hook, setValue, getQuote } = setup({})
     await hook?.result?.current?.handleBuyClick(WETH)
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
     expect(getQuote).toHaveBeenCalled()
   })
 })

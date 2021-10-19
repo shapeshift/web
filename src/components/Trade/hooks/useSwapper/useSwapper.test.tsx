@@ -111,18 +111,6 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
     expect(setValue).toHaveBeenNthCalledWith(5, 'sellAsset.amount', sellAmount)
   })
-  it('getQuote needs buyAsset or sellAsset', async () => {
-    const { hook, getQuote } = setup()
-    await act(async () => {
-      hook.result.current.getQuote(
-        { fiatAmount: '2323' },
-        //@ts-ignore
-        { currency: undefined },
-        { currency: undefined }
-      )
-    })
-    expect(getQuote).not.toHaveBeenCalled()
-  })
   it('getBestSwapper gets best swapper', async () => {
     const { hook, getBestSwapper } = setup()
     await act(async () => {

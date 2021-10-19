@@ -6,12 +6,18 @@ import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { AssetToAsset } from './AssetToAsset'
 
 export const TradeConfirm = ({ history }: RouterProps) => {
   const { getValues } = useFormContext()
-  const { sellAsset, buyAsset } = getValues()
+  const { sellAsset, buyAsset, quote, fees } = getValues()
+  const {
+    number: { toFiat }
+  } = useLocaleFormatter({ fiatType: 'USD' })
+
   return (
     <SlideTransition>
       <Card variant='unstyled'>
@@ -27,19 +33,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             />
             <Card.Heading textAlign='center'>Confirm Trade</Card.Heading>
           </SimpleGrid>
-          <AssetToAsset
-            buyAsset={{
-              symbol: buyAsset?.symbol,
-              amount: buyAsset.amount,
-              icon: buyAsset?.icon
-            }}
-            sellAsset={{
-              symbol: sellAsset?.symbol,
-              amount: sellAsset.amount,
-              icon: sellAsset?.icon
-            }}
-            mt={6}
-          />
+          <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} />
         </Card.Header>
         <Divider />
         <Card.Body pb={0} px={0}>
@@ -49,15 +43,16 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Row.Label>Rate</Row.Label>
               </HelperTooltip>
               <Box textAlign='right'>
-                <Text>1 ETH = 3,557.29 USDC</Text>
-                <Text color='gray.500'>@0x</Text>
+                <Text>{`1 ${sellAsset.currency.symbol} = ${quote?.rate} ${buyAsset.currency.symbol}`}</Text>
               </Box>
             </Row>
             <Row>
               <HelperTooltip label='This is the Miner Fee'>
                 <Row.Label>Miner Fee</Row.Label>
               </HelperTooltip>
-              <Row.Value>$67.77</Row.Value>
+              <Row.Value>
+                {toFiat(new BigNumber(fees?.fee).times(quote?.rate).toNumber())}
+              </Row.Value>
             </Row>
             <Row>
               <HelperTooltip label='This is the Miner Fee'>

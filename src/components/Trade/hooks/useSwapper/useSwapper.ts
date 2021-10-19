@@ -1,5 +1,5 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
-import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -118,6 +118,7 @@ export const useSwapper = () => {
         const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
         const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
 
+        setFees(newQuote, sellAsset)
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
@@ -183,6 +184,28 @@ export const useSwapper = () => {
         }
       }
     })
+  }
+
+  const setFees = async (result: Quote | undefined, sellAsset: Asset): Promise<any> => {
+    let fees = {} as any
+    const sellFeePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
+    const sellAssetMinerFee = bn(result?.feeData?.fee || 0).dividedBy(
+      bn(10).exponentiatedBy(sellFeePrecision)
+    )
+    const buyAssetMinerFee = bn(result?.feeData?.receiveNetworkFee || 0)
+    const approvalFee = result?.feeData?.approvalFee
+      ? bn(result.feeData.approvalFee).dividedBy(bn(10).exponentiatedBy(18))
+      : bn(0)
+    fees = {
+      // TODO: use new fee structure
+      buyAssetMinerFee,
+      fee: sellAssetMinerFee,
+      approvalFee,
+      totalFee: sellAssetMinerFee.plus(approvalFee),
+      gasPrice: bn(result?.feeData?.gasPrice || 0),
+      estimatedGas: bn(result?.feeData?.estimatedGas || 0)
+    }
+    setValue('fees', fees)
   }
 
   const getBestSwapper = useCallback(

@@ -20,7 +20,7 @@ jest.mock('lib/assetService', () => ({
   service: {
     byTokenId: jest.fn()
   },
-  getAssetService: jest.fn()
+  getAssetService: jest.fn(() => Promise.resolve())
 }))
 
 function setupAsset({ assetData }: { assetData: Asset }) {

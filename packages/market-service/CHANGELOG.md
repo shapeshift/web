@@ -1,3 +1,11 @@
+# [@shapeshiftoss/market-service-v1.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.0.1...@shapeshiftoss/market-service-v1.0.2) (2021-10-19)
+
+
+### Bug Fixes
+
+* generic types and type package organization ([#129](https://github.com/shapeshift/lib/issues/129)) ([3bee811](https://github.com/shapeshift/lib/commit/3bee8111d720857595efdeb8a4de06bd9850ca7a))
+* various tweaks to get web back in a working ergonomic state ([#135](https://github.com/shapeshift/lib/issues/135)) ([97e507d](https://github.com/shapeshift/lib/commit/97e507d9d52831309587c8e4ef5c8a7deba4c711))
+
 # [@shapeshiftoss/market-service-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.0.0...@shapeshiftoss/market-service-v1.0.1) (2021-10-12)
 
 

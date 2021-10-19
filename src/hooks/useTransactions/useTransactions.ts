@@ -11,8 +11,8 @@ dayjs.extend(relativeTime)
 export type FormatTransactionType = ChainAdapters.Transaction<ChainTypes> & {
   type: string
   amount: string
-  date: string
-  dateFromNow: string
+  date?: string
+  dateFromNow?: string
   chain: ChainTypes
 }
 
@@ -46,13 +46,18 @@ const formatTransactions = (
 ): FormatTransactionType[] => {
   if (!(txs ?? []).length) return []
   return txs.map((tx: ChainAdapters.Transaction<ChainTypes>) => {
-    const date = getDate(tx.timestamp)
+    const timestamp = tx.timestamp
+    let date, dateFromNow
+    if (timestamp) {
+      date = getDate(timestamp)
+      dateFromNow = dayjs(date).fromNow()
+    }
+    const dates = { date, dateFromNow }
     return {
       ...tx,
+      ...dates,
       type: walletAddress === tx.from ? TxTypeEnum.Sent : TxTypeEnum.Received,
       amount: fromBaseUnit(tx.value, 18 /** TODO: get precision from asset service **/),
-      date,
-      dateFromNow: dayjs(date).fromNow(),
       fee: fromBaseUnit(tx.fee, 18),
       chain: tx.chain
     }

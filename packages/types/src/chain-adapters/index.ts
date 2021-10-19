@@ -29,7 +29,7 @@ type ChainSpecificTransaction<T> = ChainSpecific<
   }
 >
 
-type Transaction<T extends ChainTypes> = {
+export type Transaction<T extends ChainTypes> = {
   network: NetworkTypes
   chain: T
   symbol: string
@@ -94,7 +94,7 @@ export type BuildSendTxInput = {
   opReturnData?: string
   scriptType?: BTCInputScriptType
   gasLimit?: string
-  bip32Params: BIP32Params
+  bip32Params?: BIP32Params
   feeSpeed?: FeeDataKey
 }
 

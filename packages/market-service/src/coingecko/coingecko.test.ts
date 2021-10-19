@@ -39,7 +39,9 @@ describe('coingecko market service', () => {
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(getMarketData(args)).resolves.toEqual(null)
+      await expect(getMarketData(args)).rejects.toEqual(
+        new Error('MarketService(getMarketData): error fetching market data')
+      )
     })
   })
 
@@ -70,7 +72,9 @@ describe('coingecko market service', () => {
     it('should return null on network error', async () => {
       mockedAxios.get.mockRejectedValue(Error)
       jest.spyOn(console, 'warn').mockImplementation(() => void 0)
-      await expect(getPriceHistory(args)).resolves.toEqual(null)
+      await expect(getPriceHistory(args)).rejects.toEqual(
+        new Error('MarketService(getPriceHistory): error fetching price history')
+      )
     })
   })
 })

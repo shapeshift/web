@@ -44,10 +44,10 @@ type ZrxGasApiResponse = {
 }
 
 async function getErc20Data(to: string, value: string, contractAddress?: string) {
-  if (!contractAddress) return ''
+  if (!contractAddress) return '0x'
   const erc20Contract = new Contract(contractAddress, erc20Abi)
   const { data: callData } = await erc20Contract.populateTransaction.transfer(to, value)
-  return callData || ''
+  return callData || '0x'
 }
 
 export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {

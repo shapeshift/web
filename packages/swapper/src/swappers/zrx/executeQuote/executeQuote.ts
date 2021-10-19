@@ -2,7 +2,6 @@ import { numberToHex } from 'web3-utils'
 import { BIP32Params, ExecQuoteInput, ExecQuoteOutput } from '@shapeshiftoss/types'
 import { SwapError } from '../../../api'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
-import { DEFAULT_ETH_PATH } from '../utils/constants'
 
 export async function executeQuote(
   { adapterManager }: ZrxSwapperDeps,

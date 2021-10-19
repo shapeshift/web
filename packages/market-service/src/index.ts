@@ -20,6 +20,6 @@ export const getPriceHistory: PriceHistoryType = ({
   chain,
   timeframe,
   tokenId
-}: PriceHistoryArgs): Promise<HistoryData[] | null> => {
+}: PriceHistoryArgs): Promise<HistoryData[]> => {
   return getDefaultMarketService().getPriceHistory({ chain, timeframe, tokenId })
 }

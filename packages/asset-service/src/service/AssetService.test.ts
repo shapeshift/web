@@ -115,11 +115,15 @@ describe('AssetService', () => {
       )
     })
 
-    it('should return null if not found', async () => {
+    it('should throw if not found', async () => {
       const assetService = new AssetService(assetFileUrl)
       mockedAxios.get.mockRejectedValue({ data: null })
-      jest.spyOn(console, 'error').mockImplementation(() => void 0)
-      await expect(assetService.description(ChainTypes.Ethereum, '')).resolves.toEqual(null)
+      const chain = ChainTypes.Ethereum
+      const tokenId = 'fooo'
+      const expectedErrorMessage = `AssetService:description: no description availble for ${tokenId} on chain ${chain}`
+      await expect(assetService.description(chain, tokenId)).rejects.toEqual(
+        new Error(expectedErrorMessage)
+      )
     })
   })
 })

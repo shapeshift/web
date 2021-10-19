@@ -38,7 +38,7 @@ const coingeckoIDMap: CoinGeckoIDMap = Object.freeze({
 export class CoinGeckoMarketService implements MarketService {
   baseUrl = 'https://api.coingecko.com/api/v3'
 
-  getMarketData = async ({ chain, tokenId }: MarketDataArgs): Promise<MarketData | null> => {
+  getMarketData = async ({ chain, tokenId }: MarketDataArgs): Promise<MarketData> => {
     const id = coingeckoIDMap[chain]
     try {
       const isToken = !!tokenId
@@ -59,7 +59,7 @@ export class CoinGeckoMarketService implements MarketService {
       }
     } catch (e) {
       console.warn(e)
-      return null
+      throw new Error('MarketService(getMarketData): error fetching market data')
     }
   }
 
@@ -67,7 +67,7 @@ export class CoinGeckoMarketService implements MarketService {
     chain,
     timeframe,
     tokenId
-  }: PriceHistoryArgs): Promise<HistoryData[] | null> => {
+  }: PriceHistoryArgs): Promise<HistoryData[]> => {
     const id = coingeckoIDMap[chain]
 
     const end = dayjs().startOf('minute')
@@ -113,7 +113,7 @@ export class CoinGeckoMarketService implements MarketService {
       })
     } catch (e) {
       console.warn(e)
-      return null
+      throw new Error('MarketService(getPriceHistory): error fetching price history')
     }
   }
 }

@@ -1,5 +1,5 @@
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { FeeDataKey, GetAddressInputBase } from '.'
+import { GetAddressInputBase } from '.'
 
 export type Account = {
   nextChangeAddressIndex?: number

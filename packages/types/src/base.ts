@@ -91,9 +91,9 @@ export type MarketDataArgs = {
   tokenId?: string
 }
 
-export type MarketDataType = (args: MarketDataArgs) => Promise<MarketData | null>
+export type MarketDataType = (args: MarketDataArgs) => Promise<MarketData>
 
-export type PriceHistoryType = (args: PriceHistoryArgs) => Promise<HistoryData[] | null>
+export type PriceHistoryType = (args: PriceHistoryArgs) => Promise<HistoryData[]>
 
 // swapper
 

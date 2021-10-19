@@ -1,5 +1,4 @@
 import { ContractTypes } from '../base'
-import { FeeDataKey } from '.'
 
 export type Account = {
   nonce: number

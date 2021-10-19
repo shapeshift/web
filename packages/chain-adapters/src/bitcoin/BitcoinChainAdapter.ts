@@ -1,4 +1,3 @@
-import axios from 'axios'
 import coinSelect from 'coinselect'
 import WAValidator from 'multicoin-address-validator'
 import {
@@ -18,9 +17,6 @@ import { BitcoinAPI } from '@shapeshiftoss/unchained-client'
 import { ChainAdapter } from '../api'
 import { toPath, toRootDerivationPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
-
-const MIN_RELAY_FEE = 60 // sats/byte
-const DEFAULT_FEE = undefined
 
 export type BitcoinChainAdapterDependencies = {
   provider: BitcoinAPI.V1Api
@@ -245,7 +241,6 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async getFeeData(): Promise<ChainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
-    const { data } = await axios.get('https://bitcoinfees.earn.com/api/v1/fees/list')
     const confTimes: ChainAdapters.FeeDataEstimate<ChainTypes.Bitcoin> = {
       [ChainAdapters.FeeDataKey.Fast]: {
         feePerUnit: '1'

@@ -1,5 +1,5 @@
 import { ChainAdapterManager } from './ChainAdapterManager'
-import { BIP32Params, ChainTypes, ChainAdapters } from '@shapeshiftoss/types'
+import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import dotenv from 'dotenv'

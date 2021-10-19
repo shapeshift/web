@@ -1,3 +1,4 @@
+import { BuildSendTxInput } from './../../../types/src/chain-adapters/index'
 // Allow explicit any since this is a test file
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /**
@@ -10,7 +11,7 @@ import { ChainAdapter } from '../'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BitcoinAPI } from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
-import { BIP32Params, BuildSendTxInput, ChainTypes } from '@shapeshiftoss/types'
+import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
 dotenv.config({
   path: __dirname + '/../../.env'
 })
@@ -68,7 +69,7 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  describe('getAccount', () => {
+  describe.skip('getAccount', () => {
     it('should return account info for a specified address', async () => {
       const exampleResponse: BitcoinAPI.BitcoinAccount = {
         pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
@@ -85,23 +86,23 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  // describe('getTxHistory', () => {
-  //   it('should return tx history for a specified address', async () => {
-  //     const pubkey = '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx'
-  //     const data = await btcChainAdapter.getTxHistory({ pubkey })
-  //     expect(true).toEqual('unimplemented')
-  //   })
+  describe.skip('getTxHistory', () => {
+    it('should return tx history for a specified address', async () => {
+      const pubkey = '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx'
+      const data = await btcChainAdapter.getTxHistory({ pubkey })
+      expect(true).toEqual('unimplemented')
+    })
 
-  //   it('should fail for an unspecified address', async () => {
-  //     const pubkey = ''
-  //     await expect(btcChainAdapter.getTxHistory({ pubkey })).rejects.toThrow(
-  //       "Parameter 'address' is not defined"
-  //     )
-  //     expect(true).toEqual('unimplemented')
-  //   })
-  // })
+    it('should fail for an unspecified address', async () => {
+      const pubkey = ''
+      await expect(btcChainAdapter.getTxHistory({ pubkey })).rejects.toThrow(
+        "Parameter 'address' is not defined"
+      )
+      expect(true).toEqual('unimplemented')
+    })
+  })
 
-  describe('buildSendTransaction', () => {
+  describe.skip('buildSendTransaction', () => {
     it('should return a formatted BTCSignTx object for a valid BuildSendTxInput parameter', async () => {
       const bip32Params: BIP32Params = {
         coinType: 0, // TODO(0xdef1cafe): i don't know what i'm doing here i'm trying to make it type check
@@ -151,41 +152,41 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  // describe('signTransaction', () => {
-  //   it('should sign a properly formatted signTxInput object', async () => {
-  //     const bip32Params: BIP32Params = {
-  //       coinType: 0, // TODO(0xdef1cafe): i don't know what i'm doing here i'm trying to make it type check
-  //       purpose: 44,
-  //       accountNumber: 0,
-  //       isChange: false,
-  //       index: 0
-  //     }
-  //     const txInput = {
-  //       bip32Params,
-  //       recipients: [{ address: '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM', value: 2000 }],
-  //       wallet,
-  //       fee: '100',
-  //       opReturnData: 'sup fool'
-  //     }
+  describe.skip('signTransaction', () => {
+    it('should sign a properly formatted signTxInput object', async () => {
+      const bip32Params: BIP32Params = {
+        coinType: 0, // TODO(0xdef1cafe): i don't know what i'm doing here i'm trying to make it type check
+        purpose: 44,
+        accountNumber: 0,
+        isChange: false,
+        index: 0
+      }
+      const txInput = {
+        bip32Params,
+        recipients: [{ address: '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM', value: 2000 }],
+        wallet,
+        fee: '100',
+        opReturnData: 'sup fool'
+      }
 
-  //     const unsignedTx = await btcChainAdapter.buildSendTransaction(txInput)
+      const unsignedTx = await btcChainAdapter.buildSendTransaction(txInput)
 
-  //     const signedTx = await btcChainAdapter.signTransaction({
-  //       wallet,
-  //       txToSign: unsignedTx?.txToSign
-  //     })
+      const signedTx = await btcChainAdapter.signTransaction({
+        wallet,
+        txToSign: unsignedTx?.txToSign
+      })
 
-  //     expect(true).toEqual('unimplemented')
-  //   })
-  // })
+      expect(true).toEqual('unimplemented')
+    })
+  })
 
-  // describe('broadcastTransaction', () => {
-  //   it('is unimplemented', () => {
-  //     expect(true).toEqual('unimplemented')
-  //   })
-  // })
+  describe.skip('broadcastTransaction', () => {
+    it('is unimplemented', () => {
+      expect(true).toEqual('unimplemented')
+    })
+  })
 
-  describe('getFeeData', () => {
+  describe.skip('getFeeData', () => {
     it('should return current BTC network fees', async () => {
       const data = await btcChainAdapter.getFeeData({})
       expect(data).toEqual(

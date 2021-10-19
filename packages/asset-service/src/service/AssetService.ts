@@ -97,22 +97,32 @@ export class AssetService {
    * @param tokenId token identifier (contract address on eth)
    * @returns First asset found
    */
-  byTokenId({ chain, network, tokenId }: ByTokenIdArgs): Asset | undefined {
+  byTokenId({ chain, network, tokenId }: ByTokenIdArgs): Asset {
     this.checkInitialized()
     const index = getDataIndexKey(chain, network ?? NetworkTypes.MAINNET, tokenId)
-    return this.indexedAssetData[index]
+    const result = this.indexedAssetData[index]
+    if (!result) {
+      throw new Error(`AssetService:byTokenId: could not find tokenId ${tokenId}`)
+    }
+    return result
   }
 
-  async description(chain: ChainTypes, tokenId?: string): Promise<string | null> {
+  async description(chain: ChainTypes, tokenId?: string): Promise<string> {
     const contractUrl = typeof tokenId === 'string' ? `/contract/${tokenId?.toLowerCase()}` : ''
+    const errorMessage = `AssetService:description: no description availble for ${tokenId} on chain ${chain}`
+
     try {
-      const { data } = await axios.get(
+      type CoinData = {
+        description: {
+          en: string
+        }
+      }
+      const { data } = await axios.get<CoinData>(
         `https://api.coingecko.com/api/v3/coins/${chain}${contractUrl}`
       )
-      return data?.description?.en || null
+      return data?.description?.en ?? ''
     } catch (e) {
-      console.error('AssetService:description:error', e)
-      return null
+      throw new Error(errorMessage)
     }
   }
 }

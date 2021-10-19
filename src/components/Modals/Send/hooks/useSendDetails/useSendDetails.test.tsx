@@ -1,5 +1,5 @@
 import { getMarketData } from '@shapeshiftoss/market-service'
-import { ChainTypes, FeeDataKey } from '@shapeshiftoss/types'
+import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
@@ -72,7 +72,7 @@ const erc20RuneAsset = {
 }
 
 const estimatedFees = {
-  [FeeDataKey.Fast]: {
+  [ChainAdapters.FeeDataKey.Fast]: {
     networkFee: '6000000000000000'
   }
 }

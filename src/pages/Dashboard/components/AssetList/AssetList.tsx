@@ -24,6 +24,8 @@ export const AssetList = ({ balances }: AssetListProps) => {
   const assets: Asset[] = Object.entries(balances).reduce((acc: Asset[], [_, value]) => {
     const price = '3000' // TODO: get real pricing data for asset
 
+    const { chain } = value
+
     const asset = {
       icon: 'https://static.coincap.io/assets/icons/256/btc.png', // TODO: get asset icon
       displayName: value.network,
@@ -33,21 +35,30 @@ export const AssetList = ({ balances }: AssetListProps) => {
       displayBalance: fromBaseUnit(value.balance, 18)
     }
 
-    if (value.tokens?.length) {
-      value.tokens.forEach(token => {
-        if (token.balance !== '0') {
-          acc.push({
-            icon: 'https://static.coincap.io/assets/icons/256/btc.png',
-            displayName: token.name,
-            symbol: token.symbol ?? '',
-            fiatPrice: price,
-            fiatValue: new BigNumber(fromBaseUnit(token.balance ?? '0', token.decimals ?? 18))
-              .times(price)
-              .toString(),
-            displayBalance: fromBaseUnit(token.balance ?? '0', token.decimals ?? 18)
-          })
-        }
-      })
+    switch (chain) {
+      case ChainTypes.Ethereum: {
+        const ethValue = value as ChainAdapters.Account<ChainTypes.Ethereum>
+        const { tokens } = ethValue.chainSpecific
+        if (!tokens) return acc.push(asset)
+        tokens.forEach(token => {
+          if (token.balance !== '0') {
+            acc.push({
+              icon: 'https://static.coincap.io/assets/icons/256/btc.png',
+              displayName: token.name,
+              symbol: token.symbol ?? '',
+              fiatPrice: price,
+              fiatValue: new BigNumber(fromBaseUnit(token.balance ?? '0', token.precision ?? 18))
+                .times(price)
+                .toString(),
+              displayBalance: fromBaseUnit(token.balance ?? '0', token.precision ?? 18)
+            })
+          }
+        })
+        break
+      }
+      default: {
+        break
+      }
     }
 
     acc.push(asset)

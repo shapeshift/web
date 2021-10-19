@@ -30,7 +30,7 @@ type ReceivePropsType = {
 }
 
 const Receive = ({ asset }: ReceivePropsType) => {
-  const { name, symbol } = asset
+  const { chain, name, symbol } = asset
   const { state } = useWallet()
   const [isNativeWallet, setIsNativeWallet] = useState<boolean>(true)
   const [receiveAddress, setReceiveAddress] = useState<string>('')
@@ -41,13 +41,23 @@ const Receive = ({ asset }: ReceivePropsType) => {
       const { wallet } = state
       if (!wallet) return
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
-      // TODO(0xdef1cafe): remove this when we unchained supports more than eth
-      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-      // TODO(0xdef1cafe): remove this when chain adapters has a default path
-      const path = `m/44'/60'/0'/0/0`
-      setReceiveAddress(await chainAdapter.getAddress({ wallet, path }))
+      switch (chain) {
+        case ChainTypes.Ethereum: {
+          const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+          setReceiveAddress(await chainAdapter.getAddress({ wallet }))
+          break
+        }
+        case ChainTypes.Bitcoin: {
+          const chainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
+          setReceiveAddress(await chainAdapter.getAddress({ wallet }))
+          break
+        }
+        default: {
+          throw new Error(`Receive: unsupported chain ${chain}`)
+        }
+      }
     })()
-  }, [chainAdapterManager, state, setReceiveAddress])
+  }, [chain, chainAdapterManager, state, setReceiveAddress])
 
   const translate = useTranslate()
   const toast = useToast()

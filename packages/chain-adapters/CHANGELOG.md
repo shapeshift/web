@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.2.1...@shapeshiftoss/chain-adapters-v1.2.2) (2021-10-19)
+
+
+### Bug Fixes
+
+* bitcoin chain adapter tests ([#136](https://github.com/shapeshift/lib/issues/136)) ([594ff8f](https://github.com/shapeshift/lib/commit/594ff8f9ccf554407a7e3975f79cde996d1bf48d))
+
 # [@shapeshiftoss/chain-adapters-v1.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.2.0...@shapeshiftoss/chain-adapters-v1.2.1) (2021-10-19)
 
 # [@shapeshiftoss/chain-adapters-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.1.1...@shapeshiftoss/chain-adapters-v1.2.0) (2021-10-19)

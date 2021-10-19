@@ -1,3 +1,16 @@
+# [@shapeshiftoss/swapper-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.2.3...@shapeshiftoss/swapper-v1.3.0) (2021-10-19)
+
+
+### Bug Fixes
+
+* name for default zrx pair ([#134](https://github.com/shapeshift/lib/issues/134)) ([d11b228](https://github.com/shapeshift/lib/commit/d11b2282cb6232d6f93642250fa0a1b0bb66e08a))
+* various tweaks to get web back in a working ergonomic state ([#135](https://github.com/shapeshift/lib/issues/135)) ([97e507d](https://github.com/shapeshift/lib/commit/97e507d9d52831309587c8e4ef5c8a7deba4c711))
+
+
+### Features
+
+* btc chain adapters and unchained ([#124](https://github.com/shapeshift/lib/issues/124)) ([c931a72](https://github.com/shapeshift/lib/commit/c931a727405d19ebcb757c26ef8d13e086c29b20)), closes [#126](https://github.com/shapeshift/lib/issues/126)
+
 # [@shapeshiftoss/swapper-v1.2.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.2.2...@shapeshiftoss/swapper-v1.2.3) (2021-10-12)
 
 

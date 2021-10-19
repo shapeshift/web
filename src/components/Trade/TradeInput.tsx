@@ -46,7 +46,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [quote, action] = useWatch({ name: ['quote', 'action'] })
-  const { getCryptoQuote, getFiatQuote, reset } = useSwapper()
+  const { getQuote, reset } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const onSubmit = () => {
@@ -61,12 +61,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
     setValue('action', action)
-    getCryptoQuote(
-      { sellAmount: currentBuyAsset.amount },
-      currentBuyAsset,
-      currentSellAsset,
-      action
-    )
+    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset, action)
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -92,7 +87,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getCryptoQuote({ fiatAmount: e.value }, sellAsset, buyAsset, action)
+                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset, action)
                   }
                 }}
               />
@@ -115,7 +110,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             onInputChange={(value: string) => {
               const action = value ? TradeActions.SELL : undefined
               action ? setValue('action', action) : reset()
-              getCryptoQuote({ sellAmount: value }, sellAsset, buyAsset)
+              getQuote({ sellAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton
@@ -172,7 +167,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               const action = value ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
               const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
-              getCryptoQuote(amount, sellAsset, buyAsset)
+              getQuote(amount, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton

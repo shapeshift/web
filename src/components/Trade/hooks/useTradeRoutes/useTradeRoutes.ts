@@ -14,7 +14,7 @@ export const useTradeRoutes = (): {
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState>()
-  const { getCryptoQuote, getBestSwapper, getDefaultPair } = useSwapper()
+  const { getQuote, getBestSwapper, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
 
@@ -32,12 +32,12 @@ export const useTradeRoutes = (): {
       if (sellAsset && buyAsset) {
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
-        getCryptoQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
+        getQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [setValue, getCryptoQuote, getDefaultPair])
+  }, [setValue, getQuote, getDefaultPair])
 
   useEffect(() => {
     setDefaultAssets()
@@ -53,10 +53,10 @@ export const useTradeRoutes = (): {
       setValue('action', action)
       setValue('quote', undefined)
       await getBestSwapper({ sellAsset, buyAsset })
-      getCryptoQuote({ buyAmount: buyAsset.amount ?? '0' }, sellAsset, buyAsset)
+      getQuote({ buyAmount: buyAsset.amount ?? '0' }, sellAsset, buyAsset)
       history.push('/trade/input')
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getCryptoQuote]
+    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
   )
 
   const handleBuyClick = useCallback(
@@ -69,10 +69,10 @@ export const useTradeRoutes = (): {
       setValue('action', action)
       setValue('quote', undefined)
       await getBestSwapper({ sellAsset, buyAsset })
-      getCryptoQuote({ sellAmount: sellAsset.amount ?? '0' }, sellAsset, buyAsset)
+      getQuote({ sellAmount: sellAsset.amount ?? '0' }, sellAsset, buyAsset)
       history.push('/trade/input')
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getCryptoQuote]
+    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
   )
 
   return { handleSellClick, handleBuyClick }

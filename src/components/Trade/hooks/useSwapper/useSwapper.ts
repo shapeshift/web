@@ -64,7 +64,7 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const getQuote = async ({ amount, sellAsset, buyAsset, onFinish }: GetQuote) => {
+  const getQuoteFromSwapper = async ({ amount, sellAsset, buyAsset, onFinish }: GetQuote) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
@@ -134,7 +134,7 @@ export const useSwapper = () => {
     setDebounceObj({ ...quoteDebounce })
   }
 
-  const getCryptoQuote = async (
+  const getQuote = async (
     newAmount: GetQuoteAmount,
     sellAsset: TradeAsset,
     buyAsset: TradeAsset
@@ -152,7 +152,7 @@ export const useSwapper = () => {
     if (precision) {
       amount = { [key]: toBaseUnit(value || '0', precision) }
     }
-    await getQuote({
+    await getQuoteFromSwapper({
       amount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
@@ -171,29 +171,6 @@ export const useSwapper = () => {
           setValue('fiatAmount', fiatAmount)
           setValue('action', undefined)
         } else if (actionRef.current === TradeActions.FIAT && key === 'fiatAmount') {
-          setValue(
-            'buyAsset.amount',
-            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-          )
-          setValue(
-            'sellAsset.amount',
-            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-          )
-          setValue('action', undefined)
-        }
-      }
-    })
-  }
-
-  const getFiatQuote = async (fiatAmount: string, sellAsset: TradeAsset, buyAsset: TradeAsset) => {
-    if (!buyAsset?.currency || !sellAsset?.currency) return
-    swapperManager
-    getQuote({
-      amount: { fiatAmount },
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency,
-      onFinish: quote => {
-        if (actionRef.current === TradeActions.FIAT) {
           setValue(
             'buyAsset.amount',
             fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
@@ -230,8 +207,7 @@ export const useSwapper = () => {
 
   return {
     swapperManager,
-    getCryptoQuote,
-    getFiatQuote,
+    getQuote,
     getBestSwapper,
     getDefaultPair,
     reset

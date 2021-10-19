@@ -15,7 +15,7 @@ jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
-function setup() {
+function setup(action = TradeActions.SELL) {
   const setValue = jest.fn()
   const setError = jest.fn()
   const clearErrors = jest.fn()
@@ -32,7 +32,7 @@ function setup() {
     getBestSwapper
   }))
   ;(debounce as jest.Mock<unknown>).mockImplementation(fn => fn)
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{ rate: '1.2' }, {}])
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{ rate: '1.2' }, {}, action])
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     setError,
@@ -62,15 +62,10 @@ describe('useSwapper', () => {
     const swapperManager = hook.result.current.swapperManager
     expect(swapperManager).not.toBeNull()
   })
-  it('getCryptoQuote gets quote with sellAmount', async () => {
+  it('getQuote gets quote with sellAmount', async () => {
     const { hook, setValue } = setup()
     await act(async () => {
-      hook.result.current.getCryptoQuote(
-        { sellAmount: '20' },
-        { currency: WETH },
-        { currency: USDC },
-        TradeActions.SELL
-      )
+      hook.result.current.getQuote({ sellAmount: '20' }, { currency: WETH }, { currency: USDC })
     })
     const buyAmount = fromBaseUnit(QUOTE.buyAmount || '0', QUOTE.buyAsset.precision)
     expect(setValue).toHaveBeenCalledWith('quote', QUOTE)
@@ -79,15 +74,10 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
     expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '0.00')
   })
-  it('getCryptoQuote gets quote with buyAmount', async () => {
-    const { hook, setValue } = setup()
+  it('getQuote gets quote with buyAmount', async () => {
+    const { hook, setValue } = setup(TradeActions.BUY)
     await act(async () => {
-      hook.result.current.getCryptoQuote(
-        { buyAmount: '20' },
-        { currency: WETH },
-        { currency: USDC },
-        TradeActions.SELL
-      )
+      hook.result.current.getQuote({ buyAmount: '20' }, { currency: WETH }, { currency: USDC })
     })
     const sellAmount = fromBaseUnit(QUOTE.sellAmount || '0', QUOTE.sellAsset.precision)
     expect(setValue).toHaveBeenCalledWith('quote', QUOTE)
@@ -96,28 +86,22 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'sellAsset.amount', sellAmount)
     expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '0.00')
   })
-  it('getCryptoQuote needs buyAsset or sellAsset', async () => {
+  it('getQuote needs buyAsset or sellAsset', async () => {
     const { hook, getQuote } = setup()
     await act(async () => {
-      hook.result.current.getCryptoQuote(
+      hook.result.current.getQuote(
         { sellAmount: '20' },
         //@ts-ignore
         { currency: undefined },
-        { currency: undefined },
-        TradeActions.SELL
+        { currency: undefined }
       )
     })
     expect(getQuote).not.toHaveBeenCalled()
   })
-  it('getFiatQuote gets quote with fiatAmount', async () => {
-    const { hook, setValue } = setup()
+  it('getQuote gets quote with fiatAmount', async () => {
+    const { hook, setValue } = setup(TradeActions.FIAT)
     await act(async () => {
-      hook.result.current.getFiatQuote(
-        '20',
-        { currency: WETH },
-        { currency: USDC },
-        TradeActions.SELL
-      )
+      hook.result.current.getQuote({ fiatAmount: '20' }, { currency: WETH }, { currency: USDC })
     })
     const buyAmount = fromBaseUnit(QUOTE.buyAmount || '0', QUOTE.buyAsset.precision)
     const sellAmount = fromBaseUnit(QUOTE.sellAmount || '0', QUOTE.sellAsset.precision)
@@ -127,15 +111,14 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
     expect(setValue).toHaveBeenNthCalledWith(5, 'sellAsset.amount', sellAmount)
   })
-  it('getFiatQuote needs buyAsset or sellAsset', async () => {
+  it('getQuote needs buyAsset or sellAsset', async () => {
     const { hook, getQuote } = setup()
     await act(async () => {
-      hook.result.current.getFiatQuote(
-        '2323',
+      hook.result.current.getQuote(
+        { fiatAmount: '2323' },
         //@ts-ignore
         { currency: undefined },
-        { currency: undefined },
-        TradeActions.SELL
+        { currency: undefined }
       )
     })
     expect(getQuote).not.toHaveBeenCalled()

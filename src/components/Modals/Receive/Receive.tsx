@@ -14,7 +14,6 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -41,21 +40,9 @@ const Receive = ({ asset }: ReceivePropsType) => {
       const { wallet } = state
       if (!wallet) return
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
-      switch (chain) {
-        case ChainTypes.Ethereum: {
-          const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-          setReceiveAddress(await chainAdapter.getAddress({ wallet }))
-          break
-        }
-        case ChainTypes.Bitcoin: {
-          const chainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
-          setReceiveAddress(await chainAdapter.getAddress({ wallet }))
-          break
-        }
-        default: {
-          throw new Error(`Receive: unsupported chain ${chain}`)
-        }
-      }
+      const chainAdapter = chainAdapterManager.byChain(chain)
+      if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
+      setReceiveAddress(await chainAdapter.getAddress({ wallet }))
     })()
   }, [chain, chainAdapterManager, state, setReceiveAddress])
 

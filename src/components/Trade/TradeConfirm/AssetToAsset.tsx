@@ -11,7 +11,9 @@ import {
 } from '@chakra-ui/react'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
+
+import { TradeAsset } from '../Trade'
 
 type AssetToAssetProps = {
   sellAsset: TradeAsset
@@ -41,7 +43,11 @@ export const AssetToAsset = ({
             {toCrypto(Number(sellAsset.amount), sellAsset.currency.symbol)}
           </Text>
           <Text color='gray.500'>
-            {toFiat(new BigNumber(sellAsset.amount).times(sellAsset.fiatRate).toNumber())}
+            {toFiat(
+              bn(sellAsset.amount || '0')
+                .times(sellAsset.fiatRate || '0')
+                .toNumber()
+            )}
           </Text>
         </Box>
       </Box>
@@ -67,7 +73,11 @@ export const AssetToAsset = ({
             {toCrypto(Number(buyAsset.amount), buyAsset.currency.symbol)}
           </Text>
           <Text color='gray.500'>
-            {toFiat(new BigNumber(sellAsset.amount).times(sellAsset.fiatRate))}
+            {toFiat(
+              bn(sellAsset.amount || '0')
+                .times(sellAsset.fiatRate || '0')
+                .toNumber()
+            )}
           </Text>
         </Box>
       </Flex>

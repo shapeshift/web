@@ -30,6 +30,10 @@ export const useTradeRoutes = (): {
         asset => getByIdentifier(defaultPair?.[1]) === getByIdentifier(asset)
       )
       if (sellAsset && buyAsset) {
+        await getBestSwapper({
+          sellAsset: { currency: sellAsset },
+          buyAsset: { currency: buyAsset }
+        })
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
         getQuote({ sellAmount: '0' }, { currency: sellAsset }, { currency: buyAsset })

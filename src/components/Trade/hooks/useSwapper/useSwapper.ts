@@ -96,7 +96,7 @@ export const useSwapper = () => {
           quote?.buyAsset?.symbol !== buyAsset.symbol
         ) {
           minMax = await swapper.getMinMax(quoteInput)
-          minMax && setValue('trade', minMax)
+          minMax && setValue('trade', { ...trade, ...minMax })
         }
 
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
@@ -215,10 +215,12 @@ export const useSwapper = () => {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency
       }
-      const bestSwapper = await swapperManager.getBestSwapper(input)
-      setBestSwapperType(bestSwapper)
+      const bestSwapperType = await swapperManager.getBestSwapper(input)
+      setBestSwapperType(bestSwapperType)
+      console.log('bestSwapper', bestSwapperType)
+      setValue('trade', { ...trade, name: bestSwapperType })
     },
-    [swapperManager, setBestSwapperType]
+    [swapperManager, trade, setBestSwapperType, setValue]
   )
 
   const reset = () => {

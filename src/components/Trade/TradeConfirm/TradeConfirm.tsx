@@ -7,17 +7,18 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from 'lib/math'
 
 import { AssetToAsset } from './AssetToAsset'
 
 export const TradeConfirm = ({ history }: RouterProps) => {
   const { getValues } = useFormContext()
-  const { sellAsset, buyAsset, quote, fees } = getValues()
+  const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
-
+  console.log('trade', trade)
   return (
     <SlideTransition>
       <Card variant='unstyled'>
@@ -43,16 +44,17 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Row.Label>Rate</Row.Label>
               </HelperTooltip>
               <Box textAlign='right'>
-                <Text>{`1 ${sellAsset.currency.symbol} = ${quote?.rate} ${buyAsset.currency.symbol}`}</Text>
+                <Text>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(bn(quote.rate))} ${
+                  buyAsset.currency.symbol
+                }`}</Text>
+                <Text color='gray.500'>@{trade?.name}</Text>
               </Box>
             </Row>
             <Row>
               <HelperTooltip label='This is the Miner Fee'>
                 <Row.Label>Miner Fee</Row.Label>
               </HelperTooltip>
-              <Row.Value>
-                {toFiat(new BigNumber(fees?.fee).times(quote?.rate).toNumber())}
-              </Row.Value>
+              <Row.Value>{toFiat(bn(fees?.fee).times(quote?.rate).toNumber())}</Row.Value>
             </Row>
             <Row>
               <HelperTooltip label='This is the Miner Fee'>

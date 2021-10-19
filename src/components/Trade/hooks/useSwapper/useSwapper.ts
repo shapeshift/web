@@ -126,8 +126,6 @@ export const useSwapper = () => {
         const message = err?.response?.data?.validationErrors?.[0]?.reason
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
-      } finally {
-        // setValue('action', undefined)
       }
     }, debounceTime)
     quoteDebounce()

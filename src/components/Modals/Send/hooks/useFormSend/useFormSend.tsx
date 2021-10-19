@@ -19,20 +19,23 @@ export const useFormSend = () => {
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
-        const path = "m/44'/60'/0'/0/0" // TODO (technojak) get path and asset precision from asset-service
         const adapter = chainAdapter.byChain(data.asset.chain)
         const value = bnOrZero(data.crypto.amount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
+
+        const { estimatedFees, feeType } = data
+        const fees = estimatedFees[feeType]
+        const fee = fees.chainSpecific?.feePerTx
+        const gasLimit = fees.chainSpecific?.feeLimit
 
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
           erc20ContractAddress: data.asset.tokenId,
           wallet,
-          path,
-          fee: data.estimatedFees[data.feeType].feeUnitPrice,
-          limit: data.estimatedFees[data.feeType].feeUnits
+          fee,
+          gasLimit
         })
 
         const signedTx = await adapter.signTransaction({ txToSign, wallet })

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.3.1...@shapeshiftoss/swapper-v1.4.0) (2021-10-20)
+
+
+### Features
+
+* implement websockets for ethereum and improve type naming consistency ([#133](https://github.com/shapeshift/lib/issues/133)) ([d0c7f82](https://github.com/shapeshift/lib/commit/d0c7f82175e3655ea3cf85f040123b68daff47a0))
+
 # [@shapeshiftoss/swapper-v1.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.3.0...@shapeshiftoss/swapper-v1.3.1) (2021-10-19)
 
 # [@shapeshiftoss/swapper-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.2.3...@shapeshiftoss/swapper-v1.3.0) (2021-10-19)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.2.2...@shapeshiftoss/chain-adapters-v1.3.0) (2021-10-20)
+
+
+### Features
+
+* implement websockets for ethereum and improve type naming consistency ([#133](https://github.com/shapeshift/lib/issues/133)) ([d0c7f82](https://github.com/shapeshift/lib/commit/d0c7f82175e3655ea3cf85f040123b68daff47a0))
+
 # [@shapeshiftoss/chain-adapters-v1.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.2.1...@shapeshiftoss/chain-adapters-v1.2.2) (2021-10-19)
 
 

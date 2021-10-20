@@ -47,8 +47,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return ChainTypes.Bitcoin
   }
 
-  // TODO(0xdef1cafe): change this path to bip32Params
-  async getPubKey(wallet: HDWallet, path: string): Promise<PublicKey> {
+  async getPubKey(wallet: HDWallet, bip32Params: BIP32Params): Promise<PublicKey> {
+    const path = toRootDerivationPath(bip32Params)
     const publicKeys = await wallet.getPublicKeys([
       {
         coin: this.coinName,
@@ -118,38 +118,19 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
   }> {
     try {
-      const {
-        recipients,
-        wallet,
-        scriptType = BTCInputScriptType.SpendWitness,
-        bip32Params = this.defaultBIP32Params,
-        feeSpeed
-      } = tx
+      const { recipients, wallet, bip32Params = this.defaultBIP32Params, feeSpeed } = tx
 
       if (!recipients || !recipients.length) {
         throw new Error('BitcoinChainAdapter: recipients is required')
       }
 
       const path = toRootDerivationPath(bip32Params)
-      const publicKeys = await wallet.getPublicKeys([
-        {
-          coin: this.coinName,
-          addressNList: bip32ToAddressNList(path),
-          curve: 'secp256k1', // TODO(0xdef1cafe): from constant?
-          scriptType
-        }
-      ])
-
-      if (!(publicKeys ?? []).length) {
-        throw new Error('BitcoinChainAdapter: no public keys available from wallet')
-      }
-      const pubkey = publicKeys?.[0]?.xpub
-      if (!pubkey) throw new Error('BitcoinChainAdapter: no pubkey available from wallet')
+      const pubkey = await this.getPubKey(wallet, bip32Params)
       const { data: utxos } = await this.providers.http.getUtxos({
-        pubkey
+        pubkey: pubkey.xpub
       })
 
-      const account = await this.getAccount(pubkey)
+      const account = await this.getAccount(pubkey.xpub)
       const estimatedFees = await this.getFeeData()
       const satoshiPerByte = estimatedFees[feeSpeed ?? chainAdapters.FeeDataKey.Average].feePerUnit
 
@@ -271,8 +252,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
     // If an index is not passed in, we want to use the newest unused change/receive indices
     if (index === undefined) {
-      const pubkey = await this.getPubKey(wallet, toRootDerivationPath(bip32Params))
-      const account = await this.getAccount(pubkey.xpub)
+      const { xpub } = await this.getPubKey(wallet, bip32Params)
+      const account = await this.getAccount(xpub)
       index = isChange
         ? account.chainSpecific.nextChangeAddressIndex
         : account.chainSpecific.nextReceiveAddressIndex

@@ -18,9 +18,11 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
       if (encryptedWallet?.encryptedWallet && state.adapters?.native) {
         try {
           let mnemonic = await encryptedWallet.decrypt()
-          const wallet = await (state.adapters.native as NativeAdapter).pairDevice(
-            encryptedWallet.deviceId
-          )
+          const deviceId = encryptedWallet.deviceId
+          if (!deviceId) {
+            throw new Error('useNativeSuccess no deviceId available')
+          }
+          const wallet = await (state.adapters.native as NativeAdapter).pairDevice(deviceId)
           await wallet?.loadDevice({ mnemonic })
           mnemonic = '' // Clear out the mnemonic as soon as we're done with it
           setLocalStorageWallet({

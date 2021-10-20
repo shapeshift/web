@@ -1,3 +1,7 @@
+## Description
+
+Please describe your changes
+
 ## Notice
 
 Before submitting a pull request, please make sure you have answered the following:
@@ -15,10 +19,6 @@ Before submitting a pull request, please make sure you have answered the followi
 ## Issue (if applicable)
 
 If applicable, please link to the github issue and put `closes #XXXX` in your comment to auto-close the issue that your PR fixes.
-
-## Description
-
-Please describe your changes
 
 ## Testing
 

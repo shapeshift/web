@@ -1,5 +1,5 @@
 import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
-import { FeeDataKey } from '@shapeshiftoss/types'
+import { ChainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
@@ -11,31 +11,35 @@ type TxFeeRadioGroupProps = {
   fees: FeePrice | null
 }
 
-function getFeeColor(key: FeeDataKey): string {
+function getFeeColor(key: ChainAdapters.FeeDataKey): string {
   switch (key) {
-    case FeeDataKey.Slow:
+    case ChainAdapters.FeeDataKey.Slow:
       return 'yellow'
-    case FeeDataKey.Fast:
+    case ChainAdapters.FeeDataKey.Fast:
       return 'green'
-    case FeeDataKey.Average:
+    case ChainAdapters.FeeDataKey.Average:
     default:
       return 'blue'
   }
 }
 
-function getFeeTranslation(key: FeeDataKey): string {
+function getFeeTranslation(key: ChainAdapters.FeeDataKey): string {
   switch (key) {
-    case FeeDataKey.Slow:
+    case ChainAdapters.FeeDataKey.Slow:
       return 'modals.send.sendForm.slow'
-    case FeeDataKey.Fast:
+    case ChainAdapters.FeeDataKey.Fast:
       return 'modals.send.sendForm.fast'
-    case FeeDataKey.Average:
+    case ChainAdapters.FeeDataKey.Average:
     default:
       return 'modals.send.sendForm.average'
   }
 }
 
-const feesOrder: FeeDataKey[] = [FeeDataKey.Slow, FeeDataKey.Average, FeeDataKey.Fast]
+const feesOrder: ChainAdapters.FeeDataKey[] = [
+  ChainAdapters.FeeDataKey.Slow,
+  ChainAdapters.FeeDataKey.Average,
+  ChainAdapters.FeeDataKey.Fast
+]
 
 export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   const { control } = useFormContext()
@@ -43,7 +47,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
     name: SendFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: FeeDataKey.Average
+    defaultValue: ChainAdapters.FeeDataKey.Average
   })
   const [asset, activeFee] = useWatch({ name: [SendFormFields.Asset, SendFormFields.FeeType] })
   const bg = useColorModeValue('gray.50', 'gray.850')
@@ -76,7 +80,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
       p={2}
       id='tx-fee'
     >
-      {feesOrder.map((key: FeeDataKey) => {
+      {feesOrder.map((key: ChainAdapters.FeeDataKey) => {
         const current = fees[key]
         const color = getFeeColor(key)
         const translation = getFeeTranslation(key)

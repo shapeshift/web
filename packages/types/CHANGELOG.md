@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.1.1...@shapeshiftoss/types-v1.2.0) (2021-10-20)
+
+
+### Features
+
+* implement websockets for ethereum and improve type naming consistency ([#133](https://github.com/shapeshift/lib/issues/133)) ([d0c7f82](https://github.com/shapeshift/lib/commit/d0c7f82175e3655ea3cf85f040123b68daff47a0))
+
 # [@shapeshiftoss/types-v1.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.1.0...@shapeshiftoss/types-v1.1.1) (2021-10-19)
 
 # [@shapeshiftoss/types-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.0.2...@shapeshiftoss/types-v1.1.0) (2021-10-19)

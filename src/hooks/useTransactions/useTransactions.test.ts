@@ -24,9 +24,9 @@ jest.mock('lib/assetService', () => ({
 }))
 
 function setupAsset({ assetData }: { assetData: Asset }) {
-  getAssetService.mockResolvedValue({
+  ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({
     byTokenId: jest.fn(() => assetData)
-  })
+  }))
 }
 
 function setup({ chain, contractAddress, symbol }: UseTransactionsPropType = {}) {

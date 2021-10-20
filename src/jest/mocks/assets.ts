@@ -1,6 +1,6 @@
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-export const rune: Asset = {
+export const rune = {
   name: 'THORChain  ERC20 ',
   precision: 18,
   tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
@@ -18,7 +18,7 @@ export const rune: Asset = {
   slip44: 60
 }
 
-export const ethereum: Asset = {
+export const ethereum = {
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   symbol: 'ETH',
@@ -34,7 +34,7 @@ export const ethereum: Asset = {
   receiveSupport: true
 }
 
-export const aapl: Asset = {
+export const aapl = {
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
@@ -52,7 +52,7 @@ export const aapl: Asset = {
   tokenId: '0x41efc0253ee7ea44400abb5f907fdbfdebc82bec'
 }
 
-export const zero: Asset = {
+export const zero = {
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',

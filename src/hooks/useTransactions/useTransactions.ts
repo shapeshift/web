@@ -1,4 +1,5 @@
-import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { AssetService } from '@shapeshiftoss/asset-service'
+import { ChainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'
@@ -43,9 +44,10 @@ export const getDate = (timestamp: number) =>
   dayjs(Number(timestamp) * 1000).format('MM/DD/YYYY h:mm A')
 
 const formatTransactions = (
-
   txs: ChainAdapters.Transaction<ChainTypes>[],
-  walletAddress: string
+  walletAddress: string,
+  contractAddress: string,
+  assetService: AssetService
 ): FormatTransactionType[] => {
   if (!(txs ?? []).length) return []
   return txs.map((tx: ChainAdapters.Transaction<ChainTypes>) => {
@@ -56,13 +58,19 @@ const formatTransactions = (
       dateFromNow = dayjs(date).fromNow()
     }
     const dates = { date, dateFromNow }
+    const asset = assetService?.byTokenId({
+      chain: tx.chain,
+      network: NetworkTypes.MAINNET,
+      tokenId: contractAddress
+    })
     return {
       ...tx,
       ...dates,
       type: walletAddress === tx.from ? TxTypeEnum.Sent : TxTypeEnum.Received,
-      amount: fromBaseUnit(tx.value, 18 /** TODO: get precision from asset service **/),
-      fee: fromBaseUnit(tx.fee, 18),
-      chain: tx.chain
+      amount: fromBaseUnit(tx.value, asset?.precision ?? 18),
+      fee: fromBaseUnit(tx.fee, asset?.precision ?? 18),
+      chain: tx.chain,
+      transactionLink: asset?.explorerTxLink + tx.txid
     }
   })
 }
@@ -107,7 +115,9 @@ export const useTransactions = ({
       }
       const formattedTransactions = formatTransactions(
         txHistoryResponse?.transactions ?? [],
-        pubkey
+        pubkey,
+        contractAddress,
+        assetService
       )
       return { txs: formattedTransactions }
     }
@@ -131,9 +141,12 @@ export const useTransactions = ({
         console.error(err)
       }
       if (!txHistoryResponse) continue
-      formatTransactions(txHistoryResponse.transactions, pubkey).forEach(
-        (tx: FormatTransactionType) => transactions.push(tx)
-      )
+      formatTransactions(
+        txHistoryResponse.transactions,
+        pubkey,
+        contractAddress,
+        assetService
+      ).forEach((tx: FormatTransactionType) => transactions.push(tx))
     }
 
     acc['txs'] = transactions

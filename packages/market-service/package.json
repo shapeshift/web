@@ -24,7 +24,7 @@
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shapeshiftoss/types": "^1.1.0",
+    "@shapeshiftoss/types": "^1.1.1",
     "axios": "^0.21.2",
     "dayjs": "^1.10.6"
   }

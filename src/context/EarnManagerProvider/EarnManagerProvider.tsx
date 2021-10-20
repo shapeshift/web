@@ -1,7 +1,8 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import React from 'react'
-import { Route, useHistory, useLocation } from 'react-router-dom'
+import { Route, useLocation } from 'react-router-dom'
+
+import { EarnModal } from './components/EarnModal/EarnModal'
 
 export enum EarnType {
   Yearn = 'yearn'
@@ -19,13 +20,7 @@ type EarnManagerContextProps = {
 const EarnManagerContext = React.createContext<EarnManagerContextProps | null>(null)
 
 const YearnModule = () => {
-  const history = useHistory()
-  return (
-    <Modal isOpen onClose={history.goBack}>
-      <ModalOverlay />
-      <ModalContent>YEARN MODULE</ModalContent>
-    </Modal>
-  )
+  return <div>YEARN ALL DAY BAE</div>
 }
 
 const EarnModules = {
@@ -42,8 +37,12 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
       {children}
       {background && (
         <Route
-          path={`/earn/vaults/(${ChainTypes.Ethereum})/(${NetworkTypes.MAINNET})/:tokenId?`}
-          children={<Module />}
+          path={`/earn/vaults/(${ChainTypes.Ethereum})/:tokenId?`}
+          children={
+            <EarnModal>
+              <Module />
+            </EarnModal>
+          }
         />
       )}
     </EarnManagerContext.Provider>

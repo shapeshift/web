@@ -1,5 +1,5 @@
 import { TimeIcon } from '@chakra-ui/icons'
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
@@ -47,9 +47,17 @@ export const routes: Array<NestedRoute> = [
 
 const appRoutes = generateAppRoutes(routes)
 
+function useLocationBackground() {
+  const location = useLocation<{ background: any }>()
+  const background = location.state && location.state.background
+  return { background, location }
+}
+
 export const Routes = () => {
+  const { background, location } = useLocationBackground()
+
   return (
-    <Switch>
+    <Switch location={background || location}>
       {appRoutes.map((route, index) => {
         return (
           <Route key={index} path={route.path}>

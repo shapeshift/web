@@ -5,7 +5,8 @@ const { cleanEnv, url } = envalid
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
 const validators = {
-  REACT_APP_UNCHAINED_ETHEREUM_URL: url()
+  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url()
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

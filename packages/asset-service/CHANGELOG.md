@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.0.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.4...@shapeshiftoss/asset-service-v1.0.5) (2021-10-20)
+
+
+### Bug Fixes
+
+* manually bump internal lib package versions to latest ([#142](https://github.com/shapeshift/lib/issues/142)) ([7711bcd](https://github.com/shapeshift/lib/commit/7711bcd2f00c4884754d9bb911cb3fd724eff182))
+
 # [@shapeshiftoss/asset-service-v1.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.3...@shapeshiftoss/asset-service-v1.0.4) (2021-10-19)
 
 # [@shapeshiftoss/asset-service-v1.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.2...@shapeshiftoss/asset-service-v1.0.3) (2021-10-19)

@@ -3620,12 +3620,12 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@shapeshiftoss/asset-service@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.0.4.tgz#8cca91e218a0b50f23e0c0b2a4636d86e34ca692"
-  integrity sha512-QpjRT/wHUy1rLhRlrr9uT1x66RbZFGMwHfUyWq8I/yRJgPy7ebjo3qOoukTL+zExb8wCqg4F4JjoDsMOQMXPWA==
+"@shapeshiftoss/asset-service@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.0.5.tgz#bacb609144017ac4b889aa7898100c464b4bfe2f"
+  integrity sha512-ASXeXeO8cvOXg+P4p1Nsk55GbT+bFvhxar/1pM6Tet+0Ktepv9P+uG4/kydlZT3h3RNLZl0YecZhDUCBh0rmVg==
   dependencies:
-    "@shapeshiftoss/types" "^1.1.0"
+    "@shapeshiftoss/types" "^1.1.1"
     lodash "^4.17.21"
 
 "@shapeshiftoss/blockbook@^2.1.0":
@@ -3637,22 +3637,6 @@
     express "^4.17.1"
     swagger-ui-express "^4.1.5"
     tsoa "^3.4.0"
-
-"@shapeshiftoss/chain-adapters@^1.2.0":
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.2.2.tgz#20cb4c9a9ad2b1a069aceac71da86a3d2827d3e3"
-  integrity sha512-ElE0GBz2VvUwjvCv/4k5ejr08RVNpV5xzkdIm6x95lF6bx6PcjNaU7hXOnwZXp4c0Ka1B+Vy1lA74DAwmJRY2A==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.17.0"
-    "@shapeshiftoss/types" "^1.1.0"
-    "@shapeshiftoss/unchained-client" "^1.4.4"
-    axios "^0.21.2"
-    bignumber.js "^9.0.1"
-    bitcoinjs-lib "^5.2.0"
-    coinselect "^3.1.12"
-    ethers "^5.4.7"
-    multicoin-address-validator "^0.5.2"
-    web3-utils "^1.6.0"
 
 "@shapeshiftoss/chain-adapters@^1.2.2":
   version "1.3.0"
@@ -3829,23 +3813,23 @@
   dependencies:
     winston "^2.4.4"
 
-"@shapeshiftoss/market-service@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.0.3.tgz#29f4ff099793ba5c08a87dcd508d91538043102c"
-  integrity sha512-lnZEAfAxwdJ+n3W+FH7pI5Z/MLyyfix8yD+gXan44vyb5bmnSeMJvoYvv7CjkL1dc9jwjmMpW+5InJANmbw2VA==
+"@shapeshiftoss/market-service@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.0.4.tgz#99da25d128137a69ac491b4beb335fe58353a4cc"
+  integrity sha512-8oGuMSl1927gbvFDDKat1rNWkxCJpl65ZEuB4jmc2/cmwGnxdDGavRo53GTqvErew4JBcwFWXy+TSOy9VHzNSQ==
   dependencies:
-    "@shapeshiftoss/types" "^1.1.0"
+    "@shapeshiftoss/types" "^1.1.1"
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.3.1":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.3.1.tgz#98b8796602e5bc75116e2a5e7f7ba2016914e2b2"
-  integrity sha512-OcQzsMH2TNoQs4hmgIcfEJKt7Dih73MpsX6sMHjxem4gMLPReBZ5DXOGdVJ5XIaNc5rSco841poc45SEaRn8yg==
+"@shapeshiftoss/swapper@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.4.1.tgz#b5fd08862150c9e1189b259ff46d10856c333d78"
+  integrity sha512-28ZBgTn0WpOWcy4mL8fcabw31VQab1ZuAKhwIZ4MOOO/tE0BrwJHZgicrYJL5R6sBA/fKZTnFlls8wGOWZ02/A==
   dependencies:
-    "@shapeshiftoss/chain-adapters" "^1.2.0"
+    "@shapeshiftoss/chain-adapters" "^1.2.2"
     "@shapeshiftoss/hdwallet-core" "^1.17.0"
-    "@shapeshiftoss/types" "^1.1.0"
+    "@shapeshiftoss/types" "^1.1.1"
     axios "^0.21.4"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
@@ -3864,15 +3848,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.1.1.tgz#6e46a8a7fb0b1de7c2ec2555d9e318e5f0b96a0d"
   integrity sha512-0pX/UROaWvdLrXlCBECka1r1+f3p6/hQ7PV0vwDjkBIBD2gbz2Vvoex8Q6oBxP+2yaj+k504bYa0gL5o2YPPDQ==
 
-"@shapeshiftoss/types@^1.2.0":
+"@shapeshiftoss/types@^1.1.1", "@shapeshiftoss/types@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.2.0.tgz#f4b24d445acbcc96d00f2b7d2db137b534c30107"
   integrity sha512-wxjkaUvjJ2EkI/7f3kn9dpDVfH9vuvofdMQs/eB6H6wltOcsgTKmiqYg483kYR2N4CajVJvsvNR3fWNFc/vMhw==
-
-"@shapeshiftoss/unchained-client@^1.4.4":
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-1.4.4.tgz#457e1b66b922ef9f55c6ec31d7be993994611463"
-  integrity sha512-V/pj9BwPCs3BnB/XFPcvm7LulQo4Xf1959w1p6I33/EXgq2WK6T5ME2b/e7sVf/74sp8Pl0jj/yym/hcXvIvmg==
 
 "@shapeshiftoss/unchained-client@^2.1.0":
   version "2.1.0"

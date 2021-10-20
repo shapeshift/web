@@ -29,7 +29,10 @@ Web3.mockImplementation(() => ({
 
 const setup = () => {
   const unchainedUrls = {
-    [ChainTypes.Ethereum]: 'http://localhost:31300/api/v1'
+    [ChainTypes.Ethereum]: {
+      httpUrl: 'http://localhost:31300',
+      wsUrl: 'ws://localhost:31300'
+    }
   }
   const ethNodeUrl = 'http://localhost:1000'
   const adapterManager = new ChainAdapterManager(unchainedUrls)

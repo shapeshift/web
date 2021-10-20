@@ -1,4 +1,4 @@
-import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
 export interface ChainAdapter<T extends ChainTypes> {
   /**
@@ -9,27 +9,33 @@ export interface ChainAdapter<T extends ChainTypes> {
   /**
    * Get the balance of an address
    */
-  getAccount(pubkey: string): Promise<ChainAdapters.Account<T>>
-  getTxHistory(input: ChainAdapters.TxHistoryInput): Promise<ChainAdapters.TxHistoryResponse<T>>
+  getAccount(pubkey: string): Promise<chainAdapters.Account<T>>
+  getTxHistory(input: chainAdapters.TxHistoryInput): Promise<chainAdapters.TxHistoryResponse<T>>
 
   buildSendTransaction(
-    input: ChainAdapters.BuildSendTxInput
+    input: chainAdapters.BuildSendTxInput
   ): Promise<{
-    txToSign: ChainAdapters.ChainTxType<T>
-    estimatedFees: ChainAdapters.FeeDataEstimate<T>
+    txToSign: chainAdapters.ChainTxType<T>
+    estimatedFees: chainAdapters.FeeDataEstimate<T>
   }>
 
-  getAddress(input: ChainAdapters.GetAddressInput): Promise<string>
+  getAddress(input: chainAdapters.GetAddressInput): Promise<string>
 
   signTransaction(
-    signTxInput: ChainAdapters.SignTxInput<ChainAdapters.ChainTxType<T>>
+    signTxInput: chainAdapters.SignTxInput<chainAdapters.ChainTxType<T>>
   ): Promise<string>
 
   getFeeData(
-    input: Partial<ChainAdapters.GetFeeDataInput>
-  ): Promise<ChainAdapters.FeeDataEstimate<T>>
+    input: Partial<chainAdapters.GetFeeDataInput>
+  ): Promise<chainAdapters.FeeDataEstimate<T>>
 
   broadcastTransaction(hex: string): Promise<string>
 
-  validateAddress(address: string): Promise<ChainAdapters.ValidAddressResult>
+  validateAddress(address: string): Promise<chainAdapters.ValidAddressResult>
+
+  subscribeTxs(
+    input: chainAdapters.SubscribeTxsInput,
+    onMessage: (msg: chainAdapters.SubscribeTxsMessage<T>) => void,
+    onError?: (err: chainAdapters.SubscribeError) => void
+  ): Promise<void>
 }

@@ -1,16 +1,17 @@
-import { BuildSendTxInput } from './../../../types/src/chain-adapters/index'
 // Allow explicit any since this is a test file
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Test BitcoinChainAdapter
  * @group unit
  */
+
+import axios from 'axios'
 import { BTCInputScriptType, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP32Params, ChainTypes, ChainAdapters } from '@shapeshiftoss/types'
-import { bitcoin } from '@shapeshiftoss/unchained-client'
-import axios from 'axios'
-import { BitcoinChainAdapter } from '.'
+import * as unchained from '@shapeshiftoss/unchained-client'
+import { BIP32Params, ChainTypes, chainAdapters } from '@shapeshiftoss/types'
+import * as bitcoin from './BitcoinChainAdapter'
 
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
@@ -121,46 +122,56 @@ const getTransactionMockResponse = {
 }
 
 describe('BitcoinChainAdapter', () => {
+  let args: bitcoin.ChainAdapterArgs = {} as any
+
+  beforeEach(() => {
+    args = {
+      providers: {
+        http: {} as any
+      },
+      coinName: 'Bitcoin'
+    }
+  })
+
   describe('getType', () => {
     it('should return ChainTypes.Bitcoin', async () => {
-      const provider: any = jest.fn()
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-      const type = btcChainAdapter.getType()
+      const adapter = new bitcoin.ChainAdapter(args)
+      const type = adapter.getType()
       expect(type).toEqual(ChainTypes.Bitcoin)
     })
   })
 
   describe('getAccount', () => {
     it('should return account info for a specified address', async () => {
-      const provider: any = {
+      args.providers.http = {
         getAccount: jest.fn().mockResolvedValue({
           data: {
             pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
             balance: '0'
           }
         })
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
 
-      const exampleResponse: bitcoin.api.BitcoinAccount = {
+      const adapter = new bitcoin.ChainAdapter(args)
+      const exampleResponse: unchained.bitcoin.api.BitcoinAccount = {
         pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
         balance: '0'
       }
-      const data = await btcChainAdapter.getAccount('SomeFakeAddress')
+      const data = await adapter.getAccount('SomeFakeAddress')
       expect(data).toMatchObject(exampleResponse)
-      expect(provider.getAccount).toHaveBeenCalled()
+      expect(args.providers.http.getAccount).toHaveBeenCalled()
     })
 
     it('should throw for an unspecified address', async () => {
-      const provider: any = {
+      args.providers.http = {
         getAccount: jest.fn<any, any>().mockResolvedValue({
           pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
           balance: '0'
         })
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
 
-      await expect(btcChainAdapter.getAccount('')).rejects.toThrow(
+      const adapter = new bitcoin.ChainAdapter(args)
+      await expect(adapter.getAccount('')).rejects.toThrow(
         'BitcoinChainAdapter: pubkey parameter is not defined'
       )
     })
@@ -168,7 +179,7 @@ describe('BitcoinChainAdapter', () => {
 
   describe('getTxHistory', () => {
     it('should return tx history for a specified address', async () => {
-      const provider: any = {
+      args.providers.http = {
         getTxHistory: jest.fn().mockResolvedValue({
           data: {
             page: 1,
@@ -188,11 +199,11 @@ describe('BitcoinChainAdapter', () => {
             ]
           }
         })
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
 
+      const adapter = new bitcoin.ChainAdapter(args)
       const pubkey = '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx'
-      await expect(btcChainAdapter.getTxHistory({ pubkey })).resolves.toStrictEqual({
+      await expect(adapter.getTxHistory({ pubkey })).resolves.toStrictEqual({
         page: 1,
         totalPages: 1,
         txs: 1,
@@ -212,19 +223,19 @@ describe('BitcoinChainAdapter', () => {
           }
         ]
       })
-      expect(provider.getTxHistory).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getTxHistory).toHaveBeenCalledTimes(1)
     })
 
     it('should fail for an unspecified address', async () => {
-      const provider: any = {
+      args.providers.http = {
         getTxHistory: jest.fn().mockResolvedValue({
           data: {}
         })
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
 
+      const adapter = new bitcoin.ChainAdapter(args)
       const pubkey = ''
-      await expect(btcChainAdapter.getTxHistory({ pubkey })).rejects.toThrow(
+      await expect(adapter.getTxHistory({ pubkey })).rejects.toThrow(
         'pubkey parameter is not defined'
       )
     })
@@ -238,13 +249,16 @@ describe('BitcoinChainAdapter', () => {
         slow: { feePerUnit: '1' }
       }
       mockedAxios.get.mockResolvedValueOnce(mockFeeData)
+
       const wallet: any = await getWallet()
-      const provider: any = {
+
+      args.providers.http = {
         getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
         getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
         getAccount: jest.fn().mockResolvedValue(getAccountMockResponse)
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
+
+      const adapter = new bitcoin.ChainAdapter(args)
 
       const bip32Params: BIP32Params = {
         purpose: 84,
@@ -253,15 +267,15 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
 
-      const txInput: ChainAdapters.BuildSendTxInput = {
+      const txInput: chainAdapters.BuildSendTxInput = {
         bip32Params,
         recipients: [{ address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4', value: 400 }],
         wallet,
         opReturnData: 'nm, u',
-        feeSpeed: ChainAdapters.FeeDataKey.Slow
+        feeSpeed: chainAdapters.FeeDataKey.Slow
       }
 
-      await expect(btcChainAdapter.buildSendTransaction(txInput)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(txInput)).resolves.toStrictEqual({
         txToSign: {
           coin: 'Bitcoin',
           inputs: [
@@ -298,9 +312,9 @@ describe('BitcoinChainAdapter', () => {
           slow: { feePerUnit: '1' }
         }
       })
-      expect(provider.getUtxos).toHaveBeenCalledTimes(1)
-      expect(provider.getAccount).toHaveBeenCalledTimes(1)
-      expect(provider.getTransaction).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getUtxos).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getTransaction).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -312,13 +326,16 @@ describe('BitcoinChainAdapter', () => {
         slow: { feePerUnit: '1' }
       }
       mockedAxios.get.mockResolvedValueOnce(mockFeeData)
+
       const wallet: any = await getWallet()
-      const provider: any = {
+
+      args.providers.http = {
         getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
         getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
         getAccount: jest.fn().mockResolvedValue(getAccountMockResponse)
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
+
+      const adapter = new bitcoin.ChainAdapter(args)
 
       const bip32Params: BIP32Params = {
         purpose: 84,
@@ -327,17 +344,17 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
 
-      const txInput: ChainAdapters.BuildSendTxInput = {
+      const txInput: chainAdapters.BuildSendTxInput = {
         bip32Params,
         recipients: [{ address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4', value: 400 }],
         wallet,
         opReturnData: 'sup fool',
-        feeSpeed: ChainAdapters.FeeDataKey.Slow
+        feeSpeed: chainAdapters.FeeDataKey.Slow
       }
 
-      const unsignedTx = await btcChainAdapter.buildSendTransaction(txInput)
+      const unsignedTx = await adapter.buildSendTransaction(txInput)
 
-      const signedTx = await btcChainAdapter.signTransaction({
+      const signedTx = await adapter.signTransaction({
         wallet,
         txToSign: unsignedTx?.txToSign
       })
@@ -351,23 +368,22 @@ describe('BitcoinChainAdapter', () => {
   describe('broadcastTransaction', () => {
     it('is should correctly call broadcastTransaction', async () => {
       const sendDataResult = 'success'
-      const provider: any = {
+      args.providers.http = {
         sendTx: jest.fn().mockResolvedValue({ data: sendDataResult })
-      }
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      } as any
+      const adapter = new bitcoin.ChainAdapter(args)
       const mockTx = '0x123'
-      const result = await btcChainAdapter.broadcastTransaction(mockTx)
-      expect(provider.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
+      const result = await adapter.broadcastTransaction(mockTx)
+      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
       expect(result).toEqual(sendDataResult)
     })
   })
 
   describe.skip('getFeeData', () => {
     it('should return current BTC network fees', async () => {
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      const adapter = new bitcoin.ChainAdapter(args)
 
-      const data = await btcChainAdapter.getFeeData()
+      const data = await adapter.getFeeData()
       expect(data).toEqual(
         expect.objectContaining({
           fast: { feePerUnit: expect.any(String) },
@@ -381,9 +397,7 @@ describe('BitcoinChainAdapter', () => {
   describe('getAddress', () => {
     it("should return a p2pkh address for valid derivation root path parameters (m/44'/0'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 44,
@@ -392,7 +406,7 @@ describe('BitcoinChainAdapter', () => {
         index: 0
       }
       const scriptType = BTCInputScriptType.SpendAddress
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -402,9 +416,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a valid p2pkh address for the first receive index path (m/44'/0'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 44,
@@ -413,7 +425,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const scriptType = BTCInputScriptType.SpendAddress
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -423,9 +435,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a valid p2pkh change address for the first receive index path (m/44'/0'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 44,
@@ -434,7 +444,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: true
       }
       const scriptType = BTCInputScriptType.SpendAddress
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -444,8 +454,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a valid p2pkh address at the 2nd account root path (m/44'/0'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 44,
@@ -454,7 +463,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const scriptType = BTCInputScriptType.SpendAddress
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -464,9 +473,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a p2wpkh address for valid derivation root path parameters (m/84'/0'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 84,
@@ -475,7 +482,7 @@ describe('BitcoinChainAdapter', () => {
         index: 0
       }
       const scriptType = BTCInputScriptType.SpendWitness
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -485,9 +492,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a valid p2wpkh address for the first receive index path (m/84'/0'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 84,
@@ -496,7 +501,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const scriptType = BTCInputScriptType.SpendWitness
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -506,9 +511,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a valid p2wpkh change address for the first receive index path (m/44'/0'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 84,
@@ -517,7 +520,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: true
       }
       const scriptType = BTCInputScriptType.SpendWitness
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -527,8 +530,7 @@ describe('BitcoinChainAdapter', () => {
 
     it("should return a valid p2wpkh address at the 2nd account root path (m/84'/0'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
+      const adapter = new bitcoin.ChainAdapter(args)
       const bip32Params: BIP32Params = {
         coinType: 0,
         purpose: 84,
@@ -537,7 +539,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const scriptType = BTCInputScriptType.SpendWitness
-      const addr: string | undefined = await btcChainAdapter.getAddress({
+      const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
         scriptType
@@ -548,22 +550,18 @@ describe('BitcoinChainAdapter', () => {
 
   describe('validateAddress', () => {
     it('should return true for a valid address', async () => {
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const referenceAddress = '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx'
       const expectedReturnValue = { valid: true, result: 'valid' }
-      const res = await btcChainAdapter.validateAddress(referenceAddress)
+      const res = await adapter.validateAddress(referenceAddress)
       expect(res).toMatchObject(expectedReturnValue)
     })
 
     it('should return false for an invalid address', async () => {
-      const provider: any = {}
-      const btcChainAdapter = new BitcoinChainAdapter({ provider, coinName: 'Bitcoin' })
-
+      const adapter = new bitcoin.ChainAdapter(args)
       const referenceAddress = ''
       const expectedReturnValue = { valid: false, result: 'invalid' }
-      const res = await btcChainAdapter.validateAddress(referenceAddress)
+      const res = await adapter.validateAddress(referenceAddress)
       expect(res).toMatchObject(expectedReturnValue)
     })
   })

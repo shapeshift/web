@@ -1,5 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Ethereum, SignTxInput } from './chain-adapters'
+import { ethereum, SignTxInput } from './chain-adapters'
 
 /** Common */
 
@@ -19,8 +19,8 @@ export enum ContractTypes {
 }
 
 export enum ChainTypes {
-  'Ethereum' = 'ethereum',
-  'Bitcoin' = 'bitcoin'
+  Ethereum = 'ethereum',
+  Bitcoin = 'bitcoin'
 }
 
 export enum NetworkTypes {
@@ -159,7 +159,7 @@ export type Quote = {
   slipScore?: string
   txData?: string
   value?: string
-  feeData?: Ethereum.QuoteFeeData
+  feeData?: ethereum.QuoteFeeData
   allowanceContract?: string
   allowanceGrantRequired?: boolean
   slippage?: string

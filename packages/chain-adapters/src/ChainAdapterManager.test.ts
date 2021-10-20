@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ChainTypes } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from './ChainAdapterManager'
-import { EthereumChainAdapter } from './ethereum'
+import * as ethereum from './ethereum'
 
 const getCAM = (opts?: Record<string, string>) => {
   // @ts-ignore
@@ -43,7 +43,7 @@ describe('ChainAdapterManager', () => {
     it('should add a network', () => {
       expect(
         // @ts-ignore
-        getCAM().addChain(ChainTypes.Ethereum, () => new EthereumChainAdapter())
+        getCAM().addChain(ChainTypes.Ethereum, () => new ethereum.ChainAdapter())
       ).toBeUndefined()
     })
   })
@@ -60,7 +60,7 @@ describe('ChainAdapterManager', () => {
       const adapter = cam.byChain(ChainTypes.Ethereum)
       const adapter2 = cam.byChain(ChainTypes.Ethereum)
       // @ts-ignore
-      expect(adapter).toBeInstanceOf(EthereumChainAdapter)
+      expect(adapter).toBeInstanceOf(ethereum.ChainAdapter)
       expect(adapter2).toBe(adapter)
     })
   })

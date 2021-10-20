@@ -1,10 +1,14 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { bitcoin, ethereum } from '@shapeshiftoss/unchained-client'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import { ChainAdapter } from './api'
-import { BitcoinChainAdapter } from './bitcoin'
-import { EthereumChainAdapter } from './ethereum'
+import * as bitcoin from './bitcoin'
+import * as ethereum from './ethereum'
 
-export type UnchainedUrls = Partial<Record<ChainTypes, string>>
+export type UnchainedUrl = {
+  httpUrl: string
+  wsUrl: string
+}
+export type UnchainedUrls = Partial<Record<ChainTypes, UnchainedUrl>>
 
 export class ChainAdapterManager {
   private supported: Map<ChainTypes, () => ChainAdapter<ChainTypes>> = new Map()
@@ -14,17 +18,26 @@ export class ChainAdapterManager {
     if (!unchainedUrls) {
       throw new Error('Blockchain urls required')
     }
-    ;(Object.entries(unchainedUrls) as Array<[keyof UnchainedUrls, string]>).forEach(
-      ([type, basePath]) => {
+    ;(Object.entries(unchainedUrls) as Array<[keyof UnchainedUrls, UnchainedUrl]>).forEach(
+      ([type, { httpUrl, wsUrl }]) => {
         switch (type) {
           case ChainTypes.Ethereum: {
-            const provider = new ethereum.api.V1Api(new ethereum.api.Configuration({ basePath }))
-            return this.addChain(type, () => new EthereumChainAdapter({ provider }))
+            const http = new unchained.ethereum.api.V1Api(
+              new unchained.ethereum.api.Configuration({ basePath: httpUrl })
+            )
+            const ws = new unchained.ethereum.ws.Client(wsUrl, {
+              handshakeTimeout: 5000
+            })
+            return this.addChain(type, () => new ethereum.ChainAdapter({ providers: { http, ws } }))
           }
           case ChainTypes.Bitcoin: {
-            const coinName = 'Bitcoin'
-            const provider = new bitcoin.api.V1Api(new bitcoin.api.Configuration({ basePath }))
-            return this.addChain(type, () => new BitcoinChainAdapter({ provider, coinName }))
+            const http = new unchained.bitcoin.api.V1Api(
+              new unchained.bitcoin.api.Configuration({ basePath: httpUrl })
+            )
+            return this.addChain(
+              type,
+              () => new bitcoin.ChainAdapter({ providers: { http }, coinName: 'Bitcoin' })
+            )
           }
           default:
             throw new Error(`ChainAdapterManager: cannot instantiate ${type} chain adapter`)

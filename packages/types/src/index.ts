@@ -1,5 +1,5 @@
-import * as ChainAdapters from './chain-adapters'
+import * as chainAdapters from './chain-adapters'
 
-export { ChainAdapters }
+export { chainAdapters }
 
 export * from './base'

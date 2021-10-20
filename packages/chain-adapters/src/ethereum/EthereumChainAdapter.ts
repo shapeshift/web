@@ -6,41 +6,22 @@ import { Contract } from '@ethersproject/contracts'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   BIP32Params,
-  ChainAdapters,
+  chainAdapters,
   ChainTypes,
   ContractTypes,
   NetworkTypes
 } from '@shapeshiftoss/types'
-import { ethereum } from '@shapeshiftoss/unchained-client'
-import { ChainAdapter } from '../api'
+import { ethereum, unchained } from '@shapeshiftoss/unchained-client'
+import { ChainAdapter as IChainAdapter } from '../api'
 import { toPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
 import erc20Abi from './erc20Abi.json'
 
-export type EthereumChainAdapterDependencies = {
-  provider: ethereum.api.V1Api
-}
-
-type ZrxFeeResult = {
-  fast: number
-  instant: number
-  low: number
-  source:
-    | 'ETH_GAS_STATION'
-    | 'ETHERSCAN'
-    | 'ETHERCHAIN'
-    | 'GAS_NOW'
-    | 'MY_CRYPTO'
-    | 'UP_VEST'
-    | 'GETH_PENDING'
-    | 'MEDIAN'
-    | 'AVERAGE'
-  standard: number
-  timestamp: number
-}
-
-type ZrxGasApiResponse = {
-  result: ZrxFeeResult[]
+export interface ChainAdapterArgs {
+  providers: {
+    http: ethereum.api.V1Api
+    ws: ethereum.ws.Client
+  }
 }
 
 async function getErc20Data(to: string, value: string, contractAddress?: string) {
@@ -50,25 +31,28 @@ async function getErc20Data(to: string, value: string, contractAddress?: string)
   return callData || '0x'
 }
 
-export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
-  private readonly provider: ethereum.api.V1Api
+export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
+  private readonly providers: {
+    http: ethereum.api.V1Api
+    ws: ethereum.ws.Client
+  }
   private readonly defaultBIP32Params: BIP32Params = {
     purpose: 44,
     coinType: 60,
     accountNumber: 0
   }
 
-  constructor(deps: EthereumChainAdapterDependencies) {
-    this.provider = deps.provider
+  constructor(args: ChainAdapterArgs) {
+    this.providers = args.providers
   }
 
   getType(): ChainTypes.Ethereum {
     return ChainTypes.Ethereum
   }
 
-  async getAccount(pubkey: string): Promise<ChainAdapters.Account<ChainTypes.Ethereum>> {
+  async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Ethereum>> {
     try {
-      const { data } = await this.provider.getAccount({ pubkey })
+      const { data } = await this.providers.http.getAccount({ pubkey })
 
       return {
         balance: data.balance,
@@ -99,10 +83,10 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
   async getTxHistory({
     pubkey
   }: ethereum.api.V1ApiGetTxHistoryRequest): Promise<
-    ChainAdapters.TxHistoryResponse<ChainTypes.Ethereum>
+    chainAdapters.TxHistoryResponse<ChainTypes.Ethereum>
   > {
     try {
-      const { data } = await this.provider.getTxHistory({ pubkey })
+      const { data } = await this.providers.http.getTxHistory({ pubkey })
 
       return {
         page: data.page,
@@ -121,10 +105,10 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
   }
 
   async buildSendTransaction(
-    tx: ChainAdapters.BuildSendTxInput
+    tx: chainAdapters.BuildSendTxInput
   ): Promise<{
     txToSign: ETHSignTx
-    estimatedFees: ChainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
+    estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
   }> {
     try {
       const { to, erc20ContractAddress, wallet, fee, bip32Params = this.defaultBIP32Params } = tx
@@ -173,7 +157,7 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async signTransaction(signTxInput: ChainAdapters.SignTxInput<ETHSignTx>): Promise<string> {
+  async signTransaction(signTxInput: chainAdapters.SignTxInput<ETHSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
       const signedTx = await (wallet as ETHWallet).ethSignTx(txToSign)
@@ -187,7 +171,7 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
   }
 
   async broadcastTransaction(hex: string) {
-    const { data } = await this.provider.sendTx({ sendTxBody: { hex } })
+    const { data } = await this.providers.http.sendTx({ sendTxBody: { hex } })
     return data
   }
 
@@ -196,15 +180,17 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
     from,
     contractAddress,
     value
-  }: ChainAdapters.GetFeeDataInput): Promise<ChainAdapters.FeeDataEstimate<ChainTypes.Ethereum>> {
-    const { data: responseData } = await axios.get<ZrxGasApiResponse>('https://gas.api.0x.org/')
+  }: chainAdapters.GetFeeDataInput): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>> {
+    const { data: responseData } = await axios.get<chainAdapters.ZrxGasApiResponse>(
+      'https://gas.api.0x.org/'
+    )
     const fees = responseData.result.find((result) => result.source === 'MEDIAN')
 
     if (!fees) throw new TypeError('ETH Gas Fees should always exist')
 
     const data = await getErc20Data(to, value, contractAddress)
 
-    const { data: feeUnits } = await this.provider.estimateGas({
+    const { data: feeUnits } = await this.providers.http.estimateGas({
       from,
       to,
       value,
@@ -239,7 +225,7 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async getAddress(input: ChainAdapters.GetAddressInput): Promise<string> {
+  async getAddress(input: chainAdapters.GetAddressInput): Promise<string> {
     const { wallet, bip32Params = this.defaultBIP32Params } = input
     const path = toPath(bip32Params)
     const addressNList = bip32ToAddressNList(path)
@@ -250,9 +236,62 @@ export class EthereumChainAdapter implements ChainAdapter<ChainTypes.Ethereum> {
     return ethAddress as string
   }
 
-  async validateAddress(address: string): Promise<ChainAdapters.ValidAddressResult> {
+  async validateAddress(address: string): Promise<chainAdapters.ValidAddressResult> {
     const isValidAddress = WAValidator.validate(address, this.getType())
-    if (isValidAddress) return { valid: true, result: ChainAdapters.ValidAddressResultType.Valid }
-    return { valid: false, result: ChainAdapters.ValidAddressResultType.Invalid }
+    if (isValidAddress) return { valid: true, result: chainAdapters.ValidAddressResultType.Valid }
+    return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
+  }
+
+  async subscribeTxs(
+    input: chainAdapters.SubscribeTxsInput,
+    onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Ethereum>) => void,
+    onError: (err: chainAdapters.SubscribeError) => void
+  ): Promise<void> {
+    // TODO: option to use sequence data for order and data validation
+
+    await this.providers.ws.subscribeTxs(
+      { addresses: input.addresses },
+      (msg) => {
+        const baseTx = {
+          address: msg.address,
+          blockHash: msg.blockHash,
+          blockHeight: msg.blockHeight,
+          blockTime: msg.blockTime,
+          chain: ChainTypes.Ethereum as ChainTypes.Ethereum,
+          confirmations: msg.confirmations,
+          network: NetworkTypes.MAINNET,
+          txid: msg.txid
+        }
+
+        const specificTx = (symbol: string, value: string, token?: unchained.Token) => ({
+          asset: '',
+          value,
+          chainSpecific: {
+            ...(token && {
+              token: {
+                contract: token.contract,
+                contractType: ContractTypes.ERC20,
+                name: token.name,
+                precision: token.decimals,
+                symbol
+              }
+            })
+          }
+        })
+
+        Object.entries(msg.send).forEach(([symbol, { totalValue, token }]) => {
+          onMessage({ ...baseTx, ...specificTx(symbol, totalValue, token), type: 'send' })
+        })
+
+        Object.entries(msg.receive).forEach(([symbol, { totalValue, token }]) => {
+          onMessage({ ...baseTx, ...specificTx(symbol, totalValue, token), type: 'receive' })
+        })
+
+        if (msg.fee) {
+          onMessage({ ...baseTx, asset: '', type: 'fee', value: msg.fee.value, chainSpecific: {} })
+        }
+      },
+      (err) => onError({ message: err.message })
+    )
   }
 }

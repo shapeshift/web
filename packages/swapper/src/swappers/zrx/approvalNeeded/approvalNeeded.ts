@@ -1,6 +1,5 @@
 import { BigNumber } from 'bignumber.js'
 import { AxiosResponse } from 'axios'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -35,7 +34,7 @@ export async function approvalNeeded(
     throw new SwapError('ZrxSwapper:approvalNeeded only Ethereum chain type is supported')
   }
 
-  const adapter: ChainAdapter<ChainTypes> = adapterManager.byChain(sellAsset.chain)
+  const adapter = adapterManager.byChain(sellAsset.chain)
   // TODO(0xdef1cafe): populate this
   const bip32Params: BIP32Params = {
     purpose: 0,

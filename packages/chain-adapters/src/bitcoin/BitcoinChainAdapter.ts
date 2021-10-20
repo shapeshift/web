@@ -12,22 +12,23 @@ import {
   bip32ToAddressNList,
   supportsBTC
 } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params, ChainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { BIP32Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { bitcoin } from '@shapeshiftoss/unchained-client'
-import { ChainAdapter } from '../api'
+import { ChainAdapter as IChainAdapter } from '../api'
 import { toPath, toRootDerivationPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
 
-export type BitcoinChainAdapterDependencies = {
-  provider: bitcoin.api.V1Api
-}
-
-type UtxoCoinName = {
+export interface ChainAdapterArgs {
+  providers: {
+    http: bitcoin.api.V1Api
+  }
   coinName: string
 }
 
-export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
-  private readonly provider: bitcoin.api.V1Api
+export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
+  private readonly providers: {
+    http: bitcoin.api.V1Api
+  }
   private readonly defaultBIP32Params: BIP32Params = {
     purpose: 84, // segwit native
     coinType: 0,
@@ -37,9 +38,9 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
   // TODO(0xdef1cafe): constraint this to utxo coins and refactor this to be a UTXOChainAdapter
   coinName: string
 
-  constructor(deps: BitcoinChainAdapterDependencies & UtxoCoinName) {
-    this.provider = deps.provider
-    this.coinName = deps.coinName
+  constructor(args: ChainAdapterArgs) {
+    this.providers = args.providers
+    this.coinName = args.coinName
   }
 
   getType(): ChainTypes.Bitcoin {
@@ -60,12 +61,12 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
     return publicKeys[0]
   }
 
-  async getAccount(pubkey: string): Promise<ChainAdapters.Account<ChainTypes.Bitcoin>> {
+  async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Bitcoin>> {
     if (!pubkey) {
       return ErrorHandler('BitcoinChainAdapter: pubkey parameter is not defined')
     }
     try {
-      const { data } = await this.provider.getAccount({ pubkey: pubkey })
+      const { data } = await this.providers.http.getAccount({ pubkey: pubkey })
       return {
         balance: data.balance,
         chain: ChainTypes.Bitcoin,
@@ -83,14 +84,14 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async getTxHistory(
-    input: ChainAdapters.TxHistoryInput
-  ): Promise<ChainAdapters.TxHistoryResponse<ChainTypes.Bitcoin>> {
+    input: chainAdapters.TxHistoryInput
+  ): Promise<chainAdapters.TxHistoryResponse<ChainTypes.Bitcoin>> {
     const { pubkey } = input
 
     if (!pubkey) return ErrorHandler('pubkey parameter is not defined')
 
     try {
-      const { data } = await this.provider.getTxHistory(input)
+      const { data } = await this.providers.http.getTxHistory(input)
       return {
         page: data.page,
         totalPages: data.totalPages,
@@ -111,10 +112,10 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async buildSendTransaction(
-    tx: ChainAdapters.BuildSendTxInput
+    tx: chainAdapters.BuildSendTxInput
   ): Promise<{
-    txToSign: ChainAdapters.ChainTxType<ChainTypes.Bitcoin>
-    estimatedFees: ChainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
+    txToSign: chainAdapters.ChainTxType<ChainTypes.Bitcoin>
+    estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
   }> {
     try {
       const {
@@ -144,18 +145,18 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
       }
       const pubkey = publicKeys?.[0]?.xpub
       if (!pubkey) throw new Error('BitcoinChainAdapter: no pubkey available from wallet')
-      const { data: utxos } = await this.provider.getUtxos({
+      const { data: utxos } = await this.providers.http.getUtxos({
         pubkey
       })
 
       const account = await this.getAccount(pubkey)
       const estimatedFees = await this.getFeeData()
-      const satoshiPerByte = estimatedFees[feeSpeed ?? ChainAdapters.FeeDataKey.Average].feePerUnit
+      const satoshiPerByte = estimatedFees[feeSpeed ?? chainAdapters.FeeDataKey.Average].feePerUnit
 
       type MappedUtxos = Omit<bitcoin.api.Utxo, 'value'> & { value: number }
       const mappedUtxos: MappedUtxos[] = utxos.map((x) => ({ ...x, value: Number(x.value) }))
 
-      const coinSelectResult = coinSelect<MappedUtxos, ChainAdapters.Bitcoin.Recipient>(
+      const coinSelectResult = coinSelect<MappedUtxos, chainAdapters.bitcoin.Recipient>(
         mappedUtxos,
         recipients,
         Number(satoshiPerByte)
@@ -169,7 +170,7 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
         if (!input.path) continue
-        const getTransactionResponse = await this.provider.getTransaction({
+        const getTransactionResponse = await this.providers.http.getTransaction({
           txid: input.txid
         })
         const inputTx = getTransactionResponse.data
@@ -219,7 +220,7 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async signTransaction(
-    signTxInput: ChainAdapters.SignTxInput<ChainAdapters.ChainTxType<ChainTypes.Bitcoin>>
+    signTxInput: chainAdapters.SignTxInput<chainAdapters.ChainTxType<ChainTypes.Bitcoin>>
   ): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
@@ -236,19 +237,19 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async broadcastTransaction(hex: string): Promise<string> {
-    const broadcastedTx = await this.provider.sendTx({ sendTxBody: { hex } })
+    const broadcastedTx = await this.providers.http.sendTx({ sendTxBody: { hex } })
     return broadcastedTx.data
   }
 
-  async getFeeData(): Promise<ChainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
-    const confTimes: ChainAdapters.FeeDataEstimate<ChainTypes.Bitcoin> = {
-      [ChainAdapters.FeeDataKey.Fast]: {
+  async getFeeData(): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
+    const confTimes: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin> = {
+      [chainAdapters.FeeDataKey.Fast]: {
         feePerUnit: '1'
       },
-      [ChainAdapters.FeeDataKey.Average]: {
+      [chainAdapters.FeeDataKey.Average]: {
         feePerUnit: '1'
       },
-      [ChainAdapters.FeeDataKey.Slow]: {
+      [chainAdapters.FeeDataKey.Slow]: {
         feePerUnit: '1'
       }
     }
@@ -260,7 +261,7 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
     wallet,
     bip32Params = this.defaultBIP32Params,
     scriptType = BTCInputScriptType.SpendWitness
-  }: ChainAdapters.Bitcoin.GetAddressInput): Promise<string> {
+  }: chainAdapters.bitcoin.GetAddressInput): Promise<string> {
     if (!supportsBTC(wallet)) {
       throw new Error('BitcoinChainAdapter: wallet does not support btc')
     }
@@ -288,9 +289,13 @@ export class BitcoinChainAdapter implements ChainAdapter<ChainTypes.Bitcoin> {
     return btcAddress
   }
 
-  async validateAddress(address: string): Promise<ChainAdapters.ValidAddressResult> {
+  async validateAddress(address: string): Promise<chainAdapters.ValidAddressResult> {
     const isValidAddress = WAValidator.validate(address, this.getType())
-    if (isValidAddress) return { valid: true, result: ChainAdapters.ValidAddressResultType.Valid }
-    return { valid: false, result: ChainAdapters.ValidAddressResultType.Invalid }
+    if (isValidAddress) return { valid: true, result: chainAdapters.ValidAddressResultType.Valid }
+    return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
+  }
+
+  async subscribeTxs(): Promise<void> {
+    throw new Error('Not implemented')
   }
 }

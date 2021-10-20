@@ -1,16 +1,16 @@
 import { HDWallet, BTCInputScriptType, BTCSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP32Params, ChainTypes, NetworkTypes } from '../base'
 import { ChainSpecific } from '../utility'
-import * as Ethereum from './ethereum'
-import * as Bitcoin from './bitcoin'
+import * as ethereum from './ethereum'
+import * as bitcoin from './bitcoin'
 
-export { Bitcoin, Ethereum }
+export { bitcoin, ethereum }
 
 type ChainSpecificAccount<T> = ChainSpecific<
   T,
   {
-    [ChainTypes.Ethereum]: Ethereum.Account
-    [ChainTypes.Bitcoin]: Bitcoin.Account
+    [ChainTypes.Ethereum]: ethereum.Account
+    [ChainTypes.Bitcoin]: bitcoin.Account
   }
 >
 
@@ -25,7 +25,7 @@ export type Account<T extends ChainTypes> = {
 type ChainSpecificTransaction<T> = ChainSpecific<
   T,
   {
-    [ChainTypes.Bitcoin]: Bitcoin.TransactionSpecific
+    [ChainTypes.Bitcoin]: bitcoin.TransactionSpecific
   }
 >
 
@@ -54,7 +54,7 @@ export enum FeeDataKey {
 type ChainSpecificFeeData<T> = ChainSpecific<
   T,
   {
-    [ChainTypes.Ethereum]: Ethereum.FeeData
+    [ChainTypes.Ethereum]: ethereum.FeeData
   }
 >
 
@@ -73,6 +73,38 @@ export type FeeDataEstimate<T extends ChainTypes> = {
   [FeeDataKey.Slow]: FeeData<T>
   [FeeDataKey.Average]: FeeData<T>
   [FeeDataKey.Fast]: FeeData<T>
+}
+
+export type SubscribeTxsInput = {
+  addresses: Array<string>
+}
+
+export type SubscribeTxsMessage<T extends ChainTypes> = {
+  address: string
+  blockHash?: string
+  blockHeight: number
+  blockTime: number
+  chain: T
+  confirmations: number
+  network: NetworkTypes
+  txid: string
+} & TxTransfer<T>
+
+type ChainSpecificTxTransfer<T> = ChainSpecific<
+  T,
+  {
+    [ChainTypes.Ethereum]: ethereum.TxTransfer
+  }
+>
+
+export type TxTransfer<T extends ChainTypes> = {
+  asset: string
+  type: 'send' | 'receive' | 'fee'
+  value: string
+} & ChainSpecificTxTransfer<T>
+
+export type SubscribeError = {
+  message: string
 }
 
 export type TxHistoryResponse<T extends ChainTypes> = {
@@ -97,7 +129,7 @@ export type BuildSendTxInput = {
   fee?: string
   /** Optional param for eth txs indicating what ERC20 is being sent **/
   erc20ContractAddress?: string
-  recipients?: Array<Bitcoin.Recipient>
+  recipients?: Array<bitcoin.Recipient>
   opReturnData?: string
   scriptType?: BTCInputScriptType
   gasLimit?: string
@@ -122,7 +154,7 @@ export type GetAddressInputBase = {
   bip32Params?: BIP32Params
 }
 
-export type GetAddressInput = GetAddressInputBase | Bitcoin.GetAddressInput
+export type GetAddressInput = GetAddressInputBase | bitcoin.GetAddressInput
 
 export type GetFeeDataInput = {
   contractAddress?: string
@@ -141,4 +173,26 @@ export type ValidAddressResult = {
   valid: boolean
   /** Result type of valid address */
   result: ValidAddressResultType
+}
+
+export type ZrxFeeResult = {
+  fast: number
+  instant: number
+  low: number
+  source:
+    | 'ETH_GAS_STATION'
+    | 'ETHERSCAN'
+    | 'ETHERCHAIN'
+    | 'GAS_NOW'
+    | 'MY_CRYPTO'
+    | 'UP_VEST'
+    | 'GETH_PENDING'
+    | 'MEDIAN'
+    | 'AVERAGE'
+  standard: number
+  timestamp: number
+}
+
+export type ZrxGasApiResponse = {
+  result: ZrxFeeResult[]
 }

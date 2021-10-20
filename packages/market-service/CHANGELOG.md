@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.0.3...@shapeshiftoss/market-service-v1.0.4) (2021-10-20)
+
+
+### Bug Fixes
+
+* manually bump internal lib package versions to latest ([#142](https://github.com/shapeshift/lib/issues/142)) ([7711bcd](https://github.com/shapeshift/lib/commit/7711bcd2f00c4884754d9bb911cb3fd724eff182))
+
 # [@shapeshiftoss/market-service-v1.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.0.2...@shapeshiftoss/market-service-v1.0.3) (2021-10-19)
 
 # [@shapeshiftoss/market-service-v1.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.0.1...@shapeshiftoss/market-service-v1.0.2) (2021-10-19)

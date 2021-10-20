@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.4.0...@shapeshiftoss/swapper-v1.4.1) (2021-10-20)
+
+
+### Bug Fixes
+
+* manually bump internal lib package versions to latest ([#142](https://github.com/shapeshift/lib/issues/142)) ([7711bcd](https://github.com/shapeshift/lib/commit/7711bcd2f00c4884754d9bb911cb3fd724eff182))
+
 # [@shapeshiftoss/swapper-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.3.1...@shapeshiftoss/swapper-v1.4.0) (2021-10-20)
 
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.3.0...@shapeshiftoss/chain-adapters-v1.3.1) (2021-10-20)
+
+
+### Bug Fixes
+
+* get pubkey params ([#140](https://github.com/shapeshift/lib/issues/140)) ([2d48c71](https://github.com/shapeshift/lib/commit/2d48c719c8708303f24766b2a5dc1660f365692f))
+
 # [@shapeshiftoss/chain-adapters-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.2.2...@shapeshiftoss/chain-adapters-v1.3.0) (2021-10-20)
 
 

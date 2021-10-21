@@ -31,6 +31,7 @@
     "bip39": "^3.0.4",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
+    "@metamask/detect-provider": "^1.2.0",
     "dompurify": "^2.3.2",
     "envalid": "^7.2.1",
     "framer-motion": "^4",

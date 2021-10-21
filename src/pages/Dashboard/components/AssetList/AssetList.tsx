@@ -1,15 +1,15 @@
 import { Flex, Image, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import { BalanceResponse } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { Link } from 'react-router-dom'
 import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 
 type AssetListProps = {
-  balances: Record<string, BalanceResponse>
+  balances: Record<string, chainAdapters.Account<ChainTypes>>
 }
 
-type Asset = {
+type DisplayAsset = {
   icon: string
   displayName: string
   symbol: string
@@ -21,39 +21,53 @@ type Asset = {
 export const AssetList = ({ balances }: AssetListProps) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
 
-  const assets: Asset[] = Object.entries(balances).reduce((acc: Asset[], [_, value]) => {
-    const price = '3000' // TODO: get real pricing data for asset
+  const assets: DisplayAsset[] = Object.entries(balances).reduce(
+    (acc: DisplayAsset[], [_, value]) => {
+      const price = '3000' // TODO: get real pricing data for asset
 
-    const asset = {
-      icon: 'https://static.coincap.io/assets/icons/256/btc.png', // TODO: get asset icon
-      displayName: value.network,
-      symbol: value.symbol,
-      fiatPrice: price,
-      fiatValue: new BigNumber(fromBaseUnit(value.balance, 18)).times(price).toString(),
-      displayBalance: fromBaseUnit(value.balance, 18)
-    }
+      const { chain, symbol } = value
 
-    if (value.tokens?.length) {
-      value.tokens.forEach(token => {
-        if (token.balance !== '0') {
-          acc.push({
-            icon: 'https://static.coincap.io/assets/icons/256/btc.png',
-            displayName: token.name,
-            symbol: token.symbol ?? '',
-            fiatPrice: price,
-            fiatValue: new BigNumber(fromBaseUnit(token.balance ?? '0', token.decimals ?? 18))
-              .times(price)
-              .toString(),
-            displayBalance: fromBaseUnit(token.balance ?? '0', token.decimals ?? 18)
+      const asset: DisplayAsset = {
+        icon: 'https://static.coincap.io/assets/icons/256/btc.png', // TODO: get asset icon
+        displayName: value.network,
+        symbol,
+        fiatPrice: price,
+        fiatValue: new BigNumber(fromBaseUnit(value.balance, 18)).times(price).toString(),
+        displayBalance: fromBaseUnit(value.balance, 18)
+      }
+
+      switch (chain) {
+        case ChainTypes.Ethereum: {
+          const ethValue = value as chainAdapters.Account<ChainTypes.Ethereum>
+          const { tokens } = ethValue.chainSpecific
+          if (!tokens) break
+          tokens.forEach(token => {
+            if (token.balance !== '0') {
+              acc.push({
+                icon: 'https://static.coincap.io/assets/icons/256/btc.png',
+                displayName: token.name,
+                symbol,
+                fiatPrice: price,
+                fiatValue: new BigNumber(fromBaseUnit(token.balance ?? '0', token.precision ?? 18))
+                  .times(price)
+                  .toString(),
+                displayBalance: fromBaseUnit(token.balance ?? '0', token.precision ?? 18)
+              })
+            }
           })
+          break
         }
-      })
-    }
+        default: {
+          break
+        }
+      }
 
-    acc.push(asset)
+      acc.push(asset)
 
-    return acc
-  }, [])
+      return acc
+    },
+    []
+  )
 
   return (
     <>

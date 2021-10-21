@@ -1,16 +1,16 @@
-import { BalanceResponse } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 type UseBalancesReturnType = {
-  balances: Record<string, BalanceResponse>
+  balances: Record<string, chainAdapters.Account<ChainTypes>>
   error?: Error | unknown
   loading: boolean
 }
 
 export const useBalances = (): UseBalancesReturnType => {
-  const [balances, setBalances] = useState<Record<string, BalanceResponse>>({})
+  const [balances, setBalances] = useState<Record<string, chainAdapters.Account<ChainTypes>>>({})
   const [error, setError] = useState<Error | unknown>()
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapter = useChainAdapters()
@@ -21,12 +21,12 @@ export const useBalances = (): UseBalancesReturnType => {
   const getBalances = useCallback(async () => {
     if (wallet) {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
-      const acc: Record<string, BalanceResponse> = {}
+      const acc: Record<string, chainAdapters.Account<ChainTypes>> = {}
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
-        const address = await adapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
-        const balanceResponse = await adapter.getBalance(address)
+        const address = await adapter.getAddress({ wallet })
+        const balanceResponse = await adapter.getAccount(address)
         if (!balanceResponse) continue
         acc[key] = balanceResponse
       }

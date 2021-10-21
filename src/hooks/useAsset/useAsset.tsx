@@ -31,13 +31,7 @@ export const useGetAssetData = ({ chain, tokenId }: { chain: ChainTypes; tokenId
   }, [asset, chain, dispatch, tokenId])
 
   const fetchMarketData = useCallback(
-    async ({
-      chain,
-      tokenId
-    }: {
-      chain: ChainTypes
-      tokenId?: string
-    }): Promise<MarketData | null> => {
+    async ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }): Promise<MarketData> => {
       const marketData: MarketData | null = await getMarketData({ chain, tokenId })
 
       return marketData

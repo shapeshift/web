@@ -14,7 +14,6 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -30,7 +29,7 @@ type ReceivePropsType = {
 }
 
 const Receive = ({ asset }: ReceivePropsType) => {
-  const { name, symbol } = asset
+  const { chain, name, symbol } = asset
   const { state } = useWallet()
   const [isNativeWallet, setIsNativeWallet] = useState<boolean>(true)
   const [receiveAddress, setReceiveAddress] = useState<string>('')
@@ -41,13 +40,11 @@ const Receive = ({ asset }: ReceivePropsType) => {
       const { wallet } = state
       if (!wallet) return
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
-      // TODO(0xdef1cafe): remove this when we unchained supports more than eth
-      const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-      // TODO(0xdef1cafe): remove this when chain adapters has a default path
-      const path = `m/44'/60'/0'/0/0`
-      setReceiveAddress(await chainAdapter.getAddress({ wallet, path }))
+      const chainAdapter = chainAdapterManager.byChain(chain)
+      if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
+      setReceiveAddress(await chainAdapter.getAddress({ wallet }))
     })()
-  }, [chainAdapterManager, state, setReceiveAddress])
+  }, [chain, chainAdapterManager, state, setReceiveAddress])
 
   const translate = useTranslate()
   const toast = useToast()

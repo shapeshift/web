@@ -216,6 +216,7 @@ export const useSwapper = () => {
         const gasPrice = bn(ethResult?.feeData?.chainSpecific.gasPrice || 0).toString()
         const estimatedGas = bn(ethResult?.feeData?.chainSpecific.estimatedGas || 0).toString()
         let fees = {
+          fee,
           chainSpecific: {
             approvalFee,
             gasPrice,

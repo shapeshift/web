@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.3.1...@shapeshiftoss/chain-adapters-v1.4.0) (2021-10-21)
+
+
+### Features
+
+* expose bip32Params and utility function ([#147](https://github.com/shapeshift/lib/issues/147)) ([3abff85](https://github.com/shapeshift/lib/commit/3abff85ecc8f559360f1ca143ea657e418e5b557))
+
 # [@shapeshiftoss/chain-adapters-v1.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.3.0...@shapeshiftoss/chain-adapters-v1.3.1) (2021-10-20)
 
 

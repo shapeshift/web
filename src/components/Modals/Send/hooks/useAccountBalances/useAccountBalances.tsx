@@ -1,5 +1,5 @@
 import { Asset, ChainTypes, MarketData } from '@shapeshiftoss/types'
-import { ChainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -9,7 +9,7 @@ type UseAccountBalancesProps = {
   // TODO(0xdef1cafe): remove this coupling to ethereum specific tokens
   balances: Record<
     string,
-    Partial<ChainAdapters.Account<ChainTypes> & ChainAdapters.Ethereum.Token>
+    Partial<chainAdapters.Account<ChainTypes> & chainAdapters.ethereum.Token>
   >
 }
 

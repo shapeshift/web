@@ -1,5 +1,5 @@
 import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
-import { ChainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
@@ -11,34 +11,34 @@ type TxFeeRadioGroupProps = {
   fees: FeePrice | null
 }
 
-function getFeeColor(key: ChainAdapters.FeeDataKey): string {
+function getFeeColor(key: chainAdapters.FeeDataKey): string {
   switch (key) {
-    case ChainAdapters.FeeDataKey.Slow:
+    case chainAdapters.FeeDataKey.Slow:
       return 'yellow'
-    case ChainAdapters.FeeDataKey.Fast:
+    case chainAdapters.FeeDataKey.Fast:
       return 'green'
-    case ChainAdapters.FeeDataKey.Average:
+    case chainAdapters.FeeDataKey.Average:
     default:
       return 'blue'
   }
 }
 
-function getFeeTranslation(key: ChainAdapters.FeeDataKey): string {
+function getFeeTranslation(key: chainAdapters.FeeDataKey): string {
   switch (key) {
-    case ChainAdapters.FeeDataKey.Slow:
+    case chainAdapters.FeeDataKey.Slow:
       return 'modals.send.sendForm.slow'
-    case ChainAdapters.FeeDataKey.Fast:
+    case chainAdapters.FeeDataKey.Fast:
       return 'modals.send.sendForm.fast'
-    case ChainAdapters.FeeDataKey.Average:
+    case chainAdapters.FeeDataKey.Average:
     default:
       return 'modals.send.sendForm.average'
   }
 }
 
-const feesOrder: ChainAdapters.FeeDataKey[] = [
-  ChainAdapters.FeeDataKey.Slow,
-  ChainAdapters.FeeDataKey.Average,
-  ChainAdapters.FeeDataKey.Fast
+const feesOrder: chainAdapters.FeeDataKey[] = [
+  chainAdapters.FeeDataKey.Slow,
+  chainAdapters.FeeDataKey.Average,
+  chainAdapters.FeeDataKey.Fast
 ]
 
 export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
@@ -47,7 +47,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
     name: SendFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: ChainAdapters.FeeDataKey.Average
+    defaultValue: chainAdapters.FeeDataKey.Average
   })
   const [asset, activeFee] = useWatch({ name: [SendFormFields.Asset, SendFormFields.FeeType] })
   const bg = useColorModeValue('gray.50', 'gray.850')
@@ -80,7 +80,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
       p={2}
       id='tx-fee'
     >
-      {feesOrder.map((key: ChainAdapters.FeeDataKey) => {
+      {feesOrder.map((key: chainAdapters.FeeDataKey) => {
         const current = fees[key]
         const color = getFeeColor(key)
         const translation = getFeeTranslation(key)

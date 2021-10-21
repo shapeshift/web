@@ -26,7 +26,7 @@ export const useFormSend = () => {
 
         const { estimatedFees, feeType } = data
         const fees = estimatedFees[feeType]
-        const fee = fees.chainSpecific?.feePerTx
+        const fee = fees.feePerUnit
         const gasLimit = fees.chainSpecific?.feeLimit
 
         const { txToSign } = await adapter.buildSendTransaction({

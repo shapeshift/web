@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const TransactionsProvider: React.FC = ({ children }) => {
   const dispatch = useDispatch()
@@ -15,7 +16,6 @@ export const TransactionsProvider: React.FC = ({ children }) => {
     if (!wallet) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
-      console.info(supportedAdapters, 'supported adapters')
 
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
@@ -25,7 +25,7 @@ export const TransactionsProvider: React.FC = ({ children }) => {
           { addresses: [address] },
           (msg: chainAdapters.SubscribeTxsMessage<typeof key>) => {
             console.info('onMessage asset history', msg)
-            // dispatch(txHistory.actions.onMessage(msg))
+            dispatch(txHistory.actions.onMessage({ message: msg }))
           },
           (err: any) => console.info(err)
         )

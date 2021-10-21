@@ -158,6 +158,10 @@
         "button": "Next"
       }
     },
+    "metaMask": {
+      "header": "Pair your metamask wallet",
+      "button": "Connect"
+    },
     "selectModal": {
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."

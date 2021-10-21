@@ -12,6 +12,7 @@ import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
+import { MetaStart } from './MetaMask/components/MetaStart'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -39,5 +40,11 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
     icon: KeepKeyIcon,
     name: 'KeepKey',
     routes: [{ path: '/keepkey/pin', component: PinModal }]
+  },
+  metamask: {
+    adapter: WebUSBKeepKeyAdapter,
+    icon: KeepKeyIcon,
+    name: 'MetaMask',
+    routes: [{ path: '/metamask/start', component: MetaStart }]
   }
 }

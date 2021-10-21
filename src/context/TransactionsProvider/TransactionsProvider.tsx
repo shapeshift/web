@@ -5,7 +5,11 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
-export const TransactionsProvider: React.FC = ({ children }) => {
+type TransactionsProviderProps = {
+  children: React.ReactNode
+}
+
+export const TransactionsProvider = ({ children }: TransactionsProviderProps): JSX.Element => {
   const dispatch = useDispatch()
   const {
     state: { wallet, walletInfo }
@@ -34,5 +38,5 @@ export const TransactionsProvider: React.FC = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, walletInfo?.deviceId])
 
-  return children
+  return <>{children}</>
 }

@@ -29,10 +29,15 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
   private readonly providers: {
     http: bitcoin.api.V1Api
   }
-  private readonly defaultBIP32Params: BIP32Params = {
+
+  public static readonly defaultBIP32Params: BIP32Params = {
     purpose: 84, // segwit native
     coinType: 0,
     accountNumber: 0
+  }
+
+  static buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
+    return { ...ChainAdapter.defaultBIP32Params, ...params }
   }
 
   // TODO(0xdef1cafe): constraint this to utxo coins and refactor this to be a UTXOChainAdapter
@@ -118,7 +123,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
   }> {
     try {
-      const { recipients, wallet, bip32Params = this.defaultBIP32Params, feeSpeed } = tx
+      const { recipients, wallet, bip32Params = ChainAdapter.defaultBIP32Params, feeSpeed } = tx
 
       if (!recipients || !recipients.length) {
         throw new Error('BitcoinChainAdapter: recipients is required')
@@ -240,7 +245,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
   async getAddress({
     wallet,
-    bip32Params = this.defaultBIP32Params,
+    bip32Params = ChainAdapter.defaultBIP32Params,
     scriptType = BTCInputScriptType.SpendWitness
   }: chainAdapters.bitcoin.GetAddressInput): Promise<string> {
     if (!supportsBTC(wallet)) {

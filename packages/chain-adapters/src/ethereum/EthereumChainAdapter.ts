@@ -36,10 +36,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     http: ethereum.api.V1Api
     ws: ethereum.ws.Client
   }
-  private readonly defaultBIP32Params: BIP32Params = {
+  public static readonly defaultBIP32Params: BIP32Params = {
     purpose: 44,
     coinType: 60,
     accountNumber: 0
+  }
+
+  static buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
+    return { ...ChainAdapter.defaultBIP32Params, ...params }
   }
 
   constructor(args: ChainAdapterArgs) {
@@ -111,7 +115,13 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
   }> {
     try {
-      const { to, erc20ContractAddress, wallet, fee, bip32Params = this.defaultBIP32Params } = tx
+      const {
+        to,
+        erc20ContractAddress,
+        wallet,
+        fee,
+        bip32Params = ChainAdapter.defaultBIP32Params
+      } = tx
 
       if (!to) throw new Error('EthereumChainAdapter: to is required')
       if (!tx?.value) throw new Error('EthereumChainAdapter: value is required')
@@ -226,7 +236,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   }
 
   async getAddress(input: chainAdapters.GetAddressInput): Promise<string> {
-    const { wallet, bip32Params = this.defaultBIP32Params } = input
+    const { wallet, bip32Params = ChainAdapter.defaultBIP32Params } = input
     const path = toPath(bip32Params)
     const addressNList = bip32ToAddressNList(path)
     const ethAddress = await (wallet as ETHWallet).ethGetAddress({

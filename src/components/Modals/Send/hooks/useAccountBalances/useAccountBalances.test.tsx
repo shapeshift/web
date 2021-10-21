@@ -1,4 +1,4 @@
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { assetService, ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { TestProviders } from 'jest/TestProviders'
@@ -71,7 +71,13 @@ const getAssetData = () =>
     symbol: 'ETH'
   })
 
-const setup = ({ asset = {} as Asset, balances = {} }: { asset: Asset; balances: any }) => {
+const setup = ({
+  asset = {} as assetService.Asset,
+  balances = {}
+}: {
+  asset: assetService.Asset
+  balances: any
+}) => {
   ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   const wrapper: React.FC = ({ children }) => {
     return <TestProviders>{children}</TestProviders>
@@ -83,7 +89,7 @@ describe('useAccountBalances', () => {
   it('should return assetBalance and accountBalances for chain asset', async () => {
     await act(async () => {
       const hook = setup({
-        asset: mockEth as unknown as Asset,
+        asset: mockEth as unknown as assetService.Asset,
         balances: mockBalances
       })
       const { waitForNextUpdate, result } = hook
@@ -104,7 +110,7 @@ describe('useAccountBalances', () => {
   it('should return assetBalance and accountBalances for erc20', async () => {
     await act(async () => {
       const { result, waitForNextUpdate } = setup({
-        asset: mockRuneErc20 as unknown as Asset,
+        asset: mockRuneErc20 as unknown as assetService.Asset,
         balances: mockBalances
       })
       expect(result.current.assetBalance).toEqual(
@@ -126,7 +132,7 @@ describe('useAccountBalances', () => {
   it('returns zeros for asset that is not available', async () => {
     await act(async () => {
       const { result, waitForNextUpdate } = setup({
-        asset: fooBarErc20 as unknown as Asset,
+        asset: fooBarErc20 as unknown as assetService.Asset,
         balances: mockBalances
       })
       expect(result.current.assetBalance).toBe(undefined)

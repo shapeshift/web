@@ -1,5 +1,4 @@
-import { ChainTypes } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'

@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { assetService, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
-export type FullAsset = Asset & { description?: string }
-export type AssetsState = { [key: string]: Asset & { description?: string } }
+export type FullAsset = assetService.Asset & { description?: string }
+export type AssetsState = { [key: string]: assetService.Asset & { description?: string } }
 
 export const fetchAsset = createAsyncThunk(
   'asset/fetchAsset',
@@ -41,7 +41,7 @@ export const fetchAssets = createAsyncThunk(
       const assetsObj = {} as AssetsState
       const state = thunkApi.getState() as ReduxState
 
-      assets.forEach((asset: Asset) => {
+      assets.forEach((asset: assetService.Asset) => {
         const key = asset.tokenId ?? asset.chain
         assetsObj[key] = { ...(state?.assets[key] ? state?.assets[key] : {}), ...asset }
       })

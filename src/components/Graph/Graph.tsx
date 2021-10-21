@@ -1,12 +1,12 @@
 import { Center, Fade, SlideFade } from '@chakra-ui/react'
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { ParentSize } from '@visx/responsive'
 
 import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 
 type GraphProps = {
-  data: HistoryData[] | null
+  data: marketService.HistoryData[] | null
   isLoaded?: boolean
   loading?: boolean
 }

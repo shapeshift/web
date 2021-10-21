@@ -1,4 +1,4 @@
-import { NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { NetworkTypes, swapper } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
@@ -23,7 +23,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     getQuote: getQuote,
-    getBestSwapper: () => SwapperType.Zrx,
+    getBestSwapper: () => swapper.Type.Zrx,
     getDefaultPair: () => [FOX, WETH]
   }))
   ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({

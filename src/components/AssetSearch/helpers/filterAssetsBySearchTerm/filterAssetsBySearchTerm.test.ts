@@ -1,8 +1,8 @@
-import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { assetService, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 
-const assets: Asset[] = [
+const assets: assetService.Asset[] = [
   {
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,

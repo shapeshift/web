@@ -1,4 +1,4 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { assetService, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { aapl, rune, zero } from 'jest/mocks/assets'
 import { getAssetService } from 'lib/assetService'
 import { store } from 'state/store'
@@ -17,7 +17,7 @@ const setup = ({
   assetData,
   description
 }: {
-  assetData: Asset | undefined
+  assetData: assetService.Asset | undefined
   description: string | null
 }) => {
   ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({

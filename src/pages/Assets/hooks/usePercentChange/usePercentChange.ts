@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { useEffect, useState } from 'react'
 
@@ -6,7 +6,7 @@ export const usePercentChange = ({
   data,
   initPercentChange
 }: {
-  data: HistoryData[] | null
+  data: marketService.HistoryData[] | null
   initPercentChange: number
 }) => {
   const [percent, setPercentChange] = useState(initPercentChange)

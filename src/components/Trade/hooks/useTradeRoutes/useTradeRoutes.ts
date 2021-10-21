@@ -1,4 +1,4 @@
-import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import { assetService, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
@@ -9,8 +9,8 @@ import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
 export const useTradeRoutes = (): {
-  handleSellClick: (asset: Asset) => Promise<void>
-  handleBuyClick: (asset: Asset) => Promise<void>
+  handleSellClick: (asset: assetService.Asset) => Promise<void>
+  handleBuyClick: (asset: assetService.Asset) => Promise<void>
 } => {
   const history = useHistory()
   const { getValues, setValue } = useFormContext<TradeState>()
@@ -44,7 +44,7 @@ export const useTradeRoutes = (): {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
-    async (asset: Asset) => {
+    async (asset: assetService.Asset) => {
       if (buyAsset.currency && getByIdentifier(asset) === getByIdentifier(buyAsset.currency))
         setValue('buyAsset.currency', sellAsset.currency)
       const action = buyAsset.amount ? TradeActions.BUY : undefined
@@ -60,7 +60,7 @@ export const useTradeRoutes = (): {
   )
 
   const handleBuyClick = useCallback(
-    async (asset: Asset) => {
+    async (asset: assetService.Asset) => {
       if (sellAsset.currency && getByIdentifier(asset) === getByIdentifier(sellAsset.currency))
         setValue('sellAsset.currency', buyAsset.currency)
       const action = sellAsset.amount ? TradeActions.SELL : undefined

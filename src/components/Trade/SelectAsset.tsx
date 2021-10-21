@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { assetService } from '@shapeshiftoss/types'
 import { RouteProps } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
 
-type SelectAssetProps = { onClick: (asset: Asset) => void } & RouteProps
+type SelectAssetProps = { onClick: (asset: assetService.Asset) => void } & RouteProps
 
 export const SelectAsset = ({ onClick }: SelectAssetProps) => {
   return (

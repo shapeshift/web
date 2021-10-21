@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import { ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, marketService, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -38,7 +38,7 @@ const initAsset = {
 
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
-  const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
+  const [marketData, setMarketData] = useStateIfMounted<marketService.Data | undefined>(undefined)
   const { chain, tokenId } = useParams<MatchParams>()
   const getAssetData = useGetAssetData({ chain, tokenId })
   const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])

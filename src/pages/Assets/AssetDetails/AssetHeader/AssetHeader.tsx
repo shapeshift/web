@@ -15,7 +15,7 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import numeral from 'numeral'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -35,7 +35,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
   const { name, symbol, description, icon, changePercent24Hr, price, marketCap, volume } = asset
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
+  const [timeframe, setTimeframe] = useState(marketService.HistoryTimeframe.YEAR)
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)

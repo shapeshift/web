@@ -1,11 +1,11 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { assetService } from '@shapeshiftoss/types'
 import { useRouteMatch } from 'react-router-dom'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
-  const asset: Asset = data.items[index]
+  const asset: assetService.Asset = data.items[index]
 
   const { handleClick } = data
   const match = useRouteMatch<{ address: string; network: string }>()

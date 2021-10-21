@@ -1,11 +1,11 @@
 import { getMarketData } from '@shapeshiftoss/market-service'
-import { Asset, ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
+import { assetService, ChainTypes, marketService, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
 import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 
-export type AssetMarketData = Asset & MarketData & { description?: string }
+export type AssetMarketData = assetService.Asset & marketService.Data & { description?: string }
 
 export const ALLOWED_CHAINS = {
   [ChainTypes.Ethereum]: true,
@@ -31,8 +31,14 @@ export const useGetAssetData = ({ chain, tokenId }: { chain: ChainTypes; tokenId
   }, [asset, chain, dispatch, tokenId])
 
   const fetchMarketData = useCallback(
-    async ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }): Promise<MarketData> => {
-      const marketData: MarketData | null = await getMarketData({ chain, tokenId })
+    async ({
+      chain,
+      tokenId
+    }: {
+      chain: ChainTypes
+      tokenId?: string
+    }): Promise<marketService.Data> => {
+      const marketData: marketService.Data | null = await getMarketData({ chain, tokenId })
 
       return marketData
     },

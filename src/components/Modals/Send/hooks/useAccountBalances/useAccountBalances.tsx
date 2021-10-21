@@ -1,11 +1,11 @@
-import { Asset, ChainTypes, MarketData } from '@shapeshiftoss/types'
+import { assetService, ChainTypes, marketService } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type UseAccountBalancesProps = {
-  asset: Asset
+  asset: assetService.Asset
   // TODO(0xdef1cafe): remove this coupling to ethereum specific tokens
   balances: Record<
     string,
@@ -14,7 +14,7 @@ type UseAccountBalancesProps = {
 }
 
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {
-  const [marketData, setMarketData] = useState<MarketData | null>(null)
+  const [marketData, setMarketData] = useState<marketService.Data | null>(null)
   const getAssetData = useGetAssetData({
     chain: asset.chain,
     tokenId: asset.tokenId

@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { AxisScale } from '@visx/axis'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { LinearGradient } from '@visx/gradient'
@@ -9,7 +9,7 @@ import React from 'react'
 import { AXIS_BOTTOM_TICK_LABEL_PROPS, AXIS_COLOR, AXIS_LEFT_TICK_LABEL_PROPS } from './constants'
 
 export interface AreaChartProps {
-  data: HistoryData[]
+  data: marketService.HistoryData[]
   xScale: AxisScale<number>
   yScale: AxisScale<number>
   width: number
@@ -39,8 +39,8 @@ export const AreaChart = ({
   children
 }: AreaChartProps) => {
   // accessors
-  const getDate = (d: HistoryData) => new Date(d?.date)
-  const getStockValue = (d: HistoryData) => d?.price
+  const getDate = (d: marketService.HistoryData) => new Date(d?.date)
+  const getStockValue = (d: marketService.HistoryData) => d?.price
 
   if (width < 10) return null
   return (
@@ -52,7 +52,7 @@ export const AreaChart = ({
         to={`${gradientColor}02`}
         toOpacity={0.2}
       />
-      <AreaClosed<HistoryData>
+      <AreaClosed<marketService.HistoryData>
         data={data}
         x={d => xScale(getDate(d)) || 0}
         y={d => yScale(getStockValue(d)) || 0}

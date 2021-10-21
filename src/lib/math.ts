@@ -1,4 +1,4 @@
-import { Asset } from '@shapeshiftoss/types'
+import { assetService } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 
 import { BN, bnOrZero } from './bignumber/bignumber'
@@ -14,6 +14,6 @@ export const firstNonZeroDecimal = (number: BN) => {
   return number.toFixed(10).match(/^-?\d*\.?0*\d{0,2}/)?.[0]
 }
 
-export const getByIdentifier = (asset: Pick<Asset, 'chain' | 'symbol' | 'name'>) => {
+export const getByIdentifier = (asset: Pick<assetService.Asset, 'chain' | 'symbol' | 'name'>) => {
   return asset.chain + asset.symbol + asset.name
 }

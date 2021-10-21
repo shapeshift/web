@@ -1,5 +1,5 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
@@ -10,7 +10,7 @@ import { useBalances } from 'hooks/useBalances/useBalances'
 import { AssetList } from './components/AssetList/AssetList'
 
 export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
+  const [timeframe, setTimeframe] = useState(marketService.HistoryTimeframe.YEAR)
   const { balances, loading } = useBalances()
 
   if (loading)

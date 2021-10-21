@@ -1,4 +1,4 @@
-import { Asset, Quote } from '@shapeshiftoss/types'
+import { assetService, swapper } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
@@ -6,7 +6,7 @@ import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 
 export type TradeAsset = {
-  currency: Asset
+  currency: assetService.Asset
   amount?: string
   fiatRate?: string
 }
@@ -23,7 +23,7 @@ export type TradeState = {
   trade?: MinMax
   action?: TradeActions
   fiatAmount?: string
-  quote?: Quote
+  quote?: swapper.Quote
 }
 
 export const Trade = () => {

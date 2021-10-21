@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { Brush } from '@visx/brush'
 import BaseBrush from '@visx/brush/lib/BaseBrush'
 import { Bounds } from '@visx/brush/lib/types'
@@ -13,7 +13,7 @@ import { colors } from 'theme/colors'
 import { AreaChart } from '../AreaChart/AreaChart'
 
 export interface SecondaryChartProps {
-  data: HistoryData[]
+  data: marketService.HistoryData[]
   width: number
   height: number
   margin?: { top: number; right: number; bottom: number; left: number }
@@ -35,8 +35,8 @@ export const SecondaryChart = ({
   const yMax = Math.max(height - margin.top - margin.bottom, 0)
 
   // accessors
-  const getDate = (d: HistoryData) => new Date(d.date)
-  const getStockValue = (d: HistoryData) => d.price
+  const getDate = (d: marketService.HistoryData) => new Date(d.date)
+  const getStockValue = (d: marketService.HistoryData) => d.price
 
   // scales
   const dateScale = React.useMemo(() => {

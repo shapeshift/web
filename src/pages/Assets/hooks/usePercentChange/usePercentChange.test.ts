@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 
 import { usePercentChange } from './usePercentChange'
@@ -8,7 +8,7 @@ describe('usePercentChange', () => {
     const historyData = [
       { price: 10, date: 'date' },
       { price: 12, data: 'date' }
-    ] as HistoryData[]
+    ] as marketService.HistoryData[]
 
     const { waitFor, result } = renderHook(
       ({ data, initPercentChange }) => usePercentChange({ data, initPercentChange }),

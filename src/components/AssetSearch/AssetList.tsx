@@ -1,5 +1,5 @@
 import { ListProps } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { assetService } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -10,12 +10,12 @@ import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
-  handleClick: (asset: Asset) => void
-  assets: Asset[]
+  handleClick: (asset: assetService.Asset) => void
+  assets: assetService.Asset[]
 } & ListProps
 
 type ItemData<T> = {
-  items: Asset[]
+  items: assetService.Asset[]
   handleClick: T
 }
 
@@ -27,7 +27,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
     onInit: node => {
       if (!node) return
       const index = node.props.itemData?.items.findIndex(
-        ({ tokenId: address }: Asset) => address === match.params.address
+        ({ tokenId: address }: assetService.Asset) => address === match.params.address
       )
       if (typeof index === 'number' && index >= 0) {
         node.scrollToItem?.(index, 'center')

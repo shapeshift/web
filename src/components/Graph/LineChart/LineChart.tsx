@@ -1,5 +1,5 @@
 import { useColorModeValue } from '@chakra-ui/react'
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { AxisBottom, AxisLeft } from '@visx/axis'
 import { AxisScale } from '@visx/axis'
 import { Group } from '@visx/group'
@@ -8,7 +8,7 @@ import React from 'react'
 import { colors } from 'theme/colors'
 
 export interface LineChartProps {
-  data: HistoryData[]
+  data: marketService.HistoryData[]
   xScale: AxisScale<number>
   yScale: AxisScale<number>
   width: number
@@ -55,13 +55,13 @@ export const LineChart = ({
   }
   if (!data) return null
   // accessors
-  const getDate = (d: HistoryData) => new Date(d?.date)
-  const getStockValue = (d: HistoryData) => d?.price
+  const getDate = (d: marketService.HistoryData) => new Date(d?.date)
+  const getStockValue = (d: marketService.HistoryData) => d?.price
 
   if (width < 10) return null
   return (
     <Group left={left || margin.left} top={top || margin.top}>
-      <LinePath<HistoryData>
+      <LinePath<marketService.HistoryData>
         data={data}
         x={d => xScale(getDate(d)) || 0}
         y={d => yScale(getStockValue(d)) || 0}

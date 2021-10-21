@@ -1,4 +1,4 @@
-import { HistoryData } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { localPoint } from '@visx/event'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
@@ -14,19 +14,19 @@ import { AreaChart } from '../AreaChart/AreaChart'
 import { LineChart } from '../LineChart/LineChart'
 
 export interface PrimaryChartProps {
-  data: HistoryData[]
+  data: marketService.HistoryData[]
   width: number
   height: number
   margin?: { top: number; right: number; bottom: number; left: number }
 }
 
-export type TooltipData = HistoryData
+export type TooltipData = marketService.HistoryData
 
 // accessors
-const getDate = (d: HistoryData) => new Date(d.date)
-const getStockValue = (d: HistoryData) => d?.price || 0
-const getFormatValue = (d: HistoryData) => numeral(d?.price || 0).format('$0,0.00000')
-const bisectDate = bisector<HistoryData, Date>(d => new Date(d.date)).left
+const getDate = (d: marketService.HistoryData) => new Date(d.date)
+const getStockValue = (d: marketService.HistoryData) => d?.price || 0
+const getFormatValue = (d: marketService.HistoryData) => numeral(d?.price || 0).format('$0,0.00000')
+const bisectDate = bisector<marketService.HistoryData, Date>(d => new Date(d.date)).left
 
 export const PrimaryChart = ({
   data,
@@ -40,7 +40,7 @@ export const PrimaryChart = ({
     tooltipData,
     tooltipTop = 0,
     tooltipLeft = 0
-  } = useTooltip<HistoryData>()
+  } = useTooltip<marketService.HistoryData>()
   // bounds
   const xMax = Math.max(width - margin.left - margin.right, 0)
   const yMax = Math.max(height - margin.top - margin.bottom, 0)

@@ -1,6 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import { assetService, NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,7 +17,7 @@ type AssetSearchProps = {
 export const AssetSearch = ({ onClick }: AssetSearchProps) => {
   const dispatch = useDispatch()
   const assets = useSelector(selectAndSortAssets)
-  const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
+  const [filteredAssets, setFilteredAssets] = useState<assetService.Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {

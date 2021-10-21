@@ -1,5 +1,5 @@
 import { getPriceHistory } from '@shapeshiftoss/market-service'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { ethereum } from 'jest/mocks/assets'
 
@@ -31,7 +31,7 @@ describe('usePriceHistory', () => {
       {
         initialProps: {
           asset,
-          timeframe: HistoryTimeframe.DAY
+          timeframe: marketService.HistoryTimeframe.DAY
         }
       }
     )
@@ -49,7 +49,7 @@ describe('usePriceHistory', () => {
       {
         initialProps: {
           asset,
-          timeframe: HistoryTimeframe.DAY
+          timeframe: marketService.HistoryTimeframe.DAY
         }
       }
     )

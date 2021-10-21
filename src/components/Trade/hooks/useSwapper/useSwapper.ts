@@ -1,5 +1,5 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
-import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
+import { assetService, swapper } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -17,13 +17,15 @@ export enum TradeActions {
   FIAT = 'FIAT'
 }
 
-type GetQuoteAmount = Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
+type GetQuoteAmount = Pick<swapper.GetQuoteInput, 'buyAmount' | 'sellAmount'> & {
+  fiatAmount?: string
+}
 
 type GetQuote = {
   amount: GetQuoteAmount
-  sellAsset: Asset
-  buyAsset: Asset
-  onFinish: (quote: Quote) => void
+  sellAsset: assetService.Asset
+  buyAsset: assetService.Asset
+  onFinish: (quote: swapper.Quote) => void
   isFiat?: boolean
 }
 
@@ -49,10 +51,10 @@ export const useSwapper = () => {
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
-    manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3: web3Instance, adapterManager }))
+    manager.addSwapper(swapper.Type.Zrx, new ZrxSwapper({ web3: web3Instance, adapterManager }))
     return manager
   })
-  const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
+  const [bestSwapperType, setBestSwapperType] = useState(swapper.Type.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { assetService, ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
@@ -82,7 +82,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
     }
   })
 
-  const handleAssetSelect = async (asset: Asset) => {
+  const handleAssetSelect = async (asset: assetService.Asset) => {
     const assetMarketData = await getAssetData({
       chain: asset.chain,
       tokenId: asset.tokenId

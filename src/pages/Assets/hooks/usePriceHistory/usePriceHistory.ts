@@ -1,15 +1,15 @@
 import { getPriceHistory } from '@shapeshiftoss/market-service'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { marketService } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 type UsePriceHistory = {
   asset?: AssetMarketData
-  timeframe: HistoryTimeframe
+  timeframe: marketService.HistoryTimeframe
 }
 
 export const usePriceHistory = ({ asset, timeframe }: UsePriceHistory) => {
-  const [data, setData] = useState<HistoryData[] | null>([])
+  const [data, setData] = useState<marketService.HistoryData[] | null>([])
   const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {

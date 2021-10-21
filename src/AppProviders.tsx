@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { translations } from 'assets/translations'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
+import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -35,7 +36,9 @@ export function AppProviders({ children }: ProvidersProps) {
           <I18n locale={locale} messages={messages}>
             <WalletProvider>
               <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                <ModalProvider>{children}</ModalProvider>
+                <TransactionsProvider>
+                  <ModalProvider>{children}</ModalProvider>
+                </TransactionsProvider>
               </ChainAdaptersProvider>
             </WalletProvider>
           </I18n>

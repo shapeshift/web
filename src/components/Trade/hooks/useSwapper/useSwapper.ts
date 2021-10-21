@@ -204,7 +204,7 @@ export const useSwapper = () => {
     const fee = sellAssetMinerFee.toString()
 
     switch (sellAsset.chain) {
-      case ChainTypes.Ethereum:
+      case ChainTypes.Ethereum: {
         const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
         const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
           ? bn(ethResult.feeData.chainSpecific.approvalFee)
@@ -214,19 +214,10 @@ export const useSwapper = () => {
         const totalFee = sellAssetMinerFee.plus(approvalFee).toString()
         const gasPrice = bn(ethResult?.feeData?.chainSpecific.gasPrice || 0).toString()
         const estimatedGas = bn(ethResult?.feeData?.chainSpecific.estimatedGas || 0).toString()
-        let fees = {
-          fee,
-          chainSpecific: {
-            approvalFee,
-            gasPrice,
-            estimatedGas,
-            totalFee
-          }
-        }
 
         if (isThorchainQuote(result)) {
-          const receiveFee = result?.feeData?.platformSpecific.receiveFee
-          fees = {
+          const receiveFee = result?.feeData?.platformSpecific.receiveFee ?? '0'
+          const fees: QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain> = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -237,11 +228,24 @@ export const useSwapper = () => {
             platformSpecific: {
               receiveFee
             }
-          } as QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain>
+          }
+          setValue('fees', fees)
+          console.info(fees)
+        } else {
+          const fees: QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
+            fee,
+            chainSpecific: {
+              approvalFee,
+              gasPrice,
+              estimatedGas,
+              totalFee
+            }
+          }
+          setValue('fees', fees)
         }
 
-        setValue('fees', fees)
         break
+      }
 
       default:
         throw new Error('Unsupported chain ' + sellAsset.chain)

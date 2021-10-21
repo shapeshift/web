@@ -123,11 +123,11 @@ export const useSwapper = () => {
         }
         const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
         const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
-
         setFees(newQuote, sellAsset)
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
+        console.log('ya')
         if (actionRef.current) onFinish(newQuote)
       } catch (err: any) {
         const message = err?.response?.data?.validationErrors?.[0]?.reason
@@ -216,7 +216,6 @@ export const useSwapper = () => {
         const gasPrice = bn(ethResult?.feeData?.chainSpecific.gasPrice || 0).toString()
         const estimatedGas = bn(ethResult?.feeData?.chainSpecific.estimatedGas || 0).toString()
         let fees = {
-          fee,
           chainSpecific: {
             approvalFee,
             gasPrice,
@@ -228,7 +227,13 @@ export const useSwapper = () => {
         if (isThorchainQuote(result)) {
           const receiveFee = result?.feeData?.platformSpecific.receiveFee
           fees = {
-            ...fees,
+            fee,
+            chainSpecific: {
+              approvalFee,
+              gasPrice,
+              estimatedGas,
+              totalFee
+            },
             platformSpecific: {
               receiveFee
             }

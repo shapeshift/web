@@ -57,6 +57,20 @@ export const AssetList = ({ balances }: AssetListProps) => {
           })
           break
         }
+        case ChainTypes.Bitcoin: {
+          const btcValue = value as chainAdapters.Account<ChainTypes.Bitcoin>
+          acc.push({
+            icon: 'https://static.coincap.io/assets/icons/256/btc.png',
+            displayName: 'Bitcoin',
+            symbol,
+            fiatPrice: price,
+            fiatValue: new BigNumber(fromBaseUnit(btcValue.balance ?? '0', 8))
+              .times(price)
+              .toString(),
+            displayBalance: fromBaseUnit(btcValue.balance ?? '0', 8)
+          })
+          break
+        }
         default: {
           break
         }

@@ -1,4 +1,5 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
+import { UnchainedUrls } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import React from 'react'
@@ -21,7 +22,12 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
-const unchainedUrls = { ethereum: getConfig().REACT_APP_UNCHAINED_ETHEREUM_URL }
+const unchainedUrls: UnchainedUrls = {
+  ethereum: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+  }
+}
 
 export function AppProviders({ children }: ProvidersProps) {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)

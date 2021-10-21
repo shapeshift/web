@@ -1,6 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { ChainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -41,23 +40,23 @@ const formData: SendInput = {
     sendSupport: true,
     receiveSupport: true
   },
-  feeType: ChainAdapters.FeeDataKey.Average,
+  feeType: chainAdapters.FeeDataKey.Average,
   estimatedFees: {
-    [ChainAdapters.FeeDataKey.Slow]: {
+    [chainAdapters.FeeDataKey.Slow]: {
       chainSpecific: {
         feeLimit: '42000',
         feePerTx: '3100000000000000'
       },
       feePerUnit: '76000000000'
     },
-    [ChainAdapters.FeeDataKey.Average]: {
+    [chainAdapters.FeeDataKey.Average]: {
       chainSpecific: {
         feeLimit: '42000',
         feePerTx: '4900000000000000'
       },
       feePerUnit: '118000000000'
     },
-    [ChainAdapters.FeeDataKey.Fast]: {
+    [chainAdapters.FeeDataKey.Fast]: {
       chainSpecific: {
         feeLimit: '42000',
         feePerTx: '6120000000000000'

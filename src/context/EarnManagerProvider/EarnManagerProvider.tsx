@@ -1,6 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import React from 'react'
 import { Route, useLocation } from 'react-router-dom'
+import { NotFound } from 'pages/NotFound/NotFound'
 
 import { EarnModal } from './components/EarnModal/EarnModal'
 
@@ -30,20 +31,21 @@ const EarnModules = {
 export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const location = useLocation<{ background: any }>()
   const background = location.state && location.state.background
-  const Module = EarnModules[EarnType.Yearn]
 
   return (
     <EarnManagerContext.Provider value={null}>
       {children}
       {background && (
-        <Route
-          path={`/earn/vaults/(${ChainTypes.Ethereum})/:tokenId?`}
-          children={
-            <EarnModal>
-              <Module />
-            </EarnModal>
-          }
-        />
+        <>
+          <Route
+            exact
+            path={`/earn/vaults/:moduleType/(${ChainTypes.Ethereum})/:tokenId?`}
+            render={props => {
+              const Module = EarnModules[props.match.params.moduleType as EarnType]
+              return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
+            }}
+          />
+        </>
       )}
     </EarnManagerContext.Provider>
   )

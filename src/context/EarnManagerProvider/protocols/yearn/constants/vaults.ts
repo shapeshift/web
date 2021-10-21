@@ -1,5 +1,5 @@
 export type YearnVault = {
-  vaultAddress: string
+  contractAddress: string
   routerAddress: string
   decimals: number
   symbol: string
@@ -8,7 +8,7 @@ export type YearnVault = {
 
 export const vaults: YearnVault[] = [
   {
-    vaultAddress: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
+    contractAddress: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
     routerAddress: '',
     decimals: 6,
     symbol: 'yUSDC',

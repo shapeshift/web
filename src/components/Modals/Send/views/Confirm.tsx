@@ -1,9 +1,11 @@
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
+  IconButton,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -50,6 +52,18 @@ export const Confirm = () => {
 
   return (
     <SlideTransition>
+      <IconButton
+        variant='ghost'
+        icon={<ArrowBackIcon />}
+        aria-label={translate('common.back')}
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={() => history.push(SendRoutes.Details)}
+      />
       <ModalHeader textAlign='center'>
         <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />
       </ModalHeader>
@@ -84,9 +98,6 @@ export const Confirm = () => {
               <TxFeeRadioGroup fees={fees} />
             </Row>
           </FormControl>
-          <Button width='full' onClick={() => history.push(SendRoutes.Details)}>
-            <Text translation={'modals.send.confirm.edit'} />
-          </Button>
         </Stack>
       </ModalBody>
       <ModalFooter

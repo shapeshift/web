@@ -127,7 +127,6 @@ export const useSwapper = () => {
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
-        console.log('ya')
         if (actionRef.current) onFinish(newQuote)
       } catch (err: any) {
         const message = err?.response?.data?.validationErrors?.[0]?.reason
@@ -207,7 +206,7 @@ export const useSwapper = () => {
     switch (sellAsset.chain) {
       case ChainTypes.Ethereum:
         const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
-        const approvalFee = ethResult?.feeData?.chainSpecific.approvalFee
+        const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
           ? bn(ethResult.feeData.chainSpecific.approvalFee)
               .dividedBy(bn(10).exponentiatedBy(18))
               .toString()

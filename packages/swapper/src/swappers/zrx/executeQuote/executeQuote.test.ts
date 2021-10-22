@@ -1,5 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ExecQuoteInput } from '@shapeshiftoss/types'
+import { ChainTypes, ExecQuoteInput, SwapperType } from '@shapeshiftoss/types'
 import { executeQuote } from './executeQuote'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
@@ -32,7 +32,7 @@ describe('executeQuote', () => {
     const args = ({
       quote: { ...quoteInput, sellAsset: { ...sellAsset, network: '' } },
       wallet
-    } as unknown) as ExecQuoteInput
+    } as unknown) as ExecQuoteInput<ChainTypes, SwapperType>
     await expect(executeQuote(deps, args)).rejects.toThrow(
       'ZrxSwapper:executeQuote sellAssetNetwork and sellAssetSymbol are required'
     )

@@ -1,5 +1,5 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { ethereum, SignTxInput } from './chain-adapters'
+import { QuoteFeeData, SignTxInput } from './chain-adapters'
 
 /** Common */
 
@@ -140,7 +140,7 @@ export type ThorVaultInfo = {
 
 export type BuildThorTradeOutput = SignTxInput<unknown> & ThorVaultInfo
 
-export type Quote = {
+export type Quote<C extends ChainTypes, S extends SwapperType> = {
   success: boolean
   statusCode?: number
   statusReason?: string
@@ -148,6 +148,7 @@ export type Quote = {
   buyAssetAccountId?: string
   sellAsset: Asset
   buyAsset: Asset
+  feeData?: QuoteFeeData<C, S>
   rate?: string
   depositAddress?: string // this is dex contract address for eth swaps
   receiveAddress?: string
@@ -159,7 +160,6 @@ export type Quote = {
   slipScore?: string
   txData?: string
   value?: string
-  feeData?: ethereum.QuoteFeeData
   allowanceContract?: string
   allowanceGrantRequired?: boolean
   slippage?: string
@@ -188,8 +188,8 @@ export type BuildQuoteTxInput = {
   wallet: HDWallet
 }
 
-export type ExecQuoteInput = {
-  quote: Quote
+export type ExecQuoteInput<C extends ChainTypes, S extends SwapperType> = {
+  quote: Quote<C, S>
   wallet: HDWallet
 }
 
@@ -197,8 +197,8 @@ export type ExecQuoteOutput = {
   txid: string
 }
 
-export type ApprovalNeededInput = {
-  quote: Quote
+export type ApprovalNeededInput<C extends ChainTypes, S extends SwapperType> = {
+  quote: Quote<C, S>
   wallet: HDWallet
 }
 

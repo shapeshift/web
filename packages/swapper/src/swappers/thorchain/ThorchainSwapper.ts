@@ -5,7 +5,8 @@ import {
   Quote,
   ExecQuoteOutput,
   MinMaxOutput,
-  GetQuoteInput
+  GetQuoteInput,
+  ChainTypes
 } from '@shapeshiftoss/types'
 import { Swapper } from '../../api'
 
@@ -14,11 +15,11 @@ export class ThorchainSwapper implements Swapper {
     return SwapperType.Thorchain
   }
 
-  async getQuote(): Promise<Quote> {
+  async getQuote(): Promise<Quote<ChainTypes, SwapperType>> {
     throw new Error('ThorchainSwapper: getQuote unimplemented')
   }
 
-  async buildQuoteTx(): Promise<Quote> {
+  async buildQuoteTx(): Promise<Quote<ChainTypes, SwapperType>> {
     throw new Error('ThorchainSwapper: getQuote unimplemented')
   }
 

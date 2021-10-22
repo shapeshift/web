@@ -9,7 +9,8 @@ import {
   SwapperType,
   ExecQuoteInput,
   ExecQuoteOutput,
-  MinMaxOutput
+  MinMaxOutput,
+  ChainTypes
 } from '@shapeshiftoss/types'
 
 export class SwapError extends Error {}
@@ -23,13 +24,13 @@ export interface Swapper {
    * @param input
    * @param wallet
    **/
-  buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote>
+  buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes, SwapperType>>
 
   /**
    * Get a basic quote (rate) for a trading pair
    * @param input
    */
-  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote>
+  getQuote(input: GetQuoteInput, wallet?: HDWallet): Promise<Quote<ChainTypes, SwapperType>>
 
   /**
    * Get a list of available assets based on the array of assets you send it
@@ -66,11 +67,11 @@ export interface Swapper {
    * @param input
    * @param wallet
    */
-  executeQuote(args: ExecQuoteInput): Promise<ExecQuoteOutput>
+  executeQuote(args: ExecQuoteInput<ChainTypes, SwapperType>): Promise<ExecQuoteOutput>
 
   /**
    * Get a boolean if a quote needs approval
    */
 
-  approvalNeeded(args: ApprovalNeededInput): Promise<ApprovalNeededOutput>
+  approvalNeeded(args: ApprovalNeededInput<ChainTypes, SwapperType>): Promise<ApprovalNeededOutput>
 }

@@ -1,6 +1,6 @@
 import { HDWallet, BTCInputScriptType, BTCSignTx, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params, ChainTypes, NetworkTypes } from '../base'
-import { ChainSpecific } from '../utility'
+import { BIP32Params, ChainTypes, NetworkTypes, SwapperType } from '../base'
+import { ChainAndSwapperSpecific, ChainSpecific } from '../utility'
 import * as ethereum from './ethereum'
 import * as bitcoin from './bitcoin'
 
@@ -51,12 +51,29 @@ export enum FeeDataKey {
   Fast = 'fast'
 }
 
+type ChainSpecificQuoteFeeData<T1, T2> = ChainAndSwapperSpecific<
+  T1,
+  {
+    [ChainTypes.Ethereum]: ethereum.QuoteFeeData
+  },
+  T2,
+  {
+    [SwapperType.Thorchain]: {
+      receiveFee: string
+    }
+  }
+>
+
 type ChainSpecificFeeData<T> = ChainSpecific<
   T,
   {
     [ChainTypes.Ethereum]: ethereum.FeeData
   }
 >
+
+export type QuoteFeeData<T1 extends ChainTypes, T2 extends SwapperType> = {
+  fee: string
+} & ChainSpecificQuoteFeeData<T1, T2>
 
 // ChainTypes.Ethereum:
 // feePerUnit = gasPrice
@@ -65,6 +82,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
 
 // ChainTypes.Bitcoin:
 // feePerUnit = sats/kbyte
+
 export type FeeData<T extends ChainTypes> = {
   feePerUnit: string
 } & ChainSpecificFeeData<T>

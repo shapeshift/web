@@ -26,3 +26,11 @@ type UnionMerge<T> = Pick<UnionMapping<T>, keyof T> & Partial<UnionMapping<T>>
 export type ChainSpecific<T, M> = UnionMerge<
   T extends unknown ? (T extends keyof M ? { chainSpecific: M[T] } : undefined) : never
 >
+
+/** Adds all possible values of union(T1) as a nested object under a `chainSpecific` && union(T2) as a nested object under a `swapperSpecific` key */
+export type ChainAndSwapperSpecific<T1, M1, T2, M2> = UnionMerge<
+  T1 extends unknown ? (T1 extends keyof M1 ? { chainSpecific: M1[T1] } : undefined) : never
+> &
+  UnionMerge<
+    T2 extends unknown ? (T2 extends keyof M2 ? { swapperSpecific: M2[T2] } : undefined) : never
+  >

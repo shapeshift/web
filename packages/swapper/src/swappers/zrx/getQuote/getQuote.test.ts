@@ -78,9 +78,11 @@ describe('getZrxQuote', () => {
     expect(quote.success).toBeTruthy()
     expect(quote.feeData).toStrictEqual({
       fee: '1500000000',
-      estimatedGas: '1500000',
-      gasPrice: '1000',
-      approvalFee: '100000000'
+      chainSpecific: {
+        estimatedGas: '1500000',
+        gasPrice: '1000',
+        approvalFee: '100000000'
+      }
     })
     expect(quote.rate).toBe('100')
   })
@@ -116,9 +118,11 @@ describe('getZrxQuote', () => {
     expect(quote?.success).toBeTruthy()
     expect(quote?.feeData).toStrictEqual({
       fee: '0',
-      estimatedGas: '0',
-      approvalFee: '0',
-      gasPrice: undefined
+      chainSpecific: {
+        estimatedGas: '0',
+        approvalFee: '0',
+        gasPrice: undefined
+      }
     })
   })
   it('fails on no sellAmount or buyAmount', async () => {

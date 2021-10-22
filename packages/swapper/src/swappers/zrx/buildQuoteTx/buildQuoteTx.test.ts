@@ -60,7 +60,14 @@ const mockQuoteResponse = {
   },
   buyAssetAccountId: '0',
   depositAddress: undefined,
-  feeData: { approvalFee: '0', estimatedGas: '0', fee: '0', gasPrice: undefined },
+  feeData: {
+    fee: '0',
+    chainSpecific: {
+      approvalFee: '0',
+      estimatedGas: '0',
+      gasPrice: undefined
+    }
+  },
   guaranteedPrice: undefined,
   priceImpact: undefined,
   rate: undefined,
@@ -244,9 +251,11 @@ describe('buildQuoteTx', () => {
       ...mockQuoteResponse,
       feeData: {
         ...mockQuoteResponse.feeData,
-        approvalFee: new BigNumber(APPROVAL_GAS_LIMIT).multipliedBy(gasPrice).toString(),
-        gasPrice,
-        estimatedGas,
+        chainSpecific: {
+          approvalFee: new BigNumber(APPROVAL_GAS_LIMIT).multipliedBy(gasPrice).toString(),
+          gasPrice,
+          estimatedGas
+        },
         fee: new BigNumber(gasPrice).multipliedBy(estimatedGas).toString()
       }
     })

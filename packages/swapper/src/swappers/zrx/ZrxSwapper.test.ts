@@ -45,7 +45,7 @@ const setupQuote = () => {
 
 describe('ZrxSwapper', () => {
   const input = <GetQuoteInput>{}
-  const quote = <Quote>{}
+  const quote = <Quote<ChainTypes, SwapperType>>{}
   const wallet = <HDWallet>{}
   const web3 = <Web3>{}
   const adapterManager = <ChainAdapterManager>{}

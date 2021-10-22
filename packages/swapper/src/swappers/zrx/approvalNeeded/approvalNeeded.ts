@@ -5,7 +5,8 @@ import {
   ApprovalNeededOutput,
   BIP32Params,
   ChainTypes,
-  QuoteResponse
+  QuoteResponse,
+  SwapperType
 } from '@shapeshiftoss/types'
 import {
   AFFILIATE_ADDRESS,
@@ -22,7 +23,7 @@ import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
 
 export async function approvalNeeded(
   { adapterManager, web3 }: ZrxSwapperDeps,
-  { quote, wallet }: ApprovalNeededInput
+  { quote, wallet }: ApprovalNeededInput<ChainTypes, SwapperType>
 ): Promise<ApprovalNeededOutput> {
   const { sellAsset } = quote
 

@@ -1,12 +1,21 @@
 import { AxiosResponse } from 'axios'
 import BigNumber from 'bignumber.js'
-import { ChainTypes, GetQuoteInput, Quote, QuoteResponse, SwapSource } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  GetQuoteInput,
+  Quote,
+  QuoteResponse,
+  SwapperType,
+  SwapSource
+} from '@shapeshiftoss/types'
 import { MAX_ZRX_TRADE, APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
 import { zrxService } from '../utils/zrxService'
 import { normalizeAmount } from '../utils/helpers/helpers'
 import { ZrxError } from '../ZrxSwapper'
 
-export async function getZrxQuote(input: GetQuoteInput): Promise<Quote> {
+export async function getZrxQuote(
+  input: GetQuoteInput
+): Promise<Quote<ChainTypes.Ethereum, SwapperType>> {
   const {
     sellAsset,
     buyAsset,
@@ -54,7 +63,6 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote> {
   }
 
   const slippagePercentage = slippage ? new BigNumber(slippage).div(100).toString() : undefined
-
   try {
     /**
      * /swap/v1/price
@@ -104,11 +112,13 @@ export async function getZrxQuote(input: GetQuoteInput): Promise<Quote> {
         fee: new BigNumber(estimatedGas || 0)
           .multipliedBy(new BigNumber(data.gasPrice || 0))
           .toString(),
-        estimatedGas: estimatedGas.toString(),
-        gasPrice: data.gasPrice,
-        approvalFee:
-          sellAsset.tokenId &&
-          new BigNumber(APPROVAL_GAS_LIMIT).multipliedBy(data.gasPrice || 0).toString()
+        chainSpecific: {
+          estimatedGas: estimatedGas.toString(),
+          gasPrice: data.gasPrice,
+          approvalFee:
+            sellAsset.tokenId &&
+            new BigNumber(APPROVAL_GAS_LIMIT).multipliedBy(data.gasPrice || 0).toString()
+        }
       },
       sellAmount: data.sellAmount,
       buyAmount: data.buyAmount,

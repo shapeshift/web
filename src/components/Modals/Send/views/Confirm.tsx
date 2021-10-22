@@ -1,16 +1,18 @@
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
+  IconButton,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -27,10 +29,10 @@ import { SendRoutes } from '../Send'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 export type FeePrice = {
-  [key in ChainAdapters.FeeDataKey]: {
+  [key in chainAdapters.FeeDataKey]: {
     fee: string
     amount: string
-  } & ChainAdapters.FeeData<ChainTypes>
+  } & chainAdapters.FeeData<ChainTypes>
 }
 
 export const Confirm = () => {
@@ -44,12 +46,24 @@ export const Confirm = () => {
   const { fees } = useSendFees()
 
   const amountWithFees = useMemo(() => {
-    const { amount } = fees ? fees[feeType as ChainAdapters.FeeDataKey] : { amount: 0 }
+    const { amount } = fees ? fees[feeType as chainAdapters.FeeDataKey] : { amount: 0 }
     return bnOrZero(fiat.amount).plus(amount).toString()
   }, [fiat.amount, fees, feeType])
 
   return (
     <SlideTransition>
+      <IconButton
+        variant='ghost'
+        icon={<ArrowBackIcon />}
+        aria-label={translate('common.back')}
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={() => history.push(SendRoutes.Details)}
+      />
       <ModalHeader textAlign='center'>
         <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />
       </ModalHeader>
@@ -84,9 +98,6 @@ export const Confirm = () => {
               <TxFeeRadioGroup fees={fees} />
             </Row>
           </FormControl>
-          <Button width='full' onClick={() => history.push(SendRoutes.Details)}>
-            <Text translation={'modals.send.confirm.edit'} />
-          </Button>
         </Stack>
       </ModalBody>
       <ModalFooter

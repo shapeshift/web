@@ -1,5 +1,5 @@
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { ChainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'
@@ -10,7 +10,7 @@ import { getAssetService } from 'lib/assetService'
 import { fromBaseUnit } from 'lib/math'
 dayjs.extend(relativeTime)
 
-export type FormatTransactionType = ChainAdapters.Transaction<ChainTypes> & {
+export type FormatTransactionType = chainAdapters.Transaction<ChainTypes> & {
   type: string
   amount: string
   date?: string
@@ -44,13 +44,13 @@ export const getDate = (timestamp: number) =>
   dayjs(Number(timestamp) * 1000).format('MM/DD/YYYY h:mm A')
 
 const formatTransactions = (
-  txs: ChainAdapters.Transaction<ChainTypes>[],
+  txs: chainAdapters.Transaction<ChainTypes>[],
   walletAddress: string,
   contractAddress: string,
   assetService: AssetService
 ): FormatTransactionType[] => {
   if (!(txs ?? []).length) return []
-  return txs.map((tx: ChainAdapters.Transaction<ChainTypes>) => {
+  return txs.map((tx: chainAdapters.Transaction<ChainTypes>) => {
     const timestamp = tx.timestamp
     let date, dateFromNow
     if (timestamp) {

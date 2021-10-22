@@ -3,7 +3,7 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { FOX, USDC, WETH } from 'jest/constants'
+import { ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
 import { fromBaseUnit } from 'lib/math'
 
@@ -71,11 +71,12 @@ describe('useSwapper', () => {
       ETHCHAIN_QUOTE.buyAmount || '0',
       ETHCHAIN_QUOTE.buyAsset.precision
     )
-    expect(setValue).toHaveBeenCalledWith('quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'sellAsset.fiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(3, 'buyAsset.fiatRate', '0.00026046624288885352')
-    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
-    expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '0.00')
+    expect(setValue).toHaveBeenCalledWith('fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'sellAsset.fiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.fiatRate', '0.00026046624288885352')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.amount', buyAmount)
+    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
   })
   it('getQuote gets quote with buyAmount', async () => {
     const { hook, setValue } = setup(TradeActions.BUY)
@@ -86,11 +87,12 @@ describe('useSwapper', () => {
       ETHCHAIN_QUOTE.sellAmount || '0',
       ETHCHAIN_QUOTE.sellAsset.precision
     )
-    expect(setValue).toHaveBeenCalledWith('quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'sellAsset.fiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(3, 'buyAsset.fiatRate', '0.00026046624288885352')
-    expect(setValue).toHaveBeenNthCalledWith(4, 'sellAsset.amount', sellAmount)
-    expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '0.00')
+    expect(setValue).toHaveBeenCalledWith('fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'sellAsset.fiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.fiatRate', '0.00026046624288885352')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'sellAsset.amount', sellAmount)
+    expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
   })
   it('getQuote needs buyAsset or sellAsset', async () => {
     const { hook, getQuote } = setup()
@@ -117,11 +119,12 @@ describe('useSwapper', () => {
       ETHCHAIN_QUOTE.sellAmount || '0',
       ETHCHAIN_QUOTE.sellAsset.precision
     )
-    expect(setValue).toHaveBeenCalledWith('quote', ETHCHAIN_QUOTE)
-    expect(setValue).toHaveBeenNthCalledWith(2, 'sellAsset.fiatRate', '1')
-    expect(setValue).toHaveBeenNthCalledWith(3, 'buyAsset.fiatRate', '0.00026046624288885352')
-    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
-    expect(setValue).toHaveBeenNthCalledWith(5, 'sellAsset.amount', sellAmount)
+    expect(setValue).toHaveBeenCalledWith('fees', ETHCHAIN_QUOTE_FEES)
+    expect(setValue).toHaveBeenNthCalledWith(2, 'quote', ETHCHAIN_QUOTE)
+    expect(setValue).toHaveBeenNthCalledWith(3, 'sellAsset.fiatRate', '1')
+    expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.fiatRate', '0.00026046624288885352')
+    expect(setValue).toHaveBeenNthCalledWith(5, 'buyAsset.amount', buyAmount)
+    expect(setValue).toHaveBeenNthCalledWith(6, 'sellAsset.amount', sellAmount)
   })
   it('getBestSwapper gets best swapper', async () => {
     const { hook, getBestSwapper } = setup()

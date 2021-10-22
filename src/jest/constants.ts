@@ -93,3 +93,13 @@ export const ETHCHAIN_QUOTE = {
     }
   ]
 }
+
+export const ETHCHAIN_QUOTE_FEES = {
+  chainSpecific: {
+    approvalFee: '0',
+    estimatedGas: '424500',
+    gasPrice: '361000000000',
+    totalFee: '0.153245'
+  },
+  fee: '0.153245'
+}

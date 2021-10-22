@@ -114,21 +114,20 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Label>
               <Text translation='transactionRow.status' />
             </Row.Label>
-            {/* TODO: once we have status */}
-            {/* <Row.Value textAlign='left'>
-              {tx.status === TxStatusEnum.Confirmed && (
+            <Row.Value textAlign='left'>
+              {tx.status === 1 && (
                 <Tag colorScheme='green' size='lg'>
                   <CheckCircleIcon mr={2} />
                   <Text translation='transactionRow.confirmed' />
                 </Tag>
               )}
-              {tx.status === TxStatusEnum.Failed && (
+              {tx.status === 0 && (
                 <Tag colorScheme='red' size='lg'>
                   <WarningTwoIcon mr={2} />
                   <Text translation='transactionRow.failed' />
                 </Tag>
               )}
-            </Row.Value> */}
+            </Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.5...@shapeshiftoss/asset-service-v1.1.0) (2021-10-22)
+
+
+### Features
+
+* add swapper cli ([#109](https://github.com/shapeshift/lib/issues/109)) ([191ad32](https://github.com/shapeshift/lib/commit/191ad325a42e676882ff2d25cae6fb773857f287))
+
 # [@shapeshiftoss/asset-service-v1.0.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.0.4...@shapeshiftoss/asset-service-v1.0.5) (2021-10-20)
 
 

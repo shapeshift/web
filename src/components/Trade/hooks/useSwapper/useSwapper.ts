@@ -230,7 +230,6 @@ export const useSwapper = () => {
             }
           }
           setValue('fees', fees)
-          console.info('fees', fees)
         } else {
           const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
             fee,

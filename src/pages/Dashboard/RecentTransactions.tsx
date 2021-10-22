@@ -1,9 +1,13 @@
+import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { Transactions } from 'components/Transactions/Transactions'
 
-import { Transactions } from './components/Transactions'
+import { selectRecentTxHistory } from './helpers/selectRecentTxHistory/selectRecentTxHistory'
 
 export const RecentTransactions = () => {
+  const txs = useSelector(selectRecentTxHistory)
+
   return (
     <Card>
       <Card.Header>
@@ -12,7 +16,7 @@ export const RecentTransactions = () => {
         </Card.Heading>
       </Card.Header>
       <Card.Body px={2} pt={0}>
-        <Transactions />
+        <Transactions txs={txs} />
       </Card.Body>
     </Card>
   )

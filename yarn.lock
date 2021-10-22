@@ -3638,7 +3638,7 @@
     swagger-ui-express "^4.1.5"
     tsoa "^3.4.0"
 
-"@shapeshiftoss/chain-adapters@^1.4.0", "@shapeshiftoss/chain-adapters@^1.5.0":
+"@shapeshiftoss/chain-adapters@^1.4.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.5.0.tgz#68ac8b2633c0536c55fb4420c1a5ac253a4e359b"
   integrity sha512-VjuMlKs3rqoSYsLowb4ZhwJmy5mPHEWe3ITHMKrnARSA00f/yrov5eQIPH7X5jsbbXBP1tWshy7DMhbiDZz1AA==

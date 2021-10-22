@@ -1,6 +1,12 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
-import { Asset, ChainTypes, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
-import { QuoteFeeData } from '@shapeshiftoss/types/dist/chain-adapters'
+import {
+  Asset,
+  chainAdapters,
+  ChainTypes,
+  GetQuoteInput,
+  Quote,
+  SwapperType
+} from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -211,7 +217,7 @@ export const useSwapper = () => {
 
         if (isThorchainQuote(result)) {
           const receiveFee = result?.feeData?.swapperSpecific.receiveFee ?? '0'
-          const fees: QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain> = {
+          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain> = {
             fee,
             chainSpecific: {
               approvalFee,
@@ -226,7 +232,7 @@ export const useSwapper = () => {
           setValue('fees', fees)
           console.info('fees', fees)
         } else {
-          const fees: QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
+          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
             fee,
             chainSpecific: {
               approvalFee,

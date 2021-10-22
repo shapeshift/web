@@ -31,8 +31,8 @@
     "foxToken": "FOX Token"
   },
   "transactionRow": {
-    "sent": "Sent",
-    "received": "Received",
+    "send": "Sent",
+    "receive": "Received",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",

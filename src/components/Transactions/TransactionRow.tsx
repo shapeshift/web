@@ -31,7 +31,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
   const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
-  const sentTx = tx.type === 'send'
+  const sentTx = tx.type === 'send' || tx.type === 'fee'
   const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
 
   useEffect(() => {

@@ -25,13 +25,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         const adapter = getAdapter()
         const key = adapter.getType()
         const address = await adapter.getAddress({ wallet })
+        if (!address) return
         await adapter.subscribeTxs(
           { addresses: [address] },
           (msg: chainAdapters.SubscribeTxsMessage<typeof key>) => {
-            console.info('onMessage asset history', msg)
             dispatch(txHistory.actions.onMessage({ message: msg }))
           },
-          (err: any) => console.info(err)
+          (err: any) => console.error(err)
         )
       }
     })()

@@ -9,24 +9,43 @@ import {
   Tag,
   useColorModeValue
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { NetworkTypes } from '@shapeshiftoss/types'
+import dayjs from 'dayjs'
+import { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import {
-  FormatTransactionType,
-  TxStatusEnum,
-  TxTypeEnum
-} from 'hooks/useTransactions/useTransactions'
+import { getDate, TxStatusEnum } from 'hooks/useTransactions/useTransactions'
+import { fromBaseUnit } from 'lib/math'
+import { ReduxState } from 'state/reducer'
+import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
-export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
+export const TransactionRow = ({ tx }: { tx: Tx }) => {
+  const ref = useRef<HTMLHeadingElement>(null)
+  const dispatch = useDispatch()
+  const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
-  const sentTx = tx.type === TxTypeEnum.Sent
+  const sentTx = tx.type === 'send'
+  const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
+
+  useEffect(() => {
+    if (!symbol) {
+      dispatch(
+        fetchAsset({
+          chain: tx.chain,
+          network: NetworkTypes.MAINNET
+        })
+      )
+    }
+  }, [dispatch, symbol, tx.chain])
 
   return (
     <Box
+      ref={ref}
       as='button'
       onClick={toggleOpen}
       width='full'
@@ -41,10 +60,17 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
           <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          <Text translation={sentTx ? 'transactionRow.sent' : 'transactionRow.received'} />
-          <Amount.Crypto ml={2} value={tx.amount} symbol={tx.symbol} maximumFractionDigits={4} />
+          {ref?.current?.offsetWidth >= 350 && (
+            <Text translation={sentTx ? 'transactionRow.sent' : 'transactionRow.received'} />
+          )}
+          <Amount.Crypto
+            ml={2}
+            value={fromBaseUnit(tx.value, 18)}
+            symbol={symbol}
+            maximumFractionDigits={4}
+          />
         </Flex>
-        <RawText>{tx.dateFromNow}</RawText>
+        <RawText>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
       </Flex>
       <Collapse in={isOpen} unmountOnExit>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>
@@ -52,7 +78,7 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
             <Row.Label>
               <Text translation='transactionRow.date' />
             </Row.Label>
-            <Row.Value>{tx.date}</Row.Value>
+            <Row.Value>{getDate(tx.blockTime)}</Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>
@@ -69,7 +95,12 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
               <Text translation='transactionRow.fee' />
             </Row.Label>
             <Row.Value>
-              <Amount.Crypto ml={2} value={tx.fee} symbol={tx.chain} maximumFractionDigits={4} />
+              <Amount.Crypto
+                ml={2}
+                value={fromBaseUnit(tx.fee, 18)}
+                symbol={tx.chain}
+                maximumFractionDigits={4}
+              />
             </Row.Value>
           </Row>
           <Row variant='vertical'>
@@ -108,7 +139,7 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
               <Text translation={sentTx ? 'transactionRow.to' : 'transactionRow.from'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis maxWidth='180px'>{sentTx ? tx.to : tx.from}</MiddleEllipsis>
+              <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
             </Row.Value>
           </Row>
         </SimpleGrid>

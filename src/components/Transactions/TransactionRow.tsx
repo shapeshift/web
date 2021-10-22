@@ -11,17 +11,19 @@ import {
 } from '@chakra-ui/react'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { getDate, TxStatusEnum } from 'hooks/useTransactions/useTransactions'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+
+dayjs.extend(relativeTime)
 
 export const TransactionRow = ({ tx }: { tx: Tx }) => {
   const ref = useRef<HTMLHeadingElement>(null)
@@ -78,7 +80,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Label>
               <Text translation='transactionRow.date' />
             </Row.Label>
-            <Row.Value>{getDate(tx.blockTime)}</Row.Value>
+            <Row.Value>{dayjs(Number(tx.blockTime) * 1000).format('MM/DD/YYYY h:mm A')}</Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>
@@ -107,7 +109,8 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Label>
               <Text translation='transactionRow.status' />
             </Row.Label>
-            <Row.Value textAlign='left'>
+            {/* TODO: once we have status */}
+            {/* <Row.Value textAlign='left'>
               {tx.status === TxStatusEnum.Confirmed && (
                 <Tag colorScheme='green' size='lg'>
                   <CheckCircleIcon mr={2} />
@@ -120,7 +123,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
                   <Text translation='transactionRow.failed' />
                 </Tag>
               )}
-            </Row.Value>
+            </Row.Value> */}
           </Row>
           <Row variant='vertical'>
             <Row.Label>

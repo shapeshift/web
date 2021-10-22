@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.4.1...@shapeshiftoss/swapper-v1.5.0) (2021-10-22)
+
+
+### Features
+
+* add swapper cli ([#109](https://github.com/shapeshift/lib/issues/109)) ([191ad32](https://github.com/shapeshift/lib/commit/191ad325a42e676882ff2d25cae6fb773857f287))
+
 # [@shapeshiftoss/swapper-v1.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.4.0...@shapeshiftoss/swapper-v1.4.1) (2021-10-20)
 
 

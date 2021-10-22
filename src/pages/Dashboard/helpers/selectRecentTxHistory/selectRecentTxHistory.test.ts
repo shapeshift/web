@@ -1,5 +1,4 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { first } from 'lodash'
 import { BtcSend, EthReceive, EthSend } from 'jest/mocks/txs'
 
 import { selectRecentTxHistory } from './selectRecentTxHistory'

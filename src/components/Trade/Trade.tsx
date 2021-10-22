@@ -1,4 +1,5 @@
 import { Asset, ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
+import { QuoteFeeData } from '@shapeshiftoss/types/dist/chain-adapters'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
@@ -17,13 +18,14 @@ export type MinMax = {
   minimumPrice?: string
 }
 
-export type TradeState<T1 extends ChainTypes, T2 extends SwapperType> = {
+export type TradeState<C extends ChainTypes, S extends SwapperType> = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset
+  fees?: QuoteFeeData<C, S>
   trade?: MinMax
   action?: TradeActions
   fiatAmount?: string
-  quote?: Quote<T1, T2>
+  quote?: Quote<C, S>
 }
 
 export const Trade = () => {

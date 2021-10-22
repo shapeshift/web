@@ -20,11 +20,11 @@ export enum TradeActions {
 
 type GetQuoteAmount = Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
 
-type GetQuote<T1 extends ChainTypes, T2 extends SwapperType> = {
+type GetQuote<C extends ChainTypes, S extends SwapperType> = {
   amount: GetQuoteAmount
   sellAsset: Asset
   buyAsset: Asset
-  onFinish: (quote: Quote<T1, T2>) => void
+  onFinish: (quote: Quote<C, S>) => void
   isFiat?: boolean
 }
 
@@ -65,12 +65,12 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const getQuoteFromSwapper = async <T1 extends ChainTypes, T2 extends SwapperType>({
+  const getQuoteFromSwapper = async <C extends ChainTypes, S extends SwapperType>({
     amount,
     sellAsset,
     buyAsset,
     onFinish
-  }: GetQuote<T1, T2>) => {
+  }: GetQuote<C, S>) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
@@ -129,6 +129,9 @@ export const useSwapper = () => {
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
         if (actionRef.current) onFinish(newQuote)
       } catch (err: any) {
+        console.log('catch', err.response)
+        console.log('catch', err)
+        console.log('catch', err.statusReason)
         const message = err?.response?.data?.validationErrors?.[0]?.reason
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
@@ -243,7 +246,6 @@ export const useSwapper = () => {
           }
           setValue('fees', fees)
         }
-
         break
       }
 

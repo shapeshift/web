@@ -18,7 +18,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  console.log('trade', trade)
+
   return (
     <SlideTransition>
       <Card variant='unstyled'>

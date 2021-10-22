@@ -40,6 +40,7 @@
     "node-polyglot": "^2.4.0",
     "numeral": "^2.0.6",
     "qr-image": "^3.2.0",
+    "qs": "^6.10.1",
     "react": "^17.0.2",
     "react-device-detect": "^1.17.0",
     "react-dom": "^17.0.2",
@@ -62,7 +63,7 @@
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
-    "link-packages": "grep -oE '@shapeshiftoss\/[a-z-]*' package.json | grep -v hdwallet | xargs yarn link",
+    "link-packages": "grep -oE '@shapeshiftoss/[a-z-]*' package.json | grep -v hdwallet | xargs yarn link",
     "unlink-packages": "find node_modules node_modules/@* -depth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
     "build": "react-scripts build",
     "dev": "react-scripts start",

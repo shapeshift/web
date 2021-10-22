@@ -1,11 +1,19 @@
-import { ChainTypes } from '@shapeshiftoss/types'
-import React from 'react'
+import qs from 'qs'
+import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { EarnModal } from './components/EarnModal/EarnModal'
+import { YearnManager } from './providers/yearn/components/YearnManager/YearnManager'
 
 export enum EarnType {
+  Pool = 'pool',
+  Vault = 'vault',
+  Staking = 'staking',
+  Farming = 'farming'
+}
+
+export enum EarnProvider {
   Yearn = 'yearn'
 }
 
@@ -20,13 +28,20 @@ type EarnManagerContextProps = {
 
 const EarnManagerContext = React.createContext<EarnManagerContextProps | null>(null)
 
-const YearnModule = () => {
-  return <div>YEARN ALL DAY BAE</div>
+const EarnModules = {
+  [EarnProvider.Yearn]: YearnManager
 }
 
-const EarnModules = {
-  [EarnType.Yearn]: YearnModule
-}
+// earn-type, ie staking, pools, vaults, other..
+
+// Allowed Query Params
+// provider i.e yearn
+// chain i.e ethereum
+// action? i.e deposit | withdraw
+// tokenId? i.e usdc contract address
+
+// /earn/:earn-type/?provider=yearn&chain=ethereum&action=add
+// /earn/:earn-type/?provider=yearn&chain=ethereum&action=add&tokenId=:tokenId
 
 export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const location = useLocation<{ background: any }>()
@@ -38,10 +53,10 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
       {background && (
         <>
           <Route
-            exact
-            path={`/earn/vaults/:moduleType/(${ChainTypes.Ethereum})/:tokenId?`}
+            path='/earn/(vault|pool|staking)'
             render={props => {
-              const Module = EarnModules[props.match.params.moduleType as EarnType]
+              const { provider } = qs.parse(props.location.search)
+              const Module = EarnModules[provider as EarnProvider]
               return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
             }}
           />
@@ -52,7 +67,7 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
 }
 
 export function useEarnManager() {
-  const context = React.useContext(EarnManagerContext)
+  const context = useContext(EarnManagerContext)
   if (!context) throw new Error("useEarnManager can't be used outside of EarnManagerProvider")
   return context
 }

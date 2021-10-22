@@ -1,12 +1,4 @@
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay
-} from '@chakra-ui/modal'
+import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import React from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -24,9 +16,7 @@ export const EarnModal = ({ children }: EarnModalProps) => {
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
-        <ModalHeader>HEADER</ModalHeader>
-        <ModalBody>{children}</ModalBody>
-        <ModalFooter flexDir='column'></ModalFooter>
+        {children}
       </ModalContent>
     </Modal>
   )

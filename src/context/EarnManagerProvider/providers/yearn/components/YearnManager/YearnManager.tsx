@@ -1,9 +1,9 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
+import { Box, Button, Flex, ModalBody } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useHistory } from 'react-router'
-import { Deposit } from 'context/EarnManagerProvider/components/Deposit/Deposit'
 import { Withdraw } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
+import { YearnDeposit } from 'context/EarnManagerProvider/providers/yearn/components/YearnManager/YearnDeposit'
 import { useQuery } from 'hooks/useQuery/useQuery'
 
 export enum ManagerActions {
@@ -18,8 +18,6 @@ export const YearnManager = () => {
   const asset = {} as Asset
 
   const handlePercentChange = () => {}
-
-  const handleContinueDeposit = () => {}
 
   const handleContinueWithdraw = () => {}
 
@@ -38,24 +36,18 @@ export const YearnManager = () => {
   }
 
   return (
-    <Box>
+    <ModalBody>
       <Flex>
         <Button onClick={() => setAction(ManagerActions.Deposit)}>Deposit</Button>
         <Button onClick={() => setAction(ManagerActions.Withdraw)}>Withdraw</Button>
       </Flex>
       <Box>
         {action === ManagerActions.Deposit ? (
-          <Deposit
-            {...props}
-            apy=''
-            estimatedFiatYield=''
-            estimatedCryptoYield=''
-            onContinue={handleContinueDeposit}
-          />
+          <YearnDeposit />
         ) : (
           <Withdraw {...props} onContinue={handleContinueWithdraw} />
         )}
       </Box>
-    </Box>
+    </ModalBody>
   )
 }

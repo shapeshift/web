@@ -32,7 +32,7 @@ const EarnModules = {
   [EarnProvider.Yearn]: YearnManager
 }
 
-// earn-type, ie staking, pools, vaults, other..
+// :earn-type, ie staking, pools, vaults, other..
 
 // Allowed Query Params
 // provider i.e yearn

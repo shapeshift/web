@@ -7,7 +7,7 @@ import { FOX, USDC, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
 import { fromBaseUnit } from 'lib/math'
 
-import { QUOTE } from '../../../../jest/constants'
+import { ETHCHAIN_QUOTE } from '../../../../jest/constants'
 import { TradeActions, useSwapper } from './useSwapper'
 
 jest.mock('react-hook-form')
@@ -20,7 +20,7 @@ function setup(action = TradeActions.SELL) {
   const setError = jest.fn()
   const clearErrors = jest.fn()
   const getBestSwapper = jest.fn()
-  const getQuote = jest.fn(() => QUOTE)
+  const getQuote = jest.fn(() => ETHCHAIN_QUOTE)
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getSwapper: () => ({
       getDefaultPair: () => [FOX, WETH],
@@ -67,8 +67,11 @@ describe('useSwapper', () => {
     await act(async () => {
       hook.result.current.getQuote({ sellAmount: '20' }, { currency: WETH }, { currency: USDC })
     })
-    const buyAmount = fromBaseUnit(QUOTE.buyAmount || '0', QUOTE.buyAsset.precision)
-    expect(setValue).toHaveBeenCalledWith('quote', QUOTE)
+    const buyAmount = fromBaseUnit(
+      ETHCHAIN_QUOTE.buyAmount || '0',
+      ETHCHAIN_QUOTE.buyAsset.precision
+    )
+    expect(setValue).toHaveBeenCalledWith('quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(2, 'sellAsset.fiatRate', '1')
     expect(setValue).toHaveBeenNthCalledWith(3, 'buyAsset.fiatRate', '0.00026046624288885352')
     expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)
@@ -79,8 +82,11 @@ describe('useSwapper', () => {
     await act(async () => {
       hook.result.current.getQuote({ buyAmount: '20' }, { currency: WETH }, { currency: USDC })
     })
-    const sellAmount = fromBaseUnit(QUOTE.sellAmount || '0', QUOTE.sellAsset.precision)
-    expect(setValue).toHaveBeenCalledWith('quote', QUOTE)
+    const sellAmount = fromBaseUnit(
+      ETHCHAIN_QUOTE.sellAmount || '0',
+      ETHCHAIN_QUOTE.sellAsset.precision
+    )
+    expect(setValue).toHaveBeenCalledWith('quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(2, 'sellAsset.fiatRate', '1')
     expect(setValue).toHaveBeenNthCalledWith(3, 'buyAsset.fiatRate', '0.00026046624288885352')
     expect(setValue).toHaveBeenNthCalledWith(4, 'sellAsset.amount', sellAmount)
@@ -103,9 +109,15 @@ describe('useSwapper', () => {
     await act(async () => {
       hook.result.current.getQuote({ fiatAmount: '20' }, { currency: WETH }, { currency: USDC })
     })
-    const buyAmount = fromBaseUnit(QUOTE.buyAmount || '0', QUOTE.buyAsset.precision)
-    const sellAmount = fromBaseUnit(QUOTE.sellAmount || '0', QUOTE.sellAsset.precision)
-    expect(setValue).toHaveBeenCalledWith('quote', QUOTE)
+    const buyAmount = fromBaseUnit(
+      ETHCHAIN_QUOTE.buyAmount || '0',
+      ETHCHAIN_QUOTE.buyAsset.precision
+    )
+    const sellAmount = fromBaseUnit(
+      ETHCHAIN_QUOTE.sellAmount || '0',
+      ETHCHAIN_QUOTE.sellAsset.precision
+    )
+    expect(setValue).toHaveBeenCalledWith('quote', ETHCHAIN_QUOTE)
     expect(setValue).toHaveBeenNthCalledWith(2, 'sellAsset.fiatRate', '1')
     expect(setValue).toHaveBeenNthCalledWith(3, 'buyAsset.fiatRate', '0.00026046624288885352')
     expect(setValue).toHaveBeenNthCalledWith(4, 'buyAsset.amount', buyAmount)

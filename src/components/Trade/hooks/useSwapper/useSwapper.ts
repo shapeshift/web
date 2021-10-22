@@ -192,15 +192,10 @@ export const useSwapper = () => {
     })
   }
 
-  const setFees = async <C extends ChainTypes, S extends SwapperType>(
-    result: Quote<C, S>,
-    sellAsset: Asset
-  ) => {
-    const sellFeePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
-    const sellAssetMinerFee = bn(result?.feeData?.fee || 0).dividedBy(
-      bn(10).exponentiatedBy(sellFeePrecision)
-    )
-    const fee = sellAssetMinerFee.toString()
+  const setFees = async (result: Quote<ChainTypes, SwapperType>, sellAsset: Asset) => {
+    const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
+    const feeBN = bn(fromBaseUnit(result?.feeData?.fee || '0', feePrecision))
+    const fee = feeBN.toString()
 
     switch (sellAsset.chain) {
       case ChainTypes.Ethereum: {
@@ -210,7 +205,7 @@ export const useSwapper = () => {
               .dividedBy(bn(10).exponentiatedBy(18))
               .toString()
           : '0'
-        const totalFee = sellAssetMinerFee.plus(approvalFee).toString()
+        const totalFee = feeBN.plus(approvalFee).toString()
         const gasPrice = bn(ethResult?.feeData?.chainSpecific.gasPrice || 0).toString()
         const estimatedGas = bn(ethResult?.feeData?.chainSpecific.estimatedGas || 0).toString()
 
@@ -229,7 +224,7 @@ export const useSwapper = () => {
             }
           }
           setValue('fees', fees)
-          console.info(fees)
+          console.info('fees', fees)
         } else {
           const fees: QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
             fee,

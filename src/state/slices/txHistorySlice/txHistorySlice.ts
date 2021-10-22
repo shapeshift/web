@@ -9,7 +9,7 @@ export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
   reducers: {
-    onMessage(state, { payload }: { payload: { message: Tx}}) {
+    onMessage(state, { payload }: { payload: { message: Tx } }) {
       const chain = payload.message.chain
       state[chain] = state[chain] ? [...state[chain], payload.message] : [payload.message]
     }

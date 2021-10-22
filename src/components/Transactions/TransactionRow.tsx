@@ -48,8 +48,6 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
   return (
     <Box
       ref={ref}
-      as='button'
-      onClick={toggleOpen}
       width='full'
       py={4}
       pl={3}
@@ -57,7 +55,14 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
       rounded='lg'
       _hover={{ bg: useColorModeValue('gray.50', 'whiteAlpha.100') }}
     >
-      <Flex alignItems='center' flex={1} justifyContent='space-between'>
+      <Flex
+        alignItems='center'
+        flex={1}
+        justifyContent='space-between'
+        as='button'
+        onClick={toggleOpen}
+        w='full'
+      >
         <Flex alignItems='center'>
           <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
@@ -87,7 +92,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
               <Text translation='transactionRow.txid' />
             </Row.Label>
             <Row.Value>
-              <Link isExternal color='blue.500'>
+              <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${tx.txid}`}>
                 <MiddleEllipsis maxWidth='180px'>{tx.txid}</MiddleEllipsis>
               </Link>
             </Row.Value>

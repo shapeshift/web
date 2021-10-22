@@ -36,10 +36,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     accountNumber: 0
   }
 
-  static buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
-    return { ...ChainAdapter.defaultBIP32Params, ...params }
-  }
-
   // TODO(0xdef1cafe): constraint this to utxo coins and refactor this to be a UTXOChainAdapter
   coinName: string
 
@@ -86,6 +82,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
+    return { ...ChainAdapter.defaultBIP32Params, ...params }
   }
 
   async getTxHistory(

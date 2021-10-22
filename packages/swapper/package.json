@@ -17,7 +17,8 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.json --noEmit"
+    "type-check": "tsc --project ./tsconfig.json --noEmit",
+    "swapcli": "yarn build && node ./dist/swappercli.js"
   },
   "dependencies": {
     "@shapeshiftoss/chain-adapters": "^1.2.2",
@@ -29,6 +30,8 @@
     "web3": "1.6.0"
   },
   "devDependencies": {
+    "@types/readline-sync": "^1.4.4",
+    "readline-sync": "^1.4.10",
     "web3-utils": "^1.5.2"
   }
 }

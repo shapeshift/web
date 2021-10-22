@@ -42,10 +42,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     accountNumber: 0
   }
 
-  static buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
-    return { ...ChainAdapter.defaultBIP32Params, ...params }
-  }
-
   constructor(args: ChainAdapterArgs) {
     this.providers = args.providers
   }
@@ -82,6 +78,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     } catch (err) {
       return ErrorHandler(err)
     }
+  }
+
+  buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
+    return { ...ChainAdapter.defaultBIP32Params, ...params }
   }
 
   async getTxHistory({

@@ -5,7 +5,7 @@ import Web3 from 'web3'
 import { buildQuoteTx } from './buildQuoteTx'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
-import { APPROVAL_GAS_LIMIT, MAX_SLIPPAGE } from '../utils/constants'
+import { APPROVAL_GAS_LIMIT, MAX_SLIPPAGE, DEFAULT_SLIPPAGE } from '../utils/constants'
 import { ChainTypes, GetQuoteInput } from '@shapeshiftoss/types'
 
 jest.mock('web3')
@@ -58,7 +58,7 @@ const mockQuoteResponse = {
     symbol: 'WETH',
     tokenId: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
   },
-  buyAssetAccountId: 'buyAccountId',
+  buyAssetAccountId: '0',
   depositAddress: undefined,
   feeData: { approvalFee: '0', estimatedGas: '0', fee: '0', gasPrice: undefined },
   guaranteedPrice: undefined,
@@ -83,8 +83,8 @@ const mockQuoteResponse = {
     symbol: 'FOX',
     tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   },
-  sellAssetAccountId: 'sellAccountId',
-  slippage: '3.0',
+  sellAssetAccountId: '0',
+  slippage: DEFAULT_SLIPPAGE,
   sources: [{ name: '0x', proportion: '1' }],
   statusCode: 0,
   success: true,

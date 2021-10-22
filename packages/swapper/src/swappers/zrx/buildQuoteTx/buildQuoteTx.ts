@@ -2,13 +2,7 @@ import BigNumber from 'bignumber.js'
 import { AxiosResponse } from 'axios'
 import * as rax from 'retry-axios'
 import { SwapError } from '../../..'
-import {
-  ChainTypes,
-  Quote,
-  QuoteResponse,
-  BuildQuoteTxInput,
-  BIP32Params
-} from '@shapeshiftoss/types'
+import { ChainTypes, Quote, QuoteResponse, BuildQuoteTxInput } from '@shapeshiftoss/types'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
@@ -69,13 +63,7 @@ export async function buildQuoteTx(
   }
 
   const adapter = adapterManager.byChain(buyAsset.chain)
-
-  // TODO(0xdef1cafe): populate this
-  const bip32Params: BIP32Params = {
-    purpose: 0,
-    coinType: 0,
-    accountNumber: 0
-  }
+  const bip32Params = adapter.buildBIP32Params({ accountNumber: Number(buyAssetAccountId) })
   const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
 
   if (new BigNumber(slippage || 0).gt(MAX_SLIPPAGE)) {

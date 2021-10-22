@@ -1,5 +1,5 @@
 import { numberToHex } from 'web3-utils'
-import { BIP32Params, ExecQuoteInput, ExecQuoteOutput } from '@shapeshiftoss/types'
+import { ExecQuoteInput, ExecQuoteOutput } from '@shapeshiftoss/types'
 import { SwapError } from '../../../api'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
@@ -30,27 +30,43 @@ export async function executeQuote(
   }
 
   // value is 0 for erc20s
-  const value = sellAsset.symbol === 'ETH' ? numberToHex(quote.sellAmount || 0) : '0x0'
+  const value = sellAsset.symbol === 'ETH' ? quote.sellAmount : '0'
   const adapter = adapterManager.byChain(sellAsset.chain)
-
-  // TODO(0xdef1cafe): populate this
-  const bip32Params: BIP32Params = {
-    purpose: 0,
-    coinType: 0,
-    accountNumber: 0
-  }
-  const { txToSign } = await adapter.buildSendTransaction({
-    value,
-    wallet,
-    to: quote.depositAddress,
-    fee: numberToHex(quote.feeData?.gasPrice || 0),
-    gasLimit: numberToHex(quote.feeData?.estimatedGas || 0),
-    bip32Params
+  const bip32Params = adapter.buildBIP32Params({
+    accountNumber: Number(quote.sellAssetAccountId)
   })
 
-  const signedTx = await adapter.signTransaction({ txToSign, wallet })
+  let buildTxResponse, signedTx, txid
+  try {
+    buildTxResponse = await adapter.buildSendTransaction({
+      value,
+      wallet,
+      to: quote.depositAddress,
+      fee: numberToHex(quote.feeData?.gasPrice || 0),
+      gasLimit: numberToHex(quote.feeData?.estimatedGas || 0),
+      bip32Params
+    })
+  } catch (error) {
+    throw new SwapError(`executeQuote - buildSendTransaction error: ${error}`)
+  }
 
-  const txid = await adapter.broadcastTransaction(signedTx)
+  const { txToSign } = buildTxResponse
+
+  const txWithQuoteData = { ...txToSign, data: quote.txData ?? '' }
+
+  try {
+    signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })
+  } catch (error) {
+    throw new SwapError(`executeQuote - signTransaction error: ${error}`)
+  }
+
+  if (!signedTx) throw new SwapError(`executeQuote - Signed transaction is required: ${signedTx}`)
+
+  try {
+    txid = await adapter.broadcastTransaction(signedTx)
+  } catch (error) {
+    throw new SwapError(`executeQuote - broadcastTransaction error: ${error}`)
+  }
 
   return { txid }
 }

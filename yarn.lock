@@ -3638,10 +3638,10 @@
     swagger-ui-express "^4.1.5"
     tsoa "^3.4.0"
 
-"@shapeshiftoss/chain-adapters@^1.2.2":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.3.0.tgz#9cf0dd74e40e77275a3e557136a2424daa686c8e"
-  integrity sha512-0Q8EXbUOeGtul02+eJUzE6g1eetXvixWiM6Zk73nPCyz/U2d4pqzBAXVXSX6QxIWLQl2vPEjvLnVZeqyy6+h/Q==
+"@shapeshiftoss/chain-adapters@^1.4.0", "@shapeshiftoss/chain-adapters@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.5.0.tgz#68ac8b2633c0536c55fb4420c1a5ac253a4e359b"
+  integrity sha512-VjuMlKs3rqoSYsLowb4ZhwJmy5mPHEWe3ITHMKrnARSA00f/yrov5eQIPH7X5jsbbXBP1tWshy7DMhbiDZz1AA==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.17.0"
     "@shapeshiftoss/types" "^1.1.0"
@@ -3822,12 +3822,12 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.4.1.tgz#b5fd08862150c9e1189b259ff46d10856c333d78"
-  integrity sha512-28ZBgTn0WpOWcy4mL8fcabw31VQab1ZuAKhwIZ4MOOO/tE0BrwJHZgicrYJL5R6sBA/fKZTnFlls8wGOWZ02/A==
+"@shapeshiftoss/swapper@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.5.1.tgz#d231f08ada99ca3ba5cbfc4220baf2b4b4d9fdab"
+  integrity sha512-rDB4yr2PFDpKtaNDvMzdOsZ+4iOJ3DLoz44WklhGATLubK3zMoHvCak3ytrsnYDlJS+E6xQb76G7H9/n+dhxaA==
   dependencies:
-    "@shapeshiftoss/chain-adapters" "^1.2.2"
+    "@shapeshiftoss/chain-adapters" "^1.4.0"
     "@shapeshiftoss/hdwallet-core" "^1.17.0"
     "@shapeshiftoss/types" "^1.1.1"
     axios "^0.21.4"
@@ -3848,10 +3848,15 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.1.1.tgz#6e46a8a7fb0b1de7c2ec2555d9e318e5f0b96a0d"
   integrity sha512-0pX/UROaWvdLrXlCBECka1r1+f3p6/hQ7PV0vwDjkBIBD2gbz2Vvoex8Q6oBxP+2yaj+k504bYa0gL5o2YPPDQ==
 
-"@shapeshiftoss/types@^1.1.1", "@shapeshiftoss/types@^1.2.0":
+"@shapeshiftoss/types@^1.1.1":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.2.0.tgz#f4b24d445acbcc96d00f2b7d2db137b534c30107"
   integrity sha512-wxjkaUvjJ2EkI/7f3kn9dpDVfH9vuvofdMQs/eB6H6wltOcsgTKmiqYg483kYR2N4CajVJvsvNR3fWNFc/vMhw==
+
+"@shapeshiftoss/types@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.2.1.tgz#07c7658bc3d3d176155f2773648b367d7d15ba84"
+  integrity sha512-d+qQEFcrWDKUzP+qYXDdM+bFJ7FKzKi1FLsKvsMfjnydMFsWZs4/DpMpTg7ezCu/Sw0J7CpuDScZJ9HD6OPKaA==
 
 "@shapeshiftoss/unchained-client@^2.1.0":
   version "2.1.0"

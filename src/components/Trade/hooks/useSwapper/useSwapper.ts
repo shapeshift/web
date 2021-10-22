@@ -210,7 +210,7 @@ export const useSwapper = () => {
         const estimatedGas = bn(ethResult?.feeData?.chainSpecific.estimatedGas || 0).toString()
 
         if (isThorchainQuote(result)) {
-          const receiveFee = result?.feeData?.platformSpecific.receiveFee ?? '0'
+          const receiveFee = result?.feeData?.swapperSpecific.receiveFee ?? '0'
           const fees: QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain> = {
             fee,
             chainSpecific: {
@@ -219,7 +219,7 @@ export const useSwapper = () => {
               estimatedGas,
               totalFee
             },
-            platformSpecific: {
+            swapperSpecific: {
               receiveFee
             }
           }
@@ -249,7 +249,7 @@ export const useSwapper = () => {
     result: Quote<ChainTypes, SwapperType>
   ): result is Quote<ChainTypes, SwapperType.Thorchain> {
     return (
-      (result as Quote<ChainTypes, SwapperType.Thorchain>)?.feeData?.platformSpecific !== undefined
+      (result as Quote<ChainTypes, SwapperType.Thorchain>)?.feeData?.swapperSpecific !== undefined
     )
   }
 

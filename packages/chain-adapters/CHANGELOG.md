@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.4.0...@shapeshiftoss/chain-adapters-v1.5.0) (2021-10-22)
+
+
+### Features
+
+* add swapper cli ([#109](https://github.com/shapeshift/lib/issues/109)) ([191ad32](https://github.com/shapeshift/lib/commit/191ad325a42e676882ff2d25cae6fb773857f287))
+
 # [@shapeshiftoss/chain-adapters-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.3.1...@shapeshiftoss/chain-adapters-v1.4.0) (2021-10-21)
 
 

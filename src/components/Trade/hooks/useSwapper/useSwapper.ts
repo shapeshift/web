@@ -74,39 +74,39 @@ export const useSwapper = () => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
+      // try {
+      const swapper = swapperManager.getSwapper(bestSwapperType)
+      let convertedAmount = amount
+      const isFiat = Object.keys(amount)[0].includes('fiat')
+      if (isFiat) {
+        const rate = await swapper.getUsdRate({
+          symbol: sellAsset.symbol,
+          tokenId: sellAsset.tokenId
+        })
+        const fiatAmount = Object.values(amount)[0]
+        convertedAmount = {
+          sellAmount: toBaseUnit(
+            bn(fiatAmount).div(rate).toString(),
+            sellAsset.precision
+          ).toString()
+        }
+      }
+      const quoteInput = {
+        sellAsset: sellAsset,
+        buyAsset: buyAsset,
+        ...convertedAmount
+      }
+      let minMax = trade
+      if (
+        quote?.sellAsset?.symbol !== sellAsset.symbol &&
+        quote?.buyAsset?.symbol !== buyAsset.symbol
+      ) {
+        minMax = await swapper.getMinMax(quoteInput)
+        minMax && setValue('trade', { ...trade, ...minMax })
+      }
       try {
-        const swapper = swapperManager.getSwapper(bestSwapperType)
-        let convertedAmount = amount
-        const isFiat = Object.keys(amount)[0].includes('fiat')
-        if (isFiat) {
-          const rate = await swapper.getUsdRate({
-            symbol: sellAsset.symbol,
-            tokenId: sellAsset.tokenId
-          })
-          const fiatAmount = Object.values(amount)[0]
-          convertedAmount = {
-            sellAmount: toBaseUnit(
-              bn(fiatAmount).div(rate).toString(),
-              sellAsset.precision
-            ).toString()
-          }
-        }
-        const quoteInput = {
-          sellAsset: sellAsset,
-          buyAsset: buyAsset,
-          ...convertedAmount
-        }
-        let minMax = trade
-        if (
-          quote?.sellAsset?.symbol !== sellAsset.symbol &&
-          quote?.buyAsset?.symbol !== buyAsset.symbol
-        ) {
-          minMax = await swapper.getMinMax(quoteInput)
-          minMax && setValue('trade', { ...trade, ...minMax })
-        }
-
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
-        if (!newQuote?.success) throw new Error('getQuote - quote not successful')
+        if (!newQuote?.success) throw newQuote
 
         const sellAssetUsdRate = await swapper.getUsdRate({
           symbol: sellAsset.symbol,
@@ -129,10 +129,7 @@ export const useSwapper = () => {
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
         if (actionRef.current) onFinish(newQuote)
       } catch (err: any) {
-        console.log('catch', err.response)
-        console.log('catch', err)
-        console.log('catch', err.statusReason)
-        const message = err?.response?.data?.validationErrors?.[0]?.reason
+        const message = err?.statusReason
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
       }

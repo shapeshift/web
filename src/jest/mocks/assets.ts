@@ -1,4 +1,4 @@
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const rune = {
   name: 'THORChain  ERC20 ',
@@ -68,4 +68,22 @@ export const zero = {
   slip44: 60,
   symbol: 'ZERO',
   tokenId: '0xf0939011a9bb95c3b791f0cb546377ed2693a574'
+}
+
+export const fox: Asset = {
+  chain: ChainTypes.Ethereum,
+  network: NetworkTypes.MAINNET,
+  color: '#FFFFFF',
+  contractType: ContractTypes.ERC20,
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+  name: 'Fox',
+  precision: 18,
+  receiveSupport: true,
+  secondaryColor: '#FFFFFF',
+  sendSupport: true,
+  slip44: 60,
+  symbol: 'FOX',
+  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 }

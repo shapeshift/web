@@ -3,16 +3,17 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
 
 import { PinModal } from './KeepKey/PinModal'
+import { MetaStart } from './MetaMask/components/MetaStart'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativePassword } from './NativeWallet/components/NativePassword'
 import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
-import { MetaStart } from './MetaMask/components/MetaStart'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -43,7 +44,7 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
   },
   metamask: {
     adapter: WebUSBKeepKeyAdapter,
-    icon: KeepKeyIcon,
+    icon: MetaMaskIcon,
     name: 'MetaMask',
     routes: [{ path: '/metamask/start', component: MetaStart }]
   }

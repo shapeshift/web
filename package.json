@@ -16,6 +16,7 @@
     "@shapeshiftoss/hdwallet-keepkey": "^1.17.0",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.17.0",
     "@shapeshiftoss/hdwallet-native": "^1.17.0",
+    "@shapeshiftoss/hdwallet-metamask": "^1.17.0", 
     "@shapeshiftoss/market-service": "^1.0.4",
     "@shapeshiftoss/swapper": "^1.4.1",
     "@shapeshiftoss/types": "^1.2.0",

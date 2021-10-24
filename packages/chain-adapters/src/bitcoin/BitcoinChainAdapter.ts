@@ -123,11 +123,20 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
   }> {
     try {
-      const { recipients, wallet, bip32Params = ChainAdapter.defaultBIP32Params, feeSpeed } = tx
+      const {
+        value,
+        to,
+        recipients,
+        wallet,
+        bip32Params = ChainAdapter.defaultBIP32Params,
+        feeSpeed
+      } = tx
 
-      if (!recipients || !recipients.length) {
-        throw new Error('BitcoinChainAdapter: recipients is required')
+      if (!recipients && (!value || !to)) {
+        throw new Error('BitcoinChainAdapter: recipients or (to and value) are required')
       }
+
+      const btcRecipients = recipients || [{ value: Number(value), address: to }]
 
       const path = toRootDerivationPath(bip32Params)
       const pubkey = await this.getPubKey(wallet, bip32Params)
@@ -144,7 +153,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
       const coinSelectResult = coinSelect<MappedUtxos, chainAdapters.bitcoin.Recipient>(
         mappedUtxos,
-        recipients,
+        btcRecipients,
         Number(satoshiPerByte)
       )
       if (!coinSelectResult.inputs) {

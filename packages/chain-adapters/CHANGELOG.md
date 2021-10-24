@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.5.0...@shapeshiftoss/chain-adapters-v1.5.1) (2021-10-24)
+
+
+### Bug Fixes
+
+* get btc sends working by allowing optional to+value to be used instead of recipients ([#150](https://github.com/shapeshift/lib/issues/150)) ([32cc80c](https://github.com/shapeshift/lib/commit/32cc80cf16984753aa130b596682bbb59f58cf32))
+
 # [@shapeshiftoss/chain-adapters-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.4.0...@shapeshiftoss/chain-adapters-v1.5.0) (2021-10-22)
 
 

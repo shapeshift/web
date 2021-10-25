@@ -71,6 +71,40 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
+  const buildQuoteTx = async ({
+    wallet,
+    sellAsset,
+    buyAsset
+  }: any): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
+    let result
+    try {
+      const swapper = swapperManager.getSwapper(bestSwapperType)
+      result = await swapper?.buildQuoteTx({
+        input: {
+          sellAmount: sellAsset.amount,
+          sellAsset,
+          buyAsset,
+          sellAssetAccountId: sellAsset.accountId,
+          buyAssetAccountId: buyAsset.accountId,
+          slippage: trade?.slippage?.toString(),
+          priceImpact: quote?.priceImpact,
+          sendMax: false // TODO: implement sendMax
+        },
+        wallet
+      })
+    } catch (err) {
+      console.error(`TradeProvider - buildTransaction error: ${err}`) // eslint-disable-line no-console
+    }
+    if (result?.success) {
+      setFees(result, sellAsset)
+      // const totalFiatAmount = buyAsset.fiatAmount?.plus(fees?.totalFiatFee || 0)
+      // updateQuote({ ...result, sources: state.trade?.sources } as TradeTypes.QuoteWithAmount)
+      // updateTrade({ totalFiatAmount })
+    } else {
+      throw [TRADE_ERRORS.INSUFFICIENT_FUNDS] // eslint-disable-line no-throw-literal
+    }
+    return result
+  }
   const getQuoteFromSwapper = async <C extends ChainTypes, S extends SwapperType>({
     amount,
     sellAsset,
@@ -285,6 +319,7 @@ export const useSwapper = () => {
   return {
     swapperManager,
     getQuote,
+    buildQuoteTx,
     getBestSwapper,
     getDefaultPair,
     reset

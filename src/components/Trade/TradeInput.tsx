@@ -18,6 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
@@ -46,9 +47,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [quote, action, buyAsset] = useWatch({ name: ['quote', 'action', 'buyAsset'] })
-  const { getQuote, reset } = useSwapper()
+  const { getQuote, buildQuoteTx, reset } = useSwapper()
   const sellAsset = getValues('sellAsset')
-  const onSubmit = () => {
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const onSubmit = async () => {
+    await buildQuoteTx({ wallet, sellAsset, buyAsset })
     history.push('/trade/confirm')
   }
 

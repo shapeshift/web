@@ -1,14 +1,7 @@
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay
-} from '@chakra-ui/modal'
+import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import React from 'react'
 import { useHistory } from 'react-router-dom'
+import { EarnActionsProvider } from 'context/EarnManagerProvider/context/EarnActions/EarnActionsProvider'
 
 type EarnModalProps = {
   children: React.ReactNode
@@ -20,14 +13,14 @@ type EarnModalProps = {
 export const EarnModal = ({ children }: EarnModalProps) => {
   const history = useHistory()
   return (
-    <Modal isOpen onClose={history.goBack}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalCloseButton />
-        <ModalHeader>HEADER</ModalHeader>
-        <ModalBody>{children}</ModalBody>
-        <ModalFooter flexDir='column'></ModalFooter>
-      </ModalContent>
-    </Modal>
+    <EarnActionsProvider>
+      <Modal isOpen onClose={history.goBack}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          {children}
+        </ModalContent>
+      </Modal>
+    </EarnActionsProvider>
   )
 }

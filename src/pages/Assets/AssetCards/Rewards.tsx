@@ -1,5 +1,7 @@
 import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
+import qs from 'qs'
 import { Link, useLocation } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -14,7 +16,13 @@ export const Rewards = () => {
   return (
     <Link
       to={{
-        pathname: '/earn/vaults/yearn/ethereum',
+        pathname: '/earn/vault',
+        search: qs.stringify({
+          action: 'deposit',
+          provider: 'yearn',
+          chain: ChainTypes.Ethereum,
+          tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+        }),
         state: { background: location }
       }}
     >

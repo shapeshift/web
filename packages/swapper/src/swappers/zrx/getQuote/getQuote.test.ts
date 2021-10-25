@@ -1,11 +1,11 @@
-import { ChainTypes, ContractTypes, NetworkTypes, Asset } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import Web3 from 'web3'
 import BigNumber from 'bignumber.js'
 import { ZrxSwapper } from '../..'
-import { DEFAULT_SLIPPAGE } from '../utils/constants'
 import { zrxService } from '../utils/zrxService'
 import { normalizeAmount } from '../utils/helpers/helpers'
+import { setupQuote } from '../utils/test-data/setupSwapQuote'
 
 const axios = jest.createMockFromModule('axios')
 //@ts-ignore
@@ -13,55 +13,9 @@ axios.create = jest.fn(() => axios)
 jest.mock('../utils/helpers/helpers')
 jest.mock('../utils/zrxService')
 
-const setupQuote = () => {
+describe('getZrxQuote', () => {
   const sellAmount = '1000000000000000000'
   ;(normalizeAmount as jest.Mock<unknown>).mockReturnValue(sellAmount)
-  const sellAsset = ({
-    name: 'Fox',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
-    precision: 18,
-    tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-    contractType: ContractTypes.ERC20,
-    color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
-    icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-    slip44: 60,
-    explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    sendSupport: true,
-    receiveSupport: true,
-    symbol: 'FOX'
-    // TODO: remove the type casts from test files when we unify `ChainTypes` and `ChainTypes`
-  } as unknown) as Asset
-  const buyAsset = ({
-    name: 'WETH',
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
-    precision: 18,
-    tokenId: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-    contractType: ContractTypes.ERC20,
-    color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
-    icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
-    slip44: 60,
-    explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    sendSupport: true,
-    receiveSupport: true,
-    symbol: 'WETH'
-  } as unknown) as Asset
-
-  const quoteInput = {
-    sellAsset,
-    buyAsset,
-    sellAmount,
-    slippage: DEFAULT_SLIPPAGE
-  }
-  return { quoteInput, buyAsset, sellAsset }
-}
-
-describe('getZrxQuote', () => {
   const zrxSwapperDeps = {
     web3: <Web3>{},
     adapterManager: <ChainAdapterManager>{}

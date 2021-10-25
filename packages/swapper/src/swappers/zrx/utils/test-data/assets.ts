@@ -1,11 +1,11 @@
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, ContractTypes, NetworkTypes, Asset } from '@shapeshiftoss/types'
 
-export const BTC = {
+export const BTC: Asset = {
   name: 'bitcoin',
   chain: ChainTypes.Bitcoin,
   network: NetworkTypes.MAINNET,
   precision: 8,
-  slip44: 0,
+  slip44: 44,
   contractType: ContractTypes.ERC20,
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
@@ -16,7 +16,7 @@ export const BTC = {
   receiveSupport: false,
   symbol: 'BTC'
 }
-export const WETH = {
+export const WETH: Asset = {
   name: 'WETH',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
@@ -26,15 +26,15 @@ export const WETH = {
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
-  slip44: 0,
+  slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   sendSupport: true,
   receiveSupport: true,
   symbol: 'WETH'
 }
-export const FOX = {
-  name: 'Fox',
+export const FOX: Asset = {
+  name: 'FOX',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   precision: 18,
@@ -44,7 +44,7 @@ export const FOX = {
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
   sendSupport: true,
-  slip44: 0,
+  slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   receiveSupport: true,

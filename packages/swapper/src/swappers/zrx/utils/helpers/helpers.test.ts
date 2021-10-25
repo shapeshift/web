@@ -1,11 +1,21 @@
 import Web3 from 'web3'
 import BigNumber from 'bignumber.js'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { setupQuote } from '../test-data/setupSwapQuote'
 import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
-import { normalizeAmount, getAllowanceRequired, getUsdRate } from '../helpers/helpers'
+import { erc20Abi } from '../abi/erc20-abi'
+import {
+  normalizeAmount,
+  getAllowanceRequired,
+  getUsdRate,
+  grantAllowance
+} from '../helpers/helpers'
 import { zrxService } from '../zrxService'
 
 jest.mock('web3')
+jest.mock('@shapeshiftoss/chain-adapters')
 const axios = jest.createMockFromModule('axios')
 
 //@ts-ignore
@@ -25,17 +35,36 @@ Web3.mockImplementation(() => ({
   }
 }))
 
+// @ts-ignore
+ChainAdapterManager.mockImplementation(() => ({
+  byChain: jest.fn(() => ({
+    buildBIP32Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
+    buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: {} })),
+    signTransaction: jest.fn(() => Promise.resolve('signedTx')),
+    broadcastTransaction: jest.fn(() => Promise.resolve('broadcastedTx'))
+  }))
+}))
+
 const setup = () => {
+  const unchainedUrls = {
+    [ChainTypes.Ethereum]: {
+      httpUrl: 'http://localhost:31300',
+      wsUrl: 'ws://localhost:31300'
+    }
+  }
+  const adapterManager = new ChainAdapterManager(unchainedUrls)
+  const adapter = adapterManager.byChain(ChainTypes.Ethereum)
+
   const ethNodeUrl = 'http://localhost:1000'
   const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
   const web3Instance = new Web3(web3Provider)
 
-  return { web3Instance }
+  return { web3Instance, adapter }
 }
 
 describe('utils', () => {
   const { quoteInput, sellAsset } = setupQuote()
-  const { web3Instance } = setup()
+  const { web3Instance, adapter } = setup()
 
   describe('getUsdRate', () => {
     it('getUsdRate gets the usd rate of the symbol', async () => {
@@ -145,6 +174,52 @@ describe('utils', () => {
       expect(await getAllowanceRequired({ quote, web3: web3Instance, erc20AllowanceAbi })).toEqual(
         new BigNumber(900)
       )
+    })
+  })
+
+  describe('grantAllowance', () => {
+    const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    const wallet = ({
+      ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
+    } as unknown) as HDWallet
+
+    it('should throw if sellAsset.tokenId is not provided', async () => {
+      const quote = {
+        ...quoteInput,
+        sellAsset: { ...sellAsset, tokenId: '' }
+      }
+      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+        methods: {
+          approve: jest.fn(() => ({
+            encodeABI: jest.fn(
+              () => '0x3a93b3190cbb22d23a07c18959c701a7e7d83257a775b6197b67c648a3f90419'
+            )
+          }))
+        }
+      }))
+
+      await expect(
+        grantAllowance({ quote, wallet, adapter, erc20Abi, web3: web3Instance })
+      ).rejects.toThrow('sellAsset.tokenId is required')
+    })
+
+    it('should return a txid', async () => {
+      const quote = {
+        ...quoteInput
+      }
+      ;(web3Instance.eth.Contract as jest.Mock<unknown>).mockImplementation(() => ({
+        methods: {
+          approve: jest.fn(() => ({
+            encodeABI: jest.fn(
+              () => '0x3a93b3190cbb22d23a07c18959c701a7e7d83257a775b6197b67c648a3f90419'
+            )
+          }))
+        }
+      }))
+
+      expect(
+        await grantAllowance({ quote, wallet, adapter, erc20Abi, web3: web3Instance })
+      ).toEqual('broadcastedTx')
     })
   })
 })

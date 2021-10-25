@@ -4,13 +4,15 @@ import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, GetQuoteInput, SwapperType, Quote } from '@shapeshiftoss/types'
 import { ZrxSwapper } from '..'
 import { ZrxError } from '../..'
-import { DEFAULT_SLIPPAGE } from './utils/constants'
+import { setupQuote } from './utils/test-data/setupSwapQuote'
+import { FOX, WETH, BTC } from './utils/test-data/assets'
 import { buildQuoteTx } from '../zrx/buildQuoteTx/buildQuoteTx'
 import { executeQuote } from '../zrx/executeQuote/executeQuote'
 import { getZrxQuote } from './getQuote/getQuote'
-import { FOX, WETH, BTC } from './utils/test-data/assets'
 import { getUsdRate } from './utils/helpers/helpers'
 import { getMinMax } from './getMinMax/getMinMax'
+import { approvalNeeded } from './approvalNeeded/approvalNeeded'
+import { approveInfinite } from './approveInfinite/approveInfinite'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('../zrx/executeQuote/executeQuote', () => ({
@@ -29,19 +31,13 @@ jest.mock('./getMinMax/getMinMax', () => ({
   getMinMax: jest.fn()
 }))
 
-const setupQuote = () => {
-  const sellAmount = '1000000000000000000'
-  const sellAsset = FOX
-  const buyAsset = WETH
+jest.mock('./approvalNeeded/approvalNeeded', () => ({
+  approvalNeeded: jest.fn()
+}))
 
-  const quoteInput = {
-    sellAsset,
-    buyAsset,
-    sellAmount,
-    slippage: DEFAULT_SLIPPAGE
-  }
-  return { quoteInput, buyAsset, sellAsset }
-}
+jest.mock('./approveInfinite/approveInfinite', () => ({
+  approveInfinite: jest.fn()
+}))
 
 describe('ZrxSwapper', () => {
   const input = <GetQuoteInput>{}
@@ -112,5 +108,20 @@ describe('ZrxSwapper', () => {
     const { quoteInput } = setupQuote()
     await swapper.getMinMax(quoteInput)
     expect(getMinMax).toHaveBeenCalled()
+  })
+
+  it('calls approvalNeeded on swapper.approvalNeeded', async () => {
+    const swapper = new ZrxSwapper(zrxSwapperDeps)
+    const { quoteInput } = setupQuote()
+    const args = { quote: quoteInput, wallet }
+    await swapper.approvalNeeded(args)
+    expect(approvalNeeded).toHaveBeenCalled()
+  })
+
+  it('calls approveInfinite on swapper.approveInfinite', async () => {
+    const swapper = new ZrxSwapper(zrxSwapperDeps)
+    const args = { quote, wallet }
+    await swapper.approveInfinite(args)
+    expect(approveInfinite).toHaveBeenCalled()
   })
 })

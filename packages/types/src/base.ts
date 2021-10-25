@@ -207,3 +207,8 @@ export type ApprovalNeededOutput = {
   gas?: string
   gasPrice?: string
 }
+
+export type ApproveInfiniteInput<C extends ChainTypes, S extends SwapperType> = {
+  quote: Quote<C, S>
+  wallet: HDWallet
+}

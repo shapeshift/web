@@ -35,13 +35,10 @@ export async function approvalNeeded(
     throw new SwapError('ZrxSwapper:approvalNeeded only Ethereum chain type is supported')
   }
 
+  const accountNumber = quote.sellAssetAccountId ? Number(quote.sellAssetAccountId) : 0
+
   const adapter = adapterManager.byChain(sellAsset.chain)
-  // TODO(0xdef1cafe): populate this
-  const bip32Params: BIP32Params = {
-    purpose: 0,
-    coinType: 0,
-    accountNumber: 0
-  }
+  const bip32Params = adapter.buildBIP32Params({ accountNumber })
   const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
 
   /**
@@ -69,14 +66,17 @@ export async function approvalNeeded(
   )
   const { data } = quoteResponse
 
-  const allowanceResult = getERC20Allowance(
-    { web3, erc20AllowanceAbi },
-    {
-      tokenId: quote.sellAsset.tokenId as string,
-      spenderAddress: data.allowanceTarget as string,
-      ownerAddress: receiveAddress
-    }
-  )
+  if (!quote.sellAsset.tokenId || !data.allowanceTarget) {
+    throw new SwapError('approvalNeeded - tokenId and allowanceTarget are required')
+  }
+
+  const allowanceResult = getERC20Allowance({
+    web3,
+    erc20AllowanceAbi,
+    tokenId: quote.sellAsset.tokenId,
+    spenderAddress: data.allowanceTarget,
+    ownerAddress: receiveAddress
+  })
 
   const allowanceOnChain = new BigNumber(allowanceResult || '0')
 

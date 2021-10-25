@@ -103,12 +103,14 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
               <Text translation='transactionRow.fee' />
             </Row.Label>
             <Row.Value>
-              <Amount.Crypto
-                ml={2}
-                value={fromBaseUnit(tx?.fee?.value ?? '0', 18)}
-                symbol={tx?.fee?.symbol}
-                maximumFractionDigits={4}
-              />
+              {tx?.fee && (
+                <Amount.Crypto
+                  ml={2}
+                  value={fromBaseUnit(tx?.fee?.value ?? '0', 18)}
+                  symbol={tx?.fee?.symbol}
+                  maximumFractionDigits={4}
+                />
+              )}
             </Row.Value>
           </Row>
           <Row variant='vertical'>

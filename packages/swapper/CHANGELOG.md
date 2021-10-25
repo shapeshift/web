@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.5.1...@shapeshiftoss/swapper-v1.6.0) (2021-10-25)
+
+
+### Features
+
+* fix testing deps ([#101](https://github.com/shapeshift/lib/issues/101)) ([d75f48f](https://github.com/shapeshift/lib/commit/d75f48fec6947eb16eeb112d1b85f2e1840a52d3))
+
 # [@shapeshiftoss/swapper-v1.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.5.0...@shapeshiftoss/swapper-v1.5.1) (2021-10-22)
 
 # [@shapeshiftoss/swapper-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.4.1...@shapeshiftoss/swapper-v1.5.0) (2021-10-22)

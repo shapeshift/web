@@ -16,8 +16,5 @@ type BroadcastTxProps = {
 }
 
 export const BroadcastTx = (_: BroadcastTxProps) => {
-  // {status === success && onContinue && (
-  //   render button
-  // )}
   return <div>BroadcastTx</div>
 }

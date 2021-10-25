@@ -15,9 +15,6 @@ type ApproveProps = {
 }
 
 export const Approve = ({ onConfirm }: ApproveProps) => {
-  // const handleConfirm = () => {
-  // do wallet stuff then call onConfirm callback
-  // }
   return (
     <>
       <div>Approve</div>

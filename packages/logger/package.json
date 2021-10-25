@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/logger",
-  "version": "4.0.0",
+  "version": "1.0.1",
   "description": "A simple JSON logger with no external dependencies",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

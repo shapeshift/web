@@ -1,3 +1,5 @@
+# [@shapeshiftoss/logger-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/logger-v1.0.0...@shapeshiftoss/logger-v1.0.1) (2021-10-25)
+
 # @shapeshiftoss/logger-v1.0.0 (2021-10-25)
 
 

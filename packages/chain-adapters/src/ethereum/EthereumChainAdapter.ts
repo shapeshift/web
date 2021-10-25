@@ -258,10 +258,17 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     onError: (err: chainAdapters.SubscribeError) => void
   ): Promise<void> {
     // TODO: option to use sequence data for order and data validation
-
     await this.providers.ws.subscribeTxs(
       { topic: 'txs', addresses: input.addresses },
       (msg) => {
+        const getStatus = () => {
+          const msgStatus = msg?.ethereumSpecific?.status
+          if (!msgStatus || msg.confirmations <= 0) return chainAdapters.TxStatus.pending
+          if (msgStatus === 1 && msg.confirmations > 0) return chainAdapters.TxStatus.confirmed
+          if (msgStatus <= 0) return chainAdapters.TxStatus.failed
+          return chainAdapters.TxStatus.pending
+        }
+
         const baseTx = {
           address: msg.address,
           blockHash: msg.blockHash,
@@ -270,11 +277,13 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           chain: ChainTypes.Ethereum as ChainTypes.Ethereum,
           confirmations: msg.confirmations,
           network: NetworkTypes.MAINNET,
-          txid: msg.txid
+          txid: msg.txid,
+          fee: msg.fee,
+          status: getStatus()
         }
 
         const specificTx = (symbol: string, value: string, token?: unchained.Token) => ({
-          asset: '',
+          asset: token?.contract || ChainTypes.Ethereum,
           value,
           chainSpecific: {
             ...(token && {
@@ -290,16 +299,22 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         })
 
         Object.entries(msg.send).forEach(([symbol, { totalValue, token }]) => {
-          onMessage({ ...baseTx, ...specificTx(symbol, totalValue, token), type: 'send' })
+          onMessage({
+            ...baseTx,
+            ...specificTx(symbol, totalValue, token),
+            type: chainAdapters.TxType.send,
+            to: msg?.vout?.[0]?.addresses?.[0]
+          })
         })
 
         Object.entries(msg.receive).forEach(([symbol, { totalValue, token }]) => {
-          onMessage({ ...baseTx, ...specificTx(symbol, totalValue, token), type: 'receive' })
+          onMessage({
+            ...baseTx,
+            ...specificTx(symbol, totalValue, token),
+            type: chainAdapters.TxType.receive,
+            from: msg?.vin?.[0]?.addresses?.[0]
+          })
         })
-
-        if (msg.fee) {
-          onMessage({ ...baseTx, asset: '', type: 'fee', value: msg.fee.value, chainSpecific: {} })
-        }
       },
       (err) => onError({ message: err.message })
     )

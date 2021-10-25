@@ -260,7 +260,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     // TODO: option to use sequence data for order and data validation
 
     await this.providers.ws.subscribeTxs(
-      { addresses: input.addresses },
+      { topic: 'txs', addresses: input.addresses },
       (msg) => {
         const baseTx = {
           address: msg.address,

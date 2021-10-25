@@ -25,9 +25,7 @@ export class ChainAdapterManager {
             const http = new unchained.ethereum.api.V1Api(
               new unchained.ethereum.api.Configuration({ basePath: httpUrl })
             )
-            const ws = new unchained.ethereum.ws.Client(wsUrl, {
-              handshakeTimeout: 5000
-            })
+            const ws = new unchained.ethereum.ws.Client(wsUrl)
             return this.addChain(type, () => new ethereum.ChainAdapter({ providers: { http, ws } }))
           }
           case ChainTypes.Bitcoin: {

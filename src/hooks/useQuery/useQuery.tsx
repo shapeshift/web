@@ -1,5 +1,5 @@
 import qs from 'qs'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 
 export function useQuery() {
   const location = useLocation()

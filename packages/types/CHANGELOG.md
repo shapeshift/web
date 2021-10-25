@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.3.0...@shapeshiftoss/types-v1.4.0) (2021-10-25)
+
+
+### Features
+
+* tx history data ([#149](https://github.com/shapeshift/lib/issues/149)) ([3405a0a](https://github.com/shapeshift/lib/commit/3405a0aa600363afc1778bd6f07af123591c4e11))
+
 # [@shapeshiftoss/types-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.2.1...@shapeshiftoss/types-v1.3.0) (2021-10-25)
 
 

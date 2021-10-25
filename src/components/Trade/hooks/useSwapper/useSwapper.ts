@@ -200,7 +200,7 @@ export const useSwapper = () => {
 
   const setFees = async (result: Quote<ChainTypes, SwapperType>, sellAsset: Asset) => {
     const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
-    const feeBN = bn(fromBaseUnit(result?.feeData?.fee || '0', feePrecision))
+    const feeBN = bn(result?.feeData?.fee || 0).dividedBy(bn(10).exponentiatedBy(feePrecision))
     const fee = feeBN.toString()
 
     switch (sellAsset.chain) {

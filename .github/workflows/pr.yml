@@ -19,13 +19,12 @@ jobs:
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-      - name: Install
-        run: yarn install --frozen-lockfile
-      # needs to run after install
       - name: Commitlint PR title
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$TITLE" | npx commitlint
+      - name: Install
+        run: yarn install --frozen-lockfile
       - name: Build
         run: yarn build
       - name: Lint

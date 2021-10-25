@@ -1,10 +1,8 @@
 import { VStack } from '@chakra-ui/react'
 import { Step, Steps } from 'chakra-ui-steps'
-import React from 'react'
 
 export type StepConfig = {
   label: string
-  component: React.ReactNode
   hideNav?: boolean
 }
 

@@ -1,5 +1,6 @@
 import { Button, Flex } from '@chakra-ui/react'
 import React, { useContext, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useQuery } from 'hooks/useQuery/useQuery'
 
 export enum ManagerActions {
@@ -33,11 +34,14 @@ export const EarnActionsProvider = ({ children }: { children: React.ReactNode })
 }
 
 export const EarnActionsButtons = () => {
+  const translate = useTranslate()
   const { onClick } = useEarnActions()
   return (
     <Flex>
-      <Button onClick={() => onClick(ManagerActions.Deposit)}>Deposit</Button>
-      <Button onClick={() => onClick(ManagerActions.Withdraw)}>Withdraw</Button>
+      <Button onClick={() => onClick(ManagerActions.Deposit)}>{translate('common.deposit')}</Button>
+      <Button onClick={() => onClick(ManagerActions.Withdraw)}>
+        {translate('common.withdraw')}
+      </Button>
     </Flex>
   )
 }

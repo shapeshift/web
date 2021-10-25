@@ -8,7 +8,8 @@ const store = {
     [aapl.tokenId]: aapl,
     [ethereum.chain]: ethereum,
     [zero.tokenId]: zero
-  }
+  },
+  txHistory: {}
 }
 
 describe('selectAndSortAssets', () => {
@@ -21,7 +22,7 @@ describe('selectAndSortAssets', () => {
   })
 
   it('should return empty array if there are no assets', () => {
-    const assets = selectAndSortAssets({ assets: {} })
+    const assets = selectAndSortAssets({ assets: {}, txHistory: {} })
     expect(assets.length).toBe(0)
   })
 })

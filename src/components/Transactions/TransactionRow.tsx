@@ -9,12 +9,13 @@ import {
   Tag,
   useColorModeValue
 } from '@chakra-ui/react'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -31,7 +32,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
   const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
-  const sentTx = tx.type === 'send' || tx.type === 'fee'
+  const sentTx = tx.type === chainAdapters.TxType.send
   const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
 
   useEffect(() => {
@@ -67,7 +68,9 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
           <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          {ref?.current?.offsetWidth >= 350 && <Text translation={`transactionRow.${tx.type}`} />}
+          {(ref?.current?.offsetWidth || 0) >= 350 && (
+            <Text translation={`transactionRow.${tx.type}`} />
+          )}
           <Amount.Crypto
             ml={2}
             value={fromBaseUnit(tx.value, 18)}
@@ -102,8 +105,8 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Value>
               <Amount.Crypto
                 ml={2}
-                value={fromBaseUnit(tx.fee, 18)}
-                symbol={tx.chain}
+                value={fromBaseUnit(tx?.fee?.value ?? '0', 18)}
+                symbol={tx?.fee?.symbol}
                 maximumFractionDigits={4}
               />
             </Row.Value>
@@ -113,13 +116,19 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
               <Text translation='transactionRow.status' />
             </Row.Label>
             <Row.Value textAlign='left'>
-              {tx.status === 1 && (
+              {tx.status === chainAdapters.TxStatus.confirmed && (
                 <Tag colorScheme='green' size='lg'>
                   <CheckCircleIcon mr={2} />
                   <Text translation='transactionRow.confirmed' />
                 </Tag>
               )}
-              {tx.status === 0 && (
+              {tx.status === chainAdapters.TxStatus.pending && (
+                <Tag colorScheme='blue' size='lg'>
+                  <CircularProgress mr={2} size='5' />
+                  <Text translation='transactionRow.pending' />
+                </Tag>
+              )}
+              {tx.status === chainAdapters.TxStatus.failed && (
                 <Tag colorScheme='red' size='lg'>
                   <WarningTwoIcon mr={2} />
                   <Text translation='transactionRow.failed' />

@@ -39,6 +39,7 @@
     "fee": "Fee",
     "status": "Status",
     "confirmed": "Confirmed",
+    "pending": "pending",
     "failed": "Failed",
     "network": "Network",
     "blockHeight": "Block Height",

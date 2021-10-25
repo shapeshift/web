@@ -1,7 +1,7 @@
-diff --git a/node_modules/winston/node_modules/colors/lib/colors.js b/node_modules/winston/node_modules/colors/lib/colors.js
+diff --git a/node_modules/colors/lib/colors.js b/node_modules/colors/lib/colors.js
 index 59898de..f7c72c1 100644
---- a/node_modules/winston/node_modules/colors/lib/colors.js
-+++ b/node_modules/winston/node_modules/colors/lib/colors.js
+--- a/node_modules/colors/lib/colors.js
++++ b/node_modules/colors/lib/colors.js
 @@ -122,16 +122,7 @@ function applyTheme (theme) {
  }
  

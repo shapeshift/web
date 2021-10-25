@@ -7,7 +7,9 @@
     "confirm": "Confirm",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
-    "invalidAddress": "Invalid Address"
+    "invalidAddress": "Invalid Address",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw"
   },
   "dashboard": {
     "portfolio": {

@@ -40,8 +40,8 @@ const EarnModules = {
 // action? i.e deposit | withdraw
 // tokenId? i.e usdc contract address
 
-// /earn/:earn-type/?provider=yearn&chain=ethereum&action=add
-// /earn/:earn-type/?provider=yearn&chain=ethereum&action=add&tokenId=:tokenId
+// /earn/:earn-type/?provider=yearn&chain=ethereum&action=deposit
+// /earn/:earn-type/?provider=yearn&chain=ethereum&action=deposit&tokenId=0x123456789abcdef
 
 export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const location = useLocation<{ background: any }>()
@@ -71,25 +71,3 @@ export function useEarnManager() {
   if (!context) throw new Error("useEarnManager can't be used outside of EarnManagerProvider")
   return context
 }
-
-// ON USDC PAGE OPPS SECTION
-// List of cards
-// type EarnRowProps = {
-//   active: boolean
-//   apy: string
-//   symbols: [string, string]
-//   name: string
-//   earnType: EarnType
-// }
-// function EarnRow(props: EarnRowProps) {
-//   const earnManager = {}
-//   history.push('/earn/yearn/vault/:vault-id')
-//   return (
-//     <div>
-//       {/** ... extra ropw info */}
-//       {props.active
-//         ? <div>$200.00</div>
-//         : <button onClick={earnManager.open}>Get Started</button>}
-//     <div>
-//   )
-// }

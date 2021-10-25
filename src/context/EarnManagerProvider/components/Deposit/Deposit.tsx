@@ -1,3 +1,4 @@
+import { Button } from '@chakra-ui/button'
 import { Asset } from '@shapeshiftoss/types'
 
 type PercentAmounts = 25 | 50 | 75 | 100
@@ -20,11 +21,17 @@ type DepositProps = {
   cryptoAmount: string
   // Users available amount
   cryptoAmountAvailable: string
-  onPercentClick(percent: PercentAmounts): void
   onContinue(): void
   onCancel(): void
+  onSlippageChange(slippage: number): void
+  onPercentClick(percent: PercentAmounts): void
 }
 
-export const Deposit = (_: DepositProps) => {
-  return <div>Deposit</div>
+export const Deposit = ({ onContinue }: DepositProps) => {
+  return (
+    <>
+      <div>Deposit</div>
+      <Button onClick={onContinue}>Next</Button>
+    </>
+  )
 }

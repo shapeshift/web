@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useSteps } from 'chakra-ui-steps'
 import { useHistory } from 'react-router'
@@ -24,7 +24,9 @@ export const YearnWithdraw = () => {
     nextStep()
   }
 
-  const handleConfirm = async () => {}
+  const handleConfirm = async () => {
+    nextStep()
+  }
 
   const handleCancel = () => {
     history.goBack()
@@ -83,7 +85,6 @@ export const YearnWithdraw = () => {
       <Flex flexDir='column'>
         {activeStep === 0 && <EarnActionsButtons />}
         {renderStep(activeStep)}
-        <Button onClick={handleContinueWithdraw}></Button>
       </Flex>
     </Flex>
   )

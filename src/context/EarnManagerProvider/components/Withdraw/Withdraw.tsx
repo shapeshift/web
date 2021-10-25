@@ -1,3 +1,4 @@
+import { Button } from '@chakra-ui/button'
 import { Asset } from '@shapeshiftoss/types'
 
 type PercentAmounts = 25 | 50 | 75 | 100
@@ -17,6 +18,11 @@ type WithdrawProps = {
   onCancel(): void
 }
 
-export const Withdraw = (_: WithdrawProps) => {
-  return <div>Withdraw</div>
+export const Withdraw = ({ onContinue }: WithdrawProps) => {
+  return (
+    <>
+      <div>Withdraw</div>
+      <Button onClick={onContinue}>Next</Button>
+    </>
+  )
 }

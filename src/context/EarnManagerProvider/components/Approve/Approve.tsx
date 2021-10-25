@@ -1,3 +1,4 @@
+import { Button } from '@chakra-ui/button'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 
@@ -13,9 +14,14 @@ type ApproveProps = {
   wallet: HDWallet
 }
 
-export const Approve = (_: ApproveProps) => {
+export const Approve = ({ onConfirm }: ApproveProps) => {
   // const handleConfirm = () => {
   // do wallet stuff then call onConfirm callback
   // }
-  return <div>Approve</div>
+  return (
+    <>
+      <div>Approve</div>
+      <Button onClick={onConfirm}>Next</Button>
+    </>
+  )
 }

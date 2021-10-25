@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import { useSteps } from 'chakra-ui-steps'
@@ -29,9 +29,13 @@ export const YearnDeposit = () => {
     nextStep()
   }
 
-  const handleApprove = async () => {}
+  const handleApprove = async () => {
+    nextStep()
+  }
 
-  const handleConfirm = async () => {}
+  const handleConfirm = async () => {
+    nextStep()
+  }
 
   const handleViewPosition = () => {}
 
@@ -53,9 +57,10 @@ export const YearnDeposit = () => {
             fiatAmount=''
             fiatAmountAvailable=''
             fiatTotalPlusFees=''
-            onPercentClick={handlePercentChange}
             onCancel={handleCancel}
             onContinue={handleContinueDeposit}
+            onSlippageChange={() => {}}
+            onPercentClick={handlePercentChange}
           />
         )
       case 1:
@@ -75,10 +80,10 @@ export const YearnDeposit = () => {
       case 2:
         return (
           <Confirm
-            toAsset={asset}
             fromAsset={asset}
             onCancel={handleCancel}
             onConfirm={handleConfirm}
+            toAsset={asset}
           >
             <Row>
               <Row.Label></Row.Label>
@@ -115,7 +120,6 @@ export const YearnDeposit = () => {
       <Flex flexDir='column'>
         {activeStep === 0 && <EarnActionsButtons />}
         {renderStep(activeStep)}
-        <Button onClick={handleContinueDeposit}></Button>
       </Flex>
     </Flex>
   )

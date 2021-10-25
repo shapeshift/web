@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.2.1...@shapeshiftoss/types-v1.3.0) (2021-10-25)
+
+
+### Features
+
+* fix testing deps ([#101](https://github.com/shapeshift/lib/issues/101)) ([d75f48f](https://github.com/shapeshift/lib/commit/d75f48fec6947eb16eeb112d1b85f2e1840a52d3))
+
 # [@shapeshiftoss/types-v1.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.2.0...@shapeshiftoss/types-v1.2.1) (2021-10-22)
 
 # [@shapeshiftoss/types-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.1.1...@shapeshiftoss/types-v1.2.0) (2021-10-20)

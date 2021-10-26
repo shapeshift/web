@@ -68,7 +68,7 @@ export const USDC = {
   slip44: 60
 }
 
-export const QUOTE = {
+export const ETHCHAIN_QUOTE = {
   sellAsset: WETH,
   buyAsset: USDC,
   priceImpact: '0.00353623343019489995',
@@ -79,8 +79,10 @@ export const QUOTE = {
   maximum: '100000000000000000000000000',
   feeData: {
     fee: '153244500000000000',
-    estimatedGas: '424500',
-    gasPrice: '361000000000'
+    chainSpecific: {
+      estimatedGas: '424500',
+      gasPrice: '361000000000'
+    }
   },
   sellAmount: '324000000000000000000',
   buyAmount: '1243923191084',
@@ -90,4 +92,14 @@ export const QUOTE = {
       proportion: '1'
     }
   ]
+}
+
+export const ETHCHAIN_QUOTE_FEES = {
+  chainSpecific: {
+    approvalFee: '0',
+    estimatedGas: '424500',
+    gasPrice: '361000000000',
+    totalFee: '0.153245'
+  },
+  fee: '0.153245'
 }

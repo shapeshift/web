@@ -1,6 +1,7 @@
 import { extendTheme } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import { createBreakpoints } from '@chakra-ui/theme-tools'
+import { StepsStyleConfig as Steps } from 'chakra-ui-steps'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
 import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
@@ -110,7 +111,8 @@ export const theme = extendTheme({
     Row,
     Drawer,
     Textarea,
-    Skeleton
+    Skeleton,
+    Steps
   },
   shadows: {
     xl: '0 2px 4px 2px rgba(0,0,0,.15),0 2px 10px 2px rgba(0,0,0,.2)',

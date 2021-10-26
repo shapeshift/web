@@ -45,9 +45,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action] = useWatch({ name: ['quote', 'action'] })
+  const [quote, action, buyAsset] = useWatch({ name: ['quote', 'action', 'buyAsset'] })
   const { getQuote, reset } = useSwapper()
-  const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const onSubmit = () => {
     history.push('/trade/confirm')

@@ -81,11 +81,11 @@ export const useSwapper = () => {
       const swapper = swapperManager.getSwapper(bestSwapperType)
       result = await swapper?.buildQuoteTx({
         input: {
-          sellAmount: sellAsset.amount,
+          sellAmount: toBaseUnit(sellAsset.amount, sellAsset.precision),
           sellAsset,
           buyAsset,
-          sellAssetAccountId: sellAsset.accountId,
-          buyAssetAccountId: buyAsset.accountId,
+          sellAssetAccountId: '0', // TODO: remove hard coded accountId
+          buyAssetAccountId: '0', // TODO: remove hard coded accountId
           slippage: trade?.slippage?.toString(),
           priceImpact: quote?.priceImpact,
           sendMax: false // TODO: implement sendMax
@@ -97,6 +97,7 @@ export const useSwapper = () => {
     }
     if (result?.success) {
       setFees(result, sellAsset)
+      setValue('quote', result)
       // const totalFiatAmount = buyAsset.fiatAmount?.plus(fees?.totalFiatFee || 0)
       // updateQuote({ ...result, sources: state.trade?.sources } as TradeTypes.QuoteWithAmount)
       // updateTrade({ totalFiatAmount })
@@ -105,6 +106,20 @@ export const useSwapper = () => {
     }
     return result
   }
+
+  const executeQuote = async ({ wallet }: any) => {
+    let result
+    try {
+      const swapper = swapperManager.getSwapper(bestSwapperType)
+      result = await swapper.executeQuote({ quote, wallet })
+    } catch (err) {
+      console.error(`TradeProvider - executeQuote error: ${err}`) // eslint-disable-line no-console
+    }
+
+    // TODO: (ryankk) save txid in state??
+    return result
+  }
+
   const getQuoteFromSwapper = async <C extends ChainTypes, S extends SwapperType>({
     amount,
     sellAsset,
@@ -320,6 +335,7 @@ export const useSwapper = () => {
     swapperManager,
     getQuote,
     buildQuoteTx,
+    executeQuote,
     getBestSwapper,
     getDefaultPair,
     reset

@@ -6,7 +6,9 @@ import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import {  useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
@@ -15,9 +17,19 @@ import { AssetToAsset } from './AssetToAsset'
 export const TradeConfirm = ({ history }: RouterProps) => {
   const { getValues } = useFormContext()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
+  const { executeQuote } = useSwapper()
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const onSubmit = async () => {
+    await executeQuote({ wallet })
+    // TODO:(ryankk) navigate to somewhere else.
+    history.push('/trade/input')
+  }
 
   return (
     <SlideTransition>
@@ -70,7 +82,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             size='lg'
             width='full'
             mt={6}
-            onClick={() => history.push('/trade/input')}
+            onClick={() => onSubmit()}
           >
             Confirm and Trade
           </Button>

@@ -54,7 +54,14 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
 
   const onSubmit = async () => {
-    await buildQuoteTx({ wallet, sellAsset, buyAsset })
+    const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
+    const formattedBuyAsset = { ...quote.buyAsset }
+
+    await buildQuoteTx({
+      wallet,
+      sellAsset: formattedSellAsset,
+      buyAsset: formattedBuyAsset
+    })
     history.push('/trade/confirm')
   }
 

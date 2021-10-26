@@ -1,0 +1,29 @@
+{
+  "name": "@shapeshiftoss/caip",
+  "version": "1.7.1",
+  "description": "CAIP Implementation",
+  "homepage": "",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shapeshift/lib"
+  },
+  "scripts": {
+    "build": "yarn clean && tsc --project tsconfig.build.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc --watch",
+    "test": "jest test",
+    "type-check": "tsc --project ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@shapeshiftoss/types": "^1.4.0"
+  }
+}

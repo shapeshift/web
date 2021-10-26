@@ -55,15 +55,6 @@ export class YearnVaultApi {
     return vault
   }
 
-  async gasPrice(): Promise<BigNumber> {
-    const gasPrice = await this.web3.eth.getGasPrice()
-    return new BigNumber(gasPrice)
-  }
-
-  async getNonce(address: string): Promise<number> {
-    return this.web3.eth.getTransactionCount(address)
-  }
-
   async approveEstimatedGas(input: ApproveInput): Promise<BigNumber> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)

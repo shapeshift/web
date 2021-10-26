@@ -1,7 +1,9 @@
+import { Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { Transactions } from 'components/Transactions/Transactions'
+import { TransactionRow } from 'components/Transactions/TransactionRow'
+import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { selectRecentTxHistory } from './helpers/selectRecentTxHistory/selectRecentTxHistory'
 
@@ -16,7 +18,11 @@ export const RecentTransactions = () => {
         </Card.Heading>
       </Card.Header>
       <Card.Body px={2} pt={0}>
-        <Transactions txs={txs} />
+        <Stack spacing={0}>
+          {txs?.map((tx: Tx) => (
+            <TransactionRow key={`${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
+          ))}
+        </Stack>
       </Card.Body>
     </Card>
   )

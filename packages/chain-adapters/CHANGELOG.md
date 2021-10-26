@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.7.1...@shapeshiftoss/chain-adapters-v1.7.2) (2021-10-26)
+
+
+### Bug Fixes
+
+* allow switching between segwit, segwit native & legacy ([#164](https://github.com/shapeshift/lib/issues/164)) ([d9c1d3f](https://github.com/shapeshift/lib/commit/d9c1d3f02fdb6501f26e3b020816bd7a1115aadd))
+
 # [@shapeshiftoss/chain-adapters-v1.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.7.0...@shapeshiftoss/chain-adapters-v1.7.1) (2021-10-25)
 
 # [@shapeshiftoss/chain-adapters-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.6.0...@shapeshiftoss/chain-adapters-v1.7.0) (2021-10-25)

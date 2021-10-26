@@ -1,6 +1,6 @@
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
+import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import Web3 from 'web3'
 
@@ -9,53 +9,16 @@ import { MAX_ALLOWANCE } from '../constants/values'
 import { vaults, YearnVault } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
+import {
+  AddInput,
+  Allowanceinput,
+  ApproveInput,
+  APYInput,
+  BalanceInput,
+  RemoveInput
+} from './yearn-types'
 
-type Allowanceinput = {
-  spenderAddress: string
-  tokenContractAddress: string
-  userAddress: string
-}
-type ApproveInput = {
-  bip32Params?: BIP32Params
-  dryRun?: boolean
-  spenderAddress: string
-  tokenContractAddress: string
-  userAddress: string
-  vaultAddress?: string
-  wallet?: HDWallet
-}
-
-type AddInput = {
-  bip32Params?: BIP32Params
-  dryRun?: boolean
-  tokenContractAddress: string
-  userAddress: string
-  vaultAddress?: string
-  wallet?: HDWallet
-  amountDesired: BigNumber
-}
-
-type RemoveInput = {
-  bip32Params?: BIP32Params
-  dryRun?: boolean
-  tokenContractAddress: string
-  userAddress: string
-  vaultAddress?: string
-  wallet?: HDWallet
-  amountDesired: BigNumber
-}
-
-type BalanceInput = {
-  userAddress: string
-  vaultAddress: string
-}
-
-type APYInput = {
-  vaultAddress: string
-  userAddress: string
-}
-
-type ConstructorArgs = {
+export type ConstructorArgs = {
   adapter: ChainAdapter<ChainTypes.Ethereum>
   providerUrl: string
 }
@@ -65,26 +28,45 @@ export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
   public web3: Web3
+  public yearnClient: AxiosInstance
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
     this.adapter = adapter
     this.provider = new Web3.providers.HttpProvider(providerUrl)
     this.web3 = new Web3(this.provider)
+    this.yearnClient = axios.create({
+      baseURL: 'https://api.yearn.finance/v1'
+    })
   }
 
-  async findAll() {
-    return Promise.resolve(vaults)
+  findAll() {
+    return vaults
   }
 
-  async findByTokenId(tokenId: string) {
+  findByDepositTokenId(tokenId: string) {
     const vault = vaults.find((item: YearnVault) => item.depositToken === tokenId)
+    if (!vault) throw new Error(`Vault for ERC-20 ${tokenId} isn't supported`)
+    return vault
+  }
+
+  findByVaultTokenId(tokenId: string) {
+    const vault = vaults.find((item: YearnVault) => item.contractAddress === tokenId)
     if (!vault) throw new Error(`Vault for ${tokenId} isn't supported`)
-    return Promise.resolve(vault)
+    return vault
+  }
+
+  async gasPrice(): Promise<BigNumber> {
+    const gasPrice = await this.web3.eth.getGasPrice()
+    return new BigNumber(gasPrice)
+  }
+
+  async getNonce(address: string): Promise<number> {
+    return this.web3.eth.getTransactionCount(address)
   }
 
   async approveEstimatedGas(input: ApproveInput): Promise<BigNumber> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
-    const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
+    const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const estimatedGas = await depositTokenContract.methods
       .approve(spenderAddress, MAX_ALLOWANCE)
       .estimateGas({
@@ -103,7 +85,7 @@ export class YearnVaultApi {
     } = input
     if (!wallet || !bip32Params) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.approveEstimatedGas(input)
-    const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
+    const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const data: string = depositTokenContract.methods
       .approve(spenderAddress, MAX_ALLOWANCE)
       .encodeABI({
@@ -119,7 +101,7 @@ export class YearnVaultApi {
       estimatedGas: estimatedGas.toString(),
       gasPrice,
       nonce: String(nonce),
-      to: depositTokenContract,
+      to: tokenContractAddress,
       value: '0'
     })
     const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
@@ -210,6 +192,12 @@ export class YearnVaultApi {
     return new BigNumber(totalSupply)
   }
   async apy(input: APYInput): Promise<string> {
-    return input.userAddress
+    const response = await this.yearnClient.get(`/chains/1/vaults/all`)
+    const vaultsData = response?.data
+    const vaultData = vaultsData.find((vault: any) => vault.address === input.vaultAddress)
+    if (!vaultData?.apy?.net_apy) {
+      throw new Error('Not Found')
+    }
+    return String(vaultData.apy.net_apy)
   }
 }

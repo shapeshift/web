@@ -1,34 +1,42 @@
 import { getMarketData } from '@shapeshiftoss/market-service'
 import { Asset, ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { ReduxState } from 'state/reducer'
+import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 
-import { useAssets } from '../../context/AssetProvider/AssetProvider'
+export type AssetMarketData = Asset & MarketData & { description?: string }
 
-export type AssetMarketData = Asset & MarketData & { description: string }
+export const ALLOWED_CHAINS = {
+  [ChainTypes.Ethereum]: true,
+  [ChainTypes.Bitcoin]: true
+}
 
-export const useGetAssetData = (): any => {
-  const assetService = useAssets()
+export const useGetAssetData = ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }) => {
+  const dispatch = useDispatch()
+  const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
 
-  return useCallback(
-    async ({
-      chain,
-      network,
-      tokenId
-    }: {
-      chain: ChainTypes
-      network: NetworkTypes
-      tokenId?: string
-    }) => {
-      const marketData: MarketData | null = await getMarketData({ chain, tokenId })
-      const assetData: Asset | undefined = assetService.byTokenId({ chain, network, tokenId })
-      const description = await assetService.description(chain, tokenId)
-
-      return {
-        ...marketData,
-        ...assetData,
-        description
+  useEffect(() => {
+    if (ALLOWED_CHAINS[chain]) {
+      if (!asset) {
+        dispatch(
+          fetchAsset({
+            chain,
+            network: NetworkTypes.MAINNET,
+            tokenId
+          })
+        )
       }
+    }
+  }, [asset, chain, dispatch, tokenId])
+
+  const fetchMarketData = useCallback(
+    async ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }): Promise<MarketData> => {
+      const marketData: MarketData | null = await getMarketData({ chain, tokenId })
+
+      return marketData
     },
-    [assetService]
+    []
   )
+  return fetchMarketData
 }

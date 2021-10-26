@@ -1,36 +1,40 @@
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
 
-import { entries, TradeRoutes } from './TradeRoutes'
+import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 
-type TTradeInput = {
+export type TradeAsset = {
+  currency: Asset
+  amount?: string
+  fiatRate?: string
+}
+
+export type MinMax = {
+  minimum: string
+  maximum: string
+  minimumPrice?: string
+}
+
+export type TradeState<C extends ChainTypes, S extends SwapperType> = {
+  sellAsset: TradeAsset
+  buyAsset: TradeAsset
+  fees?: chainAdapters.QuoteFeeData<C, S>
+  trade?: MinMax
+  action?: TradeActions
   fiatAmount?: string
-  sellAsset: {
-    currency: Asset
-    amount?: string
-  }
-  buyAsset: {
-    currency: Asset
-    amount?: string
-  }
+  quote?: Quote<C, S>
 }
 
 export const Trade = () => {
-  const methods = useForm<TTradeInput>({
+  const methods = useForm<TradeState<ChainTypes, SwapperType>>({
     mode: 'onChange',
     defaultValues: {
-      fiatAmount: undefined,
-      sellAsset: {
-        currency: undefined,
-        amount: undefined
-      },
-      buyAsset: {
-        currency: undefined,
-        amount: undefined
-      }
+      fiatAmount: undefined
     }
   })
+
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={entries}>

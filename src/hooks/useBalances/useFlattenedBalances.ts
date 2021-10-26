@@ -1,17 +1,32 @@
-import { BalanceResponse, Token } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import { useBalances } from './useBalances'
 
-export const flattenTokenBalances = (balances: Record<string, BalanceResponse>) =>
+export const flattenTokenBalances = (balances: Record<string, chainAdapters.Account<ChainTypes>>) =>
   Object.keys(balances).reduce(
-    (acc: Record<string, Partial<BalanceResponse & Token>>, key: string) => {
+    (
+      acc: Record<
+        string,
+        Partial<chainAdapters.Account<ChainTypes> & chainAdapters.ethereum.Token>
+      >,
+      key: string
+    ) => {
       const value = balances[key]
       acc[key] = value
-      if (value.tokens?.length) {
-        value.tokens.forEach((token: Token) => {
-          token.contract && (acc[token.contract.toLowerCase()] = token)
-        })
+      const { chain } = value
+      switch (chain) {
+        case ChainTypes.Ethereum: {
+          const ethValue = value as chainAdapters.Account<ChainTypes.Ethereum>
+          const { tokens } = ethValue.chainSpecific
+          if (!tokens) return acc
+          tokens.forEach((token: chainAdapters.ethereum.Token) => {
+            token.contract && (acc[token.contract.toLowerCase()] = token)
+          })
+          break
+        }
+        default:
+          break
       }
       return acc
     },

@@ -6,17 +6,21 @@ import {
   FormErrorMessage,
   IconButton,
   Input,
-  InputProps,
-  Text
+  InputProps
 } from '@chakra-ui/react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { get } from 'lodash'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
+import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn } from 'lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -35,15 +39,31 @@ export const TradeInput = ({ history }: RouterProps) => {
     control,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors, isDirty, isValid }
   } = useFormContext()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-
+  const [quote, action, buyAsset] = useWatch({ name: ['quote', 'action', 'buyAsset'] })
+  const { getQuote, reset } = useSwapper()
+  const sellAsset = getValues('sellAsset')
   const onSubmit = () => {
     history.push('/trade/confirm')
   }
+
+  const switchAssets = () => {
+    const currentSellAsset = getValues('sellAsset')
+    const currentBuyAsset = getValues('buyAsset')
+    const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
+    setValue('sellAsset', currentBuyAsset)
+    setValue('buyAsset', currentSellAsset)
+    setValue('quote', undefined)
+    setValue('action', action)
+    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
+  }
+
+  const getQuoteError = get(errors, `getQuote.message`, null)
 
   return (
     <SlideTransition>
@@ -59,15 +79,23 @@ export const TradeInput = ({ history }: RouterProps) => {
                 suffix={localeParts.postfix}
                 value={value}
                 customInput={FiatInput}
-                onValueChange={e => onChange(e.value)}
+                onValueChange={e => {
+                  onChange(e.value)
+                  if (e.value !== value) {
+                    const action = !!e.value ? TradeActions.FIAT : undefined
+                    if (action) {
+                      setValue('action', action)
+                    } else reset()
+                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset)
+                  }
+                }}
               />
             )}
             name='fiatAmount'
             control={control}
             rules={{
               validate: {
-                validNumber: value => !isNaN(Number(value)) || 'Amount must be a number',
-                greaterThanZero: value => Number(value) > 0 || 'Amount must be greater than 0'
+                validNumber: value => !isNaN(Number(value)) || 'Amount must be a number'
               }
             }}
           />
@@ -78,11 +106,16 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
+            onInputChange={(value: string) => {
+              const action = value ? TradeActions.SELL : undefined
+              action ? setValue('action', action) : reset()
+              getQuote({ sellAmount: value }, sellAsset, buyAsset)
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/sell')}
-                logo={getValues('sellAsset.icon')}
-                symbol={getValues('sellAsset.currency.symbol')}
+                logo={sellAsset?.currency?.icon}
+                symbol={sellAsset?.currency?.symbol}
               />
             }
             inputRightElement={
@@ -107,10 +140,21 @@ export const TradeInput = ({ history }: RouterProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <IconButton aria-label='Switch' isRound icon={<ArrowDownIcon />} />
+          <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            <Text fontSize='sm'>1 BTC = 40,100.45 USDC</Text>
-            <HelperTooltip label='The price is ' />
+            {!quote || action || getQuoteError ? (
+              <Text
+                fontSize='sm'
+                translation={getQuoteError ? 'common.error' : 'trade.searchingRate'}
+              />
+            ) : (
+              <>
+                <RawText textAlign='right' fontSize='sm'>{`1 ${
+                  sellAsset.currency?.symbol
+                } = ${firstNonZeroDecimal(bn(quote.rate))} ${buyAsset?.currency?.symbol}`}</RawText>
+                <HelperTooltip label='The price is ' />
+              </>
+            )}
           </Box>
         </FormControl>
         <FormControl mb={6}>
@@ -118,23 +162,34 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
+            onInputChange={(value: string) => {
+              const action = value ? TradeActions.BUY : undefined
+              action ? setValue('action', action) : reset()
+              const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
+              getQuote(amount, sellAsset, buyAsset)
+            }}
             inputLeftElement={
               <TokenButton
                 onClick={() => history.push('/trade/select/buy')}
-                logo={getValues('buyAsset.icon')}
-                symbol={getValues('buyAsset.symbol')}
+                logo={buyAsset?.currency?.icon}
+                symbol={buyAsset?.currency?.symbol}
               />
             }
           />
         </FormControl>
+
         <Button
           type='submit'
           size='lg'
           width='full'
-          colorScheme='blue'
-          isDisabled={!isDirty || !isValid}
+          colorScheme={getQuoteError ? 'red' : 'blue'}
+          isDisabled={!isDirty || !isValid || !!action}
+          style={{
+            whiteSpace: 'normal',
+            wordWrap: 'break-word'
+          }}
         >
-          Preview Trade
+          <Text translation={getQuoteError ?? 'trade.previewTrade'} />
         </Button>
       </Box>
     </SlideTransition>

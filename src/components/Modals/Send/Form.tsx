@@ -1,4 +1,5 @@
-import { Asset, FeeDataEstimate, FeeDataKey, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -37,8 +38,8 @@ export enum SendFormFields {
 export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.Asset]: AssetMarketData
-  [SendFormFields.FeeType]: FeeDataKey
-  [SendFormFields.EstimatedFees]: FeeDataEstimate
+  [SendFormFields.FeeType]: chainAdapters.FeeDataKey
+  [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
   [SendFormFields.Crypto]: {
     amount: string
     symbol: string
@@ -47,6 +48,7 @@ export type SendInput = {
     amount: string
     symbol: string
   }
+  // TODO(0xdef1cafe): remove this from form state
   [SendFormFields.Transaction]: unknown
 }
 
@@ -54,21 +56,24 @@ type SendFormProps = {
   asset: AssetMarketData
 }
 
-export const Form = ({ asset: initalAsset }: SendFormProps) => {
+export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
-  const getAssetData = useGetAssetData()
+  const getAssetData = useGetAssetData({
+    chain: initialAsset.chain,
+    tokenId: initialAsset.tokenId
+  })
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
       address: '',
-      asset: initalAsset,
-      feeType: FeeDataKey.Average,
+      asset: initialAsset,
+      feeType: chainAdapters.FeeDataKey.Average,
       crypto: {
         amount: '',
-        symbol: initalAsset?.symbol
+        symbol: initialAsset?.symbol
       },
       fiat: {
         amount: '',
@@ -80,11 +85,10 @@ export const Form = ({ asset: initalAsset }: SendFormProps) => {
   const handleAssetSelect = async (asset: Asset) => {
     const assetMarketData = await getAssetData({
       chain: asset.chain,
-      network: NetworkTypes.MAINNET,
       tokenId: asset.tokenId
     })
-
-    methods.setValue(SendFormFields.Asset, assetMarketData)
+    if (!assetMarketData) return console.error('Failed to get marketData')
+    methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
     methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
     methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })
 

@@ -1,16 +1,17 @@
-import { BalanceResponse } from '@shapeshiftoss/types'
+import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 type UseBalancesReturnType = {
-  balances: Record<string, BalanceResponse>
+  balances: Record<string, chainAdapters.Account<ChainTypes>>
   error?: Error | unknown
   loading: boolean
 }
 
 export const useBalances = (): UseBalancesReturnType => {
-  const [balances, setBalances] = useState<Record<string, BalanceResponse>>({})
+  const [balances, setBalances] = useState<Record<string, chainAdapters.Account<ChainTypes>>>({})
   const [error, setError] = useState<Error | unknown>()
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapter = useChainAdapters()
@@ -21,12 +22,30 @@ export const useBalances = (): UseBalancesReturnType => {
   const getBalances = useCallback(async () => {
     if (wallet) {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
-      const acc: Record<string, BalanceResponse> = {}
+      const acc: Record<string, chainAdapters.Account<ChainTypes>> = {}
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
-        const address = await adapter.getAddress({ wallet, path: "m/44'/60'/0'/0/0" })
-        const balanceResponse = await adapter.getBalance(address)
+
+        let addressOrXpub
+        if (adapter.getType() === 'ethereum') {
+          addressOrXpub = await adapter.getAddress({ wallet })
+        } else if (adapter.getType() === 'bitcoin') {
+          const pubkeys = await wallet.getPublicKeys([
+            {
+              coin: adapter.getType(),
+              addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+              curve: 'secp256k1',
+              scriptType: BTCInputScriptType.SpendWitness
+            }
+          ])
+          if (!pubkeys || !pubkeys[0]) throw new Error('Error getting public key')
+          addressOrXpub = pubkeys[0].xpub
+        } else {
+          throw new Error('not implemented')
+        }
+        if (!addressOrXpub) throw new Error('Error getting addressOrXpub')
+        const balanceResponse = await adapter.getAccount(addressOrXpub)
         if (!balanceResponse) continue
         acc[key] = balanceResponse
       }

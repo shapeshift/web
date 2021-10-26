@@ -59,7 +59,7 @@ export const TransactionRow = ({ tx }: { tx: FormatTransactionType }) => {
               <Text translation='transactionRow.txid' />
             </Row.Label>
             <Row.Value>
-              <Link isExternal color='blue.500'>
+              <Link isExternal color='blue.500' to={tx.transactionLink}>
                 <MiddleEllipsis maxWidth='180px'>{tx.txid}</MiddleEllipsis>
               </Link>
             </Row.Value>

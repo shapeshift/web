@@ -11,14 +11,17 @@ export const useMetaSuccess = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        const wallet = await (state.adapters.metamask as MetaMaskAdapter).pairDevice()
-        const { name, icon } = SUPPORTED_WALLETS['metamask']
-        dispatch({
-          type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId: 'test' }
-        })
-        setIsSuccessful(true)
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        // TODO handle else
+        if (state.adapters?.metamask) {
+          const wallet = await (state.adapters.metamask as MetaMaskAdapter).pairDevice()
+          const { name, icon } = SUPPORTED_WALLETS['metamask']
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name, icon, deviceId: 'test' }
+          })
+          setIsSuccessful(true)
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        }
       } catch (error) {
         console.error('Failed to load device', error)
         setIsSuccessful(false)

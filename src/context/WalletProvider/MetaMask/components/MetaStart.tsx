@@ -55,54 +55,54 @@ export const MetaStart = ({ history }: MetaSetupProps) => {
   }
 
   return (
-  <>
-    <ModalHeader>
-      <Text translation={'walletProvider.metaMask.header'} />
-    </ModalHeader>
-    <ModalBody>
-      <Text mb={4} color='gray.500' translation={'walletProvider.metaMask.header'} />
-      <Stack my={6} spacing={4}>
-        <Button
-          variant='ghost-filled'
-          colorScheme='blue'
-          w='full'
-          h='auto'
-          px={6}
-          py={4}
-          justifyContent='space-between'
-          rightIcon={<ArrowForwardIcon />}
-          onClick={() => pair()}
-        >
-          <Text translation={'walletProvider.metaMask.pairButton'} />
-        </Button>
-        <Button
-          variant='ghost-filled'
-          colorScheme='blue'
-          w='full'
-          h='auto'
-          px={6}
-          py={4}
-          justifyContent='space-between'
-          rightIcon={<ArrowForwardIcon />}
-          onClick={() => getAddress()}
-        >
-          <Text translation={'walletProvider.metaMask.getAddressButton'} />
-        </Button>
-        <Button
-          variant='ghost-filled'
-          colorScheme='blue'
-          w='full'
-          h='auto'
-          px={6}
-          py={4}
-          justifyContent='space-between'
-          rightIcon={<ArrowForwardIcon />}
-          onClick={() => success()}
-        >
-          <Text translation={'walletProvider.metaMask.getAddressButton'} />
-        </Button>
-      </Stack>
-    </ModalBody>
-  </>
+    <>
+      <ModalHeader>
+        <Text translation={'walletProvider.metaMask.header'} />
+      </ModalHeader>
+      <ModalBody>
+        <Text mb={4} color='gray.500' translation={'walletProvider.metaMask.header'} />
+        <Stack my={6} spacing={4}>
+          <Button
+            variant='ghost-filled'
+            colorScheme='blue'
+            w='full'
+            h='auto'
+            px={6}
+            py={4}
+            justifyContent='space-between'
+            rightIcon={<ArrowForwardIcon />}
+            onClick={() => pair()}
+          >
+            <Text translation={'walletProvider.metaMask.pairButton'} />
+          </Button>
+          <Button
+            variant='ghost-filled'
+            colorScheme='blue'
+            w='full'
+            h='auto'
+            px={6}
+            py={4}
+            justifyContent='space-between'
+            rightIcon={<ArrowForwardIcon />}
+            onClick={() => getAddress()}
+          >
+            <Text translation={'walletProvider.metaMask.getAddressButton'} />
+          </Button>
+          <Button
+            variant='ghost-filled'
+            colorScheme='blue'
+            w='full'
+            h='auto'
+            px={6}
+            py={4}
+            justifyContent='space-between'
+            rightIcon={<ArrowForwardIcon />}
+            onClick={() => success()}
+          >
+            <Text translation={'walletProvider.metaMask.connectButton'} />
+          </Button>
+        </Stack>
+      </ModalBody>
+    </>
   )
 }

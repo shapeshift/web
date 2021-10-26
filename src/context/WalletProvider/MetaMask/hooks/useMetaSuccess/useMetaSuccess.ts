@@ -18,6 +18,7 @@ export const useMetaSuccess = () => {
           payload: { wallet, name, icon, deviceId: 'test' }
         })
         setIsSuccessful(true)
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       } catch (error) {
         console.error('Failed to load device', error)
         setIsSuccessful(false)

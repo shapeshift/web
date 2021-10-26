@@ -26,12 +26,12 @@ const unchainedUrls: UnchainedUrls = {
   ethereum: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
-  }
+  },
   // TODO uncomment this when we can run both unchained instances locally
-  // bitcoin: {
-  //   httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-  //   wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
-  // }
+  bitcoin: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
+  }
 }
 
 export function AppProviders({ children }: ProvidersProps) {

@@ -31,6 +31,7 @@ import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercent
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
 import { AssetActions } from './AssetActions'
+
 export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoaded: boolean }) => {
   const { name, symbol, description, icon, changePercent24Hr, price, marketCap, volume } = asset
   const percentChange = changePercent24Hr ?? 0

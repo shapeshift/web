@@ -14,7 +14,7 @@ yarn add @shapeshiftoss/swapper
 cp sample.env .env
 ```
 
-- Useage:
+- Usage:
 ```
 $ swapcli [sellSymbol] [buySymbol] [sellAmount](denominated in sell asset, not wei)
 ```

@@ -1,0 +1,2 @@
+export const MAX_ALLOWANCE = '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
+export const MAX_ALLOWANCE_USDC = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'

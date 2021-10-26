@@ -1,4 +1,4 @@
-import { AbiItem } from "web3-utils"
+import { AbiItem } from 'web3-utils'
 /* eslint-disable */
 
 export const erc20Abi: AbiItem[] = [

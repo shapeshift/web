@@ -1,7 +1,6 @@
+import { bip32ToAddressNList, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP32Params } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
-
-import { bip32ToAddressNList, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 
 type BuildTxToSignInput = {
   bip32Params: BIP32Params
@@ -33,16 +32,6 @@ export function buildTxToSign({
   to,
   value
 }: BuildTxToSignInput): ETHSignTx {
-  console.log(JSON.stringify({
-    bip32Params,
-    chainId,
-    data,
-    estimatedGas,
-    gasPrice,
-    nonce,
-    to,
-    value
-  }, null, 3))
   const path = toPath(bip32Params)
   const addressNList = bip32ToAddressNList(path)
 

@@ -7,19 +7,11 @@ type AssetListProps = {
   balances: Record<string, chainAdapters.Account<ChainTypes>>
 }
 
-export type DisplayAsset = {
-  icon: string
-  displayName: string
-  symbol: string
-  fiatPrice: string
-  fiatValue: string
-  displayBalance: string
-  identifier: string
-}
+export type AssetsType = chainAdapters.ethereum.TokenWithBalance | chainAdapters.Account<ChainTypes>
 
 export const AssetList = ({ balances }: AssetListProps) => {
   const assets = useMemo(() => {
-    const array = []
+    const array: AssetsType[] = []
     Object.values(balances).forEach(balance => {
       array.push(balance)
       if (balance?.chainSpecific?.tokens) {

@@ -6,11 +6,13 @@
     "cancel": "Cancel",
     "continue": "Continue",
     "confirm": "Confirm",
+    "reject": "Reject",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
-    "withdraw": "Withdraw"
+    "withdraw": "Withdraw",
+    "connectWallet": "Connect Wallet"
   },
   "dashboard": {
     "portfolio": {
@@ -52,6 +54,14 @@
   "trade": {
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
+    "rate": "Rate",
+    "minerFee": "Miner Fee",
+    "shapeshiftFee": "ShapeShift Fee",
+    "confirmAndTrade": "Confirm and Trade",
+    "allowShapeshift": "Allow ShapeShift.io to spend your %{symbol}",
+    "needPermission": "We need your permission to use your %{symbol}",
+    "whyNeedThis": "Why do I need to do this?",
+    "estimatedGasFee": "Estimated Gas Fee",
     "errors": {
       "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",

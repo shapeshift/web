@@ -23,6 +23,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
+import { Approval } from '../Approval/Approval'
+
 const FiatInput = (props: InputProps) => (
   <Input
     variant='unstyled'
@@ -66,14 +68,12 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const switchAssets = () => {
-    const currentSellAsset = getValues('sellAsset')
-    const currentBuyAsset = getValues('buyAsset')
-    const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
-    setValue('sellAsset', currentBuyAsset)
-    setValue('buyAsset', currentSellAsset)
+    const action = buyAsset.amount ? TradeActions.SELL : undefined
+    setValue('sellAsset', buyAsset)
+    setValue('buyAsset', sellAsset)
     setValue('quote', undefined)
     setValue('action', action)
-    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
+    getQuote({ sellAmount: buyAsset.amount }, buyAsset, sellAsset)
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -196,13 +196,15 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme={getQuoteError ? 'red' : 'blue'}
-          isDisabled={!isDirty || !isValid || !!action}
+          isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',
             wordWrap: 'break-word'
           }}
         >
-          <Text translation={getQuoteError ?? 'trade.previewTrade'} />
+          <Text
+            translation={!wallet ? 'common.connectWallet' : getQuoteError ?? 'trade.previewTrade'}
+          />
         </Button>
       </Box>
     </SlideTransition>

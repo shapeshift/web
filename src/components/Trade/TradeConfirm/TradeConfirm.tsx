@@ -6,9 +6,9 @@ import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import {  useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
@@ -77,13 +77,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           </Stack>
         </Card.Body>
         <Card.Footer px={0} py={0}>
-          <Button
-            colorScheme='blue'
-            size='lg'
-            width='full'
-            mt={6}
-            onClick={() => onSubmit()}
-          >
+          <Button colorScheme='blue' size='lg' width='full' mt={6} onClick={() => onSubmit()}>
             Confirm and Trade
           </Button>
         </Card.Footer>

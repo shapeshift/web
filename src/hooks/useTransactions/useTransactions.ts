@@ -3,9 +3,11 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { fromBaseUnit } from 'lib/math'
+
 dayjs.extend(relativeTime)
 
 export type FormatTransactionType = chainAdapters.Transaction<ChainTypes> & {
@@ -77,6 +79,7 @@ export const useTransactions = ({
     state: { wallet, walletInfo }
   } = useWallet()
   const chainAdapterManager = useChainAdapters()
+  const utxoConfig = useUtxoConfig()
 
   const getTxHistory = useCallback(async () => {
     if (!wallet) return
@@ -89,7 +92,17 @@ export const useTransactions = ({
     // Get transaction history for chain that is provided.
     if (chain) {
       const chainAdapter = chainAdapterManager.byChain(chain)
-      const pubkey = await chainAdapter.getAddress({ wallet })
+      const pubkey = await chainAdapter.getAddress({
+        wallet,
+        bip32Params:
+          chainAdapter.getType() === ChainTypes.Bitcoin
+            ? utxoConfig.utxoDataState.utxoData.bip32Params
+            : undefined,
+        scriptType:
+          chainAdapter.getType() === ChainTypes.Bitcoin
+            ? utxoConfig.utxoDataState.utxoData.scriptType
+            : undefined
+      })
       let txHistoryResponse
       try {
         txHistoryResponse = await chainAdapter.getTxHistory({
@@ -114,7 +127,17 @@ export const useTransactions = ({
     // Get transaction history for all chians that are supported.
     for (const getAdapter of supportedAdapters) {
       const genericAdapter = getAdapter()
-      const pubkey = await genericAdapter.getAddress({ wallet })
+      const pubkey = await genericAdapter.getAddress({
+        wallet,
+        bip32Params:
+          genericAdapter.getType() === ChainTypes.Bitcoin
+            ? utxoConfig.utxoDataState.utxoData.bip32Params
+            : undefined,
+        scriptType:
+          genericAdapter.getType() === ChainTypes.Bitcoin
+            ? utxoConfig.utxoDataState.utxoData.scriptType
+            : undefined
+      })
       let txHistoryResponse
       try {
         txHistoryResponse = await genericAdapter.getTxHistory({

@@ -6,6 +6,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
@@ -60,6 +61,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { chain, tokenId } = asset
 
   const getAssetData = useGetAssetData({ chain, tokenId })
+  const utxoConfig = useUtxoConfig()
 
   useEffect(() => {
     if (balanceError) {
@@ -91,7 +93,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
-          wallet
+          wallet,
+          bip32Params:
+            adapter.getType() === ChainTypes.Bitcoin
+              ? utxoConfig.utxoDataState.utxoData.bip32Params
+              : undefined,
+          scriptType:
+            adapter.getType() === ChainTypes.Bitcoin
+              ? utxoConfig.utxoDataState.utxoData.scriptType
+              : undefined
         })
         return data
       } catch (error) {
@@ -119,7 +129,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     if (assetBalance && wallet) {
       setLoading(true)
       const to = address
-      const from = await adapter.getAddress({ wallet })
+      const from = await adapter.getAddress({
+        wallet,
+        bip32Params:
+          adapter.getType() === ChainTypes.Bitcoin
+            ? utxoConfig.utxoDataState.utxoData.bip32Params
+            : undefined,
+        scriptType:
+          adapter.getType() === ChainTypes.Bitcoin
+            ? utxoConfig.utxoDataState.utxoData.scriptType
+            : undefined
+      })
 
       // Assume fast fee for send max
       let fastFee: string = ''

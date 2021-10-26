@@ -25,12 +25,12 @@ import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
+import { SpendAddress, SpendP2SHWitness, SpendWitness, useUtxoConfig } from 'context/UtxoConfig'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
 import { AssetActions } from './AssetActions'
-
 export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoaded: boolean }) => {
   const { name, symbol, description, icon, changePercent24Hr, price, marketCap, volume } = asset
   const percentChange = changePercent24Hr ?? 0
@@ -44,6 +44,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
     timeframe
   })
   const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
+  const utxoConfig = useUtxoConfig()
 
   return (
     <Card variant='footer-stub'>
@@ -65,6 +66,46 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
         </Flex>
         <AssetActions asset={asset} isLoaded={isLoaded} />
       </Card.Header>
+
+      <Card.Body hidden={symbol !== 'BTC'}>
+        <Button
+          size='sm'
+          colorScheme={
+            utxoConfig.utxoDataState.utxoData.scriptType === SpendWitness.scriptType
+              ? 'white'
+              : 'blue'
+          }
+          variant='ghost'
+          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendWitness)}
+        >
+          <Text translation='assets.assetDetails.assetHeader.segwitNative' />
+        </Button>
+        <Button
+          size='sm'
+          colorScheme={
+            utxoConfig.utxoDataState.utxoData.scriptType === SpendP2SHWitness.scriptType
+              ? 'white'
+              : 'blue'
+          }
+          variant='ghost'
+          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendP2SHWitness)}
+        >
+          <Text translation='assets.assetDetails.assetHeader.segwit' />
+        </Button>
+        <Button
+          size='sm'
+          colorScheme={
+            utxoConfig.utxoDataState.utxoData.scriptType === SpendAddress.scriptType
+              ? 'white'
+              : 'blue'
+          }
+          variant='ghost'
+          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendAddress)}
+        >
+          <Text translation='assets.assetDetails.assetHeader.legacy' />
+        </Button>
+      </Card.Body>
+
       <Card.Body>
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>

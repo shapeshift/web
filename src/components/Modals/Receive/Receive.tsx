@@ -14,6 +14,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -21,6 +22,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
@@ -34,6 +36,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
   const [isNativeWallet, setIsNativeWallet] = useState<boolean>(true)
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const chainAdapterManager = useChainAdapters()
+  const utxoConfig = useUtxoConfig()
 
   useEffect(() => {
     ;(async () => {
@@ -42,9 +45,22 @@ const Receive = ({ asset }: ReceivePropsType) => {
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
       const chainAdapter = chainAdapterManager.byChain(chain)
       if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
-      setReceiveAddress(await chainAdapter.getAddress({ wallet }))
+
+      setReceiveAddress(
+        await chainAdapter.getAddress({
+          wallet,
+          bip32Params:
+            chainAdapter.getType() === ChainTypes.Bitcoin
+              ? utxoConfig.utxoDataState.utxoData.bip32Params
+              : undefined,
+          scriptType:
+            chainAdapter.getType() === ChainTypes.Bitcoin
+              ? utxoConfig.utxoDataState.utxoData.scriptType
+              : undefined
+        })
+      )
     })()
-  }, [chain, chainAdapterManager, state, setReceiveAddress])
+  }, [chain, chainAdapterManager, state, setReceiveAddress, utxoConfig])
 
   const translate = useTranslate()
   const toast = useToast()

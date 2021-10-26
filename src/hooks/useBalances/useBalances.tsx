@@ -2,6 +2,7 @@ import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 type UseBalancesReturnType = {
@@ -15,6 +16,8 @@ export const useBalances = (): UseBalancesReturnType => {
   const [error, setError] = useState<Error | unknown>()
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapter = useChainAdapters()
+  const utxoConfig = useUtxoConfig()
+
   const {
     state: { wallet, walletInfo }
   } = useWallet()
@@ -29,7 +32,17 @@ export const useBalances = (): UseBalancesReturnType => {
 
         let addressOrXpub
         if (adapter.getType() === 'ethereum') {
-          addressOrXpub = await adapter.getAddress({ wallet })
+          addressOrXpub = await adapter.getAddress({
+            wallet,
+            bip32Params:
+              adapter.getType() === ChainTypes.Bitcoin
+                ? utxoConfig.utxoDataState.utxoData.bip32Params
+                : undefined,
+            scriptType:
+              adapter.getType() === ChainTypes.Bitcoin
+                ? utxoConfig.utxoDataState.utxoData.scriptType
+                : undefined
+          })
         } else if (adapter.getType() === 'bitcoin') {
           const pubkeys = await wallet.getPublicKeys([
             {

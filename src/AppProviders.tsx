@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { translations } from 'assets/translations'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
+import { UtxoConfigProvider } from 'context/UtxoConfig'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -23,12 +24,11 @@ const unchainedUrls: UnchainedUrls = {
   ethereum: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+  },
+  bitcoin: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
   }
-  // TODO uncomment this when we can run both unchained instances locally
-  // bitcoin: {
-  //   httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-  //   wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
-  // }
 }
 
 export function AppProviders({ children }: ProvidersProps) {
@@ -38,11 +38,13 @@ export function AppProviders({ children }: ProvidersProps) {
         <ColorModeScript />
         <BrowserRouter>
           <I18n locale={locale} messages={messages}>
-            <WalletProvider>
-              <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                <ModalProvider>{children}</ModalProvider>
-              </ChainAdaptersProvider>
-            </WalletProvider>
+            <UtxoConfigProvider>
+              <WalletProvider>
+                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                  <ModalProvider>{children}</ModalProvider>
+                </ChainAdaptersProvider>
+              </WalletProvider>
+            </UtxoConfigProvider>
           </I18n>
         </BrowserRouter>
       </ChakraProvider>

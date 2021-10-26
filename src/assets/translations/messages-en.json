@@ -181,7 +181,10 @@
         "marketCap": "Market Cap",
         "24HrVolume": "24hr Volume",
         "dayChange": "Day Change",
-        "aboutAsset": "About %{asset}"
+        "aboutAsset": "About %{asset}",
+        "segwit": "Segwit",
+        "segwitNative": "Segwit Native",
+        "legacy": "Legacy"
       },
       "assetDescription": {
         "showMore": "Show More",

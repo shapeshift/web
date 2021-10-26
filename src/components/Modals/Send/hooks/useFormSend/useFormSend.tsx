@@ -1,7 +1,9 @@
 import { useToast } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -15,6 +17,7 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
+  const utxoConfig = useUtxoConfig()
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -35,7 +38,15 @@ export const useFormSend = () => {
           erc20ContractAddress: data.asset.tokenId,
           wallet,
           fee,
-          gasLimit
+          gasLimit,
+          bip32Params:
+            adapter.getType() === ChainTypes.Bitcoin
+              ? utxoConfig.utxoDataState.utxoData.bip32Params
+              : undefined,
+          scriptType:
+            adapter.getType() === ChainTypes.Bitcoin
+              ? utxoConfig.utxoDataState.utxoData.scriptType
+              : undefined
         })
 
         const signedTx = await adapter.signTransaction({ txToSign, wallet })

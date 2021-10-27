@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.6.3...@shapeshiftoss/swapper-v1.7.0) (2021-10-27)
+
+
+### Features
+
+* caip19 assets ([#171](https://github.com/shapeshift/lib/issues/171)) ([46c58a7](https://github.com/shapeshift/lib/commit/46c58a7251674991072860b2aeb060b06498c098))
+
 # [@shapeshiftoss/swapper-v1.6.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.6.2...@shapeshiftoss/swapper-v1.6.3) (2021-10-27)
 
 # [@shapeshiftoss/swapper-v1.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.6.1...@shapeshiftoss/swapper-v1.6.2) (2021-10-26)

@@ -68,7 +68,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
           <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          {(ref?.current?.offsetWidth || 0) >= 350 && (
+          {(ref?.current?.offsetWidth || 350) >= 350 && (
             <Text translation={`transactionRow.${tx.type}`} />
           )}
           <Amount.Crypto

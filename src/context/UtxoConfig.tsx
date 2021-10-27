@@ -24,7 +24,9 @@ export const UtxoConfigProvider: React.FC = ({ children }) => {
     }
   })
 
-  const getUtxoData = (chain: string) => {
+  const getUtxoData: { bip32Params: BIP32Params; scriptType: BTCInputScriptType } | {} = (
+    chain: string
+  ) => {
     if (!configData[chain]) return {}
     return configData[chain]
   }

@@ -52,7 +52,7 @@ export enum TRADE_ERRORS {
 }
 
 export const useSwapper = () => {
-  const { setValue, setError, clearErrors } = useFormContext()
+  const { setValue, setError, clearErrors, getValues } = useFormContext()
   const [quote, trade, action] = useWatch({
     name: ['quote', 'trade', 'action']
   })
@@ -102,9 +102,6 @@ export const useSwapper = () => {
     if (result?.success) {
       setFees(result, sellAsset)
       setValue('quote', result)
-      // const totalFiatAmount = buyAsset.fiatAmount?.plus(fees?.totalFiatFee || 0)
-      // updateQuote({ ...result, sources: state.trade?.sources } as TradeTypes.QuoteWithAmount)
-      // updateTrade({ totalFiatAmount })
     } else {
       throw [TRADE_ERRORS.INSUFFICIENT_FUNDS] // eslint-disable-line no-throw-literal
     }
@@ -199,8 +196,7 @@ export const useSwapper = () => {
   const getQuote = async (
     newAmount: GetQuoteAmount,
     sellAsset: TradeAsset,
-    buyAsset: TradeAsset,
-    fiatAmount?: string
+    buyAsset: TradeAsset
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const key = Object.keys(newAmount)[0]
@@ -223,9 +219,8 @@ export const useSwapper = () => {
       const newFiatAmount = bn(buyAmount)
         .times(buyAsset.fiatRate || 0)
         .toFixed(2)
-      console.log(value === fiatAmount)
-      console.log('value', value)
-      console.log('fiatAmount', fiatAmount)
+      const fiatAmount = getValues('fiatAmount')
+
       if (actionRef.current === TradeActions.SELL && isSellAmount && value === sellAsset.amount) {
         setValue('buyAsset.amount', buyAmount)
         setValue('fiatAmount', newFiatAmount)

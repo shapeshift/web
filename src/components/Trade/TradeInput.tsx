@@ -48,11 +48,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action, buyAsset, fiatAmount] = useWatch({
-    name: ['quote', 'action', 'buyAsset', 'fiatAmount']
+  const [quote, action, buyAsset, sellAsset] = useWatch({
+    name: ['quote', 'action', 'buyAsset', 'sellAsset']
   })
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded } = useSwapper()
-  const sellAsset = getValues('sellAsset')
   const {
     state: { wallet }
   } = useWallet()
@@ -83,7 +82,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
     setValue('action', action)
-    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset, fiatAmount)
+    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -109,7 +108,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset, fiatAmount)
+                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset)
                   }
                 }}
               />

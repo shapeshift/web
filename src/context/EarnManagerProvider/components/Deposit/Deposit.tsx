@@ -59,6 +59,8 @@ type DepositProps = {
   cryptoAmountAvailable: string
   // Current Slippage
   slippage: number | string
+  // Array of the % options
+  maxOptions: string[]
   onContinue(): void
   onCancel(): void
   onSlippageChange(slippage: number | string): void
@@ -83,6 +85,7 @@ export const Deposit = ({
   onContinue,
   onCancel,
   slippage,
+  maxOptions,
   onSlippageChange,
   onCurrencyToggle
 }: DepositProps) => {
@@ -91,8 +94,6 @@ export const Deposit = ({
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
   const [cryptoValue, setCryptoValue] = useState('')
-
-  const maxPerct = ['25%', '50%', '75%', 'Max']
 
   return (
     <SlideTransition>
@@ -192,9 +193,9 @@ export const Deposit = ({
               </InputRightElement>
             </InputGroup>
             <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
-              {maxPerct.map(percentage => (
+              {maxOptions.map(option => (
                 <Button variant='ghost' colorScheme='blue'>
-                  {percentage}
+                  {option}
                 </Button>
               ))}
             </ButtonGroup>

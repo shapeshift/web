@@ -62,6 +62,7 @@ export const YearnDeposit = () => {
             fiatAmountAvailable=''
             fiatTotalPlusFees=''
             slippage='0.5'
+            maxOptions={['25%', '50%', '75%', 'Max']}
             onCancel={handleCancel}
             onContinue={handleContinueDeposit}
             onSlippageChange={() => {}}

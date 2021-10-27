@@ -1,4 +1,3 @@
-import { ModalBody } from '@chakra-ui/react'
 import {
   ManagerActions,
   useEarnActions
@@ -9,9 +8,5 @@ import { YearnWithdraw } from './YearnWithdraw'
 
 export const YearnManager = () => {
   const { action } = useEarnActions()
-  return (
-    <ModalBody>
-      {action === ManagerActions.Deposit ? <YearnDeposit /> : <YearnWithdraw />}
-    </ModalBody>
-  )
+  return action === ManagerActions.Deposit ? <YearnDeposit /> : <YearnWithdraw />
 }

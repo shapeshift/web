@@ -37,6 +37,10 @@ export const YearnDeposit = () => {
     nextStep()
   }
 
+  const handleCurrencyToggle = () => {
+    console.info('toggle currency')
+  }
+
   const handleViewPosition = () => {}
 
   const handleCancel = () => {
@@ -57,10 +61,13 @@ export const YearnDeposit = () => {
             fiatAmount=''
             fiatAmountAvailable=''
             fiatTotalPlusFees=''
+            slippage='0.5'
+            maxOptions={['25%', '50%', '75%', 'Max']}
             onCancel={handleCancel}
             onContinue={handleContinueDeposit}
             onSlippageChange={() => {}}
             onPercentClick={handlePercentChange}
+            onCurrencyToggle={handleCurrencyToggle}
           />
         )
       case 1:
@@ -115,9 +122,9 @@ export const YearnDeposit = () => {
   }
 
   return (
-    <Flex>
+    <Flex width='full'>
       {!steps[activeStep].hideNav && <VerticalStepper activeStep={activeStep} steps={steps} />}
-      <Flex flexDir='column'>
+      <Flex flexDir='column' width='full'>
         {activeStep === 0 && <EarnActionsButtons />}
         {renderStep(activeStep)}
       </Flex>

@@ -7,7 +7,7 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
 import { useBalances } from 'hooks/useBalances/useBalances'
 
-import { AssetList } from './components/AssetList/AssetList'
+import { AccountList } from './components/AccountList/AccountList'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
@@ -68,7 +68,7 @@ export const Portfolio = () => {
                 display={{ base: 'none', lg: 'block' }}
               />
             </Grid>
-            <AssetList balances={balances} />
+            <AccountList accounts={balances} />
           </Stack>
         </Card.Body>
       </Card>

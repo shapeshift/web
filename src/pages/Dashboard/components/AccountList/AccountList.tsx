@@ -16,7 +16,8 @@ export const AccountList = ({ accounts }: AccountListProps) => {
   const assets = useSelector((state: ReduxState) => state.assets)
 
   useEffect(() => {
-    if (Object.keys(assets).length < 20) {
+    // arbitrary number to just make sure we dont fetch all assets if we already have
+    if (Object.keys(assets).length < 100) {
       dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

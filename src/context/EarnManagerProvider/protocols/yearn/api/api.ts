@@ -2,20 +2,21 @@ import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
+import { MAX_ALLOWANCE } from 'constants/allowance'
 import Web3 from 'web3'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../constants/erc20-abi'
-import { MAX_ALLOWANCE } from '../constants/values'
 import { vaults, YearnVault } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
 import {
-  AddInput,
   Allowanceinput,
   ApproveInput,
   APYInput,
   BalanceInput,
-  RemoveInput
+  DepositInput,
+  WithdrawInput
 } from './yearn-types'
 
 export type ConstructorArgs = {
@@ -63,7 +64,7 @@ export class YearnVaultApi {
       .estimateGas({
         from: userAddress
       })
-    return new BigNumber(estimatedGas)
+    return bnOrZero(estimatedGas)
   }
   async approve(input: ApproveInput): Promise<string> {
     const {
@@ -104,7 +105,7 @@ export class YearnVaultApi {
     const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
   }
-  async addEstimatedGas(input: AddInput): Promise<BigNumber> {
+  async depositEstimatedGas(input: DepositInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
@@ -112,12 +113,12 @@ export class YearnVaultApi {
       .estimateGas({
         from: userAddress
       })
-    return new BigNumber(estimatedGas)
+    return bnOrZero(estimatedGas)
   }
-  async add(input: AddInput): Promise<string> {
+  async deposit(input: DepositInput): Promise<string> {
     const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
     if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
-    const estimatedGas: BigNumber = await this.addEstimatedGas(input)
+    const estimatedGas: BigNumber = await this.depositEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = await vaultContract.methods
       .deposit(amountDesired.toString(), userAddress)
@@ -141,7 +142,7 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
-  async removeEstimatedGas(input: RemoveInput): Promise<BigNumber> {
+  async withdrawEstimatedGas(input: WithdrawInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
@@ -149,13 +150,13 @@ export class YearnVaultApi {
       .estimateGas({
         from: userAddress
       })
-    return new BigNumber(estimatedGas)
+    return bnOrZero(estimatedGas)
   }
 
-  async remove(input: RemoveInput): Promise<string> {
+  async withdraw(input: WithdrawInput): Promise<string> {
     const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
     if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
-    const estimatedGas: BigNumber = await this.removeEstimatedGas(input)
+    const estimatedGas: BigNumber = await this.withdrawEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = vaultContract.methods
       .withdraw(amountDesired.toString(), userAddress)
@@ -183,12 +184,12 @@ export class YearnVaultApi {
     const { vaultAddress, userAddress } = input
     const contract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const balance = await contract.methods.balanceOf(userAddress).call()
-    return new BigNumber(balance)
+    return bnOrZero(balance)
   }
   async totalSupply({ contractAddress }: { contractAddress: string }): Promise<BigNumber> {
     const contract = new this.web3.eth.Contract(erc20Abi, contractAddress)
     const totalSupply = await contract.methods.totalSupply().call()
-    return new BigNumber(totalSupply)
+    return bnOrZero(totalSupply)
   }
   async apy(input: APYInput): Promise<string> {
     const response = await this.yearnClient.get(`/chains/1/vaults/all`)

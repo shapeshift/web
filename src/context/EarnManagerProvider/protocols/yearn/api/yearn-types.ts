@@ -17,7 +17,7 @@ export type ApproveInput = {
   wallet?: HDWallet
 }
 
-export type AddInput = {
+export type DepositInput = {
   bip32Params?: BIP32Params
   dryRun?: boolean
   tokenContractAddress: string
@@ -27,7 +27,7 @@ export type AddInput = {
   amountDesired: BigNumber
 }
 
-export type RemoveInput = {
+export type WithdrawInput = {
   bip32Params?: BIP32Params
   dryRun?: boolean
   tokenContractAddress: string

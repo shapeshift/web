@@ -1,15 +1,18 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, Skeleton } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 export const AssetActions = ({
   asset,
-  isLoaded
+  isLoaded,
+  currentScriptType
 }: {
   asset: AssetMarketData
   isLoaded: boolean
+  currentScriptType?: BTCInputScriptType
 }) => {
   const { send, receive } = useModal()
   const {
@@ -19,8 +22,10 @@ export const AssetActions = ({
 
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleSendClick = () => (isConnected ? send.open({ asset }) : handleWalletModalOpen())
-  const handleReceiveClick = () => (isConnected ? receive.open({ asset }) : handleWalletModalOpen())
+  const handleSendClick = () =>
+    isConnected ? send.open({ asset, currentScriptType }) : handleWalletModalOpen()
+  const handleReceiveClick = () =>
+    isConnected ? receive.open({ asset, currentScriptType }) : handleWalletModalOpen()
 
   return (
     <ButtonGroup

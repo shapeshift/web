@@ -1,3 +1,4 @@
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
@@ -54,12 +55,13 @@ export type SendInput = {
 
 type SendFormProps = {
   asset: AssetMarketData
+  currentScriptType?: BTCInputScriptType
 }
 
-export const Form = ({ asset: initialAsset }: SendFormProps) => {
+export const Form = ({ asset: initialAsset, currentScriptType }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
-  const { handleSend } = useFormSend()
+  const { handleSend } = useFormSend(currentScriptType)
   const getAssetData = useGetAssetData({
     chain: initialAsset.chain,
     tokenId: initialAsset.tokenId
@@ -112,7 +114,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
               )}
             />
             <Route path={SendRoutes.Address} component={Address} />
-            <Route path={SendRoutes.Details} component={Details} />
+            <Route path={SendRoutes.Details} component={() => Details(currentScriptType)} />
             <Route path={SendRoutes.Scan} component={QrCodeScanner} />
             <Route path={SendRoutes.Confirm} component={Confirm} />
             <Redirect exact from='/' to={SendRoutes.Select} />

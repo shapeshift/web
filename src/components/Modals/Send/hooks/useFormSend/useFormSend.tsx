@@ -1,15 +1,16 @@
+/* eslint-disable no-console */
 import { useToast } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bip32FromScript } from 'lib/bip32FromScript'
 
 import { SendInput } from '../../Form'
 
-export const useFormSend = () => {
+export const useFormSend = (currentScriptType?: BTCInputScriptType) => {
   const toast = useToast()
   const translate = useTranslate()
   const chainAdapter = useChainAdapters()
@@ -17,7 +18,6 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
-  const utxoConfig = useUtxoConfig()
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -32,6 +32,8 @@ export const useFormSend = () => {
         const fee = fees.feePerUnit
         const gasLimit = fees.chainSpecific?.feeLimit
 
+        const bip32 = bip32FromScript(currentScriptType)
+
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
@@ -39,14 +41,8 @@ export const useFormSend = () => {
           wallet,
           fee,
           gasLimit,
-          bip32Params:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.bip32Params
-              : undefined,
-          scriptType:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.scriptType
-              : undefined
+          bip32Params: bip32,
+          scriptType: currentScriptType
         })
 
         const signedTx = await adapter.signTransaction({ txToSign, wallet })

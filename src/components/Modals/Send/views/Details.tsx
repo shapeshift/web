@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
@@ -13,6 +14,7 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -27,7 +29,7 @@ import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendRoutes } from '../Send'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
-export const Details = () => {
+export const Details = (scriptType: BTCInputScriptType | undefined) => {
   const {
     control,
     formState: { isValid }
@@ -51,7 +53,7 @@ export const Details = () => {
     toggleCurrency,
     validateCryptoAmount,
     validateFiatAmount
-  } = useSendDetails()
+  } = useSendDetails(scriptType)
 
   return (
     <SlideTransition loading={balancesLoading}>

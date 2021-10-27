@@ -1,14 +1,15 @@
 import { AssetService } from '@shapeshiftoss/asset-service'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useEffect } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { getAssetService } from 'lib/assetService'
 import { fromBaseUnit } from 'lib/math'
+import { bip32FromScript } from 'lib/bip32FromScript'
 
 dayjs.extend(relativeTime)
 
@@ -30,6 +31,7 @@ export type UseTransactionsPropType = {
   chain?: ChainTypes | undefined
   contractAddress?: string | undefined
   symbol?: string | undefined
+  currentScriptType?: BTCInputScriptType | undefined
 }
 
 export enum TxTypeEnum {
@@ -80,7 +82,8 @@ const formatTransactions = (
 export const useTransactions = ({
   chain,
   contractAddress = '',
-  symbol = ''
+  symbol = '',
+  currentScriptType
 }: UseTransactionsPropType = {}): UseTransactionsReturnType => {
   const [loading, setLoading] = useStateIfMounted<boolean | undefined>(false)
   const [txHistory, setTxHistory] = useStateIfMounted<
@@ -90,7 +93,6 @@ export const useTransactions = ({
     state: { wallet, walletInfo }
   } = useWallet()
   const chainAdapterManager = useChainAdapters()
-  const utxoConfig = useUtxoConfig()
 
   const getTxHistory = useCallback(async () => {
     if (!wallet) return
@@ -101,19 +103,15 @@ export const useTransactions = ({
     const pageSize = 35
     const assetService = await getAssetService()
 
+    const bip32 = bip32FromScript(currentScriptType)
+
     // Get transaction history for chain that is provided.
     if (chain) {
       const chainAdapter = chainAdapterManager.byChain(chain)
       const pubkey = await chainAdapter.getAddress({
         wallet,
-        bip32Params:
-          chainAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.bip32Params
-            : undefined,
-        scriptType:
-          chainAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.scriptType
-            : undefined
+        bip32Params: bip32,
+        scriptType: currentScriptType
       })
       let txHistoryResponse
       try {
@@ -143,14 +141,8 @@ export const useTransactions = ({
       const genericAdapter = getAdapter()
       const pubkey = await genericAdapter.getAddress({
         wallet,
-        bip32Params:
-          genericAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.bip32Params
-            : undefined,
-        scriptType:
-          genericAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.scriptType
-            : undefined
+        bip32Params: bip32,
+        scriptType: currentScriptType
       })
       let txHistoryResponse
       try {

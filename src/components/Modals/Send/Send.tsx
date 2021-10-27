@@ -1,4 +1,5 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -24,9 +25,10 @@ export const entries = [
 
 type SendModalProps = {
   asset: AssetMarketData
+  currentScriptType?: BTCInputScriptType
 }
 
-export const SendModal = ({ asset }: SendModalProps) => {
+export const SendModal = ({ asset, currentScriptType }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -39,7 +41,9 @@ export const SendModal = ({ asset }: SendModalProps) => {
           <Switch>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => <Form asset={asset} {...props} />}
+              component={(props: RouteComponentProps) => (
+                <Form asset={asset} currentScriptType={currentScriptType} {...props} />
+              )}
             />
           </Switch>
         </MemoryRouter>

@@ -8,8 +8,18 @@ import {
 
 import { TransactionRow } from './TransactionRow'
 
-export const Transactions = ({ chain, contractAddress, symbol }: UseTransactionsPropType = {}) => {
-  const { loading, txHistory } = useTransactions({ chain, contractAddress, symbol })
+export const Transactions = ({
+  chain,
+  contractAddress,
+  symbol,
+  currentScriptType
+}: UseTransactionsPropType = {}) => {
+  const { loading, txHistory } = useTransactions({
+    chain,
+    contractAddress,
+    symbol,
+    currentScriptType
+  })
   const txs = txHistory?.txs ?? []
 
   return loading ? (

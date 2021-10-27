@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 import { useToast } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
@@ -6,11 +8,11 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useUtxoConfig } from 'context/UtxoConfig'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bip32FromScript } from 'lib/bip32FromScript'
 
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
@@ -34,7 +36,9 @@ type UseSendDetailsReturnType = {
 // TODO (technojak) this should be removed in favor of the asset-service. For now assume the fallback is eth
 const ETH_PRECISION = 18
 
-export const useSendDetails = (): UseSendDetailsReturnType => {
+export const useSendDetails = (
+  scriptType: BTCInputScriptType | undefined
+): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
@@ -61,7 +65,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { chain, tokenId } = asset
 
   const getAssetData = useGetAssetData({ chain, tokenId })
-  const utxoConfig = useUtxoConfig()
 
   useEffect(() => {
     if (balanceError) {
@@ -89,19 +92,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         .toFixed(0)
 
       try {
+        const bip32 = bip32FromScript(scriptType)
+
         const data = await adapter.buildSendTransaction({
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
           wallet,
-          bip32Params:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.bip32Params
-              : undefined,
-          scriptType:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.scriptType
-              : undefined
+          bip32Params: bip32,
+          scriptType: scriptType
         })
         return data
       } catch (error) {
@@ -129,16 +128,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     if (assetBalance && wallet) {
       setLoading(true)
       const to = address
+
+      const bip32 = bip32FromScript(props)
+
       const from = await adapter.getAddress({
         wallet,
-        bip32Params:
-          adapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.bip32Params
-            : undefined,
-        scriptType:
-          adapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.scriptType
-            : undefined
+        bip32Params: bip32,
+        scriptType: props
       })
 
       // Assume fast fee for send max

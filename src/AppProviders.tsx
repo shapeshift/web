@@ -10,7 +10,6 @@ import { translations } from 'assets/translations'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { EarnManagerProvider } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
-import { UtxoConfigProvider } from 'context/UtxoConfig'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { useFeature } from 'hooks/useFeature/useFeature'
 import { store } from 'state/store'
@@ -43,15 +42,13 @@ export function AppProviders({ children }: ProvidersProps) {
         <ColorModeScript />
         <BrowserRouter>
           <I18n locale={locale} messages={messages}>
-            <UtxoConfigProvider>
-              <WalletProvider>
-                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                  <ModalProvider>
-                    <EarnProvider>{children}</EarnProvider>
-                  </ModalProvider>
-                </ChainAdaptersProvider>
-              </WalletProvider>
-            </UtxoConfigProvider>
+            <WalletProvider>
+              <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                <ModalProvider>
+                  <EarnProvider>{children}</EarnProvider>
+                </ModalProvider>
+              </ChainAdaptersProvider>
+            </WalletProvider>
           </I18n>
         </BrowserRouter>
       </ChakraProvider>

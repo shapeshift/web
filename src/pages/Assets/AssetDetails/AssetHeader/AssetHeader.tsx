@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   Box,
   Button,
@@ -15,9 +16,10 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import numeral from 'numeral'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -25,14 +27,23 @@ import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
-import { SpendAddress, SpendP2SHWitness, SpendWitness, useUtxoConfig } from 'context/UtxoConfig'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
 import { AssetActions } from './AssetActions'
 
-export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoaded: boolean }) => {
+export const AssetHeader = ({
+  asset,
+  isLoaded,
+  currentScriptType,
+  setCurrentScriptType
+}: {
+  asset: AssetMarketData
+  isLoaded: boolean
+  currentScriptType: BTCInputScriptType | undefined
+  setCurrentScriptType: Dispatch<SetStateAction<BTCInputScriptType | undefined>>
+}) => {
   const { name, symbol, description, icon, changePercent24Hr, price, marketCap, volume } = asset
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
@@ -45,7 +56,6 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
     timeframe
   })
   const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
-  const utxoConfig = useUtxoConfig()
 
   return (
     <Card variant='footer-stub'>
@@ -65,43 +75,31 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
             </RawText>
           </Box>
         </Flex>
-        <AssetActions asset={asset} isLoaded={isLoaded} />
+        <AssetActions asset={asset} isLoaded={isLoaded} currentScriptType={currentScriptType} />
       </Card.Header>
 
       <Card.Body hidden={symbol !== 'BTC'}>
         <Button
           size='sm'
-          colorScheme={
-            utxoConfig.utxoDataState.utxoData.scriptType === SpendWitness.scriptType
-              ? 'white'
-              : 'blue'
-          }
+          colorScheme={currentScriptType === BTCInputScriptType.SpendWitness ? 'white' : 'blue'}
           variant='ghost'
-          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendWitness)}
+          onClick={() => setCurrentScriptType(BTCInputScriptType.SpendWitness)}
         >
           <Text translation='assets.assetDetails.assetHeader.segwitNative' />
         </Button>
         <Button
           size='sm'
-          colorScheme={
-            utxoConfig.utxoDataState.utxoData.scriptType === SpendP2SHWitness.scriptType
-              ? 'white'
-              : 'blue'
-          }
+          colorScheme={currentScriptType === BTCInputScriptType.SpendP2SHWitness ? 'white' : 'blue'}
           variant='ghost'
-          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendP2SHWitness)}
+          onClick={() => setCurrentScriptType(BTCInputScriptType.SpendP2SHWitness)}
         >
           <Text translation='assets.assetDetails.assetHeader.segwit' />
         </Button>
         <Button
           size='sm'
-          colorScheme={
-            utxoConfig.utxoDataState.utxoData.scriptType === SpendAddress.scriptType
-              ? 'white'
-              : 'blue'
-          }
+          colorScheme={currentScriptType === BTCInputScriptType.SpendAddress ? 'white' : 'blue'}
           variant='ghost'
-          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendAddress)}
+          onClick={() => setCurrentScriptType(BTCInputScriptType.SpendAddress)}
         >
           <Text translation='assets.assetDetails.assetHeader.legacy' />
         </Button>

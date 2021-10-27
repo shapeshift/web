@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,

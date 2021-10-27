@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Flex, Stack } from '@chakra-ui/react'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useState } from 'react'

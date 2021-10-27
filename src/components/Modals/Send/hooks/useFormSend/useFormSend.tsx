@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useToast } from '@chakra-ui/react'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'

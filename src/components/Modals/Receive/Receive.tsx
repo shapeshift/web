@@ -46,17 +46,11 @@ const Receive = ({ asset }: ReceivePropsType) => {
       const chainAdapter = chainAdapterManager.byChain(chain)
       if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
 
+      const utxoData = utxoConfig.getUtxoData(symbol)
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
-          bip32Params:
-            chainAdapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.bip32Params
-              : undefined,
-          scriptType:
-            chainAdapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.scriptType
-              : undefined
+          ...utxoData
         })
       )
     })()

@@ -1,48 +1,64 @@
+/* eslint-disable no-console */
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params } from '@shapeshiftoss/types'
+import { BIP32Params, NetworkTypes } from '@shapeshiftoss/types'
 import React, { useContext } from 'react'
-
-export const SpendP2SHWitness = {
-  bip32Params: { purpose: 49, coinType: 0, accountNumber: 0 },
-  scriptType: BTCInputScriptType.SpendP2SHWitness
-}
-export const SpendAddress = {
-  bip32Params: { purpose: 44, coinType: 0, accountNumber: 0 },
-  scriptType: BTCInputScriptType.SpendAddress
-}
-export const SpendWitness = {
-  bip32Params: { purpose: 84, coinType: 0, accountNumber: 0 },
-  scriptType: BTCInputScriptType.SpendWitness
-}
-
-export interface DataProps {
-  bip32Params: BIP32Params
-  scriptType: BTCInputScriptType
-}
+import { getAssetService } from 'lib/assetService'
 
 export interface UtxoConfigContextProps {
-  utxoDataState: {
-    utxoData: DataProps
-    setUtxoData: React.Dispatch<React.SetStateAction<DataProps>>
-  }
+  getUtxoData: (chain: string) => { bip32Params: BIP32Params; scriptType: BTCInputScriptType }
+  setUtxoData: (chain: string, scriptType: BTCInputScriptType) => void
 }
 
 export const UtxoConfigContext = React.createContext<UtxoConfigContextProps>({
-  utxoDataState: {
-    utxoData: SpendP2SHWitness,
-    setUtxoData: () => {}
-  }
+  getUtxoData: () => ({
+    bip32Params: { purpose: 49, coinType: 0, accountNumber: 0 },
+    scriptType: BTCInputScriptType.SpendP2SHWitness
+  }),
+  setUtxoData: () => {}
 })
 
 export const UtxoConfigProvider: React.FC = ({ children }) => {
-  const [utxoData, setUtxoData] = React.useState<DataProps>(SpendP2SHWitness)
+  const [configData, setConfigData] = React.useState<any>({
+    BTC: {
+      bip32Params: { purpose: 49, coinType: 0, accountNumber: 0 },
+      scriptType: BTCInputScriptType.SpendP2SHWitness
+    }
+  })
 
-  if (!utxoData) throw new Error('utxoData or setUtxoData is undefined')
-  if (!setUtxoData) throw new Error('!setUtxoData or setUtxoData is undefined')
+  const getUtxoData = (chain: string) => {
+    if (!configData[chain]) return {}
+    return configData[chain]
+  }
+
+  const setUtxoData = async (chain: string, scriptType: BTCInputScriptType) => {
+    const service = await getAssetService()
+    const assetData = service?.byNetwork(NetworkTypes.MAINNET)
+    const asset = assetData.find(asset => asset.chain === chain)
+
+    console.log('found asset', asset)
+
+    let purpose
+
+    if (scriptType === BTCInputScriptType.SpendP2SHWitness) purpose = 49
+    if (scriptType === BTCInputScriptType.SpendAddress) purpose = 44
+    if (scriptType === BTCInputScriptType.SpendWitness) purpose = 84
+    else throw new Error('invalid script type')
+
+    const chainSpecificData = {
+      bip32Params: { purpose, coinType: asset.slip44, accountNumber: 0 },
+      scriptType
+    }
+
+    console.log('chainSpecificData', chainSpecificData)
+
+    setConfigData({ ...configData, [chain]: chainSpecificData })
+  }
+
   return (
     <UtxoConfigContext.Provider
       value={{
-        utxoDataState: { utxoData, setUtxoData }
+        getUtxoData,
+        setUtxoData
       }}
     >
       {children}

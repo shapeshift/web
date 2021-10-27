@@ -89,19 +89,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         .toFixed(0)
 
       try {
+        const utxoData = utxoConfig.getUtxoData(asset.symbol)
         const data = await adapter.buildSendTransaction({
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
           wallet,
-          bip32Params:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.bip32Params
-              : undefined,
-          scriptType:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.scriptType
-              : undefined
+          ...utxoData
         })
         return data
       } catch (error) {

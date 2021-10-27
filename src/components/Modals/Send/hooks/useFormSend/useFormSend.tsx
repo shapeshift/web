@@ -32,6 +32,7 @@ export const useFormSend = () => {
         const fee = fees.feePerUnit
         const gasLimit = fees.chainSpecific?.feeLimit
 
+        const utxoData = utxoConfig.getUtxoData(data.asset.symbol)
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
@@ -39,14 +40,7 @@ export const useFormSend = () => {
           wallet,
           fee,
           gasLimit,
-          bip32Params:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.bip32Params
-              : undefined,
-          scriptType:
-            adapter.getType() === ChainTypes.Bitcoin
-              ? utxoConfig.utxoDataState.utxoData.scriptType
-              : undefined
+          ...utxoData
         })
 
         const signedTx = await adapter.signTransaction({ txToSign, wallet })

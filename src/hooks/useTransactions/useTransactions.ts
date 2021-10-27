@@ -104,16 +104,10 @@ export const useTransactions = ({
     // Get transaction history for chain that is provided.
     if (chain) {
       const chainAdapter = chainAdapterManager.byChain(chain)
+      const utxoData = utxoConfig.getUtxoData(symbol)
       const pubkey = await chainAdapter.getAddress({
         wallet,
-        bip32Params:
-          chainAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.bip32Params
-            : undefined,
-        scriptType:
-          chainAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.scriptType
-            : undefined
+        ...utxoData
       })
       let txHistoryResponse
       try {

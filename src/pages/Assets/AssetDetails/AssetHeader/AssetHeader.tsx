@@ -15,6 +15,7 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import numeral from 'numeral'
 import { useState } from 'react'
@@ -25,7 +26,7 @@ import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
-import { SpendAddress, SpendP2SHWitness, SpendWitness, useUtxoConfig } from 'context/UtxoConfig'
+import { useUtxoConfig } from 'context/UtxoConfig'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
@@ -46,6 +47,8 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
   })
   const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
   const utxoConfig = useUtxoConfig()
+
+  const currentScriptType = utxoConfig?.getUtxoData(symbol)?.scriptType
 
   return (
     <Card variant='footer-stub'>
@@ -71,37 +74,25 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
       <Card.Body hidden={symbol !== 'BTC'}>
         <Button
           size='sm'
-          colorScheme={
-            utxoConfig.utxoDataState.utxoData.scriptType === SpendWitness.scriptType
-              ? 'white'
-              : 'blue'
-          }
+          colorScheme={currentScriptType === BTCInputScriptType.SpendWitness ? 'white' : 'blue'}
           variant='ghost'
-          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendWitness)}
+          onClick={() => utxoConfig.setUtxoData(symbol, BTCInputScriptType.SpendWitness)}
         >
           <Text translation='assets.assetDetails.assetHeader.segwitNative' />
         </Button>
         <Button
           size='sm'
-          colorScheme={
-            utxoConfig.utxoDataState.utxoData.scriptType === SpendP2SHWitness.scriptType
-              ? 'white'
-              : 'blue'
-          }
+          colorScheme={currentScriptType === BTCInputScriptType.SpendP2SHWitness ? 'white' : 'blue'}
           variant='ghost'
-          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendP2SHWitness)}
+          onClick={() => utxoConfig.setUtxoData(symbol, BTCInputScriptType.SpendP2SHWitness)}
         >
           <Text translation='assets.assetDetails.assetHeader.segwit' />
         </Button>
         <Button
           size='sm'
-          colorScheme={
-            utxoConfig.utxoDataState.utxoData.scriptType === SpendAddress.scriptType
-              ? 'white'
-              : 'blue'
-          }
+          colorScheme={currentScriptType === BTCInputScriptType.SpendAddress ? 'white' : 'blue'}
           variant='ghost'
-          onClick={() => utxoConfig.utxoDataState.setUtxoData(SpendAddress)}
+          onClick={() => utxoConfig.setUtxoData(symbol, BTCInputScriptType.SpendAddress)}
         >
           <Text translation='assets.assetDetails.assetHeader.legacy' />
         </Button>

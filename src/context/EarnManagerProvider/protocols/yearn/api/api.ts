@@ -107,9 +107,11 @@ export class YearnVaultApi {
   async addEstimatedGas(input: AddInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
-    const estimatedGas = await vaultContract.methods.deposit(amountDesired.toString()).estimateGas({
-      from: userAddress
-    })
+    const estimatedGas = await vaultContract.methods
+      .deposit(amountDesired.toString(), userAddress)
+      .estimateGas({
+        from: userAddress
+      })
     return new BigNumber(estimatedGas)
   }
   async add(input: AddInput): Promise<string> {
@@ -117,9 +119,11 @@ export class YearnVaultApi {
     if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.addEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
-    const data: string = await vaultContract.methods.deposit(amountDesired.toString()).encodeABI({
-      from: userAddress
-    })
+    const data: string = await vaultContract.methods
+      .deposit(amountDesired.toString(), userAddress)
+      .encodeABI({
+        from: userAddress
+      })
     const nonce = await this.web3.eth.getTransactionCount(userAddress)
     const gasPrice = await this.web3.eth.getGasPrice()
 
@@ -140,9 +144,11 @@ export class YearnVaultApi {
   async removeEstimatedGas(input: RemoveInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
-    const estimatedGas = await vaultContract.methods.deposit(amountDesired.toString()).estimateGas({
-      from: userAddress
-    })
+    const estimatedGas = await vaultContract.methods
+      .deposit(amountDesired.toString(), userAddress)
+      .estimateGas({
+        from: userAddress
+      })
     return new BigNumber(estimatedGas)
   }
 
@@ -151,9 +157,11 @@ export class YearnVaultApi {
     if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.removeEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
-    const data: string = vaultContract.methods.withdraw(amountDesired.toString()).encodeABI({
-      from: userAddress
-    })
+    const data: string = vaultContract.methods
+      .withdraw(amountDesired.toString(), userAddress)
+      .encodeABI({
+        from: userAddress
+      })
     const nonce = await this.web3.eth.getTransactionCount(userAddress)
     const gasPrice = await this.web3.eth.getGasPrice()
 

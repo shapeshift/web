@@ -31,19 +31,19 @@ describe('Logger', () => {
     })
 
     it('should accept "namespace" as a string', () => {
-      const spy = jest.spyOn(console, 'info')
+      console.info = jest.fn()
       const logger = new Logger({ namespace: 'testLogger' })
       logger.info('test')
-      expect(spy).toHaveBeenCalledWith(expect.stringMatching('namespace":"testLogger"'))
-      spy.mockRestore()
+      expect(console.info).toHaveBeenCalledWith(expect.stringMatching('namespace":"testLogger"'))
     })
 
     it('should accept "namespace" as an array', () => {
-      const spy = jest.spyOn(console, 'info')
+      console.info = jest.fn()
       const logger = new Logger({ namespace: ['testLogger', 'child'] })
       logger.info('test')
-      expect(spy).toHaveBeenCalledWith(expect.stringMatching('namespace":"testLogger:child"'))
-      spy.mockRestore()
+      expect(console.info).toHaveBeenCalledWith(
+        expect.stringMatching('namespace":"testLogger:child"')
+      )
     })
 
     it('should accept "namespace" and "name" at the same time', () => {
@@ -57,23 +57,21 @@ describe('Logger', () => {
     })
 
     it('should accept default log level as an enum', () => {
-      const spy = jest.spyOn(console, 'debug')
+      console.debug = jest.fn()
       const logger = new Logger({ level: LogLevel.DEBUG })
       logger.debug('test')
-      expect(spy).toHaveBeenCalled()
+      expect(console.debug).toHaveBeenCalled()
       // @ts-ignore
       expect(logger.level).toBe(1)
-      spy.mockRestore()
     })
 
     it('should accept default log level as a string', () => {
-      const spy = jest.spyOn(console, 'debug')
+      console.debug = jest.fn()
       const logger = new Logger({ level: 'debug' })
       logger.debug('test')
-      expect(spy).toHaveBeenCalled()
+      expect(console.debug).toHaveBeenCalled()
       // @ts-ignore
       expect(logger.level).toBe(1)
-      spy.mockRestore()
     })
 
     it('should throw an error if log level is invalid', () => {

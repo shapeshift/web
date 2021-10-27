@@ -115,9 +115,9 @@ export const YearnDeposit = () => {
   }
 
   return (
-    <Flex>
+    <Flex width='full'>
       {!steps[activeStep].hideNav && <VerticalStepper activeStep={activeStep} steps={steps} />}
-      <Flex flexDir='column'>
+      <Flex flexDir='column' width='full'>
         {activeStep === 0 && <EarnActionsButtons />}
         {renderStep(activeStep)}
       </Flex>

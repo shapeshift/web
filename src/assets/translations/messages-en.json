@@ -159,10 +159,10 @@
       }
     },
     "metaMask": {
-      "header": "Pair your metamask wallet",
+      "header": "Pair your MetaMask wallet",
       "pairButton": "Pair MetaMask",
       "getAddressButton": "Get ETH Address",
-      "connectButton": "Finish connecting wallet"
+      "connectButton": "Connect your MetaMask wallet"
     },
     "selectModal": {
       "header": "Connect a wallet",

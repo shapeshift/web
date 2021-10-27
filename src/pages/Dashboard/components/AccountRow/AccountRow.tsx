@@ -1,21 +1,21 @@
 import { Flex, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { getMarketData } from '@shapeshiftoss/market-service'
+import { ChainTypes, MarketData } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
-export const AssetRow = ({
+export const AccountRow = ({
   balance,
   tokenId,
   chain
 }: {
   balance: string
-  tokenId: string
+  tokenId?: string
   chain: ChainTypes
 }) => {
   const [price, setPrice] = useState('0')
@@ -28,16 +28,18 @@ export const AssetRow = ({
   }, [chain, contract])
 
   const asset = useFetchAsset({ chain, tokenId: contract })
-  const fetchMarketData = useGetAssetData({ chain, tokenId: contract })
 
   useEffect(() => {
     ;(async () => {
       if (asset) {
-        const marketData = await fetchMarketData({ chain: asset.chain, tokenId: asset.tokenId })
+        const marketData: MarketData | null = await getMarketData({
+          chain: asset.chain,
+          tokenId: asset.tokenId
+        })
         setPrice(marketData?.price)
       }
     })()
-  }, [asset, fetchMarketData])
+  }, [asset])
 
   const displayValue = useMemo(
     () => (asset ? fromBaseUnit(balance, asset.precision) : 0),
@@ -45,7 +47,7 @@ export const AssetRow = ({
   )
 
   const fiatValue = useMemo(
-    () => bn(displayValue).times(price).toFixed(4).toString(),
+    () => bn(displayValue).times(price).toFixed(2).toString(),
     [displayValue, price]
   )
 

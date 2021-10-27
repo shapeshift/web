@@ -379,7 +379,7 @@ describe('BitcoinChainAdapter', () => {
     })
   })
 
-  describe.skip('getFeeData', () => {
+  describe('getFeeData', () => {
     it('should return current BTC network fees', async () => {
       const adapter = new bitcoin.ChainAdapter(args)
 

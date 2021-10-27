@@ -45,7 +45,7 @@ const getWallet = async (): Promise<NativeHDWallet> => {
 }
 
 const main = async (): Promise<void> => {
-  const [_, __, ...args] = process.argv
+  const [, , ...args] = process.argv
   const [sellSymbol, buySymbol, sellAmount] = args
 
   console.info(`sellSymbol: sell ${sellAmount} of ${sellSymbol} to ${buySymbol}`)

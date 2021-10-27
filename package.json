@@ -12,7 +12,7 @@
     "build": "lerna run build --include-dependencies",
     "clean": "rimraf node_modules dist packages/**/dist",
     "dev": "lerna run dev --stream --parallel",
-    "lint": "eslint --cache .",
+    "lint": "eslint --cache --max-warnings=0 .",
     "link-packages": "node scripts/linkPackages.js link",
     "unlink-packages": "node scripts/linkPackages.js unlink",
     "test": "jest",

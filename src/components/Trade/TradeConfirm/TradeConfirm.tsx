@@ -33,9 +33,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useWallet()
 
   const onSubmit = async () => {
-    await executeQuote({ wallet })
-    // TODO:(ryankk) navigate to somewhere else.
-    history.push('/trade/input')
+    const result = await executeQuote({ wallet })
+    if(result?.txid){
+      
+    }
   }
 
   return (

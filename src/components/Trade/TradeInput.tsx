@@ -100,7 +100,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
   }
 
-  const error = get(errors, `getQuote.message`, null) ?? get(errors, `buildQuote.message`, null)
+  const error = get(errors, `useSwapper.message`, null)
 
   return (
     <SlideTransition>

@@ -5,6 +5,7 @@ import {
   Asset,
   chainAdapters,
   ChainTypes,
+  ExecQuoteOutput,
   GetQuoteInput,
   Quote,
   SwapperType
@@ -103,21 +104,20 @@ export const useSwapper = () => {
       setFees(result, sellAsset)
       setValue('quote', result)
     } else {
-      setError('buildQuote', { message: TRADE_ERRORS.INSUFFICIENT_FUNDS })
+      setError('useSwapper', { message: TRADE_ERRORS.INSUFFICIENT_FUNDS })
     }
     return result
   }
 
-  const executeQuote = async ({ wallet }: any) => {
+  const executeQuote = async ({ wallet }: any): Promise<ExecQuoteOutput | undefined> => {
     let result
     try {
       const swapper = swapperManager.getSwapper(bestSwapperType)
       result = await swapper.executeQuote({ quote, wallet })
     } catch (err) {
+      setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
       console.error(`TradeProvider - executeQuote error: ${err}`) // eslint-disable-line no-console
     }
-
-    // TODO: (ryankk) save txid in state??
     return result
   }
 
@@ -185,8 +185,8 @@ export const useSwapper = () => {
         if (actionRef.current) onFinish(newQuote)
       } catch (err: any) {
         const message = err?.statusReason
-        if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
-        else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
+        if (message) setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
+        else setError('useSwapper', { message: TRADE_ERRORS.QUOTE_FAILED })
       }
     }, debounceTime)
     quoteDebounce()
@@ -314,7 +314,6 @@ export const useSwapper = () => {
         }
         break
       }
-
       default:
         throw new Error('Unsupported chain ' + sellAsset.chain)
     }

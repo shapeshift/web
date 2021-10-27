@@ -8,8 +8,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { getAssetService } from 'lib/assetService'
-import { fromBaseUnit } from 'lib/math'
 import { bip32FromScript } from 'lib/bip32FromScript'
+import { fromBaseUnit } from 'lib/math'
 
 dayjs.extend(relativeTime)
 

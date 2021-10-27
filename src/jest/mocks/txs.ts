@@ -1,7 +1,7 @@
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
-export const EthSend = {
+export const EthSend: Tx = {
   address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
   blockHash: '0x5edb4bbd1c33026053bd886b898bf6424b36e4b8fe3f4c8e2b6abc83079ed89b',
   blockHeight: 13468273,
@@ -17,9 +17,9 @@ export const EthSend = {
   type: chainAdapters.TxType.send,
   to: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
   status: chainAdapters.TxStatus.confirmed
-} as Tx
+}
 
-export const EthReceive = {
+export const EthReceive: Tx = {
   address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
   blockHash: '0x5edb4bbd1c33026053bd886b898bf6424b36e4b8fe3f4c8e2b6abc83079ed89b',
   blockHeight: 13468273,
@@ -35,9 +35,9 @@ export const EthReceive = {
   type: chainAdapters.TxType.receive,
   from: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
   status: chainAdapters.TxStatus.confirmed
-} as Tx
+}
 
-export const BtcSend = {
+export const BtcSend: Tx = {
   address: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
   blockHash: 'e12cb64834058bb785b7b8932f079deafc3633f999f722779ee9de351273af65',
   blockHeight: 13468273,
@@ -53,4 +53,4 @@ export const BtcSend = {
   type: chainAdapters.TxType.send,
   to: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
   status: chainAdapters.TxStatus.confirmed
-} as Tx
+}

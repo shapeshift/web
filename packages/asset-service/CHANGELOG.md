@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.1.2...@shapeshiftoss/asset-service-v1.2.0) (2021-10-27)
+
+
+### Features
+
+* caip19 assets ([#171](https://github.com/shapeshift/lib/issues/171)) ([46c58a7](https://github.com/shapeshift/lib/commit/46c58a7251674991072860b2aeb060b06498c098))
+
 # [@shapeshiftoss/asset-service-v1.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.1.1...@shapeshiftoss/asset-service-v1.1.2) (2021-10-27)
 
 # [@shapeshiftoss/asset-service-v1.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.1.0...@shapeshiftoss/asset-service-v1.1.1) (2021-10-25)

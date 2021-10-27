@@ -1,4 +1,4 @@
-import { Flex, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
+import { CircularProgress, Flex, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { getMarketData } from '@shapeshiftoss/market-service'
 import { ChainTypes, MarketData } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
@@ -9,15 +9,14 @@ import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 
-export const AccountRow = ({
-  balance,
-  tokenId,
-  chain
-}: {
+export type AccountRowArgs = {
   balance: string
   tokenId?: string
   chain: ChainTypes
-}) => {
+}
+
+export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
+  const [marketDataLoading, setMarketDataLoading] = useState(false)
   const [price, setPrice] = useState('0')
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const contract = useMemo(() => tokenId?.toLowerCase(), [tokenId])
@@ -31,12 +30,19 @@ export const AccountRow = ({
 
   useEffect(() => {
     ;(async () => {
-      if (asset) {
-        const marketData: MarketData | null = await getMarketData({
-          chain: asset.chain,
-          tokenId: asset.tokenId
-        })
-        setPrice(marketData?.price)
+      try {
+        if (asset) {
+          setMarketDataLoading(true)
+          const marketData: MarketData | null = await getMarketData({
+            chain: asset.chain,
+            tokenId: asset.tokenId
+          })
+          setPrice(marketData?.price)
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setMarketDataLoading(false)
       }
     })()
   }, [asset])
@@ -71,13 +77,23 @@ export const AccountRow = ({
         <RawText ml={2}>{asset.name}</RawText>
       </Flex>
       <Flex justifyContent='flex-end'>
-        <RawText>${fiatValue}</RawText>
-        <RawText color='gray.500' ml={2}>
-          {`${displayValue} ${asset.symbol}`}
-        </RawText>
+        {marketDataLoading ? (
+          <CircularProgress isIndeterminate size='5' />
+        ) : (
+          <>
+            <RawText>${fiatValue}</RawText>
+            <RawText color='gray.500' ml={2}>
+              {`${displayValue} ${asset.symbol}`}
+            </RawText>
+          </>
+        )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
-        <RawText>{`$${price}`}</RawText>
+        {marketDataLoading ? (
+          <CircularProgress isIndeterminate size='5' />
+        ) : (
+          <RawText>{`$${price}`}</RawText>
+        )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
         <Progress

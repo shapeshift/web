@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 const defaultAmount = 10
 
-export const useInfiniteScroll = (array: any[]) => {
+export const useInfiniteScroll = (array: unknown[]) => {
   const [amount, setAmount] = useState(defaultAmount)
 
   const next = useCallback(() => {

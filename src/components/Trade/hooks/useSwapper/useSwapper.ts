@@ -254,6 +254,20 @@ export const useSwapper = () => {
     })
   }
 
+  const getFiatRate = async ({
+    symbol,
+    tokenId
+  }: {
+    symbol: string
+    tokenId: string
+  }): Promise<string> => {
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    return swapper?.getUsdRate({
+      symbol,
+      tokenId
+    })
+  }
+
   const setFees = async (result: Quote<ChainTypes, SwapperType>, sellAsset: Asset) => {
     const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
     const feeBN = bn(result?.feeData?.fee || 0).dividedBy(bn(10).exponentiatedBy(feePrecision))
@@ -365,6 +379,7 @@ export const useSwapper = () => {
     getDefaultPair,
     checkApprovalNeeded,
     approveInfinite,
+    getFiatRate,
     reset
   }
 }

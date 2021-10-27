@@ -2,7 +2,7 @@ import { Button, Divider, Flex, Image, SkeletonCircle } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
@@ -16,8 +16,10 @@ type ApprovalType = {
   feeFiat: string
 }
 
-export const Approval = ({ sellAsset, fee, feeFiat }: ApprovalType) => {
+export const Approval = () => {
   const history = useHistory()
+  const location = useLocation()
+  const { sellAsset, fee, feeFiat } = location.state as ApprovalType
   const { getValues } = useFormContext()
   const { approveInfinite } = useSwapper()
   const {

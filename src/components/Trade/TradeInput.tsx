@@ -23,7 +23,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
-import { Approval } from '../Approval/Approval'
+import { TradeState } from '../Trade'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -48,10 +48,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action, buyAsset, sellAsset] = useWatch({
-    name: ['quote', 'action', 'buyAsset', 'sellAsset']
+  const [quote, action, buyAsset, sellAsset, fees] = useWatch<TradeState>({
+    name: ['quote', 'action', 'buyAsset', 'sellAsset', 'fees']
   })
-  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded } = useSwapper()
+  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate } = useSwapper()
   const {
     state: { wallet }
   } = useWallet()
@@ -62,7 +62,18 @@ export const TradeInput = ({ history }: RouterProps) => {
       const formattedBuyAsset = { ...quote.buyAsset }
       const approvalNeeded = await checkApprovalNeeded(quote, wallet)
       if (approvalNeeded) {
-        console.log('go to approval')
+        const ethFiatRate = await getFiatRate({
+          symbol: 'ETH',
+          tokenId: sellAsset.tokenId
+        })
+        history.push({
+          pathname: '/trade/approval',
+          state: {
+            sellAsset: sellAsset.currency,
+            fee: fees.chainSpecific.approvalFee,
+            feeFiat: bn(fees.chainSpecific.approvalFee).times(ethFiatRate).toString()
+          }
+        })
       } else {
         await buildQuoteTx({
           wallet,

@@ -1,8 +1,12 @@
 import { Button, Divider, Flex, Image, SkeletonCircle } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
+import { useFormContext } from 'react-hook-form'
+import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { theme } from 'theme/theme'
 
@@ -13,9 +17,17 @@ type ApprovalType = {
 }
 
 export const Approval = ({ sellAsset, fee, feeFiat }: ApprovalType) => {
+  const history = useHistory()
+  const { getValues } = useFormContext()
+  const { approveInfinite } = useSwapper()
   const {
     number: { toCrypto, toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const {
+    state: { wallet }
+  } = useWallet()
+  const quote = getValues('quote')
+
   return (
     <SlideTransition>
       <Flex justifyContent='center' alignItems='center' flexDirection='column'>
@@ -60,10 +72,14 @@ export const Approval = ({ sellAsset, fee, feeFiat }: ApprovalType) => {
               <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
             </Flex>
           </Flex>
-          <Button colorScheme='blue' mt={2}>
+          <Button
+            colorScheme='blue'
+            mt={2}
+            onClick={() => wallet && approveInfinite(quote, wallet)}
+          >
             <Text translation='common.confirm' />
           </Button>
-          <Button mt={2}>
+          <Button mt={2} onClick={() => history.goBack()}>
             <Text translation='common.reject' />
           </Button>
         </Flex>

@@ -1,3 +1,5 @@
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
 import {
   Asset,
@@ -51,7 +53,9 @@ export enum TRADE_ERRORS {
 
 export const useSwapper = () => {
   const { setValue, setError, clearErrors } = useFormContext()
-  const [quote, trade, action] = useWatch({ name: ['quote', 'trade', 'action'] })
+  const [quote, trade, action] = useWatch({
+    name: ['quote', 'trade', 'action']
+  })
   const actionRef = useRef(action)
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
@@ -195,12 +199,13 @@ export const useSwapper = () => {
   const getQuote = async (
     newAmount: GetQuoteAmount,
     sellAsset: TradeAsset,
-    buyAsset: TradeAsset
+    buyAsset: TradeAsset,
+    fiatAmount?: string
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const key = Object.keys(newAmount)[0]
     const value = Object.values(newAmount)[0]
-    const isSellAmount = key === 'sellAmount' && value !== '0'
+    const isSellAmount = key === 'sellAmount'
     const isBuyAmount = key === 'buyAmount'
     const isFiatAmount = key === 'fiatAmount'
 
@@ -215,18 +220,25 @@ export const useSwapper = () => {
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
       const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-      const fiatAmount = bn(buyAmount)
+      const newFiatAmount = bn(buyAmount)
         .times(buyAsset.fiatRate || 0)
         .toFixed(2)
-      if (actionRef.current === TradeActions.SELL && isSellAmount) {
+      console.log(value === fiatAmount)
+      console.log('value', value)
+      console.log('fiatAmount', fiatAmount)
+      if (actionRef.current === TradeActions.SELL && isSellAmount && value === sellAsset.amount) {
         setValue('buyAsset.amount', buyAmount)
-        setValue('fiatAmount', fiatAmount)
+        setValue('fiatAmount', newFiatAmount)
         setValue('action', undefined)
-      } else if (actionRef.current === TradeActions.BUY && isBuyAmount) {
+      } else if (
+        actionRef.current === TradeActions.BUY &&
+        isBuyAmount &&
+        value === buyAsset.amount
+      ) {
         setValue('sellAsset.amount', sellAmount)
-        setValue('fiatAmount', fiatAmount)
+        setValue('fiatAmount', newFiatAmount)
         setValue('action', undefined)
-      } else if (actionRef.current === TradeActions.FIAT && isFiatAmount) {
+      } else if (actionRef.current === TradeActions.FIAT && isFiatAmount && value === fiatAmount) {
         setValue(
           'buyAsset.amount',
           fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
@@ -324,6 +336,24 @@ export const useSwapper = () => {
     [swapperManager, trade, setBestSwapperType, setValue]
   )
 
+  const checkApprovalNeeded = async (
+    quote: Quote<ChainTypes, SwapperType>,
+    wallet: HDWallet | NativeHDWallet
+  ): Promise<boolean> => {
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
+    return approvalNeeded
+  }
+
+  const approveInfinite = async (
+    quote: Quote<ChainTypes, SwapperType>,
+    wallet: HDWallet | NativeHDWallet
+  ): Promise<string> => {
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const txid = await swapper.approveInfinite({ quote, wallet })
+    return txid
+  }
+
   const reset = () => {
     setValue('buyAsset.amount', '')
     setValue('sellAsset.amount', '')
@@ -338,6 +368,8 @@ export const useSwapper = () => {
     executeQuote,
     getBestSwapper,
     getDefaultPair,
+    checkApprovalNeeded,
+    approveInfinite,
     reset
   }
 }

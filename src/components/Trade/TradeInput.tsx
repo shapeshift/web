@@ -48,32 +48,42 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action, buyAsset] = useWatch({ name: ['quote', 'action', 'buyAsset'] })
-  const { getQuote, buildQuoteTx, reset } = useSwapper()
+  const [quote, action, buyAsset, fiatAmount] = useWatch({
+    name: ['quote', 'action', 'buyAsset', 'fiatAmount']
+  })
+  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded } = useSwapper()
   const sellAsset = getValues('sellAsset')
   const {
     state: { wallet }
   } = useWallet()
 
   const onSubmit = async () => {
-    const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
-    const formattedBuyAsset = { ...quote.buyAsset }
-
-    await buildQuoteTx({
-      wallet,
-      sellAsset: formattedSellAsset,
-      buyAsset: formattedBuyAsset
-    })
-    history.push('/trade/confirm')
+    if (wallet) {
+      const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
+      const formattedBuyAsset = { ...quote.buyAsset }
+      const approvalNeeded = await checkApprovalNeeded(quote, wallet)
+      if (approvalNeeded) {
+        console.log('go to approval')
+      } else {
+        await buildQuoteTx({
+          wallet,
+          sellAsset: formattedSellAsset,
+          buyAsset: formattedBuyAsset
+        })
+        history.push('/trade/confirm')
+      }
+    }
   }
 
   const switchAssets = () => {
-    const action = buyAsset.amount ? TradeActions.SELL : undefined
-    setValue('sellAsset', buyAsset)
-    setValue('buyAsset', sellAsset)
+    const currentSellAsset = getValues('sellAsset')
+    const currentBuyAsset = getValues('buyAsset')
+    const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
+    setValue('sellAsset', currentBuyAsset)
+    setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
     setValue('action', action)
-    getQuote({ sellAmount: buyAsset.amount }, buyAsset, sellAsset)
+    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset, fiatAmount)
   }
 
   const getQuoteError = get(errors, `getQuote.message`, null)
@@ -99,7 +109,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset)
+                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset, fiatAmount)
                   }
                 }}
               />

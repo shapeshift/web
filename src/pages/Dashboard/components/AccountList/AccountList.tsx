@@ -6,9 +6,6 @@ type AccountListProps = {
   accounts: Record<string, chainAdapters.Account<ChainTypes>>
 }
 
-type Token = { chain: ChainTypes } & chainAdapters.ethereum.TokenWithBalance
-export type AssetType = chainAdapters.Account<ChainTypes> | Token
-
 function isAccountOfChainType<T extends ChainTypes>(
   chainType: T,
   x: chainAdapters.Account<ChainTypes>

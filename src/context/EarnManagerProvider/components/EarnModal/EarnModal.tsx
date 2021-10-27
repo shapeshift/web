@@ -14,7 +14,7 @@ export const EarnModal = ({ children }: EarnModalProps) => {
   const history = useHistory()
   return (
     <EarnActionsProvider>
-      <Modal isOpen onClose={history.goBack}>
+      <Modal isOpen onClose={history.goBack} variant='fluid'>
         <ModalOverlay />
         <ModalContent>
           <ModalCloseButton />

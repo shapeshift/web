@@ -97,13 +97,13 @@ export const useSwapper = () => {
         wallet
       })
     } catch (err) {
-      console.error(`TradeProvider - buildTransaction error: ${err}`) // eslint-disable-line no-console
+      console.error(`TradeProvider - buildTransaction error: ${err}`)
     }
     if (result?.success) {
       setFees(result, sellAsset)
       setValue('quote', result)
     } else {
-      throw [TRADE_ERRORS.INSUFFICIENT_FUNDS] // eslint-disable-line no-throw-literal
+      setError('buildQuote', { message: TRADE_ERRORS.INSUFFICIENT_FUNDS })
     }
     return result
   }
@@ -345,19 +345,13 @@ export const useSwapper = () => {
     [swapperManager, trade, setBestSwapperType, setValue]
   )
 
-  const checkApprovalNeeded = async (
-    quote: Quote<ChainTypes, SwapperType>,
-    wallet: HDWallet | NativeHDWallet
-  ): Promise<boolean> => {
+  const checkApprovalNeeded = async (wallet: HDWallet | NativeHDWallet): Promise<boolean> => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     const { approvalNeeded } = await swapper.approvalNeeded({ quote, wallet })
     return approvalNeeded
   }
 
-  const approveInfinite = async (
-    quote: Quote<ChainTypes, SwapperType>,
-    wallet: HDWallet | NativeHDWallet
-  ): Promise<string> => {
+  const approveInfinite = async (wallet: HDWallet | NativeHDWallet): Promise<string> => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     const txid = await swapper.approveInfinite({ quote, wallet })
     return txid

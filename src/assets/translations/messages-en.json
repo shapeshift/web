@@ -63,6 +63,8 @@
     "needPermission": "We need your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",
+    "approvingAsset": "Approving %{symbol}",
+    "viewTransaction": "View Transaction",
     "errors": {
       "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",

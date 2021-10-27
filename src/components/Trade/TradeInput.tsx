@@ -60,7 +60,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (wallet) {
       const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
       const formattedBuyAsset = { ...quote.buyAsset }
-      const approvalNeeded = await checkApprovalNeeded(quote, wallet)
+      const approvalNeeded = await checkApprovalNeeded(wallet)
       const ethFiatRate = await getFiatRate({
         symbol: 'ETH'
       })
@@ -68,8 +68,6 @@ export const TradeInput = ({ history }: RouterProps) => {
         history.push({
           pathname: '/trade/approval',
           state: {
-            sellAsset: sellAsset.currency,
-            fee: fees.chainSpecific.approvalFee,
             ethFiatRate
           }
         })

@@ -1,5 +1,5 @@
-import { Button, Divider, Flex, Image, SkeletonCircle } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -8,33 +8,66 @@ import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn } from 'lib/bignumber/bignumber'
 import { theme } from 'theme/theme'
 
 type ApprovalParams = {
-  sellAsset: Asset
-  fee: string
-  feeFiat: string
+  ethFiatRate: string
 }
 
 export const Approval = () => {
   const history = useHistory()
   const location = useLocation()
-  const { sellAsset, fee, feeFiat } = location.state as ApprovalParams
-  const { getValues } = useFormContext()
-  const { approveInfinite } = useSwapper()
+  const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
+  const [approvalTxId, setApprovalTxId] = useState<string>()
+  const { ethFiatRate } = location.state as ApprovalParams
+  const {
+    getValues,
+    formState: { errors }
+  } = useFormContext()
+  const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
   const {
     number: { toCrypto, toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const {
     state: { wallet }
   } = useWallet()
-  const quote = getValues('quote')
+  const { quote, sellAsset, fees } = getValues()
+  const fee = fees.chainSpecific.approvalFee
+  const symbol = sellAsset.currency?.symbol
+
+  const approve = async () => {
+    if (wallet) {
+      const txId = await approveInfinite(wallet)
+      if (txId) {
+        setApprovalTxId(txId)
+        const interval = setInterval(async () => {
+          const needApproval = await checkApprovalNeeded(wallet)
+          if (!needApproval) {
+            clearInterval(approvalInterval.current as NodeJS.Timeout)
+            await buildQuoteTx({
+              wallet,
+              sellAsset: { ...quote.sellAsset, amount: sellAsset.amount },
+              buyAsset: { ...quote.buyAsset }
+            })
+            history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+          }
+        }, 10000)
+        approvalInterval.current = interval
+      }
+    }
+  }
+
+  useEffect(() => {
+    const error = get(errors, `buildQuote.message`, null)
+    if (error) history.push('/trade/input')
+  }, [errors, history])
 
   return (
     <SlideTransition>
       <Flex justifyContent='center' alignItems='center' flexDirection='column'>
         <CountdownCircleTimer
-          isPlaying={true}
+          isPlaying={!!approvalTxId}
           size={90}
           strokeWidth={6}
           trailColor={theme.colors.whiteAlpha[500]}
@@ -48,7 +81,7 @@ export const Approval = () => {
           }}
         >
           <Image
-            src={sellAsset?.icon}
+            src={sellAsset.currency?.icon}
             boxSize='60px'
             fallback={<SkeletonCircle boxSize='60px' />}
           />
@@ -58,33 +91,38 @@ export const Approval = () => {
           fontSize='lg'
           fontWeight='bold'
           textAlign='center'
-          translation={['trade.allowShapeshift', { symbol: sellAsset?.symbol }]}
+          translation={['trade.allowShapeshift', { symbol }]}
         />
-        <Text
-          color='gray.500'
-          translation={['trade.needPermission', { symbol: sellAsset?.symbol }]}
-        />
+        <Text color='gray.500' translation={['trade.needPermission', { symbol }]} />
         <Text color='blue.500' translation='trade.whyNeedThis' />
         <Divider my={4} />
-        <Flex flexDirection='column' width='full'>
-          <Flex justifyContent='space-between' my={2}>
-            <Text color='gray.500' translation='trade.estimatedGasFee' />
-            <Flex flexDirection='column' alignItems='flex-end'>
-              <RawText>{toFiat(feeFiat)}</RawText>
-              <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+        {!approvalTxId ? (
+          <Flex flexDirection='column' width='full'>
+            <Flex justifyContent='space-between' my={2}>
+              <Text color='gray.500' translation='trade.estimatedGasFee' />
+              <Flex flexDirection='column' alignItems='flex-end'>
+                <RawText>{toFiat(bn(fee).times(ethFiatRate).toNumber())}</RawText>
+                <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+              </Flex>
             </Flex>
+            <Button colorScheme='blue' mt={2} onClick={approve}>
+              <Text translation='common.confirm' />
+            </Button>
+            <Button mt={2} onClick={() => history.goBack()}>
+              <Text translation='common.reject' />
+            </Button>
           </Flex>
-          <Button
-            colorScheme='blue'
-            mt={2}
-            onClick={() => wallet && approveInfinite(quote, wallet)}
-          >
-            <Text translation='common.confirm' />
-          </Button>
-          <Button mt={2} onClick={() => history.goBack()}>
-            <Text translation='common.reject' />
-          </Button>
-        </Flex>
+        ) : (
+          <>
+            <Text fontWeight='bold' translation={['trade.approvingAsset', { symbol }]} />
+            <Link
+              isExternal
+              color='blue.500'
+              to={sellAsset.currency?.explorer}
+              text={{ t: 'trade.viewTransaction' }}
+            />
+          </>
+        )}
       </Flex>
     </SlideTransition>
   )

@@ -34,8 +34,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     const result = await executeQuote({ wallet })
-    if(result?.txid){
-      
+    if (result?.txid) {
+      console.log('trade successful')
     }
   }
 

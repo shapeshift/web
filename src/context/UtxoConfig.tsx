@@ -45,7 +45,7 @@ export const UtxoConfigProvider: React.FC = ({ children }) => {
     else throw new Error('invalid script type')
 
     const chainSpecificData = {
-      bip32Params: { purpose, coinType: asset.slip44, accountNumber: 0 },
+      bip32Params: { purpose, coinType: asset?.slip44, accountNumber: 0 },
       scriptType
     }
 

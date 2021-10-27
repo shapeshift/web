@@ -140,16 +140,10 @@ export const useTransactions = ({
     // Get transaction history for all chians that are supported.
     for (const getAdapter of supportedAdapters) {
       const genericAdapter = getAdapter()
+      const utxoData = utxoConfig.getUtxoData(symbol)
       const pubkey = await genericAdapter.getAddress({
         wallet,
-        bip32Params:
-          genericAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.bip32Params
-            : undefined,
-        scriptType:
-          genericAdapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.scriptType
-            : undefined
+        ...utxoData
       })
       let txHistoryResponse
       try {

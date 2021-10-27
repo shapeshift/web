@@ -37,6 +37,10 @@ export const YearnDeposit = () => {
     nextStep()
   }
 
+  const handleCurrencyToggle = () => {
+    console.info('toggle currency')
+  }
+
   const handleViewPosition = () => {}
 
   const handleCancel = () => {
@@ -57,10 +61,12 @@ export const YearnDeposit = () => {
             fiatAmount=''
             fiatAmountAvailable=''
             fiatTotalPlusFees=''
+            slippage='0.5'
             onCancel={handleCancel}
             onContinue={handleContinueDeposit}
             onSlippageChange={() => {}}
             onPercentClick={handlePercentChange}
+            onCurrencyToggle={handleCurrencyToggle}
           />
         )
       case 1:

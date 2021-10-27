@@ -57,10 +57,13 @@ type DepositProps = {
   cryptoAmount: string
   // Users available amount
   cryptoAmountAvailable: string
+  // Current Slippage
+  slippage: number | string
   onContinue(): void
   onCancel(): void
-  onSlippageChange(slippage: number): void
+  onSlippageChange(slippage: number | string): void
   onPercentClick(percent: PercentAmounts): void
+  onCurrencyToggle(): void
 }
 
 const CryptoInput = (props: InputProps) => (
@@ -76,17 +79,18 @@ const CryptoInput = (props: InputProps) => (
   />
 )
 
-export const Deposit = ({ onContinue, onCancel }: DepositProps) => {
+export const Deposit = ({
+  onContinue,
+  onCancel,
+  slippage,
+  onSlippageChange,
+  onCurrencyToggle
+}: DepositProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
   const [cryptoValue, setCryptoValue] = useState('')
-  const [slippage, setSlippage] = useState<number | string>(0.5)
-
-  const handleToggle = () => {
-    console.info('handleToggle')
-  }
 
   const maxPerct = ['25%', '50%', '75%', 'Max']
 
@@ -126,7 +130,7 @@ export const Deposit = ({ onContinue, onCancel }: DepositProps) => {
               as='button'
               type='button'
               color='gray.500'
-              onClick={handleToggle}
+              onClick={onCurrencyToggle}
               textTransform='uppercase'
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
@@ -148,7 +152,7 @@ export const Deposit = ({ onContinue, onCancel }: DepositProps) => {
                   size='sm'
                   variant='ghost'
                   textTransform='uppercase'
-                  onClick={handleToggle}
+                  onClick={onCurrencyToggle}
                   width='full'
                 >
                   USDC
@@ -181,7 +185,7 @@ export const Deposit = ({ onContinue, onCancel }: DepositProps) => {
                       <RawText fontSize='sm'>Slippage Settings</RawText>
                     </PopoverHeader>
                     <PopoverBody>
-                      <Slippage onSlippageChange={setSlippage} value={slippage} />
+                      <Slippage onSlippageChange={onSlippageChange} value={slippage} />
                     </PopoverBody>
                   </PopoverContent>
                 </Popover>

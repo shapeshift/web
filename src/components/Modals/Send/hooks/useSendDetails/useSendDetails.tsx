@@ -123,16 +123,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     if (assetBalance && wallet) {
       setLoading(true)
       const to = address
+      const utxoData = utxoConfig.getUtxoData(asset.symbol)
       const from = await adapter.getAddress({
         wallet,
-        bip32Params:
-          adapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.bip32Params
-            : undefined,
-        scriptType:
-          adapter.getType() === ChainTypes.Bitcoin
-            ? utxoConfig.utxoDataState.utxoData.scriptType
-            : undefined
+        ...utxoData
       })
 
       // Assume fast fee for send max

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { AssetService } from '@shapeshiftoss/asset-service'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
@@ -106,10 +105,8 @@ export const useTransactions = ({
     if (chain) {
       const chainAdapter = chainAdapterManager.byChain(chain)
 
-      console.log('symbol is', symbol)
       const utxoData = utxoConfig.getUtxoData(symbol)
 
-      console.log('utxodata is', utxoData)
       const pubkey = await chainAdapter.getAddress({
         wallet,
         ...utxoData

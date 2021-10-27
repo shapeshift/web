@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { BIP32Params, NetworkTypes } from '@shapeshiftoss/types'
 import React, { useContext } from 'react'
@@ -30,18 +29,16 @@ export const UtxoConfigProvider: React.FC = ({ children }) => {
     return configData[chain]
   }
 
-  const setUtxoData = async (chain: string, scriptType: BTCInputScriptType) => {
+  const setUtxoData = async (symbol: string, scriptType: BTCInputScriptType) => {
     const service = await getAssetService()
     const assetData = service?.byNetwork(NetworkTypes.MAINNET)
-    const asset = assetData.find(asset => asset.chain === chain)
 
-    console.log('found asset', asset)
+    const asset = assetData.find(asset => asset.symbol === symbol)
 
     let purpose
-
     if (scriptType === BTCInputScriptType.SpendP2SHWitness) purpose = 49
-    if (scriptType === BTCInputScriptType.SpendAddress) purpose = 44
-    if (scriptType === BTCInputScriptType.SpendWitness) purpose = 84
+    else if (scriptType === BTCInputScriptType.SpendAddress) purpose = 44
+    else if (scriptType === BTCInputScriptType.SpendWitness) purpose = 84
     else throw new Error('invalid script type')
 
     const chainSpecificData = {
@@ -49,9 +46,7 @@ export const UtxoConfigProvider: React.FC = ({ children }) => {
       scriptType
     }
 
-    console.log('chainSpecificData', chainSpecificData)
-
-    setConfigData({ ...configData, [chain]: chainSpecificData })
+    setConfigData({ ...configData, [symbol]: chainSpecificData })
   }
 
   return (

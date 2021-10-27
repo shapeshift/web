@@ -128,12 +128,12 @@ export const useSendDetails = (
       setLoading(true)
       const to = address
 
-      const bip32 = bip32FromScript(props)
+      const bip32 = bip32FromScript(scriptType)
 
       const from = await adapter.getAddress({
         wallet,
         bip32Params: bip32,
-        scriptType: props
+        scriptType: scriptType
       })
 
       // Assume fast fee for send max

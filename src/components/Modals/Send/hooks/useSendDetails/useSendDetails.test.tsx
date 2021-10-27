@@ -145,7 +145,7 @@ const setup = ({
   }))
 
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
-  return renderHook(() => useSendDetails(), { wrapper })
+  return renderHook(() => useSendDetails(undefined), { wrapper })
 }
 
 describe('useSendDetails', () => {

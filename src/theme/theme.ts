@@ -10,6 +10,7 @@ import { HeadingStyle as Heading } from 'components/Heading/Heading.theme'
 import { InputStyle as Input } from 'components/Input/Input.theme'
 import { MenuStyle as Menu } from 'components/Menu/Menu.theme'
 import { ModalStyle as Modal } from 'components/Modal/Modal.theme'
+import { PopoverStyle as Popover } from 'components/Popover/Popover.theme'
 import { ProgressStyle as Progress } from 'components/Progres/Progress.theme'
 import { RowStyle as Row } from 'components/Row/Row.theme'
 import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
@@ -112,7 +113,8 @@ export const theme = extendTheme({
     Drawer,
     Textarea,
     Skeleton,
-    Steps
+    Steps,
+    Popover
   },
   shadows: {
     xl: '0 2px 4px 2px rgba(0,0,0,.15),0 2px 10px 2px rgba(0,0,0,.2)',

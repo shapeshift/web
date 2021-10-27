@@ -4,6 +4,7 @@
     "next": "Next",
     "error": "Error",
     "cancel": "Cancel",
+    "continue": "Continue",
     "confirm": "Confirm",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
@@ -108,6 +109,12 @@
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
       "verify": "Verify"
+    },
+    "deposit": {
+      "amountToDeposit": "Amount To Deposit",
+      "estimatedReturns": "Estimated Yearly Returns*",
+      "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
+      "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service."
     }
   },
   "walletProvider": {

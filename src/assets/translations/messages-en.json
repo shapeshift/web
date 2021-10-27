@@ -113,7 +113,7 @@
       "amountToDeposit": "Amount To Deposit",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "This transaction requires to 2 gas fees, by continuing you agree to our terms of service."
+      "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service."
     }
   },
   "walletProvider": {

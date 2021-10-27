@@ -57,6 +57,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
+    "confirmTrade": "Confirm Trade",
     "confirmAndTrade": "Confirm and Trade",
     "allowShapeshift": "Allow ShapeShift.io to spend your %{symbol}",
     "needPermission": "We need your permission to use your %{symbol}",

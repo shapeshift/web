@@ -1,11 +1,12 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, IconButton, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Divider, IconButton, SimpleGrid, Stack } from '@chakra-ui/react'
 import { useFormContext } from 'react-hook-form'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -50,7 +51,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               isRound
               onClick={() => history.push('/trade/input')}
             />
-            <Card.Heading textAlign='center'>Confirm Trade</Card.Heading>
+            <Card.Heading textAlign='center'>
+              <Text translation='trade.confirmTrade' />
+            </Card.Heading>
           </SimpleGrid>
           <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} />
         </Card.Header>
@@ -59,24 +62,30 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           <Stack spacing={4}>
             <Row>
               <HelperTooltip label='This is the rate'>
-                <Row.Label>Rate</Row.Label>
+                <Row.Label>
+                  <Text translation='trade.rate' />
+                </Row.Label>
               </HelperTooltip>
               <Box textAlign='right'>
-                <Text>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(bn(quote.rate))} ${
-                  buyAsset.currency.symbol
-                }`}</Text>
-                <Text color='gray.500'>@{trade?.name}</Text>
+                <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
+                  bn(quote.rate)
+                )} ${buyAsset.currency.symbol}`}</RawText>
+                <RawText color='gray.500'>@{trade?.name}</RawText>
               </Box>
             </Row>
             <Row>
               <HelperTooltip label='This is the Miner Fee'>
-                <Row.Label>Miner Fee</Row.Label>
+                <Row.Label>
+                  <Text translation='trade.minerFee' />
+                </Row.Label>
               </HelperTooltip>
               <Row.Value>{toFiat(bn(fees?.fee).times(ethFiatRate).toNumber())}</Row.Value>
             </Row>
             <Row>
-              <HelperTooltip label='This is the Miner Fee'>
-                <Row.Label>ShapeShift Fee</Row.Label>
+              <HelperTooltip label='This is the Shapeshift Fee'>
+                <Row.Label>
+                  <Text translation='trade.shapeshiftFee' />
+                </Row.Label>
               </HelperTooltip>
               <Row.Value>$0.00</Row.Value>
             </Row>

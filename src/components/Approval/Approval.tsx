@@ -10,7 +10,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { theme } from 'theme/theme'
 
-type ApprovalType = {
+type ApprovalParams = {
   sellAsset: Asset
   fee: string
   feeFiat: string
@@ -19,7 +19,7 @@ type ApprovalType = {
 export const Approval = () => {
   const history = useHistory()
   const location = useLocation()
-  const { sellAsset, fee, feeFiat } = location.state as ApprovalType
+  const { sellAsset, fee, feeFiat } = location.state as ApprovalParams
   const { getValues } = useFormContext()
   const { approveInfinite } = useSwapper()
   const {

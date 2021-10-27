@@ -259,7 +259,7 @@ export const useSwapper = () => {
     tokenId
   }: {
     symbol: string
-    tokenId: string
+    tokenId?: string
   }): Promise<string> => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     return swapper?.getUsdRate({

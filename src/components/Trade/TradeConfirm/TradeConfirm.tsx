@@ -1,7 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, SimpleGrid, Stack, Text } from '@chakra-ui/react'
 import { useFormContext } from 'react-hook-form'
-import { RouterProps } from 'react-router-dom'
+import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -14,10 +14,16 @@ import { firstNonZeroDecimal } from 'lib/math'
 
 import { AssetToAsset } from './AssetToAsset'
 
+type TradeConfirmParams = {
+  ethFiatRate: string
+}
+
 export const TradeConfirm = ({ history }: RouterProps) => {
   const { getValues } = useFormContext()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote } = useSwapper()
+  const location = useLocation()
+  const { ethFiatRate } = location.state as TradeConfirmParams
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -66,7 +72,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               <HelperTooltip label='This is the Miner Fee'>
                 <Row.Label>Miner Fee</Row.Label>
               </HelperTooltip>
-              <Row.Value>{toFiat(bn(fees?.fee).times(quote?.rate).toNumber())}</Row.Value>
+              <Row.Value>{toFiat(bn(fees?.fee).times(ethFiatRate).toNumber())}</Row.Value>
             </Row>
             <Row>
               <HelperTooltip label='This is the Miner Fee'>

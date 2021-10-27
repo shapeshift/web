@@ -61,17 +61,16 @@ export const TradeInput = ({ history }: RouterProps) => {
       const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
       const formattedBuyAsset = { ...quote.buyAsset }
       const approvalNeeded = await checkApprovalNeeded(quote, wallet)
+      const ethFiatRate = await getFiatRate({
+        symbol: 'ETH'
+      })
       if (approvalNeeded) {
-        const ethFiatRate = await getFiatRate({
-          symbol: 'ETH',
-          tokenId: sellAsset.tokenId
-        })
         history.push({
           pathname: '/trade/approval',
           state: {
             sellAsset: sellAsset.currency,
             fee: fees.chainSpecific.approvalFee,
-            feeFiat: bn(fees.chainSpecific.approvalFee).times(ethFiatRate).toString()
+            ethFiatRate
           }
         })
       } else {
@@ -80,7 +79,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           sellAsset: formattedSellAsset,
           buyAsset: formattedBuyAsset
         })
-        history.push('/trade/confirm')
+        history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
       }
     }
   }

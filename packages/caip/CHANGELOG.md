@@ -1,3 +1,5 @@
+# [@shapeshiftoss/caip-v1.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.0.0...@shapeshiftoss/caip-v1.0.1) (2021-10-27)
+
 # @shapeshiftoss/caip-v1.0.0 (2021-10-26)
 
 

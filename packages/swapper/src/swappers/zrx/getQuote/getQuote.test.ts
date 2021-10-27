@@ -1,11 +1,12 @@
-import { ChainTypes } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import Web3 from 'web3'
+import { ChainTypes } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
+
 import { ZrxSwapper } from '../..'
-import { zrxService } from '../utils/zrxService'
 import { normalizeAmount } from '../utils/helpers/helpers'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
+import { zrxService } from '../utils/zrxService'
 
 const axios = jest.createMockFromModule('axios')
 //@ts-ignore

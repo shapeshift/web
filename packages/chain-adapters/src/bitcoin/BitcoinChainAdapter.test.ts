@@ -6,11 +6,12 @@
  * @group unit
  */
 
-import axios from 'axios'
 import { BTCInputScriptType, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { BIP32Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { BIP32Params, ChainTypes, chainAdapters } from '@shapeshiftoss/types'
+import axios from 'axios'
+
 import * as bitcoin from './BitcoinChainAdapter'
 
 jest.mock('axios')

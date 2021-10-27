@@ -1,11 +1,12 @@
-import Web3 from 'web3'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { approvalNeeded } from './approvalNeeded'
+import Web3 from 'web3'
+
+import { APPROVAL_GAS_LIMIT } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
-import { APPROVAL_GAS_LIMIT } from '../utils/constants'
+import { approvalNeeded } from './approvalNeeded'
 
 jest.mock('web3')
 jest.mock('axios', () => ({

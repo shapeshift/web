@@ -1,17 +1,18 @@
-import Web3 from 'web3'
-import BigNumber from 'bignumber.js'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { setupQuote } from '../test-data/setupSwapQuote'
-import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes } from '@shapeshiftoss/types'
+import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
+
 import { erc20Abi } from '../abi/erc20-abi'
+import { erc20AllowanceAbi } from '../abi/erc20Allowance-abi'
 import {
-  normalizeAmount,
   getAllowanceRequired,
   getUsdRate,
-  grantAllowance
+  grantAllowance,
+  normalizeAmount
 } from '../helpers/helpers'
+import { setupQuote } from '../test-data/setupSwapQuote'
 import { zrxService } from '../zrxService'
 
 jest.mock('web3')

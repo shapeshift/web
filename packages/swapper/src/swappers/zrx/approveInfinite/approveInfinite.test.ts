@@ -1,9 +1,10 @@
-import Web3 from 'web3'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { approveInfinite } from './approveInfinite'
-import { setupZrxDeps } from '../utils/test-data/setupZrxDeps'
+import Web3 from 'web3'
+
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
+import { setupZrxDeps } from '../utils/test-data/setupZrxDeps'
 import { zrxService } from '../utils/zrxService'
+import { approveInfinite } from './approveInfinite'
 
 jest.mock('web3')
 jest.mock('../utils/helpers/helpers', () => ({

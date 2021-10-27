@@ -1,13 +1,13 @@
-import axios from 'axios'
-import dayjs from 'dayjs'
 import {
   ChainTypes,
-  MarketData,
   HistoryData,
   HistoryTimeframe,
-  PriceHistoryArgs,
-  MarketDataArgs
+  MarketData,
+  MarketDataArgs,
+  PriceHistoryArgs
 } from '@shapeshiftoss/types'
+import axios from 'axios'
+import dayjs from 'dayjs'
 
 import { MarketService } from '../api'
 

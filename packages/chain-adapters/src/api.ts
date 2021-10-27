@@ -1,4 +1,4 @@
-import { chainAdapters, ChainTypes, BIP32Params } from '@shapeshiftoss/types'
+import { BIP32Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
 export interface ChainAdapter<T extends ChainTypes> {
   /**

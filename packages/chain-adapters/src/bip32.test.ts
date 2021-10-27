@@ -1,4 +1,5 @@
 import { BIP32Params } from '@shapeshiftoss/types'
+
 import { fromPath, toPath } from './bip32'
 
 describe('fromPath', () => {

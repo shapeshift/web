@@ -1,6 +1,7 @@
-import axios from 'axios'
-import { getMarketData, getPriceHistory } from '..'
 import { ChainTypes, HistoryTimeframe } from '@shapeshiftoss/types'
+import axios from 'axios'
+
+import { getMarketData, getPriceHistory } from '..'
 
 jest.mock('axios')
 

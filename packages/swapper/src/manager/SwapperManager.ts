@@ -1,5 +1,6 @@
-import { Swapper } from '..'
 import { GetQuoteInput, SwapperType } from '@shapeshiftoss/types'
+
+import { Swapper } from '..'
 
 export class SwapperError extends Error {
   constructor(message: string) {

@@ -1,26 +1,27 @@
-import BigNumber from 'bignumber.js'
-import { AxiosResponse } from 'axios'
-import * as rax from 'retry-axios'
-import { SwapError } from '../../..'
 import {
+  BuildQuoteTxInput,
   ChainTypes,
-  SwapperType,
   Quote,
   QuoteResponse,
-  BuildQuoteTxInput
+  SwapperType
 } from '@shapeshiftoss/types'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
-import { applyAxiosRetry } from '../utils/applyAxiosRetry'
+import { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
+import * as rax from 'retry-axios'
+
+import { SwapError } from '../../..'
 import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
-import { normalizeAmount, getAllowanceRequired } from '../utils/helpers/helpers'
-import { zrxService } from '../utils/zrxService'
+import { applyAxiosRetry } from '../utils/applyAxiosRetry'
 import {
-  DEFAULT_SLIPPAGE,
-  DEFAULT_SOURCE,
   AFFILIATE_ADDRESS,
   APPROVAL_GAS_LIMIT,
+  DEFAULT_SLIPPAGE,
+  DEFAULT_SOURCE,
   MAX_SLIPPAGE
 } from '../utils/constants'
+import { getAllowanceRequired, normalizeAmount } from '../utils/helpers/helpers'
+import { zrxService } from '../utils/zrxService'
+import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function buildQuoteTx(
   { adapterManager, web3 }: ZrxSwapperDeps,

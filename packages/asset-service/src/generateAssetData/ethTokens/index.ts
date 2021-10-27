@@ -1,6 +1,7 @@
-import axios from 'axios'
 import { ContractTypes, TokenAsset } from '@shapeshiftoss/types'
+import axios from 'axios'
 import lodash from 'lodash'
+
 import { tokensToOverride } from './overrides'
 
 type CoingeckoTokenData = {

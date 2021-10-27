@@ -1,6 +1,5 @@
-import coinSelect from 'coinselect'
-import WAValidator from 'multicoin-address-validator'
 import {
+  bip32ToAddressNList,
   BTCInputScriptType,
   BTCOutputAddressType,
   BTCOutputScriptType,
@@ -9,11 +8,13 @@ import {
   BTCSignTxOutput,
   HDWallet,
   PublicKey,
-  bip32ToAddressNList,
   supportsBTC
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP32Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { bitcoin } from '@shapeshiftoss/unchained-client'
+import coinSelect from 'coinselect'
+import WAValidator from 'multicoin-address-validator'
+
 import { ChainAdapter as IChainAdapter } from '../api'
 import { toPath, toRootDerivationPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'

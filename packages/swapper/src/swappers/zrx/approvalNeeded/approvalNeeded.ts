@@ -1,5 +1,3 @@
-import { BigNumber } from 'bignumber.js'
-import { AxiosResponse } from 'axios'
 import {
   ApprovalNeededInput,
   ApprovalNeededOutput,
@@ -7,18 +5,20 @@ import {
   QuoteResponse,
   SwapperType
 } from '@shapeshiftoss/types'
+import { AxiosResponse } from 'axios'
+import { BigNumber } from 'bignumber.js'
+
+import { SwapError } from '../../../api'
+import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
 import {
   AFFILIATE_ADDRESS,
   APPROVAL_BUY_AMOUNT,
   APPROVAL_GAS_LIMIT,
   DEFAULT_SLIPPAGE
 } from '../utils/constants'
-
-import { SwapError } from '../../../api'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
-import { zrxService } from '../utils/zrxService'
 import { getERC20Allowance } from '../utils/helpers/helpers'
-import { erc20AllowanceAbi } from '../utils/abi/erc20Allowance-abi'
+import { zrxService } from '../utils/zrxService'
+import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function approvalNeeded(
   { adapterManager, web3 }: ZrxSwapperDeps,

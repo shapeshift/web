@@ -1,6 +1,7 @@
 import { Asset } from '@shapeshiftoss/types'
-import { FOX, WETH } from './assets'
+
 import { DEFAULT_SLIPPAGE } from '../constants'
+import { FOX, WETH } from './assets'
 
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX }

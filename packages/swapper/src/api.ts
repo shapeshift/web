@@ -1,17 +1,17 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
-  Asset,
   ApprovalNeededInput,
   ApprovalNeededOutput,
   ApproveInfiniteInput,
+  Asset,
   BuildQuoteTxInput,
-  GetQuoteInput,
-  Quote,
-  SwapperType,
+  ChainTypes,
   ExecQuoteInput,
   ExecQuoteOutput,
+  GetQuoteInput,
   MinMaxOutput,
-  ChainTypes
+  Quote,
+  SwapperType
 } from '@shapeshiftoss/types'
 
 export class SwapError extends Error {}

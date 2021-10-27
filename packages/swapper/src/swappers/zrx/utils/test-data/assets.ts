@@ -1,4 +1,4 @@
-import { ChainTypes, ContractTypes, NetworkTypes, Asset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
   name: 'bitcoin',

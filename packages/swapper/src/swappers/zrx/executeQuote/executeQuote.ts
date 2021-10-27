@@ -1,5 +1,6 @@
+import { ChainTypes, ExecQuoteInput, ExecQuoteOutput, SwapperType } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
-import { ExecQuoteInput, ExecQuoteOutput, ChainTypes, SwapperType } from '@shapeshiftoss/types'
+
 import { SwapError } from '../../../api'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 

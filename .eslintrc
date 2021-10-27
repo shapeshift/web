@@ -12,7 +12,8 @@
   "plugins": [
     "@typescript-eslint",
     "prettier",
-    "jest"
+    "jest",
+    "simple-import-sort"
   ],
   "env": {
     "node": true,
@@ -44,6 +45,9 @@
     "@typescript-eslint/member-delimiter-style": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-shadow": [
+      "error"
+    ],
+    "simple-import-sort/imports": [
       "error"
     ]
   },

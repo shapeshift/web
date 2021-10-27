@@ -1,5 +1,3 @@
-import { AxiosResponse } from 'axios'
-import BigNumber from 'bignumber.js'
 import {
   ChainTypes,
   GetQuoteInput,
@@ -8,9 +6,12 @@ import {
   SwapperType,
   SwapSource
 } from '@shapeshiftoss/types'
-import { MAX_ZRX_TRADE, APPROVAL_GAS_LIMIT, DEFAULT_SOURCE } from '../utils/constants'
-import { zrxService } from '../utils/zrxService'
+import { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
+
+import { APPROVAL_GAS_LIMIT, DEFAULT_SOURCE, MAX_ZRX_TRADE } from '../utils/constants'
 import { normalizeAmount } from '../utils/helpers/helpers'
+import { zrxService } from '../utils/zrxService'
 import { ZrxError } from '../ZrxSwapper'
 
 export async function getZrxQuote(

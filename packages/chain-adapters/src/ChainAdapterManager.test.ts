@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ChainTypes } from '@shapeshiftoss/types'
+
 import { ChainAdapterManager } from './ChainAdapterManager'
 import * as ethereum from './ethereum'
 

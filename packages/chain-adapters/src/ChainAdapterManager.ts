@@ -1,5 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+
 import { ChainAdapter } from './api'
 import * as bitcoin from './bitcoin'
 import * as ethereum from './ethereum'

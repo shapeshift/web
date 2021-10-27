@@ -1,13 +1,14 @@
 import {
-  Asset,
   ApprovalNeededOutput,
-  SwapperType,
-  Quote,
+  Asset,
+  ChainTypes,
   ExecQuoteOutput,
-  MinMaxOutput,
   GetQuoteInput,
-  ChainTypes
+  MinMaxOutput,
+  Quote,
+  SwapperType
 } from '@shapeshiftoss/types'
+
 import { Swapper } from '../../api'
 
 export class ThorchainSwapper implements Swapper {

@@ -1,4 +1,4 @@
-import { BaseAsset, ContractTypes, NetworkTypes, ChainTypes } from '@shapeshiftoss/types'
+import { BaseAsset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const baseAssets: Array<BaseAsset> = [
   {

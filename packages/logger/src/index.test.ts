@@ -1,4 +1,4 @@
-import { loggerFactory, Logger, LogLevel } from './index'
+import { Logger, loggerFactory, LogLevel } from './index'
 
 describe('Logger', () => {
   it('should export loggerFactory', () => {

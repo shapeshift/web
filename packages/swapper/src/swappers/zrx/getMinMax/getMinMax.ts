@@ -1,5 +1,6 @@
-import { ChainTypes, GetQuoteInput, QuoteResponse, MinMaxOutput } from '@shapeshiftoss/types'
+import { ChainTypes, GetQuoteInput, MinMaxOutput, QuoteResponse } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
+
 import { MAX_ZRX_TRADE } from '../utils/constants'
 import { getUsdRate, normalizeAmount } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'

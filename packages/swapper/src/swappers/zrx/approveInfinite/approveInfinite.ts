@@ -1,12 +1,13 @@
-import { AxiosResponse } from 'axios'
-import { ApproveInfiniteInput, QuoteResponse, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ZrxSwapperDeps } from '../ZrxSwapper'
-import { DEFAULT_SLIPPAGE, AFFILIATE_ADDRESS, MAX_ALLOWANCE } from '../utils/constants'
-import { zrxService } from '../utils/zrxService'
-import { grantAllowance } from '../utils/helpers/helpers'
-import { erc20Abi } from '../utils/abi/erc20-abi'
+import { ApproveInfiniteInput, ChainTypes, QuoteResponse, SwapperType } from '@shapeshiftoss/types'
+import { AxiosResponse } from 'axios'
+
 import { SwapError } from '../../../api'
+import { erc20Abi } from '../utils/abi/erc20-abi'
+import { AFFILIATE_ADDRESS, DEFAULT_SLIPPAGE, MAX_ALLOWANCE } from '../utils/constants'
+import { grantAllowance } from '../utils/helpers/helpers'
+import { zrxService } from '../utils/zrxService'
+import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function approveInfinite(
   { adapterManager, web3 }: ZrxSwapperDeps,

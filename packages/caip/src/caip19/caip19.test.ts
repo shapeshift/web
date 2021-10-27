@@ -1,4 +1,5 @@
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+
 import { fromCAIP19, toCAIP19 } from './caip19'
 
 describe('caip19', () => {

@@ -1,5 +1,5 @@
-import { ChainTypes } from '@shapeshiftoss/types'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 export const setupZrxDeps = () => {

@@ -1,13 +1,14 @@
-import BigNumber from 'bignumber.js'
-import { AxiosResponse } from 'axios'
-import { numberToHex, AbiItem } from 'web3-utils'
-import Web3 from 'web3'
-import { Asset, ChainTypes, Quote, QuoteResponse, SwapperType } from '@shapeshiftoss/types'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { zrxService } from '../zrxService'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { Asset, ChainTypes, Quote, QuoteResponse, SwapperType } from '@shapeshiftoss/types'
+import { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
+import Web3 from 'web3'
+import { AbiItem, numberToHex } from 'web3-utils'
+
 import { SwapError } from '../../../../api'
 import { ZrxError } from '../../ZrxSwapper'
+import { zrxService } from '../zrxService'
 
 export type GetAllowanceRequiredArgs = {
   quote: Quote<ChainTypes, SwapperType>

@@ -1,7 +1,7 @@
-import { fromCAIP2, toCAIP2 } from './../caip2/caip2'
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-19.md
-
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+
+import { fromCAIP2, toCAIP2 } from './../caip2/caip2'
 
 export enum AssetNamespace {
   ERC20 = 'erc20',

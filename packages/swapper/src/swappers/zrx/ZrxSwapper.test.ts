@@ -1,18 +1,19 @@
-import Web3 from 'web3'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes, GetQuoteInput, SwapperType, Quote } from '@shapeshiftoss/types'
-import { ZrxSwapper } from '..'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
+import Web3 from 'web3'
+
 import { ZrxError } from '../..'
-import { setupQuote } from './utils/test-data/setupSwapQuote'
-import { FOX, WETH, BTC } from './utils/test-data/assets'
+import { ZrxSwapper } from '..'
 import { buildQuoteTx } from '../zrx/buildQuoteTx/buildQuoteTx'
 import { executeQuote } from '../zrx/executeQuote/executeQuote'
-import { getZrxQuote } from './getQuote/getQuote'
-import { getUsdRate } from './utils/helpers/helpers'
-import { getMinMax } from './getMinMax/getMinMax'
 import { approvalNeeded } from './approvalNeeded/approvalNeeded'
 import { approveInfinite } from './approveInfinite/approveInfinite'
+import { getMinMax } from './getMinMax/getMinMax'
+import { getZrxQuote } from './getQuote/getQuote'
+import { getUsdRate } from './utils/helpers/helpers'
+import { BTC, FOX, WETH } from './utils/test-data/assets'
+import { setupQuote } from './utils/test-data/setupSwapQuote'
 
 jest.mock('./utils/helpers/helpers')
 jest.mock('../zrx/executeQuote/executeQuote', () => ({

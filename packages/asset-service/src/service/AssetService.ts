@@ -1,5 +1,6 @@
-import { BaseAsset, Asset, NetworkTypes, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
+
 import localAssetData from './generatedAssetData.json'
 
 export const flattenAssetData = (assetData: BaseAsset[]): Asset[] => {

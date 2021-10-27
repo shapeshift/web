@@ -1,5 +1,3 @@
-import { CoinGeckoMarketService } from './coingecko/coingecko'
-import { MarketService } from './api'
 import {
   HistoryData,
   MarketDataArgs,
@@ -7,6 +5,9 @@ import {
   PriceHistoryArgs,
   PriceHistoryType
 } from '@shapeshiftoss/types'
+
+import { MarketService } from './api'
+import { CoinGeckoMarketService } from './coingecko/coingecko'
 
 export const getDefaultMarketService = (): MarketService => {
   return new CoinGeckoMarketService()

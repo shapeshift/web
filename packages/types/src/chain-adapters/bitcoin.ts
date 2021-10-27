@@ -1,4 +1,5 @@
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+
 import { GetAddressInputBase } from '.'
 
 export type Account = {

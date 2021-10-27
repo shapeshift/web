@@ -1,7 +1,8 @@
-import axios from 'axios'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import axios from 'axios'
+
 import { AssetService, flattenAssetData, indexAssetData } from './AssetService'
-import { mockBaseAssets, mockAssets, mockIndexedAssetData } from './AssetServiceTestData'
+import { mockAssets, mockBaseAssets, mockIndexedAssetData } from './AssetServiceTestData'
 
 jest.mock('axios')
 

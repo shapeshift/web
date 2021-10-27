@@ -33,14 +33,15 @@
     "foxToken": "FOX Token"
   },
   "transactionRow": {
-    "sent": "Sent",
-    "received": "Received",
+    "send": "Sent",
+    "receive": "Received",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
     "fee": "Fee",
     "status": "Status",
     "confirmed": "Confirmed",
+    "pending": "pending",
     "failed": "Failed",
     "network": "Network",
     "blockHeight": "Block Height",

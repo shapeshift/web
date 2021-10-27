@@ -10,6 +10,7 @@ import { translations } from 'assets/translations'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { EarnManagerProvider } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
+import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { useFeature } from 'hooks/useFeature/useFeature'
 import { store } from 'state/store'
@@ -45,9 +46,11 @@ export function AppProviders({ children }: ProvidersProps) {
           <I18n locale={locale} messages={messages}>
             <WalletProvider>
               <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                <ModalProvider>
-                  <EarnProvider>{children}</EarnProvider>
-                </ModalProvider>
+                <TransactionsProvider>
+                  <ModalProvider>
+                    <EarnProvider>{children}</EarnProvider>
+                  </ModalProvider>
+                </TransactionsProvider>
               </ChainAdaptersProvider>
             </WalletProvider>
           </I18n>

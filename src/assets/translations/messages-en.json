@@ -7,7 +7,9 @@
     "confirm": "Confirm",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
-    "invalidAddress": "Invalid Address"
+    "invalidAddress": "Invalid Address",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw"
   },
   "dashboard": {
     "portfolio": {
@@ -31,14 +33,15 @@
     "foxToken": "FOX Token"
   },
   "transactionRow": {
-    "sent": "Sent",
-    "received": "Received",
+    "send": "Sent",
+    "receive": "Received",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
     "fee": "Fee",
     "status": "Status",
     "confirmed": "Confirmed",
+    "pending": "pending",
     "failed": "Failed",
     "network": "Network",
     "blockHeight": "Block Height",
@@ -54,11 +57,11 @@
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
-      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}.",
-      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount.",
-      "noLiquidityError": "No liquidity available for selected pair.",
-      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price.",
-      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}.",
+      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
+      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+      "noLiquidityError": "Not enough liquidity available",
+      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
+      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
       "dexTradeFailed": "Trade Failed, Tokens Returned",
       "quoteFailed": "An error occurred getting a quote for your trade."
     }

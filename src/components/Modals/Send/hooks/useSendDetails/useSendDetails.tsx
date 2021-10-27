@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { Asset, ChainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
+import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -47,7 +47,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     formState: { errors }
   } = useFormContext()
   const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] }) as [
-    Asset,
+    AssetMarketData,
     string
   ]
   const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
@@ -77,8 +77,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const adapter = chainAdapter.byChain(asset.chain)
 
   const buildTransaction = async (): Promise<{
-    txToSign: ChainAdapters.ChainTxType<ChainTypes>
-    estimatedFees: ChainAdapters.FeeDataEstimate<ChainTypes>
+    txToSign: chainAdapters.ChainTxType<ChainTypes>
+    estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes>
   }> => {
     const values = getValues()
     if (wallet) {

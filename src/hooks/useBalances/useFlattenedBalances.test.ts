@@ -1,11 +1,11 @@
-import { ChainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { flattenTokenBalances } from './useFlattenedBalances'
 
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
-const balances: Record<string, ChainAdapters.Account<ChainTypes.Ethereum>> = {
+const balances: Record<string, chainAdapters.Account<ChainTypes.Ethereum>> = {
   [ChainTypes.Ethereum]: {
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,

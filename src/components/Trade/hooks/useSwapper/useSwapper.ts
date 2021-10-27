@@ -1,5 +1,12 @@
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
-import { Asset, GetQuoteInput, Quote, SwapperType } from '@shapeshiftoss/types'
+import {
+  Asset,
+  chainAdapters,
+  ChainTypes,
+  GetQuoteInput,
+  Quote,
+  SwapperType
+} from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -19,11 +26,11 @@ export enum TradeActions {
 
 type GetQuoteAmount = Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
 
-type GetQuote = {
+type GetQuote<C extends ChainTypes, S extends SwapperType> = {
   amount: GetQuoteAmount
   sellAsset: Asset
   buyAsset: Asset
-  onFinish: (quote: Quote) => void
+  onFinish: (quote: Quote<C, S>) => void
   isFiat?: boolean
 }
 
@@ -64,7 +71,12 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  const getQuoteFromSwapper = async ({ amount, sellAsset, buyAsset, onFinish }: GetQuote) => {
+  const getQuoteFromSwapper = async <C extends ChainTypes, S extends SwapperType>({
+    amount,
+    sellAsset,
+    buyAsset,
+    onFinish
+  }: GetQuote<C, S>) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
@@ -96,11 +108,10 @@ export const useSwapper = () => {
           quote?.buyAsset?.symbol !== buyAsset.symbol
         ) {
           minMax = await swapper.getMinMax(quoteInput)
-          minMax && setValue('trade', minMax)
+          minMax && setValue('trade', { ...trade, ...minMax })
         }
-
         const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
-        if (!newQuote?.success) throw new Error('getQuote - quote not successful')
+        if (!newQuote?.success) throw newQuote
 
         const sellAssetUsdRate = await swapper.getUsdRate({
           symbol: sellAsset.symbol,
@@ -117,17 +128,15 @@ export const useSwapper = () => {
         }
         const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
         const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
-
+        setFees(newQuote, sellAsset)
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
         if (actionRef.current) onFinish(newQuote)
       } catch (err: any) {
-        const message = err?.response?.data?.validationErrors?.[0]?.reason
+        const message = err?.statusReason
         if (message) setError('getQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
         else setError('getQuote', { message: TRADE_ERRORS.QUOTE_FAILED })
-      } finally {
-        // setValue('action', undefined)
       }
     }, debounceTime)
     quoteDebounce()
@@ -154,50 +163,116 @@ export const useSwapper = () => {
       amount = { [key]: toBaseUnit(value || '0', precision) }
     }
 
-    await getQuoteFromSwapper({
+    const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
+      const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+      const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+      const fiatAmount = bn(buyAmount)
+        .times(buyAsset.fiatRate || 0)
+        .toFixed(2)
+      if (actionRef.current === TradeActions.SELL && isSellAmount) {
+        setValue('buyAsset.amount', buyAmount)
+        setValue('fiatAmount', fiatAmount)
+        setValue('action', undefined)
+      } else if (actionRef.current === TradeActions.BUY && isBuyAmount) {
+        setValue('sellAsset.amount', sellAmount)
+        setValue('fiatAmount', fiatAmount)
+        setValue('action', undefined)
+      } else if (actionRef.current === TradeActions.FIAT && isFiatAmount) {
+        setValue(
+          'buyAsset.amount',
+          fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+        )
+        setValue(
+          'sellAsset.amount',
+          fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+        )
+        setValue('action', undefined)
+      }
+    }
+
+    await getQuoteFromSwapper<typeof sellAsset.currency.chain, typeof bestSwapperType>({
       amount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
-      onFinish: quote => {
-        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        const fiatAmount = bn(buyAmount)
-          .times(buyAsset.fiatRate || 0)
-          .toFixed(2)
-        if (actionRef.current === TradeActions.SELL && isSellAmount) {
-          setValue('buyAsset.amount', buyAmount)
-          setValue('fiatAmount', fiatAmount)
-          setValue('action', undefined)
-        } else if (actionRef.current === TradeActions.BUY && isBuyAmount) {
-          setValue('sellAsset.amount', sellAmount)
-          setValue('fiatAmount', fiatAmount)
-          setValue('action', undefined)
-        } else if (actionRef.current === TradeActions.FIAT && isFiatAmount) {
-          setValue(
-            'buyAsset.amount',
-            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-          )
-          setValue(
-            'sellAsset.amount',
-            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-          )
-          setValue('action', undefined)
-        }
-      }
+      onFinish
     })
   }
 
+  const setFees = async (result: Quote<ChainTypes, SwapperType>, sellAsset: Asset) => {
+    const feePrecision = sellAsset.chain === ChainTypes.Ethereum ? 18 : sellAsset.precision
+    const feeBN = bn(fromBaseUnit(result?.feeData?.fee || '0', feePrecision))
+    const fee = feeBN.toString()
+
+    switch (sellAsset.chain) {
+      case ChainTypes.Ethereum: {
+        const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
+        const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee
+          ? bn(ethResult.feeData.chainSpecific.approvalFee)
+              .dividedBy(bn(10).exponentiatedBy(18))
+              .toString()
+          : '0'
+        const totalFee = feeBN.plus(approvalFee).toString()
+        const gasPrice = bn(ethResult?.feeData?.chainSpecific.gasPrice || 0).toString()
+        const estimatedGas = bn(ethResult?.feeData?.chainSpecific.estimatedGas || 0).toString()
+
+        if (isThorchainQuote(result)) {
+          const receiveFee = result?.feeData?.swapperSpecific.receiveFee ?? '0'
+          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Thorchain> = {
+            fee,
+            chainSpecific: {
+              approvalFee,
+              gasPrice,
+              estimatedGas,
+              totalFee
+            },
+            swapperSpecific: {
+              receiveFee
+            }
+          }
+          setValue('fees', fees)
+        } else {
+          const fees: chainAdapters.QuoteFeeData<ChainTypes.Ethereum, SwapperType.Zrx> = {
+            fee,
+            chainSpecific: {
+              approvalFee,
+              gasPrice,
+              estimatedGas,
+              totalFee
+            }
+          }
+          setValue('fees', fees)
+        }
+        break
+      }
+
+      default:
+        throw new Error('Unsupported chain ' + sellAsset.chain)
+    }
+  }
+
+  function isThorchainQuote(
+    result: Quote<ChainTypes, SwapperType>
+  ): result is Quote<ChainTypes, SwapperType.Thorchain> {
+    return (
+      (result as Quote<ChainTypes, SwapperType.Thorchain>)?.feeData?.swapperSpecific !== undefined
+    )
+  }
+
   const getBestSwapper = useCallback(
-    async ({ sellAsset, buyAsset }: Pick<TradeState, 'sellAsset' | 'buyAsset'>) => {
+    async ({
+      sellAsset,
+      buyAsset
+    }: Pick<TradeState<ChainTypes, SwapperType>, 'sellAsset' | 'buyAsset'>) => {
       if (!sellAsset.currency || !buyAsset.currency) return
       const input = {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency
       }
-      const bestSwapper = await swapperManager.getBestSwapper(input)
-      setBestSwapperType(bestSwapper)
+      const bestSwapperType = await swapperManager.getBestSwapper(input)
+      setBestSwapperType(bestSwapperType)
+      setValue('trade', { ...trade, name: bestSwapperType })
     },
-    [swapperManager, setBestSwapperType]
+    [swapperManager, trade, setBestSwapperType, setValue]
   )
 
   const reset = () => {

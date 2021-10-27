@@ -17,13 +17,15 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import {
+  TRADE_ERRORS,
+  TradeActions,
+  useSwapper
+} from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-
-import { TradeState } from '../Trade'
 
 const FiatInput = (props: InputProps) => (
   <Input
@@ -43,13 +45,14 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
+    setError,
     formState: { errors, isDirty, isValid }
   } = useFormContext()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action, buyAsset, sellAsset, fees] = useWatch<TradeState>({
-    name: ['quote', 'action', 'buyAsset', 'sellAsset', 'fees']
+  const [quote, action, buyAsset, sellAsset] = useWatch({
+    name: ['quote', 'action', 'buyAsset', 'sellAsset']
   })
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate } = useSwapper()
   const {
@@ -60,24 +63,28 @@ export const TradeInput = ({ history }: RouterProps) => {
     if (wallet) {
       const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
       const formattedBuyAsset = { ...quote.buyAsset }
-      const approvalNeeded = await checkApprovalNeeded(wallet)
-      const ethFiatRate = await getFiatRate({
-        symbol: 'ETH'
-      })
-      if (approvalNeeded) {
-        history.push({
-          pathname: '/trade/approval',
-          state: {
-            ethFiatRate
-          }
+      try {
+        const approvalNeeded = await checkApprovalNeeded(wallet)
+        const ethFiatRate = await getFiatRate({
+          symbol: 'ETH'
         })
-      } else {
-        await buildQuoteTx({
-          wallet,
-          sellAsset: formattedSellAsset,
-          buyAsset: formattedBuyAsset
-        })
-        history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+        if (approvalNeeded) {
+          history.push({
+            pathname: '/trade/approval',
+            state: {
+              ethFiatRate
+            }
+          })
+        } else {
+          const result = await buildQuoteTx({
+            wallet,
+            sellAsset: formattedSellAsset,
+            buyAsset: formattedBuyAsset
+          })
+          result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+        }
+      } catch (e) {
+        setError('buildQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
       }
     }
   }
@@ -93,7 +100,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
   }
 
-  const getQuoteError = get(errors, `getQuote.message`, null)
+  const error = get(errors, `getQuote.message`, null) ?? get(errors, `buildQuote.message`, null)
 
   return (
     <SlideTransition>
@@ -172,11 +179,8 @@ export const TradeInput = ({ history }: RouterProps) => {
         >
           <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            {!quote || action || getQuoteError ? (
-              <Text
-                fontSize='sm'
-                translation={getQuoteError ? 'common.error' : 'trade.searchingRate'}
-              />
+            {!quote || action || error ? (
+              <Text fontSize='sm' translation={error ? 'common.error' : 'trade.searchingRate'} />
             ) : (
               <>
                 <RawText textAlign='right' fontSize='sm'>{`1 ${
@@ -212,16 +216,14 @@ export const TradeInput = ({ history }: RouterProps) => {
           type='submit'
           size='lg'
           width='full'
-          colorScheme={getQuoteError ? 'red' : 'blue'}
+          colorScheme={error ? 'red' : 'blue'}
           isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',
             wordWrap: 'break-word'
           }}
         >
-          <Text
-            translation={!wallet ? 'common.connectWallet' : getQuoteError ?? 'trade.previewTrade'}
-          />
+          <Text translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'} />
         </Button>
       </Box>
     </SlideTransition>

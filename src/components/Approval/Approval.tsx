@@ -43,15 +43,19 @@ export const Approval = () => {
       if (txId) {
         setApprovalTxId(txId)
         const interval = setInterval(async () => {
-          const needApproval = await checkApprovalNeeded(wallet)
-          if (!needApproval) {
+          const approvalNeeded = await checkApprovalNeeded(wallet)
+          if (!approvalNeeded) {
             clearInterval(approvalInterval.current as NodeJS.Timeout)
-            await buildQuoteTx({
+            const result = await buildQuoteTx({
               wallet,
               sellAsset: { ...quote.sellAsset, amount: sellAsset.amount },
               buyAsset: { ...quote.buyAsset }
             })
-            history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+            if (result?.success) {
+              history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+            } else {
+              history.push('/trade/input')
+            }
           }
         }, 10000)
         approvalInterval.current = interval
@@ -119,9 +123,10 @@ export const Approval = () => {
             <Link
               isExternal
               color='blue.500'
-              to={sellAsset.currency?.explorer}
-              text={{ t: 'trade.viewTransaction' }}
-            />
+              href={sellAsset.currency?.explorerTxLink + approvalTxId}
+            >
+              <Text translation='trade.viewTransaction' />
+            </Link>
           </>
         )}
       </Flex>

@@ -1,5 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, IconButton, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
+import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -20,6 +21,7 @@ type TradeConfirmParams = {
 }
 
 export const TradeConfirm = ({ history }: RouterProps) => {
+  const [txid, setTxid] = useState<string>()
   const { getValues } = useFormContext()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote } = useSwapper()
@@ -34,8 +36,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     const result = await executeQuote({ wallet })
-    if (result?.txid) {
-      console.log('trade successful')
+    const transactionId = result?.txid
+    if (transactionId) {
+      setTxid(transactionId)
     }
   }
 
@@ -61,6 +64,22 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         <Divider />
         <Card.Body pb={0} px={0}>
           <Stack spacing={4}>
+            {txid && (
+              <Row>
+                <Row.Label>
+                  <RawText>Tx ID</RawText>
+                </Row.Label>
+                <Box textAlign='right'>
+                  <Link
+                    isExternal
+                    color='blue.500'
+                    href={sellAsset.currency?.explorerTxLink + txid}
+                  >
+                    <Text translation='trade.viewTransaction' />
+                  </Link>
+                </Box>
+              </Row>
+            )}
             <Row>
               <HelperTooltip label='This is the rate'>
                 <Row.Label>
@@ -94,7 +113,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
         </Card.Body>
         <Card.Footer px={0} py={0}>
           <Button colorScheme='blue' size='lg' width='full' mt={6} onClick={() => onSubmit()}>
-            Confirm and Trade
+            <Text translation='trade.confirmAndTrade' />
           </Button>
         </Card.Footer>
       </Card>

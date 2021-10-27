@@ -115,9 +115,11 @@ export const useSwapper = () => {
       const swapper = swapperManager.getSwapper(bestSwapperType)
       result = await swapper.executeQuote({ quote, wallet })
     } catch (err) {
+      console.log('eeey')
       setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
       console.error(`TradeProvider - executeQuote error: ${err}`) // eslint-disable-line no-console
     }
+    console.log('result', result)
     return result
   }
 

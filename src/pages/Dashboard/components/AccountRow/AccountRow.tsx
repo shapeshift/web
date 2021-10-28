@@ -1,24 +1,26 @@
-import { Flex, Progress, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import { getMarketData } from '@shapeshiftoss/market-service'
-import { ChainTypes, MarketData } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
+import { CircularProgress, Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { ReduxState } from 'state/reducer'
+import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
-export const AccountRow = ({
-  balance,
-  tokenId,
-  chain
-}: {
+import { Allocations } from './Allocations'
+
+export type AccountRowArgs = {
   balance: string
   tokenId?: string
   chain: ChainTypes
-}) => {
-  const [price, setPrice] = useState('0')
+}
+
+export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
+  const dispatch = useDispatch()
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const contract = useMemo(() => tokenId?.toLowerCase(), [tokenId])
   const url = useMemo(() => {
@@ -28,18 +30,22 @@ export const AccountRow = ({
   }, [chain, contract])
 
   const asset = useFetchAsset({ chain, tokenId: contract })
+  const marketData = useSelector(
+    (state: ReduxState) => state.marketData[asset?.tokenId ?? asset?.chain]
+  )
 
   useEffect(() => {
     ;(async () => {
-      if (asset) {
-        const marketData: MarketData | null = await getMarketData({
-          chain: asset.chain,
-          tokenId: asset.tokenId
-        })
-        setPrice(marketData?.price)
+      if (asset && !marketData) {
+        dispatch(
+          fetchMarketData({
+            chain: asset.chain,
+            tokenId: asset.tokenId
+          })
+        )
       }
     })()
-  }, [asset])
+  }, [asset, dispatch, marketData])
 
   const displayValue = useMemo(
     () => (asset ? fromBaseUnit(balance, asset.precision) : 0),
@@ -47,8 +53,12 @@ export const AccountRow = ({
   )
 
   const fiatValue = useMemo(
-    () => bn(displayValue).times(price).toFixed(2).toString(),
-    [displayValue, price]
+    () =>
+      bn(displayValue)
+        .times(marketData?.price ?? 0)
+        .toFixed(2)
+        .toString(),
+    [displayValue, marketData]
   )
 
   if (!asset || Number(balance) === 0) return null
@@ -71,24 +81,26 @@ export const AccountRow = ({
         <RawText ml={2}>{asset.name}</RawText>
       </Flex>
       <Flex justifyContent='flex-end'>
-        <RawText>${fiatValue}</RawText>
-        <RawText color='gray.500' ml={2}>
-          {`${displayValue} ${asset.symbol}`}
-        </RawText>
+        {!marketData?.price ? (
+          <CircularProgress isIndeterminate size='5' />
+        ) : (
+          <>
+            <RawText>${fiatValue}</RawText>
+            <RawText color='gray.500' ml={2}>
+              {`${displayValue} ${asset.symbol}`}
+            </RawText>
+          </>
+        )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
-        <RawText>{`$${price}`}</RawText>
+        {!marketData?.price ? (
+          <CircularProgress isIndeterminate size='5' />
+        ) : (
+          <RawText>{`$${marketData.price}`}</RawText>
+        )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-        <Progress
-          bg='transparent'
-          variant='right-aligned'
-          colorScheme='green'
-          size='sm'
-          value={100}
-          rounded='full'
-          width='100px'
-        />
+        <Allocations fiatValue={fiatValue} />
       </Flex>
     </SimpleGrid>
   )

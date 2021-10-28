@@ -1,4 +1,5 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { mockStore } from 'jest/mocks/store'
 import { EthReceive, EthSend } from 'jest/mocks/txs'
 
 import { selectTxHistoryById } from './selectTxHistoryById'
@@ -11,10 +12,10 @@ const thirdTx = { ...EthReceive, asset: tokenId }
 describe('selectTxHistoryById', () => {
   it('returns by identifier', () => {
     const store = {
+      ...mockStore,
       txHistory: {
         [ChainTypes.Ethereum]: [thirdTx, secondTx, firstTx]
-      },
-      assets: {}
+      }
     }
     const txsEth = selectTxHistoryById(store, ChainTypes.Ethereum, ChainTypes.Ethereum)
     expect(txsEth.length).toBe(2)

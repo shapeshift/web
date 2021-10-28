@@ -46,6 +46,7 @@ export const useFormSend = () => {
             await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
           } else {
             console.log('bad hdwallet config') // TODO - use logger
+          }
         }
 
         toast({

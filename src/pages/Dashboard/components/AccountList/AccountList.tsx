@@ -1,19 +1,17 @@
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { ReduxState } from 'state/reducer'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
 
-import { AccountRow, AccountRowArgs } from '../AccountRow/AccountRow'
+import { AccountRow } from '../AccountRow/AccountRow'
 
-type AccountListProps = {
-  accounts: Record<string, chainAdapters.Account<ChainTypes>>
-}
-
-export const AccountList = ({ accounts }: AccountListProps) => {
+export const AccountList = () => {
   const dispatch = useDispatch()
   const assets = useSelector((state: ReduxState) => state.assets)
+  const { accountsList } = usePortfolio()
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
@@ -22,38 +20,6 @@ export const AccountList = ({ accounts }: AccountListProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const accountsList = useMemo(() => {
-    const array: AccountRowArgs[] = []
-    Object.values(accounts).forEach(genericAccount => {
-      switch (genericAccount.chain) {
-        case ChainTypes.Ethereum: {
-          const account = genericAccount as chainAdapters.Account<ChainTypes.Ethereum>
-          array.push({ balance: account.balance, chain: account.chain })
-          if (account.chainSpecific.tokens) {
-            account.chainSpecific.tokens.forEach(tokenAccount => {
-              array.push({
-                balance: tokenAccount.balance,
-                chain: account.chain,
-                tokenId: tokenAccount.contract
-              })
-            })
-          }
-          break
-        }
-        case ChainTypes.Bitcoin: {
-          const account = genericAccount as chainAdapters.Account<ChainTypes.Bitcoin>
-          array.push({ balance: account.balance, chain: account.chain })
-          break
-        }
-        default: {
-          console.error(`AccountList: unknown chain ${genericAccount.chain}`)
-          break
-        }
-      }
-    })
-    return array
-  }, [accounts])
 
   const accountRows = useMemo(() => {
     return (

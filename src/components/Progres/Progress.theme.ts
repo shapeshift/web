@@ -2,12 +2,9 @@ export const ProgressStyle = {
   parts: ['track', 'filledTrack', 'label'],
   // Styles for the base style
   baseStyle: {
-    track: {
-      bg: 'red'
-    },
+    track: {},
     filledTrack: {
-      borderRadius: 'full',
-      bg: 'red'
+      borderRadius: 'full'
     }
   },
   // Styles for the size variations

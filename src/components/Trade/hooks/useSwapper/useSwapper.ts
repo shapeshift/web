@@ -27,12 +27,11 @@ export enum TradeActions {
   FIAT = 'FIAT'
 }
 
-type GetQuoteAmount = Pick<GetQuoteInput, 'buyAmount' | 'sellAmount'> & { fiatAmount?: string }
-
 type GetQuote<C extends ChainTypes, S extends SwapperType> = {
-  amount: GetQuoteAmount
+  amount: string
   sellAsset: Asset
   buyAsset: Asset
+  action: TradeActions
   onFinish: (quote: Quote<C, S>) => void
   isFiat?: boolean
 }
@@ -125,6 +124,7 @@ export const useSwapper = () => {
     amount,
     sellAsset,
     buyAsset,
+    action,
     onFinish
   }: GetQuote<C, S>) => {
     if (debounceObj?.cancel) debounceObj.cancel()
@@ -132,19 +132,17 @@ export const useSwapper = () => {
     const quoteDebounce = debounce(async () => {
       try {
         const swapper = swapperManager.getSwapper(bestSwapperType)
-        let convertedAmount = amount
-        const isFiat = Object.keys(amount)[0].includes('fiat')
+        let convertedAmount =
+          action === TradeActions.BUY ? { buyAmount: amount } : { sellAmount: amount }
+
+        const isFiat = action === TradeActions.FIAT
         if (isFiat) {
           const rate = await swapper.getUsdRate({
             symbol: sellAsset.symbol,
             tokenId: sellAsset.tokenId
           })
-          const fiatAmount = Object.values(amount)[0]
           convertedAmount = {
-            sellAmount: toBaseUnit(
-              bn(fiatAmount).div(rate).toString(),
-              sellAsset.precision
-            ).toString()
+            sellAmount: toBaseUnit(bn(amount).div(rate).toString(), sellAsset.precision).toString()
           }
         }
         const quoteInput = {
@@ -194,22 +192,22 @@ export const useSwapper = () => {
   }
 
   const getQuote = async (
-    newAmount: GetQuoteAmount,
+    value: string,
     sellAsset: TradeAsset,
-    buyAsset: TradeAsset
+    buyAsset: TradeAsset,
+    action: TradeActions
   ) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    const key = Object.keys(newAmount)[0]
-    const value = Object.values(newAmount)[0]
-    const isSellAmount = key === 'sellAmount' || !value
-    const isBuyAmount = key === 'buyAmount' && !!value
-    const isFiatAmount = key === 'fiatAmount'
-    let amount = newAmount
+    const isSellAmount = action === TradeActions.SELL || !value
+    const isBuyAmount = action === TradeActions.BUY && !!value
+    const isFiatAmount = action === TradeActions.FIAT
+
+    let amount = value
     const precision = isSellAmount
       ? sellAsset.currency.precision
       : isBuyAmount && buyAsset.currency.precision
     if (precision) {
-      amount = { [isSellAmount ? 'sellAmount' : 'buyAmount']: toBaseUnit(value || '0', precision) }
+      amount = toBaseUnit(value || '0', precision)
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
@@ -249,6 +247,7 @@ export const useSwapper = () => {
       amount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
+      action,
       onFinish
     })
   }

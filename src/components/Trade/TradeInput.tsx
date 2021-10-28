@@ -97,7 +97,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
     setValue('action', action)
-    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
+    getQuote(currentBuyAsset.amount, currentBuyAsset, currentSellAsset, action)
   }
 
   const error = get(errors, `useSwapper.message`, null)
@@ -123,7 +123,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset)
+                    getQuote(e.value, sellAsset, buyAsset, action)
                   }
                 }}
               />
@@ -146,7 +146,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             onInputChange={(value: string) => {
               const action = value ? TradeActions.SELL : undefined
               action ? setValue('action', action) : reset()
-              getQuote({ sellAmount: value }, sellAsset, buyAsset)
+              getQuote(value, sellAsset, buyAsset, action)
             }}
             inputLeftElement={
               <TokenButton
@@ -199,7 +199,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             onInputChange={(value: string) => {
               const action = value ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
-              getQuote({ buyAmount: value }, sellAsset, buyAsset)
+              getQuote(value, sellAsset, buyAsset, action)
             }}
             inputLeftElement={
               <TokenButton

@@ -201,8 +201,8 @@ export const useSwapper = () => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const key = Object.keys(newAmount)[0]
     const value = Object.values(newAmount)[0]
-    const isSellAmount = key === 'sellAmount'
-    const isBuyAmount = key === 'buyAmount'
+    const isSellAmount = key === 'sellAmount' || value === '0'
+    const isBuyAmount = key === 'buyAmount' && value !== '0'
     const isFiatAmount = key === 'fiatAmount'
 
     let amount = newAmount
@@ -210,7 +210,7 @@ export const useSwapper = () => {
       ? sellAsset.currency.precision
       : isBuyAmount && buyAsset.currency.precision
     if (precision) {
-      amount = { [key]: toBaseUnit(value || '0', precision) }
+      amount = { [isSellAmount ? 'sellAmount' : 'buyAmount']: toBaseUnit(value || '0', precision) }
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {

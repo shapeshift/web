@@ -93,14 +93,14 @@ describe('useTotalBalance', () => {
 
       await store.dispatch(
         fetchAsset({
-          tokenId: rune.tokenId.toLowerCase(),
+          tokenId: rune.tokenId,
           chain: ChainTypes.Ethereum,
           network: NetworkTypes.MAINNET
         })
       )
       await store.dispatch(
         fetchMarketData({
-          tokenId: rune.tokenId.toLowerCase(),
+          tokenId: rune.tokenId,
           chain: ChainTypes.Ethereum
         })
       )

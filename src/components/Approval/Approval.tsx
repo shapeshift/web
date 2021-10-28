@@ -22,6 +22,7 @@ export const Approval = () => {
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const { ethFiatRate } = location.state as ApprovalParams
+
   const {
     getValues,
     formState: { errors }
@@ -99,7 +100,13 @@ export const Approval = () => {
           translation={['trade.allowShapeshift', { symbol }]}
         />
         <Text color='gray.500' translation={['trade.needPermission', { symbol }]} />
-        <Text color='blue.500' translation='trade.whyNeedThis' />
+        <Link
+          isExternal
+          color='blue.500'
+          href='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+        >
+          <Text color='blue.500' translation='trade.whyNeedThis' />
+        </Link>
         <Divider my={4} />
         {!approvalTxId ? (
           <Flex flexDirection='column' width='full'>
@@ -113,7 +120,7 @@ export const Approval = () => {
             <Button colorScheme='blue' mt={2} onClick={approve}>
               <Text translation='common.confirm' />
             </Button>
-            <Button mt={2} onClick={() => history.goBack()}>
+            <Button variant='ghost' mt={2} onClick={() => history.goBack()}>
               <Text translation='common.reject' />
             </Button>
           </Flex>

@@ -219,7 +219,7 @@ export const Deposit = ({
             </VStack>
           </FormControl>
         </ModalBody>
-        <ModalFooter flexDir='column' borderTopWidth={1} borderColor='gray.750'>
+        <ModalFooter flexDir='column'>
           <Text
             fontSize='sm'
             color='gray.500'

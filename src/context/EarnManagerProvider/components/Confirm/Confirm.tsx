@@ -1,67 +1,79 @@
 import { Button } from '@chakra-ui/button'
 import { Box, Stack } from '@chakra-ui/layout'
 import { ModalBody, ModalFooter, ModalHeader } from '@chakra-ui/modal'
+import { Divider } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { Asset } from '@shapeshiftoss/types'
 import React from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetToAsset'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
+import { Text } from 'components/Text'
 
 type ConfirmProps = {
-  children: React.ReactNode
-  fromAsset: Asset
-  toAsset: Asset
+  apr: string
+  provider: string
   onCancel(): void
   onConfirm(): Promise<void>
   prefooter?: React.ReactNode
-}
+} & AssetToAssetProps
 
-export const Confirm = ({ onConfirm, onCancel }: ConfirmProps) => {
+export const Confirm = ({ onConfirm, onCancel, apr, provider, ...rest }: ConfirmProps) => {
+  const translate = useTranslate()
   return (
     <SlideTransition>
-      <ModalHeader>Confirm Deposit</ModalHeader>
+      <ModalHeader textAlign='center'>{translate('modals.confirm.header')}</ModalHeader>
       <ModalBody>
-        <Stack>
+        <AssetToAsset {...rest} />
+        <Divider my={4} />
+        <Stack spacing={6}>
           <Row>
-            <Row.Label>Deposit To</Row.Label>
-            <Row.Value>Yearn Finance</Row.Value>
+            <Row.Label>
+              <Text translation='modals.confirm.depositTo' />
+            </Row.Label>
+            <Row.Value fontWeight='bold'>{provider}</Row.Value>
           </Row>
           <Row>
-            <Row.Label>Average APR</Row.Label>
+            <Row.Label>
+              <Text translation='modals.confirm.averageApr' />
+            </Row.Label>
             <Row.Value>
-              <Tag colorScheme='green'>4%</Tag>
+              <Tag colorScheme='green'>{apr}</Tag>
             </Row.Value>
           </Row>
           <Row>
-            <Row.Label>Estimated Yearly Rewards</Row.Label>
+            <Row.Label>
+              <Text translation='modals.confirm.estimatedReturns' />
+            </Row.Label>
             <Row.Value>
               <Box textAlign='right'>
-                <Amount.Fiat value='529.04' />
+                <Amount.Fiat fontWeight='bold' value='529.04' />
                 <Amount.Crypto color='gray.500' value='529.04' symbol='USDC' />
               </Box>
             </Row.Value>
           </Row>
           <Row>
-            <Row.Label>Estimated Gas Fee</Row.Label>
+            <Row.Label>
+              <Text translation='modals.confirm.estimatedGas' />
+            </Row.Label>
             <Row.Value>
               <Box textAlign='right'>
-                <Amount.Fiat value='30.00' />
+                <Amount.Fiat fontWeight='bold' value='30.00' />
                 <Amount.Crypto color='gray.500' value='0.024' symbol='ETH' />
               </Box>
             </Row.Value>
           </Row>
         </Stack>
       </ModalBody>
-      <ModalFooter flexDir='column' borderTopWidth={1} borderColor='gray.750' textAlign='center'>
-        <Stack>
-          <RawText color='gray.500'>Rewards acure automatically</RawText>
+      <ModalFooter flexDir='column' textAlign='center' mt={6}>
+        <Stack width='full'>
+          <Text color='gray.500' translation='modals.confirm.preFooter' />
           <Button size='lg' colorScheme='blue' onClick={onConfirm}>
-            Sign & Broadcast
+            {translate('modals.confirm.signBroadcast')}
           </Button>
           <Button size='lg' variant='ghost' onClick={onCancel}>
-            Cancel
+            {translate('modals.confirm.cancel')}
           </Button>
         </Stack>
       </ModalFooter>

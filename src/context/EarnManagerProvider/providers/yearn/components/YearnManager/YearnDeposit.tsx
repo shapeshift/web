@@ -1,4 +1,5 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import { useSteps } from 'chakra-ui-steps'
@@ -13,14 +14,16 @@ import { EarnActionsButtons } from 'context/EarnManagerProvider/context/EarnActi
 
 const steps = [
   { hideNav: true, label: 'Deposit Amount' },
-  { label: 'Approve' },
-  { label: 'Confirm' },
+  { label: 'Approve USDC' },
+  { label: 'Confirm Deposit' },
   { label: 'Broadcast' }
 ]
 
 export const YearnDeposit = () => {
   const history = useHistory()
   const { nextStep, activeStep } = useSteps({ initialStep: 0 })
+  const stepperBg = useColorModeValue('gray.50', 'gray.850')
+  const stepperBorder = useColorModeValue('gray.100', 'gray.750')
   const asset = {} as Asset
 
   const handlePercentChange = () => {}
@@ -88,16 +91,24 @@ export const YearnDeposit = () => {
       case 2:
         return (
           <Confirm
-            fromAsset={asset}
             onCancel={handleCancel}
             onConfirm={handleConfirm}
-            toAsset={asset}
-          >
-            <Row>
-              <Row.Label></Row.Label>
-              <Row.Value></Row.Value>
-            </Row>
-          </Confirm>
+            apr='4%'
+            provider='Yearn Finance'
+            statusIcon={<ArrowForwardIcon />}
+            assets={[
+              {
+                ...asset,
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              },
+              {
+                ...asset,
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              }
+            ]}
+          />
         )
       case 3:
         return (
@@ -130,14 +141,16 @@ export const YearnDeposit = () => {
     >
       {!steps[activeStep].hideNav && (
         <Box
-          bg='gray.850'
+          bg={stepperBg}
           px={4}
           py={6}
           flex={1}
-          borderRightWidth={1}
-          borderColor='gray.750'
+          borderRightWidth={{ base: 0, lg: 1 }}
+          borderBottomWidth={{ base: 1, lg: 0 }}
+          borderColor={stepperBorder}
           borderTopLeftRadius='xl'
-          borderBottomLeftRadius='xl'
+          borderTopRightRadius={{ base: 'xl', lg: 'none' }}
+          borderBottomLeftRadius={{ base: 'none', lg: 'xl' }}
           minWidth='250px'
         >
           <VerticalStepper activeStep={activeStep} steps={steps} />

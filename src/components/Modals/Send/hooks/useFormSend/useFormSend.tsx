@@ -38,9 +38,15 @@ export const useFormSend = () => {
           gasLimit
         })
 
-        const signedTx = await adapter.signTransaction({ txToSign, wallet })
-
-        await adapter.broadcastTransaction(signedTx)
+        if (wallet.supportsOfflineSigning()) {
+          const signedTx = await adapter.signTransaction({ txToSign, wallet })
+          await adapter.broadcastTransaction(signedTx)
+        } else {
+          if (wallet.supportsBroadcast()) {
+            await adapter.signAndBroadcastTransaction?.({ txToSign, wallet })
+          } else {
+            console.log('bad hdwallet config') // TODO - use logger
+        }
 
         toast({
           title: translate('modals.send.sent', { asset: data.asset.name }),
@@ -56,7 +62,7 @@ export const useFormSend = () => {
       } catch (error) {
         toast({
           title: translate('modals.send.sent'),
-          description: translate('modals.send.somethingWentWrong'),
+          description: translate('modals.send.errorTitle'),
           status: 'error',
           duration: 9000,
           isClosable: true,

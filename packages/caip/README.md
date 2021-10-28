@@ -79,3 +79,32 @@ expect(network).toEqual(NetworkTypes.MAINNET)
 expect(contractType).toEqual(ContractTypes.ERC20)
 expect(tokenId).toEqual('0xc770eefad204b5180df6a14ee197d99d808ee52d')
 ```
+
+## Adapters
+
+Adapters map CAIP-19 asset ids and map them to vendor-specific (e.g. CoinGecko) IDs.
+
+This allows us to use CAIP-19 IDs internally and keep any vendor IDs at the boundary.
+
+### Generate
+
+To generate new static adapter data, run the following
+
+```zsh
+cd packages/caip
+yarn generate
+```
+
+and commit the generated `adapter.json` files.
+
+### Usage
+
+```ts
+console.log(coingeckoToCAIP19('shapeshift-fox-token'))
+
+eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d
+
+console.log(CAIP19ToCoingecko('bip122:000000000019d6689c085ae165831e93/slip44:0'))
+
+bitcoin
+```

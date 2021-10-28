@@ -33,7 +33,7 @@
     "experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
     "emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
     "resolveJsonModule": true,
-    "lib": ["es2018", "dom"],
+    "lib": ["es2019", "dom"],
     "types": ["node", "jest"]
   },
   "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts"]

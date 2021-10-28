@@ -20,10 +20,14 @@
     "build": "yarn clean && tsc --project tsconfig.build.json",
     "clean": "rm -rf dist",
     "dev": "tsc --watch",
+    "generate": "yarn build && node dist/adapters/coingecko/generate.js",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
     "@shapeshiftoss/types": "^1.4.0"
+  },
+  "devDependencies": {
+    "axios": "^0.24.0"
   }
 }

@@ -123,6 +123,16 @@
       "estimatedGas": "Estimated Gas Fee",
       "confirm": "Confirm",
       "reject": "Reject"
+    },
+    "confirm": {
+      "header": "Confirm Deposit",
+      "depositTo": "Deposit To",
+      "averageApr": "Average APR",
+      "estimatedReturns": "Estimated Yearly Returns*",
+      "estimatedGas": "Estimated Gas Fee",
+      "preFooter": "Rewards acure automatically",
+      "signBroadcast": "Sign & Broadcast",
+      "cancel": "Cancel"
     }
   },
   "walletProvider": {

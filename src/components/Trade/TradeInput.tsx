@@ -221,7 +221,8 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme={error ? 'red' : 'blue'}
-          isDisabled={!isDirty || !isValid || !!action || !wallet || isSubmitting}
+          isLoading={isSubmitting}
+          isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',
             wordWrap: 'break-word'

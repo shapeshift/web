@@ -118,7 +118,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
           </Card.Body>
           <Card.Footer px={0} py={0}>
             <Button
-              disabled={isSubmitting}
+              isLoading={isSubmitting}
               colorScheme='blue'
               size='lg'
               width='full'

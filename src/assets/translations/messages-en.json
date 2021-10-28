@@ -115,6 +115,14 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
       "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service."
+    },
+    "approve": {
+      "header": "Allow ShapeShift.io to Spend Your %{asset}",
+      "body": "We need your permission to use your %{asset}",
+      "learnMore": "Why do I need to do this?",
+      "estimatedGas": "Estimated Gas Fee",
+      "confirm": "Confirm",
+      "reject": "Reject"
     }
   },
   "walletProvider": {

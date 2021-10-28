@@ -1,41 +1,40 @@
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
+import { useEffect } from 'react'
+import { useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
+import { ReduxState } from 'state/reducer'
+import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
 
 import { AccountRow } from '../AccountRow/AccountRow'
 
-type AccountListProps = {
-  accounts: Record<string, chainAdapters.Account<ChainTypes>>
-}
+export const AccountList = () => {
+  const dispatch = useDispatch()
+  const assets = useSelector((state: ReduxState) => state.assets)
+  const { balances } = usePortfolio()
 
-export const AccountList = ({ accounts }: AccountListProps) => (
-  <>
-    {Object.values(accounts).map(genericAccount => {
-      switch (genericAccount.chain) {
-        case ChainTypes.Ethereum: {
-          const account = genericAccount as chainAdapters.Account<ChainTypes.Ethereum>
-          return (
-            <>
-              <AccountRow key={account.chain} balance={account.balance} chain={account.chain} />
-              {account.chainSpecific.tokens &&
-                account.chainSpecific.tokens.map(tokenAccount => (
-                  <AccountRow
-                    key={`${account.chain}-${tokenAccount.contract}`}
-                    balance={tokenAccount.balance}
-                    chain={account.chain}
-                    tokenId={tokenAccount.contract}
-                  />
-                ))}
-            </>
-          )
-        }
-        case ChainTypes.Bitcoin: {
-          const account = genericAccount as chainAdapters.Account<ChainTypes.Bitcoin>
-          return <AccountRow key={account.chain} balance={account.balance} chain={account.chain} />
-        }
-        default: {
-          console.error(`AccountList: unknown chain ${genericAccount.chain}`)
-          return null
-        }
-      }
-    })}
-  </>
-)
+  useEffect(() => {
+    // arbitrary number to just make sure we dont fetch all assets if we already have
+    if (Object.keys(assets).length < 100) {
+      dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const accountRows = useMemo(() => {
+    return (
+      <>
+        {Object.values(balances).map(account => (
+          <AccountRow
+            key={account.contract ?? account.chain}
+            balance={account.balance ?? '0'}
+            chain={account.chain}
+            tokenId={account.contract}
+          />
+        ))}
+      </>
+    )
+  }, [balances])
+
+  return accountRows
+}

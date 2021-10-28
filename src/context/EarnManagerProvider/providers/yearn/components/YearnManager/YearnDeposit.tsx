@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import { useSteps } from 'chakra-ui-steps'
@@ -12,7 +12,7 @@ import { Deposit } from 'context/EarnManagerProvider/components/Deposit/Deposit'
 import { EarnActionsButtons } from 'context/EarnManagerProvider/context/EarnActions/EarnActionsProvider'
 
 const steps = [
-  { hideNav: true, label: 'Input Amount' },
+  { hideNav: true, label: 'Deposit Amount' },
   { label: 'Approve' },
   { label: 'Confirm' },
   { label: 'Broadcast' }
@@ -79,6 +79,7 @@ export const YearnDeposit = () => {
             fiatEstimatedGasFee=''
             // learnMoreLink='' optional
             loading={false}
+            loadingText='Approve on Wallet'
             onCancel={handleCancel}
             onConfirm={handleApprove}
             wallet={{} as HDWallet}
@@ -122,9 +123,27 @@ export const YearnDeposit = () => {
   }
 
   return (
-    <Flex width='full'>
-      {!steps[activeStep].hideNav && <VerticalStepper activeStep={activeStep} steps={steps} />}
-      <Flex flexDir='column' width='full'>
+    <Flex
+      width='full'
+      minWidth={{ base: '100%', xl: '500px' }}
+      flexDir={{ base: 'column', lg: 'row' }}
+    >
+      {!steps[activeStep].hideNav && (
+        <Box
+          bg='gray.850'
+          px={4}
+          py={6}
+          flex={1}
+          borderRightWidth={1}
+          borderColor='gray.750'
+          borderTopLeftRadius='xl'
+          borderBottomLeftRadius='xl'
+          minWidth='250px'
+        >
+          <VerticalStepper activeStep={activeStep} steps={steps} />
+        </Box>
+      )}
+      <Flex flexDir='column' width='full' minWidth='400px'>
         {activeStep === 0 && <EarnActionsButtons />}
         {renderStep(activeStep)}
       </Flex>

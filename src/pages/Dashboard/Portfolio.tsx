@@ -5,13 +5,13 @@ import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
-import { useBalances } from 'hooks/useBalances/useBalances'
 
 import { AccountList } from './components/AccountList/AccountList'
+import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const { balances, loading } = useBalances()
+  const { totalBalance, loading } = usePortfolio()
 
   if (loading)
     return (
@@ -29,7 +29,7 @@ export const Portfolio = () => {
               <Text translation='dashboard.portfolio.portfolioBalance' />
             </Card.Heading>
             <Card.Heading as='h2' fontSize='4xl'>
-              <RawText>$12,000.20</RawText>
+              <RawText>{`$${totalBalance}`}</RawText>
             </Card.Heading>
           </Box>
           <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
@@ -68,7 +68,7 @@ export const Portfolio = () => {
                 display={{ base: 'none', lg: 'block' }}
               />
             </Grid>
-            <AccountList accounts={balances} />
+            <AccountList />
           </Stack>
         </Card.Body>
       </Card>

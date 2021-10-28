@@ -56,7 +56,7 @@ describe('flattenTokenBalances', () => {
         contractType: ContractTypes.ERC20,
         chain: ChainTypes.Ethereum,
         name: 'THORChain ETH.RUNE',
-        contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
+        contract: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
         symbol: 'RUNE',
         precision: 18,
         balance: '21000000000000000000'

@@ -14,8 +14,10 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { QRCode } from 'components/QRCode/QRCode'
 import { RawText, Text } from 'components/Text'
@@ -23,6 +25,9 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
+import { bip32AndScript } from 'lib/utxoUtils'
+import { ReduxState } from 'state/reducer'
+import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type ReceivePropsType = {
   asset: AssetMarketData
@@ -35,6 +40,10 @@ const Receive = ({ asset }: ReceivePropsType) => {
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const chainAdapterManager = useChainAdapters()
 
+  const currentScriptType: BTCInputScriptType = useSelector(
+    (state: ReduxState) => state.preferences[getScriptTypeKey(asset.chain)]
+  )
+
   useEffect(() => {
     ;(async () => {
       const { wallet } = state
@@ -42,9 +51,11 @@ const Receive = ({ asset }: ReceivePropsType) => {
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
       const chainAdapter = chainAdapterManager.byChain(chain)
       if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
-      setReceiveAddress(await chainAdapter.getAddress({ wallet }))
+      setReceiveAddress(
+        await chainAdapter.getAddress({ wallet, ...bip32AndScript(currentScriptType, asset) })
+      )
     })()
-  }, [chain, chainAdapterManager, state, setReceiveAddress])
+  }, [chain, chainAdapterManager, state, setReceiveAddress, currentScriptType, asset])
 
   const translate = useTranslate()
   const toast = useToast()

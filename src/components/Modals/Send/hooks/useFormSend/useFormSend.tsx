@@ -1,9 +1,14 @@
 import { useToast } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bip32AndScript } from 'lib/utxoUtils'
+import { ReduxState } from 'state/reducer'
+import { getScriptTypeKey, scriptTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendInput } from '../../Form'
 
@@ -15,6 +20,15 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
+
+  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) => {
+    const scriptTypeKeys = Object.keys(state.preferences).filter(key =>
+      key.startsWith(scriptTypePrefix)
+    )
+    return scriptTypeKeys.reduce((acc, val) => {
+      return { ...acc, [val]: state.preferences[val] }
+    }, {})
+  })
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -29,13 +43,16 @@ export const useFormSend = () => {
         const fee = fees.feePerUnit
         const gasLimit = fees.chainSpecific?.feeLimit
 
+        const scriptType = allScriptTypes[getScriptTypeKey(data.asset.chain)]
+
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
           erc20ContractAddress: data.asset.tokenId,
           wallet,
           fee,
-          gasLimit
+          gasLimit,
+          ...bip32AndScript(scriptType, data.asset)
         })
 
         const signedTx = await adapter.signTransaction({ txToSign, wallet })

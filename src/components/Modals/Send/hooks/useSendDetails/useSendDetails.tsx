@@ -1,15 +1,20 @@
 import { useToast } from '@chakra-ui/react'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bip32AndScript } from 'lib/utxoUtils'
+import { ReduxState } from 'state/reducer'
+import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
@@ -76,6 +81,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapter.byChain(asset.chain)
 
+  const currentScriptType: BTCInputScriptType = useSelector(
+    (state: ReduxState) => state.preferences[getScriptTypeKey(asset.chain)]
+  )
+
   const buildTransaction = async (): Promise<{
     txToSign: chainAdapters.ChainTxType<ChainTypes>
     estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes>
@@ -91,7 +100,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
-          wallet
+          wallet,
+          ...bip32AndScript(currentScriptType, asset)
         })
         return data
       } catch (error) {
@@ -119,7 +129,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     if (assetBalance && wallet) {
       setLoading(true)
       const to = address
-      const from = await adapter.getAddress({ wallet })
+      const from = await adapter.getAddress({ wallet, ...bip32AndScript(currentScriptType, asset) })
 
       // Assume fast fee for send max
       let fastFee: string = ''

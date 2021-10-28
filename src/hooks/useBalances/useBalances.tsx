@@ -1,8 +1,14 @@
+/* eslint-disable no-console */
 import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { getAssetService } from 'lib/assetService'
+import { bip32AndScript, purposeFromScript } from 'lib/utxoUtils'
+import { ReduxState } from 'state/reducer'
+import { getScriptTypeKey, scriptTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type UseBalancesReturnType = {
   balances: Record<string, chainAdapters.Account<ChainTypes>>
@@ -19,24 +25,43 @@ export const useBalances = (): UseBalancesReturnType => {
     state: { wallet, walletInfo }
   } = useWallet()
 
+  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) => {
+    const scriptTypeKeys = Object.keys(state.preferences).filter(key =>
+      key.startsWith(scriptTypePrefix)
+    )
+    return scriptTypeKeys.reduce((acc, val) => {
+      return { ...acc, [val]: state.preferences[val] }
+    }, {})
+  })
+
   const getBalances = useCallback(async () => {
     if (wallet) {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
       const acc: Record<string, chainAdapters.Account<ChainTypes>> = {}
+
+      const service = await getAssetService()
+      const assetData = service?.byNetwork(NetworkTypes.MAINNET)
+
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
 
+        const asset = assetData.find(asset => asset.chain === key)
+        if (!asset) throw new Error(`asset not found for chain ${key}`)
+
+        const scriptType = allScriptTypes[getScriptTypeKey(key)]
+
         let addressOrXpub
         if (adapter.getType() === 'ethereum') {
-          addressOrXpub = await adapter.getAddress({ wallet })
+          addressOrXpub = await adapter.getAddress({ wallet, ...bip32AndScript(scriptType, asset) })
         } else if (adapter.getType() === 'bitcoin') {
+          const purpose = purposeFromScript(scriptType)
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+              addressNList: bip32ToAddressNList(`m/${purpose}'/0'/0'`),
               curve: 'secp256k1',
-              scriptType: BTCInputScriptType.SpendWitness
+              scriptType
             }
           ])
           if (!pubkeys || !pubkeys[0]) throw new Error('Error getting public key')
@@ -53,7 +78,7 @@ export const useBalances = (): UseBalancesReturnType => {
     }
     // We aren't passing chainAdapter as it will always be the same object and should never change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId])
+  }, [walletInfo?.deviceId, JSON.stringify(allScriptTypes)])
 
   useEffect(() => {
     if (wallet) {
@@ -71,7 +96,7 @@ export const useBalances = (): UseBalancesReturnType => {
     }
     // Here we rely on the deviceId vs the wallet class
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, getBalances])
+  }, [walletInfo?.deviceId, getBalances, JSON.stringify(allScriptTypes)])
 
   return {
     balances,

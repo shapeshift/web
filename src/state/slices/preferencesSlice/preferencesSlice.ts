@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { getAssetService } from 'lib/assetService'
-import { ReduxState } from 'state/reducer'
+import { createSlice } from '@reduxjs/toolkit'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes } from '@shapeshiftoss/types'
 
-export type FullAsset = Asset & { description?: string }
-export type AssetsState = { [key: string]: Asset & { description?: string } }
+export const scriptTypePrefix = 'scriptType_'
 
-const initialState = {} as AssetsState
+const initialState = {
+  [scriptTypePrefix + ChainTypes.Bitcoin]: BTCInputScriptType.SpendP2SHWitness
+} as { [key: string]: any }
 
 export const preferences = createSlice({
   name: 'preferences',
@@ -17,3 +17,7 @@ export const preferences = createSlice({
     }
   }
 })
+
+export const getScriptTypeKey = (chain: ChainTypes) => {
+  return scriptTypePrefix + chain
+}

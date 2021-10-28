@@ -26,17 +26,18 @@ function variantGhost(props: Record<string, any>) {
 
   if (c === 'gray') {
     return {
-      color: mode(`inherit`, `whiteAlpha.900`)(props),
+      color: mode(`gray.500`, `gray.500`)(props),
       _hover: {
-        bg: mode(`gray.100`, `gray.700`)(props)
+        color: mode('inherit', 'whiteAlpha.800')(props),
+        bg: mode(`gray.100`, `gray.750`)(props)
       },
-      _active: { bg: mode(`gray.200`, `gray.750`)(props) },
+      _active: { bg: mode(`gray.200`, `gray.700`)(props), color: mode(`gray.800`, 'white')(props) },
       _checked: { bg: mode(`gray.200`, `gray.700`)(props) }
     }
   }
 
   const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
-  const darkActiveBg = transparentize(`${c}.200`, 0.24)(theme)
+  const darkActiveBg = transparentize(`${c}.700`, 1)(theme)
 
   return {
     color: mode(`${c}.600`, `${c}.200`)(props),

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useHistory, useLocation } from 'react-router-dom'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
@@ -19,6 +21,10 @@ type ApprovalParams = {
 export const Approval = () => {
   const history = useHistory()
   const location = useLocation()
+  const {
+    handleSubmit,
+    formState: { isSubmitting }
+  } = useFormContext()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const { ethFiatRate } = location.state as ApprovalParams
@@ -69,9 +75,19 @@ export const Approval = () => {
     if (error) history.push('/trade/input')
   }, [errors, history])
 
+  console.log('approvaltx', approvalTxId)
+  console.log('isSubmitting', isSubmitting)
+
   return (
     <SlideTransition>
-      <Flex justifyContent='center' alignItems='center' flexDirection='column'>
+      <Flex
+        justifyContent='center'
+        alignItems='center'
+        flexDirection='column'
+        width='full'
+        as='form'
+        onSubmit={handleSubmit(approve)}
+      >
         <CountdownCircleTimer
           isPlaying={!!approvalTxId}
           size={90}
@@ -108,34 +124,46 @@ export const Approval = () => {
           <Text color='blue.500' translation='trade.whyNeedThis' />
         </Link>
         <Divider my={4} />
-        {!approvalTxId ? (
-          <Flex flexDirection='column' width='full'>
-            <Flex justifyContent='space-between' my={2}>
+        <Flex flexDirection='column' width='full'>
+          {approvalTxId && (
+            <Row>
+              <Row.Label>
+                <Text translation={['trade.approvingAsset', { symbol }]} />
+              </Row.Label>
+              <Row.Value>
+                <Link
+                  isExternal
+                  color='blue.500'
+                  href={sellAsset.currency?.explorerTxLink + approvalTxId}
+                >
+                  <MiddleEllipsis maxWidth='130px'>{approvalTxId}</MiddleEllipsis>
+                </Link>
+              </Row.Value>
+            </Row>
+          )}
+          <Row>
+            <Row.Label>
               <Text color='gray.500' translation='trade.estimatedGasFee' />
-              <Flex flexDirection='column' alignItems='flex-end'>
-                <RawText>{toFiat(bn(fee).times(ethFiatRate).toNumber())}</RawText>
-                <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
-              </Flex>
-            </Flex>
-            <Button colorScheme='blue' mt={2} onClick={approve}>
-              <Text translation='common.confirm' />
-            </Button>
+            </Row.Label>
+            <Row.Value>
+              <RawText>{toFiat(bn(fee).times(ethFiatRate).toNumber())}</RawText>
+              <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+            </Row.Value>
+          </Row>
+          <Button
+            type='submit'
+            isLoading={isSubmitting || !!approvalTxId}
+            colorScheme='blue'
+            mt={2}
+          >
+            <Text translation='common.confirm' />
+          </Button>
+          {!approvalTxId && !isSubmitting && (
             <Button variant='ghost' mt={2} onClick={() => history.goBack()}>
               <Text translation='common.reject' />
             </Button>
-          </Flex>
-        ) : (
-          <>
-            <Text fontWeight='bold' translation={['trade.approvingAsset', { symbol }]} />
-            <Link
-              isExternal
-              color='blue.500'
-              href={sellAsset.currency?.explorerTxLink + approvalTxId}
-            >
-              <Text translation='trade.viewTransaction' />
-            </Link>
-          </>
-        )}
+          )}
+        </Flex>
       </Flex>
     </SlideTransition>
   )

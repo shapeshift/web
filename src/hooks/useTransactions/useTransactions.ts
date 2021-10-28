@@ -175,7 +175,6 @@ export const useTransactions = ({
       if (!polling) getTransactions()
       else {
         const interval = setInterval(async () => {
-          console.log('poll')
           getTransactions()
         }, 10000)
         pollingInterval.current = interval

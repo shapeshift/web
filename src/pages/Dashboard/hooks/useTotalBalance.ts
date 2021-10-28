@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { FlattenedAccount } from 'pages/Dashboard/helpers/flattenAccounts'
+import { FlattenedAccount } from 'pages/Dashboard/helpers/flattenAccounts/flattenAccounts'
 import { ReduxState } from 'state/reducer'
 
 export const useTotalBalance = (accounts: FlattenedAccount[]) => {

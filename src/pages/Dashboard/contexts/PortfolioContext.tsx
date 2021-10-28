@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react'
 import { useBalances } from 'hooks/useBalances/useBalances'
 
-import { flattenAccounts, FlattenedAccount } from '../helpers/flattenAccounts'
+import { flattenAccounts, FlattenedAccount } from '../helpers/flattenAccounts/flattenAccounts'
 import { useTotalBalance } from '../hooks/useTotalBalance'
 
 type PortfolioContextProps = {

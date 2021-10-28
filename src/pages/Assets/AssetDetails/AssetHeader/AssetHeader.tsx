@@ -20,18 +20,29 @@ import numeral from 'numeral'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { useParams } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
+import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { MatchParams } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
+import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
 
 import { AssetActions } from './AssetActions'
 
+enum views {
+  price = 'price',
+  balance = 'balance'
+}
+
 export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoaded: boolean }) => {
+  const { chain, tokenId } = useParams<MatchParams>()
+  const [view, setView] = useState(views.price)
   const { name, symbol, description, icon, changePercent24Hr, price, marketCap, volume } = asset
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
@@ -44,6 +55,9 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
     timeframe
   })
   const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
+  const { balances } = useFlattenedBalances()
+  const id = tokenId ?? chain
+  const totalBalance = useTotalBalance({ [id]: balances[id] })
 
   return (
     <Card variant='footer-stub'>
@@ -70,10 +84,22 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
             <Skeleton isLoaded={isLoaded}>
               <HStack>
-                <Button size='sm' colorScheme='blue' variant='ghost'>
+                <Button
+                  size='sm'
+                  colorScheme='blue'
+                  variant='ghost'
+                  isActive={view === views.balance}
+                  onClick={() => setView(views.balance)}
+                >
                   <Text translation='assets.assetDetails.assetHeader.balance' />
                 </Button>
-                <Button size='sm' colorScheme='blue' variant='ghost' isActive={true}>
+                <Button
+                  size='sm'
+                  colorScheme='blue'
+                  variant='ghost'
+                  isActive={view === views.price}
+                  onClick={() => setView(views.price)}
+                >
                   <Text translation='assets.assetDetails.assetHeader.price' />
                 </Button>
               </HStack>
@@ -86,7 +112,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
             <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
               <Skeleton isLoaded={isLoaded}>
                 <NumberFormat
-                  value={assetPrice}
+                  value={view === views.price ? assetPrice : totalBalance}
                   displayType={'text'}
                   thousandSeparator={true}
                   prefix={'$'}

@@ -13,6 +13,7 @@ export const useTotalBalance = (accounts: ReturnType<typeof flattenTokenBalances
   useEffect(() => {
     let balance = 0
     Object.values(accounts).forEach(account => {
+      if (!account) return
       const identifier = account.contract ?? account.chain
       const accountMarketData = marketData[identifier]
       const accountAsset = assets[identifier]

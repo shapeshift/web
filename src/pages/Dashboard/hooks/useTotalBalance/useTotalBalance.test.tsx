@@ -5,7 +5,7 @@ import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { rune } from 'jest/mocks/assets'
 import { TestProviders } from 'jest/TestProviders'
 import { getAssetService } from 'lib/assetService'
-import { assets, fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { store } from 'state/store'
 

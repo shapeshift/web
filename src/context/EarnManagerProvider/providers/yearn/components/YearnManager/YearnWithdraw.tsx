@@ -1,3 +1,4 @@
+import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useSteps } from 'chakra-ui-steps'
@@ -52,13 +53,24 @@ export const YearnWithdraw = () => {
       case 1:
         return (
           <Confirm
-            toAsset={asset}
-            fromAsset={asset}
             onCancel={handleCancel}
             onConfirm={handleConfirm}
-          >
-            <div>Rows</div>
-          </Confirm>
+            apr='4%'
+            provider='Yearn Finance'
+            statusIcon={<ArrowForwardIcon />}
+            assets={[
+              {
+                ...asset,
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              },
+              {
+                ...asset,
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              }
+            ]}
+          />
         )
       case 2:
         return (

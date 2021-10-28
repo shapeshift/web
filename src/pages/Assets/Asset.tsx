@@ -1,15 +1,17 @@
+/* eslint-disable no-console */
 import { Flex } from '@chakra-ui/react'
 import { ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { ALLOWED_CHAINS, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { ReduxState } from 'state/reducer'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
-
 export interface MatchParams {
   chain: ChainTypes
   tokenId: string
@@ -37,11 +39,16 @@ const initAsset = {
 }
 
 export const Asset = () => {
+  const dispatch = useDispatch()
+
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
   const { chain, tokenId } = useParams<MatchParams>()
   const getAssetData = useGetAssetData({ chain, tokenId })
   const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
+  const preference = useSelector((state: ReduxState) => state.preferences.key1)
+
+  console.log('preference', preference)
 
   const getPrice = useCallback(async () => {
     if (ALLOWED_CHAINS[chain]) {
@@ -62,6 +69,10 @@ export const Asset = () => {
       }, 750)
     })()
   }, [chain, tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    dispatch(preferences.actions.setPreference({ key: 'key1', value: 'value1' }))
+  }, [])
 
   return (
     <Page style={{ flex: 1 }} key={tokenId}>

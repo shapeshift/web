@@ -51,8 +51,8 @@ export const Asset = () => {
       setTimeout(async () => {
         dispatch(
           fetchMarketData({
-            chain: chain,
-            tokenId: tokenId
+            chain,
+            tokenId
           })
         )
         setIsLoaded(true)

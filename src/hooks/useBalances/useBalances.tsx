@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'

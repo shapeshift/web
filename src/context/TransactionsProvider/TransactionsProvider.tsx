@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import React, { useEffect } from 'react'

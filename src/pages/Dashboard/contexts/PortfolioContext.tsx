@@ -1,27 +1,22 @@
-import React, { useContext, useMemo } from 'react'
-import { useBalances } from 'hooks/useBalances/useBalances'
+import React, { useContext } from 'react'
+import { flattenTokenBalances, useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 
-import { flattenAccounts, FlattenedAccount } from '../helpers/flattenAccounts/flattenAccounts'
-import { useTotalBalance } from '../hooks/useTotalBalance'
+import { useTotalBalance } from '../hooks/useTotalBalance/useTotalBalance'
 
 type PortfolioContextProps = {
   totalBalance: number
   loading: boolean
-  accountsList: FlattenedAccount[]
+  balances: ReturnType<typeof flattenTokenBalances>
 }
 
 const PortfolioContext = React.createContext<PortfolioContextProps | null>(null)
 
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
-  const { balances: accounts, loading } = useBalances()
-  const accountsList = useMemo(() => {
-    return flattenAccounts(accounts)
-  }, [accounts])
-
-  const totalBalance = useTotalBalance(accountsList)
+  const { balances, loading } = useFlattenedBalances()
+  const totalBalance = useTotalBalance(balances)
 
   return (
-    <PortfolioContext.Provider value={{ totalBalance, loading, accountsList }}>
+    <PortfolioContext.Provider value={{ totalBalance, loading, balances }}>
       {children}
     </PortfolioContext.Provider>
   )

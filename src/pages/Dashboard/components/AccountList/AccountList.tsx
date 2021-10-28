@@ -11,7 +11,7 @@ import { AccountRow } from '../AccountRow/AccountRow'
 export const AccountList = () => {
   const dispatch = useDispatch()
   const assets = useSelector((state: ReduxState) => state.assets)
-  const { accountsList } = usePortfolio()
+  const { balances } = usePortfolio()
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
@@ -24,17 +24,17 @@ export const AccountList = () => {
   const accountRows = useMemo(() => {
     return (
       <>
-        {accountsList.map(account => (
+        {Object.values(balances).map(account => (
           <AccountRow
-            key={account.tokenId ?? account.chain}
-            balance={account.balance}
+            key={account.contract ?? account.chain}
+            balance={account.balance ?? '0'}
             chain={account.chain}
-            tokenId={account.tokenId}
+            tokenId={account.contract}
           />
         ))}
       </>
     )
-  }, [accountsList])
+  }, [balances])
 
   return accountRows
 }

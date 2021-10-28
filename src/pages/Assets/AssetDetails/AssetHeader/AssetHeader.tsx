@@ -28,6 +28,7 @@ import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { fromBaseUnit } from 'lib/math'
 import { MatchParams } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
@@ -132,11 +133,17 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
                   </StatNumber>
                 </Skeleton>
               </Stat>
-              <Stat size='sm' color='gray.500'>
-                <Skeleton isLoaded={isLoaded}>
-                  <StatNumber>0.0005 BTC</StatNumber>
-                </Skeleton>
-              </Stat>
+              {view === views.balance && (
+                <Stat size='sm' color='gray.500'>
+                  <Skeleton isLoaded={isLoaded}>
+                    <StatNumber>
+                      {`${fromBaseUnit(balances[id].balance ?? '0', asset.precision)}${
+                        asset.symbol
+                      }`}
+                    </StatNumber>
+                  </Skeleton>
+                </Stat>
+              )}
             </StatGroup>
           </Box>
         </Box>

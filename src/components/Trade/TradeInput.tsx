@@ -199,8 +199,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             onInputChange={(value: string) => {
               const action = value ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
-              const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
-              getQuote(amount, sellAsset, buyAsset)
+              getQuote({ buyAmount: value }, sellAsset, buyAsset)
             }}
             inputLeftElement={
               <TokenButton

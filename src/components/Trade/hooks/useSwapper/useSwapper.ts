@@ -201,10 +201,9 @@ export const useSwapper = () => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
     const key = Object.keys(newAmount)[0]
     const value = Object.values(newAmount)[0]
-    const isSellAmount = key === 'sellAmount' || value === '0'
-    const isBuyAmount = key === 'buyAmount' && value !== '0'
+    const isSellAmount = key === 'sellAmount' || !value
+    const isBuyAmount = key === 'buyAmount' && !!value
     const isFiatAmount = key === 'fiatAmount'
-
     let amount = newAmount
     const precision = isSellAmount
       ? sellAsset.currency.precision

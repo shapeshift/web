@@ -1,4 +1,4 @@
-import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
@@ -13,7 +13,7 @@ export const useTradeRoutes = (): {
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
   const history = useHistory()
-  const { getValues, setValue } = useFormContext<TradeState>()
+  const { getValues, setValue } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const { getQuote, getBestSwapper, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')

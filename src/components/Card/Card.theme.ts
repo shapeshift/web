@@ -59,6 +59,14 @@ export const CardStyle = {
         shadow: mode('base', 'lg')(props)
       }
     }),
+    group: (props: Record<string, any>) => ({
+      card: {
+        bg: mode('gray.50', 'gray.850')(props),
+        borderWidth: 1,
+        borderColor: mode('gray.100', 'gray.750')(props),
+        borderRadius: 'xl'
+      }
+    }),
     'footer-stub': (props: Record<string, any>) => ({
       card: {
         bg: mode('white', 'gray.785')(props),

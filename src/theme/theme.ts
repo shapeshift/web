@@ -1,6 +1,7 @@
 import { extendTheme } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import { createBreakpoints } from '@chakra-ui/theme-tools'
+import { StepsStyleConfig as Steps } from 'chakra-ui-steps'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
 import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
@@ -9,6 +10,7 @@ import { HeadingStyle as Heading } from 'components/Heading/Heading.theme'
 import { InputStyle as Input } from 'components/Input/Input.theme'
 import { MenuStyle as Menu } from 'components/Menu/Menu.theme'
 import { ModalStyle as Modal } from 'components/Modal/Modal.theme'
+import { PopoverStyle as Popover } from 'components/Popover/Popover.theme'
 import { ProgressStyle as Progress } from 'components/Progres/Progress.theme'
 import { RowStyle as Row } from 'components/Row/Row.theme'
 import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
@@ -110,7 +112,9 @@ export const theme = extendTheme({
     Row,
     Drawer,
     Textarea,
-    Skeleton
+    Skeleton,
+    Steps,
+    Popover
   },
   shadows: {
     xl: '0 2px 4px 2px rgba(0,0,0,.15),0 2px 10px 2px rgba(0,0,0,.2)',

@@ -1,3 +1,4 @@
+import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -25,8 +26,26 @@ export const useBalances = (): UseBalancesReturnType => {
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
-        const address = await adapter.getAddress({ wallet })
-        const balanceResponse = await adapter.getAccount(address)
+
+        let addressOrXpub
+        if (adapter.getType() === 'ethereum') {
+          addressOrXpub = await adapter.getAddress({ wallet })
+        } else if (adapter.getType() === 'bitcoin') {
+          const pubkeys = await wallet.getPublicKeys([
+            {
+              coin: adapter.getType(),
+              addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+              curve: 'secp256k1',
+              scriptType: BTCInputScriptType.SpendWitness
+            }
+          ])
+          if (!pubkeys || !pubkeys[0]) throw new Error('Error getting public key')
+          addressOrXpub = pubkeys[0].xpub
+        } else {
+          throw new Error('not implemented')
+        }
+        if (!addressOrXpub) throw new Error('Error getting addressOrXpub')
+        const balanceResponse = await adapter.getAccount(addressOrXpub)
         if (!balanceResponse) continue
         acc[key] = balanceResponse
       }

@@ -18,11 +18,9 @@ export const VerticalStepper = ({ state, activeStep, steps }: VerticalStepperPro
   return (
     <VStack width='100%'>
       <Steps state={state} activeStep={activeStep} orientation='vertical'>
-        {steps
-          .filter(step => !step.hideNav)
-          .map(step => (
-            <Step key={step.label} label={step.label} />
-          ))}
+        {steps.map(step => (
+          <Step key={step.label} label={step.label} />
+        ))}
       </Steps>
     </VStack>
   )

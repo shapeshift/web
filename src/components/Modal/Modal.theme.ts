@@ -13,7 +13,14 @@ export const ModalStyle = {
   // Styles for the size variations
   sizes: {},
   // Styles for the visual style variations
-  variants: {},
+  variants: {
+    fluid: {
+      dialog: {
+        maxWidth: '100%',
+        width: 'auto'
+      }
+    }
+  },
   // The default `size` or `variant` values
   defaultProps: {}
 }

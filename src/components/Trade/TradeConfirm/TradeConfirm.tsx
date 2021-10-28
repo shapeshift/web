@@ -1,5 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
+import { find } from 'lodash'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -11,6 +12,7 @@ import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { TxStatusEnum, useTransactions } from 'hooks/useTransactions/useTransactions'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
@@ -37,6 +39,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
+  const { chain, contractAddress, symbol } = sellAsset
+  const { txHistory } = useTransactions({ chain, contractAddress, symbol, polling: !!txid })
+  const transaction = find(txHistory?.txs, { txid })
+  const status: TxStatusEnum | undefined = transaction && (transaction.status as TxStatusEnum)
 
   const onSubmit = async () => {
     const result = await executeQuote({ wallet })
@@ -64,7 +70,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Text translation='trade.confirmTrade' />
               </Card.Heading>
             </SimpleGrid>
-            <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} />
+            <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} status={status} />
           </Card.Header>
           <Divider />
           <Card.Body pb={0} px={0}>
@@ -117,16 +123,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
             </Stack>
           </Card.Body>
           <Card.Footer px={0} py={0}>
-            <Button
-              isLoading={isSubmitting}
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              mt={6}
-              type='submit'
-            >
-              <Text translation='trade.confirmAndTrade' />
-            </Button>
+            {!txid && (
+              <Button
+                isLoading={isSubmitting}
+                colorScheme='blue'
+                size='lg'
+                width='full'
+                mt={6}
+                type='submit'
+              >
+                <Text translation='trade.confirmAndTrade' />
+              </Button>
+            )}
           </Card.Footer>
         </Card>
       </Box>

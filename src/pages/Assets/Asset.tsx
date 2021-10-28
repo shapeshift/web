@@ -8,7 +8,6 @@ import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { ReduxState } from 'state/reducer'
 import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 export interface MatchParams {
@@ -40,9 +39,6 @@ const initAsset = {
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const { chain, tokenId } = useParams<MatchParams>()
-  const preference = useSelector((state: ReduxState) => state.preferences.key1)
-
-  console.log('preference', preference)
   const marketData = useSelector((state: ReduxState) => state.marketData[tokenId ?? chain])
   const dispatch = useDispatch()
 
@@ -62,10 +58,6 @@ export const Asset = () => {
       }, 750)
     })()
   }, [chain, tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    dispatch(preferences.actions.setPreference({ key: 'key1', value: 'value1' }))
-  }, [])
 
   return (
     <Page style={{ flex: 1 }} key={tokenId}>

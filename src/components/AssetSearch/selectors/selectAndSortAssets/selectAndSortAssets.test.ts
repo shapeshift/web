@@ -1,15 +1,16 @@
 import { aapl, ethereum, rune, zero } from 'jest/mocks/assets'
+import { mockStore } from 'jest/mocks/store'
 
 import { selectAndSortAssets } from './selectAndSortAssets'
 
 const store = {
+  ...mockStore,
   assets: {
     [rune.tokenId]: rune,
     [aapl.tokenId]: aapl,
     [ethereum.chain]: ethereum,
     [zero.tokenId]: zero
-  },
-  txHistory: {}
+  }
 }
 
 describe('selectAndSortAssets', () => {
@@ -22,7 +23,7 @@ describe('selectAndSortAssets', () => {
   })
 
   it('should return empty array if there are no assets', () => {
-    const assets = selectAndSortAssets({ assets: {}, txHistory: {} })
+    const assets = selectAndSortAssets(mockStore)
     expect(assets.length).toBe(0)
   })
 })

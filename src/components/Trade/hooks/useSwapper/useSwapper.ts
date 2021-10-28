@@ -6,12 +6,11 @@ import {
   chainAdapters,
   ChainTypes,
   ExecQuoteOutput,
-  GetQuoteInput,
   Quote,
   SwapperType
 } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -27,13 +26,15 @@ export enum TradeActions {
   FIAT = 'FIAT'
 }
 
-type GetQuote<C extends ChainTypes, S extends SwapperType> = {
+type GetQuoteInput = {
   amount: string
+  action?: TradeActions
+}
+
+interface GetQuoteFromSwapper<C extends ChainTypes, S extends SwapperType> extends GetQuoteInput {
   sellAsset: Asset
   buyAsset: Asset
-  action: TradeActions
   onFinish: (quote: Quote<C, S>) => void
-  isFiat?: boolean
 }
 
 export enum TRADE_ERRORS {
@@ -53,10 +54,9 @@ export enum TRADE_ERRORS {
 
 export const useSwapper = () => {
   const { setValue, setError, clearErrors, getValues } = useFormContext()
-  const [quote, trade, action] = useWatch({
-    name: ['quote', 'trade', 'action']
+  const [quote, trade] = useWatch({
+    name: ['quote', 'trade']
   })
-  const actionRef = useRef(action)
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
@@ -65,10 +65,6 @@ export const useSwapper = () => {
   })
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)
   const [debounceObj, setDebounceObj] = useState<{ cancel: () => void }>()
-
-  useEffect(() => {
-    actionRef.current = action
-  }, [action])
 
   const getDefaultPair = useCallback(() => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
@@ -126,7 +122,7 @@ export const useSwapper = () => {
     buyAsset,
     action,
     onFinish
-  }: GetQuote<C, S>) => {
+  }: GetQuoteFromSwapper<C, S>) => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
@@ -180,7 +176,7 @@ export const useSwapper = () => {
         setValue('quote', newQuote)
         setValue('sellAsset.fiatRate', sellAssetFiatRate)
         setValue('buyAsset.fiatRate', buyAssetFiatRate)
-        if (actionRef.current) onFinish(newQuote)
+        if (action) onFinish(newQuote)
       } catch (err: any) {
         const message = err?.statusReason
         if (message) setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
@@ -191,26 +187,28 @@ export const useSwapper = () => {
     setDebounceObj({ ...quoteDebounce })
   }
 
-  const getQuote = async (
-    value: string,
-    sellAsset: TradeAsset,
-    buyAsset: TradeAsset,
-    action: TradeActions
-  ) => {
+  const getQuote = async ({
+    amount,
+    sellAsset,
+    buyAsset,
+    action
+  }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset }) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
-    const isSellAmount = action === TradeActions.SELL || !value
-    const isBuyAmount = action === TradeActions.BUY && !!value
+
+    const isSellAmount = action === TradeActions.SELL || !amount
+    const isBuyAmount = action === TradeActions.BUY && !!amount
     const isFiatAmount = action === TradeActions.FIAT
 
-    let amount = value
+    let formattedAmount = amount
     const precision = isSellAmount
       ? sellAsset.currency.precision
       : isBuyAmount && buyAsset.currency.precision
     if (precision) {
-      amount = toBaseUnit(value || '0', precision)
+      formattedAmount = toBaseUnit(amount || '0', precision)
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
+      const { sellAsset, buyAsset, action } = getValues()
       const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
       const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
       const newFiatAmount = bn(buyAmount)
@@ -218,19 +216,15 @@ export const useSwapper = () => {
         .toFixed(2)
       const fiatAmount = getValues('fiatAmount')
 
-      if (actionRef.current === TradeActions.SELL && isSellAmount && value === sellAsset.amount) {
+      if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
         setValue('buyAsset.amount', buyAmount)
         setValue('fiatAmount', newFiatAmount)
         setValue('action', undefined)
-      } else if (
-        actionRef.current === TradeActions.BUY &&
-        isBuyAmount &&
-        value === buyAsset.amount
-      ) {
+      } else if (action === TradeActions.BUY && isBuyAmount && amount === buyAsset.amount) {
         setValue('sellAsset.amount', sellAmount)
         setValue('fiatAmount', newFiatAmount)
         setValue('action', undefined)
-      } else if (actionRef.current === TradeActions.FIAT && isFiatAmount && value === fiatAmount) {
+      } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
         setValue(
           'buyAsset.amount',
           fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
@@ -244,7 +238,7 @@ export const useSwapper = () => {
     }
 
     await getQuoteFromSwapper<typeof sellAsset.currency.chain, typeof bestSwapperType>({
-      amount,
+      amount: formattedAmount,
       sellAsset: sellAsset.currency,
       buyAsset: buyAsset.currency,
       action,

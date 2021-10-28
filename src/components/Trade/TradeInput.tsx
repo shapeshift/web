@@ -93,11 +93,16 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
+    setValue('action', action)
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
-    setValue('action', action)
-    getQuote(currentBuyAsset.amount, currentBuyAsset, currentSellAsset, action)
+    getQuote({
+      amount: currentBuyAsset.amount,
+      sellAsset: currentBuyAsset,
+      buyAsset: currentSellAsset,
+      action
+    })
   }
 
   const error = get(errors, `useSwapper.message`, null)
@@ -123,7 +128,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getQuote(e.value, sellAsset, buyAsset, action)
+                    getQuote({ amount: e.value, sellAsset, buyAsset, action })
                   }
                 }}
               />
@@ -143,10 +148,10 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            onInputChange={(value: string) => {
-              const action = value ? TradeActions.SELL : undefined
+            onInputChange={(amount: string) => {
+              const action = amount ? TradeActions.SELL : undefined
               action ? setValue('action', action) : reset()
-              getQuote(value, sellAsset, buyAsset, action)
+              getQuote({ amount, sellAsset, buyAsset, action })
             }}
             inputLeftElement={
               <TokenButton
@@ -196,10 +201,10 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            onInputChange={(value: string) => {
-              const action = value ? TradeActions.BUY : undefined
+            onInputChange={(amount: string) => {
+              const action = amount ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
-              getQuote(value, sellAsset, buyAsset, action)
+              getQuote({ amount, sellAsset, buyAsset, action })
             }}
             inputLeftElement={
               <TokenButton

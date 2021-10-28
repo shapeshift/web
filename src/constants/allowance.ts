@@ -1,0 +1,1 @@
+export const MAX_ALLOWANCE = '0xfffffffffffffffffffffffffffffffffffffffffffffff'

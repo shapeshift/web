@@ -1,12 +1,13 @@
 import { Flex } from '@chakra-ui/react'
-import { ChainTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
-import { useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
-import { ALLOWED_CHAINS, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { ReduxState } from 'state/reducer'
+import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 
@@ -38,26 +39,22 @@ const initAsset = {
 
 export const Asset = () => {
   const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
-  const [marketData, setMarketData] = useStateIfMounted<MarketData | undefined>(undefined)
   const { chain, tokenId } = useParams<MatchParams>()
-  const getAssetData = useGetAssetData({ chain, tokenId })
-  const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
+  const marketData = useSelector((state: ReduxState) => state.marketData[tokenId ?? chain])
+  const dispatch = useDispatch()
 
-  const getPrice = useCallback(async () => {
-    if (ALLOWED_CHAINS[chain]) {
-      const market = await getAssetData({
-        chain,
-        tokenId
-      })
-      if (market) setMarketData(market)
-    }
-  }, [tokenId, getAssetData, chain]) // eslint-disable-line react-hooks/exhaustive-deps
+  const asset = useFetchAsset({ chain, tokenId })
 
   useEffect(() => {
     ;(async () => {
       setIsLoaded(false)
       setTimeout(async () => {
-        await getPrice()
+        dispatch(
+          fetchMarketData({
+            chain,
+            tokenId
+          })
+        )
         setIsLoaded(true)
       }, 750)
     })()

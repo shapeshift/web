@@ -14,6 +14,7 @@ import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { web3Instance } from 'lib/web3-instance'
@@ -54,6 +55,7 @@ export enum TRADE_ERRORS {
 
 export const useSwapper = () => {
   const { setValue, setError, clearErrors, getValues } = useFormContext()
+  const isComponentMounted = useIsComponentMounted()
   const [quote, trade] = useWatch({
     name: ['quote', 'trade']
   })
@@ -126,61 +128,66 @@ export const useSwapper = () => {
     if (debounceObj?.cancel) debounceObj.cancel()
     clearErrors()
     const quoteDebounce = debounce(async () => {
-      try {
-        const swapper = swapperManager.getSwapper(bestSwapperType)
-        let convertedAmount =
-          action === TradeActions.BUY ? { buyAmount: amount } : { sellAmount: amount }
+      if (isComponentMounted.current) {
+        try {
+          const swapper = swapperManager.getSwapper(bestSwapperType)
+          let convertedAmount =
+            action === TradeActions.BUY ? { buyAmount: amount } : { sellAmount: amount }
 
-        const isFiat = action === TradeActions.FIAT
-        if (isFiat) {
-          const rate = await swapper.getUsdRate({
+          const isFiat = action === TradeActions.FIAT
+          if (isFiat) {
+            const rate = await swapper.getUsdRate({
+              symbol: sellAsset.symbol,
+              tokenId: sellAsset.tokenId
+            })
+            convertedAmount = {
+              sellAmount: toBaseUnit(
+                bn(amount).div(rate).toString(),
+                sellAsset.precision
+              ).toString()
+            }
+          }
+          const quoteInput = {
+            sellAsset: sellAsset,
+            buyAsset: buyAsset,
+            ...convertedAmount
+          }
+          let minMax = trade
+          if (
+            quote?.sellAsset?.symbol !== sellAsset.symbol &&
+            quote?.buyAsset?.symbol !== buyAsset.symbol
+          ) {
+            minMax = await swapper.getMinMax(quoteInput)
+            minMax && setValue('trade', { ...trade, ...minMax })
+          }
+          const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
+          if (!newQuote?.success) throw newQuote
+
+          const sellAssetUsdRate = await swapper.getUsdRate({
             symbol: sellAsset.symbol,
             tokenId: sellAsset.tokenId
           })
-          convertedAmount = {
-            sellAmount: toBaseUnit(bn(amount).div(rate).toString(), sellAsset.precision).toString()
+          let buyAssetUsdRate
+          if (newQuote?.rate) {
+            buyAssetUsdRate = bn(sellAssetUsdRate).dividedBy(newQuote?.rate).toString()
+          } else {
+            buyAssetUsdRate = await swapper.getUsdRate({
+              symbol: buyAsset.symbol,
+              tokenId: buyAsset.tokenId
+            })
           }
+          const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
+          const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
+          setFees(newQuote, sellAsset)
+          setValue('quote', newQuote)
+          setValue('sellAsset.fiatRate', sellAssetFiatRate)
+          setValue('buyAsset.fiatRate', buyAssetFiatRate)
+          if (action) onFinish(newQuote)
+        } catch (err: any) {
+          const message = err?.statusReason
+          if (message) setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
+          else setError('useSwapper', { message: TRADE_ERRORS.QUOTE_FAILED })
         }
-        const quoteInput = {
-          sellAsset: sellAsset,
-          buyAsset: buyAsset,
-          ...convertedAmount
-        }
-        let minMax = trade
-        if (
-          quote?.sellAsset?.symbol !== sellAsset.symbol &&
-          quote?.buyAsset?.symbol !== buyAsset.symbol
-        ) {
-          minMax = await swapper.getMinMax(quoteInput)
-          minMax && setValue('trade', { ...trade, ...minMax })
-        }
-        const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
-        if (!newQuote?.success) throw newQuote
-
-        const sellAssetUsdRate = await swapper.getUsdRate({
-          symbol: sellAsset.symbol,
-          tokenId: sellAsset.tokenId
-        })
-        let buyAssetUsdRate
-        if (newQuote?.rate) {
-          buyAssetUsdRate = bn(sellAssetUsdRate).dividedBy(newQuote?.rate).toString()
-        } else {
-          buyAssetUsdRate = await swapper.getUsdRate({
-            symbol: buyAsset.symbol,
-            tokenId: buyAsset.tokenId
-          })
-        }
-        const sellAssetFiatRate = bn(sellAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
-        const buyAssetFiatRate = bn(buyAssetUsdRate).times(1).toString() // TODO: Implement fiatPerUsd here
-        setFees(newQuote, sellAsset)
-        setValue('quote', newQuote)
-        setValue('sellAsset.fiatRate', sellAssetFiatRate)
-        setValue('buyAsset.fiatRate', buyAssetFiatRate)
-        if (action) onFinish(newQuote)
-      } catch (err: any) {
-        const message = err?.statusReason
-        if (message) setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
-        else setError('useSwapper', { message: TRADE_ERRORS.QUOTE_FAILED })
       }
     }, debounceTime)
     quoteDebounce()

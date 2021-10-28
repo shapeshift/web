@@ -215,32 +215,33 @@ export const useSwapper = () => {
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
-      const { sellAsset, buyAsset, action } = getValues()
-      const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-      const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-      const newFiatAmount = bn(buyAmount)
-        .times(buyAsset.fiatRate || 0)
-        .toFixed(2)
-      const fiatAmount = getValues('fiatAmount')
-
-      if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
-        setValue('buyAsset.amount', buyAmount)
-        setValue('fiatAmount', newFiatAmount)
-        setValue('action', undefined)
-      } else if (action === TradeActions.BUY && isBuyAmount && amount === buyAsset.amount) {
-        setValue('sellAsset.amount', sellAmount)
-        setValue('fiatAmount', newFiatAmount)
-        setValue('action', undefined)
-      } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
-        setValue(
-          'buyAsset.amount',
-          fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        )
-        setValue(
-          'sellAsset.amount',
-          fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        )
-        setValue('action', undefined)
+      if (isComponentMounted.current) {
+        const { sellAsset, buyAsset, action } = getValues()
+        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+        const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+        const newFiatAmount = bn(buyAmount)
+          .times(buyAsset.fiatRate || 0)
+          .toFixed(2)
+        const fiatAmount = getValues('fiatAmount')
+        if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
+          setValue('buyAsset.amount', buyAmount)
+          setValue('fiatAmount', newFiatAmount)
+          setValue('action', undefined)
+        } else if (action === TradeActions.BUY && isBuyAmount && amount === buyAsset.amount) {
+          setValue('sellAsset.amount', sellAmount)
+          setValue('fiatAmount', newFiatAmount)
+          setValue('action', undefined)
+        } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
+          setValue(
+            'buyAsset.amount',
+            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+          )
+          setValue(
+            'sellAsset.amount',
+            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+          )
+          setValue('action', undefined)
+        }
       }
     }
 

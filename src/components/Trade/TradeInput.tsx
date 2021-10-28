@@ -46,7 +46,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     getValues,
     setValue,
     setError,
-    formState: { errors, isDirty, isValid }
+    formState: { errors, isDirty, isValid, isSubmitting }
   } = useFormContext()
   const {
     number: { localeParts }
@@ -221,7 +221,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme={error ? 'red' : 'blue'}
-          isDisabled={!isDirty || !isValid || !!action || !wallet}
+          isDisabled={!isDirty || !isValid || !!action || !wallet || isSubmitting}
           style={{
             whiteSpace: 'normal',
             wordWrap: 'break-word'

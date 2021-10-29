@@ -1,10 +1,13 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, Link, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import { useSteps } from 'chakra-ui-steps'
 import { useHistory } from 'react-router'
+import { Amount } from 'components/Amount/Amount'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
+import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 import { Approve } from 'context/EarnManagerProvider/components/Approve/Approve'
 import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
@@ -93,35 +96,7 @@ export const YearnDeposit = () => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleConfirm}
-            apr='4%'
-            provider='Yearn Finance'
-            statusIcon={<ArrowForwardIcon />}
-            assets={[
-              {
-                ...asset,
-                cryptoAmount: '100',
-                fiatAmount: '100'
-              },
-              {
-                ...asset,
-                cryptoAmount: '100',
-                fiatAmount: '100'
-              }
-            ]}
-          />
-        )
-      case 3:
-        return (
-          <BroadcastTx
-            onClose={handleCancel}
-            onContinue={handleViewPosition}
-            apr='4%'
-            loading={true}
-            provider='Yearn Finance'
-            statusText='modals.broadcast.header.pending'
-            statusIcon={<ArrowForwardIcon />}
-            txid='0xeca5cd6700922758bea9adad1fed5947419fd57b5aa40bab0f56cf1901d8e2aa'
-            explorerLink='http://google.com'
+            prefooter={<Text color='gray.500' translation='modals.confirm.preFooter' />}
             assets={[
               {
                 ...asset,
@@ -136,7 +111,119 @@ export const YearnDeposit = () => {
                 fiatAmount: '100'
               }
             ]}
-          />
+          >
+            <Stack spacing={6}>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.depositTo' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>Year Finance</Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.estimatedGas' />
+                </Row.Label>
+                <Row.Value>
+                  <Box textAlign='right'>
+                    <Amount.Fiat fontWeight='bold' value='30.00' />
+                    <Amount.Crypto color='gray.500' value='0.024' symbol='ETH' />
+                  </Box>
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.averageApr' />
+                </Row.Label>
+                <Row.Value>
+                  <Tag colorScheme='green'>4%</Tag>
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.estimatedReturns' />
+                </Row.Label>
+                <Row.Value>
+                  <Box textAlign='right'>
+                    <Amount.Fiat fontWeight='bold' value='529.04' />
+                    <Amount.Crypto color='gray.500' value='529.04' symbol='USDC' />
+                  </Box>
+                </Row.Value>
+              </Row>
+            </Stack>
+          </Confirm>
+        )
+      case 3:
+        return (
+          <BroadcastTx
+            onClose={handleCancel}
+            onContinue={handleViewPosition}
+            loading={true}
+            statusText='modals.broadcast.header.pending'
+            statusIcon={<ArrowForwardIcon />}
+            assets={[
+              {
+                ...asset,
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              },
+              {
+                ...asset,
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              }
+            ]}
+          >
+            <Stack spacing={6}>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.broadcast.transactionId' />
+                </Row.Label>
+                <Row.Value>
+                  <Link href='http://google.com' isExternal color='blue.500' fontWeight='bold'>
+                    <MiddleEllipsis maxWidth='200px'>
+                      0x73060cb15ae5b6a5edc71c3b8b49dd20746240990d0a1047481b4218c690ad1c
+                    </MiddleEllipsis>
+                  </Link>
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.depositTo' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>Year Finance</Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.estimatedGas' />
+                </Row.Label>
+                <Row.Value>
+                  <Box textAlign='right'>
+                    <Amount.Fiat fontWeight='bold' value='30.00' />
+                    <Amount.Crypto color='gray.500' value='0.024' symbol='ETH' />
+                  </Box>
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.averageApr' />
+                </Row.Label>
+                <Row.Value>
+                  <Tag colorScheme='green'>4%</Tag>
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.estimatedReturns' />
+                </Row.Label>
+                <Row.Value>
+                  <Box textAlign='right'>
+                    <Amount.Fiat fontWeight='bold' value='529.04' />
+                    <Amount.Crypto color='gray.500' value='529.04' symbol='USDC' />
+                  </Box>
+                </Row.Value>
+              </Row>
+            </Stack>
+          </BroadcastTx>
         )
       default:
         throw new Error('Step does not exist')

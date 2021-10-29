@@ -59,8 +59,6 @@ export const YearnWithdraw = () => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleConfirm}
-            apr='4%'
-            provider='Yearn Finance'
             statusIcon={<ArrowForwardIcon />}
             assets={[
               {
@@ -81,13 +79,9 @@ export const YearnWithdraw = () => {
           <BroadcastTx
             onClose={handleCancel}
             onContinue={handleViewAsset}
-            apr='4%'
             loading={true}
-            provider='Yearn Finance'
             statusText='modals.broadcast.header.pending'
             statusIcon={<ArrowForwardIcon />}
-            txid='0xeca5cd6700922758bea9adad1fed5947419fd57b5aa40bab0f56cf1901d8e2aa'
-            explorerLink='http://google.com'
             assets={[
               {
                 ...asset,

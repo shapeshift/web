@@ -162,6 +162,7 @@ export const useSwapper = () => {
             buyAsset: buyAsset,
             ...convertedAmount
           }
+
           const { trade } = getValues()
           let minMax = trade
           if (
@@ -228,13 +229,13 @@ export const useSwapper = () => {
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {
-        const { sellAsset, buyAsset, action } = getValues()
+        const { sellAsset, buyAsset, action, fiatAmount } = getValues()
         const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
         const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount)
           .times(buyAsset.fiatRate || 0)
           .toFixed(2)
-        const fiatAmount = getValues('fiatAmount')
+
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('fiatAmount', newFiatAmount)

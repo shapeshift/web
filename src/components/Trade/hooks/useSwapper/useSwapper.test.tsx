@@ -36,6 +36,13 @@ function setup(action = TradeActions.SELL) {
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     setError,
+    getValues: () => ({
+      trade: { minimum: '1000000', minimumPrice: '5000' },
+      action,
+      buyAsset: { amount: '20', currency: USDC },
+      sellAsset: { amount: '20', currency: WETH },
+      fiatAmount: '20'
+    }),
     clearErrors
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
@@ -63,7 +70,7 @@ describe('useSwapper', () => {
     expect(swapperManager).not.toBeNull()
   })
   it('getQuote gets quote with sellAmount', async () => {
-    const { hook, setValue } = setup()
+    const { hook, setValue } = setup(TradeActions.SELL)
     await act(async () => {
       hook.result.current.getQuote({
         amount: '20',
@@ -105,12 +112,13 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
   })
   it('getQuote needs buyAsset or sellAsset', async () => {
-    const { hook, getQuote } = setup()
+    const { hook, getQuote } = setup(TradeActions.FIAT)
     await act(async () => {
       hook.result.current.getQuote({
         amount: '20',
         //@ts-ignore
         sellAsset: { currency: undefined },
+        //@ts-ignore
         buyAsset: { currency: undefined }
       })
     })
@@ -123,7 +131,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
-        action: TradeActions.SELL
+        action: TradeActions.FIAT
       })
     })
     const buyAmount = fromBaseUnit(

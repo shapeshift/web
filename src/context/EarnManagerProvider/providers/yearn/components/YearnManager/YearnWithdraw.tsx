@@ -33,6 +33,10 @@ export const YearnWithdraw = () => {
     history.goBack()
   }
 
+  const handleViewAsset = () => {
+    console.info('view asset')
+  }
+
   const asset = {} as Asset
 
   const renderStep = (_step: number) => {
@@ -75,16 +79,30 @@ export const YearnWithdraw = () => {
       case 2:
         return (
           <BroadcastTx
-            fromAsset={asset}
-            loading={false}
             onClose={handleCancel}
-            status='pending'
-            statusText=''
-            toAsset={asset}
-            txid=''
-          >
-            <div>Rows</div>
-          </BroadcastTx>
+            onContinue={handleViewAsset}
+            apr='4%'
+            loading={true}
+            provider='Yearn Finance'
+            statusText='modals.broadcast.header.pending'
+            statusIcon={<ArrowForwardIcon />}
+            txid='0xeca5cd6700922758bea9adad1fed5947419fd57b5aa40bab0f56cf1901d8e2aa'
+            explorerLink='http://google.com'
+            assets={[
+              {
+                ...asset,
+                color: '#FF0000',
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              },
+              {
+                ...asset,
+                color: '#FFFFFF',
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              }
+            ]}
+          />
         )
       default:
         throw new Error('Step does not exist')

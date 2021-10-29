@@ -148,9 +148,11 @@ export const TradeInput = ({ history }: RouterProps) => {
             fieldName='sellAsset.amount'
             rules={{ required: true }}
             onInputChange={(amount: string) => {
-              const action = amount ? TradeActions.SELL : undefined
-              action ? setValue('action', action) : reset()
-              getQuote({ amount, sellAsset, buyAsset, action })
+              if (Number(amount) !== Number(sellAsset.amount)) {
+                const action = amount ? TradeActions.SELL : undefined
+                action ? setValue('action', action) : reset()
+                getQuote({ amount, sellAsset, buyAsset, action })
+              }
             }}
             inputLeftElement={
               <TokenButton

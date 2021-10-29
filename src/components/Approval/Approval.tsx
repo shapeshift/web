@@ -87,7 +87,7 @@ export const Approval = () => {
         onSubmit={handleSubmit(approve)}
       >
         <CountdownCircleTimer
-          isPlaying={!!approvalTxId}
+          isPlaying={!!approvalTxId || !!isSubmitting}
           size={90}
           strokeWidth={6}
           trailColor={theme.colors.whiteAlpha[500]}

@@ -75,9 +75,6 @@ export const Approval = () => {
     if (error) history.push('/trade/input')
   }, [errors, history])
 
-  console.log('approvaltx', approvalTxId)
-  console.log('isSubmitting', isSubmitting)
-
   return (
     <SlideTransition>
       <Flex

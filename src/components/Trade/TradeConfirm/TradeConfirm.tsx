@@ -1,8 +1,10 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
-import { find } from 'lodash'
+import { chainAdapters } from '@shapeshiftoss/types'
+import { filter, find } from 'lodash'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -12,9 +14,10 @@ import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { TxStatusEnum, useTransactions } from 'hooks/useTransactions/useTransactions'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { selectTxHistoryById } from 'pages/Assets/helpers/selectTxHistoryById/selectTxHistoryById'
+import { ReduxState } from 'state/reducer'
 
 import { AssetToAsset } from './AssetToAsset'
 
@@ -39,10 +42,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
-  const { chain, contractAddress, symbol } = sellAsset
-  const { txHistory } = useTransactions({ chain, contractAddress, symbol, polling: !!txid })
-  const transaction = find(txHistory?.txs, { txid })
-  const status: TxStatusEnum | undefined = transaction && (transaction.status as TxStatusEnum)
+  const { chain, tokenId } = sellAsset.currency
+  const txs = useSelector((state: ReduxState) => {
+    const asset = tokenId ?? chain
+    console.log('asset', asset)
+    return find(state.txHistory[chain], {
+      txid: '0xdd2a90373bbbd7210d66c46edf291dd3780fb9c1bf14ae0d1926e82667a9c227',
+      asset
+    })
+  })
+  const transaction = txs
+  
+  const status: chainAdapters.TxStatus | undefined =
+    transaction && (transaction.status as chainAdapters.TxStatus)
 
   const onSubmit = async () => {
     const result = await executeQuote({ wallet })

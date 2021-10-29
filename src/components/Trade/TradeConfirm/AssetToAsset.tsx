@@ -9,9 +9,9 @@ import {
   Text,
   useColorModeValue
 } from '@chakra-ui/react'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { TxStatusEnum } from 'hooks/useTransactions/useTransactions'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { TradeAsset } from '../Trade'
@@ -19,7 +19,7 @@ import { TradeAsset } from '../Trade'
 type AssetToAssetProps = {
   sellAsset: TradeAsset
   buyAsset: TradeAsset & Pick<AvatarProps, 'boxSize'>
-  status?: TxStatusEnum
+  status?: chainAdapters.TxStatus
 } & FlexProps
 
 export const AssetToAsset = ({
@@ -39,11 +39,11 @@ export const AssetToAsset = ({
   const green = useColorModeValue('white', 'green.500')
 
   const renderIcon = () => {
-    return status === TxStatusEnum.Confirmed ? (
+    return status === chainAdapters.TxStatus.confirmed ? (
       <Circle bg={green} w='100%' h='100%'>
         <CheckIcon />
       </Circle>
-    ) : status === TxStatusEnum.Failed ? (
+    ) : status === chainAdapters.TxStatus.failed ? (
       <Circle bg={red} w='100%' h='100%'>
         <CloseIcon p={1} />
       </Circle>

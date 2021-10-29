@@ -65,7 +65,12 @@ describe('useSwapper', () => {
   it('getQuote gets quote with sellAmount', async () => {
     const { hook, setValue } = setup()
     await act(async () => {
-      hook.result.current.getQuote({ sellAmount: '20' }, { currency: WETH }, { currency: USDC })
+      hook.result.current.getQuote({
+        amount: '20',
+        sellAsset: { currency: WETH },
+        buyAsset: { currency: USDC },
+        action: TradeActions.SELL
+      })
     })
     const buyAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.buyAmount || '0',
@@ -81,7 +86,12 @@ describe('useSwapper', () => {
   it('getQuote gets quote with buyAmount', async () => {
     const { hook, setValue } = setup(TradeActions.BUY)
     await act(async () => {
-      hook.result.current.getQuote({ buyAmount: '20' }, { currency: WETH }, { currency: USDC })
+      hook.result.current.getQuote({
+        amount: '20',
+        sellAsset: { currency: WETH },
+        buyAsset: { currency: USDC },
+        action: TradeActions.BUY
+      })
     })
     const sellAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.sellAmount || '0',
@@ -97,19 +107,24 @@ describe('useSwapper', () => {
   it('getQuote needs buyAsset or sellAsset', async () => {
     const { hook, getQuote } = setup()
     await act(async () => {
-      hook.result.current.getQuote(
-        { sellAmount: '20' },
+      hook.result.current.getQuote({
+        amount: '20',
         //@ts-ignore
-        { currency: undefined },
-        { currency: undefined }
-      )
+        sellAsset: { currency: undefined },
+        buyAsset: { currency: undefined }
+      })
     })
     expect(getQuote).not.toHaveBeenCalled()
   })
   it('getQuote gets quote with fiatAmount', async () => {
     const { hook, setValue } = setup(TradeActions.FIAT)
     await act(async () => {
-      hook.result.current.getQuote({ fiatAmount: '20' }, { currency: WETH }, { currency: USDC })
+      hook.result.current.getQuote({
+        amount: '20',
+        sellAsset: { currency: WETH },
+        buyAsset: { currency: USDC },
+        action: TradeActions.SELL
+      })
     })
     const buyAmount = fromBaseUnit(
       ETHCHAIN_QUOTE.buyAmount || '0',

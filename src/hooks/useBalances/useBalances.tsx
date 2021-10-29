@@ -1,18 +1,12 @@
-import {
-  bip32AndScript,
-  bip32FromScript,
-  purposeFromScript,
-  toPath
-} from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { bip32AndScript, bip32FromScript, toPath } from '@shapeshiftoss/chain-adapters'
+import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAllScriptTypes } from 'hooks/useAllScriptTypes/useAllScriptTypes'
 import { getAssetService } from 'lib/assetService'
-import { ReduxState } from 'state/reducer'
-import { getScriptTypeKey, scriptTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type UseBalancesReturnType = {
   balances: Record<string, chainAdapters.Account<ChainTypes>>
@@ -29,13 +23,7 @@ export const useBalances = (): UseBalancesReturnType => {
     state: { wallet, walletInfo }
   } = useWallet()
 
-  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) =>
-    Object.entries(state.preferences).reduce(
-      (acc, val) =>
-        val[0].startsWith(scriptTypePrefix) ? { ...acc, [val[0]]: val[1] } : { ...acc },
-      {}
-    )
-  )
+  const allScriptTypes = useAllScriptTypes()
 
   const getBalances = useCallback(async () => {
     if (wallet) {

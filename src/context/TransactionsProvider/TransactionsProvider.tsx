@@ -1,13 +1,12 @@
 import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAllScriptTypes } from 'hooks/useAllScriptTypes/useAllScriptTypes'
 import { getAssetService } from 'lib/assetService'
-import { ReduxState } from 'state/reducer'
-import { getScriptTypeKey, scriptTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type TransactionsProviderProps = {
@@ -21,13 +20,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
 
-  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) =>
-    Object.entries(state.preferences).reduce(
-      (acc, val) =>
-        val[0].startsWith(scriptTypePrefix) ? { ...acc, [val[0]]: val[1] } : { ...acc },
-      {}
-    )
-  )
+  const allScriptTypes = useAllScriptTypes()
 
   useEffect(() => {
     if (!wallet) return

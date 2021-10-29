@@ -1,14 +1,12 @@
 import { useToast } from '@chakra-ui/react'
 import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAllScriptTypes } from 'hooks/useAllScriptTypes/useAllScriptTypes'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { ReduxState } from 'state/reducer'
-import { getScriptTypeKey, scriptTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendInput } from '../../Form'
 
@@ -21,13 +19,7 @@ export const useFormSend = () => {
     state: { wallet }
   } = useWallet()
 
-  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) =>
-    Object.entries(state.preferences).reduce(
-      (acc, val) =>
-        val[0].startsWith(scriptTypePrefix) ? { ...acc, [val[0]]: val[1] } : { ...acc },
-      {}
-    )
-  )
+  const allScriptTypes = useAllScriptTypes()
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {

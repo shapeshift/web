@@ -1,8 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
-import { createSelector } from '@reduxjs/toolkit'
 import { chainAdapters } from '@shapeshiftoss/types'
-import { filter, find, orderBy } from 'lodash'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -17,9 +15,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import { selectTxHistoryById } from 'pages/Assets/helpers/selectTxHistoryById/selectTxHistoryById'
 import { ReduxState } from 'state/reducer'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { selectTxHistoryByTxid } from '../helpers'
 import { AssetToAsset } from './AssetToAsset'
@@ -47,19 +43,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
   const asset = tokenId ?? chain
-  console.log('chain', chain)
-  console.log('asset', asset)
-  console.log('txid', txid)
   const txs = useSelector((state: ReduxState) => {
-    return selectTxHistoryByTxid(
-      state,
-      chain,
-      asset,
-      '0xc81db551703225d4e45198bd5d21e23abe1dd518b242710f89544611d8c04f57'
-    )
+    return selectTxHistoryByTxid(state, chain, asset, txid)
   })
-  const transaction = txs
-  console.log('transaction', transaction)
+  const transaction = txs[0]
+
   const status: chainAdapters.TxStatus | undefined =
     transaction && (transaction.status as chainAdapters.TxStatus)
 

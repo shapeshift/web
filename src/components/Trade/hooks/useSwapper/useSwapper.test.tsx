@@ -1,8 +1,10 @@
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { SwapperManager } from '@shapeshiftoss/swapper'
 import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
 import { fromBaseUnit } from 'lib/math'
@@ -14,6 +16,7 @@ jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/WalletProvider/WalletProvider')
 
 function setup(action = TradeActions.SELL) {
   const setValue = jest.fn()
@@ -21,11 +24,14 @@ function setup(action = TradeActions.SELL) {
   const clearErrors = jest.fn()
   const getBestSwapper = jest.fn()
   const getQuote = jest.fn(() => ETHCHAIN_QUOTE)
+  const wallet = {}
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getSwapper: () => ({
       getDefaultPair: () => [FOX, WETH],
       getMinMax: jest.fn(),
       getUsdRate: () => '1',
+      approvalNeeded: () => ({ approvalNeeded: false }),
+      approveInfinite: () => '0x023423093248420937',
       getQuote
     }),
     addSwapper: jest.fn(),
@@ -47,7 +53,7 @@ function setup(action = TradeActions.SELL) {
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
   const hook = renderHook(() => useSwapper(), { wrapper })
-  return { hook, setValue, setError, clearErrors, getQuote, getBestSwapper }
+  return { hook, wallet, setValue, setError, clearErrors, getQuote, getBestSwapper }
 }
 
 describe('useSwapper', () => {
@@ -58,6 +64,16 @@ describe('useSwapper', () => {
       addChain: jest.fn(),
       getSupportedChains: jest.fn()
     }))
+  })
+  it('approves infinite', async () => {
+    const { hook, wallet } = setup()
+    const txid = await hook.result.current.approveInfinite(wallet as HDWallet)
+    expect(txid).toBe('0x023423093248420937')
+  })
+  it('gets approval needed', async () => {
+    const { hook, wallet } = setup()
+    const approvalNeeded = await hook.result.current.checkApprovalNeeded(wallet as HDWallet)
+    expect(approvalNeeded).toBe(false)
   })
   it('gets default pair', () => {
     const { hook } = setup()

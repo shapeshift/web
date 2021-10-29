@@ -61,8 +61,6 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (wallet) {
-      const formattedSellAsset = { ...quote.sellAsset, amount: sellAsset.amount }
-      const formattedBuyAsset = { ...quote.buyAsset }
       try {
         const approvalNeeded = await checkApprovalNeeded(wallet)
         const ethFiatRate = await getFiatRate({
@@ -78,8 +76,9 @@ export const TradeInput = ({ history }: RouterProps) => {
         } else {
           const result = await buildQuoteTx({
             wallet,
-            sellAsset: formattedSellAsset,
-            buyAsset: formattedBuyAsset
+            sellAsset: quote.sellAsset,
+            buyAsset: quote.buyAsset,
+            amount: sellAsset.amount
           })
           result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
         }

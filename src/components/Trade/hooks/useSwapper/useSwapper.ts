@@ -76,14 +76,20 @@ export const useSwapper = () => {
   const buildQuoteTx = async ({
     wallet,
     sellAsset,
-    buyAsset
-  }: any): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
+    buyAsset,
+    amount
+  }: {
+    wallet: HDWallet
+    sellAsset: Asset
+    buyAsset: Asset
+    amount: string
+  }): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
     let result
     try {
       const swapper = swapperManager.getSwapper(bestSwapperType)
       result = await swapper?.buildQuoteTx({
         input: {
-          sellAmount: toBaseUnit(sellAsset.amount, sellAsset.precision),
+          sellAmount: toBaseUnit(amount, sellAsset.precision),
           sellAsset,
           buyAsset,
           sellAssetAccountId: '0', // TODO: remove hard coded accountId
@@ -106,7 +112,11 @@ export const useSwapper = () => {
     return result
   }
 
-  const executeQuote = async ({ wallet }: any): Promise<ExecQuoteOutput | undefined> => {
+  const executeQuote = async ({
+    wallet
+  }: {
+    wallet: HDWallet
+  }): Promise<ExecQuoteOutput | undefined> => {
     let result
     try {
       const swapper = swapperManager.getSwapper(bestSwapperType)

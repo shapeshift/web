@@ -21,15 +21,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
 
-  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) => {
-    const scriptTypeKeys = Object.keys(state.preferences).filter(key =>
-      key.startsWith(scriptTypePrefix)
+  const allScriptTypes: { [key: string]: BTCInputScriptType } = useSelector((state: ReduxState) =>
+    Object.entries(state.preferences).reduce(
+      (acc, val) =>
+        val[0].startsWith(scriptTypePrefix) ? { ...acc, [val[0]]: val[1] } : { ...acc },
+      {}
     )
-
-    return scriptTypeKeys.reduce((acc, val) => {
-      return { ...acc, [val]: state.preferences[val] }
-    }, {})
-  })
+  )
 
   useEffect(() => {
     if (!wallet) return

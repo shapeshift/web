@@ -9,9 +9,13 @@ import { BIP32Params } from '@shapeshiftoss/types'
  * @param asset
  * @returns BIP32Params
  */
-export const bip32FromScript = (scriptType: BTCInputScriptType, asset: Asset): BIP32Params => {
+export const bip32FromScript = (
+  scriptType: BTCInputScriptType | undefined,
+  asset: Asset
+): BIP32Params | undefined => {
   const purpose = purposeFromScript(scriptType)
-  return { purpose, coinType: asset.slip44, accountNumber: 0 }
+  if (purpose) return { purpose, coinType: asset.slip44, accountNumber: 0 }
+  return undefined
 }
 
 /**
@@ -19,11 +23,19 @@ export const bip32FromScript = (scriptType: BTCInputScriptType, asset: Asset): B
  * @param scriptType
  * @returns 44 | 49 | 84
  */
-export const purposeFromScript = (scriptType: BTCInputScriptType): 44 | 49 | 84 => {
-  if (scriptType === BTCInputScriptType.SpendP2SHWitness) return 49
-  else if (scriptType === BTCInputScriptType.SpendAddress) return 44
-  else if (scriptType === BTCInputScriptType.SpendWitness) return 84
-  else throw new Error('invalid script type')
+export const purposeFromScript = (
+  scriptType: BTCInputScriptType | undefined
+): 44 | 49 | 84 | undefined => {
+  switch (scriptType) {
+    case BTCInputScriptType.SpendP2SHWitness:
+      return 49
+    case BTCInputScriptType.SpendAddress:
+      return 44
+    case BTCInputScriptType.SpendWitness:
+      return 84
+    default:
+      return undefined
+  }
 }
 
 /**
@@ -34,10 +46,12 @@ export const purposeFromScript = (scriptType: BTCInputScriptType): 44 | 49 | 84 
  * @returns object with BIP32Params and scriptType or undefined
  */
 export const bip32AndScript = (
-  scriptType: BTCInputScriptType,
+  scriptType: BTCInputScriptType | undefined,
   asset: Asset
-): { bip32Params: BIP32Params; scriptType: BTCInputScriptType } | undefined => {
-  if (asset.chain === ChainTypes.Bitcoin)
-    return { bip32Params: bip32FromScript(scriptType, asset), scriptType }
-  else return undefined
+): { bip32Params: BIP32Params; scriptType: BTCInputScriptType } | {} => {
+  if (asset.chain === ChainTypes.Bitcoin && scriptType) {
+    const bip32Params = bip32FromScript(scriptType, asset)
+    if (bip32Params) return { bip32Params, scriptType }
+  }
+  return {}
 }

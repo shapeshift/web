@@ -4,7 +4,6 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ETHCHAIN_QUOTE_FEES, FOX, USDC, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
 import { fromBaseUnit } from 'lib/math'
@@ -16,7 +15,6 @@ jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
-jest.mock('context/WalletProvider/WalletProvider')
 
 function setup(action = TradeActions.SELL) {
   const setValue = jest.fn()

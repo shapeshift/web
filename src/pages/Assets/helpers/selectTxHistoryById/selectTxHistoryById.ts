@@ -7,6 +7,6 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const selectTxHistoryById = createSelector(
   (state: ReduxState, chain: ChainTypes | string, identifier: string) =>
-    filter(state.txHistory[chain], tx => tx.asset === identifier),
+    filter(state.txHistory[chain], tx => tx.asset.toLowerCase() === identifier),
   (txs: Tx[]) => orderBy(txs, ['blockTime'], 'desc')
 )

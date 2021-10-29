@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.7.0...@shapeshiftoss/swapper-v1.7.1) (2021-10-29)
+
+
+### Bug Fixes
+
+* approval ([#175](https://github.com/shapeshift/lib/issues/175)) ([fae1c40](https://github.com/shapeshift/lib/commit/fae1c4082d49c504ea9d9f224b3c892450ca364e))
+
 # [@shapeshiftoss/swapper-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.6.3...@shapeshiftoss/swapper-v1.7.0) (2021-10-27)
 
 

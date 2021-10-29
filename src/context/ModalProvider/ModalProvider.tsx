@@ -1,6 +1,8 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
+import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 
@@ -8,6 +10,8 @@ import { SendModal } from 'components/Modals/Send/Send'
 // the key is the name returned by the hook and the
 // component is the modal to be rendered
 const MODALS = {
+  keepkeyPin: PinModal,
+  keepkeyPassphrase: PassphraseModal,
   receive: ReceiveModal,
   send: SendModal
 }

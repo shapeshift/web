@@ -24,15 +24,19 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
-        const address = await adapter.getAddress({ wallet })
-        if (!address) return
-        await adapter.subscribeTxs(
-          { addresses: [address] },
-          (msg: chainAdapters.SubscribeTxsMessage<typeof key>) => {
-            dispatch(txHistory.actions.onMessage({ message: msg }))
-          },
-          (err: any) => console.error(err)
-        )
+        try {
+          const address = await adapter.getAddress({ wallet })
+          if (!address) return
+          await adapter.subscribeTxs(
+            { addresses: [address] },
+            (msg: chainAdapters.SubscribeTxsMessage<typeof key>) => {
+              dispatch(txHistory.actions.onMessage({ message: msg }))
+            },
+            (err: any) => console.error(err)
+          )
+        } catch (e) {
+          console.error('TransactionProvider: Error subscribing to transaction history', e)
+        }
       }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps

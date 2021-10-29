@@ -45,7 +45,7 @@ export const normalizeAmount = (amount: string | undefined): string | undefined 
   return new BigNumber(amount).toNumber().toLocaleString('fullwide', { useGrouping: false })
 }
 
-export const getERC20Allowance = ({
+export const getERC20Allowance = async ({
   erc20AllowanceAbi,
   web3,
   tokenId,
@@ -75,14 +75,13 @@ export const getAllowanceRequired = async ({
     )
   }
 
-  const allowanceOnChain = getERC20Allowance({
+  const allowanceOnChain = await getERC20Allowance({
     web3,
     erc20AllowanceAbi,
     ownerAddress,
     spenderAddress,
     tokenId
   })
-
   if (allowanceOnChain === '0') {
     return new BigNumber(quote.sellAmount || 0)
   }
@@ -129,21 +128,21 @@ export const grantAllowance = async ({
     .approve(quote.allowanceContract, quote.sellAmount)
     .encodeABI()
 
-  const value = quote.sellAsset.symbol === 'ETH' ? quote.sellAmount : '0x0'
   const bip32Params = adapter.buildBIP32Params({
-    accountNumber: Number(quote.sellAssetAccountId || 0)
+    accountNumber: Number(quote.sellAssetAccountId) || 0
   })
 
   let grantAllowanceTxToSign, signedTx, broadcastedTxId
 
   try {
     const { txToSign } = await adapter.buildSendTransaction({
-      value,
       wallet,
+      erc20ContractAddress: quote.sellAsset.tokenId,
       to: quote.sellAsset.tokenId,
       fee: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
       gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0),
-      bip32Params
+      bip32Params,
+      value: '0'
     })
 
     grantAllowanceTxToSign = {

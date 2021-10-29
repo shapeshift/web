@@ -54,10 +54,10 @@ export async function getZrxQuote(
   const amountKey = Object.keys(amount)[0]
   const amountValue = Object.values(amount)[0]
 
-  const normalizedAmount =
-    !normalizeAmount(amountValue) || normalizeAmount(amountValue) === '0'
-      ? normalizeAmount(minQuoteSellAmountWei?.toString())
-      : normalizeAmount(amountValue)
+  let normalizedAmount = normalizeAmount(amountValue)
+  if (!normalizedAmount || normalizedAmount === '0') {
+    normalizedAmount = normalizeAmount(minQuoteSellAmountWei?.toString())
+  }
 
   if (!normalizedAmount || normalizedAmount === '0') {
     throw new ZrxError('getQuote - Must have valid sellAmount, buyAmount or minimum amount')

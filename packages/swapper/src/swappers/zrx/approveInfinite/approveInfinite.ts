@@ -14,7 +14,9 @@ export async function approveInfinite(
   { quote, wallet }: ApproveInfiniteInput<ChainTypes, SwapperType>
 ) {
   const adapter: ChainAdapter<ChainTypes.Ethereum> = adapterManager.byChain(ChainTypes.Ethereum)
-  const bip32Params = adapter.buildBIP32Params({ accountNumber: Number(quote.sellAssetAccountId) })
+  const bip32Params = adapter.buildBIP32Params({
+    accountNumber: Number(quote.sellAssetAccountId || quote.sellAssetAccountId) || 0
+  }) // TODO: Add account number
   const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
 
   /**

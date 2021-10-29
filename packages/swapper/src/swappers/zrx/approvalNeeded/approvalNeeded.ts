@@ -68,15 +68,13 @@ export async function approvalNeeded(
   if (!quote.sellAsset.tokenId || !data.allowanceTarget) {
     throw new SwapError('approvalNeeded - tokenId and allowanceTarget are required')
   }
-
-  const allowanceResult = getERC20Allowance({
+  const allowanceResult = await getERC20Allowance({
     web3,
     erc20AllowanceAbi,
     tokenId: quote.sellAsset.tokenId,
     spenderAddress: data.allowanceTarget,
     ownerAddress: receiveAddress
   })
-
   const allowanceOnChain = new BigNumber(allowanceResult || '0')
 
   return {

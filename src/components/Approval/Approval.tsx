@@ -55,8 +55,9 @@ export const Approval = () => {
             clearInterval(approvalInterval.current as NodeJS.Timeout)
             const result = await buildQuoteTx({
               wallet,
-              sellAsset: { ...quote.sellAsset, amount: sellAsset.amount },
-              buyAsset: { ...quote.buyAsset }
+              sellAsset: quote.sellAsset,
+              buyAsset: quote.buyAsset,
+              amount: sellAsset.amount
             })
             if (result?.success) {
               history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })

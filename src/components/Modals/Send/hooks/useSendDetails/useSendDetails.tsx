@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
@@ -12,7 +13,6 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { bip32AndScript } from 'lib/utxoUtils'
 import { ReduxState } from 'state/reducer'
 import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 

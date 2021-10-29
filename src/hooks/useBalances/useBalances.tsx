@@ -1,3 +1,9 @@
+import {
+  bip32AndScript,
+  bip32FromScript,
+  purposeFromScript,
+  toPath
+} from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
@@ -5,7 +11,6 @@ import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { getAssetService } from 'lib/assetService'
-import { bip32AndScript, purposeFromScript } from 'lib/utxoUtils'
 import { ReduxState } from 'state/reducer'
 import { getScriptTypeKey, scriptTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -53,11 +58,11 @@ export const useBalances = (): UseBalancesReturnType => {
         if (adapter.getType() === 'ethereum') {
           addressOrXpub = await adapter.getAddress({ wallet, ...bip32AndScript(scriptType, asset) })
         } else if (adapter.getType() === 'bitcoin') {
-          const purpose = purposeFromScript(scriptType)
+          const bip32Params = bip32FromScript(scriptType, asset)
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(`m/${purpose}'/0'/0'`),
+              addressNList: bip32ToAddressNList(toPath(bip32Params)),
               curve: 'secp256k1',
               scriptType
             }

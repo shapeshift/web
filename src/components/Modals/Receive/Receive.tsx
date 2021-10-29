@@ -14,6 +14,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
+import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -25,7 +26,6 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
-import { bip32AndScript } from 'lib/utxoUtils'
 import { ReduxState } from 'state/reducer'
 import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 

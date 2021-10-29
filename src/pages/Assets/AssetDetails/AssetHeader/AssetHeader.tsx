@@ -15,13 +15,11 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import numeral from 'numeral'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
@@ -35,10 +33,9 @@ import { MatchParams } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
-import { ReduxState } from 'state/reducer'
-import { getScriptTypeKey, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { AssetActions } from './AssetActions'
+import { SegwitSelectCard } from './SegwitSelectCard'
 
 enum views {
   price = 'price',
@@ -63,13 +60,6 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
   const { balances } = useFlattenedBalances()
   const id = tokenId ?? chain
   const totalBalance = useTotalBalance({ [id]: balances[id] })
-  const dispatch = useDispatch()
-
-  const scriptTypeKey = getScriptTypeKey(chain)
-
-  const currentScriptType: BTCInputScriptType = useSelector(
-    (state: ReduxState) => state.preferences[scriptTypeKey]
-  )
 
   return (
     <Card variant='footer-stub'>
@@ -92,53 +82,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
         <AssetActions asset={asset} isLoaded={isLoaded} />
       </Card.Header>
 
-      <Card.Body hidden={symbol !== 'BTC'}>
-        <Button
-          size='sm'
-          colorScheme={currentScriptType === BTCInputScriptType.SpendWitness ? 'white' : 'blue'}
-          variant='ghost'
-          onClick={() =>
-            dispatch(
-              preferences.actions.setPreference({
-                key: scriptTypeKey,
-                value: BTCInputScriptType.SpendWitness
-              })
-            )
-          }
-        >
-          <Text translation='assets.assetDetails.assetHeader.segwitNative' />
-        </Button>
-        <Button
-          size='sm'
-          colorScheme={currentScriptType === BTCInputScriptType.SpendP2SHWitness ? 'white' : 'blue'}
-          variant='ghost'
-          onClick={() =>
-            dispatch(
-              preferences.actions.setPreference({
-                key: scriptTypeKey,
-                value: BTCInputScriptType.SpendP2SHWitness
-              })
-            )
-          }
-        >
-          <Text translation='assets.assetDetails.assetHeader.segwit' />
-        </Button>
-        <Button
-          size='sm'
-          colorScheme={currentScriptType === BTCInputScriptType.SpendAddress ? 'white' : 'blue'}
-          variant='ghost'
-          onClick={() =>
-            dispatch(
-              preferences.actions.setPreference({
-                key: scriptTypeKey,
-                value: BTCInputScriptType.SpendAddress
-              })
-            )
-          }
-        >
-          <Text translation='assets.assetDetails.assetHeader.legacy' />
-        </Button>
-      </Card.Body>
+      <SegwitSelectCard chain={chain} />
 
       <Card.Body>
         <Box>

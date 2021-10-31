@@ -20,6 +20,6 @@
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.17.0"
+    "@shapeshiftoss/hdwallet-core": "^1.17.1"
   }
 }

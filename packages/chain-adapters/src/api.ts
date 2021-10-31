@@ -26,6 +26,10 @@ export interface ChainAdapter<T extends ChainTypes> {
     signTxInput: chainAdapters.SignTxInput<chainAdapters.ChainTxType<T>>
   ): Promise<string>
 
+  signAndBroadcastTransaction?(
+    signTxInput: chainAdapters.SignTxInput<chainAdapters.ChainTxType<T>>
+  ): Promise<string>
+
   getFeeData(
     input: Partial<chainAdapters.GetFeeDataInput>
   ): Promise<chainAdapters.FeeDataEstimate<T>>

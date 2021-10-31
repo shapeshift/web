@@ -26,10 +26,10 @@ export interface ChainAdapterArgs {
 }
 
 async function getErc20Data(to: string, value: string, contractAddress?: string) {
-  if (!contractAddress) return '0x'
+  if (!contractAddress) return ''
   const erc20Contract = new Contract(contractAddress, erc20Abi)
   const { data: callData } = await erc20Contract.populateTransaction.transfer(to, value)
-  return callData || '0x'
+  return callData || ''
 }
 
 export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
@@ -176,6 +176,20 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
       if (!signedTx) throw new Error('Error signing tx')
 
       return signedTx.serialized
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  async signAndBroadcastTransaction(
+    signTxInput: chainAdapters.SignTxInput<ETHSignTx>
+  ): Promise<string> {
+    try {
+      const { txToSign, wallet } = signTxInput
+      const ethHash = await (wallet as ETHWallet)?.ethSendTx?.(txToSign)
+
+      if (!ethHash) throw new Error('Error signing & broadcasting tx')
+      return ethHash.hash
     } catch (err) {
       return ErrorHandler(err)
     }

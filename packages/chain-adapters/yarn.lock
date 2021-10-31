@@ -526,15 +526,6 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.15.5-alpha.1":
-  version "1.15.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.15.5-alpha.1.tgz#c40d2ecc44c0a1430552e40ac7b57346e6977a24"
-  integrity sha512-eCXbXe0hu7CetsDESOCj3pPMYa6Zig21Qhn293nodKvNFFRHh2COBjg9zHuJQSvnIDJ0QSUxpWBbVpKp8WP+uQ==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-
 "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0":
   version "1.15.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.15.4.tgz#a5b83591044feb5cd890c105cfc8d02773819658"
@@ -543,41 +534,6 @@
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
     rxjs "^6.4.0"
-
-"@shapeshiftoss/hdwallet-core@^1.15.5-alpha.0":
-  version "1.15.5-alpha.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.15.5-alpha.0.tgz#21a063da90dcfba0224a81e17536aafece914dcf"
-  integrity sha512-nXVJ2VA+sI3eex2Bn3MhvcfhrDs3oSj2zyQFWt18kidRgGz8CRJp/LrE82NR1jrSqUb4P1k8URruqoXIM5mn1A==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-
-"@shapeshiftoss/hdwallet-native@^1.15.5-alpha.1":
-  version "1.15.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.15.5-alpha.1.tgz#e4fec03d4179f132df7af450d1144f77443a75c9"
-  integrity sha512-rQlJZmHvuFd0pifOH2+QJAVNVs3FYR3pGaWMGGRLKDHkjCAcBI+wcvCyCcKJEks+K9hSzgWm0tYY5dn2FHlftA==
-  dependencies:
-    "@bithighlander/bitcoin-cash-js-lib" "5.2.1"
-    "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.4"
-    "@shapeshiftoss/hdwallet-core" "1.15.5-alpha.1"
-    "@zxing/text-encoding" "^0.9.0"
-    bchaddrjs "^0.4.9"
-    bignumber.js "^9.0.1"
-    bip32 "^2.0.5"
-    bip39 "^3.0.2"
-    bnb-javascript-sdk-nobroadcast "^2.16.14"
-    crypto-js "^4.0.0"
-    ethereum-tx-decoder "^3.0.0"
-    ethers "5.4.1"
-    eventemitter2 "^5.0.1"
-    funtypes "^3.0.1"
-    lodash "^4.17.21"
-    node-fetch "^2.6.1"
-    scrypt-js "^3.0.1"
-    tendermint-tx-builder "^1.0.9"
-    tiny-secp256k1 "^1.1.6"
-    web-encoding "^1.1.0"
 
 "@types/bn.js@^5.1.0":
   version "5.1.0"

@@ -17,6 +17,7 @@ export interface MatchParams {
 }
 
 const initAsset = {
+  caip19: '',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   symbol: '',

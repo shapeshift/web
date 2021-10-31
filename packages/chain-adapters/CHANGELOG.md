@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.7.3...@shapeshiftoss/chain-adapters-v1.8.0) (2021-10-31)
+
+
+### Features
+
+* adds support for metamask (hdwallet) ([#173](https://github.com/shapeshift/lib/issues/173)) ([bdb3f74](https://github.com/shapeshift/lib/commit/bdb3f744712ad4a865217f44bc83b44b8fa0871b))
+
 # [@shapeshiftoss/chain-adapters-v1.7.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.7.2...@shapeshiftoss/chain-adapters-v1.7.3) (2021-10-27)
 
 # [@shapeshiftoss/chain-adapters-v1.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.7.1...@shapeshiftoss/chain-adapters-v1.7.2) (2021-10-26)

@@ -3677,6 +3677,22 @@
     multicoin-address-validator "^0.5.2"
     web3-utils "^1.6.0"
 
+"@shapeshiftoss/chain-adapters@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.9.0.tgz#049576be58f1858c9d91e39582a6eb763a3d73a9"
+  integrity sha512-XmppmeG78238eavVa/K82xy6BibFucfD0m5olTQjx0qe7JxjKZzk+o1Es7eEMvAvh2H8ydtR9SplLmgcRlHTbQ==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.17.1"
+    "@shapeshiftoss/types" "^1.5.0"
+    "@shapeshiftoss/unchained-client" "^3.0.0"
+    axios "^0.21.2"
+    bignumber.js "^9.0.1"
+    bitcoinjs-lib "^5.2.0"
+    coinselect "^3.1.12"
+    ethers "^5.4.7"
+    multicoin-address-validator "^0.5.2"
+    web3-utils "^1.6.0"
+
 "@shapeshiftoss/common-api@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-3.0.0.tgz#a74912fc7a34b1c4ec819f6e28b16b325dceef13"
@@ -3879,6 +3895,11 @@
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.4.0.tgz#c26d84c65e85e10527826a2b571a88e8db80f3db"
   integrity sha512-m291lIBmbxTM3e7N4H/1J+FJnLEW32ZfY5VKqGX0Tab0IRmYKg9fJqN7zCfJcgQ+cZutnftbmBxa5XK+TqmtCQ==
+
+"@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.7.0.tgz#132384358a18317522e0658b7262692ef4f10e93"
+  integrity sha512-G5zztshIKIrWfKa+z4a5nsrcniVksUniP+f7ZXMJhNgc3qr/baHUk50zn7JVwirFw+EssyTyGcz+ZV3P31wclQ==
 
 "@shapeshiftoss/unchained-client@^3.0.0":
   version "3.0.0"

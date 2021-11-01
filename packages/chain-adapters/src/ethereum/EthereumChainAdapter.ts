@@ -14,8 +14,8 @@ import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
-import { toPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
+import { toPath } from '../utils/bip32'
 import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {

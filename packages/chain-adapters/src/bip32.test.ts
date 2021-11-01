@@ -1,6 +1,6 @@
 import { BIP32Params } from '@shapeshiftoss/types'
 
-import { fromPath, toPath } from './bip32'
+import { fromPath, toPath } from './utils/bip32'
 
 describe('fromPath', () => {
   it('can create BIP32Params from a path', () => {

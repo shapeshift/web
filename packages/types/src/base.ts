@@ -31,6 +31,12 @@ export enum NetworkTypes {
   ETH_RINKEBY = 'ETH_RINKEBY'
 }
 
+export enum UtxoAccountType {
+  SegwitNative = 'SegwitNative',
+  SegwitP2sh = 'SegwitP2sh',
+  P2pkh = 'P2pkh'
+}
+
 // asset-service
 
 type AbstractAsset = {

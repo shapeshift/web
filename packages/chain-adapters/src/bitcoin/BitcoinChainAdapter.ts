@@ -2,7 +2,6 @@ import {
   bip32ToAddressNList,
   BTCInputScriptType,
   BTCOutputAddressType,
-  BTCOutputScriptType,
   BTCSignTx,
   BTCSignTxInput,
   BTCSignTxOutput,
@@ -16,8 +15,9 @@ import coinSelect from 'coinselect'
 import WAValidator from 'multicoin-address-validator'
 
 import { ChainAdapter as IChainAdapter } from '../api'
-import { toPath, toRootDerivationPath } from '../bip32'
 import { ErrorHandler } from '../error/ErrorHandler'
+import { toPath, toRootDerivationPath } from '../utils/bip32'
+import { toBtcOutputScriptType } from '../utils/utxoUtils'
 
 export interface ChainAdapterArgs {
   providers: {
@@ -145,6 +145,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       const btcRecipients = recipients || [{ value: Number(value), address: to }]
 
       const path = toRootDerivationPath(bip32Params)
+      const changeScriptType = toBtcOutputScriptType(scriptType)
       const pubkey = await this.getPubKey(wallet, bip32Params, scriptType)
       const { data: utxos } = await this.providers.http.getUtxos({
         pubkey: pubkey.xpub
@@ -197,15 +198,15 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
             addressNList: bip32ToAddressNList(
               `${path}/1/${String(account.chainSpecific.nextChangeAddressIndex)}`
             ),
-            scriptType: BTCOutputScriptType.PayToWitness,
+            scriptType: changeScriptType,
             isChange: true
           }
-        }
-        return {
-          addressType: BTCOutputAddressType.Spend,
-          amount,
-          address: out.address,
-          scriptType: BTCOutputScriptType.PayToWitness
+        } else {
+          return {
+            addressType: BTCOutputAddressType.Spend,
+            amount,
+            address: out.address
+          }
         }
       })
 

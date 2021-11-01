@@ -294,8 +294,7 @@ describe('BitcoinChainAdapter', () => {
             {
               addressType: 'spend',
               amount: '400',
-              address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
-              scriptType: 'p2wpkh'
+              address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4'
             },
             {
               addressType: 'change',

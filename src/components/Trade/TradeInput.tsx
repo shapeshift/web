@@ -103,7 +103,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     })
   }
 
-  const error = get(errors, `useSwapper.message`, null)
+  const error = errors?.useSwapper?.message ?? null
 
   return (
     <SlideTransition>

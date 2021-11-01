@@ -52,12 +52,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     transaction && (transaction.status as chainAdapters.TxStatus)
 
   const onSubmit = async () => {
-    if (wallet) {
-      const result = await executeQuote({ wallet })
-      const transactionId = result?.txid
-      if (transactionId) {
-        setTxid(transactionId)
-      }
+    if (!wallet) return
+    const result = await executeQuote({ wallet })
+    const transactionId = result?.txid
+    if (transactionId) {
+      setTxid(transactionId)
     }
   }
 

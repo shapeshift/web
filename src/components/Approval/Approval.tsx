@@ -45,30 +45,28 @@ export const Approval = () => {
   const symbol = sellAsset.currency?.symbol
 
   const approve = async () => {
-    if (wallet) {
-      const txId = await approveInfinite(wallet)
-      if (txId) {
-        setApprovalTxId(txId)
-        const interval = setInterval(async () => {
-          const approvalNeeded = await checkApprovalNeeded(wallet)
-          if (!approvalNeeded) {
-            clearInterval(approvalInterval.current as NodeJS.Timeout)
-            const result = await buildQuoteTx({
-              wallet,
-              sellAsset: quote.sellAsset,
-              buyAsset: quote.buyAsset,
-              amount: sellAsset.amount
-            })
-            if (result?.success) {
-              history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
-            } else {
-              history.push('/trade/input')
-            }
-          }
-        }, 10000)
-        approvalInterval.current = interval
+    if (!wallet) return
+    const txId = await approveInfinite(wallet)
+    if (!txId) return
+    setApprovalTxId(txId)
+    const interval = setInterval(async () => {
+      const approvalNeeded = await checkApprovalNeeded(wallet)
+      if (!approvalNeeded) {
+        clearInterval(approvalInterval.current as NodeJS.Timeout)
+        const result = await buildQuoteTx({
+          wallet,
+          sellAsset: quote.sellAsset,
+          buyAsset: quote.buyAsset,
+          amount: sellAsset.amount
+        })
+        if (result?.success) {
+          history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+        } else {
+          history.push('/trade/input')
+        }
       }
-    }
+    }, 10000)
+    approvalInterval.current = interval
   }
 
   useEffect(() => {

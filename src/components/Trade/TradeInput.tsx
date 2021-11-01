@@ -60,31 +60,30 @@ export const TradeInput = ({ history }: RouterProps) => {
   } = useWallet()
 
   const onSubmit = async () => {
-    if (wallet) {
-      try {
-        const approvalNeeded = await checkApprovalNeeded(wallet)
-        const ethFiatRate = await getFiatRate({
-          symbol: 'ETH'
+    if (!wallet) return
+    try {
+      const approvalNeeded = await checkApprovalNeeded(wallet)
+      const ethFiatRate = await getFiatRate({
+        symbol: 'ETH'
+      })
+      if (approvalNeeded) {
+        history.push({
+          pathname: '/trade/approval',
+          state: {
+            ethFiatRate
+          }
         })
-        if (approvalNeeded) {
-          history.push({
-            pathname: '/trade/approval',
-            state: {
-              ethFiatRate
-            }
-          })
-        } else {
-          const result = await buildQuoteTx({
-            wallet,
-            sellAsset: quote.sellAsset,
-            buyAsset: quote.buyAsset,
-            amount: sellAsset.amount
-          })
-          result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
-        }
-      } catch (e) {
-        setError('buildQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+      } else {
+        const result = await buildQuoteTx({
+          wallet,
+          sellAsset: quote.sellAsset,
+          buyAsset: quote.buyAsset,
+          amount: sellAsset.amount
+        })
+        result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
       }
+    } catch (e) {
+      setError('buildQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
     }
   }
 

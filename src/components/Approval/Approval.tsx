@@ -69,7 +69,7 @@ export const Approval = () => {
   }
 
   useEffect(() => {
-    const error = get(errors, `buildQuote.message`, null)
+    const error = errors?.buildQuote?.message ?? null
     if (error) history.push('/trade/input')
   }, [errors, history])
 

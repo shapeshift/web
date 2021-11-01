@@ -8,7 +8,6 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
-import get from 'lodash/get'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'

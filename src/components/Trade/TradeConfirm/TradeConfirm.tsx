@@ -126,7 +126,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Text translation='trade.shapeshiftFee' />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>$0.00</Row.Value>
+                <Row.Value>toFiat(0)</Row.Value>
               </Row>
             </Stack>
           </Card.Body>

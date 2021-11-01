@@ -17,19 +17,19 @@ jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
-function setup(action = TradeActions.SELL) {
+function setup({ action = TradeActions.SELL, approvalNeededBoolean = false } = {}) {
   const setValue = jest.fn()
   const setError = jest.fn()
   const clearErrors = jest.fn()
   const getBestSwapper = jest.fn()
   const getQuote = jest.fn(() => ETHCHAIN_QUOTE)
-  const wallet = {}
+  const wallet = {} as HDWallet
   ;(SwapperManager as jest.Mock<unknown>).mockImplementation(() => ({
     getSwapper: () => ({
       getDefaultPair: () => [FOX, WETH],
       getMinMax: jest.fn(),
       getUsdRate: () => '1',
-      approvalNeeded: () => ({ approvalNeeded: false }),
+      approvalNeeded: () => ({ approvalNeeded: approvalNeededBoolean }),
       approveInfinite: () => '0x023423093248420937',
       getQuote
     }),
@@ -66,13 +66,19 @@ describe('useSwapper', () => {
   })
   it('approves infinite', async () => {
     const { hook, wallet } = setup()
-    const txid = await hook.result.current.approveInfinite(wallet as HDWallet)
+    const txid = await hook.result.current.approveInfinite(wallet)
     expect(txid).toBe('0x023423093248420937')
   })
   it('gets approval needed', async () => {
     const { hook, wallet } = setup()
-    const approvalNeeded = await hook.result.current.checkApprovalNeeded(wallet as HDWallet)
+    const approvalNeeded = await hook.result.current.checkApprovalNeeded(wallet)
     expect(approvalNeeded).toBe(false)
+  })
+  it('returns true when approval is needed', async () => {
+    const { hook, wallet } = setup({ approvalNeededBoolean: true })
+
+    const approvalNeeded = await hook.result.current.checkApprovalNeeded(wallet)
+    expect(approvalNeeded).toBe(true)
   })
   it('gets default pair', () => {
     const { hook } = setup()
@@ -85,7 +91,7 @@ describe('useSwapper', () => {
     expect(swapperManager).not.toBeNull()
   })
   it('getQuote gets quote with sellAmount', async () => {
-    const { hook, setValue } = setup(TradeActions.SELL)
+    const { hook, setValue } = setup({ action: TradeActions.SELL })
     await act(async () => {
       hook.result.current.getQuote({
         amount: '20',
@@ -106,7 +112,7 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
   })
   it('getQuote gets quote with buyAmount', async () => {
-    const { hook, setValue } = setup(TradeActions.BUY)
+    const { hook, setValue } = setup({ action: TradeActions.BUY })
     await act(async () => {
       hook.result.current.getQuote({
         amount: '20',
@@ -127,7 +133,7 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '0.00')
   })
   it('getQuote needs buyAsset or sellAsset', async () => {
-    const { hook, getQuote } = setup(TradeActions.FIAT)
+    const { hook, getQuote } = setup({ action: TradeActions.FIAT })
     await act(async () => {
       hook.result.current.getQuote({
         amount: '20',
@@ -140,7 +146,7 @@ describe('useSwapper', () => {
     expect(getQuote).not.toHaveBeenCalled()
   })
   it('getQuote gets quote with fiatAmount', async () => {
-    const { hook, setValue } = setup(TradeActions.FIAT)
+    const { hook, setValue } = setup({ action: TradeActions.FIAT })
     await act(async () => {
       hook.result.current.getQuote({
         amount: '20',

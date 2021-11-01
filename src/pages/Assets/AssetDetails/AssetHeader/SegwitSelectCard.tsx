@@ -1,30 +1,29 @@
 import { Button } from '@chakra-ui/react'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useDispatch, useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { ReduxState } from 'state/reducer'
-import { getScriptTypeKey, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getAccountTypeKey, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
 export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
-  const scriptTypeKey = getScriptTypeKey(chain)
+  const accountTypeKey = getAccountTypeKey(chain)
   const dispatch = useDispatch()
-  const currentScriptType: BTCInputScriptType = useSelector(
-    (state: ReduxState) => state.preferences[scriptTypeKey]
+  const currentAccountType: UtxoAccountType = useSelector(
+    (state: ReduxState) => state.preferences[accountTypeKey]
   )
 
   return (
     <Card.Body hidden={chain !== ChainTypes.Bitcoin}>
       <Button
         size='sm'
-        colorScheme={currentScriptType === BTCInputScriptType.SpendWitness ? 'white' : 'blue'}
+        colorScheme={currentAccountType === UtxoAccountType.SegwitNative ? 'white' : 'blue'}
         variant='ghost'
         onClick={() =>
           dispatch(
             preferences.actions.setPreference({
-              key: scriptTypeKey,
-              value: BTCInputScriptType.SpendWitness
+              key: accountTypeKey,
+              value: UtxoAccountType.SegwitNative
             })
           )
         }
@@ -33,13 +32,13 @@ export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
       </Button>
       <Button
         size='sm'
-        colorScheme={currentScriptType === BTCInputScriptType.SpendP2SHWitness ? 'white' : 'blue'}
+        colorScheme={currentAccountType === UtxoAccountType.SegwitP2sh ? 'white' : 'blue'}
         variant='ghost'
         onClick={() =>
           dispatch(
             preferences.actions.setPreference({
-              key: scriptTypeKey,
-              value: BTCInputScriptType.SpendP2SHWitness
+              key: accountTypeKey,
+              value: UtxoAccountType.SegwitP2sh
             })
           )
         }
@@ -48,13 +47,13 @@ export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
       </Button>
       <Button
         size='sm'
-        colorScheme={currentScriptType === BTCInputScriptType.SpendAddress ? 'white' : 'blue'}
+        colorScheme={currentAccountType === UtxoAccountType.P2pkh ? 'white' : 'blue'}
         variant='ghost'
         onClick={() =>
           dispatch(
             preferences.actions.setPreference({
-              key: scriptTypeKey,
-              value: BTCInputScriptType.SpendAddress
+              key: accountTypeKey,
+              value: UtxoAccountType.P2pkh
             })
           )
         }

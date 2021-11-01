@@ -1,11 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
-export const scriptTypePrefix = 'scriptType_'
+export const accountTypePrefix = 'accountType_'
 
 const initialState = {
-  [scriptTypePrefix + ChainTypes.Bitcoin]: BTCInputScriptType.SpendP2SHWitness
+  [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
 } as { [key: string]: any }
 
 export const preferences = createSlice({
@@ -18,6 +17,6 @@ export const preferences = createSlice({
   }
 })
 
-export const getScriptTypeKey = (chain: ChainTypes) => {
-  return scriptTypePrefix + chain
+export const getAccountTypeKey = (chain: ChainTypes) => {
+  return accountTypePrefix + chain
 }

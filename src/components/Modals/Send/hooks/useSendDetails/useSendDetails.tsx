@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -14,7 +13,7 @@ import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
-import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
@@ -81,8 +80,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapter.byChain(asset.chain)
 
-  const currentScriptType: BTCInputScriptType = useSelector(
-    (state: ReduxState) => state.preferences[getScriptTypeKey(asset.chain)]
+  const currentAccountType: UtxoAccountType = useSelector(
+    (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
   )
 
   const buildTransaction = async (): Promise<{
@@ -96,12 +95,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         .toFixed(0)
 
       try {
+        const accountParams = currentAccountType
+          ? utxoAccountParams(asset, currentAccountType, 0)
+          : {}
         const data = await adapter.buildSendTransaction({
           to: values.address,
           value,
           erc20ContractAddress: values.asset.tokenId,
           wallet,
-          ...bip32AndScript(currentScriptType, asset)
+          ...accountParams
         })
         return data
       } catch (error) {
@@ -129,7 +131,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     if (assetBalance && wallet) {
       setLoading(true)
       const to = address
-      const from = await adapter.getAddress({ wallet, ...bip32AndScript(currentScriptType, asset) })
+
+      const accountParams = currentAccountType
+        ? utxoAccountParams(asset, currentAccountType, 0)
+        : {}
+      const from = await adapter.getAddress({
+        wallet,
+        ...accountParams
+      })
 
       // Assume fast fee for send max
       let fastFee: string = ''

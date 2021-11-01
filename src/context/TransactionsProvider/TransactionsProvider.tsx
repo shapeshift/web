@@ -1,12 +1,12 @@
-import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllScriptTypes } from 'hooks/useAllScriptTypes/useAllScriptTypes'
+import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { getAssetService } from 'lib/assetService'
-import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type TransactionsProviderProps = {
@@ -20,7 +20,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
 
-  const allScriptTypes = useAllScriptTypes()
+  const allAccountTypes = useAllAccountTypes()
 
   useEffect(() => {
     if (!wallet) return
@@ -36,12 +36,19 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         const asset = assetData.find(asset => asset.chain === key)
         if (!asset) throw new Error(`asset not found for chain ${key}`)
 
-        const scriptType = allScriptTypes[getScriptTypeKey(key)]
+        const accountType = allAccountTypes[getAccountTypeKey(key)]
+
+        // eslint-disable-next-line no-console
+        console.log('about to get address on account type', accountType)
+
+        const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
 
         const address = await adapter.getAddress({
           wallet,
-          ...bip32AndScript(scriptType, asset)
+          ...accountParams
         })
+        // eslint-disable-next-line no-console
+        console.log('got address', address)
         if (!address) return
 
         if (key !== ChainTypes.Ethereum) continue

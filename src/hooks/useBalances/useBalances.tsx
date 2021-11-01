@@ -1,12 +1,12 @@
-import { bip32AndScript, bip32FromScript, toPath } from '@shapeshiftoss/chain-adapters'
+import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllScriptTypes } from 'hooks/useAllScriptTypes/useAllScriptTypes'
+import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { getAssetService } from 'lib/assetService'
-import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type UseBalancesReturnType = {
   balances: Record<string, chainAdapters.Account<ChainTypes>>
@@ -23,7 +23,7 @@ export const useBalances = (): UseBalancesReturnType => {
     state: { wallet, walletInfo }
   } = useWallet()
 
-  const allScriptTypes = useAllScriptTypes()
+  const allAccountTypes = useAllAccountTypes()
 
   const getBalances = useCallback(async () => {
     if (wallet) {
@@ -40,13 +40,13 @@ export const useBalances = (): UseBalancesReturnType => {
         const asset = assetData.find(asset => asset.chain === key)
         if (!asset) throw new Error(`asset not found for chain ${key}`)
 
-        const scriptType = allScriptTypes[getScriptTypeKey(key)]
-
         let addressOrXpub
         if (adapter.getType() === 'ethereum') {
-          addressOrXpub = await adapter.getAddress({ wallet, ...bip32AndScript(scriptType, asset) })
+          addressOrXpub = await adapter.getAddress({ wallet })
         } else if (adapter.getType() === 'bitcoin') {
-          const bip32Params = bip32FromScript(scriptType, asset)
+          const accountType = allAccountTypes[getAccountTypeKey(key)]
+          const accountParams = utxoAccountParams(asset, accountType, 0)
+          const { bip32Params, scriptType } = accountParams
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
@@ -69,7 +69,7 @@ export const useBalances = (): UseBalancesReturnType => {
     }
     // We aren't passing chainAdapter as it will always be the same object and should never change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, JSON.stringify(allScriptTypes)])
+  }, [walletInfo?.deviceId, JSON.stringify(allAccountTypes)])
 
   useEffect(() => {
     if (wallet) {
@@ -87,7 +87,7 @@ export const useBalances = (): UseBalancesReturnType => {
     }
     // Here we rely on the deviceId vs the wallet class
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, getBalances, JSON.stringify(allScriptTypes)])
+  }, [walletInfo?.deviceId, getBalances, JSON.stringify(allAccountTypes)])
 
   return {
     balances,

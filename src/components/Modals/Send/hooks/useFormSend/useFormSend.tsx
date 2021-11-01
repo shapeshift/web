@@ -1,12 +1,12 @@
 import { useToast } from '@chakra-ui/react'
-import { bip32AndScript } from '@shapeshiftoss/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllScriptTypes } from 'hooks/useAllScriptTypes/useAllScriptTypes'
+import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getScriptTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendInput } from '../../Form'
 
@@ -19,7 +19,7 @@ export const useFormSend = () => {
     state: { wallet }
   } = useWallet()
 
-  const allScriptTypes = useAllScriptTypes()
+  const allAccountTypes = useAllAccountTypes()
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -34,8 +34,8 @@ export const useFormSend = () => {
         const fee = fees.feePerUnit
         const gasLimit = fees.chainSpecific?.feeLimit
 
-        const scriptType = allScriptTypes[getScriptTypeKey(data.asset.chain)]
-
+        const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
+        const accountParams = utxoAccountParams(data.asset, accountType, 0)
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
@@ -43,7 +43,7 @@ export const useFormSend = () => {
           wallet,
           fee,
           gasLimit,
-          ...bip32AndScript(scriptType, data.asset)
+          ...accountParams
         })
 
         const signedTx = await adapter.signTransaction({ txToSign, wallet })

@@ -38,17 +38,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
         const accountType = allAccountTypes[getAccountTypeKey(key)]
 
-        // eslint-disable-next-line no-console
-        console.log('about to get address on account type', accountType)
-
         const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
 
         const address = await adapter.getAddress({
           wallet,
           ...accountParams
         })
-        // eslint-disable-next-line no-console
-        console.log('got address', address)
+
         if (!address) return
 
         if (key !== ChainTypes.Ethereum) continue

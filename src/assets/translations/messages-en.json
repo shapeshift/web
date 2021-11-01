@@ -59,7 +59,7 @@
     "shapeshiftFee": "ShapeShift Fee",
     "confirmTrade": "Confirm Trade",
     "confirmAndTrade": "Confirm and Trade",
-    "allowShapeshift": "Allow ShapeShift.io to spend your %{symbol}",
+    "approveAsset": "Approve interacting with %{symbol}",
     "needPermission": "We need your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",

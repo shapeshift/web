@@ -111,7 +111,7 @@ export const Approval = () => {
           fontSize='lg'
           fontWeight='bold'
           textAlign='center'
-          translation={['trade.allowShapeshift', { symbol }]}
+          translation={['trade.approveAsset', { symbol }]}
         />
         <Text color='gray.500' translation={['trade.needPermission', { symbol }]} />
         <Link

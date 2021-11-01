@@ -41,7 +41,7 @@ export type NumberFormatter = {
     toFiat: (number: NumberValue, options?: NumberFormatOptions) => string
     toFiatInput: (number: NumberValue, options?: NumberFormatOptions) => string
     toParts: (value: string) => FiatParts
-    toPercent: (number: NumberValue) => string
+    toPercent: (number: NumberValue, options?: NumberFormatOptions) => string
     toString: (number: NumberValue, options?: NumberFormatOptions) => string
   }
   date: {
@@ -289,12 +289,13 @@ export const useLocaleFormatter = ({
     [localeParts, numberToFiat] // eslint-disable-line react-hooks/exhaustive-deps
   )
 
-  const numberToPercent = (number: NumberValue): string => {
+  const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {
     return toNumber(number).toLocaleString(deviceLocale, {
       style: 'percent',
       minimumIntegerDigits: 1,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
+      ...options
     })
   }
 

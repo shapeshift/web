@@ -9,13 +9,15 @@ import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { Withdraw } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
 import { EarnActionsButtons } from 'context/EarnManagerProvider/context/EarnActions/EarnActionsProvider'
 
+import { YearnVaultApi } from '../../api/api'
+
 const steps = [
   { hideNav: true, label: 'Input Amount' },
   { label: 'Confirm' },
   { label: 'Broadcast' }
 ]
 
-export const YearnWithdraw = () => {
+export const YearnWithdraw = ({ api }: { api: YearnVaultApi }) => {
   const history = useHistory()
   const { nextStep, activeStep } = useSteps({ initialStep: 0 })
 

@@ -1,3 +1,4 @@
+import { ChainTypes } from '@shapeshiftoss/types'
 import qs from 'qs'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
@@ -17,6 +18,14 @@ export enum EarnProvider {
   Yearn = 'yearn'
 }
 
+export type EarnQueryParams = {
+  provider: EarnProvider
+  chain: ChainTypes
+  action: 'deposit' | 'withdraw'
+  contractAddress: string
+  tokenId?: string
+}
+
 type EarnManagerProviderProps = {
   children: React.ReactNode
 }
@@ -31,17 +40,6 @@ const EarnManagerContext = React.createContext<EarnManagerContextProps | null>(n
 const EarnModules = {
   [EarnProvider.Yearn]: YearnManager
 }
-
-// :earn-type, ie staking, pools, vaults, other..
-
-// Allowed Query Params
-// provider i.e yearn
-// chain i.e ethereum
-// action? i.e deposit | withdraw
-// tokenId? i.e usdc contract address
-
-// /earn/:earn-type/?provider=yearn&chain=ethereum&action=deposit
-// /earn/:earn-type/?provider=yearn&chain=ethereum&action=deposit&tokenId=0x123456789abcdef
 
 export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const location = useLocation<{ background: any }>()

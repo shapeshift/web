@@ -56,7 +56,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [quote, action, buyAsset, sellAsset] = useWatch({
     name: ['quote', 'action', 'buyAsset', 'sellAsset']
   }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
-  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate } = useSwapper()
+  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, sendMax } = useSwapper()
+  })
   const {
     state: { wallet }
   } = useWallet()
@@ -93,6 +94,10 @@ export const TradeInput = ({ history }: RouterProps) => {
       // TODO: (ryankk) correct errors to reflect appropriate attributes
       setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
     }
+  }
+
+  const onSwapMax = async () => {
+    await sendMax({ wallet, sellAsset, buyAsset })
   }
 
   const switchAssets = () => {
@@ -171,13 +176,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               />
             }
             inputRightElement={
-              <Button
-                h='1.75rem'
-                size='sm'
-                variant='ghost'
-                colorScheme='blue'
-                onClick={() => console.info('max')}
-              >
+              <Button h='1.75rem' size='sm' variant='ghost' colorScheme='blue' onClick={onSwapMax}>
                 Max
               </Button>
             }

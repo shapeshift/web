@@ -74,6 +74,28 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
+  // TODO: remove 'any' and create input and return value types
+  const sendMax = async ({ wallet, sellAsset, buyAsset }: any) => {
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const completeQuote = await buildQuoteTx({
+      wallet,
+      sellAsset: sellAsset.currency,
+      buyAsset: buyAsset.currency
+    })
+    console.log({ completeQuote })
+
+    // TODO:(ryankk) check this to make sure nothing happens if there isn't a completeQuote
+    if (completeQuote) {
+      const sendMaxAmount = await swapper.getSendMaxAmount({
+        wallet,
+        quote: completeQuote,
+        sellAssetAccountId: '0'
+      })
+      const newQuote = await swapper.getQuote({ sellAsset, buyAsset, sellAmount: sendMaxAmount })
+      setValue('quote', newQuote)
+    }
+  }
+
   const buildQuoteTx = async ({
     wallet,
     sellAsset,
@@ -87,6 +109,7 @@ export const useSwapper = () => {
   }): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
     let result
     try {
+      console.log({ sellAsset, buyAsset })
       const swapper = swapperManager.getSwapper(bestSwapperType)
       result = await swapper?.buildQuoteTx({
         input: {
@@ -97,7 +120,7 @@ export const useSwapper = () => {
           buyAssetAccountId: '0', // TODO: remove hard coded accountId
           slippage: trade?.slippage?.toString(),
           priceImpact: quote?.priceImpact,
-          sendMax: false // TODO: implement sendMax
+          sendMax: false // TODO: implement sendMax (used for utxo coins)
         },
         wallet
       })
@@ -388,6 +411,7 @@ export const useSwapper = () => {
     checkApprovalNeeded,
     approveInfinite,
     getFiatRate,
+    sendMax,
     reset
   }
 }

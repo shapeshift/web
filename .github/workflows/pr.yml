@@ -9,6 +9,7 @@ on:
 jobs:
   commitlint-lint-typecheck-test-build:
     runs-on: ubuntu-latest
+    environment: preview
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,6 +30,8 @@ jobs:
       - name: Type check
         run: yarn type-check
       - name: Test
+        env:
+          REACT_APP_ETH_NODE_URL: ${{ env.REACT_APP_ETH_NODE_URL }}
         run: yarn test
       - name: Build
         run: yarn build

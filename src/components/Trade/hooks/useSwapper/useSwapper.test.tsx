@@ -11,11 +11,11 @@ import { fromBaseUnit } from 'lib/math'
 import { ETHCHAIN_QUOTE } from '../../../../jest/constants'
 import { TradeActions, useSwapper } from './useSwapper'
 
+jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
-jest.mock('../../../../lib/web3-instance')
 
 function setup(action = TradeActions.SELL) {
   const setValue = jest.fn()

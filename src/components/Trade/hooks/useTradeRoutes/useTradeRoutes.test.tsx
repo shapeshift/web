@@ -13,6 +13,7 @@ jest.mock('react-router-dom', () => ({
     push: jest.fn()
   })
 }))
+jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
 jest.mock('lib/assetService')

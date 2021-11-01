@@ -180,6 +180,10 @@
       "header": "Pair your MetaMask wallet",
       "connectButton": "Connect your MetaMask wallet"
     },
+    "portis": {
+      "header": "Pair your Portis wallet",
+      "connectButton":"Connect your Portis wallet"
+    },
     "selectModal": {
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."

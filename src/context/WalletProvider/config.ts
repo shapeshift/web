@@ -2,9 +2,11 @@ import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
+import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
+import { PortisIcon } from 'components/Icons/PortisIcon'
 import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
 
 import { PinModal } from './KeepKey/PinModal'
@@ -16,6 +18,8 @@ import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
+import { PortisStart } from './Portis/components/PortisStart'
+import { PortisSuccess } from './Portis/components/PortisSuccess'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -51,6 +55,15 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
     routes: [
       { path: '/metamask/start', component: MetaStart },
       { path: '/metamask/success', component: MetaSuccess }
+    ]
+  },
+  portis: {
+    adapter: PortisAdapter,
+    icon: PortisIcon,
+    name: 'Portis',
+    routes: [
+      { path: '/portis/start', component: PortisStart },
+      { path: '/portis/success', component: PortisSuccess }
     ]
   }
 }

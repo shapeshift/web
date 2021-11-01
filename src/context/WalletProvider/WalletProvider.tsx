@@ -2,6 +2,7 @@ import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import React, {
   createContext,
   useCallback,
@@ -27,7 +28,7 @@ export enum WalletActions {
 export interface InitialState {
   keyring: Keyring
   adapters: Record<string, unknown> | null
-  wallet: HDWallet | NativeHDWallet | MetaMaskHDWallet | null
+  wallet: HDWallet | NativeHDWallet | MetaMaskHDWallet | PortisHDWallet | null
   type: string | null
   initalRoute: string | null
   walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps>; deviceId: string } | null

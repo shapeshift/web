@@ -61,7 +61,7 @@ export const Approve = ({
           {translate('modals.approve.learnMore')}
         </Link>
       </ModalBody>
-      <ModalFooter flexDir='column' borderTopWidth={1} borderColor='gray.750' mt={8}>
+      <ModalFooter flexDir='column' mt={8}>
         <Stack width='full'>
           <Row pb={2}>
             <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>

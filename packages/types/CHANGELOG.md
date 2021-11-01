@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.6.0...@shapeshiftoss/types-v1.7.0) (2021-11-01)
+
+
+### Features
+
+* move util functions from web ([#177](https://github.com/shapeshift/lib/issues/177)) ([58002d9](https://github.com/shapeshift/lib/commit/58002d9ca4f8948d5c2f8f28b00cbc35c58971e6))
+
 # [@shapeshiftoss/types-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.5.0...@shapeshiftoss/types-v1.6.0) (2021-10-31)
 
 

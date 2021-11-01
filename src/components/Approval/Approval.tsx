@@ -20,14 +20,14 @@ type ApprovalParams = {
 
 export const Approval = () => {
   const history = useHistory()
-  const location = useLocation()
+  const location = useLocation<ApprovalParams>()
   const {
     handleSubmit,
     formState: { isSubmitting }
   } = useFormContext()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const { ethFiatRate } = location.state as ApprovalParams
+  const { ethFiatRate } = location.state
 
   const {
     getValues,
@@ -51,19 +51,18 @@ export const Approval = () => {
     setApprovalTxId(txId)
     const interval = setInterval(async () => {
       const approvalNeeded = await checkApprovalNeeded(wallet)
-      if (!approvalNeeded) {
-        clearInterval(approvalInterval.current as NodeJS.Timeout)
-        const result = await buildQuoteTx({
-          wallet,
-          sellAsset: quote.sellAsset,
-          buyAsset: quote.buyAsset,
-          amount: sellAsset.amount
-        })
-        if (result?.success) {
-          history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
-        } else {
-          history.push('/trade/input')
-        }
+      if (approvalNeeded) return
+      clearInterval(approvalInterval.current as NodeJS.Timeout)
+      const result = await buildQuoteTx({
+        wallet,
+        sellAsset: quote.sellAsset,
+        buyAsset: quote.buyAsset,
+        amount: sellAsset.amount
+      })
+      if (result?.success) {
+        history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+      } else {
+        history.push('/trade/input')
       }
     }, 10000)
     approvalInterval.current = interval
@@ -121,7 +120,7 @@ export const Approval = () => {
         </Link>
         <Divider my={4} />
         <Flex flexDirection='column' width='full'>
-          {(approvalTxId && sellAsset.currency?.explorerTxLink) && (
+          {approvalTxId && sellAsset.currency?.explorerTxLink && (
             <Row>
               <Row.Label>
                 <Text translation={['trade.approvingAsset', { symbol }]} />

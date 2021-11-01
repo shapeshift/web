@@ -33,8 +33,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useFormContext()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote } = useSwapper()
-  const location = useLocation()
-  const { ethFiatRate } = location.state as TradeConfirmParams
+  const location = useLocation<TradeConfirmParams>()
+  const { ethFiatRate } = location.state
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -48,8 +48,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   })
   const transaction = txs[0]
 
-  const status: chainAdapters.TxStatus | undefined =
-    transaction && (transaction.status as chainAdapters.TxStatus)
+  const status: chainAdapters.TxStatus = transaction && transaction?.status
 
   const onSubmit = async () => {
     if (!wallet) return

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.8.0...@shapeshiftoss/chain-adapters-v1.9.0) (2021-11-01)
+
+
+### Features
+
+* move util functions from web ([#177](https://github.com/shapeshift/lib/issues/177)) ([58002d9](https://github.com/shapeshift/lib/commit/58002d9ca4f8948d5c2f8f28b00cbc35c58971e6))
+
 # [@shapeshiftoss/chain-adapters-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.7.3...@shapeshiftoss/chain-adapters-v1.8.0) (2021-10-31)
 
 

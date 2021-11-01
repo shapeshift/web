@@ -121,7 +121,7 @@ export const Approval = () => {
         </Link>
         <Divider my={4} />
         <Flex flexDirection='column' width='full'>
-          {approvalTxId && (
+          {(approvalTxId && sellAsset.currency?.explorerTxLink) && (
             <Row>
               <Row.Label>
                 <Text translation={['trade.approvingAsset', { symbol }]} />
@@ -130,7 +130,7 @@ export const Approval = () => {
                 <Link
                   isExternal
                   color='blue.500'
-                  href={sellAsset.currency?.explorerTxLink + approvalTxId}
+                  href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
                 >
                   <MiddleEllipsis maxWidth='130px'>{approvalTxId}</MiddleEllipsis>
                 </Link>

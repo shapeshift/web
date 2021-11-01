@@ -7,15 +7,6 @@ export type YearnVault = {
 }
 
 export const vaults: YearnVault[] = [
-  /** ETH into the vault goes through a very different path than ERC-20s,
-   *  so commenting out for now and adding YFI vault to get to ten vaults. */
-  // {
-  //   contractAddress: '0xa258C4606Ca8206D8aA700cE2143D7db854D168c',
-  //   routerAddress: '',
-  //   decimals: 18,
-  //   symbol: 'yvWETH',
-  //   depositToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-  // },
   {
     contractAddress: '0xdA816459F1AB5631232FE5e97a05BBBb94970c95',
     routerAddress: '',

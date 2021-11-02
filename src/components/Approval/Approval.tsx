@@ -50,7 +50,7 @@ export const Approval = () => {
     const interval = setInterval(async () => {
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) return
-      clearInterval(approvalInterval.current as NodeJS.Timeout)
+      approvalInterval.current && clearInterval(approvalInterval.current)
       if (!sellAsset.amount) return
       if (!quote) return
       const result = await buildQuoteTx({

@@ -133,6 +133,20 @@
       "preFooter": "Rewards acure automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
+    },
+    "broadcast": {
+      "header": {
+        "pending": "Broadcasting Transaction",
+        "success": "Successfully Broadcast Transaction",
+        "error": "Error Broadcasting Transaction"
+      },
+      "depositTo": "Deposit To",
+      "transactionId": "TX ID",
+      "averageApr": "Average APR",
+      "estimatedReturns": "Estimated Yearly Returns*",
+      "estimatedGas": "Estimated Gas Fee",
+      "continue": "View My Position",
+      "close": "Close"
     }
   },
   "walletProvider": {

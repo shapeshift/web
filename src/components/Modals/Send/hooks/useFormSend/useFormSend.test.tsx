@@ -133,7 +133,7 @@ describe('useFormSend', () => {
   it('handles successfully sending a tx without offline signing', async () => {
     return await act(async () => {
       const toaster = jest.fn()
-      const signAndBroadcastTransaction = jest.fn()
+      const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
       ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
       ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
         state: {

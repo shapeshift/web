@@ -256,7 +256,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     const addressNList = bip32ToAddressNList(path)
     const ethAddress = await (wallet as ETHWallet).ethGetAddress({
       addressNList,
-      showDisplay: false
+      showDisplay: Boolean(input.showOnDevice)
     })
     return ethAddress as string
   }

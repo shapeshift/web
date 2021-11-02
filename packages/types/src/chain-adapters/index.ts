@@ -191,6 +191,10 @@ export interface TxHistoryInput {
 export type GetAddressInputBase = {
   wallet: HDWallet
   bip32Params?: BIP32Params
+  /**
+   * Request that the address be shown to the user by the device, if supported
+   */
+  showOnDevice?: boolean
 }
 
 export type GetAddressInput = GetAddressInputBase | bitcoin.GetAddressInput

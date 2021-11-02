@@ -24,9 +24,7 @@ export const useEarnActions = () => {
 
 export const EarnActionsProvider = ({ children }: { children: React.ReactNode }) => {
   const query = useQuery<EarnQueryParams>()
-  const [action, setAction] = useState<ManagerAction>(
-    (query.action as ManagerAction) || ManagerAction.Deposit
-  )
+  const [action, setAction] = useState<ManagerAction>(query.action || ManagerAction.Deposit)
   return (
     <EarnActionsContext.Provider value={{ action, onClick: setAction }}>
       {children}

@@ -5,6 +5,7 @@ import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { EarnModal } from './components/EarnModal/EarnModal'
+import { ManagerAction } from './context/EarnActions/EarnActionsProvider'
 import { YearnManager } from './providers/yearn/components/YearnManager/YearnManager'
 
 export enum EarnType {
@@ -21,7 +22,7 @@ export enum EarnProvider {
 export type EarnQueryParams = {
   provider: EarnProvider
   chain: ChainTypes
-  action: 'deposit' | 'withdraw'
+  action: ManagerAction
   contractAddress: string
   tokenId?: string
 }

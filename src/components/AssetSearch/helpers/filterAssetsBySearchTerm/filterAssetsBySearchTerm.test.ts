@@ -16,7 +16,8 @@ const assets: Asset[] = [
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
-    receiveSupport: true
+    receiveSupport: true,
+    caip19: ''
   },
   {
     chain: ChainTypes.Bitcoin,
@@ -31,7 +32,8 @@ const assets: Asset[] = [
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     sendSupport: false,
-    receiveSupport: false
+    receiveSupport: false,
+    caip19: ''
   },
   {
     chain: ChainTypes.Ethereum,
@@ -48,7 +50,8 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'AAMMDAI'
+    symbol: 'AAMMDAI',
+    caip19: ''
   },
   {
     chain: ChainTypes.Ethereum,
@@ -65,7 +68,8 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'DAI'
+    symbol: 'DAI',
+    caip19: ''
   }
 ]
 

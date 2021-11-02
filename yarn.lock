@@ -3845,12 +3845,12 @@
   dependencies:
     winston "^2.4.4"
 
-"@shapeshiftoss/market-service@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.0.5.tgz#68c762b1c69123003348dddd53babd499aa1726d"
-  integrity sha512-USzORgF0cZ0Jkz3j6KdCz0J6t1vMi0Y6x9lBHfe8L2awp6UlA+G9PEMUK2ahc/P6WE75WdymTSMJKVmL3s1gDg==
+"@shapeshiftoss/market-service@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.1.0.tgz#dfe3386ef6b485c0f6ac9f5d478109b2f8b4a03a"
+  integrity sha512-4DIL2/MecyvTjS9IEPD+mR6j2aHzdCmAjACwET0OCf1WwQhRcPkB6AdcWkjGPpjuNZjHtKA/xd65rSI1nKBxhQ==
   dependencies:
-    "@shapeshiftoss/types" "^1.4.0"
+    "@shapeshiftoss/types" "^1.5.0"
     axios "^0.21.2"
     dayjs "^1.10.6"
 
@@ -3875,10 +3875,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.4.0.tgz#c26d84c65e85e10527826a2b571a88e8db80f3db"
-  integrity sha512-m291lIBmbxTM3e7N4H/1J+FJnLEW32ZfY5VKqGX0Tab0IRmYKg9fJqN7zCfJcgQ+cZutnftbmBxa5XK+TqmtCQ==
+"@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.7.0.tgz#132384358a18317522e0658b7262692ef4f10e93"
+  integrity sha512-G5zztshIKIrWfKa+z4a5nsrcniVksUniP+f7ZXMJhNgc3qr/baHUk50zn7JVwirFw+EssyTyGcz+ZV3P31wclQ==
 
 "@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.7.0":
   version "1.7.0"

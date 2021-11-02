@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.9.0...@shapeshiftoss/chain-adapters-v1.10.0) (2021-11-02)
+
+
+### Features
+
+* enable getAddress to show on device ([#183](https://github.com/shapeshift/lib/issues/183)) ([62ba8b6](https://github.com/shapeshift/lib/commit/62ba8b682b1809e3fc8a2d1934a7ec212b4ba379))
+
 # [@shapeshiftoss/chain-adapters-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.8.0...@shapeshiftoss/chain-adapters-v1.9.0) (2021-11-01)
 
 

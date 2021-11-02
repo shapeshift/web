@@ -52,9 +52,10 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  type TS = TradeState<ChainTypes, SwapperType>
   const [quote, action, buyAsset, sellAsset] = useWatch({
     name: ['quote', 'action', 'buyAsset', 'sellAsset']
-  })
+  }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate } = useSwapper()
   const {
     state: { wallet }

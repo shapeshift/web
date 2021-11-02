@@ -21,9 +21,6 @@ export const useFormSend = () => {
 
   const allAccountTypes = useAllAccountTypes()
 
-  // eslint-disable-next-line no-console
-  console.log('allAccountTypes', allAccountTypes)
-
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {

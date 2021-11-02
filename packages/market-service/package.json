@@ -20,10 +20,12 @@
     "build": "yarn clean && tsc --project tsconfig.build.json",
     "clean": "rm -rf dist",
     "dev": "tsc --watch",
+    "generate": "yarn build && node ./dist/coingecko/generateMarketCapData.js",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@shapeshiftoss/caip": "^1.1.0",
     "@shapeshiftoss/types": "^1.5.0",
     "axios": "^0.21.2",
     "dayjs": "^1.10.6"

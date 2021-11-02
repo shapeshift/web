@@ -1,5 +1,9 @@
+import { adapters } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
+  CoinGeckoMarketCap,
+  CoinGeckoMarketCapNoId,
+  GetByMarketCapArgs,
   HistoryData,
   HistoryTimeframe,
   MarketData,
@@ -8,10 +12,11 @@ import {
 } from '@shapeshiftoss/types'
 import axios from 'axios'
 import dayjs from 'dayjs'
+import omit from 'lodash/omit'
 
 import { MarketService } from '../api'
 
-// tons more parms here: https://www.coingecko.com/en/api/documentation
+// tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {
   chain: ChainTypes
   market_data: {
@@ -37,6 +42,45 @@ const coingeckoIDMap: CoinGeckoIDMap = Object.freeze({
 
 export class CoinGeckoMarketService implements MarketService {
   baseUrl = 'https://api.coingecko.com/api/v3'
+
+  private readonly defaultGetByMarketCapArgs: GetByMarketCapArgs = {
+    pages: 10,
+    perPage: 250
+  }
+
+  async getByMarketCap(args?: GetByMarketCapArgs) {
+    const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
+    const { pages, perPage } = argsToUse
+    const urlAtPage = (page: number) =>
+      `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false`
+    const pageCount = Array(pages)
+      .fill(0)
+      .map((_v, i) => i + 1)
+    try {
+      const combined = (
+        await Promise.all(
+          pageCount.map(async (page) => axios.get<CoinGeckoMarketCap>(urlAtPage(page)))
+        )
+      ).flat()
+      return combined
+        .map(({ data }) => data ?? []) // filter out rate limited results
+        .flat()
+        .sort((a, b) => (a.market_cap_rank > b.market_cap_rank ? 1 : -1))
+        .reduce((acc, cur) => {
+          const { id } = cur
+          try {
+            const caip19 = adapters.coingeckoToCAIP19(id)
+            const curWithoutId = omit(cur, 'id') // don't leak this through to clients
+            acc[caip19] = curWithoutId
+            return acc
+          } catch {
+            return acc // no caip found, we don't support this asset
+          }
+        }, {} as Record<string, CoinGeckoMarketCapNoId>)
+    } catch (e) {
+      return {}
+    }
+  }
 
   getMarketData = async ({ chain, tokenId }: MarketDataArgs): Promise<MarketData> => {
     const id = coingeckoIDMap[chain]

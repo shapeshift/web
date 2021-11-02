@@ -37,7 +37,7 @@ function variantGhost(props: Record<string, any>) {
   }
 
   const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
-  const darkActiveBg = transparentize(`${c}.700`, 1)(theme)
+  const darkActiveBg = transparentize(`${c}.200`, 0.24)(theme)
 
   return {
     color: mode(`${c}.600`, `${c}.200`)(props),
@@ -46,7 +46,7 @@ function variantGhost(props: Record<string, any>) {
       bg: mode(`${c}.50`, darkHoverBg)(props)
     },
     _active: {
-      bg: mode(`${c}.100`, darkActiveBg)(props)
+      bg: mode(`${c}.200`, darkActiveBg)(props)
     },
     _checked: {
       bg: mode(`${c}.100`, darkActiveBg)(props)

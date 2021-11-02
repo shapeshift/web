@@ -1,16 +1,11 @@
 import { Flex } from '@chakra-ui/react'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
-import { ReduxState } from 'state/reducer'
-import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useMarketData } from 'hooks/useMarketData/useMarketData'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
-
 export interface MatchParams {
   chain: ChainTypes
   tokenId: string
@@ -35,38 +30,21 @@ const initAsset = {
   slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
-  description: ''
+  description: '',
+  caip19: ''
 }
 
 export const Asset = () => {
-  const [isLoaded, setIsLoaded] = useStateIfMounted<boolean>(false)
   const { chain, tokenId } = useParams<MatchParams>()
-  const marketData = useSelector((state: ReduxState) => state.marketData[tokenId ?? chain])
-  const dispatch = useDispatch()
-
   const asset = useFetchAsset({ chain, tokenId })
-
-  useEffect(() => {
-    ;(async () => {
-      setIsLoaded(false)
-      setTimeout(async () => {
-        dispatch(
-          fetchMarketData({
-            chain,
-            tokenId
-          })
-        )
-        setIsLoaded(true)
-      }, 750)
-    })()
-  }, [chain, tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
+  const marketData = useMarketData({ chain, tokenId })
 
   return (
     <Page style={{ flex: 1 }} key={tokenId}>
       <Flex role='main' flex={1} height='100%'>
         <AssetDetails
           asset={asset && marketData ? { ...asset, ...marketData } : initAsset}
-          isLoaded={isLoaded}
+          isLoaded={!!marketData}
         />
       </Flex>
     </Page>

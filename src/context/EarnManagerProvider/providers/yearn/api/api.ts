@@ -12,6 +12,7 @@ import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
 import {
   Allowanceinput,
+  ApproveEstimatedGasInput,
   ApproveInput,
   APYInput,
   BalanceInput,
@@ -56,7 +57,7 @@ export class YearnVaultApi {
     return vault
   }
 
-  async approveEstimatedGas(input: ApproveInput): Promise<BigNumber> {
+  async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const estimatedGas = await depositTokenContract.methods
@@ -66,6 +67,7 @@ export class YearnVaultApi {
       })
     return bnOrZero(estimatedGas)
   }
+
   async approve(input: ApproveInput): Promise<string> {
     const {
       bip32Params,
@@ -100,21 +102,27 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
+
   async allowance(input: Allowanceinput): Promise<string> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
     const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
   }
-  async depositEstimatedGas(input: DepositInput): Promise<BigNumber> {
+
+  async depositEstimatedGas(
+    input: Omit<DepositInput, 'bip32Params' | 'wallet' | 'tokenContractAddress'>
+  ): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
       .deposit(amountDesired.toString(), userAddress)
       .estimateGas({
+        value: 0,
         from: userAddress
       })
     return bnOrZero(estimatedGas)
   }
+
   async deposit(input: DepositInput): Promise<string> {
     const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
     if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')

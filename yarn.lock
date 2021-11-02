@@ -3695,10 +3695,10 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/chain-adapters@^1.7.3", "@shapeshiftoss/chain-adapters@^1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.8.0.tgz#887801c79b972f948381286f972aba88df8c9799"
-  integrity sha512-4mSmJDgezRCVr+ZNIz+6p7NJKFRySzTmowhf06S3kbt2u8jDNhGuy7zfJ3XTMbWwKUMGd22UCHDuwAM2goaeeg==
+"@shapeshiftoss/chain-adapters@^1.7.3", "@shapeshiftoss/chain-adapters@^1.9.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.9.0.tgz#049576be58f1858c9d91e39582a6eb763a3d73a9"
+  integrity sha512-XmppmeG78238eavVa/K82xy6BibFucfD0m5olTQjx0qe7JxjKZzk+o1Es7eEMvAvh2H8ydtR9SplLmgcRlHTbQ==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
     "@shapeshiftoss/types" "^1.5.0"
@@ -3923,10 +3923,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.6.0.tgz#0bed74f0bc335deb0b005fade4482a1ebee3aa23"
-  integrity sha512-+0SipYqL+M40+75B2jteOZy7hqFoFclsFGLr3S6CoN+1UG2BaCoaByalA/aFxfTq/jaM4egpNvMCnTcMtj5LUQ==
+"@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.7.0.tgz#132384358a18317522e0658b7262692ef4f10e93"
+  integrity sha512-G5zztshIKIrWfKa+z4a5nsrcniVksUniP+f7ZXMJhNgc3qr/baHUk50zn7JVwirFw+EssyTyGcz+ZV3P31wclQ==
 
 "@shapeshiftoss/unchained-client@^3.0.0":
   version "3.0.0"

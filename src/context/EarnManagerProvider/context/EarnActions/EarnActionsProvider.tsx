@@ -1,16 +1,17 @@
 import { Button, Flex } from '@chakra-ui/react'
 import React, { useContext, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
 
-export enum ManagerActions {
+export enum ManagerAction {
   Deposit = 'deposit',
   Withdraw = 'withdraw'
 }
 
 type EarnActionsContextProps = {
-  action: ManagerActions
-  onClick(action: ManagerActions): void
+  action: ManagerAction
+  onClick(action: ManagerAction): void
 }
 
 const EarnActionsContext = React.createContext<EarnActionsContextProps | null>(null)
@@ -22,10 +23,8 @@ export const useEarnActions = () => {
 }
 
 export const EarnActionsProvider = ({ children }: { children: React.ReactNode }) => {
-  const query = useQuery()
-  const [action, setAction] = useState<ManagerActions>(
-    (query.action as ManagerActions) || ManagerActions.Deposit
-  )
+  const query = useQuery<EarnQueryParams>()
+  const [action, setAction] = useState<ManagerAction>(query.action || ManagerAction.Deposit)
   return (
     <EarnActionsContext.Provider value={{ action, onClick: setAction }}>
       {children}
@@ -38,8 +37,8 @@ export const EarnActionsButtons = () => {
   const { onClick } = useEarnActions()
   return (
     <Flex>
-      <Button onClick={() => onClick(ManagerActions.Deposit)}>{translate('common.deposit')}</Button>
-      <Button onClick={() => onClick(ManagerActions.Withdraw)}>
+      <Button onClick={() => onClick(ManagerAction.Deposit)}>{translate('common.deposit')}</Button>
+      <Button onClick={() => onClick(ManagerAction.Withdraw)}>
         {translate('common.withdraw')}
       </Button>
     </Flex>

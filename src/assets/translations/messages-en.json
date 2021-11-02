@@ -114,7 +114,8 @@
       "amountToDeposit": "Amount To Deposit",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service."
+      "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service.",
+      "slippageSettings": "Slippage Settings"
     },
     "approve": {
       "header": "Allow ShapeShift.io to Spend Your %{asset}",
@@ -123,6 +124,30 @@
       "estimatedGas": "Estimated Gas Fee",
       "confirm": "Confirm",
       "reject": "Reject"
+    },
+    "confirm": {
+      "header": "Confirm Deposit",
+      "depositTo": "Deposit To",
+      "averageApr": "Average APR",
+      "estimatedReturns": "Estimated Yearly Returns*",
+      "estimatedGas": "Estimated Gas Fee",
+      "preFooter": "Rewards acure automatically",
+      "signBroadcast": "Sign & Broadcast",
+      "cancel": "Cancel"
+    },
+    "broadcast": {
+      "header": {
+        "pending": "Broadcasting Transaction",
+        "success": "Successfully Broadcast Transaction",
+        "error": "Error Broadcasting Transaction"
+      },
+      "depositTo": "Deposit To",
+      "transactionId": "TX ID",
+      "averageApr": "Average APR",
+      "estimatedReturns": "Estimated Yearly Returns*",
+      "estimatedGas": "Estimated Gas Fee",
+      "continue": "View My Position",
+      "close": "Close"
     }
   },
   "walletProvider": {
@@ -203,7 +228,10 @@
         "marketCap": "Market Cap",
         "24HrVolume": "24hr Volume",
         "dayChange": "Day Change",
-        "aboutAsset": "About %{asset}"
+        "aboutAsset": "About %{asset}",
+        "segwit": "Segwit",
+        "segwitNative": "Segwit Native",
+        "legacy": "Legacy"
       },
       "assetDescription": {
         "showMore": "Show More",

@@ -1,9 +1,12 @@
 import { useToast } from '@chakra-ui/react'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendInput } from '../../Form'
 
@@ -15,6 +18,8 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
+
+  const allAccountTypes = useAllAccountTypes()
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -29,13 +34,16 @@ export const useFormSend = () => {
         const fee = fees.feePerUnit
         const gasLimit = fees.chainSpecific?.feeLimit
 
+        const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
+        const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,
           erc20ContractAddress: data.asset.tokenId,
           wallet,
           fee,
-          gasLimit
+          gasLimit,
+          ...accountParams
         })
 
         if (wallet.supportsOfflineSigning()) {

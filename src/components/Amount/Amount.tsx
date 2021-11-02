@@ -1,6 +1,10 @@
 import { TextProps } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { RawText } from 'components/Text'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import {
+  NumberFormatOptions,
+  useLocaleFormatter
+} from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 type AmountProps = {
   value: number | string
@@ -37,6 +41,10 @@ type FiatAmountProps = {
   fiatSymbolStyle?: TextProps
   fiatType?: string
 } & AmountProps
+
+type PercentAmountProps = AmountProps & {
+  options?: NumberFormatOptions
+}
 
 const Crypto = ({
   value,
@@ -105,5 +113,30 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, ...props }: FiatAmountProps) =
   )
 }
 
+const Percent = ({ value, options, ...props }: PercentAmountProps) => {
+  const {
+    number: { toPercent }
+  } = useLocaleFormatter({ fiatType: 'USD' })
+  const formattedNumber = toPercent(value, options)
+
+  const color = useMemo(() => {
+    const roundedValue = parseFloat(formattedNumber)
+    if (roundedValue === 0) {
+      return 'text.secondary'
+    }
+    if (roundedValue > 0) {
+      return 'success.main'
+    }
+    return 'error.main'
+  }, [formattedNumber])
+
+  return (
+    <RawText color={color} {...props}>
+      {formattedNumber}
+    </RawText>
+  )
+}
+
 Amount.Crypto = Crypto
 Amount.Fiat = Fiat
+Amount.Percent = Percent

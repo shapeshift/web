@@ -17,7 +17,8 @@ const assets: Asset[] = [
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
-    receiveSupport: true
+    receiveSupport: true,
+    caip19: ''
   },
   {
     caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
@@ -33,7 +34,8 @@ const assets: Asset[] = [
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     sendSupport: false,
-    receiveSupport: false
+    receiveSupport: false,
+    caip19: ''
   },
   {
     caip19: 'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
@@ -51,7 +53,8 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'AAMMDAI'
+    symbol: 'AAMMDAI',
+    caip19: ''
   },
   {
     caip19: 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
@@ -69,7 +72,8 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'DAI'
+    symbol: 'DAI',
+    caip19: ''
   }
 ]
 

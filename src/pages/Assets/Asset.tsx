@@ -6,7 +6,6 @@ import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
-
 export interface MatchParams {
   chain: ChainTypes
   tokenId: string

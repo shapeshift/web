@@ -1,12 +1,23 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
+import { ethereum as mockEthereum } from 'jest/mocks/assets'
+import { accountTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { useBalances } from './useBalances'
 
+jest.mock('hooks/useAllAccountTypes/useAllAccountTypes')
+
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('lib/assetService', () => ({
+  getAssetService: () =>
+    Promise.resolve({
+      byNetwork: () => [mockEthereum]
+    })
+}))
 
 const balances = {
   network: 'ethereum',
@@ -39,7 +50,8 @@ const setup = ({
   })
 }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-    state: { wallet, walletInfo: { deviceId: 1 } }
+    state: { wallet, walletInfo: { deviceId: 1 } },
+    getPublicKeys: () => Promise.resolve()
   }))
   ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
     getSupportedAdapters: () => [adapter]
@@ -48,6 +60,12 @@ const setup = ({
 }
 
 describe('useBalances', () => {
+  beforeAll(() => {
+    ;(useAllAccountTypes as jest.Mock<unknown>).mockImplementation(() => ({
+      [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
+    }))
+  })
+
   it('returns a users balances', async () => {
     await act(async () => {
       const { waitForValueToChange, result } = setup({})

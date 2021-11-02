@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.1.0...@shapeshiftoss/caip-v1.2.0) (2021-11-02)
+
+
+### Features
+
+* market service market cap functionality ([#153](https://github.com/shapeshift/lib/issues/153)) ([cce22b9](https://github.com/shapeshift/lib/commit/cce22b9398e26ee90c50633941f293e13512a65c))
+
 # [@shapeshiftoss/caip-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.0.1...@shapeshiftoss/caip-v1.1.0) (2021-10-28)
 
 

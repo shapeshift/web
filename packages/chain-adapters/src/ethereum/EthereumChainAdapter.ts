@@ -158,7 +158,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         to: destAddress,
         chainId: 1, // TODO: implement for multiple chains
         data,
-        nonce: String(chainSpecific.nonce),
+        nonce: numberToHex(chainSpecific.nonce),
         gasPrice: numberToHex(gasPrice),
         gasLimit: numberToHex(gasLimit)
       }

@@ -6,8 +6,8 @@ import { useHistory } from 'react-router'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
+import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
 import { Withdraw } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
-import { EarnActionsButtons } from 'context/EarnManagerProvider/context/EarnActions/EarnActionsProvider'
 
 import { YearnVaultApi } from '../../api/api'
 
@@ -109,7 +109,7 @@ export const YearnWithdraw = ({ api }: { api: YearnVaultApi }) => {
     <Flex>
       {!steps[activeStep].hideNav && <VerticalStepper activeStep={activeStep} steps={steps} />}
       <Flex flexDir='column'>
-        {activeStep === 0 && <EarnActionsButtons />}
+        {activeStep === 0 && <EarnActionButtons />}
         {renderStep(activeStep)}
       </Flex>
     </Flex>

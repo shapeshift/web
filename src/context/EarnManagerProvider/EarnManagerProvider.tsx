@@ -1,11 +1,9 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import qs from 'qs'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { EarnModal } from './components/EarnModal/EarnModal'
-import { ManagerAction } from './context/EarnActions/EarnActionsProvider'
 import { YearnManager } from './providers/yearn/components/YearnManager/YearnManager'
 
 export enum EarnType {
@@ -19,10 +17,19 @@ export enum EarnProvider {
   Yearn = 'yearn'
 }
 
-export type EarnQueryParams = {
+export enum EarnAction {
+  Deposit = 'deposit',
+  Withdraw = 'withdraw'
+}
+
+export type EarnParams = {
   provider: EarnProvider
+  earnType: EarnType
+  action: EarnAction
+}
+
+export type EarnQueryParams = {
   chain: ChainTypes
-  action: ManagerAction
   contractAddress: string
   tokenId?: string
 }
@@ -50,16 +57,14 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
     <EarnManagerContext.Provider value={null}>
       {children}
       {background && (
-        <>
-          <Route
-            path='/earn/(vault|pool|staking)'
-            render={props => {
-              const { provider } = qs.parse(props.location.search)
-              const Module = EarnModules[provider as EarnProvider]
-              return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
-            }}
-          />
-        </>
+        <Route
+          path='/earn/:earnType/:provider/:action'
+          render={({ match: { params } }) => {
+            const { provider } = params
+            const Module = EarnModules[provider as EarnProvider]
+            return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
+          }}
+        />
       )}
     </EarnManagerContext.Provider>
   )

@@ -7,6 +7,7 @@ import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { translations } from 'assets/translations'
+import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { EarnManagerProvider } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
@@ -42,17 +43,19 @@ export function AppProviders({ children }: ProvidersProps) {
       <ChakraProvider theme={theme}>
         <ColorModeScript />
         <BrowserRouter>
-          <I18n locale={locale} messages={messages}>
-            <WalletProvider>
-              <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                <TransactionsProvider>
-                  <ModalProvider>
-                    <EarnProvider>{children}</EarnProvider>
-                  </ModalProvider>
-                </TransactionsProvider>
-              </ChainAdaptersProvider>
-            </WalletProvider>
-          </I18n>
+          <BrowserRouterProvider>
+            <I18n locale={locale} messages={messages}>
+              <WalletProvider>
+                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                  <TransactionsProvider>
+                    <ModalProvider>
+                      <EarnProvider>{children}</EarnProvider>
+                    </ModalProvider>
+                  </TransactionsProvider>
+                </ChainAdaptersProvider>
+              </WalletProvider>
+            </I18n>
+          </BrowserRouterProvider>
         </BrowserRouter>
       </ChakraProvider>
     </ReduxProvider>

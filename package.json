@@ -20,6 +20,7 @@
     "@shapeshiftoss/market-service": "^1.1.0",
     "@shapeshiftoss/swapper": "^1.8.0",
     "@shapeshiftoss/types": "^1.7.0",
+    "@types/history": "^4.7.9",
     "@visx/axis": "^1.17.1",
     "@visx/brush": "^1.18.1",
     "@visx/gradient": "^1.7.0",
@@ -66,7 +67,7 @@
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
-    "link-packages": "grep -oE '@shapeshiftoss\/[a-z-]*' package.json | grep -v hdwallet | xargs yarn link",
+    "link-packages": "grep -oE '@shapeshiftoss/[a-z-]*' package.json | grep -v hdwallet | xargs yarn link",
     "unlink-packages": "find node_modules node_modules/@* -depth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
     "build": "react-scripts build",
     "dev": "react-scripts start",

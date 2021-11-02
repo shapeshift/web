@@ -21,6 +21,9 @@ export const useFormSend = () => {
 
   const allAccountTypes = useAllAccountTypes()
 
+  // eslint-disable-next-line no-console
+  console.log('allAccountTypes', allAccountTypes)
+
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
@@ -35,7 +38,7 @@ export const useFormSend = () => {
         const gasLimit = fees.chainSpecific?.feeLimit
 
         const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
-        const accountParams = utxoAccountParams(data.asset, accountType, 0)
+        const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
         const { txToSign } = await adapter.buildSendTransaction({
           to: data.address,
           value,

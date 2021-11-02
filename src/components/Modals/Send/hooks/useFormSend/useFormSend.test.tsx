@@ -1,9 +1,11 @@
 import { useToast } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
+import { accountTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
@@ -14,6 +16,7 @@ jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()
 }))
 
+jest.mock('hooks/useAllAccountTypes/useAllAccountTypes')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
@@ -95,6 +98,9 @@ describe('useFormSend', () => {
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
       state: { wallet: {} }
+    }))
+    ;(useAllAccountTypes as jest.Mock<unknown>).mockImplementation(() => ({
+      [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
     }))
   })
 

@@ -9,13 +9,15 @@ import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { Withdraw } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
 import { EarnActionsButtons } from 'context/EarnManagerProvider/context/EarnActions/EarnActionsProvider'
 
+import { YearnVaultApi } from '../../api/api'
+
 const steps = [
   { hideNav: true, label: 'Input Amount' },
   { label: 'Confirm' },
   { label: 'Broadcast' }
 ]
 
-export const YearnWithdraw = () => {
+export const YearnWithdraw = ({ api }: { api: YearnVaultApi }) => {
   const history = useHistory()
   const { nextStep, activeStep } = useSteps({ initialStep: 0 })
 
@@ -31,6 +33,10 @@ export const YearnWithdraw = () => {
 
   const handleCancel = () => {
     history.goBack()
+  }
+
+  const handleViewAsset = () => {
+    console.info('view asset')
   }
 
   const asset = {} as Asset
@@ -55,8 +61,6 @@ export const YearnWithdraw = () => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleConfirm}
-            apr='4%'
-            provider='Yearn Finance'
             statusIcon={<ArrowForwardIcon />}
             assets={[
               {
@@ -75,16 +79,26 @@ export const YearnWithdraw = () => {
       case 2:
         return (
           <BroadcastTx
-            fromAsset={asset}
-            loading={false}
             onClose={handleCancel}
-            status='pending'
-            statusText=''
-            toAsset={asset}
-            txid=''
-          >
-            <div>Rows</div>
-          </BroadcastTx>
+            onContinue={handleViewAsset}
+            loading={true}
+            statusText='modals.broadcast.header.pending'
+            statusIcon={<ArrowForwardIcon />}
+            assets={[
+              {
+                ...asset,
+                color: '#FF0000',
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              },
+              {
+                ...asset,
+                color: '#FFFFFF',
+                cryptoAmount: '100',
+                fiatAmount: '100'
+              }
+            ]}
+          />
         )
       default:
         throw new Error('Step does not exist')

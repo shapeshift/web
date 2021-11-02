@@ -8,13 +8,6 @@ export type YearnVault = {
 
 export const vaults: YearnVault[] = [
   {
-    contractAddress: '0xa258C4606Ca8206D8aA700cE2143D7db854D168c',
-    routerAddress: '',
-    decimals: 18,
-    symbol: 'yvWETH',
-    depositToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-  },
-  {
     contractAddress: '0xdA816459F1AB5631232FE5e97a05BBBb94970c95',
     routerAddress: '',
     decimals: 18,
@@ -76,5 +69,12 @@ export const vaults: YearnVault[] = [
     decimals: 18,
     symbol: 'yUSD',
     depositToken: '0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8'
+  },
+  {
+    contractAddress: '0xdb25cA703181E7484a155DD612b06f57E12Be5F0',
+    routerAddress: '',
+    decimals: 18,
+    symbol: 'yvYFI',
+    depositToken: '0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e'
   }
 ]

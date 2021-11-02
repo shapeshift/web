@@ -38,7 +38,8 @@ const formData: SendInput = {
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
-    receiveSupport: true
+    receiveSupport: true,
+    caip19: ''
   },
   feeType: chainAdapters.FeeDataKey.Average,
   estimatedFees: {

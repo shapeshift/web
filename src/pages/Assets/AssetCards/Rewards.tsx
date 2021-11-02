@@ -21,6 +21,7 @@ export const Rewards = () => {
           action: 'deposit',
           provider: 'yearn',
           chain: ChainTypes.Ethereum,
+          contractAddress: '0xa258C4606Ca8206D8aA700cE2143D7db854D168c', // yvWETH vault address
           tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
         }),
         state: { background: location }

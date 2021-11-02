@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.7.0...@shapeshiftoss/types-v1.8.0) (2021-11-02)
+
+
+### Features
+
+* market service market cap functionality ([#153](https://github.com/shapeshift/lib/issues/153)) ([cce22b9](https://github.com/shapeshift/lib/commit/cce22b9398e26ee90c50633941f293e13512a65c))
+
 # [@shapeshiftoss/types-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.6.0...@shapeshiftoss/types-v1.7.0) (2021-11-01)
 
 

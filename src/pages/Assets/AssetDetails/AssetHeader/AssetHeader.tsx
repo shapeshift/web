@@ -35,6 +35,7 @@ import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHist
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
 
 import { AssetActions } from './AssetActions'
+import { SegwitSelectCard } from './SegwitSelectCard'
 
 enum views {
   price = 'price',
@@ -80,6 +81,9 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
         </Flex>
         <AssetActions asset={asset} isLoaded={isLoaded} />
       </Card.Header>
+
+      <SegwitSelectCard chain={chain} />
+
       <Card.Body>
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>

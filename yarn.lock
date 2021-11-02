@@ -3880,6 +3880,11 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.7.0.tgz#132384358a18317522e0658b7262692ef4f10e93"
   integrity sha512-G5zztshIKIrWfKa+z4a5nsrcniVksUniP+f7ZXMJhNgc3qr/baHUk50zn7JVwirFw+EssyTyGcz+ZV3P31wclQ==
 
+"@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.7.0.tgz#132384358a18317522e0658b7262692ef4f10e93"
+  integrity sha512-G5zztshIKIrWfKa+z4a5nsrcniVksUniP+f7ZXMJhNgc3qr/baHUk50zn7JVwirFw+EssyTyGcz+ZV3P31wclQ==
+
 "@shapeshiftoss/unchained-client@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-3.0.0.tgz#867099f8eebab48ea68b3d2430ca079d61680f39"

@@ -75,10 +75,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      // @ts-ignore
-      window.wallet = action.payload.wallet
-      // @ts-ignore
-      window.keyring = state.keyring
       return {
         ...state,
         wallet: action.payload.wallet,

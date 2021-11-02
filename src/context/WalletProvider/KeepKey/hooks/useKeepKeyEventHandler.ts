@@ -46,12 +46,7 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
           break
         default:
           // If there wasn't an enum value, then we'll check the message type
-          switch (e[1].message_type) {
-            case Events.CONNECT:
-              break
-            default:
-              console.info('KeepKey Unknown Event', e)
-          }
+          console.info('KeepKey Unknown Event', e)
       }
     }
 

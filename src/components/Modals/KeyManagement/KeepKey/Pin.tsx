@@ -52,7 +52,6 @@ export const PinModal = ({
     if (pin && pin.length > 0) {
       try {
         // The event handler will pick up the response to the sendPin request
-
         await wallet?.sendPin(pin)
         return close()
       } catch (e) {

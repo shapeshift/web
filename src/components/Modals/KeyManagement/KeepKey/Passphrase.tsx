@@ -11,11 +11,9 @@ import {
   ModalHeader,
   ModalOverlay
 } from '@chakra-ui/react'
-import { Event } from '@shapeshiftoss/hdwallet-core'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
@@ -41,25 +39,6 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
     }
     setLoading(false)
   }
-
-  useEffect(() => {
-    /**
-     * Handle errors reported by the KeepKey
-     * Specifically look for PIN errors that are relevant to this modal
-     */
-    const handleEvent = (e: Event) => {
-      setLoading(false)
-      if (e.message_enum === MessageType.FAILURE) {
-        setError('modals.keepKey.errors.unknown')
-      }
-    }
-
-    state.keyring.on(['KeepKey', deviceId, String(MessageType.FAILURE)], handleEvent)
-
-    return () => {
-      state.keyring.off(['KeepKey', deviceId, String(MessageType.FAILURE)], handleEvent)
-    }
-  }, [deviceId, state.keyring])
 
   return (
     <Modal

@@ -14,7 +14,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -31,20 +31,26 @@ type ReceivePropsType = {
 const Receive = ({ asset }: ReceivePropsType) => {
   const { chain, name, symbol } = asset
   const { state } = useWallet()
-  const [isNativeWallet, setIsNativeWallet] = useState<boolean>(true)
   const [receiveAddress, setReceiveAddress] = useState<string>('')
+  const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
+
+  const { wallet } = state
+  const chainAdapter = chainAdapterManager.byChain(chain)
 
   useEffect(() => {
     ;(async () => {
-      const { wallet } = state
-      if (!wallet) return
-      setIsNativeWallet((await wallet.getLabel()) === 'Native')
-      const chainAdapter = chainAdapterManager.byChain(chain)
-      if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
+      if (!(wallet && chainAdapter)) return
       setReceiveAddress(await chainAdapter.getAddress({ wallet }))
     })()
-  }, [chain, chainAdapterManager, state, setReceiveAddress])
+  }, [chainAdapter, wallet, setReceiveAddress])
+
+  const handleVerify = useCallback(async () => {
+    if (!(wallet && chainAdapter && receiveAddress)) return
+    const deviceAddress = await chainAdapter.getAddress({ wallet, showOnDevice: true })
+
+    setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)
+  }, [receiveAddress, wallet, chainAdapter])
 
   const translate = useTranslate()
   const toast = useToast()
@@ -73,34 +79,6 @@ const Receive = ({ asset }: ReceivePropsType) => {
     }
   }
 
-  const Verify = useMemo(
-    () => (
-      <Button
-        color='gray.500'
-        flexDir='column'
-        role='group'
-        variant='link'
-        _hover={{ textDecoration: 'none', color: hoverColor }}
-        onClick={() =>
-          toast({
-            // TODO(0xdef1cafe): implement this after we support more than native wallet
-            title: 'unimplemented',
-            description: 'unimplemented',
-            status: 'error',
-            duration: 2500,
-            isClosable: true
-          })
-        }
-      >
-        <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
-          <ViewIcon />
-        </Circle>
-        <Text translation='modals.receive.verify' />
-      </Button>
-    ),
-    [bg, hoverColor, toast]
-  )
-
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>
       <ModalOverlay />
@@ -109,45 +87,79 @@ const Receive = ({ asset }: ReceivePropsType) => {
           {translate('modals.receive.receiveAsset', { asset: name })}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody alignItems='center' justifyContent='center'>
-          <Card variant='inverted' width='auto' borderRadius='xl'>
-            <Card.Body>
-              <QRCode text={receiveAddress} />
-            </Card.Body>
-            <Card.Footer textAlign='center' pt={0}>
-              <RawText>{receiveAddress}</RawText>
-            </Card.Footer>
-          </Card>
-        </ModalBody>
-        <ModalFooter flexDir='column'>
-          <Box>
-            <Text
-              translation={[
-                'modals.receive.onlySend',
-                { asset: name, symbol: symbol.toUpperCase() }
-              ]}
-              color='gray.500'
-              textAlign='center'
-            />
-          </Box>
-          <HStack my={6} spacing={8}>
-            <Button
-              onClick={copyHandler}
-              padding={2}
-              color='gray.500'
-              flexDir='column'
-              role='group'
-              variant='link'
-              _hover={{ textDecoration: 'none', color: hoverColor }}
-            >
-              <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
-                <CopyIcon />
-              </Circle>
-              <Text translation='modals.receive.copy' />
-            </Button>
-            {isNativeWallet ? null : Verify}
-          </HStack>
-        </ModalFooter>
+        {wallet && chainAdapter ? (
+          <>
+            <ModalBody alignItems='center' justifyContent='center'>
+              <Card variant='inverted' width='auto' borderRadius='xl'>
+                <Card.Body>
+                  <QRCode text={receiveAddress} />
+                </Card.Body>
+                <Card.Footer textAlign='center' pt={0}>
+                  <RawText>{receiveAddress}</RawText>
+                </Card.Footer>
+              </Card>
+            </ModalBody>
+            <ModalFooter flexDir='column'>
+              <Box>
+                <Text
+                  translation={[
+                    'modals.receive.onlySend',
+                    { asset: name, symbol: symbol.toUpperCase() }
+                  ]}
+                  color='gray.500'
+                  textAlign='center'
+                />
+              </Box>
+              <HStack my={6} spacing={8}>
+                <Button
+                  onClick={copyHandler}
+                  padding={2}
+                  color='gray.500'
+                  flexDir='column'
+                  role='group'
+                  variant='link'
+                  _hover={{ textDecoration: 'none', color: hoverColor }}
+                >
+                  <Circle
+                    bg={bg}
+                    mb={2}
+                    size='40px'
+                    _groupHover={{ bg: 'blue.500', color: 'white' }}
+                  >
+                    <CopyIcon />
+                  </Circle>
+                  <Text translation='modals.receive.copy' />
+                </Button>
+                <Button
+                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                  flexDir='column'
+                  role='group'
+                  variant='link'
+                  _hover={{ textDecoration: 'none', color: hoverColor }}
+                  onClick={handleVerify}
+                >
+                  <Circle
+                    bg={bg}
+                    mb={2}
+                    size='40px'
+                    _groupHover={{ bg: 'blue.500', color: 'white' }}
+                  >
+                    <ViewIcon />
+                  </Circle>
+                  <Text
+                    translation={`modals.receive.${
+                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                    }`}
+                  />
+                </Button>
+              </HStack>
+            </ModalFooter>
+          </>
+        ) : (
+          <ModalBody alignItems='center' justifyContent='center'>
+            <Text translation='modals.receive.unsupportedAsset' />
+          </ModalBody>
+        )}
       </ModalContent>
     </Modal>
   )

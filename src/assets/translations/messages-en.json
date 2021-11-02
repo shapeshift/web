@@ -119,7 +119,9 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
-      "verify": "Verify"
+      "verify": "Verify",
+      "verified": "Verified",
+      "notVerified": "Address Mismatch"
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",

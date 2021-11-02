@@ -108,6 +108,7 @@ export const useSwapper = () => {
       setFees(result, sellAsset)
       setValue('quote', result)
     } else {
+      // TODO: (ryankk) fix errors to reflect correct trade attribute
       setError('useSwapper', { message: TRADE_ERRORS.INSUFFICIENT_FUNDS })
     }
     return result

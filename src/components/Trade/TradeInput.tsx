@@ -8,7 +8,8 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
-import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { Control, Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -21,6 +22,7 @@ import {
   TradeActions,
   useSwapper
 } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
@@ -40,13 +42,14 @@ const FiatInput = (props: InputProps) => (
 
 export const TradeInput = ({ history }: RouterProps) => {
   const {
-    control,
+    control: controlUntyped,
     handleSubmit,
     getValues,
     setValue,
     setError,
     formState: { errors, isDirty, isValid, isSubmitting }
-  } = useFormContext()
+  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  const control = controlUntyped as Control<TradeState<ChainTypes, SwapperType>>
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -82,13 +85,16 @@ export const TradeInput = ({ history }: RouterProps) => {
         result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
       }
     } catch (e) {
-      setError('buildQuote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+      // TODO: (ryankk) correct errors to reflect appropriate attributes
+      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
     }
   }
 
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
+    // TODO: (ryankk) make sure this is the behavior we want
+    if (!currentBuyAsset?.amount) return
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
     setValue('action', action)
     setValue('sellAsset', currentBuyAsset)
@@ -102,7 +108,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     })
   }
 
-  const error = errors?.useSwapper?.message ?? null
+  // TODO:(ryankk) fix error handling
+  const error = errors?.quote?.value ?? null
 
   return (
     <SlideTransition>

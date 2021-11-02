@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -11,6 +11,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
@@ -30,7 +31,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     getValues,
     handleSubmit,
     formState: { isSubmitting }
-  } = useFormContext()
+  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -106,8 +107,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Box textAlign='right'>
                   <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
-                    bn(quote.rate)
-                  )} ${buyAsset.currency.symbol}`}</RawText>
+                    bn(quote?.rate || '')
+                  )} ${buyAsset?.currency?.symbol}`}</RawText>
                   <RawText color='gray.500'>@{trade?.name}</RawText>
                 </Box>
               </Row>
@@ -117,7 +118,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Text translation='trade.minerFee' />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(bn(fees?.fee).times(ethFiatRate).toNumber())}</Row.Value>
+                <Row.Value>
+                  {toFiat(
+                    bn(fees?.fee || '')
+                      .times(ethFiatRate)
+                      .toNumber()
+                  )}
+                </Row.Value>
               </Row>
               <Row>
                 <HelperTooltip label='This is the Shapeshift Fee'>

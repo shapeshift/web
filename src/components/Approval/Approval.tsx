@@ -1,4 +1,5 @@
 import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
@@ -8,6 +9,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
@@ -20,18 +22,15 @@ type ApprovalParams = {
 export const Approval = () => {
   const history = useHistory()
   const location = useLocation<ApprovalParams>()
-  const {
-    handleSubmit,
-    formState: { isSubmitting }
-  } = useFormContext()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const { ethFiatRate } = location.state
 
   const {
     getValues,
-    formState: { errors }
-  } = useFormContext()
+    handleSubmit,
+    formState: { errors, isSubmitting }
+  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
   const {
     number: { toCrypto, toFiat }
@@ -40,7 +39,7 @@ export const Approval = () => {
     state: { wallet }
   } = useWallet()
   const { quote, sellAsset, fees } = getValues()
-  const fee = fees.chainSpecific.approvalFee
+  const fee = fees?.chainSpecific?.approvalFee
   const symbol = sellAsset.currency?.symbol
 
   const approve = async () => {
@@ -51,13 +50,15 @@ export const Approval = () => {
     const interval = setInterval(async () => {
       const approvalNeeded = await checkApprovalNeeded(wallet)
       if (approvalNeeded) return
+      if (!sellAsset.amount) return
       clearInterval(approvalInterval.current as NodeJS.Timeout)
       const result = await buildQuoteTx({
         wallet,
-        sellAsset: quote.sellAsset,
-        buyAsset: quote.buyAsset,
-        amount: sellAsset.amount
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: sellAsset?.amount
       })
+
       if (result?.success) {
         history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
       } else {
@@ -68,7 +69,8 @@ export const Approval = () => {
   }
 
   useEffect(() => {
-    const error = errors?.buildQuote?.message ?? null
+    // TODO: (ryankk) fix errors to reflect correct attribute
+    const error = errors?.quote?.rate ?? null
     if (error) history.push('/trade/input')
   }, [errors, history])
 
@@ -140,7 +142,13 @@ export const Approval = () => {
               <Text color='gray.500' translation='trade.estimatedGasFee' />
             </Row.Label>
             <Row.Value>
-              <RawText>{toFiat(bn(fee).times(ethFiatRate).toNumber())}</RawText>
+              <RawText>
+                {toFiat(
+                  bn(fee ?? '0')
+                    .times(ethFiatRate)
+                    .toNumber()
+                )}
+              </RawText>
               <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
             </Row.Value>
           </Row>

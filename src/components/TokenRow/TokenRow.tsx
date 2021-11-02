@@ -6,7 +6,7 @@ import {
   InputProps,
   InputRightElement
 } from '@chakra-ui/react'
-import { Control, Controller, ControllerProps } from 'react-hook-form'
+import { Control, Controller, ControllerProps, Path } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
@@ -22,9 +22,9 @@ const CryptoInput = (props: InputProps) => (
   />
 )
 
-type TokenRowProps = {
-  control: Control
-  fieldName: string
+type TokenRowProps<C> = {
+  control: Control<C>
+  fieldName: Path<C>
   disabled?: boolean
   rules?: ControllerProps['rules']
   inputLeftElement?: React.ReactNode
@@ -32,7 +32,7 @@ type TokenRowProps = {
   onInputChange?: any
 } & InputGroupProps
 
-export const TokenRow = ({
+export function TokenRow<C>({
   control,
   fieldName,
   rules,
@@ -41,7 +41,7 @@ export const TokenRow = ({
   onInputChange,
   disabled,
   ...rest
-}: TokenRowProps) => {
+}: TokenRowProps<C>) {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -64,8 +64,8 @@ export const TokenRow = ({
               value={value}
               disabled={disabled}
               onValueChange={e => {
-                onInputChange && e.value !== value && onInputChange(e.value)
                 onChange(e.value)
+                onInputChange && e.value !== value && onInputChange(e.value)
               }}
             />
           )

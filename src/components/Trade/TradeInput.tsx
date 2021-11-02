@@ -9,7 +9,7 @@ import {
   InputProps
 } from '@chakra-ui/react'
 import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
-import { Control, Controller, useFormContext, useWatch } from 'react-hook-form'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -42,14 +42,13 @@ const FiatInput = (props: InputProps) => (
 
 export const TradeInput = ({ history }: RouterProps) => {
   const {
-    control: controlUntyped,
+    control,
     handleSubmit,
     getValues,
     setValue,
     setError,
     formState: { errors, isDirty, isValid, isSubmitting }
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
-  const control = controlUntyped as Control<TradeState<ChainTypes, SwapperType>>
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -109,7 +108,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   // TODO:(ryankk) fix error handling
-  const error = errors?.quote?.value ?? null
+  const error = errors?.quote?.value?.message ?? ''
 
   return (
     <SlideTransition>
@@ -148,7 +147,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           <FormErrorMessage>{errors.fiatAmount && errors.fiatAmount.message}</FormErrorMessage>
         </FormControl>
         <FormControl>
-          <TokenRow
+          <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}

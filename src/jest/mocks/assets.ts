@@ -16,8 +16,7 @@ export const rune: Asset = {
   symbol: 'RUNE',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
-  slip44: 60,
-  caip19: ''
+  slip44: 60
 }
 
 export const ethereum: Asset = {
@@ -34,8 +33,7 @@ export const ethereum: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   sendSupport: true,
-  receiveSupport: true,
-  caip19: ''
+  receiveSupport: true
 }
 
 export const aapl: Asset = {
@@ -54,8 +52,7 @@ export const aapl: Asset = {
   sendSupport: true,
   slip44: 60,
   symbol: 'AAPL',
-  tokenId: '0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
-  caip19: ''
+  tokenId: '0x41efc0253ee7ea44400abb5f907fdbfdebc82bec'
 }
 
 export const zero: Asset = {
@@ -74,8 +71,7 @@ export const zero: Asset = {
   sendSupport: true,
   slip44: 60,
   symbol: 'ZERO',
-  tokenId: '0xf0939011a9bb95c3b791f0cb546377ed2693a574',
-  caip19: ''
+  tokenId: '0xf0939011a9bb95c3b791f0cb546377ed2693a574'
 }
 
 export const fox: Asset = {
@@ -94,6 +90,5 @@ export const fox: Asset = {
   sendSupport: true,
   slip44: 60,
   symbol: 'FOX',
-  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  caip19: ''
+  tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 }

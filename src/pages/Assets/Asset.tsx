@@ -30,8 +30,7 @@ const initAsset = {
   slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
-  description: '',
-  caip19: ''
+  description: ''
 }
 
 export const Asset = () => {

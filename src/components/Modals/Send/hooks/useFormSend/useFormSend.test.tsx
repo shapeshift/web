@@ -42,8 +42,7 @@ const formData: SendInput = {
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
-    receiveSupport: true,
-    caip19: ''
+    receiveSupport: true
   },
   feeType: chainAdapters.FeeDataKey.Average,
   estimatedFees: {
@@ -97,9 +96,6 @@ const expectedTx = '0xfakeTxHash'
 
 describe('useFormSend', () => {
   beforeEach(() => {
-    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-      state: { wallet: {} }
-    }))
     ;(useAllAccountTypes as jest.Mock<unknown>).mockImplementation(() => ({
       [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
     }))
@@ -109,6 +105,11 @@ describe('useFormSend', () => {
     return await act(async () => {
       const toaster = jest.fn()
       ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+        state: { wallet: {
+          supportsOfflineSigning: jest.fn().mockReturnValue(true)
+        } }
+      }))
 
       const sendClose = jest.fn()
       ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
@@ -127,10 +128,42 @@ describe('useFormSend', () => {
     })
   })
 
+  it('handles successfully sending a tx without offline signing', async () => {
+    return await act(async () => {
+      const toaster = jest.fn()
+      const signAndBroadcastTransaction = jest.fn()
+      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+        state: { wallet: {
+          supportsOfflineSigning: jest.fn().mockReturnValue(false),
+          supportsBroadcast: jest.fn().mockReturnValue(true)
+        } }
+      }))
+
+      const sendClose = jest.fn()
+      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+        byChain: () => ({
+          buildSendTransaction: () => Promise.resolve(textTxToSign),
+          signAndBroadcastTransaction
+        })
+      }))
+
+      const { result } = renderHook(() => useFormSend())
+      await result.current.handleSend(formData)
+      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+      expect(sendClose).toHaveBeenCalled()
+      expect(signAndBroadcastTransaction).toHaveBeenCalled()
+    })
+  })
+
   it('handles a failure while sending a tx', async () => {
     return await act(async () => {
       const toaster = jest.fn()
       ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+        state: { wallet: {} }
+      }))
 
       const sendClose = jest.fn()
       ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))

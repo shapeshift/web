@@ -15,8 +15,7 @@ export const BTC: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   sendSupport: false,
   receiveSupport: false,
-  symbol: 'BTC',
-  caip19: ''
+  symbol: 'BTC'
 }
 export const WETH: Asset = {
   caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -34,8 +33,7 @@ export const WETH: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   sendSupport: true,
   receiveSupport: true,
-  symbol: 'WETH',
-  caip19: ''
+  symbol: 'WETH'
 }
 export const FOX: Asset = {
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -53,8 +51,7 @@ export const FOX: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   receiveSupport: true,
-  symbol: 'FOX',
-  caip19: ''
+  symbol: 'FOX'
 }
 export const USDC: Asset = {
   caip19: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -72,8 +69,7 @@ export const USDC: Asset = {
   sendSupport: true,
   receiveSupport: true,
   symbol: 'USDC',
-  slip44: 60,
-  caip19: ''
+  slip44: 60
 }
 
 export const ETHCHAIN_QUOTE = {

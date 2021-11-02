@@ -33,7 +33,7 @@ const assets: Asset[] = [
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     sendSupport: false,
-    receiveSupport: false,
+    receiveSupport: false
   },
   {
     caip19: 'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',

@@ -106,9 +106,11 @@ describe('useFormSend', () => {
       const toaster = jest.fn()
       ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
       ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: { wallet: {
-          supportsOfflineSigning: jest.fn().mockReturnValue(true)
-        } }
+        state: {
+          wallet: {
+            supportsOfflineSigning: jest.fn().mockReturnValue(true)
+          }
+        }
       }))
 
       const sendClose = jest.fn()
@@ -134,10 +136,12 @@ describe('useFormSend', () => {
       const signAndBroadcastTransaction = jest.fn()
       ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
       ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: { wallet: {
-          supportsOfflineSigning: jest.fn().mockReturnValue(false),
-          supportsBroadcast: jest.fn().mockReturnValue(true)
-        } }
+        state: {
+          wallet: {
+            supportsOfflineSigning: jest.fn().mockReturnValue(false),
+            supportsBroadcast: jest.fn().mockReturnValue(true)
+          }
+        }
       }))
 
       const sendClose = jest.fn()

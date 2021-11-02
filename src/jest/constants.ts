@@ -14,7 +14,8 @@ export const BTC = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   sendSupport: false,
   receiveSupport: false,
-  symbol: 'BTC'
+  symbol: 'BTC',
+  caip19: ''
 }
 export const WETH = {
   name: 'WETH',
@@ -31,7 +32,8 @@ export const WETH = {
   explorerTxLink: 'https://etherscan.io/tx/',
   sendSupport: true,
   receiveSupport: true,
-  symbol: 'WETH'
+  symbol: 'WETH',
+  caip19: ''
 }
 export const FOX = {
   name: 'Fox',
@@ -48,7 +50,8 @@ export const FOX = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   receiveSupport: true,
-  symbol: 'FOX'
+  symbol: 'FOX',
+  caip19: ''
 }
 export const USDC = {
   name: 'USD Coin',
@@ -65,7 +68,8 @@ export const USDC = {
   sendSupport: true,
   receiveSupport: true,
   symbol: 'USDC',
-  slip44: 60
+  slip44: 60,
+  caip19: ''
 }
 
 export const ETHCHAIN_QUOTE = {

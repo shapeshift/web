@@ -1,5 +1,6 @@
 import { Center } from '@chakra-ui/layout'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import { useEffect, useState } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -21,7 +22,7 @@ export const YearnManager = () => {
     setYearnApi(
       new YearnVaultApi({
         adapter: adapters.byChain(ChainTypes.Ethereum),
-        providerUrl: process.env.REACT_APP_ETHEREUM_NODE_URL!
+        providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL
       })
     )
   }, [adapters])

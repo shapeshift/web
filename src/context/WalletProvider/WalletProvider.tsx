@@ -10,6 +10,8 @@ import React, {
 } from 'react'
 
 import { SUPPORTED_WALLETS } from './config'
+import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
+import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
 export enum WalletActions {
@@ -108,6 +110,8 @@ const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  useKeyringEventHandler(state)
+  useKeepKeyEventHandler(state, dispatch)
 
   useEffect(() => {
     if (state.keyring) {

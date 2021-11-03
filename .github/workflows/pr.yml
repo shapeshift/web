@@ -26,6 +26,8 @@ jobs:
         run: printf '%s' "$TITLE" | npx commitlint
       - name: Lint
         run: yarn lint
+      - name: Type check
+        run: yarn type-check
       - name: Test
         run: yarn test
       - name: Build

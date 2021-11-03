@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.10.0...@shapeshiftoss/chain-adapters-v1.11.0) (2021-11-03)
+
+
+### Features
+
+* dynamic btc fees ([#186](https://github.com/shapeshift/lib/issues/186)) ([c34b4e5](https://github.com/shapeshift/lib/commit/c34b4e517bb54dd7ad8ad5fa84d188c14ddbb1e5))
+
 # [@shapeshiftoss/chain-adapters-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.9.0...@shapeshiftoss/chain-adapters-v1.10.0) (2021-11-02)
 
 

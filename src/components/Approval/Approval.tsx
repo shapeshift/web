@@ -19,6 +19,8 @@ type ApprovalParams = {
   fiatRate: string
 }
 
+const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+
 export const Approval = () => {
   const history = useHistory()
   const location = useLocation<ApprovalParams>()
@@ -116,7 +118,7 @@ export const Approval = () => {
         <Link
           isExternal
           color='blue.500'
-          href='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+          href={APPROVAL_PERMISSION_URL}
         >
           <Text color='blue.500' translation='trade.whyNeedThis' />
         </Link>

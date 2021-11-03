@@ -14,8 +14,11 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { QRCode } from 'components/QRCode/QRCode'
 import { RawText, Text } from 'components/Text'
@@ -23,6 +26,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
+import { ReduxState } from 'state/reducer'
+import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type ReceivePropsType = {
   asset: AssetMarketData
@@ -35,6 +40,10 @@ const Receive = ({ asset }: ReceivePropsType) => {
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const chainAdapterManager = useChainAdapters()
 
+  const currentAccountType: UtxoAccountType = useSelector(
+    (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
+  )
+
   useEffect(() => {
     ;(async () => {
       const { wallet } = state
@@ -42,9 +51,17 @@ const Receive = ({ asset }: ReceivePropsType) => {
       setIsNativeWallet((await wallet.getLabel()) === 'Native')
       const chainAdapter = chainAdapterManager.byChain(chain)
       if (!chainAdapter) throw new Error(`Receive: unsupported chain ${chain}`)
-      setReceiveAddress(await chainAdapter.getAddress({ wallet }))
+      const accountParams = currentAccountType
+        ? utxoAccountParams(asset, currentAccountType, 0)
+        : {}
+      setReceiveAddress(
+        await chainAdapter.getAddress({
+          wallet,
+          ...accountParams
+        })
+      )
     })()
-  }, [chain, chainAdapterManager, state, setReceiveAddress])
+  }, [chain, chainAdapterManager, state, setReceiveAddress, currentAccountType, asset])
 
   const translate = useTranslate()
   const toast = useToast()

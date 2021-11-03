@@ -201,6 +201,10 @@
         "button": "Next"
       }
     },
+    "metaMask": {
+      "header": "Pair your MetaMask wallet",
+      "connectButton": "Connect your MetaMask wallet"
+    },
     "selectModal": {
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
@@ -224,7 +228,10 @@
         "marketCap": "Market Cap",
         "24HrVolume": "24hr Volume",
         "dayChange": "Day Change",
-        "aboutAsset": "About %{asset}"
+        "aboutAsset": "About %{asset}",
+        "segwit": "Segwit",
+        "segwitNative": "Segwit Native",
+        "legacy": "Legacy"
       },
       "assetDescription": {
         "showMore": "Show More",

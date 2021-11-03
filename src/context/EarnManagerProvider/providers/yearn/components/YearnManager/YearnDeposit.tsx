@@ -3,7 +3,7 @@ import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
-import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom'
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -52,7 +52,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [apy, setApy] = useState('0')
   const [userAddress, setUserAddress] = useState<string | null>(null)
   const [, /* values */ setValues] = useState<DepositValues>({} as DepositValues)
-  const depositRoute = useRouteMatch({ path: DepositPath.Deposit, strict: true })
   const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
@@ -67,6 +66,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
   // navigation
   const memoryHistory = useHistory()
+  const location = useLocation()
+  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
 
   useEffect(() => {
     ;(async () => {

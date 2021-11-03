@@ -83,9 +83,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
         </Flex>
         <AssetActions asset={asset} isLoaded={isLoaded} />
       </Card.Header>
-
       <SegwitSelectCard chain={chain} />
-
       <Card.Body>
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
@@ -143,7 +141,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
                     <StatNumber>
-                      {`${fromBaseUnit(balances[id].balance ?? '0', asset.precision)}${
+                      {`${fromBaseUnit(balances[id]?.balance ?? '0', asset.precision)}${
                         asset.symbol
                       }`}
                     </StatNumber>

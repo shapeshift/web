@@ -3,7 +3,6 @@ import { Step, Steps } from 'chakra-ui-steps'
 
 export type StepConfig = {
   label: string
-  hideNav?: boolean
 }
 
 export type StepperState = 'loading' | 'error' | undefined

@@ -1,4 +1,4 @@
-import qs from 'qs'
+import { ChainTypes } from '@shapeshiftoss/types'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -17,6 +17,23 @@ export enum EarnProvider {
   Yearn = 'yearn'
 }
 
+export enum EarnAction {
+  Deposit = 'deposit',
+  Withdraw = 'withdraw'
+}
+
+export type EarnParams = {
+  provider: EarnProvider
+  earnType: EarnType
+  action: EarnAction
+}
+
+export type EarnQueryParams = {
+  chain: ChainTypes
+  contractAddress: string
+  tokenId?: string
+}
+
 type EarnManagerProviderProps = {
   children: React.ReactNode
 }
@@ -32,17 +49,6 @@ const EarnModules = {
   [EarnProvider.Yearn]: YearnManager
 }
 
-// :earn-type, ie staking, pools, vaults, other..
-
-// Allowed Query Params
-// provider i.e yearn
-// chain i.e ethereum
-// action? i.e deposit | withdraw
-// tokenId? i.e usdc contract address
-
-// /earn/:earn-type/?provider=yearn&chain=ethereum&action=deposit
-// /earn/:earn-type/?provider=yearn&chain=ethereum&action=deposit&tokenId=0x123456789abcdef
-
 export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const location = useLocation<{ background: any }>()
   const background = location.state && location.state.background
@@ -51,16 +57,14 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
     <EarnManagerContext.Provider value={null}>
       {children}
       {background && (
-        <>
-          <Route
-            path='/earn/(vault|pool|staking)'
-            render={props => {
-              const { provider } = qs.parse(props.location.search)
-              const Module = EarnModules[provider as EarnProvider]
-              return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
-            }}
-          />
-        </>
+        <Route
+          path='/earn/:earnType/:provider/:action'
+          render={({ match: { params } }) => {
+            const { provider } = params
+            const Module = EarnModules[provider as EarnProvider]
+            return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
+          }}
+        />
       )}
     </EarnManagerContext.Provider>
   )

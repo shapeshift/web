@@ -20,7 +20,7 @@ describe('selectTxHistoryById', () => {
     const txsEth = selectTxHistoryById(store, ChainTypes.Ethereum, ChainTypes.Ethereum)
     expect(txsEth.length).toBe(2)
 
-    const txs = selectTxHistoryById(store, ChainTypes.Ethereum, tokenId)
+    const txs = selectTxHistoryById(store, ChainTypes.Ethereum, tokenId.toLowerCase())
     expect(txs.length).toBe(1)
   })
 })

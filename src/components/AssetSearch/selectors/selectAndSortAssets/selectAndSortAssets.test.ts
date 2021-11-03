@@ -6,10 +6,10 @@ import { selectAndSortAssets } from './selectAndSortAssets'
 const store = {
   ...mockStore,
   assets: {
-    [rune.tokenId]: rune,
-    [aapl.tokenId]: aapl,
-    [ethereum.chain]: ethereum,
-    [zero.tokenId]: zero
+    [rune.tokenId as string]: rune,
+    [aapl.tokenId as string]: aapl,
+    [ethereum.chain as string]: ethereum,
+    [zero.tokenId as string]: zero
   }
 }
 

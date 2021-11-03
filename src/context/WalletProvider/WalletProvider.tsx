@@ -1,8 +1,5 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import React, {
   createContext,
   useCallback,
@@ -13,6 +10,8 @@ import React, {
 } from 'react'
 
 import { SUPPORTED_WALLETS } from './config'
+import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
+import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
 export enum WalletActions {
@@ -28,7 +27,7 @@ export enum WalletActions {
 export interface InitialState {
   keyring: Keyring
   adapters: Record<string, unknown> | null
-  wallet: HDWallet | NativeHDWallet | MetaMaskHDWallet | PortisHDWallet | null
+  wallet: HDWallet | null
   type: string | null
   initalRoute: string | null
   walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps>; deviceId: string } | null
@@ -111,6 +110,8 @@ const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  useKeyringEventHandler(state)
+  useKeepKeyEventHandler(state, dispatch)
 
   useEffect(() => {
     if (state.keyring) {

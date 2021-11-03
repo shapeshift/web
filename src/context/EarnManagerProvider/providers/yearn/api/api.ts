@@ -12,6 +12,7 @@ import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
 import {
   Allowanceinput,
+  ApproveEstimatedGasInput,
   ApproveInput,
   APYInput,
   BalanceInput,
@@ -24,7 +25,6 @@ export type ConstructorArgs = {
   providerUrl: string
 }
 
-// contract interaction layer
 export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
@@ -51,12 +51,17 @@ export class YearnVaultApi {
   }
 
   findByVaultTokenId(tokenId: string) {
-    const vault = vaults.find((item: YearnVault) => item.contractAddress === tokenId)
+    const vault = vaults.find((item: YearnVault) => item.vaultAddress === tokenId)
     if (!vault) throw new Error(`Vault for ${tokenId} isn't supported`)
     return vault
   }
 
-  async approveEstimatedGas(input: ApproveInput): Promise<BigNumber> {
+  async getGasPrice() {
+    const gasPrice = await this.web3.eth.getGasPrice()
+    return bnOrZero(gasPrice)
+  }
+
+  async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const estimatedGas = await depositTokenContract.methods
@@ -66,16 +71,17 @@ export class YearnVaultApi {
       })
     return bnOrZero(estimatedGas)
   }
+
   async approve(input: ApproveInput): Promise<string> {
     const {
-      bip32Params,
+      accountNumber = 0,
       dryRun = false,
       spenderAddress,
       tokenContractAddress,
       userAddress,
       wallet
     } = input
-    if (!wallet || !bip32Params) throw new Error('Missing inputs')
+    if (!wallet) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.approveEstimatedGas(input)
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const data: string = depositTokenContract.methods
@@ -87,7 +93,7 @@ export class YearnVaultApi {
     const gasPrice: string = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params,
+      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -100,24 +106,37 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
+
   async allowance(input: Allowanceinput): Promise<string> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
     const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
   }
-  async depositEstimatedGas(input: DepositInput): Promise<BigNumber> {
+
+  async depositEstimatedGas(
+    input: Omit<DepositInput, 'bip32Params' | 'wallet' | 'tokenContractAddress'>
+  ): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
       .deposit(amountDesired.toString(), userAddress)
       .estimateGas({
+        value: 0,
         from: userAddress
       })
     return bnOrZero(estimatedGas)
   }
+
   async deposit(input: DepositInput): Promise<string> {
-    const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
-    if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
+    const {
+      amountDesired,
+      accountNumber = 0,
+      dryRun = false,
+      vaultAddress,
+      userAddress,
+      wallet
+    } = input
+    if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.depositEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = await vaultContract.methods
@@ -129,7 +148,7 @@ export class YearnVaultApi {
     const gasPrice = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params,
+      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -142,6 +161,7 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
+
   async withdrawEstimatedGas(input: WithdrawInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
@@ -154,8 +174,15 @@ export class YearnVaultApi {
   }
 
   async withdraw(input: WithdrawInput): Promise<string> {
-    const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
-    if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
+    const {
+      amountDesired,
+      accountNumber = 0,
+      dryRun = false,
+      vaultAddress,
+      userAddress,
+      wallet
+    } = input
+    if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.withdrawEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = vaultContract.methods
@@ -167,7 +194,7 @@ export class YearnVaultApi {
     const gasPrice = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params,
+      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -180,17 +207,20 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
+
   async balance(input: BalanceInput): Promise<BigNumber> {
     const { vaultAddress, userAddress } = input
     const contract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const balance = await contract.methods.balanceOf(userAddress).call()
     return bnOrZero(balance)
   }
+
   async totalSupply({ contractAddress }: { contractAddress: string }): Promise<BigNumber> {
     const contract = new this.web3.eth.Contract(erc20Abi, contractAddress)
     const totalSupply = await contract.methods.totalSupply().call()
     return bnOrZero(totalSupply)
   }
+
   async apy(input: APYInput): Promise<string> {
     const response = await this.yearnClient.get(`/chains/1/vaults/all`)
     const vaultsData = response?.data

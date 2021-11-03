@@ -35,6 +35,7 @@ import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHist
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
 
 import { AssetActions } from './AssetActions'
+import { SegwitSelectCard } from './SegwitSelectCard'
 
 enum views {
   price = 'price',
@@ -73,13 +74,16 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
                 {name}
               </Heading>
             </Skeleton>
-            <RawText fontSize='lg' color='gray.500' textTransform='uppercase' lineHeight={1}>
-              <Skeleton isLoaded={isLoaded}>{symbol}</Skeleton>
-            </RawText>
+            <Skeleton isLoaded={isLoaded}>
+              <RawText fontSize='lg' color='gray.500' textTransform='uppercase' lineHeight={1}>
+                {symbol}
+              </RawText>
+            </Skeleton>
           </Box>
         </Flex>
         <AssetActions asset={asset} isLoaded={isLoaded} />
       </Card.Header>
+      <SegwitSelectCard chain={chain} />
       <Card.Body>
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
@@ -137,7 +141,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
                     <StatNumber>
-                      {`${fromBaseUnit(balances[id].balance ?? '0', asset.precision)}${
+                      {`${fromBaseUnit(balances[id]?.balance ?? '0', asset.precision)}${
                         asset.symbol
                       }`}
                     </StatNumber>

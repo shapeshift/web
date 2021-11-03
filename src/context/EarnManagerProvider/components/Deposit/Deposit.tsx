@@ -1,11 +1,13 @@
-import { Button, ButtonGroup, IconButton } from '@chakra-ui/button'
 import {
   Box,
+  Button,
+  ButtonGroup,
   Divider,
   Flex,
   FormControl,
   FormHelperText,
   FormLabel,
+  IconButton,
   Input,
   InputGroup,
   InputLeftElement,
@@ -23,8 +25,10 @@ import {
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { Asset, MarketData } from '@shapeshiftoss/types'
+import get from 'lodash/get'
+import { useRef, useState } from 'react'
+import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -36,36 +40,26 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-
-type PercentAmounts = 25 | 50 | 75 | 100
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type DepositProps = {
   asset: Asset
   // Estimated apy (Deposit Only)
-  apy?: string // mocks dont show this anymore
-  // Estimated fiat yield amount (Deposit Only)
-  estimatedFiatYield: string
-  // Estimated crypto yield amount (Deposit Only)
-  estimatedCryptoYield: string
-  // Users amount to Deposit or remove
-  fiatAmount: string
-  // Users available amount
-  fiatAmountAvailable: string
-  // Fiat Deposit and Gas Fees Total
-  fiatTotalPlusFees: string
-  // Users amount to Deposit or remove
-  cryptoAmount: string
+  apy: string
   // Users available amount
   cryptoAmountAvailable: string
-  // Current Slippage
-  slippage: number | string
+  // Validation rules for the crypto input
+  cryptoInputValidation?: ControllerProps['rules']
+  // Users available amount
+  fiatAmountAvailable: string
+  // Validation rules for the fiat input
+  fiatInputValidation?: ControllerProps['rules']
+  // Asset market data
+  marketData: MarketData
   // Array of the % options
-  maxOptions: string[]
-  onContinue(): void
+  percentOptions: number[]
+  onContinue(values: DepositValues): void
   onCancel(): void
-  onSlippageChange(slippage: number | string): void
-  onPercentClick(percent: PercentAmounts): void
-  onCurrencyToggle(): void
 }
 
 const CryptoInput = (props: InputProps) => (
@@ -81,43 +75,145 @@ const CryptoInput = (props: InputProps) => (
   />
 )
 
+enum InputType {
+  Crypto = 'crypto',
+  Fiat = 'fiat'
+}
+
+enum Field {
+  FiatAmount = 'fiatAmount',
+  CryptoAmount = 'cryptoAmount',
+  Slippage = 'slippage'
+}
+
+export type DepositValues = {
+  [Field.FiatAmount]: string
+  [Field.CryptoAmount]: string
+  [Field.Slippage]: string
+}
+
+function calculateYearlyYield(apy: string, amount: string = '') {
+  return bnOrZero(amount).times(apy).toString()
+}
+
 export const Deposit = ({
+  apy,
+  asset,
+  marketData,
+  cryptoAmountAvailable,
+  cryptoInputValidation,
+  fiatAmountAvailable,
+  fiatInputValidation,
   onContinue,
   onCancel,
-  slippage,
-  maxOptions,
-  onSlippageChange,
-  onCurrencyToggle
+  percentOptions
 }: DepositProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const translate = useTranslate()
-  const [cryptoValue, setCryptoValue] = useState('')
+  const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
+  const [percent, setPercent] = useState<number | null>(null)
+  const amountRef = useRef<string | null>(null)
+
+  const {
+    clearErrors,
+    control,
+    formState: { errors, isValid },
+    handleSubmit,
+    setError,
+    setValue
+  } = useForm<DepositValues>({
+    mode: 'onChange',
+    defaultValues: {
+      [Field.FiatAmount]: '',
+      [Field.CryptoAmount]: '',
+      [Field.Slippage]: '0.5' // default slippage
+    }
+  })
+
+  const values = useWatch({ control })
+  const cryptoField = activeField === InputType.Crypto
+  const cryptoError = get(errors, 'cryptoAmount.message', null)
+  const fiatError = get(errors, 'fiatAmount.message', null)
+  const fieldError = cryptoError || fiatError
+
+  const handleInputToggle = () => {
+    const field = cryptoField ? InputType.Fiat : InputType.Crypto
+    if (fieldError) {
+      // Toggles an existing error to the other field if present
+      clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
+      setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
+        message: 'common.insufficientFunds'
+      })
+    }
+    setActiveField(field)
+  }
+
+  const handleInputChange = (value: string) => {
+    setPercent(null)
+    if (cryptoField) {
+      const fiat = bnOrZero(value).times(marketData.price)
+      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+    } else {
+      const crypto = bnOrZero(value).div(marketData.price)
+      setValue(Field.CryptoAmount, crypto.toString(), { shouldValidate: true })
+    }
+  }
+
+  const handlePercentClick = (_percent: number) => {
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(_percent)
+    const fiat = bnOrZero(cryptoAmount).times(marketData.price)
+    if (cryptoField) {
+      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+    } else {
+      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+    }
+    setPercent(_percent)
+  }
+
+  const handleSlippageChange = (value: string | number) => {
+    setValue(Field.Slippage, String(value))
+  }
+
+  const onSubmit = (values: DepositValues) => {
+    onContinue(values)
+  }
+
+  const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
+  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
 
   return (
     <SlideTransition>
-      <Box maxWidth='lg' width='full'>
+      <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
         <ModalBody>
           <Card size='sm' width='full' variant='group' my={6}>
             <Card.Body>
               <Flex alignItems='center'>
-                <AssetIcon symbol='usdc' boxSize='40px' />
+                <AssetIcon src={asset.icon} boxSize='40px' />
                 <Box ml={2}>
                   <RawText fontWeight='bold' lineHeight='1' mb={1}>
-                    USD Coin
+                    {asset.name}
                   </RawText>
                   <RawText color='gray.500' lineHeight='1'>
-                    USDC
+                    {asset.symbol}
                   </RawText>
                 </Box>
                 <Box ml='auto' textAlign='right'>
-                  <RawText fontWeight='bold' lineHeight='1' mb={1}>
-                    $17,250.00
-                  </RawText>
-                  <RawText color='gray.500' lineHeight='1'>
-                    17,250 USDC
-                  </RawText>
+                  <Amount.Fiat
+                    fontWeight='bold'
+                    lineHeight='1'
+                    mb={1}
+                    value={fiatAmountAvailable}
+                  />
+                  <Amount.Crypto
+                    color='gray.500'
+                    lineHeight='1'
+                    symbol={asset.symbol}
+                    value={cryptoAmountAvailable}
+                  />
                 </Box>
               </Flex>
             </Card.Body>
@@ -132,11 +228,16 @@ export const Deposit = ({
                 as='button'
                 type='button'
                 color='gray.500'
-                onClick={onCurrencyToggle}
+                onClick={handleInputToggle}
                 textTransform='uppercase'
                 _hover={{ color: 'gray.400', transition: '.2s color ease' }}
               >
-                <Amount.Crypto value='1000' symbol={'USDC'} />
+                {/* This should display the opposite field */}
+                {cryptoField ? (
+                  <Amount.Fiat value={values?.fiatAmount || ''} />
+                ) : (
+                  <Amount.Crypto value={values?.cryptoAmount || ''} symbol={asset.symbol} />
+                )}
               </FormHelperText>
             </Box>
             <VStack
@@ -154,22 +255,64 @@ export const Deposit = ({
                     size='sm'
                     variant='ghost'
                     textTransform='uppercase'
-                    onClick={onCurrencyToggle}
+                    onClick={handleInputToggle}
                     width='full'
                   >
-                    USDC
+                    {cryptoField ? asset.symbol : 'USD'}
                   </Button>
                 </InputLeftElement>
-                <NumberFormat
-                  inputMode='decimal'
-                  thousandSeparator={localeParts.group}
-                  decimalSeparator={localeParts.decimal}
-                  customInput={CryptoInput}
-                  value={cryptoValue}
-                  onValueChange={e => {
-                    setCryptoValue(e.value)
-                  }}
-                />
+                {cryptoField && (
+                  <Controller
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <NumberFormat
+                          customInput={CryptoInput}
+                          decimalSeparator={localeParts.decimal}
+                          inputMode='decimal'
+                          thousandSeparator={localeParts.group}
+                          value={value}
+                          onChange={e => {
+                            onChange(amountRef.current)
+                            handleInputChange(amountRef.current as string)
+                            amountRef.current = null
+                          }}
+                          onValueChange={e => {
+                            amountRef.current = e.value
+                          }}
+                        />
+                      )
+                    }}
+                    name={Field.CryptoAmount}
+                    control={control}
+                    rules={cryptoInputValidation}
+                  />
+                )}
+                {!cryptoField && (
+                  <Controller
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <NumberFormat
+                          customInput={CryptoInput}
+                          decimalSeparator={localeParts.decimal}
+                          inputMode='decimal'
+                          thousandSeparator={localeParts.group}
+                          value={bnOrZero(value).toFixed(2)}
+                          onChange={e => {
+                            onChange(amountRef.current)
+                            handleInputChange(amountRef.current as string)
+                            amountRef.current = null
+                          }}
+                          onValueChange={e => {
+                            amountRef.current = e.value
+                          }}
+                        />
+                      )
+                    }}
+                    name={Field.FiatAmount}
+                    control={control}
+                    rules={fiatInputValidation}
+                  />
+                )}
                 <InputRightElement>
                   <Popover>
                     <PopoverTrigger>
@@ -184,19 +327,39 @@ export const Deposit = ({
                       <PopoverArrow />
                       <PopoverCloseButton />
                       <PopoverHeader>
-                        <RawText fontSize='sm'>Slippage Settings</RawText>
+                        {/* TODO translate */}
+                        <Text fontSize='sm' translation='modals.deposit.slippageSettings' />
                       </PopoverHeader>
                       <PopoverBody>
-                        <Slippage onSlippageChange={onSlippageChange} value={slippage} />
+                        <Slippage
+                          onChange={handleSlippageChange}
+                          value={values?.slippage || '0.5'}
+                        />
                       </PopoverBody>
                     </PopoverContent>
                   </Popover>
                 </InputRightElement>
               </InputGroup>
               <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
-                {maxOptions.map(option => (
-                  <Button variant='ghost' colorScheme='blue'>
-                    {option}
+                {percentOptions.map(option => (
+                  <Button
+                    isActive={option === percent}
+                    key={option}
+                    variant='ghost'
+                    colorScheme='blue'
+                    onClick={() => handlePercentClick(option)}
+                  >
+                    {option === 1 ? (
+                      'Max'
+                    ) : (
+                      <Amount.Percent
+                        value={option}
+                        options={{
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        }}
+                      />
+                    )}
                   </Button>
                 ))}
               </ButtonGroup>
@@ -204,12 +367,13 @@ export const Deposit = ({
                 <Row.Label>{translate('modals.deposit.estimatedReturns')}</Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
-                    <RawText fontWeight='bold' lineHeight='1' mb={1}>
-                      $0.00
-                    </RawText>
-                    <RawText color='gray.500' lineHeight='1'>
-                      0.0 USDC
-                    </RawText>
+                    <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
+                    <Amount.Crypto
+                      value={cryptoYield}
+                      symbol={asset.symbol}
+                      color='gray.500'
+                      lineHeight='1'
+                    />
                   </Box>
                 </Row.Value>
               </Row>
@@ -219,7 +383,7 @@ export const Deposit = ({
             </VStack>
           </FormControl>
         </ModalBody>
-        <ModalFooter flexDir='column' borderTopWidth={1} borderColor='gray.750'>
+        <ModalFooter flexDir='column'>
           <Text
             fontSize='sm'
             color='gray.500'
@@ -228,8 +392,15 @@ export const Deposit = ({
             textAlign='center'
             translation='modals.deposit.footerDisclaimer'
           />
-          <Button onClick={onContinue} size='lg' colorScheme='blue' mb={2} width='full'>
-            {translate('common.continue')}
+          <Button
+            colorScheme={fieldError ? 'red' : 'blue'}
+            isDisabled={!isValid}
+            mb={2}
+            size='lg'
+            type='submit'
+            width='full'
+          >
+            {translate(fieldError || 'common.continue')}
           </Button>
           <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
             {translate('common.cancel')}

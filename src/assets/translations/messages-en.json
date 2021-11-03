@@ -1,240 +1,309 @@
 {
-  "common": {
-    "back": "Back",
-    "next": "Next",
-    "error": "Error",
-    "cancel": "Cancel",
-    "continue": "Continue",
-    "confirm": "Confirm",
-    "noResultsFound": "No results found.",
-    "insufficientFunds": "Insufficient Funds",
-    "invalidAddress": "Invalid Address",
-    "deposit": "Deposit",
-    "withdraw": "Withdraw"
-  },
-  "dashboard": {
-    "portfolio": {
-      "addAsset": "Add Asset",
-      "yourAssets": "Your Assets",
-      "asset": "Asset",
-      "portfolioBalance": "Portfolio Balance",
-      "balance": "Balance",
-      "price": "Price",
-      "allocation": "Allocation"
+    "common": {
+        "back": "Back",
+        "next": "Next",
+        "error": "Error",
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "confirm": "Confirm",
+        "noResultsFound": "No results found.",
+        "insufficientFunds": "Insufficient Funds",
+        "invalidAddress": "Invalid Address",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw"
     },
-    "recentTransactions": {
-      "recentTransactions": "Recent Transactions"
-    }
-  },
-  "navBar": {
-    "dashboard": "Dashboard",
-    "assets": "Assets",
-    "earn": "Earn",
-    "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
-  },
-  "transactionRow": {
-    "send": "Sent",
-    "receive": "Received",
-    "moreDetails": "More Details",
-    "date": "Date",
-    "txid": "Transaction ID",
-    "fee": "Fee",
-    "status": "Status",
-    "confirmed": "Confirmed",
-    "pending": "pending",
-    "failed": "Failed",
-    "network": "Network",
-    "blockHeight": "Block Height",
-    "to": "To",
-    "from": "From"
-  },
-  "trade": {
-    "searchingRate": "Searching for best rate...",
-    "previewTrade": "Preview Trade",
-    "errors": {
-      "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
-      "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
-      "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
-      "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
-      "insufficientFunds": "Insufficient funds for miner fee and amount",
-      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
-      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
-      "noLiquidityError": "Not enough liquidity available",
-      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
-      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
-      "dexTradeFailed": "Trade Failed, Tokens Returned",
-      "quoteFailed": "An error occurred getting a quote for your trade."
-    }
-  },
-  "modals": {
-    "send": {
-      "getBalanceError": "Error getting wallet balances",
-      "broadcastingTransaction": "Broadcasting Transaction",
-      "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "Token Address",
-      "scanQrCode": "Scan QR Code",
-      "sent": "%{asset} sent",
-      "errorTitle": "Something went wrong",
-      "errorDescription": "Your send of %{asset} failed.",
-      "confirm": {
-        "sendAsset": "Send %{asset}",
-        "send": "Send",
-        "sendTo": "Send To",
-        "edit": "Edit",
-        "total": "Total",
-        "amount": "Amount",
-        "transactionFee": "Transaction Fee",
-        "fees": "Fees %{feeType}"
-      },
-      "sendForm": {
-        "sendAsset": "Send %{asset}",
-        "sendTo": "Send To",
-        "sendAmount": "Send Amount",
-        "max": "Max",
-        "transactionFee": "Transaction Fee",
-        "slow": "Slow",
-        "average": "Average",
-        "fast": "Fast",
-        "enterAmount": "Enter Amount"
-      }
+    "dashboard": {
+        "portfolio": {
+            "addAsset": "Add Asset",
+            "yourAssets": "Your Assets",
+            "asset": "Asset",
+            "portfolioBalance": "Portfolio Balance",
+            "balance": "Balance",
+            "price": "Price",
+            "allocation": "Allocation"
+        },
+        "recentTransactions": {
+            "recentTransactions": "Recent Transactions"
+        }
     },
-    "receive": {
-      "connectAWallet": "Connect a wallet to receive %{symbol}",
-      "receiveAsset": "Receive %{asset}",
-      "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
-      "copy": "Copy",
-      "copied": "%{symbol} receive address copied to clipboard",
-      "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
-      "copyFailedDescription": "Please copy the address manually",
-      "setAmount": "Set Amount",
-      "verify": "Verify"
+    "navBar": {
+        "dashboard": "Dashboard",
+        "assets": "Assets",
+        "earn": "Earn",
+        "tradeHistory": "Trade History",
+        "foxToken": "FOX Token"
     },
-    "deposit": {
-      "amountToDeposit": "Amount To Deposit",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service."
+    "transactionRow": {
+        "send": "Sent",
+        "receive": "Received",
+        "moreDetails": "More Details",
+        "date": "Date",
+        "txid": "Transaction ID",
+        "fee": "Fee",
+        "status": "Status",
+        "confirmed": "Confirmed",
+        "pending": "pending",
+        "failed": "Failed",
+        "network": "Network",
+        "blockHeight": "Block Height",
+        "to": "To",
+        "from": "From"
     },
-    "approve": {
-      "header": "Allow ShapeShift.io to Spend Your %{asset}",
-      "body": "We need your permission to use your %{asset}",
-      "learnMore": "Why do I need to do this?",
-      "estimatedGas": "Estimated Gas Fee",
-      "confirm": "Confirm",
-      "reject": "Reject"
-    }
-  },
-  "walletProvider": {
-    "keepKey": {
-      "header": "Enter Your Pin",
-      "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
-      "button": "Unlock"
+    "trade": {
+        "searchingRate": "Searching for best rate...",
+        "previewTrade": "Preview Trade",
+        "errors": {
+            "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
+            "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
+            "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
+            "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
+            "insufficientFunds": "Insufficient funds for miner fee and amount",
+            "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
+            "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+            "noLiquidityError": "Not enough liquidity available",
+            "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
+            "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
+            "dexTradeFailed": "Trade Failed, Tokens Returned",
+            "quoteFailed": "An error occurred getting a quote for your trade."
+        }
     },
-    "shapeShift": {
-      "nativeImport": {
-        "header": "Import your wallet",
-        "body": "Enter your 12 word seed phrase to import an exisiting wallet",
-        "button": "Next"
-      },
-      "nativePasswd": {
-        "header": "Enter your password",
-        "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
-        "button": "Next"
-      },
-      "nativePassReq": {
-        "header": "Enter your password",
-        "body": "Enter your native wallet password to decrypt the wallet stored in your browser.",
-        "button": "Next",
-        "minLength": "Minimum length should be 8",
-        "required": "This is required",
-        "placeholder": "Enter password",
-        "showPassword": "Show password",
-        "hidePassword": "Hide password"
-      },
-      "nativeSeed": {
-        "header": "Your seed phrase",
-        "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next"
-      },
-      "nativeStart": {
-        "header": "Create or import a wallet",
-        "body": "Would you like to create a new wallet or import an existing one?",
-        "button": "Import Wallet",
-        "button2": "Create Wallet"
-      },
-      "nativeSuccess": {
-        "header": "Wallet Conected",
-        "success": "Your wallet has been connected",
-        "error": "There was an error connecting your wallet"
-      },
-      "nativeTestPhrase": {
-        "header": "Let's practice your secret phrase",
-        "body": "Which of these is the",
-        "body2": " word",
-        "body3": "in your secret phrase.",
-        "button": "Next"
-      }
+    "modals": {
+        "keepKey": {
+            "passphrase": {
+                "errors": {
+                    "unknown": "There was an error setting your passphrase",
+                    "empty": "You are using an empty passphrase"
+                },
+                "header": "Enter Your Passphrase",
+                "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
+                "button": "Set Passphrase"
+            }
+        },
+        "send": {
+            "getBalanceError": "Error getting wallet balances",
+            "broadcastingTransaction": "Broadcasting Transaction",
+            "youHaveSent": "You have successfully sent %{amount} %{symbol}",
+            "tokenAddress": "Token Address",
+            "scanQrCode": "Scan QR Code",
+            "sent": "%{asset} sent",
+            "errorTitle": "Something went wrong",
+            "errorDescription": "Your send of %{asset} failed.",
+            "confirm": {
+                "sendAsset": "Send %{asset}",
+                "send": "Send",
+                "sendTo": "Send To",
+                "edit": "Edit",
+                "total": "Total",
+                "amount": "Amount",
+                "transactionFee": "Transaction Fee",
+                "fees": "Fees %{feeType}"
+            },
+            "sendForm": {
+                "sendAsset": "Send %{asset}",
+                "sendTo": "Send To",
+                "sendAmount": "Send Amount",
+                "max": "Max",
+                "transactionFee": "Transaction Fee",
+                "slow": "Slow",
+                "average": "Average",
+                "fast": "Fast",
+                "enterAmount": "Enter Amount"
+            }
+        },
+        "receive": {
+            "connectAWallet": "Connect a wallet to receive %{symbol}",
+            "receiveAsset": "Receive %{asset}",
+            "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
+            "copy": "Copy",
+            "copied": "%{symbol} receive address copied to clipboard",
+            "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
+            "copyFailedDescription": "Please copy the address manually",
+            "setAmount": "Set Amount",
+            "verify": "Verify",
+            "verified": "Verified",
+            "notVerified": "Address Mismatch"
+        },
+        "deposit": {
+            "amountToDeposit": "Amount To Deposit",
+            "estimatedReturns": "Estimated Yearly Returns*",
+            "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
+            "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service.",
+            "slippageSettings": "Slippage Settings"
+        },
+        "approve": {
+            "header": "Allow ShapeShift.io to Spend Your %{asset}",
+            "body": "We need your permission to use your %{asset}",
+            "learnMore": "Why do I need to do this?",
+            "estimatedGas": "Estimated Gas Fee",
+            "confirm": "Confirm",
+            "reject": "Reject"
+        },
+        "confirm": {
+            "header": "Confirm Deposit",
+            "depositTo": "Deposit To",
+            "averageApr": "Average APR",
+            "estimatedReturns": "Estimated Yearly Returns*",
+            "estimatedGas": "Estimated Gas Fee",
+            "preFooter": "Rewards acure automatically",
+            "signBroadcast": "Sign & Broadcast",
+            "cancel": "Cancel"
+        },
+        "broadcast": {
+            "header": {
+                "pending": "Broadcasting Transaction",
+                "success": "Successfully Broadcast Transaction",
+                "error": "Error Broadcasting Transaction"
+            },
+            "depositTo": "Deposit To",
+            "transactionId": "TX ID",
+            "averageApr": "Average APR",
+            "estimatedReturns": "Estimated Yearly Returns*",
+            "estimatedGas": "Estimated Gas Fee",
+            "continue": "View My Position",
+            "close": "Close"
+        }
     },
-    "metaMask": {
-      "header": "Pair your MetaMask wallet",
-      "connectButton": "Connect your MetaMask wallet"
+    "walletProvider": {
+        "errors": {
+            "walletNotFound": "Unable to communicate with your wallet"
+        },
+        "keepKey": {
+            "errors": {
+                "unknown": "An unexpected error occurred communicating with your KeepKey",
+                "pinCancelled": "PIN entry was cancelled",
+                "pinInvalid": "The PIN you entered is not valid",
+                "pinMismatch": "The two PINs you entered do not match"
+            },
+            "connect": {
+                "header": "Pair Your KeepKey",
+                "body": "Click Pair then select your KeepKey from the popup window",
+                "button": "Pair"
+            },
+            "pin": {
+                "header": "Enter Your Pin",
+                "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+                "button": "Unlock"
+            },
+            "newPin": {
+                "header": "Enter Your New Pin",
+                "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+                "button": "Confirm"
+            },
+            "newPinConfirm": {
+                "header": "Confirm Your New Pin",
+                "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+                "button": "Save PIN"
+            }
+        },
+        "shapeShift": {
+            "nativeImport": {
+                "header": "Import your wallet",
+                "body": "Enter your 12 word seed phrase to import an exisiting wallet",
+                "button": "Next"
+            },
+            "nativePasswd": {
+                "header": "Enter your password",
+                "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
+                "button": "Next"
+            },
+            "nativePassReq": {
+                "header": "Enter your password",
+                "body": "Enter your native wallet password to decrypt the wallet stored in your browser.",
+                "button": "Next",
+                "minLength": "Minimum length should be 8",
+                "required": "This is required",
+                "placeholder": "Enter password",
+                "showPassword": "Show password",
+                "hidePassword": "Hide password"
+            },
+            "nativeSeed": {
+                "header": "Your seed phrase",
+                "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
+                "button": "Next"
+            },
+            "nativeStart": {
+                "header": "Create or import a wallet",
+                "body": "Would you like to create a new wallet or import an existing one?",
+                "button": "Import Wallet",
+                "button2": "Create Wallet"
+            },
+            "nativeSuccess": {
+                "header": "Wallet Conected",
+                "success": "Your wallet has been connected",
+                "error": "There was an error connecting your wallet"
+            },
+            "nativeTestPhrase": {
+                "header": "Let's practice your secret phrase",
+                "body": "Which of these is the",
+                "body2": " word",
+                "body3": "in your secret phrase.",
+                "button": "Next"
+            }
+        },
+        "metaMask": {
+            "header": "Pair your MetaMask wallet",
+            "connectButton": "Connect your MetaMask wallet"
+        },
+
+        "portis": {
+            "header": "Pair your Portis wallet",
+            "connectButton": "Connect your Portis wallet"
+        },
+
+        "selectModal": {
+            "header": "Connect a wallet",
+            "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
+        }
     },
-    "portis": {
-      "header": "Pair your Portis wallet",
-      "connectButton":"Connect your Portis wallet"
+    "graph": {
+        "timeControls": {
+            "1H": "1H",
+            "24H": "24H",
+            "1W": "1W",
+            "1M": "1M",
+            "1Y": "1Y",
+            "all": "All"
+        }
     },
-    "selectModal": {
-      "header": "Connect a wallet",
-      "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
-    }
-  },
-  "graph": {
-    "timeControls": {
-      "1H": "1H",
-      "24H": "24H",
-      "1W": "1W",
-      "1M": "1M",
-      "1Y": "1Y",
-      "all": "All"
-    }
-  },
-  "assets": {
-    "assetDetails": {
-      "assetHeader": {
-        "balance": "Balance",
-        "price": "Price",
-        "marketCap": "Market Cap",
-        "24HrVolume": "24hr Volume",
-        "dayChange": "Day Change",
-        "aboutAsset": "About %{asset}"
-      },
-      "assetDescription": {
-        "showMore": "Show More",
-        "showLess": "Show Less"
-      },
-      "assetHistory": {
-        "transactionHistory": "Transaction History"
-      }
+    "assets": {
+        "assetDetails": {
+            "assetHeader": {
+                "balance": "Balance",
+                "price": "Price",
+                "marketCap": "Market Cap",
+                "24HrVolume": "24hr Volume",
+                "dayChange": "Day Change",
+                "aboutAsset": "About %{asset}",
+                "segwit": "Segwit",
+                "segwitNative": "Segwit Native",
+                "legacy": "Legacy"
+            },
+            "assetDescription": {
+                "showMore": "Show More",
+                "showLess": "Show Less"
+            },
+            "assetHistory": {
+                "transactionHistory": "Transaction History"
+            }
+        },
+        "assetCards": {
+            "assetActions": {
+                "buy": "Buy",
+                "sell": "Sell",
+                "trade": "Trade"
+            },
+            "rewards": {
+                "farmingRewards": "Farming Rewards",
+                "currentRewards": "Current Rewards",
+                "currentAPR": "Current APR",
+                "yourRewards": "Your Rewards",
+                "currentAPRLabel": "The current APR for your rewards",
+                "claimRewards": "Claim Rewards"
+            },
+            "accounts": "Accounts",
+            "staking": "Staking",
+            "pools": "Pools"
+        }
     },
-    "assetCards": {
-      "assetActions": {
-        "buy": "Buy",
-        "sell": "Sell",
-        "trade": "Trade"
-      },
-      "rewards": {
-        "farmingRewards": "Farming Rewards",
-        "currentRewards": "Current Rewards",
-        "currentAPR": "Current APR",
-        "yourRewards": "Your Rewards",
-        "currentAPRLabel": "The current APR for your rewards",
-        "claimRewards": "Claim Rewards"
-      },
-      "accounts": "Accounts",
-      "staking": "Staking",
-      "pools": "Pools"
-    }
-  },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+    "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
 }

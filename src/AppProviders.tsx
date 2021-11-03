@@ -7,6 +7,7 @@ import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { translations } from 'assets/translations'
+import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { EarnManagerProvider } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
@@ -27,12 +28,11 @@ const unchainedUrls: UnchainedUrls = {
   ethereum: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+  },
+  bitcoin: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
   }
-  // TODO uncomment this when we can run both unchained instances locally
-  // bitcoin: {
-  //   httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-  //   wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
-  // }
 }
 
 export function AppProviders({ children }: ProvidersProps) {
@@ -43,17 +43,19 @@ export function AppProviders({ children }: ProvidersProps) {
       <ChakraProvider theme={theme}>
         <ColorModeScript />
         <BrowserRouter>
-          <I18n locale={locale} messages={messages}>
-            <WalletProvider>
-              <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                <TransactionsProvider>
-                  <ModalProvider>
-                    <EarnProvider>{children}</EarnProvider>
-                  </ModalProvider>
-                </TransactionsProvider>
-              </ChainAdaptersProvider>
-            </WalletProvider>
-          </I18n>
+          <BrowserRouterProvider>
+            <I18n locale={locale} messages={messages}>
+              <WalletProvider>
+                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                  <TransactionsProvider>
+                    <ModalProvider>
+                      <EarnProvider>{children}</EarnProvider>
+                    </ModalProvider>
+                  </TransactionsProvider>
+                </ChainAdaptersProvider>
+              </WalletProvider>
+            </I18n>
+          </BrowserRouterProvider>
         </BrowserRouter>
       </ChakraProvider>
     </ReduxProvider>

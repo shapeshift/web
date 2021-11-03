@@ -8,8 +8,8 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { PortisIcon } from 'components/Icons/PortisIcon'
 import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
-
-import { PinModal } from './KeepKey/PinModal'
+import { KeepKeyConnect } from './KeepKey/components/Connect'
+import { KeepKeySuccess } from './KeepKey/components/Success'
 import { MetaStart } from './MetaMask/components/MetaStart'
 import { MetaSuccess } from './MetaMask/components/MetaSuccess'
 import { NativeImport } from './NativeWallet/components/NativeImport'
@@ -46,7 +46,10 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
     adapter: WebUSBKeepKeyAdapter,
     icon: KeepKeyIcon,
     name: 'KeepKey',
-    routes: [{ path: '/keepkey/pin', component: PinModal }]
+    routes: [
+      { path: '/keepkey/connect', component: KeepKeyConnect },
+      { path: '/keepkey/success', component: KeepKeySuccess }
+    ]
   },
   metamask: {
     adapter: MetaMaskAdapter,

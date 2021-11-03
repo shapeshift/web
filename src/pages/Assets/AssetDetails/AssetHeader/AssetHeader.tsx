@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonGroup,
   Collapse,
   Flex,
   Heading,
@@ -84,26 +85,14 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
             <Skeleton isLoaded={isLoaded}>
-              <HStack>
-                <Button
-                  size='sm'
-                  colorScheme='blue'
-                  variant='ghost'
-                  isActive={view === views.balance}
-                  onClick={() => setView(views.balance)}
-                >
+              <ButtonGroup size='sm' colorScheme='blue' variant='ghost'>
+                <Button isActive={view === views.balance} onClick={() => setView(views.balance)}>
                   <Text translation='assets.assetDetails.assetHeader.balance' />
                 </Button>
-                <Button
-                  size='sm'
-                  colorScheme='blue'
-                  variant='ghost'
-                  isActive={view === views.price}
-                  onClick={() => setView(views.price)}
-                >
+                <Button isActive={view === views.price} onClick={() => setView(views.price)}>
                   <Text translation='assets.assetDetails.assetHeader.price' />
                 </Button>
-              </HStack>
+              </ButtonGroup>
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <TimeControls onChange={setTimeframe} defaultTime={timeframe} />

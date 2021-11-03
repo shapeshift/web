@@ -34,7 +34,7 @@ describe('assetsSlice', () => {
   describe('fetchAsset', () => {
     it('does not update state if assetData does not exist', async () => {
       setup({ assetData: undefined, description: null })
-      expect(store.getState().assets[rune.tokenId]).toBeFalsy()
+      expect(store.getState().assets[rune.tokenId as string]).toBeFalsy()
       await store.dispatch(
         fetchAsset({
           tokenId: rune.tokenId,
@@ -42,12 +42,12 @@ describe('assetsSlice', () => {
           network: NetworkTypes.MAINNET
         })
       )
-      expect(store.getState().assets[rune.tokenId]).toBeFalsy()
+      expect(store.getState().assets[rune.tokenId as string]).toBeFalsy()
     })
 
     it('updates state if assetData exists but description does not', async () => {
       setup({ assetData: rune, description: null })
-      expect(store.getState().assets[rune.tokenId]).toBeFalsy()
+      expect(store.getState().assets[rune.tokenId as string]).toBeFalsy()
       await store.dispatch(
         fetchAsset({
           tokenId: rune.tokenId,
@@ -55,8 +55,8 @@ describe('assetsSlice', () => {
           network: NetworkTypes.MAINNET
         })
       )
-      expect(store.getState().assets[rune.tokenId]).toBeTruthy()
-      expect(store.getState().assets[rune.tokenId].description).toBeFalsy()
+      expect(store.getState().assets[rune.tokenId as string]).toBeTruthy()
+      expect(store.getState().assets[rune.tokenId as string].description).toBeFalsy()
     })
 
     it('updates state if assetData & description exists', async () => {
@@ -70,8 +70,8 @@ describe('assetsSlice', () => {
           network: NetworkTypes.MAINNET
         })
       )
-      expect(store.getState().assets[aapl.tokenId]).toBeTruthy()
-      expect(store.getState().assets[aapl.tokenId].description).toBeTruthy()
+      expect(store.getState().assets[aapl.tokenId as string]).toBeTruthy()
+      expect(store.getState().assets[aapl.tokenId as string].description).toBeTruthy()
     })
 
     it('does not update state if error is thrown', async () => {
@@ -87,7 +87,7 @@ describe('assetsSlice', () => {
         )
       }))
 
-      expect(store.getState().assets[zero.tokenId]).toBeFalsy()
+      expect(store.getState().assets[zero.tokenId as string]).toBeFalsy()
       await store.dispatch(
         fetchAsset({
           tokenId: zero.tokenId,
@@ -95,7 +95,7 @@ describe('assetsSlice', () => {
           network: NetworkTypes.MAINNET
         })
       )
-      expect(store.getState().assets[zero.tokenId]).toBeFalsy()
+      expect(store.getState().assets[zero.tokenId as string]).toBeFalsy()
       expect(console.error).toBeCalled()
       consoleError.mockRestore()
     })

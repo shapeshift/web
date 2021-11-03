@@ -19,7 +19,7 @@ describe('marketDataSlice', () => {
       ;(getMarketData as unknown as jest.Mock<unknown>).mockImplementation(() =>
         Promise.resolve(null)
       )
-      expect(store.getState().marketData[rune.tokenId]).toBeFalsy()
+      expect(store.getState().marketData[rune.tokenId as string]).toBeFalsy()
       await store.dispatch(
         fetchMarketData({
           tokenId: rune.tokenId,
@@ -27,7 +27,7 @@ describe('marketDataSlice', () => {
         })
       )
 
-      expect(store.getState().marketData[rune.tokenId]).toBeFalsy()
+      expect(store.getState().marketData[rune.tokenId as string]).toBeFalsy()
     })
 
     it('updates state if marketData exists with tokenId', async () => {
@@ -39,7 +39,7 @@ describe('marketDataSlice', () => {
           volume: 90000
         })
       )
-      expect(store.getState().marketData[rune.tokenId]).toBeFalsy()
+      expect(store.getState().marketData[rune.tokenId as string]).toBeFalsy()
       await store.dispatch(
         fetchMarketData({
           tokenId: rune.tokenId,
@@ -47,7 +47,7 @@ describe('marketDataSlice', () => {
         })
       )
 
-      expect(store.getState().marketData[rune.tokenId]).toBeTruthy()
+      expect(store.getState().marketData[rune.tokenId as string]).toBeTruthy()
     })
 
     it('updates state if marketData exists without tokenId', async () => {

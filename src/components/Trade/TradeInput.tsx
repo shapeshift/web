@@ -8,7 +8,7 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
-import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
@@ -63,29 +63,32 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
+    if (!quote?.sellAsset || !quote?.buyAsset || !sellAsset.amount) return
+    const isERC20 = sellAsset.currency.contractType === ContractTypes.ERC20
+
     try {
-      const approvalNeeded = await checkApprovalNeeded(wallet)
-      const ethFiatRate = await getFiatRate({
-        symbol: 'ETH'
-      })
-      if (approvalNeeded) {
-        history.push({
-          pathname: '/trade/approval',
-          state: {
-            ethFiatRate
-          }
-        })
-      } else {
-        // TODO: (ryankk) add error handling for these states
-        if (!quote?.sellAsset || !quote?.buyAsset || !sellAsset.amount) return
-        const result = await buildQuoteTx({
-          wallet,
-          sellAsset: quote?.sellAsset,
-          buyAsset: quote?.buyAsset,
-          amount: sellAsset?.amount
-        })
-        result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+      const fiatRate = await getFiatRate({ symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol })
+
+      if (isERC20) {
+        const approvalNeeded = await checkApprovalNeeded(wallet)
+        if (approvalNeeded) {
+          history.push({
+            pathname: '/trade/approval',
+            state: {
+              fiatRate
+            }
+          })
+          return
+        }
       }
+
+      const result = await buildQuoteTx({
+        wallet,
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: sellAsset?.amount
+      })
+      result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
     } catch (e) {
       // TODO: (ryankk) correct errors to reflect appropriate attributes
       setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })

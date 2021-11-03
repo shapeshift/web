@@ -16,7 +16,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { theme } from 'theme/theme'
 
 type ApprovalParams = {
-  ethFiatRate: string
+  fiatRate: string
 }
 
 export const Approval = () => {
@@ -24,7 +24,7 @@ export const Approval = () => {
   const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const { ethFiatRate } = location.state
+  const { fiatRate } = location.state
 
   const {
     getValues,
@@ -61,7 +61,7 @@ export const Approval = () => {
       })
 
       if (result?.success) {
-        history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
+        history.push({ pathname: '/trade/confirm', state: { fiatRate } })
       } else {
         history.push('/trade/input')
       }
@@ -146,7 +146,7 @@ export const Approval = () => {
               <RawText>
                 {toFiat(
                   bn(fee ?? '0')
-                    .times(ethFiatRate)
+                    .times(fiatRate)
                     .toNumber()
                 )}
               </RawText>

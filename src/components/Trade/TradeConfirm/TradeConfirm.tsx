@@ -22,7 +22,7 @@ import { selectTxHistoryByTxid } from '../helpers'
 import { AssetToAsset } from './AssetToAsset'
 
 type TradeConfirmParams = {
-  ethFiatRate: string
+  fiatRate: string
 }
 
 export const TradeConfirm = ({ history }: RouterProps) => {
@@ -35,7 +35,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
-  const { ethFiatRate } = location.state
+  const { fiatRate } = location.state
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -122,7 +122,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Row.Value>
                   {toFiat(
                     bn(fees?.fee || '')
-                      .times(ethFiatRate)
+                      .times(fiatRate)
                       .toNumber()
                   )}
                 </Row.Value>

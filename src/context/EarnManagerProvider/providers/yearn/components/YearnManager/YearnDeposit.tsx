@@ -1,6 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
-// import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'

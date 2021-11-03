@@ -4,6 +4,7 @@ import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 
 const assets: Asset[] = [
   {
+    caip19: 'eip155:1/slip44:60',
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
@@ -16,10 +17,10 @@ const assets: Asset[] = [
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
-    receiveSupport: true,
-    caip19: ''
+    receiveSupport: true
   },
   {
+    caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     chain: ChainTypes.Bitcoin,
     network: NetworkTypes.MAINNET,
     symbol: 'BTC',
@@ -32,10 +33,10 @@ const assets: Asset[] = [
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     sendSupport: false,
-    receiveSupport: false,
-    caip19: ''
+    receiveSupport: false
   },
   {
+    caip19: 'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
     name: 'Aave AMM DAI',
@@ -50,10 +51,10 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'AAMMDAI',
-    caip19: ''
+    symbol: 'AAMMDAI'
   },
   {
+    caip19: 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
     chain: ChainTypes.Ethereum,
     network: NetworkTypes.MAINNET,
     name: 'Dai',
@@ -68,8 +69,7 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true,
-    symbol: 'DAI',
-    caip19: ''
+    symbol: 'DAI'
   }
 ]
 

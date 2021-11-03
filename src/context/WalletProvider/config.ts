@@ -1,10 +1,14 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
+import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
 
+import { MetaStart } from './MetaMask/components/MetaStart'
+import { MetaSuccess } from './MetaMask/components/MetaSuccess'
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { NativeImport } from './NativeWallet/components/NativeImport'
@@ -42,6 +46,15 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
     routes: [
       { path: '/keepkey/connect', component: KeepKeyConnect },
       { path: '/keepkey/success', component: KeepKeySuccess }
+    ]
+  },
+  metamask: {
+    adapter: MetaMaskAdapter,
+    icon: MetaMaskIcon,
+    name: 'MetaMask',
+    routes: [
+      { path: '/metamask/start', component: MetaStart },
+      { path: '/metamask/success', component: MetaSuccess }
     ]
   }
 }

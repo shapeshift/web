@@ -12,6 +12,7 @@ export interface MatchParams {
 }
 
 const initAsset = {
+  caip19: '',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
   symbol: '',
@@ -29,8 +30,7 @@ const initAsset = {
   slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
-  description: '',
-  caip19: ''
+  description: ''
 }
 
 export const Asset = () => {

@@ -246,15 +246,29 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async getFeeData(): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
+    const feeData = await this.providers.http.getNetworkFees()
+
+    if (
+      !feeData.data.fast?.satsPerKiloByte ||
+      !feeData.data.average?.satsPerKiloByte ||
+      !feeData.data.slow?.satsPerKiloByte
+    )
+      throw new Error('undefined fee')
+
+    // We have to round because coinselect library uses sats per byte which cant be decimals
+    const fast = String(Math.round(feeData.data.fast?.satsPerKiloByte / 1024))
+    const average = String(Math.round(feeData.data.average?.satsPerKiloByte / 1024))
+    const slow = String(Math.round(feeData.data.slow?.satsPerKiloByte / 1024))
+
     const confTimes: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin> = {
       [chainAdapters.FeeDataKey.Fast]: {
-        feePerUnit: '1'
+        feePerUnit: fast
       },
       [chainAdapters.FeeDataKey.Average]: {
-        feePerUnit: '1'
+        feePerUnit: average
       },
       [chainAdapters.FeeDataKey.Slow]: {
-        feePerUnit: '1'
+        feePerUnit: slow
       }
     }
     return confTimes

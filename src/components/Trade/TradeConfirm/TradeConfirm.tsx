@@ -76,7 +76,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 onClick={() => history.push('/trade/input')}
               />
               <Card.Heading textAlign='center'>
-                <Text translation='trade.confirmTrade' />
+                <Text translation={txid ? 'trade.complete' : 'trade.confirmTrade'} />
               </Card.Heading>
             </SimpleGrid>
             <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} status={status} />

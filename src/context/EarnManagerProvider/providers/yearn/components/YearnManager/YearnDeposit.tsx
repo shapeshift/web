@@ -66,12 +66,16 @@ export type YearnDepositState = {
   loading: boolean
 }
 
-const initialState = {
+const initialState: YearnDepositState = {
   vault: { apy: '0' },
   userAddress: null,
   loading: false,
-  approve: {} as EstimatedGas,
-  deposit: {} as YearnDepositValues
+  approve: {},
+  deposit: {
+    fiatAmount: '',
+    cryptoAmount: '',
+    slippage: ''
+  }
 }
 
 export enum YearnActionType {
@@ -159,7 +163,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         dispatch({ type: YearnActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: YearnActionType.SET_VAULT, payload: { apy } })
       } catch (error) {
-        console.error('error', error)
+        // TODO: handle client side errors
+        console.error('YearnDeposit error:', error)
       }
     })()
   }, [api, chainAdapter, vaultAddress, walletState.wallet])
@@ -177,7 +182,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
-      console.error('error', error)
+      // TODO: handle client side errors maybe add a toast?
+      console.error('YearnDeposit:getApproveEstimate error:', error)
     }
   }
 
@@ -185,26 +191,30 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     if (!state.userAddress) return
     // set deposit state for future use
     dispatch({ type: YearnActionType.SET_DEPOSIT, payload: formValues })
-
-    // Check is approval is required for user address
-    const _allowance = await api.allowance({
-      tokenContractAddress: tokenId!,
-      spenderAddress: vaultAddress,
-      userAddress: state.userAddress
-    })
-    const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
-
-    // Skip approval step if user allowance is greater than requested deposit amount
-    if (allowance.gt(formValues.cryptoAmount)) {
-      memoryHistory.push(DepositPath.Confirm)
-    } else {
-      const estimatedGasCrypto = await getApproveEstimate()
-      if (!estimatedGasCrypto) return
-      dispatch({
-        type: YearnActionType.SET_APPROVE,
-        payload: { estimatedGasCrypto }
+    try {
+      // Check is approval is required for user address
+      const _allowance = await api.allowance({
+        tokenContractAddress: tokenId!,
+        spenderAddress: vaultAddress,
+        userAddress: state.userAddress
       })
-      memoryHistory.push(DepositPath.Approve)
+      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+
+      // Skip approval step if user allowance is greater than requested deposit amount
+      if (allowance.gt(formValues.cryptoAmount)) {
+        memoryHistory.push(DepositPath.Confirm)
+      } else {
+        const estimatedGasCrypto = await getApproveEstimate()
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: YearnActionType.SET_APPROVE,
+          payload: { estimatedGasCrypto }
+        })
+        memoryHistory.push(DepositPath.Approve)
+      }
+    } catch (error) {
+      // TODO: handle client side errors maybe add a toast?
+      console.error('YearnDeposit:handleContinue error:', error)
     }
   }
 
@@ -234,7 +244,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       })
       memoryHistory.push(DepositPath.Confirm)
     } catch (error) {
-      console.error(error)
+      // TODO: handle client side errors
+      console.error('YearnDeposit:handleApprove error:', error)
     } finally {
       dispatch({ type: YearnActionType.SET_LOADING, payload: false })
     }

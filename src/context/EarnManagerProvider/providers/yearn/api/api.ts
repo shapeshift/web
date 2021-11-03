@@ -25,7 +25,6 @@ export type ConstructorArgs = {
   providerUrl: string
 }
 
-// contract interaction layer
 export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
@@ -75,14 +74,14 @@ export class YearnVaultApi {
 
   async approve(input: ApproveInput): Promise<string> {
     const {
-      bip32Params,
+      accountNumber = 0,
       dryRun = false,
       spenderAddress,
       tokenContractAddress,
       userAddress,
       wallet
     } = input
-    if (!wallet || !bip32Params) throw new Error('Missing inputs')
+    if (!wallet) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.approveEstimatedGas(input)
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const data: string = depositTokenContract.methods
@@ -94,7 +93,7 @@ export class YearnVaultApi {
     const gasPrice: string = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params,
+      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -129,8 +128,15 @@ export class YearnVaultApi {
   }
 
   async deposit(input: DepositInput): Promise<string> {
-    const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
-    if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
+    const {
+      amountDesired,
+      accountNumber = 0,
+      dryRun = false,
+      vaultAddress,
+      userAddress,
+      wallet
+    } = input
+    if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.depositEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = await vaultContract.methods
@@ -142,7 +148,7 @@ export class YearnVaultApi {
     const gasPrice = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params,
+      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -168,8 +174,15 @@ export class YearnVaultApi {
   }
 
   async withdraw(input: WithdrawInput): Promise<string> {
-    const { amountDesired, bip32Params, dryRun = false, vaultAddress, userAddress, wallet } = input
-    if (!wallet || !bip32Params || !vaultAddress) throw new Error('Missing inputs')
+    const {
+      amountDesired,
+      accountNumber = 0,
+      dryRun = false,
+      vaultAddress,
+      userAddress,
+      wallet
+    } = input
+    if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.withdrawEstimatedGas(input)
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = vaultContract.methods
@@ -181,7 +194,7 @@ export class YearnVaultApi {
     const gasPrice = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params,
+      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),

@@ -213,11 +213,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       dispatch({ type: YearnActionType.SET_LOADING, payload: true })
       await api.approve({
-        bip32Params: {
-          purpose: 44,
-          coinType: 60,
-          accountNumber: 0
-        },
         spenderAddress: vaultAddress,
         tokenContractAddress: tokenId,
         userAddress: state.userAddress,

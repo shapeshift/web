@@ -1,4 +1,4 @@
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, ButtonGroup } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -27,11 +27,19 @@ export const EarnActionButtons = () => {
   }
 
   return (
-    <Flex>
-      <Button onClick={() => handleClick(EarnAction.Deposit)}>{translate('common.deposit')}</Button>
-      <Button onClick={() => handleClick(EarnAction.Withdraw)}>
+    <ButtonGroup variant='ghost' colorScheme='blue' px={6} pt={6}>
+      <Button
+        isActive={match?.params?.action === EarnAction.Deposit}
+        onClick={() => handleClick(EarnAction.Deposit)}
+      >
+        {translate('common.deposit')}
+      </Button>
+      <Button
+        isActive={match?.params?.action === EarnAction.Withdraw}
+        onClick={() => handleClick(EarnAction.Withdraw)}
+      >
         {translate('common.withdraw')}
       </Button>
-    </Flex>
+    </ButtonGroup>
   )
 }

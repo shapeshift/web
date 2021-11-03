@@ -93,7 +93,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Link
                       isExternal
                       color='blue.500'
-                      href={sellAsset.currency?.explorerTxLink + txid}
+                      href={`${sellAsset.currency?.explorerTxLink}${txid}`}
                     >
                       <Text translation='trade.viewTransaction' />
                     </Link>

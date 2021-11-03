@@ -192,6 +192,8 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             onClose={handleCancel}
             onContinue={handleViewPosition}
             loading={true}
+            continueText='modals.broadcast.continue'
+            closeText='modals.broadcast.close'
             statusText='modals.broadcast.header.pending'
             statusIcon={<ArrowForwardIcon />}
             assets={[

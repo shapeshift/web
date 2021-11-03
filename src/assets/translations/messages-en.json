@@ -158,6 +158,7 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "continue": "View My Position",
+      "viewAsset": "View Asset",
       "close": "Close"
     }
   },

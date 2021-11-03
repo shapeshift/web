@@ -243,6 +243,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           <BroadcastTx
             onClose={handleCancel}
             onContinue={handleViewPosition}
+            continueText='modals.broadcast.continue'
+            closeText='modals.broadcast.close'
             loading={true}
             statusText='modals.broadcast.header.pending'
             statusIcon={<ArrowForwardIcon />}

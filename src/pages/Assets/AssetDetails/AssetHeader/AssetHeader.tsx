@@ -74,9 +74,11 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
                 {name}
               </Heading>
             </Skeleton>
-            <RawText fontSize='lg' color='gray.500' textTransform='uppercase' lineHeight={1}>
-              <Skeleton isLoaded={isLoaded}>{symbol}</Skeleton>
-            </RawText>
+            <Skeleton isLoaded={isLoaded}>
+              <RawText fontSize='lg' color='gray.500' textTransform='uppercase' lineHeight={1}>
+                {symbol}
+              </RawText>
+            </Skeleton>
           </Box>
         </Flex>
         <AssetActions asset={asset} isLoaded={isLoaded} />

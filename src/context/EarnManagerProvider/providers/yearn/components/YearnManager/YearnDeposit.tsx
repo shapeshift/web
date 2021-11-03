@@ -1,44 +1,60 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Center, Flex, Link, Stack, Tag, useColorModeValue } from '@chakra-ui/react'
+import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { useSteps } from 'chakra-ui-steps'
 import { useEffect, useState } from 'react'
-import { useHistory } from 'react-router'
+import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
+import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Approve } from 'context/EarnManagerProvider/components/Approve/Approve'
 import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'context/EarnManagerProvider/components/Deposit/Deposit'
-import { EarnActionsButtons } from 'context/EarnManagerProvider/context/EarnActions/EarnActionsProvider'
-import { EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
+import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
+import { EarnParams, EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
-import { useQuery } from 'hooks/useQuery/useQuery'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { YearnVaultApi } from '../../api/api'
+import { YearnRouteSteps } from '../YearnRouteSteps'
 
-const steps = [
-  { hideNav: true, label: 'Deposit Amount' },
-  { label: 'Approve USDC' },
-  { label: 'Confirm Deposit' },
-  { label: 'Broadcast' }
+enum DepositPath {
+  Deposit = '/deposit',
+  Approve = '/deposit/approve',
+  ApproveSettings = '/deposit/approve/settings',
+  Confirm = '/deposit/confirm',
+  ConfirmSettings = '/deposit/confirm/settings',
+  Broadcast = '/deposit/broadcast'
+}
+
+export const routes = [
+  { step: 0, path: DepositPath.Deposit, label: 'Deposit' },
+  { step: 1, path: DepositPath.Approve, label: 'Approve' },
+  { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
+  { step: 2, path: DepositPath.Confirm, label: 'Confirm Deposit' },
+  { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
+  { step: 3, path: DepositPath.Broadcast, label: 'Broadcast' }
 ]
 
-export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
+type YearnDepositProps = {
+  api: YearnVaultApi
+}
+
+export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [apy, setApy] = useState('0')
   const [userAddress, setUserAddress] = useState<string | null>(null)
   const [, /* values */ setValues] = useState<DepositValues>({} as DepositValues)
-  const { chain, contractAddress: vaultAddress, tokenId } = useQuery<EarnQueryParams>()
+  const depositRoute = useRouteMatch({ path: DepositPath.Deposit, strict: true })
+  const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
+  const { chain, contractAddress: vaultAddress, tokenId } = query
 
   // Asset info
   const asset = useFetchAsset({ chain, tokenId })
@@ -50,12 +66,7 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
   const { balances, loading } = useFlattenedBalances()
 
   // navigation
-  const history = useHistory()
-  const { activeStep, nextStep, setStep } = useSteps({ initialStep: 0 })
-
-  // styles
-  const stepperBg = useColorModeValue('gray.50', 'gray.850')
-  const stepperBorder = useColorModeValue('gray.100', 'gray.750')
+  const memoryHistory = useHistory()
 
   useEffect(() => {
     ;(async () => {
@@ -86,21 +97,23 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
       userAddress
     })
     const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
-    allowance.gt(formValues.cryptoAmount) ? setStep(2) : nextStep()
+    allowance.gt(formValues.cryptoAmount)
+      ? memoryHistory.push(DepositPath.Confirm)
+      : memoryHistory.push(DepositPath.Approve)
   }
 
   const handleApprove = async () => {
-    nextStep()
+    memoryHistory.push(DepositPath.Confirm)
   }
 
   const handleConfirm = async () => {
-    nextStep()
+    memoryHistory.push(DepositPath.Broadcast)
   }
 
   const handleViewPosition = () => {}
 
   const handleCancel = () => {
-    history.goBack()
+    browserHistory.goBack()
   }
 
   const balance = balances[tokenId ?? chain]?.balance
@@ -118,9 +131,9 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const renderStep = (_step: number) => {
-    switch (_step) {
-      case 0:
+  const renderRoute = (route: { step?: number; path: string; label: string }) => {
+    switch (route.path) {
+      case DepositPath.Deposit:
         return (
           <Deposit
             asset={asset}
@@ -141,7 +154,7 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
             percentOptions={[0.25, 0.5, 0.75, 1]}
           />
         )
-      case 1:
+      case DepositPath.Approve:
         return (
           <Approve
             asset={asset}
@@ -155,7 +168,7 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
             wallet={{} as HDWallet}
           />
         )
-      case 2:
+      case DepositPath.Confirm:
         return (
           <Confirm
             onCancel={handleCancel}
@@ -216,7 +229,7 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
             </Stack>
           </Confirm>
         )
-      case 3:
+      case DepositPath.Broadcast:
         return (
           <BroadcastTx
             onClose={handleCancel}
@@ -290,7 +303,7 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
           </BroadcastTx>
         )
       default:
-        throw new Error('Step does not exist')
+        throw new Error('Route does not exist')
     }
   }
 
@@ -310,26 +323,16 @@ export const YearnDeposit = ({ api }: { api: YearnVaultApi }) => {
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      {!steps[activeStep].hideNav && (
-        <Box
-          bg={stepperBg}
-          px={4}
-          py={6}
-          flex={1}
-          borderRightWidth={{ base: 0, lg: 1 }}
-          borderBottomWidth={{ base: 1, lg: 0 }}
-          borderColor={stepperBorder}
-          borderTopLeftRadius='xl'
-          borderTopRightRadius={{ base: 'xl', lg: 'none' }}
-          borderBottomLeftRadius={{ base: 'none', lg: 'xl' }}
-          minWidth='250px'
-        >
-          <VerticalStepper activeStep={activeStep} steps={steps} />
-        </Box>
-      )}
+      <YearnRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {activeStep === 0 && <EarnActionsButtons />}
-        {renderStep(activeStep)}
+        {depositRoute && <EarnActionButtons />}
+        <Switch>
+          {routes.map(route => {
+            return (
+              <Route exact key={route.path} render={() => renderRoute(route)} path={route.path} />
+            )
+          })}
+        </Switch>
       </Flex>
     </Flex>
   )

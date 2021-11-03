@@ -20,6 +20,7 @@
     "@shapeshiftoss/market-service": "^1.1.0",
     "@shapeshiftoss/swapper": "^1.8.0",
     "@shapeshiftoss/types": "^1.7.0",
+    "@types/history": "^4.7.9",
     "@visx/axis": "^1.17.1",
     "@visx/brush": "^1.18.1",
     "@visx/gradient": "^1.7.0",

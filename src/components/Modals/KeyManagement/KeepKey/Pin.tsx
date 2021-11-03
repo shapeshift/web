@@ -121,7 +121,7 @@ export const PinModal = ({
       closeOnEsc={false}
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalHeader>
           <Text translation={`walletProvider.keepKey.${translationType}.header`} />
         </ModalHeader>

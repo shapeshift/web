@@ -65,7 +65,7 @@ export const Approval = () => {
       } else {
         history.push('/trade/input')
       }
-    }, 10000)
+    }, 5000)
     approvalInterval.current = interval
   }
 

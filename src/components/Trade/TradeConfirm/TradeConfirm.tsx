@@ -33,7 +33,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     formState: { isSubmitting }
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
-  const { executeQuote } = useSwapper()
+  const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
   const { ethFiatRate } = location.state
   const {
@@ -57,6 +57,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     const transactionId = result?.txid
     if (transactionId) {
       setTxid(transactionId)
+      reset()
     }
   }
 

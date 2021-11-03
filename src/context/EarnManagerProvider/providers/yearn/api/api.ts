@@ -57,6 +57,11 @@ export class YearnVaultApi {
     return vault
   }
 
+  async getGasPrice() {
+    const gasPrice = await this.web3.eth.getGasPrice()
+    return bnOrZero(gasPrice)
+  }
+
   async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
@@ -150,6 +155,7 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
+
   async withdrawEstimatedGas(input: WithdrawInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
@@ -188,17 +194,20 @@ export class YearnVaultApi {
     if (dryRun) return signedTx
     return this.adapter.broadcastTransaction(signedTx)
   }
+
   async balance(input: BalanceInput): Promise<BigNumber> {
     const { vaultAddress, userAddress } = input
     const contract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const balance = await contract.methods.balanceOf(userAddress).call()
     return bnOrZero(balance)
   }
+
   async totalSupply({ contractAddress }: { contractAddress: string }): Promise<BigNumber> {
     const contract = new this.web3.eth.Contract(erc20Abi, contractAddress)
     const totalSupply = await contract.methods.totalSupply().call()
     return bnOrZero(totalSupply)
   }
+
   async apy(input: APYInput): Promise<string> {
     const response = await this.yearnClient.get(`/chains/1/vaults/all`)
     const vaultsData = response?.data

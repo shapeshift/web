@@ -13,6 +13,7 @@ import { Text } from 'components/Text'
 
 type ApproveProps = {
   asset: Asset
+  feeAsset: Asset
   cryptoEstimatedGasFee: string
   disableAction?: boolean
   fiatEstimatedGasFee: string
@@ -25,14 +26,15 @@ type ApproveProps = {
 }
 
 export const Approve = ({
-  onConfirm,
-  onCancel,
-  loading,
   asset,
-  learnMoreLink,
-  loadingText,
   cryptoEstimatedGasFee,
-  fiatEstimatedGasFee
+  feeAsset,
+  fiatEstimatedGasFee,
+  learnMoreLink,
+  loading,
+  loadingText,
+  onCancel,
+  onConfirm
 }: ApproveProps) => {
   const translate = useTranslate()
   return (
@@ -71,7 +73,7 @@ export const Approve = ({
                 <Amount.Crypto
                   color='gray.500'
                   value={cryptoEstimatedGasFee}
-                  symbol={asset.symbol}
+                  symbol={feeAsset.symbol}
                 />
               </Box>
             </Row.Value>

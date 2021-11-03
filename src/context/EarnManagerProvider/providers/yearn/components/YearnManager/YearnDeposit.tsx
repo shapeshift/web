@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { caip19 } from '@shapeshiftoss/caip'
+import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -55,18 +56,22 @@ type EstimatedGas = {
 type YearnDepositValues = DepositValues & EstimatedGas
 
 export type YearnDepositState = {
-  vault: Partial<YearnVault>
+  vault: YearnVault
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
   loading: boolean
+  pricePerShare: string
+  txid: string | null
 }
 
 const initialState: YearnDepositState = {
-  vault: { apy: { net_apy: 0 } },
+  txid: null,
+  vault: { apy: { net_apy: 0 } } as YearnVault,
   userAddress: null,
   loading: false,
   approve: {},
+  pricePerShare: '',
   deposit: {
     fiatAmount: '',
     cryptoAmount: '',
@@ -79,7 +84,9 @@ export enum YearnActionType {
   SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_DEPOSIT = 'SET_DEPOSIT',
-  SET_LOADING = 'SET_LOADING'
+  SET_LOADING = 'SET_LOADING',
+  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
+  SET_TXID = 'SET_TXID'
 }
 
 type SetVaultAction = {
@@ -94,7 +101,7 @@ type SetApprove = {
 
 type SetDeposit = {
   type: YearnActionType.SET_DEPOSIT
-  payload: YearnDepositValues
+  payload: Partial<YearnDepositValues>
 }
 
 type SetUserAddress = {
@@ -107,7 +114,24 @@ type SetLoading = {
   payload: boolean
 }
 
-type YearnDepositActions = SetVaultAction | SetApprove | SetDeposit | SetUserAddress | SetLoading
+type SetPricePerShare = {
+  type: YearnActionType.SET_PRICE_PER_SHARE
+  payload: string
+}
+
+type SetTxid = {
+  type: YearnActionType.SET_TXID
+  payload: string
+}
+
+type YearnDepositActions =
+  | SetVaultAction
+  | SetApprove
+  | SetDeposit
+  | SetUserAddress
+  | SetLoading
+  | SetPricePerShare
+  | SetTxid
 
 const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
   switch (action.type) {
@@ -121,8 +145,40 @@ const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
       return { ...state, userAddress: action.payload }
     case YearnActionType.SET_LOADING:
       return { ...state, loading: action.payload }
+    case YearnActionType.SET_PRICE_PER_SHARE:
+      return { ...state, pricePerShare: action.payload }
+    case YearnActionType.SET_TXID:
+      return { ...state, txid: action.payload }
     default:
       return state
+  }
+}
+
+// TODO: Remove when vaults are added to asset service
+const makeVaultAsset = (vault: YearnVault): Asset => {
+  if (!vault) return {} as Asset
+  return {
+    chain: ChainTypes.Ethereum,
+    color: '#FFFFFF',
+    contractType: ContractTypes.ERC20,
+    explorer: 'https://etherscan.io',
+    explorerTxLink: 'https://etherscan.io/tx/',
+    icon: vault.icon,
+    name: vault.name,
+    network: NetworkTypes.MAINNET,
+    precision: vault.decimals,
+    receiveSupport: true,
+    secondaryColor: '#FFFFFF',
+    sendSupport: true,
+    slip44: 60,
+    symbol: vault.symbol,
+    tokenId: vault.address,
+    caip19: caip19.toCAIP19({
+      chain: ChainTypes.Ethereum,
+      network: NetworkTypes.MAINNET,
+      tokenId: vault.address,
+      contractType: ContractTypes.ERC20
+    })
   }
 }
 
@@ -136,6 +192,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const marketData = useMarketData({ chain, tokenId })
   const feeAsset = useFetchAsset({ chain })
   const feeMarketData = useMarketData({ chain })
+  // TODO: Add vaults to asset service
   // const vaultAsset = useFetchAsset({ chain, tokenId: '' })
 
   // user info
@@ -153,13 +210,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     ;(async () => {
       try {
         if (!walletState.wallet || !tokenId) return
-        const [address, vault] = await Promise.all([
+        const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId)
+          api.findByDepositTokenId(tokenId),
+          api.pricePerShare({ vaultAddress })
         ])
-
         dispatch({ type: YearnActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: YearnActionType.SET_VAULT, payload: vault })
+        dispatch({ type: YearnActionType.SET_PRICE_PER_SHARE, payload: pricePerShare.toString() })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnDeposit error:', error)
@@ -167,7 +225,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     })()
   }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
 
-  const getApproveEstimate = async () => {
+  const getApproveGasEstimate = async () => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
@@ -182,6 +240,24 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('YearnDeposit:getApproveEstimate error:', error)
+    }
+  }
+
+  const getDepositGasEstimate = async (deposit: DepositValues) => {
+    if (!state.userAddress || !tokenId) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.depositEstimatedGas({
+          vaultAddress,
+          amountDesired: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`),
+          userAddress: state.userAddress
+        }),
+        api.getGasPrice()
+      ])
+      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+    } catch (error) {
+      // TODO: handle client side errors maybe add a toast?
+      console.error('YearnDeposit:getDepositGasEstimate error:', error)
     }
   }
 
@@ -200,14 +276,22 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
       // Skip approval step if user allowance is greater than requested deposit amount
       if (allowance.gt(formValues.cryptoAmount)) {
+        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: YearnActionType.SET_DEPOSIT,
+          payload: { estimatedGasCrypto }
+        })
+
         memoryHistory.push(DepositPath.Confirm)
       } else {
-        const estimatedGasCrypto = await getApproveEstimate()
+        const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
         dispatch({
           type: YearnActionType.SET_APPROVE,
           payload: { estimatedGasCrypto }
         })
+
         memoryHistory.push(DepositPath.Approve)
       }
     } catch (error) {
@@ -240,6 +324,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         interval: 15000,
         maxAttempts: 30
       })
+      // Get deposit gas estimate
+      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
+      if (!estimatedGasCrypto) return
+      dispatch({
+        type: YearnActionType.SET_DEPOSIT,
+        payload: { estimatedGasCrypto }
+      })
+
       memoryHistory.push(DepositPath.Confirm)
     } catch (error) {
       // TODO: handle client side errors
@@ -250,7 +342,24 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const handleConfirm = async () => {
-    memoryHistory.push(DepositPath.Status)
+    try {
+      if (!state.userAddress || !tokenId || !walletState.wallet) return
+      dispatch({ type: YearnActionType.SET_LOADING, payload: true })
+      const txid = await api.deposit({
+        tokenContractAddress: tokenId,
+        userAddress: state.userAddress,
+        vaultAddress,
+        wallet: walletState.wallet,
+        amountDesired: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`)
+      })
+      dispatch({ type: YearnActionType.SET_TXID, payload: txid })
+      memoryHistory.push(DepositPath.Status)
+
+      // await poll({})
+      // dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+    } catch (error) {
+      console.error('YearnDeposit:handleConfirm error', error)
+    }
   }
 
   const handleViewPosition = () => {}
@@ -275,6 +384,10 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
+    const apy = state.vault.apy?.net_apy
+    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(apy)
+    const annualYieldFiat = annualYieldCrypto.times(marketData.price)
+
     switch (route.path) {
       case DepositPath.Deposit:
         return (
@@ -326,14 +439,16 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               {
                 ...asset,
                 color: '#FF0000',
-                cryptoAmount: '100',
-                fiatAmount: '100'
+                cryptoAmount: state.deposit.cryptoAmount,
+                fiatAmount: state.deposit.fiatAmount
               },
               {
-                ...asset,
+                ...makeVaultAsset(state.vault),
                 color: '#FFFFFF',
-                cryptoAmount: '100',
-                fiatAmount: '100'
+                cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
+                  .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
+                  .toString(),
+                fiatAmount: state.deposit.fiatAmount
               }
             ]}
           >
@@ -342,7 +457,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.depositTo' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Year Finance</Row.Value>
+                <Row.Value fontWeight='bold'>Yearn Finance</Row.Value>
               </Row>
               <Row>
                 <Row.Label>
@@ -350,17 +465,31 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value='30.00' />
-                    <Amount.Crypto color='gray.500' value='0.024' symbol='ETH' />
+                    <Amount.Fiat
+                      fontWeight='bold'
+                      value={bnOrZero(state.deposit.estimatedGasCrypto)
+                        .div(`1e+${feeAsset.precision}`)
+                        .times(feeMarketData.price)
+                        .toFixed(2)}
+                    />
+                    <Amount.Crypto
+                      color='gray.500'
+                      value={bnOrZero(state.deposit.estimatedGasCrypto)
+                        .div(`1e+${feeAsset.precision}`)
+                        .toFixed(5)}
+                      symbol={feeAsset.symbol}
+                    />
                   </Box>
                 </Row.Value>
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.averageApr' />
+                  <Text translation='modals.confirm.averageApy' />
                 </Row.Label>
                 <Row.Value>
-                  <Tag colorScheme='green'>4%</Tag>
+                  <Tag colorScheme='green'>
+                    <Amount.Percent value={state.vault.apy.net_apy} />
+                  </Tag>
                 </Row.Value>
               </Row>
               <Row>
@@ -369,8 +498,12 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value='529.04' />
-                    <Amount.Crypto color='gray.500' value='529.04' symbol='USDC' />
+                    <Amount.Fiat fontWeight='bold' value={annualYieldFiat.toFixed(2)} />
+                    <Amount.Crypto
+                      color='gray.500'
+                      value={annualYieldCrypto.toFixed(5)}
+                      symbol={asset.symbol}
+                    />
                   </Box>
                 </Row.Value>
               </Row>
@@ -382,7 +515,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           <BroadcastTx
             onClose={handleCancel}
             onContinue={handleViewPosition}
-            loading={true}
+            loading={state.loading}
             statusText='modals.broadcast.header.pending'
             statusIcon={<ArrowForwardIcon />}
             assets={[
@@ -392,7 +525,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 fiatAmount: '100'
               },
               {
-                ...asset,
+                ...makeVaultAsset(state.vault),
                 cryptoAmount: '100',
                 fiatAmount: '100'
               }
@@ -404,10 +537,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   <Text translation='modals.broadcast.transactionId' />
                 </Row.Label>
                 <Row.Value>
-                  <Link href='http://google.com' isExternal color='blue.500' fontWeight='bold'>
-                    <MiddleEllipsis maxWidth='200px'>
-                      0x73060cb15ae5b6a5edc71c3b8b49dd20746240990d0a1047481b4218c690ad1c
-                    </MiddleEllipsis>
+                  <Link
+                    href={`${asset.explorerTxLink}/${state.txid}`}
+                    isExternal
+                    color='blue.500'
+                    fontWeight='bold'
+                  >
+                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
                   </Link>
                 </Row.Value>
               </Row>
@@ -415,7 +551,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.depositTo' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Year Finance</Row.Value>
+                <Row.Value fontWeight='bold'>Yearn Finance</Row.Value>
               </Row>
               <Row>
                 <Row.Label>
@@ -432,9 +568,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.averageApr' />
                 </Row.Label>
-                <Row.Value>
-                  <Tag colorScheme='green'>4%</Tag>
-                </Row.Value>
+                <Tag colorScheme='green'>
+                  <Amount.Percent value={state.vault.apy.net_apy} />
+                </Tag>
               </Row>
               <Row>
                 <Row.Label>
@@ -442,8 +578,12 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value='529.04' />
-                    <Amount.Crypto color='gray.500' value='529.04' symbol='USDC' />
+                    <Amount.Fiat fontWeight='bold' value={annualYieldFiat.toFixed(2)} />
+                    <Amount.Crypto
+                      color='gray.500'
+                      value={annualYieldCrypto.toFixed(5)}
+                      symbol={asset.symbol}
+                    />
                   </Box>
                 </Row.Value>
               </Row>

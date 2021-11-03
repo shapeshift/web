@@ -16,8 +16,8 @@ import {
   ApproveInput,
   APYInput,
   BalanceInput,
-  DepositInput,
-  WithdrawInput
+  TxEstimatedGasInput,
+  TxInput
 } from './yearn-types'
 
 export type ConstructorArgs = {
@@ -154,9 +154,7 @@ export class YearnVaultApi {
     return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
   }
 
-  async depositEstimatedGas(
-    input: Omit<DepositInput, 'bip32Params' | 'wallet' | 'tokenContractAddress'>
-  ): Promise<BigNumber> {
+  async depositEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
@@ -168,7 +166,7 @@ export class YearnVaultApi {
     return bnOrZero(estimatedGas)
   }
 
-  async deposit(input: DepositInput): Promise<string> {
+  async deposit(input: TxInput): Promise<string> {
     const {
       amountDesired,
       accountNumber = 0,
@@ -203,7 +201,7 @@ export class YearnVaultApi {
     return this.adapter.broadcastTransaction(signedTx)
   }
 
-  async withdrawEstimatedGas(input: WithdrawInput): Promise<BigNumber> {
+  async withdrawEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
@@ -214,7 +212,7 @@ export class YearnVaultApi {
     return bnOrZero(estimatedGas)
   }
 
-  async withdraw(input: WithdrawInput): Promise<string> {
+  async withdraw(input: TxInput): Promise<string> {
     const {
       amountDesired,
       accountNumber = 0,
@@ -260,6 +258,12 @@ export class YearnVaultApi {
     const contract = new this.web3.eth.Contract(erc20Abi, contractAddress)
     const totalSupply = await contract.methods.totalSupply().call()
     return bnOrZero(totalSupply)
+  }
+
+  async pricePerShare(input: { vaultAddress: string }): Promise<BigNumber> {
+    const contract = new this.web3.eth.Contract(yv2VaultAbi, input.vaultAddress)
+    const pricePerShare = await contract.methods.pricePerShare().call()
+    return bnOrZero(pricePerShare)
   }
 
   async apy(input: APYInput): Promise<string> {

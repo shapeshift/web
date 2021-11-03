@@ -3695,6 +3695,13 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
+"@shapeshiftoss/caip@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.2.0.tgz#bdcf20f6b6de970fc71e979cdfd0db25b2c2b3c0"
+  integrity sha512-1tHEkLrdGJ7sKZST69MrrbI6AeUbzVTweY4y2Nsosx6Zg3oVMqP/pQPDRyIlB7otUoCfP6uNm8Fx00KYRXqhMg==
+  dependencies:
+    "@shapeshiftoss/types" "^1.4.0"
+
 "@shapeshiftoss/chain-adapters@^1.7.3", "@shapeshiftoss/chain-adapters@^1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.9.0.tgz#049576be58f1858c9d91e39582a6eb763a3d73a9"
@@ -3922,6 +3929,11 @@
   dependencies:
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
+
+"@shapeshiftoss/types@^1.4.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.0.tgz#ae0352d6559e2d4757701bfeadd5f0cdad4d8838"
+  integrity sha512-X6p19KLKsOpu+DeWnaLCPq+TPqq2KuemeSMM6JcCmRsb3zRXSBgmumVAMQeL60UB1TytgJ6ggYdk8kUd2ZklLg==
 
 "@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.7.0":
   version "1.7.0"

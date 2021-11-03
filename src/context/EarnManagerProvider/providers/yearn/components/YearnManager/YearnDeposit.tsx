@@ -159,7 +159,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         dispatch({ type: YearnActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: YearnActionType.SET_VAULT, payload: { apy } })
       } catch (error) {
-        // TODO: handle client side errors
         console.error('error', error)
       }
     })()
@@ -167,15 +166,19 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
   const getApproveEstimate = async () => {
     if (!state.userAddress || !tokenId) return
-    const [gasLimit, gasPrice] = await Promise.all([
-      api.approveEstimatedGas({
-        spenderAddress: vaultAddress,
-        tokenContractAddress: tokenId,
-        userAddress: state.userAddress
-      }),
-      api.getGasPrice()
-    ])
-    return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.approveEstimatedGas({
+          spenderAddress: vaultAddress,
+          tokenContractAddress: tokenId,
+          userAddress: state.userAddress
+        }),
+        api.getGasPrice()
+      ])
+      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+    } catch (error) {
+      console.error('error', error)
+    }
   }
 
   const handleContinue = async (formValues: DepositValues) => {
@@ -231,8 +234,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
           return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
         },
-        interval: 8000,
-        maxAttempts: 20
+        interval: 15000,
+        maxAttempts: 30
       })
       memoryHistory.push(DepositPath.Confirm)
     } catch (error) {

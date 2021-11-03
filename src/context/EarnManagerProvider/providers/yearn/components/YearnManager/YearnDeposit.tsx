@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+// import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
@@ -22,6 +22,7 @@ import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { poll } from 'lib/poll/poll'
 
 import { YearnVaultApi } from '../../api/api'
 import { YearnRouteSteps } from '../YearnRouteSteps'
@@ -32,7 +33,7 @@ enum DepositPath {
   ApproveSettings = '/deposit/approve/settings',
   Confirm = '/deposit/confirm',
   ConfirmSettings = '/deposit/confirm/settings',
-  Broadcast = '/deposit/broadcast'
+  Status = '/deposit/status'
 }
 
 export const routes = [
@@ -41,7 +42,7 @@ export const routes = [
   { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
   { step: 2, path: DepositPath.Confirm, label: 'Confirm Deposit' },
   { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: DepositPath.Broadcast, label: 'Broadcast' }
+  { step: 3, path: DepositPath.Status, label: 'Status' }
 ]
 
 type YearnDepositProps = {
@@ -63,11 +64,13 @@ export type YearnDepositState = {
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
+  loading: boolean
 }
 
 const initialState = {
   vault: { apy: '0' },
   userAddress: null,
+  loading: false,
   approve: {} as EstimatedGas,
   deposit: {} as YearnDepositValues
 }
@@ -76,7 +79,8 @@ export enum YearnActionType {
   SET_VAULT = 'SET_VAULT',
   SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
-  SET_DEPOSIT = 'SET_DEPOSIT'
+  SET_DEPOSIT = 'SET_DEPOSIT',
+  SET_LOADING = 'SET_LOADING'
 }
 
 type SetVaultAction = {
@@ -99,7 +103,12 @@ type SetUserAddress = {
   payload: string
 }
 
-type YearnDepositActions = SetVaultAction | SetApprove | SetDeposit | SetUserAddress
+type SetLoading = {
+  type: YearnActionType.SET_LOADING
+  payload: boolean
+}
+
+type YearnDepositActions = SetVaultAction | SetApprove | SetDeposit | SetUserAddress | SetLoading
 
 const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
   switch (action.type) {
@@ -111,6 +120,8 @@ const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
     case YearnActionType.SET_USER_ADDRESS:
       return { ...state, userAddress: action.payload }
+    case YearnActionType.SET_LOADING:
+      return { ...state, loading: action.payload }
     default:
       return state
   }
@@ -129,6 +140,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
   // user info
   const chainAdapterManager = useChainAdapters()
+  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
   const { balances, loading } = useFlattenedBalances()
 
@@ -141,7 +153,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     ;(async () => {
       try {
         if (!walletState.wallet) return
-        const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
         const [address, apy] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.apy({ vaultAddress })
@@ -153,7 +164,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         console.error('error', error)
       }
     })()
-  }, [api, chainAdapterManager, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getApproveEstimate = async () => {
     if (!state.userAddress || !tokenId) return
@@ -196,11 +207,44 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const handleApprove = async () => {
-    memoryHistory.push(DepositPath.Confirm)
+    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    try {
+      dispatch({ type: YearnActionType.SET_LOADING, payload: true })
+      await api.approve({
+        bip32Params: {
+          purpose: 44,
+          coinType: 60,
+          accountNumber: 0
+        },
+        spenderAddress: vaultAddress,
+        tokenContractAddress: tokenId,
+        userAddress: state.userAddress,
+        wallet: walletState.wallet
+      })
+      await poll({
+        fn: () =>
+          api.allowance({
+            tokenContractAddress: tokenId!,
+            spenderAddress: vaultAddress,
+            userAddress: state.userAddress!
+          }),
+        validate: (result: string) => {
+          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
+        },
+        interval: 8000,
+        maxAttempts: 20
+      })
+      memoryHistory.push(DepositPath.Confirm)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+    }
   }
 
   const handleConfirm = async () => {
-    memoryHistory.push(DepositPath.Broadcast)
+    memoryHistory.push(DepositPath.Status)
   }
 
   const handleViewPosition = () => {}
@@ -260,11 +304,10 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               .div(`1e+${feeAsset.precision}`)
               .times(feeMarketData.price)
               .toFixed(2)}
-            loading={false}
+            loading={state.loading}
             loadingText='Approve on Wallet'
             onCancel={handleCancel}
             onConfirm={handleApprove}
-            wallet={{} as HDWallet}
           />
         )
       case DepositPath.Confirm:
@@ -328,7 +371,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             </Stack>
           </Confirm>
         )
-      case DepositPath.Broadcast:
+      case DepositPath.Status:
         return (
           <BroadcastTx
             onClose={handleCancel}

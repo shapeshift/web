@@ -52,7 +52,7 @@ export class YearnVaultApi {
   }
 
   findByVaultTokenId(tokenId: string) {
-    const vault = vaults.find((item: YearnVault) => item.contractAddress === tokenId)
+    const vault = vaults.find((item: YearnVault) => item.vaultAddress === tokenId)
     if (!vault) throw new Error(`Vault for ${tokenId} isn't supported`)
     return vault
   }

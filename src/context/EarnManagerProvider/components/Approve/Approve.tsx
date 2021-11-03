@@ -2,7 +2,6 @@ import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { ModalBody, ModalFooter } from '@chakra-ui/modal'
 import { CircularProgress, CircularProgressLabel } from '@chakra-ui/progress'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -22,7 +21,6 @@ type ApproveProps = {
   loadingText?: string
   onConfirm(): Promise<void>
   onCancel(): void
-  wallet: HDWallet
 }
 
 export const Approve = ({

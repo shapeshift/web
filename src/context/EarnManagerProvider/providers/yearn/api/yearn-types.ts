@@ -14,7 +14,6 @@ export type ApproveInput = {
   spenderAddress: string
   tokenContractAddress: string
   userAddress: string
-  vaultAddress: string
   wallet: HDWallet
 }
 

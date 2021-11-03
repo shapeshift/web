@@ -7,7 +7,7 @@ import Web3 from 'web3'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../constants/erc20-abi'
-import { vaults, YearnVault } from '../constants/vaults'
+import { SUPPORTED_VAULTS } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
 import {
@@ -25,10 +25,43 @@ export type ConstructorArgs = {
   providerUrl: string
 }
 
+export type YearnVault = {
+  inception: 12022103
+  address: string
+  symbol: string
+  name: string
+  display_name: string
+  icon: string
+  token: {
+    name: string
+    symbol: string
+    address: string
+    decimals: number
+    display_name: string
+    icon: string
+  }
+  tvl: {
+    total_assets: number
+    price: number
+    tvl: number
+  }
+  apy: {
+    net_apy: number
+  }
+  endorsed: boolean
+  version: string
+  decimals: number
+  type: string
+  emergency_shutdown: boolean
+}
+
+const lower = (str: string) => str.toLowerCase()
+
 export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
   public web3: Web3
+  public vaults: YearnVault[]
   public yearnClient: AxiosInstance
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
@@ -38,21 +71,29 @@ export class YearnVaultApi {
     this.yearnClient = axios.create({
       baseURL: 'https://api.yearn.finance/v1'
     })
+    this.vaults = []
   }
 
-  findAll() {
-    return vaults
+  async initialize() {
+    this.vaults = await this.findAll()
+  }
+
+  async findAll() {
+    const response = await this.yearnClient.get(`/chains/1/vaults/all`)
+    return response.data.filter((vault: YearnVault) =>
+      SUPPORTED_VAULTS.find(supported => lower(supported.vaultAddress) === lower(vault.address))
+    )
   }
 
   findByDepositTokenId(tokenId: string) {
-    const vault = vaults.find((item: YearnVault) => item.depositToken === tokenId)
+    const vault = this.vaults.find(item => lower(item.token.address) === lower(tokenId))
     if (!vault) throw new Error(`Vault for ERC-20 ${tokenId} isn't supported`)
     return vault
   }
 
-  findByVaultTokenId(tokenId: string) {
-    const vault = vaults.find((item: YearnVault) => item.vaultAddress === tokenId)
-    if (!vault) throw new Error(`Vault for ${tokenId} isn't supported`)
+  findByVaultTokenId(vaultAddress: string) {
+    const vault = this.vaults.find(item => lower(item.address) === lower(vaultAddress))
+    if (!vault) throw new Error(`Vault for ${vaultAddress} isn't supported`)
     return vault
   }
 

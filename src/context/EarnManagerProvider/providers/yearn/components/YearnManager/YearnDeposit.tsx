@@ -23,7 +23,7 @@ import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 
-import { YearnVaultApi } from '../../api/api'
+import { YearnVault, YearnVaultApi } from '../../api/api'
 import { YearnRouteSteps } from '../YearnRouteSteps'
 
 enum DepositPath {
@@ -48,10 +48,6 @@ type YearnDepositProps = {
   api: YearnVaultApi
 }
 
-type YearnVault = {
-  apy: string
-}
-
 type EstimatedGas = {
   estimatedGasCrypto?: string
 }
@@ -59,7 +55,7 @@ type EstimatedGas = {
 type YearnDepositValues = DepositValues & EstimatedGas
 
 export type YearnDepositState = {
-  vault: YearnVault
+  vault: Partial<YearnVault>
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
@@ -67,7 +63,7 @@ export type YearnDepositState = {
 }
 
 const initialState: YearnDepositState = {
-  vault: { apy: '0' },
+  vault: { apy: { net_apy: 0 } },
   userAddress: null,
   loading: false,
   approve: {},
@@ -140,6 +136,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const marketData = useMarketData({ chain, tokenId })
   const feeAsset = useFetchAsset({ chain })
   const feeMarketData = useMarketData({ chain })
+  // const vaultAsset = useFetchAsset({ chain, tokenId: '' })
 
   // user info
   const chainAdapterManager = useChainAdapters()
@@ -155,19 +152,20 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet) return
-        const [address, apy] = await Promise.all([
+        if (!walletState.wallet || !tokenId) return
+        const [address, vault] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.apy({ vaultAddress })
+          api.findByDepositTokenId(tokenId)
         ])
+
         dispatch({ type: YearnActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnActionType.SET_VAULT, payload: { apy } })
+        dispatch({ type: YearnActionType.SET_VAULT, payload: vault })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
 
   const getApproveEstimate = async () => {
     if (!state.userAddress || !tokenId) return
@@ -282,7 +280,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         return (
           <Deposit
             asset={asset}
-            apy={state.vault.apy}
+            apy={String(state.vault.apy?.net_apy)}
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,

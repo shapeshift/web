@@ -17,12 +17,18 @@ export const YearnManager = () => {
   const adapters = useChainAdapters()
 
   useEffect(() => {
-    setYearnApi(
-      new YearnVaultApi({
-        adapter: adapters.byChain(ChainTypes.Ethereum),
-        providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL
-      })
-    )
+    ;(async () => {
+      try {
+        const api = new YearnVaultApi({
+          adapter: adapters.byChain(ChainTypes.Ethereum),
+          providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL
+        })
+        await api.initialize()
+        setYearnApi(api)
+      } catch (error) {
+        console.error('YearnManager: error', error)
+      }
+    })()
   }, [adapters])
 
   if (!yearnApi)

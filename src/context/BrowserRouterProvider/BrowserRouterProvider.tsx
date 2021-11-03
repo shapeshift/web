@@ -14,7 +14,7 @@ const BrowserRouterContext = React.createContext<BrowserRouterContextProps<any, 
 
 export function useBrowserRouter<Q, P>() {
   const ctx = useContext<BrowserRouterContextProps<Q, P> | null>(BrowserRouterContext)
-  if (!ctx) throw new Error('blah')
+  if (!ctx) throw new Error("useBrowserRouter can't be used outside of BrowserRouterContext")
   return ctx
 }
 

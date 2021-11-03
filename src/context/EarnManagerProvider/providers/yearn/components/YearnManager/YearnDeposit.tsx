@@ -2,7 +2,6 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { History } from 'history'
 import { useEffect, useState } from 'react'
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -10,13 +9,14 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Approve } from 'context/EarnManagerProvider/components/Approve/Approve'
 import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'context/EarnManagerProvider/components/Deposit/Deposit'
 import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
-import { EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
+import { EarnParams, EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
@@ -46,15 +46,14 @@ export const routes = [
 
 type YearnDepositProps = {
   api: YearnVaultApi
-  browserHistory: History
-  query: EarnQueryParams
 }
 
-export const YearnDeposit = ({ api, browserHistory, query }: YearnDepositProps) => {
+export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [apy, setApy] = useState('0')
   const [userAddress, setUserAddress] = useState<string | null>(null)
   const [, /* values */ setValues] = useState<DepositValues>({} as DepositValues)
   const depositRoute = useRouteMatch({ path: DepositPath.Deposit, strict: true })
+  const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   // Asset info
@@ -67,7 +66,7 @@ export const YearnDeposit = ({ api, browserHistory, query }: YearnDepositProps) 
   const { balances, loading } = useFlattenedBalances()
 
   // navigation
-  const memHistory = useHistory()
+  const memoryHistory = useHistory()
 
   useEffect(() => {
     ;(async () => {
@@ -99,16 +98,16 @@ export const YearnDeposit = ({ api, browserHistory, query }: YearnDepositProps) 
     })
     const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
     allowance.gt(formValues.cryptoAmount)
-      ? memHistory.push(DepositPath.Confirm)
-      : memHistory.push(DepositPath.Approve)
+      ? memoryHistory.push(DepositPath.Confirm)
+      : memoryHistory.push(DepositPath.Approve)
   }
 
   const handleApprove = async () => {
-    memHistory.push(DepositPath.Confirm)
+    memoryHistory.push(DepositPath.Confirm)
   }
 
   const handleConfirm = async () => {
-    memHistory.push(DepositPath.Broadcast)
+    memoryHistory.push(DepositPath.Broadcast)
   }
 
   const handleViewPosition = () => {}

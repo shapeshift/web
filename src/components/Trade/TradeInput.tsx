@@ -76,11 +76,13 @@ export const TradeInput = ({ history }: RouterProps) => {
           }
         })
       } else {
+        // TODO: (ryankk) add error handling for these states
+        if (!quote?.sellAsset || !quote?.buyAsset || !sellAsset.amount) return
         const result = await buildQuoteTx({
           wallet,
-          sellAsset: quote.sellAsset,
-          buyAsset: quote.buyAsset,
-          amount: sellAsset.amount
+          sellAsset: quote?.sellAsset,
+          buyAsset: quote?.buyAsset,
+          amount: sellAsset?.amount
         })
         result?.success && history.push({ pathname: '/trade/confirm', state: { ethFiatRate } })
       }
@@ -94,14 +96,13 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
     // TODO: (ryankk) make sure this is the behavior we want
-    if (!currentBuyAsset?.amount) return
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
     setValue('action', action)
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
     getQuote({
-      amount: currentBuyAsset.amount,
+      amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
       action
@@ -109,7 +110,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   // TODO:(ryankk) fix error handling
-  const error = errors?.quote?.value?.message ?? ''
+  const error = errors?.quote?.value?.message ?? null
 
   return (
     <SlideTransition>
@@ -196,7 +197,9 @@ export const TradeInput = ({ history }: RouterProps) => {
               <>
                 <RawText textAlign='right' fontSize='sm'>{`1 ${
                   sellAsset.currency?.symbol
-                } = ${firstNonZeroDecimal(bn(quote.rate))} ${buyAsset?.currency?.symbol}`}</RawText>
+                } = ${firstNonZeroDecimal(bn(quote?.rate || ''))} ${
+                  buyAsset?.currency?.symbol
+                }`}</RawText>
                 <HelperTooltip label='The price is ' />
               </>
             )}

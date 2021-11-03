@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.8.0...@shapeshiftoss/swapper-v1.9.0) (2021-11-03)
+
+
+### Features
+
+* asset service caip19s ([#184](https://github.com/shapeshift/lib/issues/184)) ([9b796ef](https://github.com/shapeshift/lib/commit/9b796ef386666674456706d190abf7562883a112))
+
 # [@shapeshiftoss/swapper-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.7.1...@shapeshiftoss/swapper-v1.8.0) (2021-10-31)
 
 

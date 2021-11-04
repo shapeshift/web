@@ -129,8 +129,8 @@ export const Withdraw = ({
 
   const values = useWatch({ control })
   const cryptoField = activeField === InputType.Crypto
-  const cryptoError = get(errors, 'cryptoAmount.message', null)
-  const fiatError = get(errors, 'fiatAmount.message', null)
+  const cryptoError = errors?.cryptoAmount?.message ?? null
+  const fiatError = errors?.fiatAmount?.message ?? null
   const fieldError = cryptoError || fiatError
 
   const handleInputToggle = () => {

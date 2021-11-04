@@ -5,9 +5,9 @@ import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetTo
 import { SlideTransition } from 'components/SlideTransition'
 
 type Status =
-  | 'modals.broadcast.header.pending'
-  | 'modals.broadcast.header.success'
-  | 'modals.broadcast.header.error'
+  | 'modals.status.header.pending'
+  | 'modals.status.header.success'
+  | 'modals.status.header.error'
 
 type TxStatusProps = {
   loading?: boolean

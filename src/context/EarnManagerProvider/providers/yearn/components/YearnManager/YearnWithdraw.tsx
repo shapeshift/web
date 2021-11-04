@@ -11,9 +11,9 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
+import { TxStatus } from 'context/EarnManagerProvider/components/TxStatus/TxStatus'
 import { Withdraw, WithdrawValues } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
 import { EarnParams, EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -248,7 +248,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                 </Row.Value>
               </Row>
             </Stack>
-          </BroadcastTx>
+          </TxStatus>
         )
       default:
         throw new Error('Route does not exist')

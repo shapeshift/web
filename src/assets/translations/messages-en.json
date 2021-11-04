@@ -172,7 +172,7 @@
       "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
-      "gasUsed": "Gas Fee",
+      "gasUsed": "Total Gas Fee",
       "continue": "View My Position",
       "viewAsset": "View Asset",
       "close": "Close"

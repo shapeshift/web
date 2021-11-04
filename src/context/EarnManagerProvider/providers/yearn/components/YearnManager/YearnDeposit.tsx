@@ -565,12 +565,12 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         return (
           <TxStatus
             onClose={handleCancel}
-            onContinue={handleViewPosition}
+            onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
             loading={state.loading}
             statusText={statusText}
             statusIcon={statusIcon}
-            continueText='continue'
-            closeText='close'
+            continueText='modals.status.continue'
+            closeText='modals.status.close'
             assets={[
               {
                 ...asset,

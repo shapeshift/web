@@ -293,7 +293,7 @@ export const Withdraw = ({
                           value={bnOrZero(value).toFixed(2)}
                           onChange={e => {
                             onChange(amountRef.current)
-                            handleInputChange(amountRef.current as string)
+                            if (amountRef.current) handleInputChange(amountRef.current)
                             amountRef.current = null
                           }}
                           onValueChange={e => {

@@ -25,8 +25,14 @@ export interface SupportedWalletInfo {
   routes: RouteProps[]
 }
 
-export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
-  native: {
+export enum KeyMananger {
+  Native = 'native',
+  KeepKey = 'keepkey',
+  MetaMask = 'metamask'
+}
+
+export const SUPPORTED_WALLETS: Record<KeyMananger, SupportedWalletInfo> = {
+  [KeyMananger.Native]: {
     adapter: NativeAdapter,
     icon: ShapeShiftVertical,
     name: 'ShapeShift',
@@ -39,7 +45,7 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
       { path: '/native/success', component: NativeSuccess }
     ]
   },
-  keepkey: {
+  [KeyMananger.KeepKey]: {
     adapter: WebUSBKeepKeyAdapter,
     icon: KeepKeyIcon,
     name: 'KeepKey',
@@ -48,7 +54,7 @@ export const SUPPORTED_WALLETS: { [key: string]: SupportedWalletInfo } = {
       { path: '/keepkey/success', component: KeepKeySuccess }
     ]
   },
-  metamask: {
+  [KeyMananger.MetaMask]: {
     adapter: MetaMaskAdapter,
     icon: MetaMaskIcon,
     name: 'MetaMask',

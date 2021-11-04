@@ -7,11 +7,10 @@ import {
   ModalHeader
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
-import { Adapter } from '@shapeshiftoss/hdwallet-keepkey'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyMananger, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
@@ -54,14 +53,14 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
-    if (state.adapters?.keepkey) {
-      const wallet = await (state.adapters.keepkey as Adapter<any>).pairDevice()
+    if (state.adapters && state.adapters?.has(KeyMananger.KeepKey)) {
+      const wallet = await state.adapters.get(KeyMananger.KeepKey)?.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
       }
 
-      const { name, icon } = SUPPORTED_WALLETS['keepkey']
+      const { name, icon } = SUPPORTED_WALLETS[KeyMananger.KeepKey]
       try {
         const deviceId = await wallet.getDeviceID()
         state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {

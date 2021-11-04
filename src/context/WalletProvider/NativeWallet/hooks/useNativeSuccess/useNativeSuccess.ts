@@ -1,7 +1,6 @@
-import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
 import { useEffect } from 'react'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyMananger, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
@@ -15,14 +14,21 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
 
   useEffect(() => {
     ;(async () => {
-      if (encryptedWallet?.encryptedWallet && state.adapters?.native) {
+      if (
+        encryptedWallet?.encryptedWallet &&
+        state.adapters &&
+        state.adapters.has(KeyMananger.Native)
+      ) {
         try {
+          const adapter = state.adapters.get(KeyMananger.Native)
+          if (!adapter) throw new Error('Native Adapter is not available')
+
           let mnemonic = await encryptedWallet.decrypt()
           const deviceId = encryptedWallet.deviceId
           if (!deviceId) {
             throw new Error('useNativeSuccess no deviceId available')
           }
-          const wallet = await (state.adapters.native as NativeAdapter).pairDevice(deviceId)
+          const wallet = await adapter.pairDevice(deviceId)
           await wallet?.loadDevice({ mnemonic })
           mnemonic = '' // Clear out the mnemonic as soon as we're done with it
           setLocalStorageWallet({

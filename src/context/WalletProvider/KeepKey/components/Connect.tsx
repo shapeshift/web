@@ -10,7 +10,7 @@ import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { KeyMananger, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
@@ -53,14 +53,14 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
-    if (state.adapters && state.adapters?.has(KeyMananger.KeepKey)) {
-      const wallet = await state.adapters.get(KeyMananger.KeepKey)?.pairDevice()
+    if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
+      const wallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
       }
 
-      const { name, icon } = SUPPORTED_WALLETS[KeyMananger.KeepKey]
+      const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
       try {
         const deviceId = await wallet.getDeviceID()
         state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {

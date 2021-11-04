@@ -22,7 +22,7 @@ import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Text } from 'components/Text'
-import { KeyMananger, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
@@ -55,7 +55,7 @@ export const NativePasswordRequired = ({
             mnemonic: await encryptedWallet.decrypt(),
             deviceId: encryptedWallet.deviceId
           })
-          const { name, icon } = SUPPORTED_WALLETS[KeyMananger.Native]
+          const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -86,11 +86,11 @@ export const NativePasswordRequired = ({
   } = useForm()
 
   useEffect(() => {
-    if (!(localStorageWallet && state.adapters?.has(KeyMananger.Native))) return
+    if (!(localStorageWallet && state.adapters?.has(KeyManager.Native))) return
     ;(async () => {
       for (const [deviceId] of Object.entries(localStorageWallet)) {
         try {
-          const device = await state.adapters?.get(KeyMananger.Native)?.pairDevice(deviceId)
+          const device = await state.adapters?.get(KeyManager.Native)?.pairDevice(deviceId)
           await device?.initialize()
           console.info('Found native wallet', deviceId)
         } catch (e) {

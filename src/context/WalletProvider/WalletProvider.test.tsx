@@ -3,7 +3,7 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { TestProviders } from 'jest/TestProviders'
 
-import { KeyMananger, SUPPORTED_WALLETS } from './config'
+import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useWallet, WalletActions, WalletProvider } from './WalletProvider'
 
 jest.mock('@shapeshiftoss/hdwallet-keepkey-webusb', () => ({
@@ -89,7 +89,7 @@ describe('WalletProvider', () => {
   describe('connect', () => {
     it('dispatches SET_CONNECTOR_TYPE and SET_INITAL_ROUTE', async () => {
       const { result } = await setup()
-      const type = KeyMananger.Native
+      const type = KeyManager.Native
       expect(result.current.state.wallet).toBe(null)
       expect(result.current.state.walletInfo).toBe(null)
       expect(result.current.state.isConnected).toBe(false)

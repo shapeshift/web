@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 
-import { KeyMananger } from '../../../config'
+import { KeyManager } from '../../../config'
 
 type StoredWallets = Record<string, string>
 
@@ -11,9 +11,9 @@ export const useInitializeWalletFromStorage = () => {
   const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
 
   useEffect(() => {
-    if (!(localStorageWallet && state.adapters?.has(KeyMananger.Native))) return
+    if (!(localStorageWallet && state.adapters?.has(KeyManager.Native))) return
     ;(async () => {
-      const adapter = state.adapters?.get(KeyMananger.Native)
+      const adapter = state.adapters?.get(KeyManager.Native)
       if (adapter) {
         for (const [deviceId] of Object.entries(localStorageWallet)) {
           try {

@@ -1,6 +1,6 @@
 import { Button, ModalBody, ModalHeader, Stack, Text } from '@chakra-ui/react'
 
-import { SUPPORTED_WALLETS } from './config'
+import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useWallet } from './WalletProvider'
 
 export const SelectModal = () => {
@@ -18,9 +18,9 @@ export const SelectModal = () => {
         <Text mb={6} color='gray.500' translation={'walletProvider.selectModal.body'} />
         <Stack mb={6}>
           {adapters &&
-            // Only iterate over the adapters that successfully initialized
-            // e.g., KeepKey adapter may fail due to the USB interface being in use by another tab
-            Array.from(adapters.keys()).map(key => {
+            // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
+            // So not all of the supported wallets will have an initialized adapter
+            Object.values(KeyManager).map(key => {
               const option = SUPPORTED_WALLETS[key]
               const Icon = option.icon
               return (

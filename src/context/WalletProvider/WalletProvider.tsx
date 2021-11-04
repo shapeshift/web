@@ -9,7 +9,7 @@ import React, {
   useReducer
 } from 'react'
 
-import { KeyMananger, SUPPORTED_WALLETS } from './config'
+import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
@@ -29,12 +29,12 @@ type GenericAdapter = {
   pairDevice: (...args: any[]) => Promise<HDWallet>
 }
 
-type Adapters = Map<KeyMananger, GenericAdapter>
+type Adapters = Map<KeyManager, GenericAdapter>
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
-  type: KeyMananger | null
+  type: KeyManager | null
   initialRoute: string | null
   walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps>; deviceId: string } | null
   isConnected: boolean
@@ -55,7 +55,7 @@ const initialState: InitialState = {
 export interface IWalletContext {
   state: InitialState
   dispatch: React.Dispatch<ActionTypes>
-  connect: (adapter: KeyMananger) => Promise<void>
+  connect: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
 }
 
@@ -71,7 +71,7 @@ export type ActionTypes =
       }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
-  | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyMananger }
+  | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.RESET_STATE }
@@ -123,7 +123,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
-        for (const wallet of Object.values(KeyMananger)) {
+        for (const wallet of Object.values(KeyManager)) {
           try {
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
@@ -139,7 +139,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [state.keyring])
 
-  const connect = useCallback(async (type: KeyMananger) => {
+  const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     if (SUPPORTED_WALLETS[type]?.routes[0]?.path) {
       dispatch({

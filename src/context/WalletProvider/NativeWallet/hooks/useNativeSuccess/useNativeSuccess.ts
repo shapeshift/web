@@ -1,6 +1,6 @@
 import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
 import { useEffect } from 'react'
-import { KeyMananger, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
@@ -17,10 +17,10 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
       if (
         encryptedWallet?.encryptedWallet &&
         state.adapters &&
-        state.adapters.has(KeyMananger.Native)
+        state.adapters.has(KeyManager.Native)
       ) {
         try {
-          const adapter = state.adapters.get(KeyMananger.Native)
+          const adapter = state.adapters.get(KeyManager.Native)
           if (!adapter) throw new Error('Native Adapter is not available')
 
           let mnemonic = await encryptedWallet.decrypt()
@@ -34,7 +34,7 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
           setLocalStorageWallet({
             [encryptedWallet.deviceId]: encryptedWallet.encryptedWallet
           })
-          const { name, icon } = SUPPORTED_WALLETS[KeyMananger.Native]
+          const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name, icon, deviceId: encryptedWallet.deviceId }

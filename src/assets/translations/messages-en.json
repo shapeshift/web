@@ -68,6 +68,17 @@
     }
   },
   "modals": {
+    "keepKey": {
+      "passphrase": {
+        "errors": {
+          "unknown": "There was an error setting your passphrase",
+          "empty": "You are using an empty passphrase"
+        },
+        "header": "Enter Your Passphrase",
+        "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
+        "button": "Set Passphrase"
+      }
+    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
@@ -108,13 +119,20 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
-      "verify": "Verify"
+      "verify": "Verify",
+      "verified": "Verified",
+      "notVerified": "Address Mismatch"
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
       "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service.",
+      "slippageSettings": "Slippage Settings"
+    },
+    "withdraw": {
+      "amountToWithdraw": "Amount To Withdraw",
+      "footerDisclaimer": "This transaction will require one transaction gas fee.",
       "slippageSettings": "Slippage Settings"
     },
     "approve": {
@@ -126,7 +144,15 @@
       "reject": "Reject"
     },
     "confirm": {
-      "header": "Confirm Deposit",
+      "withdraw": {
+        "header": "Confirm Withdraw"
+      },
+      "deposit": {
+        "header": "Confirm Deposit",
+        "averageApr": "Average APR",
+        "estimatedReturns": "Estimated Yearly Returns*",
+        "preFooter": "Rewards acure automatically"
+      },
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",
@@ -147,14 +173,41 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "continue": "View My Position",
+      "viewAsset": "View Asset",
       "close": "Close"
     }
   },
   "walletProvider": {
+    "errors": {
+      "walletNotFound": "Unable to communicate with your wallet"
+    },
     "keepKey": {
-      "header": "Enter Your Pin",
-      "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
-      "button": "Unlock"
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with your KeepKey",
+        "pinCancelled": "PIN entry was cancelled",
+        "pinInvalid": "The PIN you entered is not valid",
+        "pinMismatch": "The two PINs you entered do not match"
+      },
+      "connect": {
+        "header": "Pair Your KeepKey",
+        "body": "Click Pair then select your KeepKey from the popup window",
+        "button": "Pair"
+      },
+      "pin": {
+        "header": "Enter Your Pin",
+        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+        "button": "Unlock"
+      },
+      "newPin": {
+        "header": "Enter Your New Pin",
+        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+        "button": "Confirm"
+      },
+      "newPinConfirm": {
+        "header": "Confirm Your New Pin",
+        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
+        "button": "Save PIN"
+      }
     },
     "shapeShift": {
       "nativeImport": {

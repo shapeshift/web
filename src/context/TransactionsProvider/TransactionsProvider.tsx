@@ -33,28 +33,30 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
-        const asset = assetData.find(asset => asset.chain === key)
-        if (!asset) throw new Error(`asset not found for chain ${key}`)
+        try {
+          const asset = assetData.find(asset => asset.chain === key)
+          if (!asset) throw new Error(`asset not found for chain ${key}`)
 
-        const accountType = allAccountTypes[getAccountTypeKey(key)]
+          const accountType = allAccountTypes[getAccountTypeKey(key)]
+          const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+          const address = await adapter.getAddress({
+            wallet,
+            ...accountParams
+          })
 
-        const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+          if (!address) return
 
-        const address = await adapter.getAddress({
-          wallet,
-          ...accountParams
-        })
-
-        if (!address) return
-
-        if (key !== ChainTypes.Ethereum) continue
-        await adapter.subscribeTxs(
-          { addresses: [address] },
-          msg => {
-            dispatch(txHistory.actions.onMessage({ message: msg }))
-          },
-          (err: any) => console.error(err)
-        )
+          if (key !== ChainTypes.Ethereum) continue
+          await adapter.subscribeTxs(
+            { addresses: [address] },
+            msg => {
+              dispatch(txHistory.actions.onMessage({ message: msg }))
+            },
+            (err: any) => console.error(err)
+          )
+        } catch (e) {
+          console.error('TransactionProvider: Error subscribing to transaction history', e)
+        }
       }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps

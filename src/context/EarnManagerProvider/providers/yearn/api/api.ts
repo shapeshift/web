@@ -3,6 +3,7 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
+import { toLower } from 'lodash'
 import Web3 from 'web3'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -26,7 +27,7 @@ export type ConstructorArgs = {
 }
 
 export type YearnVault = {
-  inception: 12022103
+  inception: number
   address: string
   symbol: string
   name: string
@@ -55,8 +56,6 @@ export type YearnVault = {
   emergency_shutdown: boolean
 }
 
-const lower = (str: string) => str.toLowerCase()
-
 export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
@@ -81,18 +80,18 @@ export class YearnVaultApi {
   async findAll() {
     const response = await this.yearnClient.get(`/chains/1/vaults/all`)
     return response.data.filter((vault: YearnVault) =>
-      SUPPORTED_VAULTS.find(supported => lower(supported.vaultAddress) === lower(vault.address))
+      SUPPORTED_VAULTS.find(supported => toLower(supported.vaultAddress) === toLower(vault.address))
     )
   }
 
   findByDepositTokenId(tokenId: string) {
-    const vault = this.vaults.find(item => lower(item.token.address) === lower(tokenId))
+    const vault = this.vaults.find(item => toLower(item.token.address) === toLower(tokenId))
     if (!vault) throw new Error(`Vault for ERC-20 ${tokenId} isn't supported`)
     return vault
   }
 
   findByVaultTokenId(vaultAddress: string) {
-    const vault = this.vaults.find(item => lower(item.address) === lower(vaultAddress))
+    const vault = this.vaults.find(item => toLower(item.address) === toLower(vaultAddress))
     if (!vault) throw new Error(`Vault for ${vaultAddress} isn't supported`)
     return vault
   }

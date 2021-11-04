@@ -321,7 +321,6 @@ export const Withdraw = ({
                       <PopoverArrow />
                       <PopoverCloseButton />
                       <PopoverHeader>
-                        {/* TODO translate */}
                         <Text fontSize='sm' translation='modals.withdraw.slippageSettings' />
                       </PopoverHeader>
                       <PopoverBody>

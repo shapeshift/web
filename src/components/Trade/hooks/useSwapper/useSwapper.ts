@@ -232,17 +232,15 @@ export const useSwapper = () => {
       ? sellAsset.currency.precision
       : isBuyAmount && buyAsset.currency.precision
     if (precision) {
-      formattedAmount = toBaseUnit(amount || '0', precision)
+      formattedAmount = toBaseUnit(bnOrZero(amount), precision)
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
-        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        const newFiatAmount = bn(buyAmount)
-          .times(buyAsset.fiatRate || 0)
-          .toFixed(2)
+        const buyAmount = fromBaseUnit(bnOrZero(quote.buyAmount), buyAsset.currency.precision)
+        const sellAmount = fromBaseUnit(bnOrZero(quote.sellAmount), sellAsset.currency.precision)
+        const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
 
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)
@@ -255,11 +253,11 @@ export const useSwapper = () => {
         } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
           setValue(
             'buyAsset.amount',
-            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
+            fromBaseUnit(bnOrZero(quote.buyAmount), buyAsset.currency.precision)
           )
           setValue(
             'sellAsset.amount',
-            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
+            fromBaseUnit(bnOrZero(quote.sellAmount), sellAsset.currency.precision)
           )
           setValue('action', undefined)
         }

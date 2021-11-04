@@ -1,0 +1,110 @@
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Button,
+  ModalBody,
+  ModalHeader
+} from '@chakra-ui/react'
+import { Event } from '@shapeshiftoss/hdwallet-core'
+import { Adapter } from '@shapeshiftoss/hdwallet-keepkey'
+import React, { useState } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
+import { Text } from 'components/Text'
+import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+
+import { LocationState } from '../../NativeWallet/types'
+import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
+import { FailureType, MessageType } from '../KeepKeyTypes'
+
+export interface KeepKeySetupProps
+  extends RouteComponentProps<
+    {},
+    any, // history
+    LocationState
+  > {
+  dispatch: React.Dispatch<ActionTypes>
+}
+
+const translateError = (event: Event) => {
+  let t: string
+  // eslint-disable-next-line default-case
+  switch (event.message?.code as FailureType) {
+    case FailureType.PINCANCELLED:
+      t = 'pinCancelled'
+      break
+    case FailureType.PININVALID:
+      t = 'pinInvalid'
+      break
+    default:
+      t = 'unknown'
+  }
+
+  return `walletProvider.keepKey.errors.${t}`
+}
+
+export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
+  const { dispatch, state } = useWallet()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // eslint-disable-next-line no-sequences
+  const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+
+  const pairDevice = async () => {
+    setError(null)
+    setLoading(true)
+    if (state.adapters?.keepkey) {
+      const wallet = await (state.adapters.keepkey as Adapter<any>).pairDevice()
+      if (!wallet) {
+        setErrorLoading('walletProvider.errors.walletNotFound')
+        return
+      }
+
+      const { name, icon } = SUPPORTED_WALLETS['keepkey']
+      try {
+        const deviceId = await wallet.getDeviceID()
+        state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
+          if (e[1].message_enum === MessageType.FAILURE) {
+            setErrorLoading(translateError(e[1]))
+          }
+        })
+
+        await wallet.initialize()
+
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: { wallet, name, icon, deviceId }
+        })
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        history.push('/keepkey/success')
+      } catch (e) {
+        console.error('KeepKey Connect: There was an error initializing the wallet', e)
+        setErrorLoading('walletProvider.keepKey.errors.unknown')
+      }
+    }
+    setLoading(false)
+  }
+
+  return (
+    <>
+      <ModalHeader>
+        <Text translation={'walletProvider.keepKey.connect.header'} />
+      </ModalHeader>
+      <ModalBody>
+        <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
+        <Button isFullWidth colorScheme='blue' onClick={pairDevice} disabled={loading}>
+          <Text translation={'walletProvider.keepKey.connect.button'} />
+        </Button>
+        {error && (
+          <Alert status='info' mt={4}>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation={error} />
+            </AlertDescription>
+          </Alert>
+        )}
+      </ModalBody>
+    </>
+  )
+}

@@ -19,7 +19,7 @@ export const Rewards = () => {
         pathname: '/earn/vault/yearn/deposit',
         search: qs.stringify({
           chain: ChainTypes.Ethereum,
-          contractAddress: '0xa258C4606Ca8206D8aA700cE2143D7db854D168c', // yvWETH vault address
+          contractAddress: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9', // yvUSDC vault address
           tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
         }),
         state: { background: location }

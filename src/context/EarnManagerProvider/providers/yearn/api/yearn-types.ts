@@ -1,5 +1,4 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 
 export type Allowanceinput = {
@@ -9,12 +8,11 @@ export type Allowanceinput = {
 }
 
 export type ApproveInput = {
-  bip32Params: BIP32Params
+  accountNumber?: number
   dryRun?: boolean
   spenderAddress: string
   tokenContractAddress: string
   userAddress: string
-  vaultAddress: string
   wallet: HDWallet
 }
 
@@ -24,7 +22,7 @@ export type ApproveEstimatedGasInput = Pick<
 >
 
 export type DepositInput = {
-  bip32Params: BIP32Params
+  accountNumber?: number
   dryRun?: boolean
   tokenContractAddress: string
   userAddress: string
@@ -34,7 +32,7 @@ export type DepositInput = {
 }
 
 export type WithdrawInput = {
-  bip32Params?: BIP32Params
+  accountNumber?: number
   dryRun?: boolean
   tokenContractAddress: string
   userAddress: string

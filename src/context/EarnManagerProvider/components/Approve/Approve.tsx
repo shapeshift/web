@@ -2,7 +2,6 @@ import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { ModalBody, ModalFooter } from '@chakra-ui/modal'
 import { CircularProgress, CircularProgressLabel } from '@chakra-ui/progress'
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -13,6 +12,7 @@ import { Text } from 'components/Text'
 
 type ApproveProps = {
   asset: Asset
+  feeAsset: Asset
   cryptoEstimatedGasFee: string
   disableAction?: boolean
   fiatEstimatedGasFee: string
@@ -21,18 +21,18 @@ type ApproveProps = {
   loadingText?: string
   onConfirm(): Promise<void>
   onCancel(): void
-  wallet: HDWallet
 }
 
 export const Approve = ({
-  onConfirm,
-  onCancel,
-  loading,
   asset,
-  learnMoreLink,
-  loadingText,
   cryptoEstimatedGasFee,
-  fiatEstimatedGasFee
+  feeAsset,
+  fiatEstimatedGasFee,
+  learnMoreLink,
+  loading,
+  loadingText,
+  onCancel,
+  onConfirm
 }: ApproveProps) => {
   const translate = useTranslate()
   return (
@@ -71,7 +71,7 @@ export const Approve = ({
                 <Amount.Crypto
                   color='gray.500'
                   value={cryptoEstimatedGasFee}
-                  symbol={asset.symbol}
+                  symbol={feeAsset.symbol}
                 />
               </Box>
             </Row.Value>

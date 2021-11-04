@@ -32,7 +32,7 @@ export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
           loadMore={next}
           hasMore={hasMore}
           loader={
-            <Center>
+            <Center key={0}>
               <CircularProgress isIndeterminate />
             </Center>
           }

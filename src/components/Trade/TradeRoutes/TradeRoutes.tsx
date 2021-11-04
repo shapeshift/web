@@ -1,5 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import { Redirect, Route, RouteProps, Switch, useLocation } from 'react-router-dom'
+import { Approval } from 'components/Approval/Approval'
 
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
 import { SelectAsset } from '../SelectAsset'
@@ -24,6 +25,7 @@ export const TradeRoutes = () => {
         />
         <Route path='/trade/input' component={TradeInput} />
         <Route path='/trade/confirm' component={TradeConfirm} />
+        <Route path='/trade/approval' component={Approval} />
         <Redirect from='/' to='/trade/input' />
       </Switch>
     </AnimatePresence>

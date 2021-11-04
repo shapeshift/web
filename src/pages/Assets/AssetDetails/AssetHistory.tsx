@@ -32,13 +32,13 @@ export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
           loadMore={next}
           hasMore={hasMore}
           loader={
-            <Center>
+            <Center key={0}>
               <CircularProgress isIndeterminate />
             </Center>
           }
         >
-          {data?.map((tx: Tx, id: number) => (
-            <TransactionRow key={id} tx={tx} />
+          {data?.map((tx: Tx) => (
+            <TransactionRow key={`${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
           ))}
         </InfiniteScroll>
       </Card.Body>

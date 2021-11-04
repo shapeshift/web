@@ -125,24 +125,22 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     tx: chainAdapters.BuildSendTxInput
   ): Promise<{
     txToSign: chainAdapters.ChainTxType<ChainTypes.Bitcoin>
-    estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
   }> {
     try {
       const {
         value,
         to,
-        recipients,
         wallet,
         bip32Params = ChainAdapter.defaultBIP32Params,
         feeSpeed,
         scriptType = BTCInputScriptType.SpendWitness
       } = tx
 
-      if (!recipients && (!value || !to)) {
-        throw new Error('BitcoinChainAdapter: recipients or (to and value) are required')
+      if (!value || !to) {
+        throw new Error('BitcoinChainAdapter: (to and value) are required')
       }
 
-      const btcRecipients = recipients || [{ value: Number(value), address: to }]
+      const btcRecipients = [{ value: Number(value), address: to }]
 
       const path = toRootDerivationPath(bip32Params)
       const changeScriptType = toBtcOutputScriptType(scriptType)
@@ -150,9 +148,23 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       const { data: utxos } = await this.providers.http.getUtxos({
         pubkey: pubkey.xpub
       })
+      const addressNList = bip32ToAddressNList(path)
+
+      if (!supportsBTC(wallet))
+        throw new Error(
+          'BitcoinChainAdapter: signTransaction wallet does not support signing btc txs'
+        )
+
+      const from = await wallet.btcGetAddress({
+        addressNList,
+        coin: this.coinName,
+        scriptType
+      })
+
+      if (!from) throw new Error('BitcoinChainAdapter: from undefined')
 
       const account = await this.getAccount(pubkey.xpub)
-      const estimatedFees = await this.getFeeData()
+      const estimatedFees = await this.getFeeData({ to, value, from })
       const satoshiPerByte = estimatedFees[feeSpeed ?? chainAdapters.FeeDataKey.Average].feePerUnit
 
       type MappedUtxos = Omit<bitcoin.api.Utxo, 'value'> & { value: number }
@@ -217,7 +229,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         fee
       }
 
-      return { txToSign, estimatedFees }
+      return { txToSign }
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -245,8 +257,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return broadcastedTx.data
   }
 
-  async getFeeData(): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
+  async getFeeData({
+    to,
+    from,
+    value
+  }: chainAdapters.GetFeeDataInput): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
     const feeData = await this.providers.http.getNetworkFees()
+
+    if (!to || !from || !value) throw new Error('to, from and value are required')
 
     if (
       !feeData.data.fast?.satsPerKiloByte ||
@@ -262,13 +280,25 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
     const confTimes: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin> = {
       [chainAdapters.FeeDataKey.Fast]: {
-        feePerUnit: fast
+        feePerUnit: fast,
+        chainSpecific: {
+          feePerTx: '0', // TODO,
+          byteCount: '0' // TODO
+        }
       },
       [chainAdapters.FeeDataKey.Average]: {
-        feePerUnit: average
+        feePerUnit: average,
+        chainSpecific: {
+          feePerTx: '0', // TODO,
+          byteCount: '0' // TODO
+        }
       },
       [chainAdapters.FeeDataKey.Slow]: {
-        feePerUnit: slow
+        feePerUnit: slow,
+        chainSpecific: {
+          feePerTx: '0', // TODO,
+          byteCount: '0' // TODO
+        }
       }
     }
     return confTimes

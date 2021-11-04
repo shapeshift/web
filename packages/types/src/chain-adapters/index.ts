@@ -69,6 +69,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
   T,
   {
     [ChainTypes.Ethereum]: ethereum.FeeData
+    [ChainTypes.Bitcoin]: bitcoin.FeeData
   }
 >
 

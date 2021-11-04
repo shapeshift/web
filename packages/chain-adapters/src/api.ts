@@ -17,7 +17,6 @@ export interface ChainAdapter<T extends ChainTypes> {
     input: chainAdapters.BuildSendTxInput
   ): Promise<{
     txToSign: chainAdapters.ChainTxType<T>
-    estimatedFees: chainAdapters.FeeDataEstimate<T>
   }>
 
   getAddress(input: chainAdapters.GetAddressInput): Promise<string>

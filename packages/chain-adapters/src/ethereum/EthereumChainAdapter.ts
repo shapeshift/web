@@ -113,7 +113,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     tx: chainAdapters.BuildSendTxInput
   ): Promise<{
     txToSign: ETHSignTx
-    estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
   }> {
     try {
       const {
@@ -162,7 +161,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         gasPrice: numberToHex(gasPrice),
         gasLimit: numberToHex(gasLimit)
       }
-      return { txToSign, estimatedFees }
+      return { txToSign }
     } catch (err) {
       return ErrorHandler(err)
     }

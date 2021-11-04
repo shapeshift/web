@@ -64,3 +64,8 @@ export type NodeTransaction = {
   time: number
   blocktime: number
 }
+
+export type FeeData = {
+  feePerTx: string
+  byteCount: string
+}

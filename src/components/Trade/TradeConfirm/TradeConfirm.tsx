@@ -14,7 +14,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 
@@ -108,7 +108,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </HelperTooltip>
                 <Box textAlign='right'>
                   <RawText>{`1 ${sellAsset.currency.symbol} = ${firstNonZeroDecimal(
-                    bn(quote?.rate || '')
+                    bnOrZero(quote?.rate)
                   )} ${buyAsset?.currency?.symbol}`}</RawText>
                   <RawText color='gray.500'>@{trade?.name}</RawText>
                 </Box>
@@ -119,13 +119,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Text translation='trade.minerFee' />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>
-                  {toFiat(
-                    bn(fees?.fee || '')
-                      .times(fiatRate)
-                      .toNumber()
-                  )}
-                </Row.Value>
+                <Row.Value>{toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}</Row.Value>
               </Row>
               <Row>
                 <HelperTooltip label='This is the Shapeshift Fee'>

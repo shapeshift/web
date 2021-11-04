@@ -1,13 +1,20 @@
 import { Asset } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 
-import { BN, bnOrZero } from './bignumber/bignumber'
+import { BN, bn, bnOrZero } from './bignumber/bignumber'
 
-export const fromBaseUnit = (value: string, decimals: number, displayDecimals = 6): string => {
+export const fromBaseUnit = (
+  value: BigNumber.Value,
+  decimals: number,
+  displayDecimals = 6
+): string => {
   return new BigNumber(value).div(`1e+${decimals}`).decimalPlaces(displayDecimals).toString()
 }
-export const toBaseUnit = (amount: string, precision: number): string => {
-  return bnOrZero(amount).times(bnOrZero(10).exponentiatedBy(precision)).toFixed(0)
+
+export const toBaseUnit = (amount: BigNumber.Value | undefined, precision: number): string => {
+  return bnOrZero(amount)
+    .times(bn(10).exponentiatedBy(bnOrZero(precision)))
+    .toFixed(0)
 }
 
 export const firstNonZeroDecimal = (number: BN) => {

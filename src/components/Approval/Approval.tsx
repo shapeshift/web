@@ -12,7 +12,7 @@ import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { theme } from 'theme/theme'
 
 type ApprovalParams = {
@@ -115,11 +115,7 @@ export const Approval = () => {
           translation={['trade.approveAsset', { symbol }]}
         />
         <Text color='gray.500' translation={['trade.needPermission', { symbol }]} />
-        <Link
-          isExternal
-          color='blue.500'
-          href={APPROVAL_PERMISSION_URL}
-        >
+        <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
           <Text color='blue.500' translation='trade.whyNeedThis' />
         </Link>
         <Divider my={4} />
@@ -145,13 +141,7 @@ export const Approval = () => {
               <Text color='gray.500' translation='trade.estimatedGasFee' />
             </Row.Label>
             <Row.Value>
-              <RawText>
-                {toFiat(
-                  bn(fee ?? '0')
-                    .times(fiatRate)
-                    .toNumber()
-                )}
-              </RawText>
+              <RawText>{toFiat(bnOrZero(fee).times(fiatRate).toNumber())}</RawText>
               <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
             </Row.Value>
           </Row>

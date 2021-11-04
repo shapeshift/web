@@ -25,7 +25,7 @@ import {
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
@@ -63,7 +63,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
-    if (!quote?.sellAsset || !quote?.buyAsset || !sellAsset.amount) return
+    if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
     const isERC20 = sellAsset.currency.contractType === ContractTypes.ERC20
 
     try {
@@ -200,7 +200,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               <>
                 <RawText textAlign='right' fontSize='sm'>{`1 ${
                   sellAsset.currency?.symbol
-                } = ${firstNonZeroDecimal(bn(quote?.rate || ''))} ${
+                } = ${firstNonZeroDecimal(bnOrZero(quote?.rate))} ${
                   buyAsset?.currency?.symbol
                 }`}</RawText>
                 <HelperTooltip label='The price is ' />

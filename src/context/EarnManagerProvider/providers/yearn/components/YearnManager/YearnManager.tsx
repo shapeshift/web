@@ -9,7 +9,7 @@ import { EarnAction, EarnParams } from 'context/EarnManagerProvider/EarnManagerP
 
 import { YearnVaultApi } from '../../api/api'
 import { routes as deposit, YearnDeposit } from './YearnDeposit'
-import { YearnWithdraw } from './YearnWithdraw'
+import { routes as withdraw, YearnWithdraw } from './YearnWithdraw'
 
 export const YearnManager = () => {
   const params = useParams<EarnParams>()
@@ -33,11 +33,15 @@ export const YearnManager = () => {
     )
 
   return params.action === EarnAction.Deposit ? (
-    <MemoryRouter initialIndex={0} initialEntries={deposit.map(route => route.path)}>
+    <MemoryRouter key='deposit' initialIndex={0} initialEntries={deposit.map(route => route.path)}>
       <YearnDeposit api={yearnApi} />
     </MemoryRouter>
   ) : (
-    <MemoryRouter>
+    <MemoryRouter
+      key='withdraw'
+      initialIndex={0}
+      initialEntries={withdraw.map(route => route.path)}
+    >
       <YearnWithdraw api={yearnApi} />
     </MemoryRouter>
   )

@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { AnimatePresence } from 'framer-motion'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
@@ -323,23 +324,30 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleConfirm}
-            prefooter={<Text color='gray.500' translation='modals.confirm.preFooter' />}
+            headerText='modals.confirm.deposit.header'
+            prefooter={<Text color='gray.500' translation='modals.confirm.deposit.preFooter' />}
             assets={[
               {
                 ...asset,
-                color: '#FF0000',
                 cryptoAmount: '100',
                 fiatAmount: '100'
               },
               {
                 ...asset,
-                color: '#FFFFFF',
                 cryptoAmount: '100',
                 fiatAmount: '100'
               }
             ]}
           >
             <Stack spacing={6}>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawFrom' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>
+                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                </Row.Value>
+              </Row>
               <Row>
                 <Row.Label>
                   <Text translation='modals.confirm.depositTo' />
@@ -359,7 +367,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.averageApr' />
+                  <Text translation='modals.confirm.deposit.averageApr' />
                 </Row.Label>
                 <Row.Value>
                   <Tag colorScheme='green'>4%</Tag>
@@ -367,7 +375,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.estimatedReturns' />
+                  <Text translation='modals.confirm.deposit.estimatedReturns' />
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
@@ -384,6 +392,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           <BroadcastTx
             onClose={handleCancel}
             onContinue={handleViewPosition}
+            continueText='modals.broadcast.continue'
+            closeText='modals.broadcast.close'
             loading={true}
             statusText='modals.broadcast.header.pending'
             statusIcon={<ArrowForwardIcon />}
@@ -432,7 +442,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.averageApr' />
+                  <Text translation='modals.confirm.deposit.averageApr' />
                 </Row.Label>
                 <Row.Value>
                   <Tag colorScheme='green'>4%</Tag>
@@ -440,7 +450,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.estimatedReturns' />
+                  <Text translation='modals.confirm.deposit.estimatedReturns' />
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
@@ -474,15 +484,29 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       flexDir={{ base: 'column', lg: 'row' }}
     >
       <YearnRouteSteps routes={routes} />
-      <Flex flexDir='column' width='full' minWidth='400px'>
+      <Flex
+        flexDir='column'
+        width='full'
+        minWidth={{ base: 'auto', lg: '450px' }}
+        maxWidth={{ base: 'auto', lg: '450px' }}
+      >
         {depositRoute && <EarnActionButtons />}
-        <Switch>
-          {routes.map(route => {
-            return (
-              <Route exact key={route.path} render={() => renderRoute(route)} path={route.path} />
-            )
-          })}
-        </Switch>
+        <Flex direction='column' minWidth='400px'>
+          <AnimatePresence exitBeforeEnter initial={false}>
+            <Switch location={location} key={location.key}>
+              {routes.map(route => {
+                return (
+                  <Route
+                    exact
+                    key={route.path}
+                    render={() => renderRoute(route)}
+                    path={route.path}
+                  />
+                )
+              })}
+            </Switch>
+          </AnimatePresence>
+        </Flex>
       </Flex>
     </Flex>
   )

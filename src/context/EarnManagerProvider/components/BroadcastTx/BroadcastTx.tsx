@@ -15,6 +15,8 @@ type BroadcastTxProps = {
   onContinue?(): void
   statusText: Status
   statusIcon: React.ReactNode
+  continueText: string
+  closeText: string
   children?: React.ReactNode
 } & AssetToAssetProps
 
@@ -22,6 +24,8 @@ export const BroadcastTx = ({
   onClose,
   onContinue,
   statusText,
+  continueText,
+  closeText,
   children,
   ...rest
 }: BroadcastTxProps) => {
@@ -38,11 +42,11 @@ export const BroadcastTx = ({
         <Stack width='full'>
           {onContinue && (
             <Button size='lg' colorScheme='blue' onClick={onContinue}>
-              {translate('modals.broadcast.continue')}
+              {translate(continueText)}
             </Button>
           )}
           <Button size='lg' variant='ghost' onClick={onClose}>
-            {translate('modals.broadcast.close')}
+            {translate(closeText)}
           </Button>
         </Stack>
       </ModalFooter>

@@ -130,6 +130,11 @@
       "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service.",
       "slippageSettings": "Slippage Settings"
     },
+    "withdraw": {
+      "amountToWithdraw": "Amount To Withdraw",
+      "footerDisclaimer": "This transaction will require one transaction gas fee.",
+      "slippageSettings": "Slippage Settings"
+    },
     "approve": {
       "header": "Allow ShapeShift.io to Spend Your %{asset}",
       "body": "We need your permission to use your %{asset}",
@@ -139,12 +144,18 @@
       "reject": "Reject"
     },
     "confirm": {
-      "header": "Confirm Deposit",
+      "withdraw": {
+        "header": "Confirm Withdraw"
+      },
+      "deposit": {
+        "header": "Confirm Deposit",
+        "averageApr": "Average APR",
+        "estimatedReturns": "Estimated Yearly Returns*",
+        "preFooter": "Rewards acure automatically"
+      },
       "depositTo": "Deposit To",
-      "averageApr": "Average APR",
-      "estimatedReturns": "Estimated Yearly Returns*",
+      "withdrawFrom": "Withdraw From",
       "estimatedGas": "Estimated Gas Fee",
-      "preFooter": "Rewards acure automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
     },
@@ -160,6 +171,7 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "continue": "View My Position",
+      "viewAsset": "View Asset",
       "close": "Close"
     }
   },

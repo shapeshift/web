@@ -10,7 +10,6 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -32,7 +31,7 @@ export const Address = () => {
   } = useFormContext()
   const [address, asset] = useWatch({ name: [SendFormFields.Address, SendFormFields.Asset] })
   const chainAdapters = useChainAdapters()
-  const adapter = chainAdapters.byChain(ChainTypes.Ethereum)
+  const adapter = chainAdapters.byChain(asset.chain)
   const { send } = useModal()
 
   const handleNext = () => history.push(SendRoutes.Details)

@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 
+import { KeyMananger } from '../../../config'
 import { useInitializeWalletFromStorage } from './useInitializeWalletFromStorage'
 
 jest.mock('context/WalletProvider/WalletProvider', () => ({
@@ -29,7 +30,7 @@ describe('useInitializeWalletFromStorage', () => {
     const { waitFor } = setup({
       localStorageWallet: { deviceId: 'deviceId' },
       walletState: {
-        adapters: { native: { pairDevice } }
+        adapters: new Map([[KeyMananger.Native, { pairDevice }]])
       }
     })
 
@@ -43,7 +44,7 @@ describe('useInitializeWalletFromStorage', () => {
     const { waitFor } = setup({
       localStorageWallet: { deviceId: 'deviceId' },
       walletState: {
-        adapters: { native: { pairDevice } }
+        adapters: new Map([[KeyMananger.Native, { pairDevice }]])
       }
     })
 

@@ -34,7 +34,7 @@ export const useNativeSuccess = ({ encryptedWallet }: UseNativeSuccessPropTypes)
           setLocalStorageWallet({
             [encryptedWallet.deviceId]: encryptedWallet.encryptedWallet
           })
-          const { name, icon } = SUPPORTED_WALLETS['native']
+          const { name, icon } = SUPPORTED_WALLETS[KeyMananger.Native]
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name, icon, deviceId: encryptedWallet.deviceId }

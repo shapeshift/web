@@ -4,7 +4,7 @@ import head from 'lodash/head'
 import toPairs from 'lodash/toPairs'
 import { useEffect } from 'react'
 import { FieldValues, UseFormClearErrors, UseFormSetError } from 'react-hook-form'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyMananger, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 import { getEncryptedWallet } from 'lib/nativeWallet'
@@ -36,7 +36,7 @@ export const useNativePasswordRequired = ({
             mnemonic: await encryptedWallet.decrypt(),
             deviceId: encryptedWallet.deviceId
           })
-          const { name, icon } = SUPPORTED_WALLETS?.['native']
+          const { name, icon } = SUPPORTED_WALLETS?.[KeyMananger.Native]
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
@@ -62,7 +62,7 @@ export const useNativePasswordRequired = ({
       clearErrors()
       onClose()
       // safe to non-null assert here as the wallet as emitted a ready event
-      const { name, icon } = SUPPORTED_WALLETS?.['native']
+      const { name, icon } = SUPPORTED_WALLETS?.[KeyMananger.Native]
       // deviceId is an empty string because it will be set onSubmit of the password form.
       dispatch({
         type: WalletActions.SET_WALLET,

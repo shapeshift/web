@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.9.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.9.0...@shapeshiftoss/types-v1.9.1) (2021-11-04)
+
+
+### Bug Fixes
+
+* fees part 1 cleanup ([#190](https://github.com/shapeshift/lib/issues/190)) ([c6fb104](https://github.com/shapeshift/lib/commit/c6fb104d282b88c80424ff7e90e25c2998b50feb))
+
 # [@shapeshiftoss/types-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.8.0...@shapeshiftoss/types-v1.9.0) (2021-11-02)
 
 

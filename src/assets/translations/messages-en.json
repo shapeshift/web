@@ -165,13 +165,14 @@
       "header": {
         "pending": "Waiting on Confirmation",
         "success": "Transaction Confirmed",
-        "error": "Error Executing Transaction"
+        "failed": "Transaction Execution Failed"
       },
       "depositTo": "Deposit To",
       "transactionId": "TX ID",
       "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "gasUsed": "Gas Fee",
       "continue": "View My Position",
       "viewAsset": "View Asset",
       "close": "Close"

@@ -7,7 +7,7 @@ import { SlideTransition } from 'components/SlideTransition'
 type Status =
   | 'modals.status.header.pending'
   | 'modals.status.header.success'
-  | 'modals.status.header.error'
+  | 'modals.status.header.failed'
 
 type TxStatusProps = {
   loading?: boolean

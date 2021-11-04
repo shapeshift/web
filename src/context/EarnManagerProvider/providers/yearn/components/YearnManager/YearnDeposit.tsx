@@ -364,7 +364,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       dispatch({ type: YearnActionType.SET_TXID, payload: txId })
       memoryHistory.push(DepositPath.Status)
 
-      // TODO: finish status screen
       const transactionReceipt = await poll({
         fn: () =>
           api.getTxReceipt({
@@ -390,7 +389,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     }
   }
 
-  const handleViewPosition = () => {}
+  const handleViewPosition = () => {
+    // TODO: go to position view.
+  }
 
   const handleCancel = () => {
     browserHistory.goBack()

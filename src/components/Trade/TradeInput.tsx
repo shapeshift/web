@@ -25,7 +25,7 @@ import {
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
@@ -157,7 +157,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             fieldName='sellAsset.amount'
             rules={{ required: true }}
             onInputChange={(amount: string) => {
-              if (Number(amount) !== Number(sellAsset.amount)) {
+              if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
                 const action = amount ? TradeActions.SELL : undefined
                 action ? setValue('action', action) : reset()
                 getQuote({ amount, sellAsset, buyAsset, action })

@@ -56,7 +56,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   ]
   const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
-  const chainAdapter = useChainAdapters()
+  const chainAdapterManager = useChainAdapters()
   const {
     state: { wallet }
   } = useWallet()
@@ -78,46 +78,51 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }, [balanceError, toast, history, translate])
 
-  const adapter = chainAdapter.byChain(asset.chain)
+  const adapter = chainAdapterManager.byChain(asset.chain)
 
   const currentAccountType: UtxoAccountType = useSelector(
     (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
   )
 
-  const buildTransaction = async (): Promise<{
-    txToSign: chainAdapters.ChainTxType<ChainTypes>
-    estimatedFees: chainAdapters.FeeDataEstimate<ChainTypes>
-  }> => {
+  const estimateFees = async (): Promise<chainAdapters.FeeDataEstimate<ChainTypes>> => {
     const values = getValues()
-    if (wallet) {
-      const value = bnOrZero(values.crypto.amount)
-        .times(bnOrZero(10).exponentiatedBy(values.asset.precision || ETH_PRECISION))
-        .toFixed(0)
 
-      try {
-        const accountParams = currentAccountType
-          ? utxoAccountParams(asset, currentAccountType, 0)
-          : {}
-        const data = await adapter.buildSendTransaction({
+    if (!wallet) throw new Error('No wallet connected')
+
+    const value = bnOrZero(values.crypto.amount)
+      .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
+      .toFixed(0)
+
+    const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
+
+    const from = await adapter.getAddress({
+      wallet,
+      ...accountParams
+    })
+
+    switch (values.asset.chain) {
+      case ChainTypes.Ethereum: {
+        const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+        return ethereumChainAdapter.getFeeData({
+          from,
           to: values.address,
           value,
-          erc20ContractAddress: values.asset.tokenId,
-          wallet,
-          ...accountParams
+          contractAddress: values.asset.tokenId
         })
-        return data
-      } catch (error) {
-        throw error
       }
+      case ChainTypes.Bitcoin: {
+        const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
+        return bitcoinChainAdapter.getFeeData({ from, to: values.address, value })
+      }
+      default:
+        throw new Error('unsupported chain type')
     }
-    throw new Error('No wallet connected')
   }
 
   const handleNextClick = async () => {
     try {
       setLoading(true)
-      const { txToSign, estimatedFees } = await buildTransaction()
-      setValue(SendFormFields.Transaction, txToSign)
+      const estimatedFees = await estimateFees()
       setValue(SendFormFields.EstimatedFees, estimatedFees)
       history.push(SendRoutes.Confirm)
     } catch (error) {
@@ -141,10 +146,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       })
 
       // Assume fast fee for send max
+      // This is used to make make sure its impossible to send more than our balance
       let fastFee: string = ''
       switch (chain) {
         case ChainTypes.Ethereum: {
-          const ethAdapter = chainAdapter.byChain(ChainTypes.Ethereum)
+          const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
           const contractAddress = tokenId
           const value = asset.tokenId ? '0' : assetBalance.balance
           const adapterFees = await ethAdapter.getFeeData({ to, from, value, contractAddress })
@@ -152,7 +158,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           break
         }
         case ChainTypes.Bitcoin: {
-          const btcAdapter = chainAdapter.byChain(ChainTypes.Bitcoin)
+          const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance.balance
           const adapterFees = await btcAdapter.getFeeData({ to, from, value })
           fastFee = adapterFees.fast.feePerUnit

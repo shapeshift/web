@@ -1,5 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import {utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { FeeData } from '@shapeshiftoss/types/dist/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -13,7 +15,7 @@ import { SendInput } from '../../Form'
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const chainAdapter = useChainAdapters()
+  const chainAdapterManager = useChainAdapters()
   const { send } = useModal()
   const {
     state: { wallet }
@@ -24,27 +26,50 @@ export const useFormSend = () => {
   const handleSend = async (data: SendInput) => {
     if (wallet) {
       try {
-        const adapter = chainAdapter.byChain(data.asset.chain)
+        const adapter = chainAdapterManager.byChain(data.asset.chain)
         const value = bnOrZero(data.crypto.amount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
-        const { estimatedFees, feeType } = data
-        const fees = estimatedFees[feeType]
-        const fee = fees.feePerUnit
-        const gasLimit = fees.chainSpecific?.feeLimit
+        const adapterType = adapter.getType()
 
-        const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
-        const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
-        const { txToSign } = await adapter.buildSendTransaction({
-          to: data.address,
-          value,
-          erc20ContractAddress: data.asset.tokenId,
-          wallet,
-          fee,
-          gasLimit,
-          ...accountParams
-        })
+        let result
+        if (adapterType === ChainTypes.Ethereum) {
+          const { estimatedFees, feeType } = data
+          const fees = estimatedFees[feeType] as FeeData<ChainTypes.Ethereum>
+          const fee = fees.feePerUnit
+          const gasLimit = fees.chainSpecific?.feeLimit
+          const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
+          const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
+          result = await adapter.buildSendTransaction({
+            to: data.address,
+            value,
+            erc20ContractAddress: data.asset.tokenId,
+            wallet,
+            fee,
+            gasLimit,
+            ...accountParams
+          })
+        } else if (adapterType === ChainTypes.Bitcoin) {
+          const { estimatedFees, feeType } = data
+          const fees = estimatedFees[feeType] as FeeData<ChainTypes.Bitcoin>
+          const fee = fees.feePerUnit
+          const gasLimit = fees.chainSpecific?.byteCount
+          const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
+          const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
+          result = await adapter.buildSendTransaction({
+            to: data.address,
+            value,
+            erc20ContractAddress: data.asset.tokenId,
+            wallet,
+            fee,
+            gasLimit,
+            ...accountParams
+          })
+        } else {
+          throw new Error('unsupported adapterType')
+        }
+        const txToSign = result.txToSign
 
         let broadcastTXID: string | undefined
 

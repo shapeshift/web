@@ -188,13 +188,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         )
       case WithdrawPath.Broadcast:
         return (
-          <BroadcastTx
+          <TxStatus
             onClose={handleCancel}
             onContinue={handleViewPosition}
             loading={true}
-            continueText='modals.broadcast.continue'
-            closeText='modals.broadcast.close'
-            statusText='modals.broadcast.header.pending'
+            continueText='modals.status.continue'
+            closeText='modals.status.close'
+            statusText='modals.status.header.pending'
             statusIcon={<ArrowForwardIcon />}
             assets={[
               {

@@ -9,7 +9,7 @@ type Status =
   | 'modals.broadcast.header.success'
   | 'modals.broadcast.header.error'
 
-type BroadcastTxProps = {
+type TxStatusProps = {
   loading?: boolean
   onClose(): void
   onContinue?(): void
@@ -20,7 +20,7 @@ type BroadcastTxProps = {
   children?: React.ReactNode
 } & AssetToAssetProps
 
-export const BroadcastTx = ({
+export const TxStatus = ({
   onClose,
   onContinue,
   statusText,
@@ -28,7 +28,7 @@ export const BroadcastTx = ({
   closeText,
   children,
   ...rest
-}: BroadcastTxProps) => {
+}: TxStatusProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>

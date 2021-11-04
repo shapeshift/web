@@ -42,7 +42,7 @@
     "fee": "Fee",
     "status": "Status",
     "confirmed": "Confirmed",
-    "pending": "pending",
+    "pending": "Pending",
     "failed": "Failed",
     "network": "Network",
     "blockHeight": "Block Height",
@@ -161,11 +161,11 @@
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
     },
-    "broadcast": {
+    "status": {
       "header": {
-        "pending": "Broadcasting Transaction",
-        "success": "Successfully Broadcast Transaction",
-        "error": "Error Broadcasting Transaction"
+        "pending": "Waiting on Confirmation",
+        "success": "Transaction Confirmed",
+        "error": "Error Executing Transaction"
       },
       "depositTo": "Deposit To",
       "transactionId": "TX ID",

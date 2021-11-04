@@ -13,10 +13,10 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Approve } from 'context/EarnManagerProvider/components/Approve/Approve'
-import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'context/EarnManagerProvider/components/Deposit/Deposit'
 import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
+import { TxStatus } from 'context/EarnManagerProvider/components/TxStatus/TxStatus'
 import { EarnParams, EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
@@ -523,11 +523,11 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         )
       case DepositPath.Status:
         return (
-          <BroadcastTx
+          <TxStatus
             onClose={handleCancel}
             onContinue={handleViewPosition}
             loading={state.loading}
-            statusText='modals.broadcast.header.pending'
+            statusText='modals.status.header.pending'
             statusIcon={<ArrowForwardIcon />}
             continueText='continue'
             closeText='close'
@@ -601,7 +601,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 </Row.Value>
               </Row>
             </Stack>
-          </BroadcastTx>
+          </TxStatus>
         )
       default:
         throw new Error('Route does not exist')

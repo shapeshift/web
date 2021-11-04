@@ -154,8 +154,10 @@
         "preFooter": "Rewards acure automatically"
       },
       "depositTo": "Deposit To",
-      "withdrawFrom": "Withdraw From",
+      "averageApy": "Average APY",
+      "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
     },
@@ -167,7 +169,7 @@
       },
       "depositTo": "Deposit To",
       "transactionId": "TX ID",
-      "averageApr": "Average APR",
+      "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "continue": "View My Position",
@@ -301,9 +303,9 @@
       "rewards": {
         "farmingRewards": "Farming Rewards",
         "currentRewards": "Current Rewards",
-        "currentAPR": "Current APR",
+        "currentAPY": "Current APY",
         "yourRewards": "Your Rewards",
-        "currentAPRLabel": "The current APR for your rewards",
+        "currentAPYLabel": "The current APY for your rewards",
         "claimRewards": "Claim Rewards"
       },
       "accounts": "Accounts",

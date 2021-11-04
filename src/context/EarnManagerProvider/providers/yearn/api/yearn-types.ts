@@ -21,7 +21,7 @@ export type ApproveEstimatedGasInput = Pick<
   'spenderAddress' | 'userAddress' | 'tokenContractAddress'
 >
 
-export type DepositInput = {
+export type TxInput = {
   accountNumber?: number
   dryRun?: boolean
   tokenContractAddress: string
@@ -31,15 +31,7 @@ export type DepositInput = {
   amountDesired: BigNumber
 }
 
-export type WithdrawInput = {
-  accountNumber?: number
-  dryRun?: boolean
-  tokenContractAddress: string
-  userAddress: string
-  vaultAddress?: string
-  wallet?: HDWallet
-  amountDesired: BigNumber
-}
+export type TxEstimatedGasInput = Pick<TxInput, 'vaultAddress' | 'userAddress' | 'amountDesired'>
 
 export type BalanceInput = {
   userAddress: string

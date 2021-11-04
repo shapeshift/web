@@ -26,7 +26,6 @@ import {
   VStack
 } from '@chakra-ui/react'
 import { Asset, MarketData } from '@shapeshiftoss/types'
-import get from 'lodash/get'
 import { useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'

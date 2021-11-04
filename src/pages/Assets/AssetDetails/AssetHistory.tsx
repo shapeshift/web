@@ -37,8 +37,8 @@ export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
             </Center>
           }
         >
-          {data?.map((tx: Tx) => (
-            <TransactionRow key={`${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
+          {data?.map((tx: Tx, id: number) => (
+            <TransactionRow key={id} tx={tx} />
           ))}
         </InfiniteScroll>
       </Card.Body>

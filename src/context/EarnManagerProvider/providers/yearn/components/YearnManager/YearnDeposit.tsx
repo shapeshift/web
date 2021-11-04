@@ -355,8 +355,10 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       dispatch({ type: YearnActionType.SET_TXID, payload: txid })
       memoryHistory.push(DepositPath.Status)
 
+      // TODO: finish status screen
       // await poll({})
       // dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+      // set stepper status if error else step one step forward
     } catch (error) {
       console.error('YearnDeposit:handleConfirm error', error)
     }

@@ -8,7 +8,7 @@ export const fromBaseUnit = (
   decimals: number,
   displayDecimals = 6
 ): string => {
-  return new BigNumber(value).div(`1e+${decimals}`).decimalPlaces(displayDecimals).toString()
+  return bnOrZero(value).div(`1e+${decimals}`).decimalPlaces(displayDecimals).toString()
 }
 
 export const toBaseUnit = (amount: BigNumber.Value | undefined, precision: number): string => {

@@ -56,7 +56,6 @@ export const useFormSend = () => {
           result = await adapter.buildSendTransaction({
             to: data.address,
             value,
-            erc20ContractAddress: data.asset.tokenId,
             wallet,
             fee,
             ...accountParams

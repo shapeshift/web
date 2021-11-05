@@ -3641,13 +3641,13 @@
   dependencies:
     "@shapeshiftoss/types" "^1.4.0"
 
-"@shapeshiftoss/chain-adapters@^1.10.0", "@shapeshiftoss/chain-adapters@^1.7.3":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.10.0.tgz#b01b36dc94572c6b933f77434527131567738553"
-  integrity sha512-ADRiGhaeKTnKLYes54/LHhaBlRhUei1ipLadfcEahKAyTLVQUEKA3bd9h9dAnMvakzpJ7AQ+bm4CBakpYdbSQQ==
+"@shapeshiftoss/chain-adapters@^1.11.0", "@shapeshiftoss/chain-adapters@^1.11.3":
+  version "1.11.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.11.3.tgz#7c264482fd1725e4387ea09afaf589f411f353fe"
+  integrity sha512-vflaSCn1FcXiy30rDOfx7UV0PpPJMlxXcUSpepoQfcQjZ/4DE+ru/qQT+VqcDnUoMrTvQmEhHytipjj4BWbDNQ==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
-    "@shapeshiftoss/types" "^1.5.0"
+    "@shapeshiftoss/types" "^1.9.1"
     "@shapeshiftoss/unchained-client" "^3.0.0"
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -3839,14 +3839,14 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.8.0":
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.8.0.tgz#64735c25e00e37c2592530c1ea95c4be8b7501a2"
-  integrity sha512-OKA+j4/oy9IWAXbrRpMLAKAE7TGaQX5Tx2TvTe9TYRIZpL0g7r+bd5Re5vu/KcE43kbdDmrajB278wVsbCteyQ==
+"@shapeshiftoss/swapper@^1.9.1":
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.9.1.tgz#40772a7708ceb58bf6df0207a73122efcbca5775"
+  integrity sha512-JM2OJnEPXZFSBnZR5GYjwVfFN4SfOh6MZIrfSyv6e/h/ZRfaIr6I+thP9vkW0j5g6MnF4leyj9esgoSFJdG/pQ==
   dependencies:
-    "@shapeshiftoss/chain-adapters" "^1.7.3"
+    "@shapeshiftoss/chain-adapters" "^1.11.0"
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
-    "@shapeshiftoss/types" "^1.5.0"
+    "@shapeshiftoss/types" "^1.9.0"
     axios "^0.21.4"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
@@ -3860,10 +3860,15 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.4.0", "@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.9.0":
+"@shapeshiftoss/types@^1.4.0", "@shapeshiftoss/types@^1.5.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.0.tgz#ae0352d6559e2d4757701bfeadd5f0cdad4d8838"
   integrity sha512-X6p19KLKsOpu+DeWnaLCPq+TPqq2KuemeSMM6JcCmRsb3zRXSBgmumVAMQeL60UB1TytgJ6ggYdk8kUd2ZklLg==
+
+"@shapeshiftoss/types@^1.9.0", "@shapeshiftoss/types@^1.9.1":
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.1.tgz#704f745c1cba932c3b152fc2a98aadddd58ef02e"
+  integrity sha512-j/lvUDkQdKzN+72SQ20XM/hLGnCgn2FjghyHpCWdAGewmqF5Ufq4gWv5q3qc++JaHK1lTgrKL5kenmP2x65IqQ==
 
 "@shapeshiftoss/unchained-client@^3.0.0":
   version "3.0.0"

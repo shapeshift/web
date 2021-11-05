@@ -51,12 +51,15 @@ describe('useNativeSuccess', () => {
   })
 
   it('unsuccesffully initialize wallet if no native adapter is provided', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
     const { result } = setup({
       encryptedWallet: { deviceId: '1234', encryptedWallet: 'test' } as unknown as EncryptedWallet,
       walletState: { adapters: new Map([[KeyManager.Native, null]]) }
     })
 
     expect(result.current.isSuccessful).toBeFalsy()
+    expect(console.error).toHaveBeenCalledTimes(1)
+    consoleError.mockRestore()
   })
 
   it('unsuccesffully initialize wallet if no encryptedWallet string is provided', async () => {
@@ -81,7 +84,7 @@ describe('useNativeSuccess', () => {
       walletState: { adapters: new Map([[KeyManager.Native, { pairDevice }]]) }
     })
 
-    await waitFor(() => expect(console.error).toBeCalled())
+    await waitFor(() => expect(console.error).toHaveBeenCalledTimes(1))
     expect(result.current.isSuccessful).toBeFalsy()
     consoleError.mockRestore()
   })

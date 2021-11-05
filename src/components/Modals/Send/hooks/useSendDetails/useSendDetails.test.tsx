@@ -158,8 +158,7 @@ describe('useSendDetails', () => {
         getAddress: () => '0xMyWalletsAddress',
         getFeeData: () => estimatedFees,
         buildSendTransaction: () => ({
-          txToSign: {},
-          estimatedFees
+          txToSign: {}
         })
       })
     }))
@@ -339,8 +338,7 @@ describe('useSendDetails', () => {
       })
       await act(async () => {
         await result.current.handleNextClick()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'transaction', {})
-        expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', estimatedFees)
+        expect(setValue).toHaveBeenNthCalledWith(1, 'estimatedFees', estimatedFees)
       })
     })
   })

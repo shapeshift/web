@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import {utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { FeeData } from '@shapeshiftoss/types/dist/chain-adapters'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -34,13 +33,14 @@ export const useFormSend = () => {
         const adapterType = adapter.getType()
 
         let result
+
+        const { estimatedFees, feeType } = data
+        const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
+        const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
         if (adapterType === ChainTypes.Ethereum) {
-          const { estimatedFees, feeType } = data
-          const fees = estimatedFees[feeType] as FeeData<ChainTypes.Ethereum>
+          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const fee = fees.feePerUnit
           const gasLimit = fees.chainSpecific?.feeLimit
-          const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
-          const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
           result = await adapter.buildSendTransaction({
             to: data.address,
             value,
@@ -51,19 +51,14 @@ export const useFormSend = () => {
             ...accountParams
           })
         } else if (adapterType === ChainTypes.Bitcoin) {
-          const { estimatedFees, feeType } = data
-          const fees = estimatedFees[feeType] as FeeData<ChainTypes.Bitcoin>
+          const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
           const fee = fees.feePerUnit
-          const gasLimit = fees.chainSpecific?.byteCount
-          const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
-          const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
           result = await adapter.buildSendTransaction({
             to: data.address,
             value,
             erc20ContractAddress: data.asset.tokenId,
             wallet,
             fee,
-            gasLimit,
             ...accountParams
           })
         } else {

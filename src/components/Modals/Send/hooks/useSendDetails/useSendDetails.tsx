@@ -34,9 +34,6 @@ type UseSendDetailsReturnType = {
   validateFiatAmount(value: string): boolean | string
 }
 
-// TODO (technojak) this should be removed in favor of the asset-service. For now assume the fallback is eth
-const ETH_PRECISION = 18
-
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
   const [loading, setLoading] = useState<boolean>(false)

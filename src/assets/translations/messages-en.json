@@ -1,92 +1,26 @@
 {
-  "common": {
-    "back": "Back",
-    "next": "Next",
-    "error": "Error",
-    "cancel": "Cancel",
-    "continue": "Continue",
-    "confirm": "Confirm",
-    "reject": "Reject",
-    "noResultsFound": "No results found.",
-    "insufficientFunds": "Insufficient Funds",
-    "invalidAddress": "Invalid Address",
-    "deposit": "Deposit",
-    "withdraw": "Withdraw",
-    "connectWallet": "Connect Wallet"
-  },
-  "dashboard": {
-    "portfolio": {
-      "addAsset": "Add Asset",
-      "yourAssets": "Your Assets",
-      "asset": "Asset",
-      "portfolioBalance": "Portfolio Balance",
-      "balance": "Balance",
-      "price": "Price",
-      "allocation": "Allocation"
+    "common": {
+        "back": "Back",
+        "next": "Next",
+        "error": "Error",
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "confirm": "Confirm",
+        "noResultsFound": "No results found.",
+        "insufficientFunds": "Insufficient Funds",
+        "invalidAddress": "Invalid Address",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw"
     },
-    "recentTransactions": {
-      "recentTransactions": "Recent Transactions"
-    }
-  },
-  "navBar": {
-    "dashboard": "Dashboard",
-    "assets": "Assets",
-    "earn": "Earn",
-    "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
-  },
-  "transactionRow": {
-    "send": "Sent",
-    "receive": "Received",
-    "moreDetails": "More Details",
-    "date": "Date",
-    "txid": "Transaction ID",
-    "fee": "Fee",
-    "status": "Status",
-    "confirmed": "Confirmed",
-    "pending": "Pending",
-    "failed": "Failed",
-    "network": "Network",
-    "blockHeight": "Block Height",
-    "to": "To",
-    "from": "From"
-  },
-  "trade": {
-    "searchingRate": "Searching for best rate...",
-    "previewTrade": "Preview Trade",
-    "rate": "Rate",
-    "minerFee": "Miner Fee",
-    "shapeshiftFee": "ShapeShift Fee",
-    "confirmTrade": "Confirm Trade",
-    "confirmAndTrade": "Confirm and Trade",
-    "complete": "Trade Complete",
-    "approveAsset": "Approve interacting with %{symbol}",
-    "needPermission": "We need your permission to use your %{symbol}",
-    "whyNeedThis": "Why do I need to do this?",
-    "estimatedGasFee": "Estimated Gas Fee",
-    "approvingAsset": "Approving %{symbol}",
-    "viewTransaction": "View Transaction",
-    "errors": {
-      "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
-      "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
-      "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
-      "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
-      "insufficientFunds": "Insufficient funds for miner fee and amount",
-      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
-      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
-      "noLiquidityError": "Not enough liquidity available",
-      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
-      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
-      "dexTradeFailed": "Trade Failed, Tokens Returned",
-      "quoteFailed": "An error occurred getting a quote for your trade."
-    }
-  },
-  "modals": {
-    "keepKey": {
-      "passphrase": {
-        "errors": {
-          "unknown": "There was an error setting your passphrase",
-          "empty": "You are using an empty passphrase"
+    "dashboard": {
+        "portfolio": {
+            "addAsset": "Add Asset",
+            "yourAssets": "Your Assets",
+            "asset": "Asset",
+            "portfolioBalance": "Portfolio Balance",
+            "balance": "Balance",
+            "price": "Price",
+            "allocation": "Allocation"
         },
         "recentTransactions": {
             "recentTransactions": "Recent Transactions"
@@ -99,57 +33,39 @@
         "tradeHistory": "Trade History",
         "foxToken": "FOX Token"
     },
-    "withdraw": {
-      "amountToWithdraw": "Amount To Withdraw",
-      "footerDisclaimer": "This transaction will require one transaction gas fee.",
-      "slippageSettings": "Slippage Settings"
+    "transactionRow": {
+        "send": "Sent",
+        "receive": "Received",
+        "moreDetails": "More Details",
+        "date": "Date",
+        "txid": "Transaction ID",
+        "fee": "Fee",
+        "status": "Status",
+        "confirmed": "Confirmed",
+        "pending": "pending",
+        "failed": "Failed",
+        "network": "Network",
+        "blockHeight": "Block Height",
+        "to": "To",
+        "from": "From"
     },
-    "approve": {
-      "header": "Allow ShapeShift.io to Spend Your %{asset}",
-      "body": "We need your permission to use your %{asset}",
-      "learnMore": "Why do I need to do this?",
-      "estimatedGas": "Estimated Gas Fee",
-      "confirm": "Confirm",
-      "reject": "Reject"
-    },
-    "confirm": {
-      "withdraw": {
-        "header": "Confirm Withdraw"
-      },
-      "deposit": {
-        "header": "Confirm Deposit",
-        "averageApr": "Average APR",
-        "estimatedReturns": "Estimated Yearly Returns*",
-        "preFooter": "Rewards acure automatically"
-      },
-      "depositTo": "Deposit To",
-      "averageApy": "Average APY",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimatedGas": "Estimated Gas Fee",
-      "preFooter": "Rewards accrue automatically",
-      "signBroadcast": "Sign & Broadcast",
-      "cancel": "Cancel"
-    },
-    "status": {
-      "header": {
-        "pending": "Waiting on Confirmation",
-        "success": "Transaction Confirmed",
-        "failed": "Transaction Execution Failed"
-      },
-      "depositTo": "Deposit To",
-      "transactionId": "TX ID",
-      "averageApy": "Average APY",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimatedGas": "Estimated Gas Fee",
-      "gasUsed": "Total Gas Fee",
-      "continue": "View My Position",
-      "viewAsset": "View Asset",
-      "close": "Close"
-    }
-  },
-  "walletProvider": {
-    "errors": {
-      "walletNotFound": "Unable to communicate with your wallet"
+    "trade": {
+        "searchingRate": "Searching for best rate...",
+        "previewTrade": "Preview Trade",
+        "errors": {
+            "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
+            "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
+            "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
+            "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
+            "insufficientFunds": "Insufficient funds for miner fee and amount",
+            "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
+            "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
+            "noLiquidityError": "Not enough liquidity available",
+            "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
+            "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
+            "dexTradeFailed": "Trade Failed, Tokens Returned",
+            "quoteFailed": "An error occurred getting a quote for your trade."
+        }
     },
     "modals": {
         "keepKey": {
@@ -389,24 +305,5 @@
             "pools": "Pools"
         }
     },
-    "assetCards": {
-      "assetActions": {
-        "buy": "Buy",
-        "sell": "Sell",
-        "trade": "Trade"
-      },
-      "rewards": {
-        "farmingRewards": "Farming Rewards",
-        "currentRewards": "Current Rewards",
-        "currentAPY": "Current APY",
-        "yourRewards": "Your Rewards",
-        "currentAPYLabel": "The current APY for your rewards",
-        "claimRewards": "Claim Rewards"
-      },
-      "accounts": "Accounts",
-      "staking": "Staking",
-      "pools": "Pools"
-    }
-  },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+    "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
 }

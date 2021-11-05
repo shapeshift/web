@@ -1,6 +1,5 @@
-import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
 import { useEffect } from 'react'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
@@ -12,9 +11,9 @@ export const usePortisSuccess = () => {
     ;(async () => {
       try {
         // TODO handle else
-        if (state.adapters?.portis) {
-          const wallet = await (state.adapters.portis as PortisAdapter).pairDevice()
-          const { name, icon } = SUPPORTED_WALLETS['portis']
+        if (state.adapters?.has(KeyManager.Portis)) {
+          const wallet = (await state.adapters.get(KeyManager.Portis)?.pairDevice()) ?? null
+          const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name, icon, deviceId: 'test' }

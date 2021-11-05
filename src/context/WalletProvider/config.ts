@@ -8,6 +8,7 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { PortisIcon } from 'components/Icons/PortisIcon'
 import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
+
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { MetaStart } from './MetaMask/components/MetaStart'
@@ -31,7 +32,8 @@ export interface SupportedWalletInfo {
 export enum KeyManager {
   Native = 'native',
   KeepKey = 'keepkey',
-  MetaMask = 'metamask'
+  MetaMask = 'metamask',
+  Portis = 'portis'
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {

@@ -124,6 +124,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
+        let options: undefined | { portisAppId: string }
         for (const wallet of Object.values(KeyManager)) {
           try {
             options =

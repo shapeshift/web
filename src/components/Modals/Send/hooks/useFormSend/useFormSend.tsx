@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -36,29 +36,27 @@ export const useFormSend = () => {
 
         const { estimatedFees, feeType } = data
         const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
-        const accountParams = accountType ? utxoAccountParams(data.asset, accountType, 0) : {}
         if (adapterType === ChainTypes.Ethereum) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const fee = fees.feePerUnit
           const gasLimit = fees.chainSpecific?.feeLimit
-          result = await adapter.buildSendTransaction({
+          result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to: data.address,
             value,
-            erc20ContractAddress: data.asset.tokenId,
             wallet,
-            fee,
-            gasLimit,
-            ...accountParams
+            chainSpecific: { erc20ContractAddress: data.asset.tokenId, fee, gasLimit }
           })
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
-          const fee = fees.feePerUnit
-          result = await adapter.buildSendTransaction({
+
+          const utxoParams = utxoAccountParams(data.asset, accountType, 0)
+
+          result = await (adapter as ChainAdapter<ChainTypes.Bitcoin>).buildSendTransaction({
             to: data.address,
             value,
             wallet,
-            fee,
-            ...accountParams
+            bip32Params: utxoParams.bip32Params,
+            chainSpecific: { satoshiPerByte: fees.feePerUnit, scriptType: utxoParams.scriptType }
           })
         } else {
           throw new Error('unsupported adapterType')

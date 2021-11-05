@@ -1,5 +1,5 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
+import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
@@ -14,7 +14,6 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-// import { Approve } from 'context/EarnManagerProvider/components/Approve/Approve'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
 import { TxStatus } from 'context/EarnManagerProvider/components/TxStatus/TxStatus'
@@ -49,6 +48,7 @@ type YearnWithdrawProps = {
   api: YearnVaultApi
 }
 
+// TODO: Remove when vaults are added to asset service
 const makeVaultAsset = (vault: YearnVault): Asset => {
   if (!vault) return {} as Asset
   return {

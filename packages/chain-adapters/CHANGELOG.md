@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.11.3...@shapeshiftoss/chain-adapters-v1.12.0) (2021-11-05)
+
+
+### Features
+
+* chain specific buildtx ([#193](https://github.com/shapeshift/lib/issues/193)) ([b2411fa](https://github.com/shapeshift/lib/commit/b2411fabd928cce5ab38dcd82d7d800941ef6b46))
+
 # [@shapeshiftoss/chain-adapters-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.11.2...@shapeshiftoss/chain-adapters-v1.11.3) (2021-11-05)
 
 

@@ -275,13 +275,16 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
 
-      const txInput: chainAdapters.BuildSendTxInput = {
+      const txInput: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin> = {
         bip32Params,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
         wallet,
-        opReturnData: 'nm, u',
-        feeSpeed: chainAdapters.FeeDataKey.Slow
+        chainSpecific: {
+          opReturnData: 'nm, u',
+          scriptType: BTCInputScriptType.SpendWitness,
+          satoshiPerByte: '1'
+        }
       }
 
       await expect(adapter.buildSendTransaction(txInput)).resolves.toStrictEqual({
@@ -341,13 +344,16 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
 
-      const txInput: chainAdapters.BuildSendTxInput = {
+      const txInput: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin> = {
         bip32Params,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
         wallet,
-        opReturnData: 'sup fool',
-        feeSpeed: chainAdapters.FeeDataKey.Slow
+        chainSpecific: {
+          opReturnData: 'sup fool',
+          scriptType: BTCInputScriptType.SpendWitness,
+          satoshiPerByte: '1'
+        }
       }
 
       const unsignedTx = await adapter.buildSendTransaction(txInput)

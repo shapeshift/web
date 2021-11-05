@@ -44,3 +44,9 @@ export type QuoteFeeData = {
    */
   totalFee?: string
 }
+
+export type BuildTxInput = {
+  fee: string
+  gasLimit: string
+  erc20ContractAddress?: string
+}

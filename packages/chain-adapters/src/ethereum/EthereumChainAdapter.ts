@@ -110,17 +110,16 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   }
 
   async buildSendTransaction(
-    tx: chainAdapters.BuildSendTxInput
+    tx: chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
   ): Promise<{
     txToSign: ETHSignTx
   }> {
     try {
       const {
         to,
-        erc20ContractAddress,
         wallet,
-        fee,
-        bip32Params = ChainAdapter.defaultBIP32Params
+        bip32Params = ChainAdapter.defaultBIP32Params,
+        chainSpecific: { erc20ContractAddress, fee: gasPrice, gasLimit }
       } = tx
 
       if (!to) throw new Error('EthereumChainAdapter: to is required')
@@ -135,21 +134,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
       const data = await getErc20Data(to, tx?.value, erc20ContractAddress)
       const from = await this.getAddress({ bip32Params, wallet })
       const { chainSpecific } = await this.getAccount(from)
-
-      let gasPrice = fee
-      const estimatedFees = await this.getFeeData({
-        to,
-        from,
-        value,
-        contractAddress: erc20ContractAddress
-      })
-
-      let { gasLimit } = tx
-      if (!gasPrice || !gasLimit) {
-        // Default to average gas price if fee is not passed
-        !gasPrice && (gasPrice = estimatedFees.average.feePerUnit)
-        !gasLimit && (gasLimit = estimatedFees.average.chainSpecific.feeLimit)
-      }
 
       const txToSign: ETHSignTx = {
         addressNList,

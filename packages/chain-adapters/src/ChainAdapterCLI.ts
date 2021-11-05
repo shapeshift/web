@@ -1,6 +1,6 @@
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP32Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
 import dotenv from 'dotenv'
 
 import { ChainAdapterManager } from './ChainAdapterManager'
@@ -57,12 +57,11 @@ const main = async () => {
     console.log('btcAccount:', btcAccount)
 
     const txInput = {
-      asset: { id: '123', symbol: 'BTC' },
-      recipients: [{ address: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4', value: 400 }],
+      to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
+      value: '400',
       wallet,
-      opReturnData: 'sup fool',
       bip32Params: btcBip32Params,
-      feeSpeed: chainAdapters.FeeDataKey.Slow
+      chainSpecific: { scriptType: BTCInputScriptType.SpendAddress, satoshiPerByte: '4' }
     }
 
     try {
@@ -101,7 +100,8 @@ const main = async () => {
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
         value: '1',
         wallet,
-        bip32Params: ethBip32Params
+        bip32Params: ethBip32Params,
+        chainSpecific: { fee: '0', gasLimit: '0' }
       })
       const ethSignedTx = await ethChainAdapter.signTransaction({
         wallet,
@@ -122,7 +122,7 @@ const main = async () => {
         value: '1',
         wallet,
         bip32Params: ethBip32Params,
-        erc20ContractAddress: foxContractAddress
+        chainSpecific: { fee: '0', gasLimit: '0', erc20ContractAddress: foxContractAddress }
       })
       const erc20SignedTx = await ethChainAdapter.signTransaction({
         wallet,

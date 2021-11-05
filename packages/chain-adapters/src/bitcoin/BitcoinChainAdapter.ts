@@ -122,7 +122,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
   }
 
   async buildSendTransaction(
-    tx: chainAdapters.BuildSendTxInput
+    tx: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin>
   ): Promise<{
     txToSign: chainAdapters.ChainTxType<ChainTypes.Bitcoin>
   }> {
@@ -132,8 +132,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         to,
         wallet,
         bip32Params = ChainAdapter.defaultBIP32Params,
-        feeSpeed,
-        scriptType = BTCInputScriptType.SpendWitness
+        chainSpecific: { satoshiPerByte, scriptType }
       } = tx
 
       if (!value || !to) {
@@ -164,8 +163,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       if (!from) throw new Error('BitcoinChainAdapter: from undefined')
 
       const account = await this.getAccount(pubkey.xpub)
-      const estimatedFees = await this.getFeeData({ to, value, from })
-      const satoshiPerByte = estimatedFees[feeSpeed ?? chainAdapters.FeeDataKey.Average].feePerUnit
 
       type MappedUtxos = Omit<bitcoin.api.Utxo, 'value'> & { value: number }
       const mappedUtxos: MappedUtxos[] = utxos.map((x) => ({ ...x, value: Number(x.value) }))

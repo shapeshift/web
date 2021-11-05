@@ -3641,7 +3641,23 @@
   dependencies:
     "@shapeshiftoss/types" "^1.4.0"
 
-"@shapeshiftoss/chain-adapters@^1.10.0", "@shapeshiftoss/chain-adapters@^1.7.3":
+"@shapeshiftoss/chain-adapters@^1.11.2":
+  version "1.11.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.11.2.tgz#0bd9397aebe4d5fad6e5d3c827b959b08aac537b"
+  integrity sha512-ll/gcu5CupgQfPnm1BlrZXz0wmNYcQPqI8XWV3TkCZr2IrKYRZlPJor0yknTOXUnyj4rsGSnaEnGigqV9lgdLQ==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.17.1"
+    "@shapeshiftoss/types" "^1.9.0"
+    "@shapeshiftoss/unchained-client" "^3.0.0"
+    axios "^0.21.2"
+    bignumber.js "^9.0.1"
+    bitcoinjs-lib "^5.2.0"
+    coinselect "^3.1.12"
+    ethers "^5.4.7"
+    multicoin-address-validator "^0.5.2"
+    web3-utils "^1.6.0"
+
+"@shapeshiftoss/chain-adapters@^1.7.3":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.10.0.tgz#b01b36dc94572c6b933f77434527131567738553"
   integrity sha512-ADRiGhaeKTnKLYes54/LHhaBlRhUei1ipLadfcEahKAyTLVQUEKA3bd9h9dAnMvakzpJ7AQ+bm4CBakpYdbSQQ==
@@ -3864,6 +3880,11 @@
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.0.tgz#ae0352d6559e2d4757701bfeadd5f0cdad4d8838"
   integrity sha512-X6p19KLKsOpu+DeWnaLCPq+TPqq2KuemeSMM6JcCmRsb3zRXSBgmumVAMQeL60UB1TytgJ6ggYdk8kUd2ZklLg==
+
+"@shapeshiftoss/types@^1.9.1":
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.1.tgz#704f745c1cba932c3b152fc2a98aadddd58ef02e"
+  integrity sha512-j/lvUDkQdKzN+72SQ20XM/hLGnCgn2FjghyHpCWdAGewmqF5Ufq4gWv5q3qc++JaHK1lTgrKL5kenmP2x65IqQ==
 
 "@shapeshiftoss/unchained-client@^3.0.0":
   version "3.0.0"

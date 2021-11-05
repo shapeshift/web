@@ -85,7 +85,6 @@ const Crypto = ({
       {parts.number}
       {parts.postfix && (
         <RawText {...props} {...cryptoSymbolStyle}>
-          {'1 '}
           {parts.postfix}
         </RawText>
       )}

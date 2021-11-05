@@ -167,6 +167,8 @@
         "estimatedReturns": "Estimated Yearly Returns*",
         "preFooter": "Rewards acure automatically"
       },
+      "withdrawFrom": "Withdraw From",
+      "withdrawTo": "Withdraw To",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",

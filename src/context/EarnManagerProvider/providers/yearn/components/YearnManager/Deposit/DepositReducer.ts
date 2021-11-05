@@ -38,7 +38,7 @@ export const initialState: YearnDepositState = {
   }
 }
 
-export enum YearnActionType {
+export enum YearnDepositActionType {
   SET_VAULT = 'SET_VAULT',
   SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
@@ -50,37 +50,37 @@ export enum YearnActionType {
 }
 
 type SetVaultAction = {
-  type: YearnActionType.SET_VAULT
+  type: YearnDepositActionType.SET_VAULT
   payload: YearnVault
 }
 
 type SetApprove = {
-  type: YearnActionType.SET_APPROVE
+  type: YearnDepositActionType.SET_APPROVE
   payload: EstimatedGas
 }
 
 type SetDeposit = {
-  type: YearnActionType.SET_DEPOSIT
+  type: YearnDepositActionType.SET_DEPOSIT
   payload: Partial<YearnDepositValues>
 }
 
 type SetUserAddress = {
-  type: YearnActionType.SET_USER_ADDRESS
+  type: YearnDepositActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: YearnActionType.SET_LOADING
+  type: YearnDepositActionType.SET_LOADING
   payload: boolean
 }
 
 type SetPricePerShare = {
-  type: YearnActionType.SET_PRICE_PER_SHARE
+  type: YearnDepositActionType.SET_PRICE_PER_SHARE
   payload: string
 }
 
 type SetTxid = {
-  type: YearnActionType.SET_TXID
+  type: YearnDepositActionType.SET_TXID
   payload: string
 }
 
@@ -95,19 +95,19 @@ type YearnDepositActions =
 
 export const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
   switch (action.type) {
-    case YearnActionType.SET_VAULT:
+    case YearnDepositActionType.SET_VAULT:
       return { ...state, vault: { ...state.vault, ...action.payload } }
-    case YearnActionType.SET_APPROVE:
+    case YearnDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
-    case YearnActionType.SET_DEPOSIT:
+    case YearnDepositActionType.SET_DEPOSIT:
       return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case YearnActionType.SET_USER_ADDRESS:
+    case YearnDepositActionType.SET_USER_ADDRESS:
       return { ...state, userAddress: action.payload }
-    case YearnActionType.SET_LOADING:
+    case YearnDepositActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case YearnActionType.SET_PRICE_PER_SHARE:
+    case YearnDepositActionType.SET_PRICE_PER_SHARE:
       return { ...state, pricePerShare: action.payload }
-    case YearnActionType.SET_TXID:
+    case YearnDepositActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:
       return state

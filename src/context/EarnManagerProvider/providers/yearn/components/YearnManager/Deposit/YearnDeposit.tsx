@@ -29,7 +29,7 @@ import { poll } from 'lib/poll/poll'
 
 import { YearnVault, YearnVaultApi } from '../../../api/api'
 import { YearnRouteSteps } from '../../YearnRouteSteps'
-import { initialState, reducer, YearnActionType } from './reducer'
+import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
 enum DepositPath {
   Deposit = '/deposit',
@@ -114,9 +114,12 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           api.findByDepositTokenId(tokenId),
           api.pricePerShare({ vaultAddress })
         ])
-        dispatch({ type: YearnActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnActionType.SET_VAULT, payload: vault })
-        dispatch({ type: YearnActionType.SET_PRICE_PER_SHARE, payload: pricePerShare.toString() })
+        dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: YearnDepositActionType.SET_VAULT, payload: vault })
+        dispatch({
+          type: YearnDepositActionType.SET_PRICE_PER_SHARE,
+          payload: pricePerShare.toString()
+        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnDeposit error:', error)
@@ -163,7 +166,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleContinue = async (formValues: DepositValues) => {
     if (!state.userAddress) return
     // set deposit state for future use
-    dispatch({ type: YearnActionType.SET_DEPOSIT, payload: formValues })
+    dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
@@ -178,7 +181,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({
-          type: YearnActionType.SET_DEPOSIT,
+          type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto }
         })
 
@@ -187,7 +190,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
         dispatch({
-          type: YearnActionType.SET_APPROVE,
+          type: YearnDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto }
         })
         memoryHistory.push(DepositPath.Approve)
@@ -201,7 +204,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleApprove = async () => {
     if (!tokenId || !state.userAddress || !walletState.wallet) return
     try {
-      dispatch({ type: YearnActionType.SET_LOADING, payload: true })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       await api.approve({
         spenderAddress: vaultAddress,
         tokenContractAddress: tokenId,
@@ -226,7 +229,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
-        type: YearnActionType.SET_DEPOSIT,
+        type: YearnDepositActionType.SET_DEPOSIT,
         payload: { estimatedGasCrypto }
       })
 
@@ -235,14 +238,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       // TODO: handle client side errors
       console.error('YearnDeposit:handleApprove error:', error)
     } finally {
-      dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }
 
   const handleConfirm = async () => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
-      dispatch({ type: YearnActionType.SET_LOADING, payload: true })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const [txId, gasPrice] = await Promise.all([
         api.deposit({
           tokenContractAddress: tokenId,
@@ -253,7 +256,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         }),
         api.getGasPrice()
       ])
-      dispatch({ type: YearnActionType.SET_TXID, payload: txId })
+      dispatch({ type: YearnDepositActionType.SET_TXID, payload: txId })
       memoryHistory.push(DepositPath.Status)
 
       const transactionReceipt = await poll({
@@ -266,13 +269,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         maxAttempts: 30
       })
       dispatch({
-        type: YearnActionType.SET_DEPOSIT,
+        type: YearnDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
         }
       })
-      dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     } catch (error) {
       console.error('YearnDeposit:handleConfirm error', error)
     }

@@ -209,7 +209,7 @@ export class YearnVaultApi {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
-      .deposit(amountDesired.toString(), userAddress)
+      .withdraw(amountDesired.toString(), userAddress)
       .estimateGas({
         from: userAddress
       })

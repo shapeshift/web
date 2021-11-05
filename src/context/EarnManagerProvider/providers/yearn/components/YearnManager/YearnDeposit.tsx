@@ -3,7 +3,7 @@ import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { isNil } from 'lodash'
+import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
@@ -56,7 +56,11 @@ type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type YearnDepositValues = DepositValues & EstimatedGas
+type YearnDepositValues = DepositValues &
+  EstimatedGas & {
+    txStatus: string
+    usedGasFee: string
+  }
 
 export type YearnDepositState = {
   vault: YearnVault
@@ -369,10 +373,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           api.getTxReceipt({
             txId
           }),
-        validate: (result: TransactionReceipt) => {
-          if (isNil(result)) return false
-          return true
-        },
+        validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30
       })

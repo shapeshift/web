@@ -83,17 +83,13 @@ enum InputType {
 enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
-  Slippage = 'slippage',
-  TxStatus = 'txStatus',
-  UsedGasFee = 'usedGasFee'
+  Slippage = 'slippage'
 }
 
 export type DepositValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
   [Field.Slippage]: string
-  [Field.TxStatus]: string
-  [Field.UsedGasFee]?: string
 }
 
 function calculateYearlyYield(apy: string, amount: string = '') {

@@ -1,10 +1,12 @@
-import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -13,10 +15,10 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Approve } from 'context/EarnManagerProvider/components/Approve/Approve'
-import { BroadcastTx } from 'context/EarnManagerProvider/components/BroadcastTx/BroadcastTx'
 import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'context/EarnManagerProvider/components/Deposit/Deposit'
 import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
+import { TxStatus } from 'context/EarnManagerProvider/components/TxStatus/TxStatus'
 import { EarnParams, EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
@@ -54,7 +56,11 @@ type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type YearnDepositValues = DepositValues & EstimatedGas
+type YearnDepositValues = DepositValues &
+  EstimatedGas & {
+    txStatus: string
+    usedGasFee: string
+  }
 
 export type YearnDepositState = {
   vault: YearnVault
@@ -76,7 +82,9 @@ const initialState: YearnDepositState = {
   deposit: {
     fiatAmount: '',
     cryptoAmount: '',
-    slippage: ''
+    slippage: '',
+    txStatus: 'pending',
+    usedGasFee: ''
   }
 }
 
@@ -87,7 +95,8 @@ export enum YearnActionType {
   SET_DEPOSIT = 'SET_DEPOSIT',
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
-  SET_TXID = 'SET_TXID'
+  SET_TXID = 'SET_TXID',
+  SET_TX_STATUS = 'SET_TX_STATUS'
 }
 
 type SetVaultAction = {
@@ -345,26 +354,44 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: YearnActionType.SET_LOADING, payload: true })
-      const txid = await api.deposit({
-        tokenContractAddress: tokenId,
-        userAddress: state.userAddress,
-        vaultAddress,
-        wallet: walletState.wallet,
-        amountDesired: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`)
-      })
-      dispatch({ type: YearnActionType.SET_TXID, payload: txid })
+      const [txId, gasPrice] = await Promise.all([
+        api.deposit({
+          tokenContractAddress: tokenId,
+          userAddress: state.userAddress,
+          vaultAddress,
+          wallet: walletState.wallet,
+          amountDesired: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`)
+        }),
+        api.getGasPrice()
+      ])
+      dispatch({ type: YearnActionType.SET_TXID, payload: txId })
       memoryHistory.push(DepositPath.Status)
 
-      // TODO: finish status screen
-      // await poll({})
-      // dispatch({ type: YearnActionType.SET_LOADING, payload: false })
-      // set stepper status if error else step one step forward
+      const transactionReceipt = await poll({
+        fn: () =>
+          api.getTxReceipt({
+            txId
+          }),
+        validate: (result: TransactionReceipt) => !isNil(result),
+        interval: 15000,
+        maxAttempts: 30
+      })
+      dispatch({
+        type: YearnActionType.SET_DEPOSIT,
+        payload: {
+          txStatus: transactionReceipt.status === true ? 'success' : 'failed',
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
+        }
+      })
+      dispatch({ type: YearnActionType.SET_LOADING, payload: false })
     } catch (error) {
       console.error('YearnDeposit:handleConfirm error', error)
     }
   }
 
-  const handleViewPosition = () => {}
+  const handleViewPosition = () => {
+    // TODO: go to position view.
+  }
 
   const handleCancel = () => {
     browserHistory.goBack()
@@ -390,12 +417,26 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(apy)
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
+    let statusIcon: React.ReactElement = <ArrowForwardIcon />
+    let statusText:
+      | 'modals.status.header.pending'
+      | 'modals.status.header.success'
+      | 'modals.status.header.failed' = 'modals.status.header.pending'
+    if (state.deposit.txStatus === 'success') {
+      statusText = 'modals.status.header.success'
+      statusIcon = <CheckIcon color='green' />
+    }
+    if (state.deposit.txStatus === 'failed') {
+      statusText = 'modals.status.header.failed'
+      statusIcon = <CloseIcon color='red' />
+    }
+
     switch (route.path) {
       case DepositPath.Deposit:
         return (
           <Deposit
             asset={asset}
-            apy={String(state.vault.apy?.net_apy)}
+            apy={String(apy)}
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,
@@ -499,7 +540,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 </Row.Label>
                 <Row.Value>
                   <Tag colorScheme='green'>
-                    <Amount.Percent value={state.vault.apy.net_apy} />
+                    <Amount.Percent value={String(apy)} />
                   </Tag>
                 </Row.Value>
               </Row>
@@ -523,31 +564,33 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         )
       case DepositPath.Status:
         return (
-          <BroadcastTx
+          <TxStatus
             onClose={handleCancel}
-            onContinue={handleViewPosition}
+            onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
             loading={state.loading}
-            statusText='modals.broadcast.header.pending'
-            statusIcon={<ArrowForwardIcon />}
-            continueText='continue'
-            closeText='close'
+            statusText={statusText}
+            statusIcon={statusIcon}
+            continueText='modals.status.continue'
+            closeText='modals.status.close'
             assets={[
               {
                 ...asset,
-                cryptoAmount: '100',
-                fiatAmount: '100'
+                cryptoAmount: state.deposit.cryptoAmount,
+                fiatAmount: state.deposit.fiatAmount
               },
               {
                 ...makeVaultAsset(state.vault),
-                cryptoAmount: '100',
-                fiatAmount: '100'
+                cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
+                  .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
+                  .toString(),
+                fiatAmount: state.deposit.fiatAmount
               }
             ]}
           >
             <Stack spacing={6}>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.broadcast.transactionId' />
+                  <Text translation='modals.status.transactionId' />
                 </Row.Label>
                 <Row.Value>
                   <Link
@@ -568,12 +611,38 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.estimatedGas' />
+                  <Text
+                    translation={
+                      state.deposit.txStatus === 'pending'
+                        ? 'modals.status.estimatedGas'
+                        : 'modals.status.gasUsed'
+                    }
+                  />
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value='30.00' />
-                    <Amount.Crypto color='gray.500' value='0.024' symbol='ETH' />
+                    <Amount.Fiat
+                      fontWeight='bold'
+                      value={bnOrZero(
+                        state.deposit.txStatus === 'pending'
+                          ? state.deposit.estimatedGasCrypto
+                          : state.deposit.usedGasFee
+                      )
+                        .div(`1e+${feeAsset.precision}`)
+                        .times(feeMarketData.price)
+                        .toFixed(2)}
+                    />
+                    <Amount.Crypto
+                      color='gray.500'
+                      value={bnOrZero(
+                        state.deposit.txStatus === 'pending'
+                          ? state.deposit.estimatedGasCrypto
+                          : state.deposit.usedGasFee
+                      )
+                        .div(`1e+${feeAsset.precision}`)
+                        .toFixed(5)}
+                      symbol='ETH'
+                    />
                   </Box>
                 </Row.Value>
               </Row>
@@ -582,7 +651,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   <Text translation='modals.confirm.deposit.averageApr' />
                 </Row.Label>
                 <Tag colorScheme='green'>
-                  <Amount.Percent value={state.vault.apy.net_apy} />
+                  <Amount.Percent value={String(apy)} />
                 </Tag>
               </Row>
               <Row>
@@ -601,7 +670,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 </Row.Value>
               </Row>
             </Stack>
-          </BroadcastTx>
+          </TxStatus>
         )
       default:
         throw new Error('Route does not exist')

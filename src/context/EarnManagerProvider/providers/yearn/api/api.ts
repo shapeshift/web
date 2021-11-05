@@ -5,6 +5,7 @@ import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
 import { toLower } from 'lodash'
 import Web3 from 'web3'
+import { TransactionReceipt } from 'web3-core/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../constants/erc20-abi'
@@ -99,6 +100,10 @@ export class YearnVaultApi {
   async getGasPrice() {
     const gasPrice = await this.web3.eth.getGasPrice()
     return bnOrZero(gasPrice)
+  }
+
+  async getTxReceipt({ txId }: { txId: string }): Promise<TransactionReceipt> {
+    return await this.web3.eth.getTransactionReceipt(txId)
   }
 
   async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {

@@ -356,7 +356,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       dispatch({ type: YearnActionType.SET_LOADING, payload: true })
       const [txId, gasPrice] = await Promise.all([
         api.deposit({
-          dryRun: true,
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           vaultAddress,

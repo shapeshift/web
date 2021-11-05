@@ -13,6 +13,7 @@ jest.mock('react-router-dom', () => ({
     push: jest.fn()
   })
 }))
+jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
 jest.mock('lib/assetService')
@@ -53,7 +54,8 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
 
 describe('useTradeRoutes', () => {
   it('sets the default assets', async () => {
-    const { getQuote, setValue } = await setup({})
+    const { getQuote, setValue, hook } = await setup({})
+    await hook.waitFor(() => expect(getQuote).toHaveBeenCalled())
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
     expect(getQuote).toHaveBeenCalled()
@@ -69,7 +71,7 @@ describe('useTradeRoutes', () => {
     const { hook, setValue, getQuote } = setup({ buyAmount: '23' })
     await hook?.result?.current?.handleSellClick(WETH)
     expect(setValue).toHaveBeenCalledWith('sellAsset.currency', WETH)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
+    expect(setValue).toHaveBeenCalledWith('action', TradeActions.SELL)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on sell click', async () => {
@@ -89,8 +91,8 @@ describe('useTradeRoutes', () => {
   it('handles buy click with sell amount', async () => {
     const { hook, setValue, getQuote } = setup({ sellAmount: '234' })
     await hook?.result?.current?.handleBuyClick(FOX)
-    expect(setValue).toHaveBeenCalledWith('action', TradeActions.SELL)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', FOX)
+    expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on buy click', async () => {

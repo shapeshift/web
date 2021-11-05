@@ -6,12 +6,14 @@
     "cancel": "Cancel",
     "continue": "Continue",
     "confirm": "Confirm",
+    "reject": "Reject",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "connectWallet": "Connect Wallet"
   },
   "dashboard": {
     "portfolio": {
@@ -53,6 +55,18 @@
   "trade": {
     "searchingRate": "Searching for best rate...",
     "previewTrade": "Preview Trade",
+    "rate": "Rate",
+    "minerFee": "Miner Fee",
+    "shapeshiftFee": "ShapeShift Fee",
+    "confirmTrade": "Confirm Trade",
+    "confirmAndTrade": "Confirm and Trade",
+    "complete": "Trade Complete",
+    "approveAsset": "Approve interacting with %{symbol}",
+    "needPermission": "We need your permission to use your %{symbol}",
+    "whyNeedThis": "Why do I need to do this?",
+    "estimatedGasFee": "Estimated Gas Fee",
+    "approvingAsset": "Approving %{symbol}",
+    "viewTransaction": "View Transaction",
     "errors": {
       "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
@@ -155,8 +169,10 @@
         "preFooter": "Rewards acure automatically"
       },
       "depositTo": "Deposit To",
-      "withdrawFrom": "Withdraw From",
+      "averageApy": "Average APY",
+      "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
     },
@@ -168,7 +184,7 @@
       },
       "depositTo": "Deposit To",
       "transactionId": "TX ID",
-      "averageApr": "Average APR",
+      "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "continue": "View My Position",
@@ -302,9 +318,9 @@
       "rewards": {
         "farmingRewards": "Farming Rewards",
         "currentRewards": "Current Rewards",
-        "currentAPR": "Current APR",
+        "currentAPY": "Current APY",
         "yourRewards": "Your Rewards",
-        "currentAPRLabel": "The current APR for your rewards",
+        "currentAPYLabel": "The current APY for your rewards",
         "claimRewards": "Claim Rewards"
       },
       "accounts": "Accounts",

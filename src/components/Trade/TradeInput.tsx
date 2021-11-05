@@ -8,7 +8,7 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
-import { get } from 'lodash'
+import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
@@ -17,9 +17,15 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TokenButton } from 'components/TokenRow/TokenButton'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import {
+  TRADE_ERRORS,
+  TradeActions,
+  useSwapper
+} from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeState } from 'components/Trade/Trade'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
@@ -40,30 +46,74 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    formState: { errors, isDirty, isValid }
-  } = useFormContext()
+    setError,
+    formState: { errors, isDirty, isValid, isSubmitting }
+  } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  const [quote, action, buyAsset] = useWatch({ name: ['quote', 'action', 'buyAsset'] })
-  const { getQuote, reset } = useSwapper()
-  const sellAsset = getValues('sellAsset')
-  const onSubmit = () => {
-    history.push('/trade/confirm')
+  type TS = TradeState<ChainTypes, SwapperType>
+  const [quote, action, buyAsset, sellAsset] = useWatch({
+    name: ['quote', 'action', 'buyAsset', 'sellAsset']
+  }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
+  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate } = useSwapper()
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const onSubmit = async () => {
+    if (!wallet) return
+    if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
+    const isERC20 = sellAsset.currency.contractType === ContractTypes.ERC20
+
+    try {
+      const fiatRate = await getFiatRate({ symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol })
+
+      if (isERC20) {
+        const approvalNeeded = await checkApprovalNeeded(wallet)
+        if (approvalNeeded) {
+          history.push({
+            pathname: '/trade/approval',
+            state: {
+              fiatRate
+            }
+          })
+          return
+        }
+      }
+
+      const result = await buildQuoteTx({
+        wallet,
+        sellAsset: quote?.sellAsset,
+        buyAsset: quote?.buyAsset,
+        amount: sellAsset?.amount
+      })
+      result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
+    } catch (e) {
+      // TODO: (ryankk) correct errors to reflect appropriate attributes
+      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+    }
   }
 
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
+    // TODO: (ryankk) make sure this is the behavior we want
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
+    setValue('action', action)
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
-    setValue('action', action)
-    getQuote({ sellAmount: currentBuyAsset.amount }, currentBuyAsset, currentSellAsset)
+    getQuote({
+      amount: currentBuyAsset.amount ?? '0',
+      sellAsset: currentBuyAsset,
+      buyAsset: currentSellAsset,
+      action
+    })
   }
 
-  const getQuoteError = get(errors, `getQuote.message`, null)
+  // TODO:(ryankk) fix error handling
+  const error = errors?.quote?.value?.message ?? null
 
   return (
     <SlideTransition>
@@ -86,7 +136,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     if (action) {
                       setValue('action', action)
                     } else reset()
-                    getQuote({ fiatAmount: e.value }, sellAsset, buyAsset)
+                    getQuote({ amount: e.value, sellAsset, buyAsset, action })
                   }
                 }}
               />
@@ -102,14 +152,16 @@ export const TradeInput = ({ history }: RouterProps) => {
           <FormErrorMessage>{errors.fiatAmount && errors.fiatAmount.message}</FormErrorMessage>
         </FormControl>
         <FormControl>
-          <TokenRow
+          <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='sellAsset.amount'
             rules={{ required: true }}
-            onInputChange={(value: string) => {
-              const action = value ? TradeActions.SELL : undefined
-              action ? setValue('action', action) : reset()
-              getQuote({ sellAmount: value }, sellAsset, buyAsset)
+            onInputChange={(amount: string) => {
+              if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
+                const action = amount ? TradeActions.SELL : undefined
+                action ? setValue('action', action) : reset()
+                getQuote({ amount, sellAsset, buyAsset, action })
+              }
             }}
             inputLeftElement={
               <TokenButton
@@ -142,16 +194,15 @@ export const TradeInput = ({ history }: RouterProps) => {
         >
           <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
           <Box display='flex' alignItems='center' color='gray.500'>
-            {!quote || action || getQuoteError ? (
-              <Text
-                fontSize='sm'
-                translation={getQuoteError ? 'common.error' : 'trade.searchingRate'}
-              />
+            {!quote || action || error ? (
+              <Text fontSize='sm' translation={error ? 'common.error' : 'trade.searchingRate'} />
             ) : (
               <>
                 <RawText textAlign='right' fontSize='sm'>{`1 ${
                   sellAsset.currency?.symbol
-                } = ${firstNonZeroDecimal(bn(quote.rate))} ${buyAsset?.currency?.symbol}`}</RawText>
+                } = ${firstNonZeroDecimal(bnOrZero(quote?.rate))} ${
+                  buyAsset?.currency?.symbol
+                }`}</RawText>
                 <HelperTooltip label='The price is ' />
               </>
             )}
@@ -162,11 +213,10 @@ export const TradeInput = ({ history }: RouterProps) => {
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}
-            onInputChange={(value: string) => {
-              const action = value ? TradeActions.BUY : undefined
+            onInputChange={(amount: string) => {
+              const action = amount ? TradeActions.BUY : undefined
               action ? setValue('action', action) : reset()
-              const amount = action ? { buyAmount: value } : { sellAmount: value } // To get correct rate on empty field
-              getQuote(amount, sellAsset, buyAsset)
+              getQuote({ amount, sellAsset, buyAsset, action })
             }}
             inputLeftElement={
               <TokenButton
@@ -182,14 +232,15 @@ export const TradeInput = ({ history }: RouterProps) => {
           type='submit'
           size='lg'
           width='full'
-          colorScheme={getQuoteError ? 'red' : 'blue'}
-          isDisabled={!isDirty || !isValid || !!action}
+          colorScheme={error ? 'red' : 'blue'}
+          isLoading={isSubmitting}
+          isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',
             wordWrap: 'break-word'
           }}
         >
-          <Text translation={getQuoteError ?? 'trade.previewTrade'} />
+          <Text translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'} />
         </Button>
       </Box>
     </SlideTransition>

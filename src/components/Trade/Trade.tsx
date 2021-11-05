@@ -15,6 +15,7 @@ export type MinMax = {
   minimum: string
   maximum: string
   minimumPrice?: string
+  name?: string
 }
 
 export type TradeState<C extends ChainTypes, S extends SwapperType> = {

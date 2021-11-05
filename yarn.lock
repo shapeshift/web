@@ -3634,6 +3634,13 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
+"@shapeshiftoss/caip@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.2.0.tgz#bdcf20f6b6de970fc71e979cdfd0db25b2c2b3c0"
+  integrity sha512-1tHEkLrdGJ7sKZST69MrrbI6AeUbzVTweY4y2Nsosx6Zg3oVMqP/pQPDRyIlB7otUoCfP6uNm8Fx00KYRXqhMg==
+  dependencies:
+    "@shapeshiftoss/types" "^1.4.0"
+
 "@shapeshiftoss/chain-adapters@^1.10.0", "@shapeshiftoss/chain-adapters@^1.7.3":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.10.0.tgz#b01b36dc94572c6b933f77434527131567738553"
@@ -3853,7 +3860,7 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.9.0":
+"@shapeshiftoss/types@^1.4.0", "@shapeshiftoss/types@^1.5.0", "@shapeshiftoss/types@^1.9.0":
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.0.tgz#ae0352d6559e2d4757701bfeadd5f0cdad4d8838"
   integrity sha512-X6p19KLKsOpu+DeWnaLCPq+TPqq2KuemeSMM6JcCmRsb3zRXSBgmumVAMQeL60UB1TytgJ6ggYdk8kUd2ZklLg==
@@ -16910,6 +16917,13 @@ react-colorful@^5.1.2:
   resolved "https://registry.yarnpkg.com/react-colorful/-/react-colorful-5.5.0.tgz#8359f218984a927095477a190ab9927eaf865c0c"
   integrity sha512-BuzrlrM0ylg7coPkXOrRqlf2BgHLw5L44sybbr9Lg4xy7w9e5N7fGYbojOO0s8J0nvrM3PERN2rVFkvSa24lnQ==
 
+react-countdown-circle-timer@^2.5.4:
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/react-countdown-circle-timer/-/react-countdown-circle-timer-2.5.4.tgz#95cb58e5e734deffd9087a13279d8924463cc239"
+  integrity sha512-nKGlpS6UzfWI+k66ZVYAjcZZbZeCJuB1Xkcdci+6De1KghHfs5IwjMCdAAcZP1n1m3+tyuhLF+GVB8FRmh27RQ==
+  dependencies:
+    use-elapsed-time "2.1.8"
+
 react-dev-utils@^11.0.3:
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.4.tgz#a7ccb60257a1ca2e0efe7a83e38e6700d17aa37a"
@@ -20015,6 +20029,11 @@ use-composed-ref@^1.0.0:
   dependencies:
     ts-essentials "^2.0.3"
 
+use-elapsed-time@2.1.8:
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/use-elapsed-time/-/use-elapsed-time-2.1.8.tgz#3c830ae730e2bc204f2294b66be15580f0016ea5"
+  integrity sha512-lNLTDffKHdHWweQNvnch9tFI2eRP3tXccSLrwE7U6xrfyWFNEgNQZWWsGhQvtwKa0kJ6L+7E5wKbi3jg86opjg==
+
 use-isomorphic-layout-effect@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.1.tgz#7bb6589170cd2987a152042f9084f9effb75c225"
@@ -20172,9 +20191,9 @@ validate@^5.1.0:
     typecast "0.0.1"
 
 validator@^13.6.0:
-  version "13.6.0"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-13.6.0.tgz#1e71899c14cdc7b2068463cb24c1cc16f6ec7059"
-  integrity sha512-gVgKbdbHgtxpRyR8K0O6oFZPhhB5tT1jeEHZR0Znr9Svg03U0+r9DXWMrnRAB+HtCStDQKlaIZm42tVsVjqtjg==
+  version "13.7.0"
+  resolved "https://registry.yarnpkg.com/validator/-/validator-13.7.0.tgz#4f9658ba13ba8f3d82ee881d3516489ea85c0857"
+  integrity sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw==
 
 value-equal@^1.0.1:
   version "1.0.1"

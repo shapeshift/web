@@ -3,11 +3,12 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
+import { toLower } from 'lodash'
 import Web3 from 'web3'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../constants/erc20-abi'
-import { vaults, YearnVault } from '../constants/vaults'
+import { SUPPORTED_VAULTS } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
 import {
@@ -16,8 +17,8 @@ import {
   ApproveInput,
   APYInput,
   BalanceInput,
-  DepositInput,
-  WithdrawInput
+  TxEstimatedGasInput,
+  TxInput
 } from './yearn-types'
 
 export type ConstructorArgs = {
@@ -25,10 +26,41 @@ export type ConstructorArgs = {
   providerUrl: string
 }
 
+export type YearnVault = {
+  inception: number
+  address: string
+  symbol: string
+  name: string
+  display_name: string
+  icon: string
+  token: {
+    name: string
+    symbol: string
+    address: string
+    decimals: number
+    display_name: string
+    icon: string
+  }
+  tvl: {
+    total_assets: number
+    price: number
+    tvl: number
+  }
+  apy: {
+    net_apy: number
+  }
+  endorsed: boolean
+  version: string
+  decimals: number
+  type: string
+  emergency_shutdown: boolean
+}
+
 export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
   public web3: Web3
+  public vaults: YearnVault[]
   public yearnClient: AxiosInstance
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
@@ -38,21 +70,29 @@ export class YearnVaultApi {
     this.yearnClient = axios.create({
       baseURL: 'https://api.yearn.finance/v1'
     })
+    this.vaults = []
   }
 
-  findAll() {
-    return vaults
+  async initialize() {
+    this.vaults = await this.findAll()
+  }
+
+  async findAll() {
+    const response = await this.yearnClient.get(`/chains/1/vaults/all`)
+    return response.data.filter((vault: YearnVault) =>
+      SUPPORTED_VAULTS.find(supported => toLower(supported.vaultAddress) === toLower(vault.address))
+    )
   }
 
   findByDepositTokenId(tokenId: string) {
-    const vault = vaults.find((item: YearnVault) => item.depositToken === tokenId)
+    const vault = this.vaults.find(item => toLower(item.token.address) === toLower(tokenId))
     if (!vault) throw new Error(`Vault for ERC-20 ${tokenId} isn't supported`)
     return vault
   }
 
-  findByVaultTokenId(tokenId: string) {
-    const vault = vaults.find((item: YearnVault) => item.vaultAddress === tokenId)
-    if (!vault) throw new Error(`Vault for ${tokenId} isn't supported`)
+  findByVaultTokenId(vaultAddress: string) {
+    const vault = this.vaults.find(item => toLower(item.address) === toLower(vaultAddress))
+    if (!vault) throw new Error(`Vault for ${vaultAddress} isn't supported`)
     return vault
   }
 
@@ -113,9 +153,7 @@ export class YearnVaultApi {
     return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
   }
 
-  async depositEstimatedGas(
-    input: Omit<DepositInput, 'bip32Params' | 'wallet' | 'tokenContractAddress'>
-  ): Promise<BigNumber> {
+  async depositEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
@@ -127,7 +165,7 @@ export class YearnVaultApi {
     return bnOrZero(estimatedGas)
   }
 
-  async deposit(input: DepositInput): Promise<string> {
+  async deposit(input: TxInput): Promise<string> {
     const {
       amountDesired,
       accountNumber = 0,
@@ -162,7 +200,7 @@ export class YearnVaultApi {
     return this.adapter.broadcastTransaction(signedTx)
   }
 
-  async withdrawEstimatedGas(input: WithdrawInput): Promise<BigNumber> {
+  async withdrawEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const estimatedGas = await vaultContract.methods
@@ -173,7 +211,7 @@ export class YearnVaultApi {
     return bnOrZero(estimatedGas)
   }
 
-  async withdraw(input: WithdrawInput): Promise<string> {
+  async withdraw(input: TxInput): Promise<string> {
     const {
       amountDesired,
       accountNumber = 0,
@@ -219,6 +257,12 @@ export class YearnVaultApi {
     const contract = new this.web3.eth.Contract(erc20Abi, contractAddress)
     const totalSupply = await contract.methods.totalSupply().call()
     return bnOrZero(totalSupply)
+  }
+
+  async pricePerShare(input: { vaultAddress: string }): Promise<BigNumber> {
+    const contract = new this.web3.eth.Contract(yv2VaultAbi, input.vaultAddress)
+    const pricePerShare = await contract.methods.pricePerShare().call()
+    return bnOrZero(pricePerShare)
   }
 
   async apy(input: APYInput): Promise<string> {

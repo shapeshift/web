@@ -1,6 +1,5 @@
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { useEffect } from 'react'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
@@ -12,9 +11,9 @@ export const useMetaSuccess = () => {
     ;(async () => {
       try {
         // TODO handle else
-        if (state.adapters?.metamask) {
-          const wallet = await (state.adapters.metamask as MetaMaskAdapter).pairDevice()
-          const { name, icon } = SUPPORTED_WALLETS['metamask']
+        if (state.adapters?.has(KeyManager.MetaMask)) {
+          const wallet = (await state.adapters.get(KeyManager.MetaMask)?.pairDevice()) ?? null
+          const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
           dispatch({
             type: WalletActions.SET_WALLET,
             payload: { wallet, name, icon, deviceId: 'test' }

@@ -246,7 +246,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
-      const [txId, gasPrice] = await Promise.all([
+      const [txid, gasPrice] = await Promise.all([
         api.deposit({
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
@@ -256,13 +256,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         }),
         api.getGasPrice()
       ])
-      dispatch({ type: YearnDepositActionType.SET_TXID, payload: txId })
+      dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       memoryHistory.push(DepositPath.Status)
 
       const transactionReceipt = await poll({
         fn: () =>
           api.getTxReceipt({
-            txId
+            txid
           }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,

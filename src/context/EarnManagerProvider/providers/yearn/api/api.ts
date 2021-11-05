@@ -102,8 +102,8 @@ export class YearnVaultApi {
     return bnOrZero(gasPrice)
   }
 
-  async getTxReceipt({ txId }: { txId: string }): Promise<TransactionReceipt> {
-    return await this.web3.eth.getTransactionReceipt(txId)
+  async getTxReceipt({ txid }: { txid: string }): Promise<TransactionReceipt> {
+    return await this.web3.eth.getTransactionReceipt(txid)
   }
 
   async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {

@@ -158,7 +158,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
-      const [txId, gasPrice] = await Promise.all([
+      const [txid, gasPrice] = await Promise.all([
         api.withdraw({
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
@@ -168,13 +168,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         }),
         api.getGasPrice()
       ])
-      dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txId })
+      dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
       memoryHistory.push(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () =>
           api.getTxReceipt({
-            txId
+            txid
           }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
@@ -219,6 +219,20 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     // const annualYieldCrypto = bnOrZero(state.withdraw?.cryptoAmount).times(apy)
     // const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
+    let statusIcon: React.ReactElement = <ArrowForwardIcon />
+    let statusText:
+      | 'modals.status.header.pending'
+      | 'modals.status.header.success'
+      | 'modals.status.header.failed' = 'modals.status.header.pending'
+    if (state.withdraw.txStatus === 'success') {
+      statusText = 'modals.status.header.success'
+      statusIcon = <CheckIcon color='green' />
+    }
+    if (state.withdraw.txStatus === 'failed') {
+      statusText = 'modals.status.header.failed'
+      statusIcon = <CloseIcon color='red' />
+    }
+
     switch (route.path) {
       case WithdrawPath.Withdraw:
         return (
@@ -250,17 +264,17 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             onConfirm={handleConfirm}
             assets={[
               {
-                ...asset,
-                color: '#FF0000',
-                cryptoAmount: state.withdraw.cryptoAmount,
-                fiatAmount: state.withdraw.fiatAmount
-              },
-              {
                 ...makeVaultAsset(state.vault),
                 color: '#FFFFFF',
                 cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
                   .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
                   .toString(),
+                fiatAmount: state.withdraw.fiatAmount
+              },
+              {
+                ...asset,
+                color: '#FF0000',
+                cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               }
             ]}
@@ -311,21 +325,23 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
           <TxStatus
             onClose={handleCancel}
             onContinue={handleViewPosition}
-            loading={true}
+            loading={state.loading}
             continueText='modals.status.continue'
             closeText='modals.status.close'
-            statusText='modals.status.header.pending'
-            statusIcon={<ArrowForwardIcon />}
+            statusText={statusText}
+            statusIcon={statusIcon}
             assets={[
               {
-                ...asset,
-                cryptoAmount: '100',
-                fiatAmount: '100'
+                ...makeVaultAsset(state.vault),
+                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
+                  .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
+                  .toString(),
+                fiatAmount: state.withdraw.fiatAmount
               },
               {
                 ...asset,
-                cryptoAmount: '100',
-                fiatAmount: '100'
+                cryptoAmount: state.withdraw.cryptoAmount,
+                fiatAmount: state.withdraw.fiatAmount
               }
             ]}
           >
@@ -336,9 +352,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                 </Row.Label>
                 <Row.Value>
                   <Link href='http://google.com' isExternal color='blue.500' fontWeight='bold'>
-                    <MiddleEllipsis maxWidth='200px'>
-                      0x73060cb15ae5b6a5edc71c3b8b49dd20746240990d0a1047481b4218c690ad1c
-                    </MiddleEllipsis>
+                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
                   </Link>
                 </Row.Value>
               </Row>
@@ -358,12 +372,38 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.estimatedGas' />
+                  <Text
+                    translation={
+                      state.withdraw.txStatus === 'pending'
+                        ? 'modals.status.estimatedGas'
+                        : 'modals.status.gasUsed'
+                    }
+                  />
                 </Row.Label>
                 <Row.Value>
                   <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value='30.00' />
-                    <Amount.Crypto color='gray.500' value='0.024' symbol='ETH' />
+                    <Amount.Fiat
+                      fontWeight='bold'
+                      value={bnOrZero(
+                        state.withdraw.txStatus === 'pending'
+                          ? state.withdraw.estimatedGasCrypto
+                          : state.withdraw.usedGasFee
+                      )
+                        .div(`1e+${feeAsset.precision}`)
+                        .times(feeMarketData.price)
+                        .toFixed(2)}
+                    />
+                    <Amount.Crypto
+                      color='gray.500'
+                      value={bnOrZero(
+                        state.withdraw.txStatus === 'pending'
+                          ? state.withdraw.estimatedGasCrypto
+                          : state.withdraw.usedGasFee
+                      )
+                        .div(`1e+${feeAsset.precision}`)
+                        .toFixed(5)}
+                      symbol='ETH'
+                    />
                   </Box>
                 </Row.Value>
               </Row>

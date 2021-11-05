@@ -22,8 +22,8 @@ import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { YearnVaultApi } from '../../api/api'
-import { YearnRouteSteps } from '../YearnRouteSteps'
+import { YearnVaultApi } from '../../../api/api'
+import { YearnRouteSteps } from '../../YearnRouteSteps'
 
 enum WithdrawPath {
   Withdraw = '/withdraw',

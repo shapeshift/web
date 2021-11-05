@@ -228,7 +228,7 @@
                 "button2": "Create Wallet"
             },
             "nativeSuccess": {
-                "header": "Wallet Conected",
+                "header": "Wallet Connected",
                 "success": "Your wallet has been connected",
                 "error": "There was an error connecting your wallet"
             },

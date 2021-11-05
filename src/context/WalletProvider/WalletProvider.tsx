@@ -118,7 +118,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Record<string, unknown> = {}
-        // console.log(JSON.stringify(SUPPORTED_WALLETS, null, 2))
         let options: undefined | { portisAppId: string }
         for (const wallet of Object.keys(SUPPORTED_WALLETS)) {
           try {

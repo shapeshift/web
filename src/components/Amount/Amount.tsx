@@ -8,6 +8,8 @@ import {
 
 type AmountProps = {
   value: number | string
+  prefix?: string
+  suffix?: string
 } & TextProps
 
 export function Amount({
@@ -51,6 +53,8 @@ const Crypto = ({
   symbol,
   cryptoSymbolStyle,
   maximumFractionDigits = 8,
+  prefix,
+  suffix,
   ...props
 }: CryptoAmountProps) => {
   const {
@@ -60,7 +64,13 @@ const Crypto = ({
   const crypto = toCrypto(value, symbol, { maximumFractionDigits })
 
   if (!cryptoSymbolStyle) {
-    return <RawText {...props}>{crypto}</RawText>
+    return (
+      <RawText {...props}>
+        {prefix && `${prefix} `}
+        {crypto}
+        {suffix && ` ${suffix}`}
+      </RawText>
+    )
   }
 
   const parts = toParts(crypto)
@@ -75,7 +85,6 @@ const Crypto = ({
       {parts.number}
       {parts.postfix && (
         <RawText {...props} {...cryptoSymbolStyle}>
-          {' '}
           {parts.postfix}
         </RawText>
       )}
@@ -83,7 +92,7 @@ const Crypto = ({
   )
 }
 
-const Fiat = ({ value, fiatSymbolStyle, fiatType, ...props }: FiatAmountProps) => {
+const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: FiatAmountProps) => {
   const {
     number: { toFiat, toParts }
   } = useLocaleFormatter({ fiatType: fiatType || 'USD' })
@@ -91,7 +100,13 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, ...props }: FiatAmountProps) =
   const fiat = toFiat(value, { fiatType })
 
   if (!fiatSymbolStyle) {
-    return <RawText {...props}>{fiat}</RawText>
+    return (
+      <RawText {...props}>
+        {prefix && `${prefix} `}
+        {fiat}
+        {suffix && `${suffix} `}
+      </RawText>
+    )
   }
 
   const parts = toParts(fiat)

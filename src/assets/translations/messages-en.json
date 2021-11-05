@@ -12,7 +12,9 @@
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
-    "connectWallet": "Connect Wallet"
+    "getStarted": "Get Started",
+    "connectWallet": "Connect Wallet",
+    "seeAll": "See All"
   },
   "dashboard": {
     "portfolio": {
@@ -27,6 +29,9 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     }
+  },
+  "earn": {
+    "emptyVaults": "Vaults will appear here"
   },
   "navBar": {
     "dashboard": "Dashboard",
@@ -329,7 +334,7 @@
         "claimRewards": "Claim Rewards"
       },
       "accounts": "Accounts",
-      "staking": "Staking",
+      "stakingVaults": "Staking & Vaults",
       "pools": "Pools"
     }
   },

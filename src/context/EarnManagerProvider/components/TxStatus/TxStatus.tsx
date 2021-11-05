@@ -5,11 +5,11 @@ import { AssetToAsset, AssetToAssetProps } from 'components/AssetToAsset/AssetTo
 import { SlideTransition } from 'components/SlideTransition'
 
 type Status =
-  | 'modals.broadcast.header.pending'
-  | 'modals.broadcast.header.success'
-  | 'modals.broadcast.header.error'
+  | 'modals.status.header.pending'
+  | 'modals.status.header.success'
+  | 'modals.status.header.failed'
 
-type BroadcastTxProps = {
+type TxStatusProps = {
   loading?: boolean
   onClose(): void
   onContinue?(): void
@@ -20,7 +20,7 @@ type BroadcastTxProps = {
   children?: React.ReactNode
 } & AssetToAssetProps
 
-export const BroadcastTx = ({
+export const TxStatus = ({
   onClose,
   onContinue,
   statusText,
@@ -28,7 +28,7 @@ export const BroadcastTx = ({
   closeText,
   children,
   ...rest
-}: BroadcastTxProps) => {
+}: TxStatusProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>

@@ -44,7 +44,7 @@
     "fee": "Fee",
     "status": "Status",
     "confirmed": "Confirmed",
-    "pending": "pending",
+    "pending": "Pending",
     "failed": "Failed",
     "network": "Network",
     "blockHeight": "Block Height",
@@ -175,17 +175,18 @@
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
     },
-    "broadcast": {
+    "status": {
       "header": {
-        "pending": "Broadcasting Transaction",
-        "success": "Successfully Broadcast Transaction",
-        "error": "Error Broadcasting Transaction"
+        "pending": "Waiting on Confirmation",
+        "success": "Transaction Confirmed",
+        "failed": "Transaction Execution Failed"
       },
       "depositTo": "Deposit To",
       "transactionId": "TX ID",
       "averageApy": "Average APY",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
+      "gasUsed": "Total Gas Fee",
       "continue": "View My Position",
       "viewAsset": "View Asset",
       "close": "Close"

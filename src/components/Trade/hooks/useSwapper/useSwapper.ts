@@ -251,14 +251,8 @@ export const useSwapper = () => {
           setValue('fiatAmount', newFiatAmount)
           setValue('action', undefined)
         } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
-          setValue(
-            'buyAsset.amount',
-            fromBaseUnit(bnOrZero(quote.buyAmount), buyAsset.currency.precision)
-          )
-          setValue(
-            'sellAsset.amount',
-            fromBaseUnit(bnOrZero(quote.sellAmount), sellAsset.currency.precision)
-          )
+          setValue('buyAsset.amount', buyAmount)
+          setValue('sellAsset.amount', sellAmount)
           setValue('action', undefined)
         }
       }

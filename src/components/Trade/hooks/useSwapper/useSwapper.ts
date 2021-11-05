@@ -232,7 +232,7 @@ export const useSwapper = () => {
       ? sellAsset.currency.precision
       : isBuyAmount && buyAsset.currency.precision
     if (precision) {
-      formattedAmount = toBaseUnit(bnOrZero(amount), precision)
+      formattedAmount = toBaseUnit(amount, precision)
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {

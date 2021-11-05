@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.9.1...@shapeshiftoss/types-v1.10.0) (2021-11-05)
+
+
+### Features
+
+* chain specific buildtx ([#193](https://github.com/shapeshift/lib/issues/193)) ([b2411fa](https://github.com/shapeshift/lib/commit/b2411fabd928cce5ab38dcd82d7d800941ef6b46))
+
 # [@shapeshiftoss/types-v1.9.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.9.0...@shapeshiftoss/types-v1.9.1) (2021-11-04)
 
 

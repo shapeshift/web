@@ -53,7 +53,7 @@ export const StakingVaultRow = ({
           <RawText size='lg'>{`${asset.symbol} ${type}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
-          <Tag colorScheme='green' ml={4}>
+          <Tag colorScheme='green'>
             <Amount.Percent value={apr} />
           </Tag>
         </Skeleton>

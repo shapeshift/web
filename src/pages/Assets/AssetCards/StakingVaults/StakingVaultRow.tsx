@@ -21,7 +21,7 @@ export const StakingVaultRow = ({
   const asset = useFetchAsset({ chain, tokenId: tokenAddress })
 
   /* @TODO: Get this from somewhere */
-  const apr = '0.05'
+  const apy = '0.05'
   const cryptoAmount = '100'
   const fiatAmount = '100'
   if (!asset) return null
@@ -54,7 +54,7 @@ export const StakingVaultRow = ({
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>
-            <Amount.Percent value={apr} />
+            <Amount.Percent value={apy} />
           </Tag>
         </Skeleton>
       </Flex>

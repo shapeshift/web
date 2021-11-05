@@ -21,7 +21,7 @@ export const AssetDetails = ({ asset, isLoaded }: AssetDetailProps) => (
         mx={{ base: 0, lg: 'auto' }}
       >
         <AssetHeader asset={asset} isLoaded={isLoaded} />
-        <StakingVaults />
+        <StakingVaults tokenId={asset.tokenId} isLoaded={isLoaded} />
         <AssetHistory asset={asset} />
       </Stack>
     </Flex>

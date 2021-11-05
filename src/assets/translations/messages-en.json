@@ -13,7 +13,8 @@
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
-    "connectWallet": "Connect Wallet"
+    "connectWallet": "Connect Wallet",
+    "seeAll": "See All"
   },
   "dashboard": {
     "portfolio": {
@@ -28,6 +29,9 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     }
+  },
+  "earn": {
+    "emptyVaults": "Vaults will appear here"
   },
   "navBar": {
     "dashboard": "Dashboard",

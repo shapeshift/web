@@ -10,7 +10,8 @@
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
-    "withdraw": "Withdraw"
+    "withdraw": "Withdraw",
+    "getStarted": "Get Started"
   },
   "dashboard": {
     "portfolio": {
@@ -307,7 +308,7 @@
         "claimRewards": "Claim Rewards"
       },
       "accounts": "Accounts",
-      "staking": "Staking",
+      "stakingVaults": "Staking & Vaults",
       "pools": "Pools"
     }
   },

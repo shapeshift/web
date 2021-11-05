@@ -2,6 +2,7 @@ import { Flex, Stack } from '@chakra-ui/react'
 import { Page } from 'components/Layout/Page'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
+import { StakingVaults } from '../AssetCards/StakingVaults/StakingVaults'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetHistory } from './AssetHistory'
 type AssetDetailProps = {
@@ -20,6 +21,7 @@ export const AssetDetails = ({ asset, isLoaded }: AssetDetailProps) => (
         mx={{ base: 0, lg: 'auto' }}
       >
         <AssetHeader asset={asset} isLoaded={isLoaded} />
+        <StakingVaults />
         <AssetHistory asset={asset} />
       </Stack>
     </Flex>

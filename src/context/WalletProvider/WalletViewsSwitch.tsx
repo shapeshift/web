@@ -21,7 +21,7 @@ export const WalletViewsSwitch = () => {
   const history = useHistory()
   const location = useLocation()
   const match = useRouteMatch('/')
-  const { state, dispatch, connect } = useWallet()
+  const { state, dispatch } = useWallet()
 
   const onClose = () => {
     history.replace('/')
@@ -33,10 +33,10 @@ export const WalletViewsSwitch = () => {
   }
 
   useEffect(() => {
-    if (state?.initalRoute) {
-      history.push(state.initalRoute)
+    if (state?.initialRoute) {
+      history.push(state.initialRoute)
     }
-  }, [history, state?.initalRoute])
+  }, [history, state?.initialRoute])
 
   return (
     <>
@@ -74,7 +74,7 @@ export const WalletViewsSwitch = () => {
                     )
                   })}
 
-                <Route children={() => <SelectModal connect={connect} />} />
+                <Route children={() => <SelectModal />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

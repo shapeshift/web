@@ -20,7 +20,7 @@ export const Rewards = () => {
         search: qs.stringify({
           chain: ChainTypes.Ethereum,
           contractAddress: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9', // yvUSDC vault address
-          tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+          tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' // USDC address
         }),
         state: { background: location }
       }}

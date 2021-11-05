@@ -119,7 +119,8 @@ describe('useFormSend', () => {
         byChain: () => ({
           buildSendTransaction: () => Promise.resolve(textTxToSign),
           signTransaction: () => Promise.resolve(testSignedTx),
-          broadcastTransaction: () => Promise.resolve(expectedTx)
+          broadcastTransaction: () => Promise.resolve(expectedTx),
+          getType: () => ChainTypes.Ethereum
         })
       }))
 
@@ -149,7 +150,8 @@ describe('useFormSend', () => {
       ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
         byChain: () => ({
           buildSendTransaction: () => Promise.resolve(textTxToSign),
-          signAndBroadcastTransaction
+          signAndBroadcastTransaction,
+          getType: () => ChainTypes.Ethereum
         })
       }))
 

@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react-hooks'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
 
+import { KeyManager } from '../../../config'
 import { useNativeSuccess } from './useNativeSuccess'
 
 jest.mock('context/WalletProvider/WalletProvider', () => ({
@@ -41,7 +42,7 @@ describe('useNativeSuccess', () => {
         decrypt: jest.fn(() => Promise.resolve(mnemonic))
       } as unknown as EncryptedWallet,
       walletState: {
-        adapters: { native: { pairDevice } }
+        adapters: new Map([[KeyManager.Native, { pairDevice }]])
       }
     })
 
@@ -50,19 +51,22 @@ describe('useNativeSuccess', () => {
   })
 
   it('unsuccesffully initialize wallet if no native adapter is provided', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation()
     const { result } = setup({
       encryptedWallet: { deviceId: '1234', encryptedWallet: 'test' } as unknown as EncryptedWallet,
-      walletState: { adapters: { native: null } }
+      walletState: { adapters: new Map([[KeyManager.Native, null]]) }
     })
 
     expect(result.current.isSuccessful).toBeFalsy()
+    expect(console.error).toHaveBeenCalledTimes(1)
+    consoleError.mockRestore()
   })
 
   it('unsuccesffully initialize wallet if no encryptedWallet string is provided', async () => {
     const pairDevice = jest.fn(() => ({ loadDevice: jest.fn(() => Promise.resolve()) }))
     const { result } = setup({
       encryptedWallet: { deviceId: '1234' } as unknown as EncryptedWallet,
-      walletState: { adapters: { native: { pairDevice } } }
+      walletState: { adapters: new Map([[KeyManager.Native, { pairDevice }]]) }
     })
 
     expect(result.current.isSuccessful).toBeFalsy()
@@ -77,10 +81,10 @@ describe('useNativeSuccess', () => {
         encryptedWallet: 'test',
         decrypt: jest.fn(() => Promise.reject('An error occured with decrypt'))
       } as unknown as EncryptedWallet,
-      walletState: { adapters: { native: { pairDevice } } }
+      walletState: { adapters: new Map([[KeyManager.Native, { pairDevice }]]) }
     })
 
-    await waitFor(() => expect(console.error).toBeCalled())
+    await waitFor(() => expect(console.error).toHaveBeenCalledTimes(1))
     expect(result.current.isSuccessful).toBeFalsy()
     consoleError.mockRestore()
   })

@@ -10,15 +10,23 @@ import { SlideTransition } from 'components/SlideTransition'
 type ConfirmProps = {
   onCancel(): void
   onConfirm(): Promise<void>
+  headerText: string
   prefooter?: React.ReactNode
   children?: React.ReactNode
 } & AssetToAssetProps
 
-export const Confirm = ({ onConfirm, onCancel, children, prefooter, ...rest }: ConfirmProps) => {
+export const Confirm = ({
+  onConfirm,
+  onCancel,
+  children,
+  prefooter,
+  headerText,
+  ...rest
+}: ConfirmProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>
-      <ModalHeader textAlign='center'>{translate('modals.confirm.header')}</ModalHeader>
+      <ModalHeader textAlign='center'>{translate(headerText)}</ModalHeader>
       <ModalBody>
         <AssetToAsset {...rest} />
         <Divider my={4} />

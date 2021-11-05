@@ -238,8 +238,10 @@ export const useSwapper = () => {
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
-        const buyAmount = fromBaseUnit(bnOrZero(quote.buyAmount), buyAsset.currency.precision)
-        const sellAmount = fromBaseUnit(bnOrZero(quote.sellAmount), sellAsset.currency.precision)
+        // TODO:(ryankk) should this return be handled with an error state instead?
+        if (!(quote.buyAmount && quote.sellAmount)) return
+        const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
+        const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
 
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {

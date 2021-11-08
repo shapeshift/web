@@ -15,7 +15,7 @@ export const useTotalBalance = (accounts: ReturnType<typeof flattenTokenBalances
     Object.values(accounts).forEach(account => {
       if (!account) return
       const identifier = account.contract ?? account.chain
-      const accountMarketData = marketData[identifier]
+      const accountMarketData = marketData.marketData[identifier]
       const accountAsset = assets[identifier]
       if (accountMarketData && accountAsset) {
         const cryptoValue = fromBaseUnit(account.balance ?? '0', accountAsset.precision)

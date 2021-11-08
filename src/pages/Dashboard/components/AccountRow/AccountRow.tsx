@@ -33,7 +33,7 @@ export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
 
   const asset = useFetchAsset({ chain, tokenId: contract })
   const marketData = useSelector(
-    (state: ReduxState) => state.marketData[asset?.tokenId ?? asset?.chain]
+    (state: ReduxState) => state.marketData.marketData[asset?.tokenId ?? asset?.chain]
   )
 
   useEffect(() => {

@@ -5,7 +5,9 @@ import { ReduxState } from 'state/reducer'
 import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export function useMarketData({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }) {
-  const marketData = useSelector((state: ReduxState) => state.marketData[tokenId ?? chain])
+  const marketData = useSelector(
+    (state: ReduxState) => state.marketData.marketData[tokenId ?? chain]
+  )
   const dispatch = useDispatch()
 
   useEffect(() => {

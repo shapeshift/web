@@ -1,14 +1,19 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { getMarketData } from '@shapeshiftoss/market-service'
-import { ChainTypes, MarketData } from '@shapeshiftoss/types'
+import { getByMarketCap, getMarketData } from '@shapeshiftoss/market-service'
+import { ChainTypes, CoinGeckoMarketCapResult, MarketData } from '@shapeshiftoss/types'
 
-export type MarketDataState = { [key: string]: MarketData }
+export type MarketDataState = {
+  marketCap?: CoinGeckoMarketCapResult
+  marketData: {
+    [key: string]: MarketData
+  }
+}
 
 export const fetchMarketData = createAsyncThunk(
   'marketData/fetchMarketData',
   async ({ tokenId, chain }: { tokenId?: string; chain: ChainTypes }) => {
     try {
-      const marketData: MarketData | null = await getMarketData({
+      const marketData: MarketData = await getMarketData({
         chain,
         tokenId
       })
@@ -21,7 +26,19 @@ export const fetchMarketData = createAsyncThunk(
   }
 )
 
-const initialState = {} as MarketDataState
+export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
+  try {
+    const marketCap = await getByMarketCap()
+    return { marketCap }
+  } catch (error) {
+    console.error(error)
+    return {}
+  }
+})
+
+const initialState: MarketDataState = {
+  marketData: {}
+}
 
 export const marketData = createSlice({
   name: 'marketData',
@@ -31,8 +48,14 @@ export const marketData = createSlice({
     builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
       const tokenId = meta.arg.tokenId ?? meta.arg.chain
       if (payload[tokenId]) {
-        state[tokenId] = payload[tokenId]
+        state.marketData[tokenId] = payload[tokenId]
       }
+    })
+
+    builder.addCase(fetchMarketCaps.fulfilled, (state, { payload }) => {
+      const { marketCap } = payload
+      if (!marketCap) return
+      state.marketCap = marketCap
     })
   }
 })

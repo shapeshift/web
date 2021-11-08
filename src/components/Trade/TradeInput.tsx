@@ -56,8 +56,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   const [quote, action, buyAsset, sellAsset] = useWatch({
     name: ['quote', 'action', 'buyAsset', 'sellAsset']
   }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
-  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, sendMax } = useSwapper()
-  })
+  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
+    useSwapper()
   const {
     state: { wallet }
   } = useWallet()
@@ -97,7 +97,19 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onSwapMax = async () => {
-    await sendMax({ wallet, sellAsset, buyAsset })
+    const action = TradeActions.SELL
+    const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
+    setValue('sellAsset.amount', maxSendAmount)
+    setValue('action', action)
+    const currentSellAsset = getValues('sellAsset')
+    const currentBuyAsset = getValues('buyAsset')
+
+    await getQuote({
+      sellAsset: currentSellAsset,
+      buyAsset: currentBuyAsset,
+      action,
+      amount: maxSendAmount ?? '0'
+    })
   }
 
   const switchAssets = () => {
@@ -208,7 +220,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           </Box>
         </FormControl>
         <FormControl mb={6}>
-          <TokenRow
+          <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='buyAsset.amount'
             rules={{ required: true }}

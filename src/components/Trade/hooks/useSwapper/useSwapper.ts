@@ -75,14 +75,18 @@ export const useSwapper = () => {
   }, [swapperManager, bestSwapperType])
 
   // TODO: remove 'any' and create input and return value types
-  const sendMax = async ({ wallet, sellAsset, buyAsset }: any) => {
+  const getSendMaxAmount = async ({ wallet, sellAsset, buyAsset }: any) => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
-    const completeQuote = await buildQuoteTx({
-      wallet,
-      sellAsset: sellAsset.currency,
-      buyAsset: buyAsset.currency
+    const completeQuote = await swapper?.buildQuoteTx({
+      input: {
+        sellAsset: sellAsset.currency,
+        buyAsset: buyAsset.currency,
+        sellAmount: toBaseUnit('0.001', sellAsset.currency.precision), // TODO:(ryankk) Don't hard code sell amount. Possibly get from getMinMax?
+        sellAssetAccountId: '0', // TODO: remove hard coded accountId
+        buyAssetAccountId: '0' // TODO: remove hard coded accountId
+      },
+      wallet
     })
-    console.log({ completeQuote })
 
     // TODO:(ryankk) check this to make sure nothing happens if there isn't a completeQuote
     if (completeQuote) {
@@ -91,8 +95,9 @@ export const useSwapper = () => {
         quote: completeQuote,
         sellAssetAccountId: '0'
       })
-      const newQuote = await swapper.getQuote({ sellAsset, buyAsset, sellAmount: sendMaxAmount })
-      setValue('quote', newQuote)
+
+
+      return fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
     }
   }
 
@@ -109,7 +114,6 @@ export const useSwapper = () => {
   }): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
     let result
     try {
-      console.log({ sellAsset, buyAsset })
       const swapper = swapperManager.getSwapper(bestSwapperType)
       result = await swapper?.buildQuoteTx({
         input: {
@@ -267,6 +271,7 @@ export const useSwapper = () => {
         const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
 
+
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('fiatAmount', newFiatAmount)
@@ -411,7 +416,7 @@ export const useSwapper = () => {
     checkApprovalNeeded,
     approveInfinite,
     getFiatRate,
-    sendMax,
+    getSendMaxAmount,
     reset
   }
 }

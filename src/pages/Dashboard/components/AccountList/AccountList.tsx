@@ -24,14 +24,16 @@ export const AccountList = () => {
   const accountRows = useMemo(() => {
     return (
       <>
-        {Object.values(balances).map(account => (
-          <AccountRow
-            key={account.contract ?? account.chain}
-            balance={account.balance ?? '0'}
-            chain={account.chain}
-            tokenId={account.contract}
-          />
-        ))}
+        {Object.values(balances)
+          .sort((a, b) => ((a?.balance ?? '0') > (b?.balance ?? '0') ? -1 : 1))
+          .map(account => (
+            <AccountRow
+              key={account.contract ?? account.chain}
+              balance={account.balance ?? '0'}
+              chain={account.chain}
+              tokenId={account.contract}
+            />
+          ))}
       </>
     )
   }, [balances])

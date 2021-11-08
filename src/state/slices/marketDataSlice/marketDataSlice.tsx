@@ -1,6 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { getByMarketCap, getMarketData } from '@shapeshiftoss/market-service'
-import { ChainTypes, CoinGeckoMarketCapResult, MarketData } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  CoinGeckoMarketCapResult,
+  GetByMarketCapArgs,
+  MarketData
+} from '@shapeshiftoss/types'
 
 export type MarketDataState = {
   marketCap?: CoinGeckoMarketCapResult
@@ -28,7 +33,8 @@ export const fetchMarketData = createAsyncThunk(
 
 export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
   try {
-    const marketCap = await getByMarketCap()
+    const args: GetByMarketCapArgs = { pages: 1, perPage: 250 }
+    const marketCap = await getByMarketCap(args)
     return { marketCap }
   } catch (error) {
     console.error(error)

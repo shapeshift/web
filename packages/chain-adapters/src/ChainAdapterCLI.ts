@@ -22,12 +22,12 @@ const getWallet = async (): Promise<NativeHDWallet> => {
 
 const unchainedUrls = {
   [ChainTypes.Bitcoin]: {
-    httpUrl: 'https://api.bitcoin.shapeshift.com',
-    wsUrl: 'wss://api.bitcoin.shapeshift.com'
+    httpUrl: 'https://dev-api.bitcoin.shapeshift.com',
+    wsUrl: 'wss://dev-api.bitcoin.shapeshift.com'
   },
   [ChainTypes.Ethereum]: {
-    httpUrl: 'https://api.ethereum.shapeshift.com',
-    wsUrl: 'wss://api.ethereum.shapeshift.com'
+    httpUrl: 'https://dev-api.ethereum.shapeshift.com',
+    wsUrl: 'wss://dev-api.ethereum.shapeshift.com'
   }
 }
 
@@ -55,6 +55,12 @@ const main = async () => {
 
     const btcAccount = await btcChainAdapter.getAccount(btcAddress)
     console.log('btcAccount:', btcAccount)
+
+    await btcChainAdapter.subscribeTxs(
+      { wallet, bip32Params: btcBip32Params, scriptType: BTCInputScriptType.SpendWitness },
+      (msg) => console.log(msg),
+      (err) => console.log(err)
+    )
 
     const txInput = {
       to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
@@ -89,7 +95,7 @@ const main = async () => {
     console.log('ethAccount:', ethAccount)
 
     await ethChainAdapter.subscribeTxs(
-      { addresses: [ethAddress] },
+      { wallet, bip32Params: ethBip32Params },
       (msg) => console.log(msg),
       (err) => console.log(err)
     )
@@ -129,12 +135,12 @@ const main = async () => {
         txToSign: erc20UnsignedTx.txToSign
       })
       console.log('erc20SignedTx:', erc20SignedTx)
+
+      //const erc20TxID = await ethChainAdapter.broadcastTransaction(erc20SignedTx)
+      //console.log('erc20TxID:', erc20TxID)
     } catch (err) {
       console.log('erc20Tx error:', err.message)
     }
-
-    // const erc20TxID = await ethChainAdapter.broadcastTransaction(erc20SignedTx)
-    // console.log('erc20TxID:', erc20TxID)
   } catch (err) {
     console.error(err)
   }

@@ -141,7 +141,8 @@ describe('BitcoinChainAdapter', () => {
   beforeEach(() => {
     args = {
       providers: {
-        http: {} as any
+        http: {} as any,
+        ws: {} as any
       },
       coinName: 'Bitcoin'
     }

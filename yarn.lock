@@ -2592,6 +2592,33 @@
     lodash "^4.17.4"
     read-pkg-up "^7.0.0"
 
+"@shapeshiftoss/bitcoin-api@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoin-api/-/bitcoin-api-3.3.0.tgz#a86d17db8778b4ea4fe569ab9c3e5e8c98ddae2d"
+  integrity sha512-fogGNa1Z0LzbmD6Of2Peh5yMs8cMeAgDBnFxMS+N/1jXFokXaaB0EHwKYmFYaA2VgukXjDVwjmyCMq3+IPklLA==
+  dependencies:
+    "@shapeshiftoss/bitcoin-ingester" "^3.3.0"
+    "@shapeshiftoss/blockbook" "^3.3.0"
+    "@shapeshiftoss/common-api" "^3.3.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    cors "^2.8.5"
+    express "^4.17.1"
+    swagger-ui-express "^4.1.5"
+    tsoa "^3.4.0"
+    ws "^8.2.3"
+
+"@shapeshiftoss/bitcoin-ingester@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoin-ingester/-/bitcoin-ingester-3.3.0.tgz#160679ae5d3cd55f37d05fa4c218c1790a04f9ab"
+  integrity sha512-XjvT/Pm5/fWlMFTS8VSg+CWTiTep/8SjffALHTjfxxEK8qmNjAaS1TLKjdulriKCErrsZmRPzmb5mU1PTLP77g==
+  dependencies:
+    "@shapeshiftoss/blockbook" "^3.3.0"
+    "@shapeshiftoss/common-ingester" "^3.3.0"
+    "@shapeshiftoss/common-mongo" "^3.3.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    "@shapeshiftoss/thorchain" "^3.3.0"
+    axios "^0.21.2"
+
 "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
   version "5.2.0-shapeshift.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0-shapeshift.2.tgz#f000da26302a8a35822201a6c49a4cf7e1379ed4"
@@ -2614,10 +2641,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-3.0.0.tgz#150d76e3c528e99ff96138729f701c16af0c3106"
-  integrity sha512-+avlAyBgRwuJKuB+J/aumg5rXw35pJW4tue0jhEF1tFB1cdkEL/JYlSEX8fpr84EqXPXgmhJDDDLVk36eeHB0g==
+"@shapeshiftoss/blockbook@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-3.3.0.tgz#0d68ff873c15a9ec0dffbe98ff545a1267119534"
+  integrity sha512-KUMQh1/r+KSwHhB5/GQFbZkaHok+ms9Y4wYtCStdDr/iQwy6VGjyk0WSAIXgkYBvcljAZQ4set8S2DYSvga5lQ==
   dependencies:
     axios "^0.21.2"
     express "^4.17.1"
@@ -2625,47 +2652,47 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/common-api@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-3.0.0.tgz#a74912fc7a34b1c4ec819f6e28b16b325dceef13"
-  integrity sha512-XOMbbuiw8ykHk8NKV3Foh30Nn9qCVeXXfz57uaJqpNiNRSG9pVSupgSH+JwPwTMe8RdIdnZQFM43pkQ9TklbYA==
+"@shapeshiftoss/common-api@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-3.3.0.tgz#c13eb2753e0ca0635f2bc8eb4427512f652d6a5c"
+  integrity sha512-q/a4EbnIzHhaWTJ8QtXnKRVCJGd1dizmndcQ5/xhMKiiTDYGtZ3VnCUft8GCI/bYhvFOHbjPSPM4ybI16YJMLw==
   dependencies:
-    "@shapeshiftoss/common-ingester" "^3.0.0"
-    "@shapeshiftoss/common-mongo" "^3.0.0"
+    "@shapeshiftoss/common-ingester" "^3.3.0"
+    "@shapeshiftoss/common-mongo" "^3.3.0"
     amqp-ts "^1.8.0"
     mongodb "^3.6.3"
     tsoa "^3.4.0"
     uuid "^8.3.2"
     ws "^8.2.3"
 
-"@shapeshiftoss/common-ingester@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-ingester/-/common-ingester-3.0.0.tgz#be36adc5623b8f56a8af8b4841574adb8780ecfe"
-  integrity sha512-cSZSyVkylwwD2GOEgo5kQmiyQISc3IzOd5wTTgFy6MlAB7ijHX5+qh59H8OrxRIjazWfjYzYyFW6jSHWndlLyQ==
+"@shapeshiftoss/common-ingester@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-ingester/-/common-ingester-3.3.0.tgz#d8f7204e68cd6f3dd8f55225307878e3f0eacd92"
+  integrity sha512-eROJuV3BuIkzjBFFLT+u0O8myRLsdPzQTjz27MqPtgWQCOQoeWAGNGrbmB+vVlYegXjEst1hhI2X6mFAykhPDg==
   dependencies:
-    "@shapeshiftoss/blockbook" "^3.0.0"
-    "@shapeshiftoss/common-mongo" "^3.0.0"
-    "@shapeshiftoss/logger" "^3.0.0"
+    "@shapeshiftoss/blockbook" "^3.3.0"
+    "@shapeshiftoss/common-mongo" "^3.3.0"
+    "@shapeshiftoss/logger" "^1.0.0"
     amqp-ts "^1.8.0"
     mongodb "^3.6.3"
     ws "^8.2.3"
 
-"@shapeshiftoss/common-mongo@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-mongo/-/common-mongo-3.0.0.tgz#a85a7510d4b74031632f5687d3650ae71cca287b"
-  integrity sha512-+JJlaqE+VEwuSfZn3crGUJa+qNqo7CTMnYcIJxx927SMBrM6+xF78BcYfr0ipuODr6wUP4DtWyb4bvQA7G2wCg==
+"@shapeshiftoss/common-mongo@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-mongo/-/common-mongo-3.3.0.tgz#88322961e0a416f175c361ed17a643bbb16e4c75"
+  integrity sha512-zRAhH3UjGUlG2880enkjWkX2ikK/T4LKZCpYFx6BzENyLydXtw5f6UQ8cZyTPqW6N+i9TNyT/dE65cCxcDptUA==
   dependencies:
     mongodb "^3.6.3"
 
-"@shapeshiftoss/ethereum-api@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-api/-/ethereum-api-3.0.0.tgz#eaee346bdf533219f9ee93e682cbeec3be78add4"
-  integrity sha512-Lsx7jfIm6BSmE/g0Wx/oRoc8jQacwfFSkoP5B0L2UA365RItk4jgSOWMcwtAVzhZvKKMh3sfi29Sk69ZF3RHOg==
+"@shapeshiftoss/ethereum-api@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-api/-/ethereum-api-3.3.0.tgz#900443ee2331b8265d23c57aef081445d822c151"
+  integrity sha512-+HoD1BoDuoOsVguLVF8M3Fjr+gPDdGIPWG+PiWoHDRqCXKnIJW8prZSCseG3QLY9zd+vfwd/z4+1BurXj68P4w==
   dependencies:
-    "@shapeshiftoss/blockbook" "^3.0.0"
-    "@shapeshiftoss/common-api" "^3.0.0"
-    "@shapeshiftoss/ethereum-ingester" "^3.0.0"
-    "@shapeshiftoss/logger" "^3.0.0"
+    "@shapeshiftoss/blockbook" "^3.3.0"
+    "@shapeshiftoss/common-api" "^3.3.0"
+    "@shapeshiftoss/ethereum-ingester" "^3.3.0"
+    "@shapeshiftoss/logger" "^1.0.0"
     cors "^2.8.5"
     express "^4.17.1"
     isomorphic-ws "^4.0.1"
@@ -2673,16 +2700,16 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/ethereum-ingester@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-ingester/-/ethereum-ingester-3.0.0.tgz#872bf62d908a13dc0f7614e53c6fd458fd5c2316"
-  integrity sha512-367LuKDoJPIJX+twDbD/Rq1VlmJtbp0Kl0UpUBcdxp51KTVmonDnxE3stk4t15IqDT4cBMa0Rlh2ZwTaYFopeA==
+"@shapeshiftoss/ethereum-ingester@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-ingester/-/ethereum-ingester-3.3.0.tgz#538364015af28b015751c6f0ddc9310cb8a8a31b"
+  integrity sha512-P2BaIVPPo29yGp5jO0DZYe0/qtOFfhj40EeNsXcKjL+xWMrCtXn40UtsFiFP8pU6FYSvhq1ilirOZUxWrI/4xQ==
   dependencies:
-    "@shapeshiftoss/blockbook" "^3.0.0"
-    "@shapeshiftoss/common-ingester" "^3.0.0"
-    "@shapeshiftoss/common-mongo" "^3.0.0"
-    "@shapeshiftoss/logger" "^3.0.0"
-    "@shapeshiftoss/thorchain" "^3.0.0"
+    "@shapeshiftoss/blockbook" "^3.3.0"
+    "@shapeshiftoss/common-ingester" "^3.3.0"
+    "@shapeshiftoss/common-mongo" "^3.3.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    "@shapeshiftoss/thorchain" "^3.3.0"
     axios "^0.21.2"
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
@@ -2759,28 +2786,22 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/logger@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-3.0.0.tgz#a9c82cdc95930954dcb46e902af55b3e90beb12b"
-  integrity sha512-q2dlSRRlZZgdrHQYeTTJzkqouhdOfIRwvAGhq2vGlygOxVYbBeUStyuzP+KjWCcLFqrNt4TWM1QG7qYK3/t29A==
-  dependencies:
-    winston "^2.4.4"
-
-"@shapeshiftoss/thorchain@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-3.0.0.tgz#7f9711e9c35b625beb838d0aef69a2cda8422507"
-  integrity sha512-QY8IbSEH3s2ZNWsWB7f0KUMz0wMpI8NN4tgBvCyhi7YWcA+VUazUSL2K9DV9N7Z1dH89mvQXGWTExJKkaTir2A==
+"@shapeshiftoss/thorchain@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-3.3.0.tgz#ae733b3e9242a23ea9365fd7bcc8038908632cff"
+  integrity sha512-DdXO2MtoSWbRSPd/73l8EPmVMts+OmR1/NMb6d3XJKW/T0gxkcRbbyIeEHfzIMtmP9cTB8JNKKCWSJa2NXnRfQ==
   dependencies:
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/unchained-client@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-3.0.0.tgz#867099f8eebab48ea68b3d2430ca079d61680f39"
-  integrity sha512-EjiCfw7uJUQifqVzoTg72n0+TtBr4oIIWGXSoQO8Z1XUp8iWDmqOV2jupzU7rbW06aS6dCdPEh8rAf6CZJiz0Q==
+"@shapeshiftoss/unchained-client@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-3.3.0.tgz#81aa40361a627878bd3678af2abbf517a5c65f62"
+  integrity sha512-n5jSyoLiVNnqZfpDhDz6MWij9Ah1PFVqDUu8U/4hvhLidHRvSnVgSUcph9mFUaa46isUfJwq0fxNaBP172aVRw==
   dependencies:
-    "@shapeshiftoss/common-ingester" "^3.0.0"
-    "@shapeshiftoss/ethereum-api" "^3.0.0"
+    "@shapeshiftoss/bitcoin-api" "^3.3.0"
+    "@shapeshiftoss/common-ingester" "^3.3.0"
+    "@shapeshiftoss/ethereum-api" "^3.3.0"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
@@ -12658,7 +12679,7 @@ wif@^2.0.1, wif@^2.0.6:
   dependencies:
     bs58check "<3.0.0"
 
-winston@^2.2.0, winston@^2.4.4:
+winston@^2.2.0:
   version "2.4.5"
   resolved "https://registry.yarnpkg.com/winston/-/winston-2.4.5.tgz#f2e431d56154c4ea765545fc1003bd340c95b59a"
   integrity sha512-TWoamHt5yYvsMarGlGEQE59SbJHqGsZV8/lwC+iCcGeAe0vUaOh+Lv6SYM17ouzC/a/LB1/hz/7sxFBtlu1l4A==

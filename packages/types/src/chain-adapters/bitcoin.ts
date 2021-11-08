@@ -3,8 +3,17 @@ import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { GetAddressInputBase } from '.'
 
 export type Account = {
+  /** Derived addresses and associated balances if account is xpub based (gap limit 20) */
+  addresses?: Array<Address>
+  /** Next unused change address index for current account if account is xpub based */
   nextChangeAddressIndex?: number
+  /** Next unused receive address index for current account if account is xpub based */
   nextReceiveAddressIndex?: number
+}
+
+export type Address = {
+  pubkey: string
+  balance: string
 }
 
 export type GetAddressInput = GetAddressInputBase & {

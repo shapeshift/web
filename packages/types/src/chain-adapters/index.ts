@@ -1,4 +1,4 @@
-import { BTCSignTx, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, BTCSignTx, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { BIP32Params, ChainTypes, NetworkTypes, SwapperType } from '../base'
 import { ChainAndSwapperSpecific, ChainSpecific } from '../utility'
@@ -96,7 +96,9 @@ export type FeeDataEstimate<T extends ChainTypes> = {
 }
 
 export type SubscribeTxsInput = {
-  addresses: Array<string>
+  wallet: HDWallet
+  bip32Params?: BIP32Params
+  scriptType?: BTCInputScriptType
 }
 
 export type TxFee = {
@@ -105,14 +107,15 @@ export type TxFee = {
 }
 
 export enum TxType {
-  send = 'send',
-  receive = 'receive'
+  Send = 'send',
+  Receive = 'receive'
 }
 
 export enum TxStatus {
-  confirmed = 'confirmed',
-  pending = 'pending',
-  failed = 'failed'
+  Confirmed = 'confirmed',
+  Pending = 'pending',
+  Failed = 'failed',
+  Unknown = 'unknown'
 }
 
 export type SubscribeTxsMessage<T extends ChainTypes> = {

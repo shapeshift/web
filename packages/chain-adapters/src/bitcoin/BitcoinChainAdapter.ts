@@ -22,6 +22,7 @@ import { toBtcOutputScriptType } from '../utils/utxoUtils'
 export interface ChainAdapterArgs {
   providers: {
     http: bitcoin.api.V1Api
+    ws: bitcoin.ws.Client
   }
   coinName: string
 }
@@ -29,6 +30,7 @@ export interface ChainAdapterArgs {
 export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
   private readonly providers: {
     http: bitcoin.api.V1Api
+    ws: bitcoin.ws.Client
   }
 
   public static readonly defaultBIP32Params: BIP32Params = {
@@ -49,7 +51,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return ChainTypes.Bitcoin
   }
 
-  async getPubKey(
+  private async getPubKey(
     wallet: HDWallet,
     bip32Params: BIP32Params,
     scriptType: BTCInputScriptType
@@ -71,12 +73,15 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     if (!pubkey) {
       return ErrorHandler('BitcoinChainAdapter: pubkey parameter is not defined')
     }
+
     try {
       const { data } = await this.providers.http.getAccount({ pubkey: pubkey })
+
       return {
         balance: data.balance,
         chain: ChainTypes.Bitcoin,
         chainSpecific: {
+          addresses: data.addresses,
           nextChangeAddressIndex: data.nextChangeAddressIndex,
           nextReceiveAddressIndex: data.nextReceiveAddressIndex
         },
@@ -339,7 +344,61 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
   }
 
-  async subscribeTxs(): Promise<void> {
-    throw new Error('Not implemented')
+  async subscribeTxs(
+    input: chainAdapters.SubscribeTxsInput,
+    onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Bitcoin>) => void,
+    onError: (err: chainAdapters.SubscribeError) => void
+  ): Promise<void> {
+    const {
+      wallet,
+      bip32Params = ChainAdapter.defaultBIP32Params,
+      scriptType = BTCInputScriptType.SpendWitness
+    } = input
+
+    const { xpub } = await this.getPubKey(wallet, bip32Params, scriptType)
+    const account = await this.getAccount(xpub)
+    const addresses = (account.chainSpecific.addresses ?? []).map((address) => address.pubkey)
+
+    await this.providers.ws.subscribeTxs(
+      { topic: 'txs', addresses },
+      (msg) => {
+        const status =
+          msg.confirmations > 0 ? chainAdapters.TxStatus.Confirmed : chainAdapters.TxStatus.Pending
+
+        const baseTx = {
+          address: msg.address,
+          asset: ChainTypes.Bitcoin,
+          blockHash: msg.blockHash,
+          blockHeight: msg.blockHeight,
+          blockTime: msg.blockTime,
+          confirmations: msg.confirmations,
+          network: NetworkTypes.MAINNET,
+          txid: msg.txid,
+          fee: msg.fee,
+          status
+        }
+
+        Object.entries(msg.send).forEach(([, { totalValue }]) => {
+          onMessage({
+            ...baseTx,
+            chain: ChainTypes.Bitcoin,
+            type: chainAdapters.TxType.Send,
+            value: totalValue,
+            to: msg.vout[0]?.addresses?.[0]
+          })
+        })
+
+        Object.entries(msg.receive).forEach(([, { totalValue }]) => {
+          onMessage({
+            ...baseTx,
+            chain: ChainTypes.Bitcoin,
+            type: chainAdapters.TxType.Receive,
+            value: totalValue,
+            from: msg.vin[0]?.addresses?.[0]
+          })
+        })
+      },
+      (err) => onError({ message: err.message })
+    )
   }
 }

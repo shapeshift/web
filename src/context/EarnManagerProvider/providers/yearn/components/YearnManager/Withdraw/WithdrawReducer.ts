@@ -114,7 +114,6 @@ type SetTxid = {
 
 type YearnWithdrawActions =
   | SetVaultAction
-  // | SetApprove
   | SetWithdraw
   | SetUserAddress
   | SetLoading
@@ -125,8 +124,6 @@ export const reducer = (state: YearnWithdrawState, action: YearnWithdrawActions)
   switch (action.type) {
     case YearnWithdrawActionType.SET_VAULT:
       return { ...state, vault: { ...state.vault, ...action.payload } }
-    // case YearnWithdrawActionType.SET_APPROVE:
-    //   return { ...state, approve: action.payload }
     case YearnWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case YearnWithdrawActionType.SET_USER_ADDRESS:

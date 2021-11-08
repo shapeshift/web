@@ -12,7 +12,9 @@
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
-    "connectWallet": "Connect Wallet"
+    "getStarted": "Get Started",
+    "connectWallet": "Connect Wallet",
+    "seeAll": "See All"
   },
   "dashboard": {
     "portfolio": {
@@ -27,6 +29,9 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     }
+  },
+  "earn": {
+    "emptyVaults": "Vaults will appear here"
   },
   "navBar": {
     "dashboard": "Dashboard",
@@ -66,6 +71,11 @@
     "estimatedGasFee": "Estimated Gas Fee",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
+    "tooltip": {
+      "rate": "This is the rate",
+      "minerFee": "This is the Miner Fee",
+      "shapeshiftFee": "This is the Shapeshift Fee"
+    },
     "errors": {
       "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
@@ -326,7 +336,7 @@
         "claimRewards": "Claim Rewards"
       },
       "accounts": "Accounts",
-      "staking": "Staking",
+      "stakingVaults": "Staking & Vaults",
       "pools": "Pools"
     }
   },

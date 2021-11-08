@@ -232,17 +232,17 @@ export const useSwapper = () => {
       ? sellAsset.currency.precision
       : isBuyAmount && buyAsset.currency.precision
     if (precision) {
-      formattedAmount = toBaseUnit(amount || '0', precision)
+      formattedAmount = toBaseUnit(amount, precision)
     }
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
-        const buyAmount = fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-        const sellAmount = fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-        const newFiatAmount = bn(buyAmount)
-          .times(buyAsset.fiatRate || 0)
-          .toFixed(2)
+        // TODO:(ryankk) should this return be handled with an error state instead?
+        if (!(quote.buyAmount && quote.sellAmount)) return
+        const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
+        const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
+        const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
 
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)
@@ -253,14 +253,8 @@ export const useSwapper = () => {
           setValue('fiatAmount', newFiatAmount)
           setValue('action', undefined)
         } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
-          setValue(
-            'buyAsset.amount',
-            fromBaseUnit(quote.buyAmount || '0', buyAsset.currency.precision)
-          )
-          setValue(
-            'sellAsset.amount',
-            fromBaseUnit(quote.sellAmount || '0', sellAsset.currency.precision)
-          )
+          setValue('buyAsset.amount', buyAmount)
+          setValue('sellAsset.amount', sellAmount)
           setValue('action', undefined)
         }
       }

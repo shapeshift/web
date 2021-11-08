@@ -3,6 +3,7 @@ import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chak
 import { chainAdapters, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -42,6 +43,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
+  const t = useTranslate()
   const { chain, tokenId } = sellAsset.currency
   const asset = tokenId ?? chain
   const txs = useSelector((state: ReduxState) => {
@@ -101,7 +103,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </Row>
               )}
               <Row>
-                <HelperTooltip label='This is the rate'>
+                <HelperTooltip label={t('trade.tooltip.rate')}>
                   <Row.Label>
                     <Text translation='trade.rate' />
                   </Row.Label>
@@ -114,7 +116,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </Box>
               </Row>
               <Row>
-                <HelperTooltip label='This is the Miner Fee'>
+                <HelperTooltip label={t('trade.tooltip.minerFee')}>
                   <Row.Label>
                     <Text translation='trade.minerFee' />
                   </Row.Label>
@@ -122,7 +124,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Row.Value>{toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}</Row.Value>
               </Row>
               <Row>
-                <HelperTooltip label='This is the Shapeshift Fee'>
+                <HelperTooltip label={t('trade.tooltip.shapeshiftFee')}>
                   <Row.Label>
                     <Text translation='trade.shapeshiftFee' />
                   </Row.Label>

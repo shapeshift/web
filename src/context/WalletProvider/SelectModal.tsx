@@ -1,4 +1,5 @@
-import { Button, ModalBody, ModalHeader, Stack, Text } from '@chakra-ui/react'
+import { Button, Center, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { RawText, Text } from 'components/Text'
 
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useWallet } from './WalletProvider'
@@ -25,18 +26,17 @@ export const SelectModal = () => {
               const Icon = option.icon
               return (
                 <Button
-                  variant='ghost-filled'
-                  colorScheme='blue'
                   key={key}
                   w='full'
-                  h='auto'
-                  px={6}
-                  py={4}
+                  size='lg'
+                  py={8}
                   justifyContent='space-between'
                   onClick={() => connect(key)}
                 >
-                  <Text fontWeight='semibold'>{option.name}</Text>
-                  <Icon height='auto' w='45px' />
+                  <RawText fontWeight='semibold'>{option.name}</RawText>
+                  <Center>
+                    <Icon height='30px' w='auto' />
+                  </Center>
                 </Button>
               )
             })}

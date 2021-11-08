@@ -2,6 +2,7 @@ import { NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { ReduxState } from 'state/reducer'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
@@ -25,7 +26,7 @@ export const AccountList = () => {
     return (
       <>
         {Object.values(balances)
-          .sort((a, b) => ((a?.balance ?? '0') > (b?.balance ?? '0') ? -1 : 1))
+          .sort((a, b) => (bnOrZero(a?.balance).gt(bnOrZero(b?.balance)) ? -1 : 1))
           .map(account => (
             <AccountRow
               key={account.contract ?? account.chain}

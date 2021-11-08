@@ -47,20 +47,20 @@ export const Portfolio = () => {
         <Card.Body px={2} pt={0}>
           <Stack spacing={0}>
             <Grid
-              templateColumns={{ base: '1fr auto', lg: '2fr repeat(3, 1fr)' }}
+              templateColumns={{ base: '1fr auto', lg: '1.5fr repeat(2, 1fr) 150px' }}
               gap='1rem'
               py={4}
               pl={4}
               pr={4}
             >
               <Text translation='dashboard.portfolio.asset' color='gray.500' />
-              <Text translation='dashboard.portfolio.balance' color='gray.500' textAlign='right' />
               <Text
                 translation='dashboard.portfolio.price'
-                textAlign='right'
                 color='gray.500'
+                textAlign='right'
                 display={{ base: 'none', lg: 'block' }}
               />
+              <Text translation='dashboard.portfolio.balance' textAlign='right' color='gray.500' />
               <Text
                 translation='dashboard.portfolio.allocation'
                 color='gray.500'

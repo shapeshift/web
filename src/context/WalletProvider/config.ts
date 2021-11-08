@@ -3,9 +3,9 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { RouteProps } from 'react-router-dom'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
-import { ShapeShiftVertical } from 'components/Icons/SSVerticalIcon'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
@@ -34,7 +34,7 @@ export enum KeyManager {
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Native]: {
     adapter: NativeAdapter,
-    icon: ShapeShiftVertical,
+    icon: FoxIcon,
     name: 'ShapeShift',
     routes: [
       { path: '/native/password', component: NativePassword },

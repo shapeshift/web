@@ -24,7 +24,35 @@ type YearnDepositState = {
 
 export const initialState: YearnDepositState = {
   txid: null,
-  vault: { apy: { net_apy: 0 } } as YearnVault,
+  vault: {
+    inception: 0,
+    address: '',
+    symbol: '',
+    name: '',
+    display_name: '',
+    icon: '',
+    token: {
+      name: '',
+      symbol: '',
+      address: '',
+      decimals: 0,
+      display_name: '',
+      icon: ''
+    },
+    tvl: {
+      total_assets: 0,
+      price: 0,
+      tvl: 0
+    },
+    apy: {
+      net_apy: 0
+    },
+    endorsed: false,
+    version: '',
+    decimals: 0,
+    type: '',
+    emergency_shutdown: false
+  },
   userAddress: null,
   loading: false,
   approve: {},

@@ -50,7 +50,6 @@ type YearnWithdrawProps = {
 
 // TODO: Remove when vaults are added to asset service
 const makeVaultAsset = (vault: YearnVault): Asset => {
-  if (!vault) return {} as Asset
   return {
     chain: ChainTypes.Ethereum,
     color: '#FFFFFF',

@@ -32,7 +32,7 @@ type WalletImageProps = {
 const WalletImage = ({ isConnected, walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon
   if (isConnected && Icon) {
-    return <Icon width='30px' height='auto' />
+    return <Icon width='18px' height='auto' />
   }
   return null
 }

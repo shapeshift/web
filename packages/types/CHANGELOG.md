@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.10.0...@shapeshiftoss/types-v1.11.0) (2021-11-08)
+
+
+### Features
+
+* add bitcoin websocket support ([#191](https://github.com/shapeshift/lib/issues/191)) ([3d1226a](https://github.com/shapeshift/lib/commit/3d1226a8a23bc724afb88d8a0ddea439b5514bc6))
+
 # [@shapeshiftoss/types-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.9.1...@shapeshiftoss/types-v1.10.0) (2021-11-05)
 
 

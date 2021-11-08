@@ -30,6 +30,7 @@ export const WalletViewsSwitch = () => {
 
   const handleBack = () => {
     history.goBack()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   useEffect(() => {

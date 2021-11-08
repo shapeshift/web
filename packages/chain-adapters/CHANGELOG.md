@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.12.1...@shapeshiftoss/chain-adapters-v1.13.0) (2021-11-08)
+
+
+### Features
+
+* add bitcoin websocket support ([#191](https://github.com/shapeshift/lib/issues/191)) ([3d1226a](https://github.com/shapeshift/lib/commit/3d1226a8a23bc724afb88d8a0ddea439b5514bc6))
+
 # [@shapeshiftoss/chain-adapters-v1.12.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.12.0...@shapeshiftoss/chain-adapters-v1.12.1) (2021-11-06)
 
 

@@ -1,9 +1,11 @@
-import { CircularProgress, Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
+import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { bn } from 'lib/bignumber/bignumber'
@@ -68,39 +70,46 @@ export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
       as={Link}
       to={url}
       _hover={{ bg: rowHover }}
-      templateColumns={{ base: '1fr auto', lg: '2fr repeat(3, 1fr)' }}
+      templateColumns={{ base: '1fr auto', lg: '1.5fr repeat(2, 1fr) 150px' }}
       py={4}
       pl={4}
       pr={4}
       rounded='lg'
-      gridGap={0}
+      gridGap='1rem'
       alignItems='center'
     >
       <Flex alignItems='center'>
-        <AssetIcon src={asset.icon} boxSize='24px' mr={4} />
-        <RawText ml={2}>{asset.name}</RawText>
-      </Flex>
-      <Flex justifyContent='flex-end'>
-        {!marketData?.price ? (
-          <CircularProgress isIndeterminate size='5' />
-        ) : (
-          <>
-            <RawText>${fiatValue}</RawText>
-            <RawText color='gray.500' ml={2}>
-              {`${displayValue} ${asset.symbol}`}
-            </RawText>
-          </>
-        )}
+        <AssetIcon src={asset.icon} boxSize='30px' mr={4} />
+        <RawText ml={2} fontWeight='medium'>
+          {asset.name}
+        </RawText>
+        <RawText color='gray.500' ml={2}>{`(${asset.symbol})`}</RawText>
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
         {!marketData?.price ? (
           <CircularProgress isIndeterminate size='5' />
         ) : (
-          <RawText>{`$${marketData.price}`}</RawText>
+          <Amount.Fiat value={marketData.price} />
+        )}
+      </Flex>
+      <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
+        {!marketData?.price ? (
+          <CircularProgress isIndeterminate size='5' />
+        ) : (
+          <>
+            <Amount.Fiat value={fiatValue} />
+            <Amount.Crypto
+              value={displayValue.toString()}
+              symbol={asset.symbol}
+              color='gray.500'
+              prefix='≈'
+              ml={1}
+            />
+          </>
         )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-        <Allocations fiatValue={fiatValue} />
+        <Allocations fiatValue={fiatValue} color={asset.color} />
       </Flex>
     </SimpleGrid>
   )

@@ -1,11 +1,12 @@
 import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { ModalBody, ModalFooter } from '@chakra-ui/modal'
-import { CircularProgress, CircularProgressLabel } from '@chakra-ui/progress'
+import { CircularProgressLabel } from '@chakra-ui/progress'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -38,15 +39,7 @@ export const Approve = ({
   return (
     <SlideTransition>
       <ModalBody width='full' textAlign='center'>
-        <CircularProgress
-          size='120px'
-          thickness='4px'
-          trackColor='gray.700'
-          color='blue.500'
-          mt={8}
-          mb={4}
-          isIndeterminate={loading}
-        >
+        <CircularProgress size='120px' thickness='4px' mt={8} mb={4} isIndeterminate={loading}>
           <CircularProgressLabel>
             <AssetIcon symbol='usdc' boxSize='90px' />
           </CircularProgressLabel>

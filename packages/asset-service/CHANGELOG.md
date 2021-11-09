@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.4.0...@shapeshiftoss/asset-service-v1.5.0) (2021-11-09)
+
+
+### Features
+
+* add yearn erc20 assets to asset service ([#196](https://github.com/shapeshift/lib/issues/196)) ([1ea0ac4](https://github.com/shapeshift/lib/commit/1ea0ac42962ec6c09a1fca5fa891f0753367e4a4))
+
 # [@shapeshiftoss/asset-service-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.3.0...@shapeshiftoss/asset-service-v1.4.0) (2021-11-03)
 
 

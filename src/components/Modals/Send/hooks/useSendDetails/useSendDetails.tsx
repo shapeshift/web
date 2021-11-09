@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useToast } from '@chakra-ui/react'
 import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'

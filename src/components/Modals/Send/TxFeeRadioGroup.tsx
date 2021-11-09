@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'

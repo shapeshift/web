@@ -2,8 +2,8 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import { Text } from 'components/Text'
 
-import { Text } from '../../../../components/Text'
 import { ActionTypes } from '../../WalletProvider'
 
 export interface PortisSetupProps

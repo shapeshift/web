@@ -13,6 +13,9 @@ export const usePortisSuccess = () => {
         // TODO handle else
         if (state.adapters?.has(KeyManager.Portis)) {
           const wallet = (await state.adapters.get(KeyManager.Portis)?.pairDevice()) ?? null
+          if (!wallet) {
+            throw new Error('Failed to initialize Portis wallet')
+          }
           const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
           dispatch({
             type: WalletActions.SET_WALLET,

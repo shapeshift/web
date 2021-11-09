@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.13.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.1...@shapeshiftoss/chain-adapters-v1.13.2) (2021-11-09)
+
+
+### Bug Fixes
+
+* fees ([#199](https://github.com/shapeshift/lib/issues/199)) ([d83993b](https://github.com/shapeshift/lib/commit/d83993b23c7d25546b4ce0b80064041090f6a6ab))
+
 # [@shapeshiftoss/chain-adapters-v1.13.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.0...@shapeshiftoss/chain-adapters-v1.13.1) (2021-11-09)
 
 

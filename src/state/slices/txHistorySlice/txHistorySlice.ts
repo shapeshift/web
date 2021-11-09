@@ -5,17 +5,16 @@ export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes>
 
 const initialState = {} as { [key: string]: Tx[] }
 
-const updateSlice = (txs: Array<Tx>, tx: Tx): Array<Tx> => {
+/**
+ * Manage state of the txHistory slice
+ *
+ * If transaction already exists, update the value, otherwise add the new transaction
+ */
+const updateOrInsert = (txs: Array<Tx>, tx: Tx): Array<Tx> => {
   if (!txs) return [tx]
-
   const index = txs.findIndex(t => t.txid === tx.txid)
-
-  if (txs[index]) {
-    txs[index] = tx
-    return txs
-  }
-
-  return [tx, ...txs]
+  txs[index] ? (txs[index] = tx) : txs.push(tx)
+  return txs
 }
 
 export const txHistory = createSlice({
@@ -24,7 +23,7 @@ export const txHistory = createSlice({
   reducers: {
     onMessage(state, { payload }: { payload: { message: Tx } }) {
       const chain = payload.message.chain
-      state[chain] = updateSlice(state[chain], payload.message)
+      state[chain] = updateOrInsert(state[chain], payload.message)
     }
   }
 })

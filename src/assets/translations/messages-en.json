@@ -365,6 +365,7 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
+      "stakingBody": "Earn passive income by staking or deposting your assets into a vault.",
       "pools": "Pools"
     }
   },

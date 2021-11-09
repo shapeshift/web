@@ -221,8 +221,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.vault.apy?.net_apy
-
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
     let statusText = StatusTextEnum.pending
     if (state.withdraw.txStatus === 'success') {
@@ -239,7 +237,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         return (
           <Withdraw
             asset={asset}
-            apy={String(apy)}
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,
@@ -254,6 +251,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             onCancel={handleCancel}
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
+            enableSlippage={false}
           />
         )
 

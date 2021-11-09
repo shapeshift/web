@@ -8,6 +8,7 @@ import {
 } from '@shapeshiftoss/types'
 
 export type MarketDataState = {
+  loading: boolean
   marketCap?: CoinGeckoMarketCapResult
   marketData: {
     [key: string]: MarketData
@@ -43,7 +44,8 @@ export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', as
 })
 
 const initialState: MarketDataState = {
-  marketData: {}
+  marketData: {},
+  loading: false
 }
 
 export const marketData = createSlice({
@@ -51,17 +53,30 @@ export const marketData = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
+    builder.addCase(fetchMarketData.pending, state => {
+      state.loading = true
+    })
+    builder.addCase(fetchMarketData.rejected, state => {
+      state.loading = false
+    })
     builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
       const tokenId = meta.arg.tokenId ?? meta.arg.chain
       if (payload[tokenId]) {
         state.marketData[tokenId] = payload[tokenId]
       }
+      state.loading = false
     })
-
+    builder.addCase(fetchMarketCaps.pending, state => {
+      state.loading = true
+    })
+    builder.addCase(fetchMarketCaps.rejected, state => {
+      state.loading = false
+    })
     builder.addCase(fetchMarketCaps.fulfilled, (state, { payload }) => {
       const { marketCap } = payload
       if (!marketCap) return
       state.marketCap = marketCap
+      state.loading = false
     })
   }
 })

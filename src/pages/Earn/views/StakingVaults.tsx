@@ -4,7 +4,7 @@ import { StakingVaults as Vaults } from 'pages/Assets/AssetCards/StakingVaults/S
 export const StakingVaults = () => {
   return (
     <Main>
-      <Vaults isLoaded={true} />
+      <Vaults isLoaded={true} showAll />
     </Main>
   )
 }

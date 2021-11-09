@@ -4,5 +4,6 @@ import { reducer } from './reducer'
 
 export const store = configureStore({
   reducer,
-  devTools: true
+  devTools: true,
+  middleware: getDefaultMiddleware => getDefaultMiddleware({ serializableCheck: false })
 })

@@ -28,6 +28,7 @@
       "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
       "price": "Price",
+      "value": "Value",
       "allocation": "Allocation"
     },
     "recentTransactions": {
@@ -37,7 +38,6 @@
   "earn": {
     "earn": "Earn",
     "earnBody": "Earn interest by depositing your assets.",
-    "emptyVaults": "Vaults will appear here",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -359,6 +359,7 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",
         "currentRewards": "Current Rewards",

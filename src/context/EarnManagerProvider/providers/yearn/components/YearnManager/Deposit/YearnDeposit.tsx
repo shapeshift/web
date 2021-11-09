@@ -290,10 +290,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       memoryHistory.push(DepositPath.Status)
 
       const transactionReceipt = await poll({
-        fn: () =>
-          api.getTxReceipt({
-            txid
-          }),
+        fn: () => api.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30
@@ -377,6 +374,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             onCancel={handleCancel}
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
+            enableSlippage={false}
           />
         )
       case DepositPath.Approve:

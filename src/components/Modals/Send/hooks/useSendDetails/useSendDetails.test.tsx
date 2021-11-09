@@ -305,8 +305,8 @@ describe('useSendDetails', () => {
       })
       await act(async () => {
         await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '4.994')
-        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '17479.00')
+        expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '5')
+        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '17500.00')
       })
     })
   })

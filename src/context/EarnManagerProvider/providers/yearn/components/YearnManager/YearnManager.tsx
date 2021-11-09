@@ -8,8 +8,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { EarnAction, EarnParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 
 import { YearnVaultApi } from '../../api/api'
-import { routes as deposit, YearnDeposit } from './YearnDeposit'
-import { routes as withdraw, YearnWithdraw } from './YearnWithdraw'
+import { routes as deposit, YearnDeposit } from './Deposit/YearnDeposit'
+import { routes as withdraw, YearnWithdraw } from './Withdraw/YearnWithdraw'
 
 export const YearnManager = () => {
   const params = useParams<EarnParams>()

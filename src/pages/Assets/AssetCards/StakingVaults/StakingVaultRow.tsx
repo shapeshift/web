@@ -32,6 +32,7 @@ export const StakingVaultRow = ({
       height='auto'
       justifyContent='space-between'
       variant='ghost'
+      fontWeight='normal'
       py={2}
       to={{
         pathname: `/earn/${type}/${provider}/deposit`,
@@ -50,10 +51,10 @@ export const StakingVaultRow = ({
           </SkeletonCircle>
         </Flex>
         <Skeleton isLoaded={isLoaded}>
-          <RawText size='lg'>{`${asset.symbol} ${type}`}</RawText>
+          <RawText size='lg' fontWeight='bold'>{`${asset.symbol} ${type}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
-          <Tag colorScheme='green'>
+          <Tag colorScheme='blue' size='sm' fontWeight='bold'>
             <Amount.Percent value={apy} />
           </Tag>
         </Skeleton>

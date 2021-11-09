@@ -8,6 +8,12 @@ export type RouteConfig = {
   label: string
 }
 
+export enum StatusTextEnum {
+  pending = 'modals.status.header.pending',
+  success = 'modals.status.header.success',
+  failed = 'modals.status.header.failed'
+}
+
 type YearnRouteStepsProps = { routes: RouteConfig[] }
 
 export const YearnRouteSteps = ({ routes }: YearnRouteStepsProps) => {

@@ -28,7 +28,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 
 import { YearnVault, YearnVaultApi } from '../../../api/api'
-import { YearnRouteSteps } from '../../YearnRouteSteps'
+import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
 enum DepositPath {
@@ -309,16 +309,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
-    let statusText:
-      | 'modals.status.header.pending'
-      | 'modals.status.header.success'
-      | 'modals.status.header.failed' = 'modals.status.header.pending'
+    let statusText = StatusTextEnum.pending
     if (state.deposit.txStatus === 'success') {
-      statusText = 'modals.status.header.success'
+      statusText = StatusTextEnum.success
       statusIcon = <CheckIcon color='green' />
     }
     if (state.deposit.txStatus === 'failed') {
-      statusText = 'modals.status.header.failed'
+      statusText = StatusTextEnum.failed
       statusIcon = <CloseIcon color='red' />
     }
 

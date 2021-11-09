@@ -27,7 +27,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 
 import { YearnVault, YearnVaultApi } from '../../../api/api'
-import { YearnRouteSteps } from '../../YearnRouteSteps'
+import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
 enum WithdrawPath {
@@ -217,16 +217,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     const apy = state.vault.apy?.net_apy
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
-    let statusText:
-      | 'modals.status.header.pending'
-      | 'modals.status.header.success'
-      | 'modals.status.header.failed' = 'modals.status.header.pending'
+    let statusText = StatusTextEnum.pending
     if (state.withdraw.txStatus === 'success') {
-      statusText = 'modals.status.header.success'
+      statusText = StatusTextEnum.success
       statusIcon = <CheckIcon color='green' />
     }
     if (state.withdraw.txStatus === 'failed') {
-      statusText = 'modals.status.header.failed'
+      statusText = StatusTextEnum.failed
       statusIcon = <CloseIcon color='red' />
     }
 

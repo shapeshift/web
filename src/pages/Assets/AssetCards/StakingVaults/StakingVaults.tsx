@@ -1,9 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Center, Stack } from '@chakra-ui/react'
+import { Box, Button, Center, Stack } from '@chakra-ui/react'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { SUPPORTED_VAULTS } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
 import { useFeature } from 'hooks/useFeature/useFeature'
 
@@ -28,20 +28,25 @@ export const StakingVaults = ({ tokenId, isLoaded }: StakingVaultsProps) => {
   if (!earnFeature) return null
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading display='flex' alignItems='center'>
-          <Text translation={'assets.assetCards.stakingVaults'} />
-          {VAULTS.length > 0 && (
-            <Button size='sm' ml='auto' variant='link' colorScheme='blue'>
-              See All <ArrowForwardIcon />
-            </Button>
-          )}
-        </Card.Heading>
+      <Card.Header flexDir='row' display='flex'>
+        <Box>
+          <Card.Heading>
+            <Text translation={'assets.assetCards.stakingVaults'} />
+          </Card.Heading>
+          <RawText color='gray.500'>
+            Earn passive income by staking or deposting your assets into a vault.
+          </RawText>
+        </Box>
+        {VAULTS.length > 0 && (
+          <Button size='sm' ml='auto' variant='link' colorScheme='blue'>
+            See All <ArrowForwardIcon />
+          </Button>
+        )}
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          {VAULTS.map(vault => (
-            <StakingVaultRow {...vault} isLoaded={isLoaded} />
+          {VAULTS.map((vault, index) => (
+            <StakingVaultRow {...vault} isLoaded={isLoaded} key={index} />
           ))}
         </Stack>
         {VAULTS.length === 0 && (

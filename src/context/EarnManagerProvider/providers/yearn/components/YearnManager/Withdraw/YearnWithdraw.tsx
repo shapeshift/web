@@ -95,7 +95,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   // navigation
   const memoryHistory = useHistory()
   const location = useLocation()
-  const WithdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
+  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
 
   useEffect(() => {
     ;(async () => {
@@ -430,7 +430,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     >
       <YearnRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {WithdrawRoute && <EarnActionButtons />}
+        {withdrawRoute && <EarnActionButtons />}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

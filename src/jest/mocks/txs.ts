@@ -14,9 +14,9 @@ export const EthSend: Tx = {
   asset: 'ethereum',
   value: '250923588302732',
   chainSpecific: {},
-  type: chainAdapters.TxType.send,
+  type: chainAdapters.TxType.Send,
   to: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
-  status: chainAdapters.TxStatus.confirmed
+  status: chainAdapters.TxStatus.Confirmed
 }
 
 export const EthReceive: Tx = {
@@ -32,9 +32,9 @@ export const EthReceive: Tx = {
   asset: 'ethereum',
   value: '250923588302732',
   chainSpecific: {},
-  type: chainAdapters.TxType.receive,
+  type: chainAdapters.TxType.Receive,
   from: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
-  status: chainAdapters.TxStatus.confirmed
+  status: chainAdapters.TxStatus.Confirmed
 }
 
 export const BtcSend: Tx = {
@@ -50,7 +50,7 @@ export const BtcSend: Tx = {
   asset: 'bitcoin',
   value: '250923588302732',
   chainSpecific: {},
-  type: chainAdapters.TxType.send,
+  type: chainAdapters.TxType.Send,
   to: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
-  status: chainAdapters.TxStatus.confirmed
+  status: chainAdapters.TxStatus.Confirmed
 }

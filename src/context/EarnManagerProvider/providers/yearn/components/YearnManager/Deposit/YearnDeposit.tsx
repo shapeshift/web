@@ -1,10 +1,11 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Center, Flex, Link, Stack, Tag } from '@chakra-ui/react'
+import { Box, Center, Flex, Link, Stack, Tag, useToast } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -82,6 +83,7 @@ const makeVaultAsset = (vault: YearnVault): Asset => {
 
 export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
@@ -103,6 +105,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const memoryHistory = useHistory()
   const location = useLocation()
   const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
+
+  // notify
+  const toast = useToast()
 
   useEffect(() => {
     ;(async () => {
@@ -139,8 +144,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
       console.error('YearnDeposit:getApproveEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
     }
   }
 
@@ -157,8 +167,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       ])
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
       console.error('YearnDeposit:getDepositGasEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
     }
   }
 
@@ -183,7 +198,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto }
         })
-
         memoryHistory.push(DepositPath.Confirm)
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
@@ -195,8 +209,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         memoryHistory.push(DepositPath.Approve)
       }
     } catch (error) {
-      // TODO: handle client side errors maybe add a toast?
       console.error('YearnDeposit:handleContinue error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
     }
   }
 
@@ -234,14 +253,19 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
       memoryHistory.push(DepositPath.Confirm)
     } catch (error) {
-      // TODO: handle client side errors
       console.error('YearnDeposit:handleApprove error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error'
+      })
     } finally {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }
 
-  const handleConfirm = async () => {
+  const handleDeposit = async () => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
@@ -274,9 +298,16 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
         }
       })
-      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     } catch (error) {
       console.error('YearnDeposit:handleConfirm error', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error'
+      })
+    } finally {
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }
 
@@ -364,7 +395,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         return (
           <Confirm
             onCancel={handleCancel}
-            onConfirm={handleConfirm}
+            onConfirm={handleDeposit}
             headerText='modals.confirm.deposit.header'
             prefooter={<Text color='gray.500' translation='modals.confirm.deposit.preFooter' />}
             assets={[

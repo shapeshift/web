@@ -11,7 +11,7 @@ export interface MatchParams {
   tokenId: string
 }
 
-const initAsset = {
+export const initAsset = {
   caip19: '',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
@@ -33,18 +33,23 @@ const initAsset = {
   description: ''
 }
 
-export const Asset = () => {
+export const useAsset = () => {
   const { chain, tokenId } = useParams<MatchParams>()
   const asset = useFetchAsset({ chain, tokenId })
   const marketData = useMarketData({ chain, tokenId })
+  return {
+    asset: asset ?? initAsset,
+    marketData
+  }
+}
+
+export const Asset = () => {
+  const { asset } = useAsset()
 
   return (
-    <Page style={{ flex: 1 }} key={tokenId}>
+    <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetDetails
-          asset={asset && marketData ? { ...asset, ...marketData } : initAsset}
-          isLoaded={!!marketData}
-        />
+        <AssetDetails />
       </Flex>
     </Page>
   )

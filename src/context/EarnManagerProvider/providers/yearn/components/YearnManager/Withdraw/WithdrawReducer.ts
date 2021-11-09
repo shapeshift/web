@@ -78,7 +78,7 @@ export enum YearnWithdrawActionType {
 
 type SetVaultAction = {
   type: YearnWithdrawActionType.SET_VAULT
-  payload: YearnVault
+  payload: YearnVault | null
 }
 
 type SetWithdraw = {

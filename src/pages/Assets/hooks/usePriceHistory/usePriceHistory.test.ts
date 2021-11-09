@@ -1,6 +1,6 @@
 import { getPriceHistory } from '@shapeshiftoss/market-service'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { renderHook } from '@testing-library/react-hooks'
+import { act, renderHook } from '@testing-library/react-hooks'
 import { ethereum } from 'jest/mocks/assets'
 
 import { usePriceHistory } from './usePriceHistory'
@@ -9,11 +9,7 @@ jest.mock('@shapeshiftoss/market-service')
 
 const asset = {
   ...ethereum,
-  description: '',
-  price: '10',
-  marketCap: '1000',
-  volume: '2000',
-  changePercent24Hr: 10
+  description: ''
 }
 
 describe('usePriceHistory', () => {
@@ -43,20 +39,22 @@ describe('usePriceHistory', () => {
   })
 
   it('unsuccessfully loads data', async () => {
-    ;(getPriceHistory as jest.Mock<unknown>).mockImplementation(() => Promise.reject(null))
-    const { waitFor, result } = renderHook(
-      ({ asset, timeframe }) => usePriceHistory({ asset, timeframe }),
-      {
-        initialProps: {
-          asset,
-          timeframe: HistoryTimeframe.DAY
+    await act(async () => {
+      ;(getPriceHistory as jest.Mock<unknown>).mockImplementation(() => Promise.reject(null))
+      const { waitFor, result } = renderHook(
+        ({ asset, timeframe }) => usePriceHistory({ asset, timeframe }),
+        {
+          initialProps: {
+            asset,
+            timeframe: HistoryTimeframe.DAY
+          }
         }
-      }
-    )
+      )
 
-    await waitFor(() => expect(result.current.loading).toBe(true))
+      await waitFor(() => expect(result.current.loading).toBe(true))
 
-    expect(result.current.data).toEqual([])
-    expect(result.current.loading).toBe(true)
+      expect(result.current.data).toEqual([])
+      expect(result.current.loading).toBe(true)
+    })
   })
 })

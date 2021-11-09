@@ -12,7 +12,7 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -30,9 +30,9 @@ import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 export type FeePrice = {
   [key in chainAdapters.FeeDataKey]: {
-    fee: string
-    amount: string
-  } & chainAdapters.FeeData<ChainTypes>
+    fiatFee: string
+    txFee: string
+  }
 }
 
 export const Confirm = () => {
@@ -46,8 +46,8 @@ export const Confirm = () => {
   const { fees } = useSendFees()
 
   const amountWithFees = useMemo(() => {
-    const { amount } = fees ? fees[feeType as chainAdapters.FeeDataKey] : { amount: 0 }
-    return bnOrZero(fiat.amount).plus(amount).toString()
+    const { fiatFee } = fees ? fees[feeType as chainAdapters.FeeDataKey] : { fiatFee: 0 }
+    return bnOrZero(fiat.amount).plus(fiatFee).toString()
   }, [fiat.amount, fees, feeType])
 
   return (

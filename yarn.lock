@@ -3677,13 +3677,13 @@
   dependencies:
     "@shapeshiftoss/types" "^1.11.0"
 
-"@shapeshiftoss/chain-adapters@^1.13.0", "@shapeshiftoss/chain-adapters@^1.13.1":
-  version "1.13.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.13.1.tgz#6c92046a9f5a65b5768b91d20d0ef80f67560074"
-  integrity sha512-EtNpTK3F0KTf2/8vZmPYJq88gKjVwIvR3CIlvlIStz1w063bcq8x30zCgB0d1Mk1/1NTE1hUaa2VeEl1iGZmeg==
+"@shapeshiftoss/chain-adapters@^1.13.2", "@shapeshiftoss/chain-adapters@^1.13.3":
+  version "1.13.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.13.3.tgz#54da165f57d60d402709387c63227852eff4f302"
+  integrity sha512-wwH3CNap7NhYAScBrdv4h9EihW+TB0S1vADBKOrmMNQ187Hb/HczTGB/Murjq7uMdKchvKmZlyyZ7nLiH0/Mjg==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
-    "@shapeshiftoss/types" "^1.11.0"
+    "@shapeshiftoss/types" "^1.11.1"
     "@shapeshiftoss/unchained-client" "^3.3.0"
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -3888,14 +3888,14 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.10.2":
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.10.2.tgz#ead864dc70e45f7a10746215796d485ac96a4c67"
-  integrity sha512-f7TM2qHk8PqN+g1Ut09SYq/lI41WT0pLo0IrjQNIAfg+4W/PaZcDbQSqKTbNU4VLGr4sZ+oF3ziGfmpLaKLt6g==
+"@shapeshiftoss/swapper@^1.10.4":
+  version "1.10.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.10.4.tgz#bf1ff2ac01af53b2c21b70e80c6727ade4256f90"
+  integrity sha512-IXkVasJwtKdPF/5OZ0Cet/zY13N6CFIyszPy806YYdvgdpZR74L6iutDpx2+eKYwPSrGlZf82vLa9jhgwf5PuA==
   dependencies:
-    "@shapeshiftoss/chain-adapters" "^1.13.0"
+    "@shapeshiftoss/chain-adapters" "^1.13.2"
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
-    "@shapeshiftoss/types" "^1.11.0"
+    "@shapeshiftoss/types" "^1.11.1"
     axios "^0.21.4"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
@@ -3913,6 +3913,11 @@
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.11.0.tgz#ca5dd2388abe3ffc5b9fe5f34178212d37f80887"
   integrity sha512-KI9lCex2nvRThUKIQIIauVqD6yfkhAGtPSCVzeadPE/JvRpsUG2Aso+wcLEaepduPH+1Pwm20plPsGRiZ4sLwA==
+
+"@shapeshiftoss/types@^1.11.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.11.1.tgz#33bdf25c156804bc52212418fc567af73c22e79f"
+  integrity sha512-vV5QU8EoJYETp9j4D//M5TpX2IF5qJze2iGI01IRXs+gkpzTKeWD4vpSh/m5IzS+rDrc9oDgZqmsj8SooieY2g==
 
 "@shapeshiftoss/types@^1.4.0":
   version "1.9.0"

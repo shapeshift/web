@@ -34,17 +34,17 @@ export const useFormSend = () => {
 
         let result
 
-        const { estimatedFees, feeType } = data
+        const { estimatedFees, feeType, address: to } = data
         const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
         if (adapterType === ChainTypes.Ethereum) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
-          const fee = fees.feePerUnit
-          const gasLimit = fees.chainSpecific?.feeLimit
+          const gasPrice = fees.chainSpecific.gasPrice
+          const gasLimit = fees.chainSpecific.gasLimit
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
-            to: data.address,
+            to,
             value,
             wallet,
-            chainSpecific: { erc20ContractAddress: data.asset.tokenId, fee, gasLimit }
+            chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit }
           })
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
@@ -52,11 +52,14 @@ export const useFormSend = () => {
           const utxoParams = utxoAccountParams(data.asset, accountType, 0)
 
           result = await (adapter as ChainAdapter<ChainTypes.Bitcoin>).buildSendTransaction({
-            to: data.address,
+            to,
             value,
             wallet,
             bip32Params: utxoParams.bip32Params,
-            chainSpecific: { satoshiPerByte: fees.feePerUnit, scriptType: utxoParams.scriptType }
+            chainSpecific: {
+              satoshiPerByte: fees.chainSpecific.satoshiPerByte,
+              scriptType: utxoParams.scriptType
+            }
           })
         } else {
           throw new Error('unsupported adapterType')

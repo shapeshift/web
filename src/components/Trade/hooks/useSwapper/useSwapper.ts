@@ -77,11 +77,16 @@ export const useSwapper = () => {
   // TODO: remove 'any' and create input and return value types
   const getSendMaxAmount = async ({ wallet, sellAsset, buyAsset }: any) => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
+    const { minimum: minimumAmount } = await swapper?.getMinMax({
+      sellAsset: sellAsset.currency,
+      buyAsset: buyAsset.currency
+    })
+
     const completeQuote = await swapper?.buildQuoteTx({
       input: {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
-        sellAmount: toBaseUnit('0.001', sellAsset.currency.precision), // TODO:(ryankk) Don't hard code sell amount. Possibly get from getMinMax?
+        sellAmount: toBaseUnit(minimumAmount, sellAsset.currency.precision),
         sellAssetAccountId: '0', // TODO: remove hard coded accountId
         buyAssetAccountId: '0' // TODO: remove hard coded accountId
       },
@@ -96,8 +101,13 @@ export const useSwapper = () => {
         sellAssetAccountId: '0'
       })
 
+      const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
 
-      return fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
+      // Set form amount value to updated max value
+      setValue('sellAsset.amount', formattedMaxAmount)
+      setValue('action', TradeActions.SELL)
+
+      return formattedMaxAmount
     }
   }
 
@@ -270,7 +280,6 @@ export const useSwapper = () => {
         const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
         const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
-
 
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)

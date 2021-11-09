@@ -8,6 +8,7 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
+import { useState } from 'react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
@@ -52,6 +53,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
   type TS = TradeState<ChainTypes, SwapperType>
   const [quote, action, buyAsset, sellAsset] = useWatch({
     name: ['quote', 'action', 'buyAsset', 'sellAsset']
@@ -97,10 +99,9 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onSwapMax = async () => {
-    const action = TradeActions.SELL
+    setIsSendMaxLoading(true)
     const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
-    setValue('sellAsset.amount', maxSendAmount)
-    setValue('action', action)
+    const action = TradeActions.SELL
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
 
@@ -110,6 +111,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       action,
       amount: maxSendAmount ?? '0'
     })
+    setIsSendMaxLoading(false)
   }
 
   const switchAssets = () => {
@@ -188,7 +190,14 @@ export const TradeInput = ({ history }: RouterProps) => {
               />
             }
             inputRightElement={
-              <Button h='1.75rem' size='sm' variant='ghost' colorScheme='blue' onClick={onSwapMax}>
+              <Button
+                h='1.75rem'
+                size='sm'
+                variant='ghost'
+                colorScheme='blue'
+                isDisabled={isSendMaxLoading}
+                onClick={onSwapMax}
+              >
                 Max
               </Button>
             }
@@ -244,7 +253,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme={error ? 'red' : 'blue'}
-          isLoading={isSubmitting}
+          isLoading={isSubmitting || isSendMaxLoading}
           isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',

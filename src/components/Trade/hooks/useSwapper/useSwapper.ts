@@ -74,8 +74,15 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
-  // TODO: remove 'any' and create input and return value types
-  const getSendMaxAmount = async ({ wallet, sellAsset, buyAsset }: any) => {
+  const getSendMaxAmount = async ({
+    wallet,
+    sellAsset,
+    buyAsset
+  }: {
+    wallet: HDWallet
+    sellAsset: TradeAsset
+    buyAsset: TradeAsset
+  }) => {
     const swapper = swapperManager.getSwapper(bestSwapperType)
     const { minimum: minimumAmount } = await swapper?.getMinMax({
       sellAsset: sellAsset.currency,
@@ -93,22 +100,21 @@ export const useSwapper = () => {
       wallet
     })
 
-    // TODO:(ryankk) check this to make sure nothing happens if there isn't a completeQuote
-    if (completeQuote) {
-      const sendMaxAmount = await swapper.getSendMaxAmount({
-        wallet,
-        quote: completeQuote,
-        sellAssetAccountId: '0'
-      })
+    if (!completeQuote) return
 
-      const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
+    const sendMaxAmount = await swapper.getSendMaxAmount({
+      wallet,
+      quote: completeQuote,
+      sellAssetAccountId: '0'
+    })
 
-      // Set form amount value to updated max value
-      setValue('sellAsset.amount', formattedMaxAmount)
-      setValue('action', TradeActions.SELL)
+    const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
 
-      return formattedMaxAmount
-    }
+    // Set form amount value to updated max value
+    setValue('sellAsset.amount', formattedMaxAmount)
+    setValue('action', TradeActions.SELL)
+
+    return formattedMaxAmount
   }
 
   const buildQuoteTx = async ({

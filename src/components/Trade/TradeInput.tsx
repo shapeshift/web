@@ -99,6 +99,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onSwapMax = async () => {
+    if (!wallet) return
     try {
       setIsSendMaxLoading(true)
       const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })

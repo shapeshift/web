@@ -8,6 +8,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { PortisIcon } from 'components/Icons/PortisIcon'
+
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { MetaStart } from './MetaMask/components/MetaStart'

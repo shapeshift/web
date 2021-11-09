@@ -99,21 +99,28 @@ export const TradeInput = ({ history }: RouterProps) => {
   }
 
   const onSwapMax = async () => {
-    setIsSendMaxLoading(true)
-    const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
-    const action = TradeActions.SELL
-    const currentSellAsset = getValues('sellAsset')
-    const currentBuyAsset = getValues('buyAsset')
+    try {
+      setIsSendMaxLoading(true)
+      const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
+      const action = TradeActions.SELL
+      const currentSellAsset = getValues('sellAsset')
+      const currentBuyAsset = getValues('buyAsset')
 
-    if (!maxSendAmount) return
+      if (!maxSendAmount) return
 
-    await getQuote({
-      sellAsset: currentSellAsset,
-      buyAsset: currentBuyAsset,
-      action,
-      amount: maxSendAmount
-    })
-    setIsSendMaxLoading(false)
+      await getQuote({
+        sellAsset: currentSellAsset,
+        buyAsset: currentBuyAsset,
+        action,
+        amount: maxSendAmount
+      })
+    } catch (err) {
+      console.error(`sendMax: ${err}`)
+      // TODO: (ryankk) correct errors to reflect appropriate attributes
+      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+    } finally {
+      setIsSendMaxLoading(false)
+    }
   }
 
   const switchAssets = () => {

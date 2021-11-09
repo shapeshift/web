@@ -1,9 +1,16 @@
-import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset,
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
   caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   name: 'bitcoin',
   chain: ChainTypes.Bitcoin,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   precision: 8,
   slip44: 44,
@@ -22,6 +29,7 @@ export const WETH: Asset = {
   caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   name: 'WETH',
   chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   precision: 18,
   tokenId: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
@@ -41,6 +49,7 @@ export const FOX: Asset = {
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   name: 'FOX',
   chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   precision: 18,
   tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',

@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import { baseAssets } from './baseAssets'
 import { getTokens } from './ethTokens'
-import { extendErc20 } from './extendErc20'
+import { extendErc20 } from './ethTokens/extendErc20'
 
 const generateAssetData = async () => {
   const generatedAssetData = await Promise.all(

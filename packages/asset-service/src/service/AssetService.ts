@@ -1,4 +1,11 @@
-import { Asset, BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset,
+  AssetDataSource,
+  BaseAsset,
+  ChainTypes,
+  NetworkTypes,
+  TokenAsset
+} from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import localAssetData from './generatedAssetData.json'
@@ -111,9 +118,18 @@ export class AssetService {
     return result
   }
 
-  async description(chain: ChainTypes, tokenId?: string): Promise<string> {
-    const contractUrl = typeof tokenId === 'string' ? `/contract/${tokenId?.toLowerCase()}` : ''
-    const errorMessage = `AssetService:description: no description availble for ${tokenId} on chain ${chain}`
+  async description({
+    chain,
+    tokenData
+  }: {
+    chain: ChainTypes
+    tokenData?: TokenAsset
+  }): Promise<string> {
+    // Currently, we only get decription data for tokens with a coingecko datasource
+    if (tokenData && tokenData?.dataSource !== AssetDataSource.CoinGecko) return ''
+    const contractUrl =
+      typeof tokenData?.tokenId === 'string' ? `/contract/${tokenData?.tokenId?.toLowerCase()}` : ''
+    const errorMessage = `AssetService:description: no description availble for ${tokenData?.tokenId} on chain ${chain}`
 
     try {
       type CoinData = {

@@ -1,5 +1,11 @@
 import { caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, ContractTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
+import {
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes,
+  TokenAsset
+} from '@shapeshiftoss/types'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 const axiosInstance: AxiosInstance = axios.create()
 
@@ -42,6 +48,7 @@ export const extendErc20 = async (): Promise<TokenAsset[]> => {
     return {
       color: '#FFFFFF',
       contractType: ContractTypes.ERC20,
+      dataSource: AssetDataSource.YearnFinance,
       icon: vault.icon,
       name: vault.name,
       precision: vault.decimals,

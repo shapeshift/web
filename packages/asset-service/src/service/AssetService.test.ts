@@ -1,4 +1,10 @@
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset,
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 import axios from 'axios'
 
 import { AssetService, flattenAssetData, indexAssetData } from './AssetService'
@@ -111,7 +117,7 @@ describe('AssetService', () => {
       const assetService = new AssetService(assetFileUrl)
       const description = { en: 'a blue fox' }
       mockedAxios.get.mockResolvedValue({ data: { description } })
-      await expect(assetService.description(ChainTypes.Ethereum, '')).resolves.toEqual(
+      await expect(assetService.description({ chain: ChainTypes.Ethereum })).resolves.toEqual(
         description.en
       )
     })
@@ -120,11 +126,27 @@ describe('AssetService', () => {
       const assetService = new AssetService(assetFileUrl)
       mockedAxios.get.mockRejectedValue({ data: null })
       const chain = ChainTypes.Ethereum
-      const tokenId = 'fooo'
-      const expectedErrorMessage = `AssetService:description: no description availble for ${tokenId} on chain ${chain}`
-      await expect(assetService.description(chain, tokenId)).rejects.toEqual(
-        new Error(expectedErrorMessage)
-      )
+      const tokenData = {
+        caip19: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+        name: 'Test Token',
+        precision: 18,
+        tokenId: '0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+        contractType: ContractTypes.ERC20,
+        color: '#FFFFFF',
+        dataSource: AssetDataSource.CoinGecko,
+        secondaryColor: '#FFFFFF',
+        icon: 'https://assets.coingecko.com/coins/images/17049/thumb/BUNNY.png?1626148809',
+        sendSupport: true,
+        receiveSupport: true,
+        symbol: 'TST'
+      }
+      const expectedErrorMessage = `AssetService:description: no description availble for ${tokenData.tokenId} on chain ${chain}`
+      await expect(
+        assetService.description({
+          chain,
+          tokenData
+        })
+      ).rejects.toEqual(new Error(expectedErrorMessage))
     })
   })
 })

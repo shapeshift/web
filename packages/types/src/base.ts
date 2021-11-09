@@ -37,11 +37,18 @@ export enum UtxoAccountType {
   P2pkh = 'P2pkh'
 }
 
+// Describes the data source for where to get the asset details or asset description.
+export enum AssetDataSource {
+  CoinGecko = 'coingecko',
+  YearnFinance = 'yearnfinance'
+}
+
 // asset-service
 
 type AbstractAsset = {
   caip19: string
   chain: ChainTypes
+  dataSource: AssetDataSource
   network: NetworkTypes
   symbol: string
   name: string

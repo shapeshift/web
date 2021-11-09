@@ -1,5 +1,11 @@
 import { caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, ContractTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
+import {
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes,
+  TokenAsset
+} from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
@@ -43,6 +49,7 @@ export async function getTokens(): Promise<TokenAsset[]> {
 
     const result: TokenAsset = {
       caip19: caip19.toCAIP19({ chain, network, contractType, tokenId }),
+      dataSource: AssetDataSource.CoinGecko,
       name: token.name,
       precision: token.decimals,
       tokenId,

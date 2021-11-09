@@ -8,8 +8,8 @@ import {
   Input,
   InputProps
 } from '@chakra-ui/react'
-import { useState } from 'react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
+import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
@@ -105,11 +105,13 @@ export const TradeInput = ({ history }: RouterProps) => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
 
+    if (!maxSendAmount) return
+
     await getQuote({
       sellAsset: currentSellAsset,
       buyAsset: currentBuyAsset,
       action,
-      amount: maxSendAmount ?? '0'
+      amount: maxSendAmount
     })
     setIsSendMaxLoading(false)
   }
@@ -117,7 +119,6 @@ export const TradeInput = ({ history }: RouterProps) => {
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
-    // TODO: (ryankk) make sure this is the behavior we want
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
     setValue('action', action)
     setValue('sellAsset', currentBuyAsset)

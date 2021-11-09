@@ -68,7 +68,6 @@ export const initialState: YearnWithdrawState = {
 
 export enum YearnWithdrawActionType {
   SET_VAULT = 'SET_VAULT',
-  // SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
@@ -81,11 +80,6 @@ type SetVaultAction = {
   type: YearnWithdrawActionType.SET_VAULT
   payload: YearnVault
 }
-
-// type SetApprove = {
-//   type: YearnWithdrawActionType.SET_APPROVE
-//   payload: EstimatedGas
-// }
 
 type SetWithdraw = {
   type: YearnWithdrawActionType.SET_WITHDRAW

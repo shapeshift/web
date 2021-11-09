@@ -114,7 +114,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('YearnDeposit error:', error)
+        console.error('YearnWithdraw error:', error)
       }
     })()
   }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
@@ -134,7 +134,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       return returVal
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      console.error('YearnDeposit:getDepositGasEstimate error:', error)
+      console.error('YearnWithdraw:getWithdrawGasEstimate error:', error)
     }
   }
 
@@ -215,8 +215,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     const apy = state.vault.apy?.net_apy
-    // const annualYieldCrypto = bnOrZero(state.withdraw?.cryptoAmount).times(apy)
-    // const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
     let statusText:

@@ -315,8 +315,7 @@ describe('BitcoinChainAdapter', () => {
               scriptType: 'p2wpkh',
               isChange: true
             }
-          ],
-          fee: 226
+          ]
         }
       })
       expect(args.providers.http.getUtxos).toHaveBeenCalledTimes(1)
@@ -387,17 +386,22 @@ describe('BitcoinChainAdapter', () => {
   describe('getFeeData', () => {
     it('should return current BTC network fees', async () => {
       args.providers.http = {
-        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse)
+        getNetworkFees: jest.fn().mockResolvedValue(getNetworkFeesMockedResponse),
+        getUtxos: jest.fn().mockResolvedValue({ data: [] })
       } as any
 
       const adapter = new bitcoin.ChainAdapter(args)
 
-      const data = await adapter.getFeeData({ to: '0x', from: '0x', value: '0' })
+      const data = await adapter.getFeeData({
+        to: '0x',
+        value: '0',
+        chainSpecific: { pubkey: '123' }
+      })
       expect(data).toEqual(
         expect.objectContaining({
-          average: { chainSpecific: { byteCount: '0', feePerTx: '0' }, feePerUnit: '1' },
-          fast: { chainSpecific: { byteCount: '0', feePerTx: '0' }, feePerUnit: '1' },
-          slow: { chainSpecific: { byteCount: '0', feePerTx: '0' }, feePerUnit: '1' }
+          average: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' },
+          fast: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' },
+          slow: { chainSpecific: { satoshiPerByte: '1' }, txFee: '44' }
         })
       )
     })

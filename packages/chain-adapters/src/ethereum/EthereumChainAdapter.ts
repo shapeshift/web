@@ -119,7 +119,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         to,
         wallet,
         bip32Params = ChainAdapter.defaultBIP32Params,
-        chainSpecific: { erc20ContractAddress, fee: gasPrice, gasLimit }
+        chainSpecific: { erc20ContractAddress, gasPrice, gasLimit }
       } = tx
 
       if (!to) throw new Error('EthereumChainAdapter: to is required')
@@ -185,10 +185,11 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
   async getFeeData({
     to,
-    from,
-    contractAddress,
-    value
-  }: chainAdapters.GetFeeDataInput): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>> {
+    value,
+    chainSpecific: { contractAddress, from }
+  }: chainAdapters.GetFeeDataInput<ChainTypes.Ethereum>): Promise<
+    chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
+  > {
     const { data: responseData } = await axios.get<chainAdapters.ZrxGasApiResponse>(
       'https://gas.api.0x.org/'
     )
@@ -210,24 +211,24 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
     return {
       fast: {
-        feePerUnit: String(fees.instant),
+        txFee: new BigNumber(fees.instant).times(gasLimit).toPrecision(),
         chainSpecific: {
-          feeLimit: gasLimit,
-          feePerTx: new BigNumber(fees.instant).times(gasLimit).toPrecision()
+          gasLimit,
+          gasPrice: String(fees.instant)
         }
       },
       average: {
-        feePerUnit: String(fees.fast),
+        txFee: new BigNumber(fees.fast).times(gasLimit).toPrecision(),
         chainSpecific: {
-          feeLimit: gasLimit,
-          feePerTx: new BigNumber(fees.fast).times(gasLimit).toPrecision()
+          gasLimit,
+          gasPrice: String(fees.fast)
         }
       },
       slow: {
-        feePerUnit: String(fees.low),
+        txFee: new BigNumber(fees.low).times(gasLimit).toPrecision(),
         chainSpecific: {
-          feeLimit: gasLimit,
-          feePerTx: new BigNumber(fees.low).times(gasLimit).toPrecision()
+          gasLimit,
+          gasPrice: String(fees.low)
         }
       }
     }

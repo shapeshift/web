@@ -32,7 +32,7 @@ export interface ChainAdapter<T extends ChainTypes> {
   ): Promise<string>
 
   getFeeData(
-    input: Partial<chainAdapters.GetFeeDataInput>
+    input: Partial<chainAdapters.GetFeeDataInput<T>>
   ): Promise<chainAdapters.FeeDataEstimate<T>>
 
   broadcastTransaction(hex: string): Promise<string>

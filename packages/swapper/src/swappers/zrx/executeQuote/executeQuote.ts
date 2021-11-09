@@ -44,7 +44,7 @@ export async function executeQuote(
       wallet,
       to: quote.depositAddress,
       chainSpecific: {
-        fee: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
+        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
         gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
       },
       bip32Params

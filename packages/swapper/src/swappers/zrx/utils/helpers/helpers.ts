@@ -142,7 +142,7 @@ export const grantAllowance = async ({
       value: '0',
       chainSpecific: {
         erc20ContractAddress: quote.sellAsset.tokenId,
-        fee: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
+        gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
         gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
       }
     })

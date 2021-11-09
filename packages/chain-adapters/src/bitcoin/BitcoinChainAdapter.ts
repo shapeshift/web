@@ -144,8 +144,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         throw new Error('BitcoinChainAdapter: (to and value) are required')
       }
 
-      const btcRecipients = [{ value: Number(value), address: to }]
-
       const path = toRootDerivationPath(bip32Params)
       const changeScriptType = toBtcOutputScriptType(scriptType)
       const pubkey = await this.getPubKey(wallet, bip32Params, scriptType)
@@ -174,14 +172,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
       const coinSelectResult = coinSelect<MappedUtxos, chainAdapters.bitcoin.Recipient>(
         mappedUtxos,
-        btcRecipients,
+        [{ value: Number(value), address: to }],
         Number(satoshiPerByte)
       )
       if (!coinSelectResult.inputs) {
         throw new Error("BitcoinChainAdapter: coinSelect didn't select coins")
       }
 
-      const { inputs, outputs, fee } = coinSelectResult
+      const { inputs, outputs } = coinSelectResult
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
@@ -224,11 +222,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         }
       })
 
-      const txToSign: BTCSignTx & { fee: number } = {
+      const txToSign: BTCSignTx = {
         coin: this.coinName,
         inputs: signTxInputs,
-        outputs: signTxOutputs,
-        fee
+        outputs: signTxOutputs
       }
 
       return { txToSign }
@@ -261,13 +258,14 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
   async getFeeData({
     to,
-    from,
-    value
-  }: chainAdapters.GetFeeDataInput): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>> {
+    value,
+    chainSpecific: { pubkey }
+  }: chainAdapters.GetFeeDataInput<ChainTypes.Bitcoin>): Promise<
+    chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin>
+  > {
     const feeData = await this.providers.http.getNetworkFees()
 
-    if (!to || !from || !value) throw new Error('to, from and value are required')
-
+    if (!to || !value || !pubkey) throw new Error('to, from, value and xpub are required')
     if (
       !feeData.data.fast?.satsPerKiloByte ||
       !feeData.data.average?.satsPerKiloByte ||
@@ -276,30 +274,50 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       throw new Error('undefined fee')
 
     // We have to round because coinselect library uses sats per byte which cant be decimals
-    const fast = String(Math.round(feeData.data.fast?.satsPerKiloByte / 1024))
-    const average = String(Math.round(feeData.data.average?.satsPerKiloByte / 1024))
-    const slow = String(Math.round(feeData.data.slow?.satsPerKiloByte / 1024))
+    const fastPerByte = String(Math.round(feeData.data.fast.satsPerKiloByte / 1024))
+    const averagePerByte = String(Math.round(feeData.data.average.satsPerKiloByte / 1024))
+    const slowPerByte = String(Math.round(feeData.data.slow.satsPerKiloByte / 1024))
+
+    const { data: utxos } = await this.providers.http.getUtxos({
+      pubkey
+    })
+
+    type MappedUtxos = Omit<bitcoin.api.Utxo, 'value'> & { value: number }
+    const mappedUtxos: MappedUtxos[] = utxos.map((x) => ({ ...x, value: Number(x.value) }))
+
+    const { fee: fastFee } = coinSelect<MappedUtxos, chainAdapters.bitcoin.Recipient>(
+      mappedUtxos,
+      [{ value: Number(value), address: to }],
+      Number(fastPerByte)
+    )
+    const { fee: averageFee } = coinSelect<MappedUtxos, chainAdapters.bitcoin.Recipient>(
+      mappedUtxos,
+      [{ value: Number(value), address: to }],
+      Number(averagePerByte)
+    )
+    const { fee: slowFee } = coinSelect<MappedUtxos, chainAdapters.bitcoin.Recipient>(
+      mappedUtxos,
+      [{ value: Number(value), address: to }],
+      Number(slowPerByte)
+    )
 
     const confTimes: chainAdapters.FeeDataEstimate<ChainTypes.Bitcoin> = {
       [chainAdapters.FeeDataKey.Fast]: {
-        feePerUnit: fast,
+        txFee: String(fastFee),
         chainSpecific: {
-          feePerTx: '0', // TODO,
-          byteCount: '0' // TODO
+          satoshiPerByte: fastPerByte
         }
       },
       [chainAdapters.FeeDataKey.Average]: {
-        feePerUnit: average,
+        txFee: String(averageFee),
         chainSpecific: {
-          feePerTx: '0', // TODO,
-          byteCount: '0' // TODO
+          satoshiPerByte: averagePerByte
         }
       },
       [chainAdapters.FeeDataKey.Slow]: {
-        feePerUnit: slow,
+        txFee: String(slowFee),
         chainSpecific: {
-          feePerTx: '0', // TODO,
-          byteCount: '0' // TODO
+          satoshiPerByte: slowPerByte
         }
       }
     }

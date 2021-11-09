@@ -22,8 +22,8 @@ export type TxTransfer = {
 }
 
 export type FeeData = {
-  feePerTx: string
-  feeLimit: string
+  gasPrice: string
+  gasLimit: string
 }
 
 export type QuoteFeeData = {
@@ -46,7 +46,11 @@ export type QuoteFeeData = {
 }
 
 export type BuildTxInput = {
-  fee: string
+  gasPrice: string
   gasLimit: string
   erc20ContractAddress?: string
+}
+export type GetFeeDataInput = {
+  contractAddress?: string
+  from: string
 }

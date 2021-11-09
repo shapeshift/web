@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { useToast } from '@chakra-ui/react'
 import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
@@ -19,7 +20,6 @@ import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlic
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
-import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 

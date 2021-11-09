@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.2.0...@shapeshiftoss/caip-v1.2.1) (2021-11-09)
+
+
+### Bug Fixes
+
+* bump package versions ([#198](https://github.com/shapeshift/lib/issues/198)) ([da6c8f1](https://github.com/shapeshift/lib/commit/da6c8f13eb361aa520f2f1e9fc3e16a3785ed287))
+
 # [@shapeshiftoss/caip-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.1.0...@shapeshiftoss/caip-v1.2.0) (2021-11-02)
 
 

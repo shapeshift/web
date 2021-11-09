@@ -39,11 +39,11 @@ export const AssetToAsset = ({
   const green = useColorModeValue('white', 'green.500')
 
   const renderIcon = () => {
-    return status === chainAdapters.TxStatus.confirmed ? (
+    return status === chainAdapters.TxStatus.Confirmed ? (
       <Circle bg={green} w='100%' h='100%'>
         <CheckIcon />
       </Circle>
-    ) : status === chainAdapters.TxStatus.failed ? (
+    ) : status === chainAdapters.TxStatus.Failed ? (
       <Circle bg={red} w='100%' h='100%'>
         <CloseIcon p={1} />
       </Circle>

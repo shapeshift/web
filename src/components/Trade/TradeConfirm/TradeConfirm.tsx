@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -50,8 +50,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     return selectTxHistoryByTxid(state, chain, asset, txid)
   })
   const transaction = txs[0]
-
-  const status: chainAdapters.TxStatus = transaction && transaction?.status
+  const status = transaction && transaction?.status
 
   const onSubmit = async () => {
     if (!wallet) return

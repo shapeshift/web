@@ -79,7 +79,7 @@ export enum YearnDepositActionType {
 
 type SetVaultAction = {
   type: YearnDepositActionType.SET_VAULT
-  payload: YearnVault
+  payload: YearnVault | null
 }
 
 type SetApprove = {

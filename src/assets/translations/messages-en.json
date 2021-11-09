@@ -14,7 +14,11 @@
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
-    "seeAll": "See All"
+    "seeAll": "See All",
+    "somethingWentWrong": "Something went wrong",
+    "somethingWentWrongBody": "Something went wrong",
+    "transactionFailed": "Transaction Failed",
+    "transactionFailedBody": "Transaction Failed"
   },
   "dashboard": {
     "portfolio": {

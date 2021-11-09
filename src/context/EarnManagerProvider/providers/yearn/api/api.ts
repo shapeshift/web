@@ -87,13 +87,13 @@ export class YearnVaultApi {
 
   findByDepositTokenId(tokenId: string) {
     const vault = this.vaults.find(item => toLower(item.token.address) === toLower(tokenId))
-    if (!vault) throw new Error(`Vault for ERC-20 ${tokenId} isn't supported`)
+    if (!vault) return null
     return vault
   }
 
   findByVaultTokenId(vaultAddress: string) {
     const vault = this.vaults.find(item => toLower(item.address) === toLower(vaultAddress))
-    if (!vault) throw new Error(`Vault for ${vaultAddress} isn't supported`)
+    if (!vault) return null
     return vault
   }
 

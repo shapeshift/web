@@ -2,10 +2,12 @@ import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
+import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
 import { RouteProps } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
+import { PortisIcon } from 'components/Icons/PortisIcon'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
@@ -17,6 +19,8 @@ import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
+import { PortisStart } from './Portis/components/PortisStart'
+import { PortisSuccess } from './Portis/components/PortisSuccess'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -28,7 +32,8 @@ export interface SupportedWalletInfo {
 export enum KeyManager {
   Native = 'native',
   KeepKey = 'keepkey',
-  MetaMask = 'metamask'
+  MetaMask = 'metamask',
+  Portis = 'portis'
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
@@ -61,6 +66,15 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/metamask/start', component: MetaStart },
       { path: '/metamask/success', component: MetaSuccess }
+    ]
+  },
+  portis: {
+    adapter: PortisAdapter,
+    icon: PortisIcon,
+    name: 'Portis',
+    routes: [
+      { path: '/portis/start', component: PortisStart },
+      { path: '/portis/success', component: PortisSuccess }
     ]
   }
 }

@@ -32,7 +32,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
   const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
-  const sentTx = tx.type === chainAdapters.TxType.send
+  const sentTx = tx.type === chainAdapters.TxType.Send
   const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
 
   useEffect(() => {
@@ -118,19 +118,19 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
               <Text translation='transactionRow.status' />
             </Row.Label>
             <Row.Value textAlign='left'>
-              {tx.status === chainAdapters.TxStatus.confirmed && (
+              {tx.status === chainAdapters.TxStatus.Confirmed && (
                 <Tag colorScheme='green' size='lg'>
                   <CheckCircleIcon mr={2} />
                   <Text translation='transactionRow.confirmed' />
                 </Tag>
               )}
-              {tx.status === chainAdapters.TxStatus.pending && (
+              {tx.status === chainAdapters.TxStatus.Pending && (
                 <Tag colorScheme='blue' size='lg'>
                   <CircularProgress mr={2} size='5' />
                   <Text translation='transactionRow.pending' />
                 </Tag>
               )}
-              {tx.status === chainAdapters.TxStatus.failed && (
+              {tx.status === chainAdapters.TxStatus.Failed && (
                 <Tag colorScheme='red' size='lg'>
                   <WarningTwoIcon mr={2} />
                   <Text translation='transactionRow.failed' />

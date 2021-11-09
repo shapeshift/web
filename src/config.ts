@@ -1,6 +1,6 @@
 import * as envalid from 'envalid'
 
-const { cleanEnv, url } = envalid
+const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
@@ -9,7 +9,8 @@ const validators = {
   REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
-  REACT_APP_ETHEREUM_NODE_URL: url()
+  REACT_APP_ETHEREUM_NODE_URL: url(),
+  REACT_APP_PORTIS_DAPP_ID: str()
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

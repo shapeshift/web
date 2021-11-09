@@ -27,8 +27,9 @@ import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 
-import { YearnVault, YearnVaultApi } from '../../api/api'
-import { YearnRouteSteps } from '../YearnRouteSteps'
+import { YearnVault, YearnVaultApi } from '../../../api/api'
+import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
+import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
 enum DepositPath {
   Deposit = '/deposit',
@@ -48,125 +49,12 @@ export const routes = [
   { step: 3, path: DepositPath.Status, label: 'Status' }
 ]
 
-type YearnDepositProps = {
+export type YearnDepositProps = {
   api: YearnVaultApi
-}
-
-type EstimatedGas = {
-  estimatedGasCrypto?: string
-}
-
-type YearnDepositValues = DepositValues &
-  EstimatedGas & {
-    txStatus: string
-    usedGasFee: string
-  }
-
-export type YearnDepositState = {
-  vault: YearnVault
-  userAddress: string | null
-  approve: EstimatedGas
-  deposit: YearnDepositValues
-  loading: boolean
-  pricePerShare: string
-  txid: string | null
-}
-
-const initialState: YearnDepositState = {
-  txid: null,
-  vault: { apy: { net_apy: 0 } } as YearnVault,
-  userAddress: null,
-  loading: false,
-  approve: {},
-  pricePerShare: '',
-  deposit: {
-    fiatAmount: '',
-    cryptoAmount: '',
-    slippage: '',
-    txStatus: 'pending',
-    usedGasFee: ''
-  }
-}
-
-export enum YearnActionType {
-  SET_VAULT = 'SET_VAULT',
-  SET_APPROVE = 'SET_APPROVE',
-  SET_USER_ADDRESS = 'SET_USER_ADDRESS',
-  SET_DEPOSIT = 'SET_DEPOSIT',
-  SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
-  SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
-}
-
-type SetVaultAction = {
-  type: YearnActionType.SET_VAULT
-  payload: YearnVault
-}
-
-type SetApprove = {
-  type: YearnActionType.SET_APPROVE
-  payload: EstimatedGas
-}
-
-type SetDeposit = {
-  type: YearnActionType.SET_DEPOSIT
-  payload: Partial<YearnDepositValues>
-}
-
-type SetUserAddress = {
-  type: YearnActionType.SET_USER_ADDRESS
-  payload: string
-}
-
-type SetLoading = {
-  type: YearnActionType.SET_LOADING
-  payload: boolean
-}
-
-type SetPricePerShare = {
-  type: YearnActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
-type SetTxid = {
-  type: YearnActionType.SET_TXID
-  payload: string
-}
-
-type YearnDepositActions =
-  | SetVaultAction
-  | SetApprove
-  | SetDeposit
-  | SetUserAddress
-  | SetLoading
-  | SetPricePerShare
-  | SetTxid
-
-const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
-  switch (action.type) {
-    case YearnActionType.SET_VAULT:
-      return { ...state, vault: { ...state.vault, ...action.payload } }
-    case YearnActionType.SET_APPROVE:
-      return { ...state, approve: action.payload }
-    case YearnActionType.SET_DEPOSIT:
-      return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case YearnActionType.SET_USER_ADDRESS:
-      return { ...state, userAddress: action.payload }
-    case YearnActionType.SET_LOADING:
-      return { ...state, loading: action.payload }
-    case YearnActionType.SET_PRICE_PER_SHARE:
-      return { ...state, pricePerShare: action.payload }
-    case YearnActionType.SET_TXID:
-      return { ...state, txid: action.payload }
-    default:
-      return state
-  }
 }
 
 // TODO: Remove when vaults are added to asset service
 const makeVaultAsset = (vault: YearnVault): Asset => {
-  if (!vault) return {} as Asset
   return {
     chain: ChainTypes.Ethereum,
     color: '#FFFFFF',
@@ -225,9 +113,12 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           api.findByDepositTokenId(tokenId),
           api.pricePerShare({ vaultAddress })
         ])
-        dispatch({ type: YearnActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnActionType.SET_VAULT, payload: vault })
-        dispatch({ type: YearnActionType.SET_PRICE_PER_SHARE, payload: pricePerShare.toString() })
+        dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
+        dispatch({ type: YearnDepositActionType.SET_VAULT, payload: vault })
+        dispatch({
+          type: YearnDepositActionType.SET_PRICE_PER_SHARE,
+          payload: pricePerShare.toString()
+        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('YearnDeposit error:', error)
@@ -274,7 +165,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleContinue = async (formValues: DepositValues) => {
     if (!state.userAddress) return
     // set deposit state for future use
-    dispatch({ type: YearnActionType.SET_DEPOSIT, payload: formValues })
+    dispatch({ type: YearnDepositActionType.SET_DEPOSIT, payload: formValues })
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
@@ -289,7 +180,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({
-          type: YearnActionType.SET_DEPOSIT,
+          type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto }
         })
 
@@ -298,7 +189,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
         dispatch({
-          type: YearnActionType.SET_APPROVE,
+          type: YearnDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto }
         })
         memoryHistory.push(DepositPath.Approve)
@@ -312,7 +203,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleApprove = async () => {
     if (!tokenId || !state.userAddress || !walletState.wallet) return
     try {
-      dispatch({ type: YearnActionType.SET_LOADING, payload: true })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       await api.approve({
         spenderAddress: vaultAddress,
         tokenContractAddress: tokenId,
@@ -337,7 +228,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
       if (!estimatedGasCrypto) return
       dispatch({
-        type: YearnActionType.SET_DEPOSIT,
+        type: YearnDepositActionType.SET_DEPOSIT,
         payload: { estimatedGasCrypto }
       })
 
@@ -346,15 +237,15 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       // TODO: handle client side errors
       console.error('YearnDeposit:handleApprove error:', error)
     } finally {
-      dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     }
   }
 
   const handleConfirm = async () => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
-      dispatch({ type: YearnActionType.SET_LOADING, payload: true })
-      const [txId, gasPrice] = await Promise.all([
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
+      const [txid, gasPrice] = await Promise.all([
         api.deposit({
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
@@ -364,26 +255,26 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         }),
         api.getGasPrice()
       ])
-      dispatch({ type: YearnActionType.SET_TXID, payload: txId })
+      dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
       memoryHistory.push(DepositPath.Status)
 
       const transactionReceipt = await poll({
         fn: () =>
           api.getTxReceipt({
-            txId
+            txid
           }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30
       })
       dispatch({
-        type: YearnActionType.SET_DEPOSIT,
+        type: YearnDepositActionType.SET_DEPOSIT,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
         }
       })
-      dispatch({ type: YearnActionType.SET_LOADING, payload: false })
+      dispatch({ type: YearnDepositActionType.SET_LOADING, payload: false })
     } catch (error) {
       console.error('YearnDeposit:handleConfirm error', error)
     }
@@ -418,16 +309,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
-    let statusText:
-      | 'modals.status.header.pending'
-      | 'modals.status.header.success'
-      | 'modals.status.header.failed' = 'modals.status.header.pending'
+    let statusText = StatusTextEnum.pending
     if (state.deposit.txStatus === 'success') {
-      statusText = 'modals.status.header.success'
+      statusText = StatusTextEnum.success
       statusIcon = <CheckIcon color='green' />
     }
     if (state.deposit.txStatus === 'failed') {
-      statusText = 'modals.status.header.failed'
+      statusText = StatusTextEnum.failed
       statusIcon = <CloseIcon color='red' />
     }
 

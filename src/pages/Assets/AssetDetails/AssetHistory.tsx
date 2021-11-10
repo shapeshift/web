@@ -14,9 +14,14 @@ import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
 export const AssetHistory = () => {
   const translate = useTranslate()
   const { asset } = useAsset()
-  const accountType = useSelector((state: ReduxState) => state.preferences.accountTypes[asset.chain])
+  const accountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
+  )
   const txs = useSelector((state: ReduxState) =>
-    selectTxHistory(state, { chain: asset.chain, filter: { identifier: asset.tokenId ?? asset.chain, accountType } })
+    selectTxHistory(state, {
+      chain: asset.chain,
+      filter: { identifier: asset.tokenId ?? asset.chain, accountType }
+    })
   )
   const { next, data, hasMore } = useInfiniteScroll(txs)
 

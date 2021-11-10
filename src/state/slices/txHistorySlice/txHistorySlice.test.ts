@@ -1,4 +1,3 @@
-import { Bitcoin } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend } from 'jest/mocks/txs'
@@ -99,7 +98,6 @@ describe('txHistorySlice', () => {
             [BtcSend.txid]: { ...BtcSend, accountType: 'segwit' },
             [`${BtcSend.txid}x`]: { ...BtcSend, accountType: 'segwit-native' },
             [`${BtcSend.txid}y`]: { ...BtcSend, accountType: 'segwit-native' }
-
           }
         }
       }

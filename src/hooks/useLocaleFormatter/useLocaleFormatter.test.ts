@@ -292,7 +292,8 @@ describe('useLocaleFormatter', () => {
     const scenarios: [{ number: NumberValue; symbol?: string }, string][] = [
       [{ number: 12.3 }, '12.3 BTC'],
       [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
-      [{ number: 12, symbol: '1INCH' }, '12 1INCH']
+      [{ number: '12.', symbol: '1INCH' }, '12. 1INCH'],
+      [{ number: '.01', symbol: '' }, '0.01 ']
     ]
 
     it.each(scenarios)('parses %p and returns %s', async ({ number, symbol }, expected) => {
@@ -300,5 +301,30 @@ describe('useLocaleFormatter', () => {
 
       expect(result.current.number.toCryptoInput(number, symbol)).toEqual(expected)
     })
+  })
+
+  describe('toCrypto', () => {
+    const scenarios: [
+      { number: NumberValue; symbol?: string; options?: { maximumFractionDigits?: number } },
+      string
+    ][] = [
+      [{ number: 12.3 }, '12.3 BTC'],
+      [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
+      [
+        { number: '0.066044968372961102', symbol: 'ETH', options: { maximumFractionDigits: 6 } },
+        '0.066045 ETH'
+      ],
+      [{ number: '12.', symbol: '1INCH' }, '12 1INCH'],
+      [{ number: '.01', symbol: '' }, '0.01 ']
+    ]
+
+    it.each(scenarios)(
+      'parses %p and returns %s',
+      async ({ number, symbol, options }, expected) => {
+        const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
+
+        expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
+      }
+    )
   })
 })

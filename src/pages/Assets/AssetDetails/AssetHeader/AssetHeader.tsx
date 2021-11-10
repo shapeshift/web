@@ -21,16 +21,14 @@ import numeral from 'numeral'
 import { useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { useParams } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
-import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { fromBaseUnit } from 'lib/math'
-import { MatchParams } from 'pages/Assets/Asset'
+import { useAsset } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
@@ -43,10 +41,11 @@ enum views {
   balance = 'balance'
 }
 
-export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoaded: boolean }) => {
-  const { chain, tokenId } = useParams<MatchParams>()
+export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
+  const { asset, marketData } = useAsset()
   const [view, setView] = useState(views.price)
-  const { name, symbol, description, icon, changePercent24Hr, price, marketCap, volume } = asset
+  const { name, symbol, description, icon } = asset || {}
+  const { changePercent24Hr, price, marketCap, volume } = marketData || {}
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
@@ -59,7 +58,7 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
   })
   const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
   const { balances } = useFlattenedBalances()
-  const id = tokenId ?? chain
+  const id = asset.tokenId ?? asset.chain
   const totalBalance = useTotalBalance({ [id]: balances[id] })
 
   return (
@@ -82,9 +81,9 @@ export const AssetHeader = ({ asset, isLoaded }: { asset: AssetMarketData; isLoa
             </Skeleton>
           </Box>
         </Flex>
-        <AssetActions asset={asset} isLoaded={isLoaded} />
+        <AssetActions isLoaded={isLoaded} />
       </Card.Header>
-      <SegwitSelectCard chain={chain} />
+      <SegwitSelectCard chain={asset.chain} />
       <Card.Body>
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>

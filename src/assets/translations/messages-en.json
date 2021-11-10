@@ -14,7 +14,11 @@
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
-    "seeAll": "See All"
+    "seeAll": "See All",
+    "somethingWentWrong": "Something went wrong",
+    "somethingWentWrongBody": "Something went wrong",
+    "transactionFailed": "Transaction Failed",
+    "transactionFailedBody": "Transaction Failed"
   },
   "dashboard": {
     "portfolio": {
@@ -31,7 +35,35 @@
     }
   },
   "earn": {
-    "emptyVaults": "Vaults will appear here"
+    "earn": "Earn",
+    "earnBody": "Earn interest by depositing your assets.",
+    "emptyVaults": "Vaults will appear here",
+    "overview": "Overview",
+    "liquidityPools": "Liquidity Pools",
+    "stakingVaults": "Staking & Vaults",
+    "farming": "Farming",
+    "totalEarningBalance": "Total Earning Balance",
+    "stakingBalance": "Staking Balance",
+    "farmingBalance": "Farming Balance",
+    "liquidityPoolBalance": "Liquidity Pool Balance",
+    "poolValue": "Pool Value",
+    "rewardValue": "Reward Value",
+    "currentAPY": "Current APY",
+    "currentAPR": "Current APR",
+    "empty": {
+      "farming": {
+        "body": "You are not currently farming anything.",
+        "cta": "View Opportunities"
+      },
+      "stakingVaults": {
+        "body": "You have not deposited into a vault or staked your assets.",
+        "cta": "View Opportunities"
+      },
+      "pools": {
+        "body": "You have not deposited into any liquidity pools.",
+        "cta": "View Opportunities"
+      }
+    }
   },
   "navBar": {
     "dashboard": "Dashboard",
@@ -337,6 +369,7 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
+      "stakingBody": "Earn passive income by staking or deposting your assets into a vault.",
       "pools": "Pools"
     }
   },

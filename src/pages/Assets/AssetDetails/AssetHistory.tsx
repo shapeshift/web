@@ -5,20 +5,21 @@ import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
-import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { ReduxState } from 'state/reducer'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
+import { useAsset } from '../Asset'
 import { selectTxHistoryById } from '../helpers/selectTxHistoryById/selectTxHistoryById'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
 
-export const AssetHistory = ({ asset }: { asset: AssetMarketData }) => {
+export const AssetHistory = () => {
   const translate = useTranslate()
-  const { chain, tokenId } = asset
+  const { asset } = useAsset()
   const txs = useSelector((state: ReduxState) =>
-    selectTxHistoryById(state, chain ?? '', tokenId ?? chain)
+    selectTxHistoryById(state, asset.chain ?? '', asset.tokenId ?? asset.chain)
   )
   const { next, data, hasMore } = useInfiniteScroll(txs)
+
   return (
     <Card>
       <Card.Header>

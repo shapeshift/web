@@ -1,5 +1,5 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -33,22 +33,16 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const key = adapter.getType()
+
         try {
           const asset = assetData.find(asset => asset.chain === key)
           if (!asset) throw new Error(`asset not found for chain ${key}`)
 
           const accountType = allAccountTypes[getAccountTypeKey(key)]
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
-          const address = await adapter.getAddress({
-            wallet,
-            ...accountParams
-          })
 
-          if (!address) return
-
-          if (key !== ChainTypes.Ethereum) continue
           await adapter.subscribeTxs(
-            { addresses: [address] },
+            { wallet, ...accountParams },
             msg => {
               dispatch(txHistory.actions.onMessage({ message: msg }))
             },

@@ -113,13 +113,13 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
               fontWeight='normal'
               maximumFractionDigits={4}
               symbol={asset.tokenId ? 'ETH' : asset.symbol}
-              value={current.fee}
+              value={current.txFee}
             />
             <Amount.Fiat
               color='gray.500'
               fontSize='sm'
               fontWeight='normal'
-              value={current.amount}
+              value={current.fiatFee}
             />
           </Button>
         )

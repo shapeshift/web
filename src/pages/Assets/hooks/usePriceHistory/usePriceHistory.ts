@@ -1,10 +1,9 @@
 import { getPriceHistory } from '@shapeshiftoss/market-service'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { Asset, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
-import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 type UsePriceHistory = {
-  asset?: AssetMarketData
+  asset?: Asset
   timeframe: HistoryTimeframe
 }
 
@@ -16,15 +15,19 @@ export const usePriceHistory = ({ asset, timeframe }: UsePriceHistory) => {
     setLoading(true)
     if (asset?.name) {
       ;(async () => {
-        setLoading(true)
-        const data = await getPriceHistory({
-          chain: asset.chain,
-          timeframe,
-          tokenId: asset.tokenId
-        })
-        if (!data) return
-        setData(data)
-        setLoading(false)
+        try {
+          setLoading(true)
+          const data = await getPriceHistory({
+            chain: asset.chain,
+            timeframe,
+            tokenId: asset.tokenId
+          })
+          if (!data) return
+          setData(data)
+          setLoading(false)
+        } catch (error) {
+          // do nothing...
+        }
       })()
     }
   }, [asset, timeframe])

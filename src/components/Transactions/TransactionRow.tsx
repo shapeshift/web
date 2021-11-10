@@ -32,7 +32,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
   const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
-  const sentTx = tx.type === chainAdapters.TxType.send
+  const sentTx = tx.type === chainAdapters.TxType.Send
   const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
 
   useEffect(() => {
@@ -72,13 +72,14 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Text translation={`transactionRow.${tx.type}`} />
           )}
           <Amount.Crypto
-            ml={2}
+            ml={1}
             value={fromBaseUnit(tx.value, 18)}
             symbol={symbol}
             maximumFractionDigits={4}
+            fontWeight='bold'
           />
         </Flex>
-        <RawText>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
+        <RawText color='gray.500'>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
       </Flex>
       <Collapse in={isOpen} unmountOnExit>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>
@@ -105,7 +106,6 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Value>
               {tx?.fee && (
                 <Amount.Crypto
-                  ml={2}
                   value={fromBaseUnit(tx?.fee?.value ?? '0', 18)}
                   symbol={tx?.fee?.symbol}
                   maximumFractionDigits={4}
@@ -118,19 +118,19 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
               <Text translation='transactionRow.status' />
             </Row.Label>
             <Row.Value textAlign='left'>
-              {tx.status === chainAdapters.TxStatus.confirmed && (
+              {tx.status === chainAdapters.TxStatus.Confirmed && (
                 <Tag colorScheme='green' size='lg'>
                   <CheckCircleIcon mr={2} />
                   <Text translation='transactionRow.confirmed' />
                 </Tag>
               )}
-              {tx.status === chainAdapters.TxStatus.pending && (
+              {tx.status === chainAdapters.TxStatus.Pending && (
                 <Tag colorScheme='blue' size='lg'>
                   <CircularProgress mr={2} size='5' />
                   <Text translation='transactionRow.pending' />
                 </Tag>
               )}
-              {tx.status === chainAdapters.TxStatus.failed && (
+              {tx.status === chainAdapters.TxStatus.Failed && (
                 <Tag colorScheme='red' size='lg'>
                   <WarningTwoIcon mr={2} />
                   <Text translation='transactionRow.failed' />

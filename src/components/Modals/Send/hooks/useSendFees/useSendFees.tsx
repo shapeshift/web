@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { FeePrice } from '../../views/Confirm'
 
@@ -26,10 +26,11 @@ export const useSendFees = () => {
         })
         const txFees = (Object.keys(estimatedFees) as chainAdapters.FeeDataKey[]).reduce(
           (acc: FeePrice, key: chainAdapters.FeeDataKey) => {
-            const current = estimatedFees[key]
-            const fee = bnOrZero(current.networkFee).div(`1e${asset.precision}`).toPrecision()
-            const amount = bnOrZero(fee).times(bnOrZero(marketData?.price)).toPrecision()
-            acc[key] = { ...current, fee, amount }
+            const txFee = bnOrZero(estimatedFees[key].txFee)
+              .dividedBy(bn(10).exponentiatedBy(asset.precision))
+              .toPrecision()
+            const fiatFee = bnOrZero(txFee).times(bnOrZero(marketData?.price)).toPrecision()
+            acc[key] = { txFee, fiatFee }
             return acc
           },
           {} as FeePrice

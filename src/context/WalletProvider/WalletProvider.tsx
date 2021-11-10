@@ -1,5 +1,6 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { getConfig } from 'config'
 import React, {
   createContext,
   useCallback,
@@ -123,9 +124,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     if (state.keyring) {
       ;(async () => {
         const adapters: Adapters = new Map()
+        let options: undefined | { portisAppId: string }
         for (const wallet of Object.values(KeyManager)) {
           try {
-            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring)
+            options =
+              wallet === 'portis'
+                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                : undefined
+            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
             await adapter.initialize()
             adapters.set(wallet, adapter)

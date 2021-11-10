@@ -88,6 +88,10 @@ function variantGhostFilled(props: Record<string, any>) {
     _checked: {
       bg: mode(`${c}.500`, darkActiveBg)(props),
       color: 'white'
+    },
+    '.isActive': {
+      bg: mode(`${c}.500`, darkActiveBg)(props),
+      color: 'white'
     }
   }
 }

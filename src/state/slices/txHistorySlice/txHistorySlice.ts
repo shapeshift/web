@@ -49,14 +49,12 @@ export const txHistory = createSlice({
 
 export const selectTxHistory = createSelector(
   (state: ReduxState, { chain }: TxHistorySelect) => {
-    console.log({ chain })
     return chain
       ? Object.values(state.txHistory[chain] ?? {})
       : concat(...Object.values(state.txHistory).map(txMap => Object.values(txMap)))
   },
   (_, { filter }: TxHistorySelect) => {
     if (!filter) return
-    console.log({ filter })
 
     return (tx: Tx): boolean => {
       let hasItem = true

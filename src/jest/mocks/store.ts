@@ -1,6 +1,8 @@
 export const mockStore = {
   assets: {},
-  marketData: {},
+  marketData: {
+    marketData: {}
+  },
   txHistory: {},
   preferences: {}
 } as const

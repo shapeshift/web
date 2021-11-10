@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchMarketCaps } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
@@ -30,6 +31,7 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
 
   useEffect(() => {
     dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+    dispatch(fetchMarketCaps())
   }, [dispatch])
 
   useEffect(() => {

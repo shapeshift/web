@@ -11,9 +11,13 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
   const match = useRouteMatch<{ address: string; network: string }>()
 
   let active = match?.params?.address === asset?.tokenId
-  if (!match?.params?.address && !asset.tokenId) {
+  if (!match?.params?.address && !asset?.tokenId) {
     active = match?.params?.network === asset?.chain
   }
+
+  const color = useColorModeValue('gray.500', 'whiteAlpha.500')
+
+  if (!asset) return null
 
   return (
     <Button
@@ -29,11 +33,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       <AssetIcon src={asset?.icon} boxSize='24px' mr={4} />
       <Box textAlign='left'>
         <Text lineHeight={1}>{asset.symbol}</Text>
-        <Text
-          fontWeight='normal'
-          fontSize='sm'
-          color={useColorModeValue('gray.500', 'whiteAlpha.500')}
-        >
+        <Text fontWeight='normal' fontSize='sm' color={color}>
           {asset.name}
         </Text>
       </Box>

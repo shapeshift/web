@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Asset, ChainTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 

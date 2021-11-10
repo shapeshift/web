@@ -21,7 +21,7 @@
     "swapcli": "yarn build && node ./dist/swappercli.js"
   },
   "dependencies": {
-    "@shapeshiftoss/chain-adapters": "^1.13.2",
+    "@shapeshiftoss/chain-adapters": "^1.13.4",
     "@shapeshiftoss/hdwallet-core": "^1.17.1",
     "@shapeshiftoss/types": "^1.11.2",
     "axios": "^0.21.4",

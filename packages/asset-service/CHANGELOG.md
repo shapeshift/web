@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.5.4...@shapeshiftoss/asset-service-v1.6.0) (2021-11-10)
+
+
+### Features
+
+* add getSendMaxAmount to swapper ([#200](https://github.com/shapeshift/lib/issues/200)) ([1788f5f](https://github.com/shapeshift/lib/commit/1788f5f0aa94334f87452633d572eed4b4feee5d))
+
 # [@shapeshiftoss/asset-service-v1.5.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.5.3...@shapeshiftoss/asset-service-v1.5.4) (2021-11-10)
 
 # [@shapeshiftoss/asset-service-v1.5.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.5.2...@shapeshiftoss/asset-service-v1.5.3) (2021-11-10)

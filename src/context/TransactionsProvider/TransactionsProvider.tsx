@@ -4,7 +4,6 @@ import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { BtcSend } from 'jest/mocks/txs'
 import { getAssetService } from 'lib/assetService'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -47,14 +46,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               },
               (err: any) => console.error(err)
             )
-
-            if (chain === 'bitcoin') {
-              dispatch(
-                txHistory.actions.onMessage({
-                  message: { ...BtcSend, txid: `123${accountType}`, accountType }
-                })
-              )
-            }
           } catch (e) {
             console.error(
               `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,

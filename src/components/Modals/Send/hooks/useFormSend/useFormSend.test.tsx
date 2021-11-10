@@ -102,7 +102,7 @@ const expectedTx = '0xfakeTxHash'
 describe('useFormSend', () => {
   const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
 
-  beforeAll(() => {
+  beforeEach(() => {
     useSelectorMock.mockReturnValue({
       state: {
         preferences: {

@@ -75,7 +75,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             ml={1}
             value={fromBaseUnit(tx.value, asset.precision)}
             symbol={symbol}
-            maximumFractionDigits={6}
+            maximumFractionDigits={Math.min(6, asset.precision)}
             fontWeight='bold'
           />
         </Flex>
@@ -108,7 +108,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
                 <Amount.Crypto
                   value={fromBaseUnit(tx?.fee?.value ?? '0', asset.precision)}
                   symbol={tx?.fee?.symbol}
-                  maximumFractionDigits={6}
+                  maximumFractionDigits={Math.min(6, asset.precision)}
                 />
               )}
             </Row.Value>

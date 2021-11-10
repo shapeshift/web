@@ -194,5 +194,5 @@ export type SendMaxAmountInput = {
   wallet: HDWallet
   quote: Quote<ChainTypes, SwapperType>
   sellAssetAccountId: string
-  feeEstimateKey?: FeeDataKey
+  feeEstimateKey?: FeeDataKey // fee estimate speed
 }

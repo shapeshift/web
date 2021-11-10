@@ -3593,12 +3593,12 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@shapeshiftoss/asset-service@^1.5.3":
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.5.3.tgz#831ee4cd2c59f23b25aa12c4d7232f6a184995c8"
-  integrity sha512-T7ufsPhc012+z5qvEIdYhG4VFwblOwCNtI2kFtQtclacf8ot1sL9J8E4mYTem7aEWlUvQtAFcmidv9iwqaVW0g==
+"@shapeshiftoss/asset-service@^1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.5.4.tgz#9e3dbee3577352a9cf9d8b981cea3c2f13407115"
+  integrity sha512-+AxwXYH2za7mmNxHXHgZUu9tUoWjagLU7eVutZyg3tzppo1E2bhYTOb0X1S2ROtRiyVkRetAqIE24Jj9ydGvgg==
   dependencies:
-    "@shapeshiftoss/caip" "^1.2.0"
+    "@shapeshiftoss/caip" "^1.2.2"
     "@shapeshiftoss/types" "^1.11.2"
     axios "^0.24.0"
     lodash "^4.17.21"

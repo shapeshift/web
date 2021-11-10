@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.2...@shapeshiftoss/types-v1.11.3) (2021-11-10)
+
+
+### Bug Fixes
+
+* add comment to MaxAmountInput ([#211](https://github.com/shapeshift/lib/issues/211)) ([5b95e2e](https://github.com/shapeshift/lib/commit/5b95e2ebb36d0dc92f58607132d1200e01176d82))
+
 # [@shapeshiftoss/types-v1.11.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.1...@shapeshiftoss/types-v1.11.2) (2021-11-09)
 
 # [@shapeshiftoss/types-v1.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.0...@shapeshiftoss/types-v1.11.1) (2021-11-09)

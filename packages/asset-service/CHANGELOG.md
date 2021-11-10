@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.6.0...@shapeshiftoss/asset-service-v1.6.1) (2021-11-10)
+
+
+### Bug Fixes
+
+* asset service initialize ([#207](https://github.com/shapeshift/lib/issues/207)) ([584a58d](https://github.com/shapeshift/lib/commit/584a58d441ef49b50868d773396cc119947b27dc))
+
 # [@shapeshiftoss/asset-service-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.5.4...@shapeshiftoss/asset-service-v1.6.0) (2021-11-10)
 
 

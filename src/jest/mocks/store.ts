@@ -2,5 +2,7 @@ export const mockStore = {
   assets: {},
   marketData: {},
   txHistory: {},
-  preferences: {}
+  preferences: {
+    accountTypes: {}
+  }
 } as const

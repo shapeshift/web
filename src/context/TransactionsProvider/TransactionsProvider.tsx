@@ -1,12 +1,12 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { NetworkTypes } from '@shapeshiftoss/types'
+import { BtcSend } from 'jest/mocks/txs'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { getAssetService } from 'lib/assetService'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type TransactionsProviderProps = {
@@ -20,8 +20,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
 
-  const allAccountTypes = useAllAccountTypes()
-
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
@@ -32,24 +30,33 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
-        const key = adapter.getType()
+        const chain = adapter.getType()
 
-        try {
-          const asset = assetData.find(asset => asset.chain === key)
-          if (!asset) throw new Error(`asset not found for chain ${key}`)
+        const asset = assetData.find(asset => asset.chain === chain)
+        if (!asset) throw new Error(`asset not found for chain ${chain}`)
 
-          const accountType = allAccountTypes[getAccountTypeKey(key)]
+        const accountTypes = supportedAccountTypes[chain] ?? [undefined]
+
+        for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+          try {
+            await adapter.subscribeTxs(
+              { wallet, ...accountParams },
+              msg => {
+                dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
+              },
+              (err: any) => console.error(err)
+            )
 
-          await adapter.subscribeTxs(
-            { wallet, ...accountParams },
-            msg => {
-              dispatch(txHistory.actions.onMessage({ message: msg }))
-            },
-            (err: any) => console.error(err)
-          )
-        } catch (e) {
-          console.error('TransactionProvider: Error subscribing to transaction history', e)
+            if (chain === 'bitcoin') {
+              dispatch(txHistory.actions.onMessage({ message: { ...BtcSend, txid: `123${accountType}`, accountType}}))
+            }
+          } catch (e) {
+            console.error(
+              `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,
+              e
+            )
+          }
         }
       }
     })()

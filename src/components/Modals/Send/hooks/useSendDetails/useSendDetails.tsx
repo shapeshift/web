@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -13,7 +13,6 @@ import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
@@ -77,8 +76,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
-  const currentAccountType: UtxoAccountType = useSelector(
-    (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
+  const currentAccountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
 
   const estimateFees = async (): Promise<chainAdapters.FeeDataEstimate<ChainTypes>> => {

@@ -40,8 +40,8 @@ export const StakingVaults = ({ tokenId, isLoaded }: StakingVaultsProps) => {
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          {VAULTS.map(vault => (
-            <StakingVaultRow {...vault} isLoaded={isLoaded} />
+          {VAULTS.map((vault, i) => (
+            <StakingVaultRow key={i} {...vault} isLoaded={isLoaded} />
           ))}
         </Stack>
         {VAULTS.length === 0 && (

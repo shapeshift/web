@@ -14,6 +14,24 @@ jest.mock('axios')
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
+const EthAsset: Asset = {
+  caip19: 'eip155:3/slip44:60',
+  chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.ETH_ROPSTEN,
+  symbol: 'ETH',
+  name: 'Ropsten Testnet Ethereum',
+  precision: 18,
+  slip44: 1,
+  color: '#FFFFFF',
+  secondaryColor: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+  explorer: 'https://ropsten.etherscan.io/',
+  explorerTxLink: 'https://ropsten.etherscan.io/tx/',
+  sendSupport: false,
+  receiveSupport: false
+}
+
 describe('AssetService', () => {
   const assetFileUrl = 'http://example.com'
   describe('utilities', () => {
@@ -117,9 +135,7 @@ describe('AssetService', () => {
       const assetService = new AssetService(assetFileUrl)
       const description = { en: 'a blue fox' }
       mockedAxios.get.mockResolvedValue({ data: { description } })
-      await expect(assetService.description({ chain: ChainTypes.Ethereum })).resolves.toEqual(
-        description.en
-      )
+      await expect(assetService.description({ asset: EthAsset })).resolves.toEqual(description.en)
     })
 
     it('should throw if not found', async () => {
@@ -128,6 +144,10 @@ describe('AssetService', () => {
       const chain = ChainTypes.Ethereum
       const tokenData = {
         caip19: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+        chain: ChainTypes.Ethereum,
+        explorer: 'https://etherscan.io',
+        explorerTxLink: 'https://etherscan.io/tx/',
+        network: NetworkTypes.MAINNET,
         name: 'Test Token',
         precision: 18,
         tokenId: '0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
@@ -135,6 +155,7 @@ describe('AssetService', () => {
         color: '#FFFFFF',
         dataSource: AssetDataSource.CoinGecko,
         secondaryColor: '#FFFFFF',
+        slip44: 60,
         icon: 'https://assets.coingecko.com/coins/images/17049/thumb/BUNNY.png?1626148809',
         sendSupport: true,
         receiveSupport: true,
@@ -143,8 +164,7 @@ describe('AssetService', () => {
       const expectedErrorMessage = `AssetService:description: no description availble for ${tokenData.tokenId} on chain ${chain}`
       await expect(
         assetService.description({
-          chain,
-          tokenData
+          asset: tokenData
         })
       ).rejects.toEqual(new Error(expectedErrorMessage))
     })

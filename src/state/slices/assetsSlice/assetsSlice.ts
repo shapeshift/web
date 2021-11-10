@@ -21,9 +21,10 @@ export const fetchAsset = createAsyncThunk(
       const service = await getAssetService()
 
       const assetData = service?.byTokenId({ chain, network, tokenId })
-      const description = tokenId
-        ? await service?.description({ chain })
-        : await service?.description({ chain, tokenData: assetData as TokenAsset })
+      const description = await service?.description({
+        chain,
+        tokenData: tokenId ? (assetData as TokenAsset) : undefined
+      })
       if (!assetData) return {}
       if (!description) return { [tokenId || chain]: assetData }
       return { [tokenId || chain]: { ...assetData, description } }

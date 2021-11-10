@@ -2794,6 +2794,11 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
+"@shapeshiftoss/types@^1.11.2":
+  version "1.11.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.11.2.tgz#0472f975c779c03e23a637f9e88bca34805b86af"
+  integrity sha512-+aJy7lh3nLX2/PbKBeT9hOyHKfkmKiF84y+Pi5mCzGEFp4028DpBDdeqvbRcf2y6wzxGfMcYad4dZgA++3HOkw==
+
 "@shapeshiftoss/unchained-client@^3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-3.3.0.tgz#81aa40361a627878bd3678af2abbf517a5c65f62"

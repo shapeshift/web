@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.2.2...@shapeshiftoss/market-service-v1.3.0) (2021-11-10)
+
+
+### Features
+
+* add getSendMaxAmount to swapper ([#200](https://github.com/shapeshift/lib/issues/200)) ([1788f5f](https://github.com/shapeshift/lib/commit/1788f5f0aa94334f87452633d572eed4b4feee5d))
+
 # [@shapeshiftoss/market-service-v1.2.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.2.1...@shapeshiftoss/market-service-v1.2.2) (2021-11-10)
 
 # [@shapeshiftoss/market-service-v1.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.2.0...@shapeshiftoss/market-service-v1.2.1) (2021-11-09)

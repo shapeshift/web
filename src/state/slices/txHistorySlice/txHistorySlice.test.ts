@@ -1,3 +1,4 @@
+import { Bitcoin } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend } from 'jest/mocks/txs'
@@ -54,10 +55,10 @@ describe('txHistorySlice', () => {
         ...mockStore,
         txHistory: {
           [ChainTypes.Ethereum]: {
-            [EthSend.txid]: { ...EthSend }
+            [EthSend.txid]: EthSend
           },
           [ChainTypes.Bitcoin]: {
-            [BtcSend.txid]: { ...BtcSend }
+            [BtcSend.txid]: BtcSend
           }
         }
       }
@@ -72,10 +73,10 @@ describe('txHistorySlice', () => {
         ...mockStore,
         txHistory: {
           [ChainTypes.Ethereum]: {
-            [EthSend.txid]: { ...EthSend }
+            [EthSend.txid]: EthSend
           },
           [ChainTypes.Bitcoin]: {
-            [BtcSend.txid]: { ...BtcSend }
+            [BtcSend.txid]: BtcSend
           }
         }
       }
@@ -90,11 +91,16 @@ describe('txHistorySlice', () => {
         ...mockStore,
         txHistory: {
           [ChainTypes.Ethereum]: {
-            [EthSend.txid]: { ...EthSend },
-            [EthReceive.txid]: { ...EthReceive },
+            [EthSend.txid]: EthSend,
+            [EthReceive.txid]: EthReceive,
             [`${EthReceive.txid}z`]: { ...EthReceive, txid: `${EthReceive.txid}z`, asset: '123' }
           },
-          [ChainTypes.Bitcoin]: {}
+          [ChainTypes.Bitcoin]: {
+            [BtcSend.txid]: { ...BtcSend, accountType: 'segwit' },
+            [`${BtcSend.txid}x`]: { ...BtcSend, accountType: 'segwit-native' },
+            [`${BtcSend.txid}y`]: { ...BtcSend, accountType: 'segwit-native' }
+
+          }
         }
       }
 
@@ -131,6 +137,22 @@ describe('txHistorySlice', () => {
         }
       })
       expect(result.length).toBe(1)
+
+      result = selectTxHistory(store, {
+        chain: ChainTypes.Bitcoin,
+        filter: {
+          accountType: 'segwit'
+        }
+      })
+      expect(result.length).toBe(1)
+
+      result = selectTxHistory(store, {
+        chain: ChainTypes.Bitcoin,
+        filter: {
+          accountType: 'segwit-native'
+        }
+      })
+      expect(result.length).toBe(2)
     })
 
     it('should sort txs', () => {

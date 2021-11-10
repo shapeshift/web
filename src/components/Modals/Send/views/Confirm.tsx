@@ -120,7 +120,7 @@ export const Confirm = () => {
             <Row.Value>
               <Amount.Crypto
                 textTransform='uppercase'
-                maximumFractionDigits={4}
+                maximumFractionDigits={6}
                 symbol={crypto.symbol}
                 value={crypto.amount}
               />

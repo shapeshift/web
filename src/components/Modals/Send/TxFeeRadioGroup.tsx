@@ -111,7 +111,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             <Amount.Crypto
               fontSize='sm'
               fontWeight='normal'
-              maximumFractionDigits={4}
+              maximumFractionDigits={6}
               symbol={asset.tokenId ? 'ETH' : asset.symbol}
               value={current.txFee}
             />

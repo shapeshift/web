@@ -11,7 +11,9 @@ import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const { totalBalance, loading } = usePortfolio()
+  const { totalBalance, loading, balances } = usePortfolio()
+
+  balances && console.info(balances)
 
   if (loading)
     return (

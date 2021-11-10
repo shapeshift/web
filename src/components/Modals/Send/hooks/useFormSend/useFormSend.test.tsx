@@ -1,5 +1,11 @@
 import { useToast } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import {
+  AssetDataSource,
+  chainAdapters,
+  ChainTypes,
+  NetworkTypes,
+  UtxoAccountType
+} from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -31,6 +37,7 @@ const formData: SendInput = {
     volume: '',
     changePercent24Hr: 0,
     chain: ChainTypes.Ethereum,
+    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',

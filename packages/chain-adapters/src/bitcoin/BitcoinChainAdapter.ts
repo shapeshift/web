@@ -327,7 +327,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
   async getAddress({
     wallet,
     bip32Params = ChainAdapter.defaultBIP32Params,
-    scriptType = BTCInputScriptType.SpendWitness
+    scriptType = BTCInputScriptType.SpendWitness,
+    showOnDevice = false
   }: chainAdapters.bitcoin.GetAddressInput): Promise<string> {
     if (!supportsBTC(wallet)) {
       throw new Error('BitcoinChainAdapter: wallet does not support btc')
@@ -350,7 +351,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     const btcAddress = await wallet.btcGetAddress({
       addressNList,
       coin: this.coinName,
-      scriptType
+      scriptType,
+      showDisplay: Boolean(showOnDevice)
     })
     if (!btcAddress) throw new Error('BitcoinChainAdapter: no btcAddress available from wallet')
     return btcAddress

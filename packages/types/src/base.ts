@@ -1,6 +1,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
-import { QuoteFeeData, SignTxInput } from './chain-adapters'
+import { FeeDataKey, QuoteFeeData, SignTxInput } from './chain-adapters'
 
 /** Common */
 
@@ -188,4 +188,11 @@ export type ApprovalNeededOutput = {
 export type ApproveInfiniteInput<C extends ChainTypes, S extends SwapperType> = {
   quote: Quote<C, S>
   wallet: HDWallet
+}
+
+export type SendMaxAmountInput = {
+  wallet: HDWallet
+  quote: Quote<ChainTypes, SwapperType>
+  sellAssetAccountId: string
+  feeEstimateKey?: FeeDataKey
 }

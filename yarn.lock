@@ -3663,7 +3663,14 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/caip@^1.2.0", "@shapeshiftoss/caip@^1.3.0":
+"@shapeshiftoss/caip@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.2.0.tgz#bdcf20f6b6de970fc71e979cdfd0db25b2c2b3c0"
+  integrity sha512-1tHEkLrdGJ7sKZST69MrrbI6AeUbzVTweY4y2Nsosx6Zg3oVMqP/pQPDRyIlB7otUoCfP6uNm8Fx00KYRXqhMg==
+  dependencies:
+    "@shapeshiftoss/types" "^1.4.0"
+
+"@shapeshiftoss/caip@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.3.0.tgz#e0e749860dc4a33fc377dc6338ee331b777c7ad6"
   integrity sha512-pUba4o3nnWqNvOH6vycH3eK+hlgTAxDgty6vh30RaYhCdxhOz6xVxz/bJyc0OJDovskA9avtilghMpESDSWJ9g==
@@ -3906,6 +3913,11 @@
   version "1.11.3"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.11.3.tgz#cb3763fd8c4ba745a4deb4c62cb7fd8f60356609"
   integrity sha512-DCVcZyMREs8aXVaBW3P3fmFA2j4T7YVffh0x0lErh8TmCJmjQ+KV74QyCc7akeRqnmKyzEzuz3EXuFoBF+F9vA==
+
+"@shapeshiftoss/types@^1.4.0":
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.9.0.tgz#ae0352d6559e2d4757701bfeadd5f0cdad4d8838"
+  integrity sha512-X6p19KLKsOpu+DeWnaLCPq+TPqq2KuemeSMM6JcCmRsb3zRXSBgmumVAMQeL60UB1TytgJ6ggYdk8kUd2ZklLg==
 
 "@shapeshiftoss/unchained-client@^3.4.0":
   version "3.4.0"

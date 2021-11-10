@@ -19,7 +19,9 @@ export const selectAndSortAssets = createSelector(
       }, {})
       const caip19ByMarketCap = Object.keys(marketCap)
       const sortedWithMarketCap = caip19ByMarketCap.reduce<FullAsset[]>((acc, cur) => {
-        acc.push(assetsByCAIP19[cur])
+        const asset = assetsByCAIP19[cur]
+        if (!asset) return acc
+        acc.push(asset)
         delete assetsByCAIP19[cur]
         return acc
       }, [])

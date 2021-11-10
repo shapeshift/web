@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.10.7...@shapeshiftoss/swapper-v1.11.0) (2021-11-10)
+
+
+### Features
+
+* add getSendMaxAmount to swapper ([#200](https://github.com/shapeshift/lib/issues/200)) ([1788f5f](https://github.com/shapeshift/lib/commit/1788f5f0aa94334f87452633d572eed4b4feee5d))
+
 # [@shapeshiftoss/swapper-v1.10.7](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.10.6...@shapeshiftoss/swapper-v1.10.7) (2021-11-10)
 
 # [@shapeshiftoss/swapper-v1.10.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.10.5...@shapeshiftoss/swapper-v1.10.6) (2021-11-10)

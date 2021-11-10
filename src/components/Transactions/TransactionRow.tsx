@@ -72,13 +72,14 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Text translation={`transactionRow.${tx.type}`} />
           )}
           <Amount.Crypto
-            ml={2}
+            ml={1}
             value={fromBaseUnit(tx.value, 18)}
             symbol={symbol}
             maximumFractionDigits={4}
+            fontWeight='bold'
           />
         </Flex>
-        <RawText>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
+        <RawText color='gray.500'>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
       </Flex>
       <Collapse in={isOpen} unmountOnExit>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>
@@ -105,7 +106,6 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Value>
               {tx?.fee && (
                 <Amount.Crypto
-                  ml={2}
                   value={fromBaseUnit(tx?.fee?.value ?? '0', 18)}
                   symbol={tx?.fee?.symbol}
                   maximumFractionDigits={4}

@@ -1,4 +1,5 @@
 import { TimeIcon } from '@chakra-ui/icons'
+import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -9,6 +10,11 @@ import { Assets } from 'pages/Assets/Assets'
 import { AssetSidebar } from 'pages/Assets/AssetSidebar'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
+import { EarnSidebar } from 'pages/Earn/components/EarnSidebar'
+import { Farming } from 'pages/Earn/views/Farming'
+import { LiquidityPools } from 'pages/Earn/views/LiquidityPools'
+import { Overview } from 'pages/Earn/views/Overview'
+import { StakingVaults } from 'pages/Earn/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
 import { TradeHistory } from 'pages/TradeHistory/TradeHistory'
 
@@ -38,6 +44,46 @@ export const routes: Array<NestedRoute> = [
     ]
   },
   {
+    path: '/earn',
+    label: 'navBar.earn',
+    icon: <FaPiggyBank />,
+    main: null,
+    disable: true,
+    leftSidebar: <EarnSidebar />,
+    routes: [
+      {
+        path: '/',
+        label: 'earn.overview',
+        main: <Overview />,
+        icon: <FaTable />,
+        leftSidebar: <EarnSidebar />
+      },
+      {
+        path: '/liquidity-pools',
+        label: 'earn.liquidityPools',
+        main: <LiquidityPools />,
+        icon: <FaWater />,
+        leftSidebar: <EarnSidebar />,
+        disable: true
+      },
+      {
+        path: '/staking-vaults',
+        label: 'earn.stakingVaults',
+        main: <StakingVaults />,
+        icon: <FaLock />,
+        leftSidebar: <EarnSidebar />
+      },
+      {
+        path: '/farming',
+        label: 'earn.farming',
+        main: <Farming />,
+        icon: <FaTractor />,
+        leftSidebar: <EarnSidebar />,
+        disable: true
+      }
+    ]
+  },
+  {
     path: '/trade-history',
     label: 'navBar.tradeHistory',
     icon: <TimeIcon />,
@@ -60,7 +106,7 @@ export const Routes = () => {
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
         return (
-          <Route key={index} path={route.path}>
+          <Route key={index} path={route.path} exact>
             <Layout route={route} />
           </Route>
         )

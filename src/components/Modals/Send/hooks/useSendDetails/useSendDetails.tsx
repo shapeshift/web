@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
@@ -89,26 +90,37 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
-    const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
-
-    const from = await adapter.getAddress({
-      wallet,
-      ...accountParams
-    })
-
     switch (values.asset.chain) {
       case ChainTypes.Ethereum: {
+        const from = await adapter.getAddress({
+          wallet
+        })
         const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
         return ethereumChainAdapter.getFeeData({
-          from,
           to: values.address,
           value,
-          contractAddress: values.asset.tokenId
+          chainSpecific: { from, contractAddress: values.asset.tokenId }
         })
       }
       case ChainTypes.Bitcoin: {
+        const accountParams = utxoAccountParams(asset, currentAccountType, 0)
+        const pubkeys = await wallet.getPublicKeys([
+          {
+            coin: adapter.getType(),
+            addressNList: bip32ToAddressNList(toPath(accountParams.bip32Params)),
+            curve: 'secp256k1',
+            scriptType: accountParams.scriptType
+          }
+        ])
+
+        if (!pubkeys || !pubkeys[0]) throw new Error('no pubkeys')
+
         const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
-        return bitcoinChainAdapter.getFeeData({ from, to: values.address, value })
+        return bitcoinChainAdapter.getFeeData({
+          to: values.address,
+          value,
+          chainSpecific: { pubkey: pubkeys[0].xpub }
+        })
       }
       default:
         throw new Error('unsupported chain type')
@@ -149,15 +161,35 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
           const contractAddress = tokenId
           const value = asset.tokenId ? '0' : assetBalance.balance
-          const adapterFees = await ethAdapter.getFeeData({ to, from, value, contractAddress })
-          fastFee = adapterFees.fast.chainSpecific.feePerTx
+          const adapterFees = await ethAdapter.getFeeData({
+            to,
+            value,
+            chainSpecific: { contractAddress, from }
+          })
+          fastFee = adapterFees.fast.txFee
           break
         }
         case ChainTypes.Bitcoin: {
+          const accountParams = utxoAccountParams(asset, currentAccountType, 0)
+          const pubkeys = await wallet.getPublicKeys([
+            {
+              coin: adapter.getType(),
+              addressNList: bip32ToAddressNList(toPath(accountParams.bip32Params)),
+              curve: 'secp256k1',
+              scriptType: accountParams.scriptType
+            }
+          ])
+
+          if (!pubkeys || !pubkeys[0]) throw new Error('no pubkeys')
+
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance.balance
-          const adapterFees = await btcAdapter.getFeeData({ to, from, value })
-          fastFee = adapterFees.fast.feePerUnit
+          const adapterFees = await btcAdapter.getFeeData({
+            to,
+            value,
+            chainSpecific: { pubkey: pubkeys[0].xpub }
+          })
+          fastFee = adapterFees.fast.txFee
           break
         }
         default: {

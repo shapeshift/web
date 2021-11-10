@@ -15,19 +15,25 @@ jest.mock('hooks/useAsset/useAsset')
 
 const fees = {
   [chainAdapters.FeeDataKey.Slow]: {
-    feeUnits: '42000',
-    feeUnitPrice: '76000000000',
-    networkFee: '3100000000000000'
+    txFee: '42000000000',
+    chainSpecific: {
+      gasPrice: '123456700',
+      gasLimit: '123456700'
+    }
   },
   [chainAdapters.FeeDataKey.Average]: {
-    feeUnits: '42000',
-    feeUnitPrice: '118000000000',
-    networkFee: '4900000000000000'
+    txFee: '42000000000',
+    chainSpecific: {
+      gasPrice: '123456700',
+      gasLimit: '123456700'
+    }
   },
   [chainAdapters.FeeDataKey.Fast]: {
-    feeUnits: '42000',
-    feeUnitPrice: '145845250000',
-    networkFee: '6120000000000000'
+    txFee: '42000000000',
+    chainSpecific: {
+      gasPrice: '123456700',
+      gasLimit: '123456700'
+    }
   }
 }
 
@@ -69,9 +75,9 @@ describe('useSendFees', () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({ asset: ethAsset, estimatedFees: fees })
       await waitForValueToChange(() => result.current.fees)
-      expect(result.current.fees?.slow.amount).toBe('10.85')
-      expect(result.current.fees?.average.amount).toBe('17.15')
-      expect(result.current.fees?.fast.amount).toBe('21.42')
+      expect(result.current.fees?.slow.fiatFee).toBe('0.000147')
+      expect(result.current.fees?.average.fiatFee).toBe('0.000147')
+      expect(result.current.fees?.fast.fiatFee).toBe('0.000147')
     })
   })
 

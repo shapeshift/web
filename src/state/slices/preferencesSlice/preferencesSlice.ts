@@ -29,7 +29,3 @@ export const preferences = createSlice({
     }
   }
 })
-
-export const getAccountTypeKey = (chain: ChainTypes) => {
-  return `accountType_${chain}`
-}

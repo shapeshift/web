@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
@@ -21,10 +21,9 @@ export const fetchAsset = createAsyncThunk(
       const service = await getAssetService()
 
       const assetData = service?.byTokenId({ chain, network, tokenId })
-      const description = await service?.description({
-        chain,
-        tokenData: tokenId ? assetData : null
-      })
+      const description = tokenId
+        ? await service?.description({ chain })
+        : await service?.description({ chain, tokenData: assetData as TokenAsset })
       if (!assetData) return {}
       if (!description) return { [tokenId || chain]: assetData }
       return { [tokenId || chain]: { ...assetData, description } }

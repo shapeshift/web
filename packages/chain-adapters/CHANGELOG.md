@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.5...@shapeshiftoss/chain-adapters-v1.14.0) (2021-11-10)
+
+
+### Features
+
+* add getSendMaxAmount to swapper ([#200](https://github.com/shapeshift/lib/issues/200)) ([1788f5f](https://github.com/shapeshift/lib/commit/1788f5f0aa94334f87452633d572eed4b4feee5d))
+
 # [@shapeshiftoss/chain-adapters-v1.13.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.4...@shapeshiftoss/chain-adapters-v1.13.5) (2021-11-10)
 
 

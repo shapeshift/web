@@ -1,4 +1,10 @@
-import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset,
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 
 import { filterAssetsBySearchTerm } from './filterAssetsBySearchTerm'
 
@@ -6,6 +12,7 @@ const assets: Asset[] = [
   {
     caip19: 'eip155:1/slip44:60',
     chain: ChainTypes.Ethereum,
+    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     symbol: 'ETH',
     name: 'Ethereum',
@@ -22,6 +29,7 @@ const assets: Asset[] = [
   {
     caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     chain: ChainTypes.Bitcoin,
+    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     symbol: 'BTC',
     name: 'Bitcoin',
@@ -38,6 +46,7 @@ const assets: Asset[] = [
   {
     caip19: 'eip155:1/erc20:0x79be75ffc64dd58e66787e4eae470c8a1fd08ba4',
     chain: ChainTypes.Ethereum,
+    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     name: 'Aave AMM DAI',
     precision: 18,
@@ -56,6 +65,7 @@ const assets: Asset[] = [
   {
     caip19: 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
     chain: ChainTypes.Ethereum,
+    dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
     name: 'Dai',
     precision: 18,

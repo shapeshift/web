@@ -1,7 +1,13 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag, useToast } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
-import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset,
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
@@ -60,6 +66,7 @@ const makeVaultAsset = (vault: YearnVault): Asset => {
     chain: ChainTypes.Ethereum,
     color: '#FFFFFF',
     contractType: ContractTypes.ERC20,
+    dataSource: AssetDataSource.CoinGecko,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     icon: vault.icon,

@@ -1,4 +1,10 @@
-import { Asset, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset,
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 
 export const rune: Asset = {
   caip19: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
@@ -7,6 +13,7 @@ export const rune: Asset = {
   tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
   contractType: ContractTypes.ERC20,
   color: '#FFFFFF',
+  dataSource: AssetDataSource.CoinGecko,
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/13677/thumb/IMG_20210123_132049_458.png?1612179252',
   explorer: 'https://etherscan.io',
@@ -22,6 +29,7 @@ export const rune: Asset = {
 export const ethereum: Asset = {
   caip19: 'eip155:1/slip44:60',
   chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   symbol: 'ETH',
   name: 'Ethereum',
@@ -39,6 +47,7 @@ export const ethereum: Asset = {
 export const aapl: Asset = {
   caip19: 'eip155:1/erc20:0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
   chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
   contractType: ContractTypes.ERC20,
@@ -58,6 +67,7 @@ export const aapl: Asset = {
 export const zero: Asset = {
   caip19: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',
   chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
   contractType: ContractTypes.ERC20,
@@ -77,6 +87,7 @@ export const zero: Asset = {
 export const fox: Asset = {
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
   network: NetworkTypes.MAINNET,
   color: '#FFFFFF',
   contractType: ContractTypes.ERC20,

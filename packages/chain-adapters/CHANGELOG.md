@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.13.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.4...@shapeshiftoss/chain-adapters-v1.13.5) (2021-11-10)
+
+
+### Bug Fixes
+
+* pass through optional param to verify btc address on device ([#212](https://github.com/shapeshift/lib/issues/212)) ([97811ad](https://github.com/shapeshift/lib/commit/97811adeae1ee51be815f11724afe00a446cd45c))
+
 # [@shapeshiftoss/chain-adapters-v1.13.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.3...@shapeshiftoss/chain-adapters-v1.13.4) (2021-11-10)
 
 # [@shapeshiftoss/chain-adapters-v1.13.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.2...@shapeshiftoss/chain-adapters-v1.13.3) (2021-11-09)

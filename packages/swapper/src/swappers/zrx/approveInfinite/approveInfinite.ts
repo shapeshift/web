@@ -4,6 +4,7 @@ import { AxiosResponse } from 'axios'
 
 import { SwapError } from '../../../api'
 import { erc20Abi } from '../utils/abi/erc20-abi'
+import { bnOrZero } from '../utils/bignumber'
 import { AFFILIATE_ADDRESS, DEFAULT_SLIPPAGE, MAX_ALLOWANCE } from '../utils/constants'
 import { grantAllowance } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
@@ -15,7 +16,7 @@ export async function approveInfinite(
 ) {
   const adapter: ChainAdapter<ChainTypes.Ethereum> = adapterManager.byChain(ChainTypes.Ethereum)
   const bip32Params = adapter.buildBIP32Params({
-    accountNumber: Number(quote.sellAssetAccountId || quote.sellAssetAccountId) || 0
+    accountNumber: bnOrZero(quote.sellAssetAccountId).toNumber()
   }) // TODO: Add account number
   const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
 

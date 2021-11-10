@@ -11,6 +11,7 @@ import {
   GetQuoteInput,
   MinMaxOutput,
   Quote,
+  SendMaxAmountInput,
   SwapperType
 } from '@shapeshiftoss/types'
 import Web3 from 'web3'
@@ -22,8 +23,8 @@ import { buildQuoteTx } from './buildQuoteTx/buildQuoteTx'
 import { executeQuote } from './executeQuote/executeQuote'
 import { getMinMax } from './getMinMax/getMinMax'
 import { getZrxQuote } from './getQuote/getQuote'
+import { getSendMaxAmount } from './getSendMaxAmount/getSendMaxAmount'
 import { getUsdRate } from './utils/helpers/helpers'
-
 export type ZrxSwapperDeps = {
   adapterManager: ChainAdapterManager
   web3: Web3
@@ -91,5 +92,9 @@ export class ZrxSwapper implements Swapper {
 
   async approveInfinite(args: ApproveInfiniteInput<ChainTypes, SwapperType>): Promise<string> {
     return approveInfinite(this.deps, args)
+  }
+
+  async getSendMaxAmount(args: SendMaxAmountInput): Promise<string> {
+    return getSendMaxAmount(this.deps, args)
   }
 }

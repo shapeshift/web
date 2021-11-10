@@ -1,10 +1,10 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import Web3 from 'web3'
 
 import { APPROVAL_GAS_LIMIT } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
+import { setupZrxDeps } from '../utils/test-data/setupZrxDeps'
 import { zrxService } from '../utils/zrxService'
 import { approvalNeeded } from './approvalNeeded'
 
@@ -28,23 +28,8 @@ Web3.mockImplementation(() => ({
   }
 }))
 
-const setup = () => {
-  const unchainedUrls = {
-    [ChainTypes.Ethereum]: {
-      httpUrl: 'http://localhost:31300',
-      wsUrl: 'ws://localhost:31300'
-    }
-  }
-  const ethNodeUrl = 'http://localhost:1000'
-  const adapterManager = new ChainAdapterManager(unchainedUrls)
-  const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
-  const web3 = new Web3(web3Provider)
-
-  return { web3, adapterManager }
-}
-
 describe('approvalNeeded', () => {
-  const { web3, adapterManager } = setup()
+  const { web3Instance: web3, adapterManager } = setupZrxDeps()
   const args = { web3, adapterManager }
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
   const wallet = ({

@@ -1,4 +1,3 @@
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
@@ -13,10 +12,10 @@ import {
   normalizeAmount
 } from '../helpers/helpers'
 import { setupQuote } from '../test-data/setupSwapQuote'
+import { setupZrxDeps } from '../test-data/setupZrxDeps'
 import { zrxService } from '../zrxService'
 
 jest.mock('web3')
-jest.mock('@shapeshiftoss/chain-adapters')
 const axios = jest.createMockFromModule('axios')
 
 //@ts-ignore
@@ -36,29 +35,9 @@ Web3.mockImplementation(() => ({
   }
 }))
 
-// @ts-ignore
-ChainAdapterManager.mockImplementation(() => ({
-  byChain: jest.fn(() => ({
-    buildBIP32Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
-    buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: {} })),
-    signTransaction: jest.fn(() => Promise.resolve('signedTx')),
-    broadcastTransaction: jest.fn(() => Promise.resolve('broadcastedTx'))
-  }))
-}))
-
 const setup = () => {
-  const unchainedUrls = {
-    [ChainTypes.Ethereum]: {
-      httpUrl: 'http://localhost:31300',
-      wsUrl: 'ws://localhost:31300'
-    }
-  }
-  const adapterManager = new ChainAdapterManager(unchainedUrls)
+  const { web3Instance, adapterManager } = setupZrxDeps()
   const adapter = adapterManager.byChain(ChainTypes.Ethereum)
-
-  const ethNodeUrl = 'http://localhost:1000'
-  const web3Provider = new Web3.providers.HttpProvider(ethNodeUrl)
-  const web3Instance = new Web3(web3Provider)
 
   return { web3Instance, adapter }
 }

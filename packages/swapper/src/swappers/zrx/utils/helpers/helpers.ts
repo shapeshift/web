@@ -107,9 +107,12 @@ export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Prom
       }
     }
   )
-  if (!rateResponse.data.price) throw new ZrxError('getUsdRate - Failed to get price data')
 
-  return new BigNumber(1).dividedBy(rateResponse.data.price).toString()
+  const price = new BigNumber(rateResponse.data.price)
+
+  if (!price.gt(0)) throw new ZrxError('getUsdRate - Failed to get price data')
+
+  return new BigNumber(1).dividedBy(price).toString()
 }
 
 export const grantAllowance = async ({

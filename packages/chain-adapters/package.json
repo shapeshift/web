@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.17.1",
-    "@shapeshiftoss/types": "^1.11.2",
+    "@shapeshiftoss/types": "^1.11.3",
     "@shapeshiftoss/unchained-client": "^3.3.0",
     "axios": "^0.21.2",
     "bignumber.js": "^9.0.1",

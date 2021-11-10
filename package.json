@@ -18,7 +18,7 @@
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.17.1",
     "@shapeshiftoss/hdwallet-metamask": "^1.17.1",
     "@shapeshiftoss/hdwallet-native": "^1.17.1",
-    "@shapeshiftoss/swapper": "^1.10.6",
+    "@shapeshiftoss/swapper": "^1.10.7",
     "@shapeshiftoss/types": "^1.11.2",
     "@shapeshiftoss/hdwallet-portis": "^1.17.1",
     "@shapeshiftoss/market-service": "^1.2.2",

@@ -3677,22 +3677,6 @@
   dependencies:
     "@shapeshiftoss/types" "^1.11.2"
 
-"@shapeshiftoss/chain-adapters@^1.13.2":
-  version "1.13.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.13.3.tgz#54da165f57d60d402709387c63227852eff4f302"
-  integrity sha512-wwH3CNap7NhYAScBrdv4h9EihW+TB0S1vADBKOrmMNQ187Hb/HczTGB/Murjq7uMdKchvKmZlyyZ7nLiH0/Mjg==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.17.1"
-    "@shapeshiftoss/types" "^1.11.1"
-    "@shapeshiftoss/unchained-client" "^3.3.0"
-    axios "^0.21.2"
-    bignumber.js "^9.0.1"
-    bitcoinjs-lib "^5.2.0"
-    coinselect "^3.1.12"
-    ethers "^5.4.7"
-    multicoin-address-validator "^0.5.2"
-    web3-utils "^1.6.0"
-
 "@shapeshiftoss/chain-adapters@^1.13.4":
   version "1.13.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.13.4.tgz#ab03f6f490b9aa67a8191a01d0cb9c89af2ed6e8"
@@ -3904,12 +3888,12 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.10.6":
-  version "1.10.6"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.10.6.tgz#d936c5143f9144f1bd38cbf1a561865e00c3cd7d"
-  integrity sha512-7WKtSgk2takth/cBbYdj+SlX0LZr1P40j0BxQmhCX3HC9Q6KmkhYCH7ZijjyQ+089BLJn+gf0aCabfMYKr/WZQ==
+"@shapeshiftoss/swapper@^1.10.7":
+  version "1.10.7"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.10.7.tgz#88b6a4ce6ce7a6cb1e4eb6271be54a323133ecad"
+  integrity sha512-OlVsw3YzuH4Yl5L15diGRmRELmgwMWdCTLfVr67MV0ME8g5zU2Nb0/oIvNlu6RsLk0JnwkNPgWhqKEdB+V+1uQ==
   dependencies:
-    "@shapeshiftoss/chain-adapters" "^1.13.2"
+    "@shapeshiftoss/chain-adapters" "^1.13.4"
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
     "@shapeshiftoss/types" "^1.11.2"
     axios "^0.21.4"
@@ -3924,11 +3908,6 @@
   dependencies:
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
-
-"@shapeshiftoss/types@^1.11.1":
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.11.1.tgz#33bdf25c156804bc52212418fc567af73c22e79f"
-  integrity sha512-vV5QU8EoJYETp9j4D//M5TpX2IF5qJze2iGI01IRXs+gkpzTKeWD4vpSh/m5IzS+rDrc9oDgZqmsj8SooieY2g==
 
 "@shapeshiftoss/types@^1.11.2":
   version "1.11.2"

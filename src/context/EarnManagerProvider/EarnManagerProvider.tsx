@@ -1,4 +1,5 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { YearnProvider } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -54,19 +55,21 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const background = location.state && location.state.background
 
   return (
-    <EarnManagerContext.Provider value={null}>
-      {children}
-      {background && (
-        <Route
-          path='/earn/:earnType/:provider/:action'
-          render={({ match: { params } }) => {
-            const { provider } = params
-            const Module = EarnModules[provider as EarnProvider]
-            return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
-          }}
-        />
-      )}
-    </EarnManagerContext.Provider>
+    <YearnProvider>
+      <EarnManagerContext.Provider value={null}>
+        {children}
+        {background && (
+          <Route
+            path='/earn/:earnType/:provider/:action'
+            render={({ match: { params } }) => {
+              const { provider } = params
+              const Module = EarnModules[provider as EarnProvider]
+              return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
+            }}
+          />
+        )}
+      </EarnManagerContext.Provider>
+    </YearnProvider>
   )
 }
 

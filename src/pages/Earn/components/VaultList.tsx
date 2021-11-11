@@ -10,6 +10,8 @@ import { SUPPORTED_VAULTS } from 'context/EarnManagerProvider/providers/yearn/co
 
 import { StakingCard } from './StakingCard'
 
+// find active positions with suppported vaults
+
 export const VaultList = () => {
   return (
     <Box mb={6}>

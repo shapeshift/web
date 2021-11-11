@@ -1,4 +1,4 @@
-import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
@@ -50,7 +50,7 @@ export const useBalances = (): UseBalancesReturnType => {
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toPath(bip32Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
               curve: 'secp256k1',
               scriptType
             }

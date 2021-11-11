@@ -5,7 +5,6 @@ import {
   SUPPORTED_VAULTS,
   SupportedYearnVault
 } from 'features/earn/providers/yearn/constants/vaults'
-import { toLower } from 'lodash'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -25,14 +24,14 @@ async function getYearnVaults(
   const acc: Record<string, EarnVault> = {}
   for (let index = 0; index < SUPPORTED_VAULTS.length; index++) {
     const vault = SUPPORTED_VAULTS[index]
-    const balance = balances[toLower(vault.vaultAddress)]
+    const balance = balances[vault.vaultAddress]
 
     if (balance) {
       const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
       acc[vault.vaultAddress] = {
         ...vault,
         ...balance,
-        pricePerShare: pricePerShare || bnOrZero(0)
+        pricePerShare: bnOrZero(pricePerShare)
       }
     }
   }

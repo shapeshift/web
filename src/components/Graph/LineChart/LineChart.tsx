@@ -74,7 +74,7 @@ export const LineChart = ({
           scale={xScale}
           numTicks={width > 520 ? 5 : 5}
           stroke={strokeColor}
-          strokeWidth={1}
+          strokeWidth={0}
           hideTicks={true}
           tickLabelProps={() => AXIS_BOTTOM_TICK_LABEL_PROPS}
         />

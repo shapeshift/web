@@ -1,5 +1,6 @@
 import { HistoryData } from '@shapeshiftoss/types'
 import { localPoint } from '@visx/event'
+import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
 import { Bar, Line } from '@visx/shape'
@@ -12,6 +13,8 @@ import { colors } from 'theme/colors'
 
 import { AreaChart } from '../AreaChart/AreaChart'
 import { LineChart } from '../LineChart/LineChart'
+import { MaxPrice } from '../MaxPrice'
+import { MinPrice } from '../MinPrice'
 
 export interface PrimaryChartProps {
   data: HistoryData[]
@@ -23,6 +26,7 @@ export interface PrimaryChartProps {
 export type TooltipData = HistoryData
 
 // accessors
+const formatPrice = (value: number) => numeral(value).format('$0,0.00000')
 const getDate = (d: HistoryData) => new Date(d.date)
 const getStockValue = (d: HistoryData) => d?.price || 0
 const getFormatValue = (d: HistoryData) => numeral(d?.price || 0).format('$0,0.00000')
@@ -45,6 +49,21 @@ export const PrimaryChart = ({
   const xMax = Math.max(width - margin.left - margin.right, 0)
   const yMax = Math.max(height - margin.top - margin.bottom, 0)
 
+  const firstPoint = data[0]
+  const currentPoint = data[data.length - 1]
+  const minPrice = Math.min(...data.map(getStockValue))
+  const maxPrice = Math.max(...data.map(getStockValue))
+  const maxPriceIndex = data.findIndex(x => x.price === minPrice)
+  const maxPriceDate = getDate(data[maxPriceIndex])
+
+  const maxData = [
+    { date: getDate(firstPoint).toString(), price: maxPrice },
+    { date: getDate(currentPoint).toString(), price: maxPrice }
+  ]
+  const minData = [
+    { date: getDate(firstPoint).toString(), price: minPrice },
+    { date: getDate(currentPoint).toString(), price: minPrice }
+  ]
   // scales
   const dateScale = useMemo(() => {
     return scaleTime({
@@ -65,6 +84,7 @@ export const PrimaryChart = ({
   const handleTooltip = useCallback(
     (event: React.TouchEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
       const { x } = localPoint(event) || { x: 0 }
+      console.log('this', x)
       const currX = x - margin.left
       const x0 = dateScale.invert(currX)
       const index = bisectDate(data, x0, 1)
@@ -126,6 +146,31 @@ export const PrimaryChart = ({
           onMouseMove={handleTooltip}
           onMouseLeave={() => hideTooltip()}
         />
+        <Group top={margin.top} left={margin.left}>
+          <MaxPrice
+            data={maxData}
+            yText={priceScale(maxPrice)}
+            xText={dateScale(maxPriceDate)}
+            label={formatPrice(maxPrice)}
+            yScale={priceScale}
+            xScale={dateScale}
+            width={width}
+            yMax={yMax}
+            stroke={colors.green[500]}
+            margin={{ ...margin }}
+          />
+          <MinPrice
+            data={minData}
+            yText={priceScale(minPrice)}
+            label={formatPrice(minPrice)}
+            yScale={priceScale}
+            xScale={dateScale}
+            width={width}
+            yMax={yMax}
+            stroke={colors.green[500]}
+            margin={{ ...margin }}
+          />
+        </Group>
         {/* drawing the line and circle indicator to be display in cursor over a
           selected area */}
         {tooltipData && (

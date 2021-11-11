@@ -3,6 +3,24 @@ import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
+type EarnStatProps = {
+  label: string
+  value: string
+}
+
+function EarnStat({ label, value }: EarnStatProps) {
+  return (
+    <Stat>
+      <StatLabel>
+        <Text translation={label} />
+      </StatLabel>
+      <StatNumber>
+        <Amount.Fiat value={value} />
+      </StatNumber>
+    </Stat>
+  )
+}
+
 export const OverviewHeader = () => {
   return (
     <Card variant='unstyled'>
@@ -20,30 +38,7 @@ export const OverviewHeader = () => {
       </Card.Header>
       <Card.Body px={0}>
         <StatGroup>
-          <Stat>
-            <StatLabel>
-              <Text translation='earn.stakingBalance' />
-            </StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='13532.97' />
-            </StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>
-              <Text translation='earn.farmingBalance' />
-            </StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='13532.97' />
-            </StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>
-              <Text translation='earn.liquidityPoolBalance' />
-            </StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='13532.97' />
-            </StatNumber>
-          </Stat>
+          <EarnStat label='earn.stakingBalance' value='13532.97' />
         </StatGroup>
       </Card.Body>
     </Card>

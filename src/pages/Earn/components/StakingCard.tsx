@@ -8,11 +8,11 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
+import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
-import { SupportedYearnVault } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 
 type StakingCardProps = {

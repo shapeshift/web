@@ -1,4 +1,4 @@
-import { DepositValues } from 'context/EarnManagerProvider/components/Deposit/Deposit'
+import { DepositValues } from 'features/earn/components/Deposit/Deposit'
 
 import { YearnVault } from '../../../api/api'
 

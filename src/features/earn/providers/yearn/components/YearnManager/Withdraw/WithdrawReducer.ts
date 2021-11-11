@@ -1,4 +1,4 @@
-import { WithdrawValues } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
+import { WithdrawValues } from 'features/earn/components/Withdraw/Withdraw'
 
 import { YearnVault } from '../../../api/api'
 

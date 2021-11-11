@@ -1,5 +1,8 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { EarnProvider, EarnType } from 'context/EarnManagerProvider/EarnManagerProvider'
+import {
+  EarnProvider,
+  EarnType
+} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
 
 export type SupportedYearnVault = {
   vaultAddress: string

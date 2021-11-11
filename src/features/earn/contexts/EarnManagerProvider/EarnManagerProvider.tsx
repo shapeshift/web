@@ -4,8 +4,8 @@ import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
-import { EarnModal } from './components/EarnModal/EarnModal'
-import { YearnManager } from './providers/yearn/components/YearnManager/YearnManager'
+import { EarnModal } from '../../components/EarnModal/EarnModal'
+import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 
 export enum EarnType {
   Pool = 'pool',

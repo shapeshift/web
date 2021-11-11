@@ -1,12 +1,12 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
+import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import { FaLock } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { SUPPORTED_VAULTS } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
 
 import { StakingCard } from './StakingCard'
 

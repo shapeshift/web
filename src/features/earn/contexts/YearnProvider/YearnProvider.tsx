@@ -1,8 +1,8 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
+import { YearnVaultApi } from 'features/earn/providers/yearn/api/api'
 import React, { useContext, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { YearnVaultApi } from 'context/EarnManagerProvider/providers/yearn/api/api'
 
 const YearnContext = React.createContext<YearnVaultApi | null>(null)
 

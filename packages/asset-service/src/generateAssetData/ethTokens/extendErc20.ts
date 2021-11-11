@@ -7,6 +7,7 @@ import {
   TokenAsset
 } from '@shapeshiftoss/types'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import toLower from 'lodash/toLower'
 const axiosInstance: AxiosInstance = axios.create()
 
 type YearnApiVault = {
@@ -56,7 +57,7 @@ export const extendErc20 = async (): Promise<TokenAsset[]> => {
       secondaryColor: '#FFFFFF',
       sendSupport: true,
       symbol: vault.symbol,
-      tokenId: vault.address,
+      tokenId: toLower(vault.address),
       caip19: caip19.toCAIP19({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,

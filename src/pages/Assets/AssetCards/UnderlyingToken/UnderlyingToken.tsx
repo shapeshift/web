@@ -22,7 +22,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const [tokenId, setTokenId] = useState('')
   const [balance, setBalance] = useState('')
-  const yearn = useYearn()
+  const { loading, yearn } = useYearn()
 
   // account info
   const chainAdapterManager = useChainAdapters()
@@ -54,7 +54,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
     })()
   }, [shouldHide, asset.tokenId, chainAdapter, vault, wallet, yearn])
 
-  if (shouldHide) return null
+  if (shouldHide || loading) return null
 
   return (
     <Card>

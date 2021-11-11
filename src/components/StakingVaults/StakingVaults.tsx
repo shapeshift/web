@@ -18,7 +18,7 @@ type StakingVaultsProps = {
 
 export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVaultsProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
-  const yearn = useYearn()
+  const { yearn, loading } = useYearn()
 
   const vaults = useMemo(() => {
     if (tokenId) {
@@ -30,7 +30,7 @@ export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVau
     }
   }, [tokenId, showAll])
 
-  if (!earnFeature || !yearn || vaults.length === 0) return null
+  if (!earnFeature || !yearn || loading || vaults.length === 0) return null
 
   return (
     <Card>

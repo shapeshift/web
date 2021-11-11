@@ -12,7 +12,7 @@ import { routes as withdraw, YearnWithdraw } from './Withdraw/YearnWithdraw'
 
 export const YearnManager = () => {
   const params = useParams<EarnParams>()
-  const yearn = useYearn()
+  const { yearn } = useYearn()
 
   if (!yearn)
     return (

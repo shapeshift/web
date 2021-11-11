@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import numeral from 'numeral'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
@@ -52,10 +52,8 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
-  const { data, loading } = usePriceHistory({
-    asset,
-    timeframe
-  })
+  const assets = useMemo(() => [asset.caip19].filter(Boolean), [asset])
+  const { data, loading } = usePriceHistory({ assets, timeframe })
   const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
   const { balances } = useFlattenedBalances()
   const id = asset.tokenId ?? asset.chain

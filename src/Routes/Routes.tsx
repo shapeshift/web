@@ -49,7 +49,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.earn',
     icon: <FaPiggyBank />,
     main: null,
-    // disable: true,
+    disable: true,
     leftSidebar: <EarnSidebar />,
     routes: [
       {

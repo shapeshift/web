@@ -141,8 +141,7 @@ export const useSwapper = () => {
           sellAssetAccountId: '0', // TODO: remove hard coded accountId
           buyAssetAccountId: '0', // TODO: remove hard coded accountId
           slippage: trade?.slippage?.toString(),
-          priceImpact: quote?.priceImpact,
-          sendMax: false // TODO: implement sendMax (used for utxo coins)
+          priceImpact: quote?.priceImpact
         },
         wallet
       })

@@ -90,6 +90,8 @@ export type WithdrawValues = {
   [Field.Slippage]: string
 }
 
+const DEFAULT_SLIPPAGE = '0.5'
+
 export const Withdraw = ({
   asset,
   marketData,
@@ -122,7 +124,7 @@ export const Withdraw = ({
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: '0.5' // default slippage
+      [Field.Slippage]: DEFAULT_SLIPPAGE
     }
   })
 
@@ -326,7 +328,7 @@ export const Withdraw = ({
                         <PopoverBody>
                           <Slippage
                             onChange={handleSlippageChange}
-                            value={values?.slippage || '0.5'}
+                            value={values?.slippage || DEFAULT_SLIPPAGE}
                           />
                         </PopoverBody>
                       </PopoverContent>

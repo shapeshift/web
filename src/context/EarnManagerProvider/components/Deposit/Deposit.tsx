@@ -94,6 +94,8 @@ export type DepositValues = {
   [Field.Slippage]: string
 }
 
+const DEFAULT_SLIPPAGE = '0.5'
+
 function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
@@ -131,7 +133,7 @@ export const Deposit = ({
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: '0.5' // default slippage
+      [Field.Slippage]: DEFAULT_SLIPPAGE
     }
   })
 
@@ -336,7 +338,7 @@ export const Deposit = ({
                         <PopoverBody>
                           <Slippage
                             onChange={handleSlippageChange}
-                            value={values?.slippage || '0.5'}
+                            value={values?.slippage || DEFAULT_SLIPPAGE}
                           />
                         </PopoverBody>
                       </PopoverContent>

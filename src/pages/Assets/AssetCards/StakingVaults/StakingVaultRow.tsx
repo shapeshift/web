@@ -115,7 +115,7 @@ export const StakingVaultRow = ({
               <Amount.Crypto value={cryptoAmount.toString()} symbol={symbol} prefix='≈' />
             </HStack>
           ) : (
-            <Button colorScheme='blue' variant='ghost-filled' size='sm'>
+            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
               <Text translation='common.getStarted' />
             </Button>
           )}

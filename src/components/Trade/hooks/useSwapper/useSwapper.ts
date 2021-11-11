@@ -53,6 +53,8 @@ export enum TRADE_ERRORS {
   OVER_SLIP_SCORE = 'trade.errors.overSlipScore'
 }
 
+// TODO: (ryankk) revisit the logic inside useSwapper post bounty to see
+// if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
   const { setValue, setError, clearErrors, getValues } = useFormContext()
   const isComponentMounted = useIsComponentMounted()

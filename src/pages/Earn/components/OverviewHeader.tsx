@@ -3,7 +3,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-import { UseEarnBalancesReturn } from '../views/Overview'
+import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
 type EarnStatProps = {
   label: string

@@ -7,7 +7,7 @@ import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 
-import { UseEarnBalancesReturn } from '../views/Overview'
+import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { StakingCard } from './StakingCard'
 
 export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => {

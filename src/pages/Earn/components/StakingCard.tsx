@@ -14,7 +14,7 @@ import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 
-import { MergedEarnVault } from '../views/Overview'
+import { MergedEarnVault } from '../hooks/useVaultBalances'
 
 type StakingCardProps = {
   isLoaded?: boolean

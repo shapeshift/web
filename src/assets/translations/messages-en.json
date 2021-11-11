@@ -35,6 +35,15 @@
       "recentTransactions": "Recent Transactions"
     }
   },
+  "connectWalletPage": {
+    "shapeshift": "ShapeShift",
+    "alpha": "Alpha",
+    "exploreThe": "Explore The",
+    "defiUniverse": "DeFi Universe",
+    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "header": "Please connect a wallet to get started",
+    "cta": "Connect Wallet"
+  },
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",

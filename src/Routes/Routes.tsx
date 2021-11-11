@@ -4,10 +4,12 @@ import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Asset } from 'pages/Assets/Asset'
 import { AssetRightSidebar } from 'pages/Assets/AssetRightSidebar'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetSidebar } from 'pages/Assets/AssetSidebar'
+import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
 import { EarnSidebar } from 'pages/Earn/components/EarnSidebar'
@@ -19,6 +21,7 @@ import { NotFound } from 'pages/NotFound/NotFound'
 import { TradeHistory } from 'pages/TradeHistory/TradeHistory'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
+import { PrivateRoute } from './PrivateRoute'
 
 export const routes: Array<NestedRoute> = [
   {
@@ -101,16 +104,20 @@ function useLocationBackground() {
 
 export const Routes = () => {
   const { background, location } = useLocationBackground()
-
+  const { state, dispatch } = useWallet()
+  const { isConnected } = state
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
         return (
-          <Route key={index} path={route.path} exact>
+          <PrivateRoute key={index} path={route.path} exact isConnected={isConnected}>
             <Layout route={route} />
-          </Route>
+          </PrivateRoute>
         )
       })}
+      <Route path='/connect-wallet'>
+        <ConnectWallet dispatch={dispatch} isConnected={isConnected} />
+      </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />
     </Switch>

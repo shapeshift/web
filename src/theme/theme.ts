@@ -29,12 +29,6 @@ export const breakpoints = createBreakpoints({
   '2xl': '1920px'
 })
 
-// --1inch-page-bg-01: radial-gradient(94.32% 94.6% at 4.04% -44.6%,#2f8af566 0%,#002b5e00 100%),linear-gradient(0deg,#06070a,#06070a);
-// --1inch-page-bg-02: #06070a;
-// --1inch-page-bg-03: radial-gradient(50% 50% at 50% 50%,#285eb069 0%,#06131f00 100%);
-// --1inch-page-bg-04: radial-gradient(50% 50% at 50% 50%,#4a274abd 0%,#4c264900 100%);
-// backgroundImage: `radial-gradient(94.32% 94.6% at 4.04% -44.6%,${colors.blue[600]}66 0%,${colors.gray[900]}00 100%),linear-gradient(0deg,${colors.gray[900]},${colors.gray[900]})`
-
 const styles = {
   global: (props: Record<string, any>) => ({
     body: {

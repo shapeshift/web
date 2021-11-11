@@ -8,6 +8,14 @@ import {
   ContractTypes,
   NetworkTypes
 } from '@shapeshiftoss/types'
+import { Confirm } from 'features/earn/components/Confirm/Confirm'
+import { EarnActionButtons } from 'features/earn/components/EarnActionButtons'
+import { TxStatus } from 'features/earn/components/TxStatus/TxStatus'
+import { Withdraw, WithdrawValues } from 'features/earn/components/Withdraw/Withdraw'
+import {
+  EarnParams,
+  EarnQueryParams
+} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import toLower from 'lodash/toLower'
@@ -21,11 +29,6 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { Confirm } from 'context/EarnManagerProvider/components/Confirm/Confirm'
-import { EarnActionButtons } from 'context/EarnManagerProvider/components/EarnActionButtons'
-import { TxStatus } from 'context/EarnManagerProvider/components/TxStatus/TxStatus'
-import { Withdraw, WithdrawValues } from 'context/EarnManagerProvider/components/Withdraw/Withdraw'
-import { EarnParams, EarnQueryParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'

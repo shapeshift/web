@@ -35,6 +35,13 @@
       "recentTransactions": "Recent Transactions"
     }
   },
+  "connectWallet": {
+    "menu": {
+      "triggerButton": "Connect Wallet",
+      "switchWallet": "Switch Wallet Provider",
+      "disconnect": "Disconnect"
+    }
+  },
   "earn": {
     "earn": "Earn",
     "earnBody": "Earn interest by depositing your assets.",
@@ -341,9 +348,9 @@
         "24HrVolume": "24hr Volume",
         "dayChange": "Day Change",
         "aboutAsset": "About %{asset}",
-        "segwit": "Segwit",
-        "segwitNative": "Segwit Native",
-        "legacy": "Legacy"
+        "SegwitP2sh": "Segwit",
+        "SegwitNative": "Segwit Native",
+        "P2pkh": "Legacy"
       },
       "assetDescription": {
         "showMore": "Show More",

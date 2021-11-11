@@ -15,7 +15,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -27,7 +26,6 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { ReduxState } from 'state/reducer'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type ReceivePropsType = {
   asset: AssetMarketData
@@ -43,8 +41,8 @@ const Receive = ({ asset }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const currentAccountType: UtxoAccountType = useSelector(
-    (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
+  const currentAccountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
 
   useEffect(() => {

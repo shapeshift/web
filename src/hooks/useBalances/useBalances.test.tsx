@@ -1,14 +1,11 @@
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
+import * as reactRedux from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { ethereum as mockEthereum } from 'jest/mocks/assets'
-import { accountTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { useBalances } from './useBalances'
-
-jest.mock('hooks/useAllAccountTypes/useAllAccountTypes')
 
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
@@ -60,10 +57,18 @@ const setup = ({
 }
 
 describe('useBalances', () => {
+  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
+
   beforeAll(() => {
-    ;(useAllAccountTypes as jest.Mock<unknown>).mockImplementation(() => ({
-      [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
-    }))
+    useSelectorMock.mockReturnValue({
+      state: {
+        preferences: {
+          accountTypes: {
+            [ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
+          }
+        }
+      }
+    })
   })
 
   it('returns a users balances', async () => {

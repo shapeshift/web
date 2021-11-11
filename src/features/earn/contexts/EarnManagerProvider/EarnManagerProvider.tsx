@@ -1,10 +1,11 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { YearnProvider } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
-import { EarnModal } from './components/EarnModal/EarnModal'
-import { YearnManager } from './providers/yearn/components/YearnManager/YearnManager'
+import { EarnModal } from '../../components/EarnModal/EarnModal'
+import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 
 export enum EarnType {
   Pool = 'pool',
@@ -55,17 +56,19 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
 
   return (
     <EarnManagerContext.Provider value={null}>
-      {children}
-      {background && (
-        <Route
-          path='/earn/:earnType/:provider/:action'
-          render={({ match: { params } }) => {
-            const { provider } = params
-            const Module = EarnModules[provider as EarnProvider]
-            return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
-          }}
-        />
-      )}
+      <YearnProvider>
+        {children}
+        {background && (
+          <Route
+            path='/earn/:earnType/:provider/:action'
+            render={({ match: { params } }) => {
+              const { provider } = params
+              const Module = EarnModules[provider as EarnProvider]
+              return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
+            }}
+          />
+        )}
+      </YearnProvider>
     </EarnManagerContext.Provider>
   )
 }

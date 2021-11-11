@@ -2,12 +2,12 @@ import { useToast } from '@chakra-ui/react'
 import { ChainAdapter, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { ReduxState } from 'state/reducer'
 
 import { SendInput } from '../../Form'
 
@@ -19,8 +19,7 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
-
-  const allAccountTypes = useAllAccountTypes()
+  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -35,7 +34,7 @@ export const useFormSend = () => {
         let result
 
         const { estimatedFees, feeType, address: to } = data
-        const accountType = allAccountTypes[getAccountTypeKey(data.asset.chain)]
+        const accountType = accountTypes[data.asset.chain]
         if (adapterType === ChainTypes.Ethereum) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice

@@ -1,12 +1,12 @@
 import { Button, ButtonGroup } from '@chakra-ui/react'
-import { useTranslate } from 'react-polyglot'
-import { matchPath } from 'react-router-dom'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import {
   EarnAction,
   EarnParams,
   EarnQueryParams
-} from 'context/EarnManagerProvider/EarnManagerProvider'
+} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
+import { useTranslate } from 'react-polyglot'
+import { matchPath } from 'react-router-dom'
+import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 
 export const EarnActionButtons = () => {
   const translate = useTranslate()

@@ -1,11 +1,11 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Stack } from '@chakra-ui/react'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
+import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
+import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { SUPPORTED_VAULTS } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
-import { useYearnManager } from 'context/EarnManagerProvider/providers/yearn/hooks/useYearnManager'
 import { useFeature } from 'hooks/useFeature/useFeature'
 
 import { StakingVaultRow } from './StakingVaultRow'
@@ -18,7 +18,7 @@ type StakingVaultsProps = {
 
 export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVaultsProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
-  const yearn = useYearnManager()
+  const yearn = useYearn()
 
   const vaults = useMemo(() => {
     if (tokenId) {

@@ -1,28 +1,18 @@
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronRightIcon,
-  CloseIcon,
-  CopyIcon,
-  RepeatIcon,
-  TriangleDownIcon
-} from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, RepeatIcon, TriangleDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Circle,
   FlexProps,
-  HStack,
-  IconButton,
   Menu,
   MenuButton,
   MenuDivider,
   MenuGroup,
   MenuItem,
-  MenuList,
-  Tooltip
+  MenuList
 } from '@chakra-ui/react'
 import { FC } from 'react'
+import { Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 type WalletImageProps = {
@@ -48,7 +38,7 @@ export const WalletButton: FC<FlexProps> = () => {
       rightIcon={<ChevronRightIcon h={6} w={6} />}
       mr={6}
     >
-      Connect Wallet
+      <Text translation={'connectWallet.menu.triggerButton'} />
     </Button>
   ) : (
     <Menu gutter={4}>
@@ -81,17 +71,6 @@ export const WalletButton: FC<FlexProps> = () => {
             >
               {walletInfo?.name}
             </Button>
-            <HStack ml={4}>
-              <Tooltip label='Send'>
-                <IconButton size='sm' icon={<ArrowUpIcon />} aria-label='Send' isRound />
-              </Tooltip>
-              <Tooltip label='Receive'>
-                <IconButton size='sm' icon={<ArrowDownIcon />} aria-label='Receive' isRound />
-              </Tooltip>
-              <Tooltip label='Copy Address'>
-                <IconButton size='sm' icon={<CopyIcon />} aria-label='Copy Address' isRound />
-              </Tooltip>
-            </HStack>
           </Box>
         </MenuGroup>
         <MenuDivider />
@@ -103,7 +82,7 @@ export const WalletButton: FC<FlexProps> = () => {
           }
           onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
         >
-          Switch Wallet Provider
+          <Text translation={'connectWallet.menu.switchWallet'} />
         </MenuItem>
         <MenuItem
           icon={
@@ -113,7 +92,7 @@ export const WalletButton: FC<FlexProps> = () => {
           }
           onClick={disconnect}
         >
-          Disconnect
+          <Text translation={'connectWallet.menu.disconnect'} />
         </MenuItem>
       </MenuList>
     </Menu>

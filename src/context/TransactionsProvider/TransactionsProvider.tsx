@@ -35,6 +35,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         if (!asset) throw new Error(`asset not found for chain ${chain}`)
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]
+
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {

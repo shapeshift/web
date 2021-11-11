@@ -1,5 +1,5 @@
 import { useToast } from '@chakra-ui/react'
-import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
@@ -107,7 +107,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getType(),
-            addressNList: bip32ToAddressNList(toPath(accountParams.bip32Params)),
+            addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip32Params)),
             curve: 'secp256k1',
             scriptType: accountParams.scriptType
           }
@@ -174,7 +174,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toPath(accountParams.bip32Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip32Params)),
               curve: 'secp256k1',
               scriptType: accountParams.scriptType
             }

@@ -35,6 +35,13 @@
       "recentTransactions": "Recent Transactions"
     }
   },
+  "connectWallet": {
+    "menu": {
+      "triggerButton": "Connect Wallet",
+      "switchWallet": "Switch Wallet Provider",
+      "disconnect": "Disconnect"
+    }
+  },
   "earn": {
     "earn": "Earn",
     "earnBody": "Earn interest by depositing your assets.",

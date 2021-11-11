@@ -18,6 +18,7 @@ import {
   ApproveInput,
   APYInput,
   BalanceInput,
+  TokenInput,
   TxEstimatedGasInput,
   TxInput
 } from './yearn-types'
@@ -256,6 +257,13 @@ export class YearnVaultApi {
     const contract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const balance = await contract.methods.balanceOf(userAddress).call()
     return bnOrZero(balance)
+  }
+
+  async token(input: TokenInput): Promise<string> {
+    const { vaultAddress } = input
+    const contract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
+    const address = await contract.methods.token().call()
+    return address
   }
 
   async totalSupply({ contractAddress }: { contractAddress: string }): Promise<BigNumber> {

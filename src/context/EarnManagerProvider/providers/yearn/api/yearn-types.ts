@@ -38,6 +38,10 @@ export type BalanceInput = {
   vaultAddress: string
 }
 
+export type TokenInput = {
+  vaultAddress: string
+}
+
 export type APYInput = {
   vaultAddress: string
 }

@@ -54,6 +54,8 @@ type DepositProps = {
   fiatAmountAvailable: string
   // Validation rules for the fiat input
   fiatInputValidation?: ControllerProps['rules']
+  // enables slippage UI (defaults to true)
+  enableSlippage?: boolean
   // Asset market data
   marketData: MarketData
   // Array of the % options
@@ -92,6 +94,8 @@ export type DepositValues = {
   [Field.Slippage]: string
 }
 
+const DEFAULT_SLIPPAGE = '0.5'
+
 function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
@@ -104,6 +108,7 @@ export const Deposit = ({
   cryptoInputValidation,
   fiatAmountAvailable,
   fiatInputValidation,
+  enableSlippage = true,
   onContinue,
   onCancel,
   percentOptions
@@ -128,7 +133,7 @@ export const Deposit = ({
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: '0.5' // default slippage
+      [Field.Slippage]: DEFAULT_SLIPPAGE
     }
   })
 
@@ -313,32 +318,33 @@ export const Deposit = ({
                     rules={fiatInputValidation}
                   />
                 )}
-                <InputRightElement>
-                  <Popover>
-                    <PopoverTrigger>
-                      <IconButton
-                        size='sm'
-                        aria-label='Slippage Settings'
-                        variant='ghost'
-                        icon={<SliderIcon />}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent width='sm'>
-                      <PopoverArrow />
-                      <PopoverCloseButton />
-                      <PopoverHeader>
-                        {/* TODO translate */}
-                        <Text fontSize='sm' translation='modals.deposit.slippageSettings' />
-                      </PopoverHeader>
-                      <PopoverBody>
-                        <Slippage
-                          onChange={handleSlippageChange}
-                          value={values?.slippage || '0.5'}
+                {enableSlippage && (
+                  <InputRightElement>
+                    <Popover>
+                      <PopoverTrigger>
+                        <IconButton
+                          size='sm'
+                          aria-label='Slippage Settings'
+                          variant='ghost'
+                          icon={<SliderIcon />}
                         />
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
-                </InputRightElement>
+                      </PopoverTrigger>
+                      <PopoverContent width='sm'>
+                        <PopoverArrow />
+                        <PopoverCloseButton />
+                        <PopoverHeader>
+                          <Text fontSize='sm' translation='modals.deposit.slippageSettings' />
+                        </PopoverHeader>
+                        <PopoverBody>
+                          <Slippage
+                            onChange={handleSlippageChange}
+                            value={values?.slippage || DEFAULT_SLIPPAGE}
+                          />
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </InputRightElement>
+                )}
               </InputGroup>
               <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
                 {percentOptions.map(option => (

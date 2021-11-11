@@ -42,12 +42,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type WithdrawProps = {
   asset: Asset
-  // Estimated apy (Withdraw Only)
-  apy: string
   // Users available amount
   cryptoAmountAvailable: string
   // Validation rules for the crypto input
   cryptoInputValidation?: ControllerProps['rules']
+  // enables slippage UI (defaults to true)
+  enableSlippage?: boolean
   // Users available amount
   fiatAmountAvailable: string
   // Validation rules for the fiat input
@@ -90,12 +90,14 @@ export type WithdrawValues = {
   [Field.Slippage]: string
 }
 
+const DEFAULT_SLIPPAGE = '0.5'
+
 export const Withdraw = ({
-  apy,
   asset,
   marketData,
   cryptoAmountAvailable,
   cryptoInputValidation,
+  enableSlippage = true,
   fiatAmountAvailable,
   fiatInputValidation,
   onContinue,
@@ -122,7 +124,7 @@ export const Withdraw = ({
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: '0.5' // default slippage
+      [Field.Slippage]: DEFAULT_SLIPPAGE
     }
   })
 
@@ -306,31 +308,33 @@ export const Withdraw = ({
                     rules={fiatInputValidation}
                   />
                 )}
-                <InputRightElement>
-                  <Popover>
-                    <PopoverTrigger>
-                      <IconButton
-                        size='sm'
-                        aria-label='Slippage Settings'
-                        variant='ghost'
-                        icon={<SliderIcon />}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent width='sm'>
-                      <PopoverArrow />
-                      <PopoverCloseButton />
-                      <PopoverHeader>
-                        <Text fontSize='sm' translation='modals.withdraw.slippageSettings' />
-                      </PopoverHeader>
-                      <PopoverBody>
-                        <Slippage
-                          onChange={handleSlippageChange}
-                          value={values?.slippage || '0.5'}
+                {enableSlippage && (
+                  <InputRightElement>
+                    <Popover>
+                      <PopoverTrigger>
+                        <IconButton
+                          size='sm'
+                          aria-label='Slippage Settings'
+                          variant='ghost'
+                          icon={<SliderIcon />}
                         />
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
-                </InputRightElement>
+                      </PopoverTrigger>
+                      <PopoverContent width='sm'>
+                        <PopoverArrow />
+                        <PopoverCloseButton />
+                        <PopoverHeader>
+                          <Text fontSize='sm' translation='modals.withdraw.slippageSettings' />
+                        </PopoverHeader>
+                        <PopoverBody>
+                          <Slippage
+                            onChange={handleSlippageChange}
+                            value={values?.slippage || DEFAULT_SLIPPAGE}
+                          />
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </InputRightElement>
+                )}
               </InputGroup>
               <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
                 {percentOptions.map(option => (

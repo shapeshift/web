@@ -16,12 +16,13 @@ import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { Allocations } from './Allocations'
 
 export type AccountRowArgs = {
+  allocationValue: number
   balance: string
   tokenId?: string
   chain: ChainTypes
 }
 
-export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
+export const AccountRow = ({ allocationValue, balance, tokenId, chain }: AccountRowArgs) => {
   const dispatch = useDispatch()
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const contract = useMemo(() => tokenId?.toLowerCase(), [tokenId])
@@ -63,14 +64,14 @@ export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
     [displayValue, marketData]
   )
 
-  if (!asset || Number(balance) === 0) return null
+  if (!asset) return null
 
   return (
     <SimpleGrid
       as={Link}
       to={url}
       _hover={{ bg: rowHover }}
-      templateColumns={{ base: '1fr auto', lg: '1.5fr repeat(2, 1fr) 150px' }}
+      templateColumns={{ base: '1fr repeat(2, 1fr)', lg: '2fr repeat(3, 1fr) 150px' }}
       py={4}
       pl={4}
       pr={4}
@@ -79,11 +80,27 @@ export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
       alignItems='center'
     >
       <Flex alignItems='center'>
-        <AssetIcon src={asset.icon} boxSize='30px' mr={4} />
-        <RawText ml={2} fontWeight='medium'>
-          {asset.name}
-        </RawText>
-        <RawText color='gray.500' ml={2}>{`(${asset.symbol})`}</RawText>
+        <AssetIcon src={asset.icon} boxSize='30px' mr={2} />
+        <Flex flexDir='column' ml={2}>
+          <RawText
+            fontWeight='medium'
+            lineHeight='1'
+            mb={1}
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            display='inline-block'
+            width={{ base: '100px', xl: '100%' }}
+          >
+            {asset.name}
+          </RawText>
+          <RawText color='gray.500' lineHeight='1'>
+            {asset.symbol}
+          </RawText>
+        </Flex>
+      </Flex>
+      <Flex justifyContent='flex-end' textAlign='right'>
+        <Amount.Crypto value={displayValue.toString()} symbol={asset.symbol} />
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
         {!marketData?.price ? (
@@ -98,18 +115,11 @@ export const AccountRow = ({ balance, tokenId, chain }: AccountRowArgs) => {
         ) : (
           <>
             <Amount.Fiat value={fiatValue} />
-            <Amount.Crypto
-              value={displayValue.toString()}
-              symbol={asset.symbol}
-              color='gray.500'
-              prefix='≈'
-              ml={1}
-            />
           </>
         )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-        <Allocations fiatValue={fiatValue} color={asset.color} />
+        <Allocations value={allocationValue} color={asset.color} />
       </Flex>
     </SimpleGrid>
   )

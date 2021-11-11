@@ -6,17 +6,22 @@ import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { ReduxState } from 'state/reducer'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { useAsset } from '../Asset'
-import { selectTxHistoryById } from '../helpers/selectTxHistoryById/selectTxHistoryById'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
 
 export const AssetHistory = () => {
   const translate = useTranslate()
   const { asset } = useAsset()
+  const accountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
+  )
   const txs = useSelector((state: ReduxState) =>
-    selectTxHistoryById(state, asset.chain ?? '', asset.tokenId ?? asset.chain)
+    selectTxHistory(state, {
+      chain: asset.chain,
+      filter: { identifier: asset.tokenId ?? asset.chain, accountType }
+    })
   )
   const { next, data, hasMore } = useInfiniteScroll(txs)
 

@@ -1,22 +1,31 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
-export const accountTypePrefix = 'accountType_'
+export type Preferences = {
+  accountTypes: Record<string, any>
+}
 
-const initialState = {
-  [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
-} as { [key: string]: any }
+export const supportedAccountTypes = {
+  [ChainTypes.Bitcoin]: [
+    UtxoAccountType.SegwitNative,
+    UtxoAccountType.SegwitP2sh,
+    UtxoAccountType.P2pkh
+  ],
+  [ChainTypes.Ethereum]: undefined
+}
+
+const initialState: Preferences = {
+  accountTypes: {
+    [ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
+  }
+}
 
 export const preferences = createSlice({
   name: 'preferences',
   initialState,
   reducers: {
-    setPreference(state, { payload }) {
-      state[payload.key] = payload.value
+    setAccountType(state, { payload }: { payload: { key: ChainTypes; value: any } }) {
+      state.accountTypes[payload.key] = payload.value
     }
   }
 })
-
-export const getAccountTypeKey = (chain: ChainTypes) => {
-  return accountTypePrefix + chain
-}

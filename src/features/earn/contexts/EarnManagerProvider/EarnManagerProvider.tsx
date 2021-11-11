@@ -55,8 +55,8 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
   const background = location.state && location.state.background
 
   return (
-    <YearnProvider>
-      <EarnManagerContext.Provider value={null}>
+    <EarnManagerContext.Provider value={null}>
+      <YearnProvider>
         {children}
         {background && (
           <Route
@@ -68,8 +68,8 @@ export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
             }}
           />
         )}
-      </EarnManagerContext.Provider>
-    </YearnProvider>
+      </YearnProvider>
+    </EarnManagerContext.Provider>
   )
 }
 

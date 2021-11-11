@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.6.1...@shapeshiftoss/asset-service-v1.7.0) (2021-11-11)
+
+
+### Features
+
+* added to lower case casting for token addresses ([#214](https://github.com/shapeshift/lib/issues/214)) ([5aa5795](https://github.com/shapeshift/lib/commit/5aa57958b417b306bd06c505eb08bd1f745703bf))
+
 # [@shapeshiftoss/asset-service-v1.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.6.0...@shapeshiftoss/asset-service-v1.6.1) (2021-11-10)
 
 

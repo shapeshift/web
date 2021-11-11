@@ -96,8 +96,8 @@ export const useSwapper = () => {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
         sellAmount: toBaseUnit(minimumAmount, sellAsset.currency.precision),
-        sellAssetAccountId: '0', // TODO: remove hard coded accountId
-        buyAssetAccountId: '0' // TODO: remove hard coded accountId
+        sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+        buyAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
       },
       wallet
     })
@@ -107,7 +107,7 @@ export const useSwapper = () => {
     const sendMaxAmount = await swapper.getSendMaxAmount({
       wallet,
       quote: completeQuote,
-      sellAssetAccountId: '0'
+      sellAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
     })
 
     const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
@@ -138,8 +138,8 @@ export const useSwapper = () => {
           sellAmount: toBaseUnit(amount, sellAsset.precision),
           sellAsset,
           buyAsset,
-          sellAssetAccountId: '0', // TODO: remove hard coded accountId
-          buyAssetAccountId: '0', // TODO: remove hard coded accountId
+          sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+          buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
           slippage: trade?.slippage?.toString(),
           priceImpact: quote?.priceImpact
         },

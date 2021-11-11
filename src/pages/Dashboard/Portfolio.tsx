@@ -8,12 +8,14 @@ import { RawText, Text } from 'components/Text'
 
 import { AccountList } from './components/AccountList/AccountList'
 import { usePortfolio } from './contexts/PortfolioContext'
+import { useBalanceChartData } from './hooks/useBalanceChartData/useBalanceChartData'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const { totalBalance, loading, balances } = usePortfolio()
+  const { totalBalance, loading } = usePortfolio()
 
-  balances && console.info(balances)
+  const { balanceChartData, balanceChartLoading } = useBalanceChartData({ timeframe })
+  const isLoaded = !balanceChartLoading
 
   if (loading)
     return (
@@ -44,7 +46,7 @@ export const Portfolio = () => {
           <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
         </Card.Header>
         <Card.Body p={0} height='350px'>
-          <Graph data={[]} loading={true} />
+          <Graph data={balanceChartData} loading={balanceChartLoading} isLoaded={isLoaded} />
         </Card.Body>
       </Card>
       <Card>

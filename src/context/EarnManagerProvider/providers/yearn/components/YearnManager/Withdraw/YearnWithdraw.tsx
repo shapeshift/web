@@ -10,6 +10,7 @@ import {
 } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
+import toLower from 'lodash/toLower'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
@@ -88,7 +89,8 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   // Asset info
-  const asset = useFetchAsset({ chain, tokenId })
+  const underlyingAsset = useFetchAsset({ chain, tokenId })
+  const asset = useFetchAsset({ chain, tokenId: vaultAddress })
   const marketData = useMarketData({ chain, tokenId })
   const feeAsset = useFetchAsset({ chain })
   const feeMarketData = useMarketData({ chain })
@@ -132,7 +134,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       const [gasLimit, gasPrice] = await Promise.all([
         api.withdrawEstimatedGas({
           vaultAddress,
-          amountDesired: bnOrZero(withdraw.cryptoAmount).times(`1e+${asset.precision}`),
+          amountDesired: bnOrZero(withdraw.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
           userAddress: state.userAddress
         }),
         api.getGasPrice()
@@ -166,11 +170,14 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
+          dryRun: true,
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           vaultAddress,
           wallet: walletState.wallet,
-          amountDesired: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`)
+          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0)
         }),
         api.getGasPrice()
       ])
@@ -205,7 +212,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     browserHistory.goBack()
   }
 
-  const balance = balances[tokenId ?? chain]?.balance
+  const balance = balances[toLower(vaultAddress)]?.balance
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
@@ -219,6 +226,11 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     const hasValidBalance = fiat.gte(value)
     return hasValidBalance || 'common.insufficientFunds'
   }
+
+  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
+  const pricePerShare = bnOrZero(state.pricePerShare).div(`1e+${asset?.precision}`)
+  const vaultTokenPrice = pricePerShare.times(marketData.price)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -242,12 +254,19 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               required: true,
               validate: { validateCryptoAmount }
             }}
-            fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+            fiatAmountAvailable={fiatAmountAvailable.toString()}
             fiatInputValidation={{
               required: true,
               validate: { validateFiatAmount }
             }}
-            marketData={marketData}
+            marketData={{
+              // The vault asset doesnt have market data.
+              // We're making our own market data object for the withdraw view
+              price: vaultTokenPrice.toString(),
+              marketCap: '0',
+              volume: '0',
+              changePercent24Hr: 0
+            }}
             onCancel={handleCancel}
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
@@ -265,15 +284,15 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               {
                 ...makeVaultAsset(state.vault),
                 color: '#FFFFFF',
-                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
-                  .toString(),
+                cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               },
               {
-                ...asset,
+                ...underlyingAsset,
                 color: '#FF0000',
-                cryptoAmount: state.withdraw.cryptoAmount,
+                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
+                  .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
+                  .toString(),
                 fiatAmount: state.withdraw.fiatAmount
               }
             ]}
@@ -332,14 +351,14 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             assets={[
               {
                 ...makeVaultAsset(state.vault),
-                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
-                  .toString(),
+                cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               },
               {
-                ...asset,
-                cryptoAmount: state.withdraw.cryptoAmount,
+                ...underlyingAsset,
+                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
+                  .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
+                  .toString(),
                 fiatAmount: state.withdraw.fiatAmount
               }
             ]}
@@ -420,9 +439,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         <CircularProgress />
       </Center>
     )
-
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   return (
     <Flex

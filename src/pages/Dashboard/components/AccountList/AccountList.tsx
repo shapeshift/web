@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
+import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
 import { ReduxState } from 'state/reducer'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
 
@@ -26,9 +27,7 @@ export const AccountList = () => {
     return (
       <>
         {Object.keys(balances)
-          .sort((a, b) =>
-            bnOrZero(balances[a]?.balance).gt(bnOrZero(balances[b]?.balance)) ? -1 : 1
-          )
+          .sort(sortByFiat({ balances, assets, marketData }))
           .filter(key => bnOrZero(balances[key].balance).gt(0))
           .map(key => {
             const account = balances[key]

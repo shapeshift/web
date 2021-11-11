@@ -16,6 +16,15 @@ export type SupportedYearnVault = {
 
 export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
   {
+    vaultAddress: '0xa258C4606Ca8206D8aA700cE2143D7db854D168c',
+    name: 'WETH',
+    symbol: 'yvWETH',
+    tokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    chain: ChainTypes.Ethereum,
+    provider: EarnProvider.Yearn,
+    type: EarnType.Vault
+  },
+  {
     vaultAddress: '0xdA816459F1AB5631232FE5e97a05BBBb94970c95',
     name: 'DAI',
     symbol: 'yvDAI',
@@ -34,15 +43,6 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
     type: EarnType.Vault
   },
   {
-    vaultAddress: '0x27b7b1ad7288079A66d12350c828D3C00A6F07d7',
-    name: 'Curve-IronBank',
-    symbol: 'yvCurve-IronBank',
-    tokenAddress: '0x5282a4ef67d9c33135340fb3289cc1711c13638c',
-    chain: ChainTypes.Ethereum,
-    provider: EarnProvider.Yearn,
-    type: EarnType.Vault
-  },
-  {
     vaultAddress: '0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E',
     name: 'WBTC',
     symbol: 'yvWBTC',
@@ -52,37 +52,10 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
     type: EarnType.Vault
   },
   {
-    vaultAddress: '0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8',
-    name: 'Curve-MIM',
-    symbol: 'yvCurve-MIM',
-    tokenAddress: '0x5a6a4d54456819380173272a5e8e9b9904bdf41b',
-    chain: ChainTypes.Ethereum,
-    provider: EarnProvider.Yearn,
-    type: EarnType.Vault
-  },
-  {
     vaultAddress: '0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2',
     name: 'LINK',
     symbol: 'yvLINK',
     tokenAddress: '0x514910771af9ca656af840dff83e8264ecf986ca',
-    chain: ChainTypes.Ethereum,
-    provider: EarnProvider.Yearn,
-    type: EarnType.Vault
-  },
-  {
-    vaultAddress: '0x25212Df29073FfFA7A67399AcEfC2dd75a831A1A',
-    name: 'Curve-EURS',
-    symbol: 'yvCurve-EURS',
-    tokenAddress: '0x194ebd173f6cdace046c53eacce9b953f28411d1',
-    chain: ChainTypes.Ethereum,
-    provider: EarnProvider.Yearn,
-    type: EarnType.Vault
-  },
-  {
-    vaultAddress: '0xE537B5cc158EB71037D4125BDD7538421981E6AA',
-    name: 'Curve-3Crypto',
-    symbol: 'yvCurve-3Crypto',
-    tokenAddress: '0xc4ad29ba4b3c580e6d59105fff484999997675ff',
     chain: ChainTypes.Ethereum,
     provider: EarnProvider.Yearn,
     type: EarnType.Vault
@@ -101,6 +74,42 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
     name: 'YFI',
     symbol: 'yvYFI',
     tokenAddress: '0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e',
+    chain: ChainTypes.Ethereum,
+    provider: EarnProvider.Yearn,
+    type: EarnType.Vault
+  },
+  {
+    vaultAddress: '0xd9788f3931Ede4D5018184E198699dC6d66C1915',
+    name: 'AAVE',
+    symbol: 'yvAAVE',
+    tokenAddress: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+    chain: ChainTypes.Ethereum,
+    provider: EarnProvider.Yearn,
+    type: EarnType.Vault
+  },
+  {
+    vaultAddress: '0xb8c3b7a2a618c552c23b1e4701109a9e756bab67',
+    name: '1INCH',
+    symbol: 'yv1INCH',
+    tokenAddress: '0x111111111117dc0aa78b770fa6a738034120c302',
+    chain: ChainTypes.Ethereum,
+    provider: EarnProvider.Yearn,
+    type: EarnType.Vault
+  },
+  {
+    vaultAddress: '0xFBEB78a723b8087fD2ea7Ef1afEc93d35E8Bed42',
+    name: 'UNI',
+    symbol: 'yvUNI',
+    tokenAddress: '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+    chain: ChainTypes.Ethereum,
+    provider: EarnProvider.Yearn,
+    type: EarnType.Vault
+  },
+  {
+    vaultAddress: '0x4A3FE75762017DB0eD73a71C9A06db7768DB5e66',
+    name: 'COMP',
+    symbol: 'yvCOMP',
+    tokenAddress: '0xc00e94cb662c3520282e6f5717214004a7f26888',
     chain: ChainTypes.Ethereum,
     provider: EarnProvider.Yearn,
     type: EarnType.Vault

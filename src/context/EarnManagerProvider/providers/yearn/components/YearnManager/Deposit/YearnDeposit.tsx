@@ -168,7 +168,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         api.depositEstimatedGas({
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
-            .toDecimals(0),
+            .decimalPlaces(0),
           userAddress: state.userAddress,
           vaultAddress
         }),

@@ -1,20 +1,19 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { ChainTypes } from '@shapeshiftoss/types'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { YearnVault, YearnVaultApi } from 'context/EarnManagerProvider/providers/yearn/api/api'
 import { SupportedYearnVault } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 export const StakingVaultRow = ({
   yearn,
@@ -23,10 +22,13 @@ export const StakingVaultRow = ({
   vaultAddress,
   tokenAddress,
   chain,
+  symbol,
   isLoaded
 }: SupportedYearnVault & { yearn: YearnVaultApi; isLoaded: boolean }) => {
   const [vault, setVault] = useState<YearnVault | null>(null)
-  const [cryptoAmount, setCryptoAmount] = useState<string>('0')
+  const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
+  const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
+  const history = useHistory()
   const location = useLocation()
 
   // asset
@@ -35,10 +37,25 @@ export const StakingVaultRow = ({
 
   // account info
   const chainAdapterManager = useChainAdapters()
-  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+  const chainAdapter = chainAdapterManager.byChain(chain)
   const {
-    state: { wallet }
+    state: { isConnected, wallet },
+    dispatch
   } = useWallet()
+
+  const handleClick = () => {
+    isConnected
+      ? history.push({
+          pathname: `/earn/${type}/${provider}/deposit`,
+          search: qs.stringify({
+            chain,
+            contractAddress: vaultAddress,
+            tokenId: tokenAddress
+          }),
+          state: { background: location }
+        })
+      : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
 
   useEffect(() => {
     ;(async () => {
@@ -49,39 +66,31 @@ export const StakingVaultRow = ({
         const userAddress = await chainAdapter.getAddress({ wallet })
         // TODO: currently this is hard coded to yearn vaults only.
         // In the future we should add a hook to get the provider interface by vault provider
-        const balance = await yearn.balance({ vaultAddress, userAddress })
-        setCryptoAmount(balance.toString())
+        const [balance, pricePerShare] = await Promise.all([
+          yearn.balance({ vaultAddress, userAddress }),
+          yearn.pricePerShare({ vaultAddress })
+        ])
+        const amount = bnOrZero(balance).div(`1e+${vault?.decimals}`)
+        const price = pricePerShare.div(`1e+${vault?.decimals}`).times(marketData?.price)
+        setCryptoAmount(amount)
+        setFiatAmount(amount.times(price))
       } catch (error) {
         console.error('StakingVaultRow useEffect', error)
       }
     })()
-  }, [chainAdapter, tokenAddress, vaultAddress, wallet, yearn])
+  }, [chainAdapter, marketData?.price, tokenAddress, vault?.decimals, vaultAddress, wallet, yearn])
 
   if (!asset || !vault) return null
 
-  const fiatAmount = bnOrZero(cryptoAmount)
-    .div(`1e+${vault.decimals}`)
-    .times(marketData.price)
-    .toFixed(2)
-
   return (
     <Button
-      as={Link}
       width='full'
       height='auto'
       justifyContent='space-between'
       variant='ghost'
       fontWeight='normal'
       py={2}
-      to={{
-        pathname: `/earn/${type}/${provider}/deposit`,
-        search: qs.stringify({
-          chain,
-          contractAddress: vaultAddress,
-          tokenId: tokenAddress
-        }),
-        state: { background: location }
-      }}
+      onClick={handleClick}
     >
       <Flex alignItems='center'>
         <Flex mr={4}>
@@ -100,13 +109,13 @@ export const StakingVaultRow = ({
       </Flex>
       <Flex>
         <Skeleton isLoaded={isLoaded}>
-          {!cryptoAmount ? (
+          {cryptoAmount.gt(0) ? (
             <HStack>
-              <Amount.Fiat value={fiatAmount} color='green.500' />
-              <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} prefix='≈' />
+              <Amount.Fiat value={fiatAmount.toString()} color='green.500' />
+              <Amount.Crypto value={cryptoAmount.toString()} symbol={symbol} prefix='≈' />
             </HStack>
           ) : (
-            <Button colorScheme='blue' variant='ghost-filled' size='sm'>
+            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
               <Text translation='common.getStarted' />
             </Button>
           )}

@@ -166,9 +166,11 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.depositEstimatedGas({
-          vaultAddress,
-          amountDesired: bnOrZero(deposit.cryptoAmount).times(`1e+${asset.precision}`),
-          userAddress: state.userAddress
+          amountDesired: bnOrZero(deposit.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
+          userAddress: state.userAddress,
+          vaultAddress
         }),
         api.getGasPrice()
       ])
@@ -278,11 +280,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.deposit({
+          amountDesired: bnOrZero(state.deposit.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           vaultAddress,
-          wallet: walletState.wallet,
-          amountDesired: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`)
+          wallet: walletState.wallet
         }),
         api.getGasPrice()
       ])
@@ -290,10 +294,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       memoryHistory.push(DepositPath.Status)
 
       const transactionReceipt = await poll({
-        fn: () =>
-          api.getTxReceipt({
-            txid
-          }),
+        fn: () => api.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30
@@ -377,6 +378,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             onCancel={handleCancel}
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
+            enableSlippage={false}
           />
         )
       case DepositPath.Approve:

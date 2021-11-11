@@ -1,9 +1,11 @@
 import { Flex } from '@chakra-ui/react'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
+import { ReduxState } from 'state/reducer'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 export interface MatchParams {
@@ -37,9 +39,12 @@ export const useAsset = () => {
   const { chain, tokenId } = useParams<MatchParams>()
   const asset = useFetchAsset({ chain, tokenId })
   const marketData = useMarketData({ chain, tokenId })
+  const loading = useSelector((state: ReduxState) => state.marketData.loading)
+
   return {
     asset: asset ?? initAsset,
-    marketData
+    marketData,
+    loading
   }
 }
 

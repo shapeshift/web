@@ -1,4 +1,3 @@
-import { TimeIcon } from '@chakra-ui/icons'
 import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -18,7 +17,6 @@ import { LiquidityPools } from 'pages/Earn/views/LiquidityPools'
 import { Overview } from 'pages/Earn/views/Overview'
 import { StakingVaults } from 'pages/Earn/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
-import { TradeHistory } from 'pages/TradeHistory/TradeHistory'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
@@ -85,13 +83,13 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
-  },
+  } /* ,
   {
     path: '/trade-history',
     label: 'navBar.tradeHistory',
     icon: <TimeIcon />,
     main: <TradeHistory />
-  }
+  } */
 ]
 
 const appRoutes = generateAppRoutes(routes)

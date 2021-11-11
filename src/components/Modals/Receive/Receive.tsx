@@ -61,8 +61,14 @@ const Receive = ({ asset }: ReceivePropsType) => {
   }, [setReceiveAddress, currentAccountType, asset, wallet, chainAdapter])
 
   const handleVerify = async () => {
+    const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
+
     if (!(wallet && chainAdapter && receiveAddress)) return
-    const deviceAddress = await chainAdapter.getAddress({ wallet, showOnDevice: true })
+    const deviceAddress = await chainAdapter.getAddress({
+      wallet,
+      showOnDevice: true,
+      ...accountParams
+    })
 
     setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)
   }

@@ -1,14 +1,14 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
+import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
+import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import toLower from 'lodash/toLower'
 import { useEffect, useState } from 'react'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { SUPPORTED_VAULTS } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
-import { useYearnManager } from 'context/EarnManagerProvider/providers/yearn/hooks/useYearnManager'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFeature } from 'hooks/useFeature/useFeature'
 
@@ -22,7 +22,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const [tokenId, setTokenId] = useState('')
   const [balance, setBalance] = useState('')
-  const yearn = useYearnManager()
+  const { loading, yearn } = useYearn()
 
   // account info
   const chainAdapterManager = useChainAdapters()
@@ -54,7 +54,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
     })()
   }, [shouldHide, asset.tokenId, chainAdapter, vault, wallet, yearn])
 
-  if (shouldHide) return null
+  if (shouldHide || loading) return null
 
   return (
     <Card>

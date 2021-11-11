@@ -1,8 +1,8 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { Page } from 'components/Layout/Page'
 
+import { StakingVaults } from '../../../components/StakingVaults/StakingVaults'
 import { useAsset } from '../Asset'
-import { StakingVaults } from '../AssetCards/StakingVaults/StakingVaults'
 import { UnderlyingToken } from '../AssetCards/UnderlyingToken/UnderlyingToken'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetHistory } from './AssetHistory'

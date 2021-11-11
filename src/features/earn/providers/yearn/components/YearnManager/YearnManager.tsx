@@ -1,15 +1,18 @@
 import { Center } from '@chakra-ui/layout'
+import {
+  EarnAction,
+  EarnParams
+} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
+import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { MemoryRouter, useParams } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { EarnAction, EarnParams } from 'context/EarnManagerProvider/EarnManagerProvider'
 
-import { useYearnManager } from '../../hooks/useYearnManager'
 import { routes as deposit, YearnDeposit } from './Deposit/YearnDeposit'
 import { routes as withdraw, YearnWithdraw } from './Withdraw/YearnWithdraw'
 
 export const YearnManager = () => {
   const params = useParams<EarnParams>()
-  const yearn = useYearnManager()
+  const { yearn } = useYearn()
 
   if (!yearn)
     return (

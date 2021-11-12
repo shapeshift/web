@@ -5,5 +5,15 @@ type PrivateRouteProps = {
 } & RouteProps
 
 export const PrivateRoute = ({ isConnected, ...rest }: PrivateRouteProps) => {
-  return isConnected ? <Route {...rest} /> : <Redirect to='/connect-wallet' />
+  const { location } = rest
+  return isConnected ? (
+    <Route {...rest} />
+  ) : (
+    <Redirect
+      to={{
+        pathname: '/connect-wallet',
+        search: `returnUrl=${location?.pathname ?? '/dashboard'}`
+      }}
+    />
+  )
 }

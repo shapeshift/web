@@ -3670,22 +3670,6 @@
   dependencies:
     "@shapeshiftoss/types" "^1.11.3"
 
-"@shapeshiftoss/chain-adapters@^1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.15.0.tgz#272a1bca894142ca79e77794d3e0ee152524db57"
-  integrity sha512-4g7blwnDD6qU+Bv3+nuiMBwnZJEWBMThZ5k7i2MwYr3im5exa8RIlcZOG4Dxgq3xaYoKAbhWvyd9tAH+Lff61w==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.17.1"
-    "@shapeshiftoss/types" "^1.11.3"
-    "@shapeshiftoss/unchained-client" "^3.4.0"
-    axios "^0.21.2"
-    bignumber.js "^9.0.1"
-    bitcoinjs-lib "^5.2.0"
-    coinselect "^3.1.12"
-    ethers "^5.4.7"
-    multicoin-address-validator "^0.5.2"
-    web3-utils "^1.6.0"
-
 "@shapeshiftoss/chain-adapters@^1.15.1":
   version "1.15.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.15.1.tgz#1c46ad043cbcdd7ee155820b8d70715ca05b1566"

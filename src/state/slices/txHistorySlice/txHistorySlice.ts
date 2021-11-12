@@ -1,8 +1,10 @@
-import { createSelector, createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import concat from 'lodash/concat'
 import filter from 'lodash/filter'
+import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
+import { createSelectorCreator, defaultMemoize } from 'reselect'
 import { ReduxState } from 'state/reducer'
 
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: string }
@@ -48,7 +50,11 @@ export const txHistory = createSlice({
   }
 })
 
-export const selectTxHistory = createSelector(
+// https://github.com/reduxjs/reselect#q-why-is-my-selector-recomputing-when-the-input-state-stays-the-same
+// TODO(0xdef1cafe): check this for performance
+// create a "selector creator" that uses lodash.isequal instead of ===
+const createDeepEqualSelector = createSelectorCreator(defaultMemoize, isEqual)
+export const selectTxHistory = createDeepEqualSelector(
   (state: ReduxState, { chain }: TxHistorySelect) => {
     return chain
       ? Object.values(state.txHistory[chain] ?? {})

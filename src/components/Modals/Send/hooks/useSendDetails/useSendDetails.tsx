@@ -229,11 +229,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const validateCryptoAmount = (value: string) => {
     const hasValidBalance = accountBalances.crypto.gte(value)
+    const _value = bnOrZero(value)
+    if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 
   const validateFiatAmount = (value: string) => {
     const hasValidBalance = accountBalances.fiat.gte(value)
+    const _value = bnOrZero(value)
+    if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 

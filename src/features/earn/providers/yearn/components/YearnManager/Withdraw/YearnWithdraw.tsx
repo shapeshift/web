@@ -173,7 +173,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
-          dryRun: true,
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           vaultAddress,

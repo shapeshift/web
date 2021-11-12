@@ -3593,12 +3593,12 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@shapeshiftoss/asset-service@^1.6.1":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.6.1.tgz#1f1e444484d687ef1848fe0f15bd08b757c00e5d"
-  integrity sha512-IIEUEgbd/Zjfkek1siW363UvbGV+vLtbGxrBpSXiqm4oy1PtHt1s7Pxnv01NaUmv59itg0s2DyMGoGyVdwGALA==
+"@shapeshiftoss/asset-service@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.7.0.tgz#8b48eda812d0091c9fc7faee3e216d410f2e6be5"
+  integrity sha512-KZr7uNIqAk7BulJfmj9s8ycRxIDRVadAIjWSfj5UvjGOHhSciWKhvqRJzKauINyxwK1GQ2r+aG5d/ADn5PtgkQ==
   dependencies:
-    "@shapeshiftoss/caip" "^1.2.2"
+    "@shapeshiftoss/caip" "^1.3.0"
     "@shapeshiftoss/types" "^1.11.3"
     axios "^0.24.0"
     lodash "^4.17.21"
@@ -3663,7 +3663,7 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/caip@^1.2.0", "@shapeshiftoss/caip@^1.2.2", "@shapeshiftoss/caip@^1.3.0":
+"@shapeshiftoss/caip@^1.2.0", "@shapeshiftoss/caip@^1.3.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.3.0.tgz#e0e749860dc4a33fc377dc6338ee331b777c7ad6"
   integrity sha512-pUba4o3nnWqNvOH6vycH3eK+hlgTAxDgty6vh30RaYhCdxhOz6xVxz/bJyc0OJDovskA9avtilghMpESDSWJ9g==

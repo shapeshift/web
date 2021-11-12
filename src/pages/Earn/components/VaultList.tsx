@@ -1,18 +1,20 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
-import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import { FaLock } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 
+import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { StakingCard } from './StakingCard'
 
-// find active positions with suppported vaults
+export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
+  const vaults = Object.values(balances?.vaults?.vaults || {})
 
-export const VaultList = () => {
+  if (balances.vaults.loading) return null
+
   return (
     <Box mb={6}>
       <Flex alignItems='center' mb={6} justifyContent='space-between'>
@@ -38,11 +40,11 @@ export const VaultList = () => {
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {SUPPORTED_VAULTS.map((vault, index) => (
-          <StakingCard isLoaded={true} key={index} {...vault} />
-        ))}
+        {vaults.map(vault => {
+          return <StakingCard isLoaded={true} key={vault.vaultAddress} {...vault} />
+        })}
       </SimpleGrid>
-      {SUPPORTED_VAULTS.length === 0 && (
+      {vaults.length === 0 && (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>

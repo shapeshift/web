@@ -1,12 +1,16 @@
+import { getConfig } from 'config'
 import { Redirect, Route, RouteProps } from 'react-router-dom'
 
 type PrivateRouteProps = {
   isConnected: boolean
 } & RouteProps
 
+const HIDE_SPLASH = getConfig().REACT_APP_HIDE_SPLASH
+
 export const PrivateRoute = ({ isConnected, ...rest }: PrivateRouteProps) => {
   const { location } = rest
-  return isConnected || process.env.NODE_ENV !== 'production' ? (
+
+  return isConnected || HIDE_SPLASH ? (
     <Route {...rest} />
   ) : (
     <Redirect

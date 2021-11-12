@@ -45,15 +45,15 @@ export function AppProviders({ children }: ProvidersProps) {
         <BrowserRouter>
           <BrowserRouterProvider>
             <I18n locale={locale} messages={messages}>
-              <WalletProvider>
-                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                  <TransactionsProvider>
-                    <ModalProvider>
+              <ModalProvider>
+                <WalletProvider>
+                  <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                    <TransactionsProvider>
                       <EarnProvider>{children}</EarnProvider>
-                    </ModalProvider>
-                  </TransactionsProvider>
-                </ChainAdaptersProvider>
-              </WalletProvider>
+                    </TransactionsProvider>
+                  </ChainAdaptersProvider>
+                </WalletProvider>
+              </ModalProvider>
             </I18n>
           </BrowserRouterProvider>
         </BrowserRouter>

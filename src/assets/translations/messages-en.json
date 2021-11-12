@@ -249,7 +249,7 @@
       },
       "connect": {
         "header": "Pair Your KeepKey",
-        "body": "Click Pair then select your KeepKey from the popup window",
+        "body": "Connect a KeepKey device and click 'Pair.'",
         "button": "Pair"
       },
       "pin": {
@@ -266,6 +266,36 @@
         "header": "Confirm Your New Pin",
         "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
         "button": "Save PIN"
+      }
+    },
+    "metaMask": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with MetaMask",
+        "connectFailure": "Unable to connect MetaMask wallet"
+      },
+      "connect": {
+        "header": "Pair MetaMask",
+        "body": "Click Pair and login to MetaMask from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect MetaMask wallet"
+      }
+    },
+    "portis": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Portis",
+        "connectFailure": "Unable to connect Portis wallet"
+      },
+      "connect": {
+        "header": "Pair Portis",
+        "body": "Click Pair then select Portis from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Portis wallet"
       }
     },
     "shapeShift": {
@@ -301,7 +331,7 @@
         "button2": "Create Wallet"
       },
       "nativeSuccess": {
-        "header": "Wallet Conected",
+        "header": "Wallet Connected",
         "success": "Your wallet has been connected",
         "error": "There was an error connecting your wallet"
       },
@@ -312,10 +342,6 @@
         "body3": "in your secret phrase.",
         "button": "Next"
       }
-    },
-    "metaMask": {
-      "header": "Pair your MetaMask wallet",
-      "connectButton": "Connect your MetaMask wallet"
     },
     "selectModal": {
       "header": "Connect a wallet",

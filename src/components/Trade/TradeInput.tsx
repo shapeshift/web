@@ -94,8 +94,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       })
       result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
     } catch (e) {
-      // TODO: (ryankk) correct errors to reflect appropriate attributes
-      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+      console.error(`TradeInput:onSubmit - ${e}`)
     }
   }
 

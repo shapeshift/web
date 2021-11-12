@@ -1,3 +1,5 @@
+import { useToast } from '@chakra-ui/react'
+import { useTranslate } from 'react-polyglot'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
@@ -57,6 +59,8 @@ export enum TRADE_ERRORS {
 // if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
   const { setValue, setError, clearErrors, getValues } = useFormContext()
+  const toast = useToast()
+  const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
   const [quote, trade] = useWatch({
     name: ['quote', 'trade']
@@ -133,9 +137,28 @@ export const useSwapper = () => {
     let result
     try {
       const swapper = swapperManager.getSwapper(bestSwapperType)
+      const { minimum } = await swapper.getMinMax({
+        sellAsset,
+        buyAsset
+      })
+      const sellAmount = toBaseUnit(amount, sellAsset.precision)
+      const minSellAmount = toBaseUnit(minimum, sellAsset.precision)
+
+      if (bnOrZero(sellAmount).lt(minSellAmount)) {
+        toast({
+          title: translate('trade.errors.title'),
+          description: translate('trade.errors.amountToSmall', { minLimit: minimum }),
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+          position: 'top-right'
+        })
+        return
+      }
+
       result = await swapper?.buildQuoteTx({
         input: {
-          sellAmount: toBaseUnit(amount, sellAsset.precision),
+          sellAmount,
           sellAsset,
           buyAsset,
           sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
@@ -147,13 +170,33 @@ export const useSwapper = () => {
       })
     } catch (err) {
       console.error(`TradeProvider - buildTransaction error: ${err}`)
+      toast({
+        title: translate('trade.errors.title'),
+        description: translate('trade.errors.quoteFailed'),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right'
+      })
     }
     if (result?.success) {
       setFees(result, sellAsset)
       setValue('quote', result)
     } else {
-      // TODO: (ryankk) fix errors to reflect correct trade attribute
-      setError('useSwapper', { message: TRADE_ERRORS.INSUFFICIENT_FUNDS })
+      let description
+      if (result?.statusReason && result.statusReason.includes('Gas estimation failed')) {
+        description = translate('trade.errors.insufficientFundsForAmount', { symbol: quote.sellAsset.symbol })
+      } else {
+        description = translate('trade.errors.quoteFailed')
+      }
+      toast({
+        title: translate('trade.errors.title'),
+        description,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right'
+      })
     }
     return result
   }

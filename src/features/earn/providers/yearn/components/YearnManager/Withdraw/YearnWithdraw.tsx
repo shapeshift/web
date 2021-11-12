@@ -1,13 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
-import {
-  Asset,
-  AssetDataSource,
-  ChainTypes,
-  ContractTypes,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
 import { EarnActionButtons } from 'features/earn/components/EarnActionButtons'
 import { TxStatus } from 'features/earn/components/TxStatus/TxStatus'
@@ -36,7 +29,7 @@ import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 
-import { YearnVault, YearnVaultApi } from '../../../api/api'
+import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
@@ -56,34 +49,6 @@ export const routes = [
 
 type YearnWithdrawProps = {
   api: YearnVaultApi
-}
-
-// TODO: Remove when vaults are added to asset service
-const makeVaultAsset = (vault: YearnVault): Asset => {
-  return {
-    chain: ChainTypes.Ethereum,
-    color: '#FFFFFF',
-    contractType: ContractTypes.ERC20,
-    dataSource: AssetDataSource.CoinGecko,
-    explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    icon: vault.icon,
-    name: vault.name,
-    network: NetworkTypes.MAINNET,
-    precision: vault.decimals,
-    receiveSupport: true,
-    secondaryColor: '#FFFFFF',
-    sendSupport: true,
-    slip44: 60,
-    symbol: vault.symbol,
-    tokenId: vault.address,
-    caip19: caip19.toCAIP19({
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
-      tokenId: vault.address,
-      contractType: ContractTypes.ERC20
-    })
-  }
 }
 
 export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
@@ -187,10 +152,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       memoryHistory.push(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
-        fn: () =>
-          api.getTxReceipt({
-            txid
-          }),
+        fn: () => api.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30
@@ -208,7 +170,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     }
   }
 
-  const handleViewPosition = () => {}
+  const handleViewPosition = () => {
+    browserHistory.push('/earn')
+  }
 
   const handleCancel = () => {
     browserHistory.goBack()
@@ -284,7 +248,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             onConfirm={handleConfirm}
             assets={[
               {
-                ...makeVaultAsset(state.vault),
+                ...asset,
                 color: '#FFFFFF',
                 cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
@@ -352,7 +316,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             statusIcon={statusIcon}
             assets={[
               {
-                ...makeVaultAsset(state.vault),
+                ...asset,
                 cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               },
@@ -371,7 +335,12 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.status.transactionId' />
                 </Row.Label>
                 <Row.Value>
-                  <Link href='http://google.com' isExternal color='blue.500' fontWeight='bold'>
+                  <Link
+                    href={`${asset.explorerTxLink}/${state.txid}`}
+                    isExternal
+                    color='blue.500'
+                    fontWeight='bold'
+                  >
                     <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
                   </Link>
                 </Row.Value>

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.11.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.3...@shapeshiftoss/types-v1.11.4) (2021-11-12)
+
+
+### Bug Fixes
+
+* gas fees erc20 ([#223](https://github.com/shapeshift/lib/issues/223)) ([fc0159d](https://github.com/shapeshift/lib/commit/fc0159d9600efdba34d60e6edda0b3ccd6031359))
+
 # [@shapeshiftoss/types-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.2...@shapeshiftoss/types-v1.11.3) (2021-11-10)
 
 

@@ -15,7 +15,7 @@ import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { toPath } from '../utils/bip32'
+import { toPath, toRootDerivationPath } from '../utils/bip32'
 import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {
@@ -259,9 +259,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     const { wallet, bip32Params = ChainAdapter.defaultBIP32Params } = input
 
     const address = await this.getAddress({ wallet, bip32Params })
+    const id = toRootDerivationPath(bip32Params)
 
     await this.providers.ws.subscribeTxs(
-      { topic: 'txs', addresses: [address] },
+      { topic: 'txs', addresses: [address], id },
       (msg) => {
         const getStatus = () => {
           const msgStatus = msg.ethereumSpecific?.status

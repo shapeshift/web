@@ -378,9 +378,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     const { xpub } = await this.getPubKey(wallet, bip32Params, scriptType)
     const account = await this.getAccount(xpub)
     const addresses = (account.chainSpecific.addresses ?? []).map((address) => address.pubkey)
+    const id = `${toRootDerivationPath(bip32Params)}/${scriptType}`
 
     await this.providers.ws.subscribeTxs(
-      { topic: 'txs', addresses },
+      { topic: 'txs', addresses, id },
       (msg) => {
         const status =
           msg.confirmations > 0 ? chainAdapters.TxStatus.Confirmed : chainAdapters.TxStatus.Pending

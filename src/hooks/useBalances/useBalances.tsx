@@ -1,12 +1,15 @@
 import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
+
+import { normalizeXpub } from '../../lib/xpubs'
 
 type UseBalancesReturnType = {
   balances: Record<string, chainAdapters.Account<ChainTypes>>
@@ -44,9 +47,10 @@ export const useBalances = (): UseBalancesReturnType => {
         if (adapter.getType() === 'ethereum') {
           addressOrXpub = await adapter.getAddress({ wallet })
         } else if (adapter.getType() === 'bitcoin') {
-          const accountType = accountTypes[key]
+          const accountType: UtxoAccountType = accountTypes[key]
           const accountParams = utxoAccountParams(asset, accountType, 0)
           const { bip32Params, scriptType } = accountParams
+          debugger
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
@@ -57,6 +61,8 @@ export const useBalances = (): UseBalancesReturnType => {
           ])
           if (!pubkeys || !pubkeys[0]) throw new Error('Error getting public key')
           addressOrXpub = pubkeys[0].xpub
+
+          normalizeXpub(addressOrXpub, accountType)
         } else {
           throw new Error('not implemented')
         }

@@ -127,6 +127,7 @@
     "@testing-library/react-hooks": "^7.0.1",
     "@testing-library/user-event": "^13.2.1",
     "@types/bignumber.js": "^5.0.0",
+    "@types/bs58check": "^2.1.0",
     "@types/crypto-js": "^4.0.2",
     "@types/d3-array": "^3.0.1",
     "@types/d3-time-format": "^4.0.0",

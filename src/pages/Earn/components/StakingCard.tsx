@@ -8,30 +8,32 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
-import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 
+import { MergedEarnVault } from '../hooks/useVaultBalances'
+
 type StakingCardProps = {
   isLoaded?: boolean
-} & SupportedYearnVault
+} & MergedEarnVault
 
 export const StakingCard = ({
   type,
-  provider,
-  vaultAddress,
+  symbol,
   tokenAddress,
   chain,
-  isLoaded
+  isLoaded,
+  apy,
+  cryptoAmount,
+  fiatAmount
 }: StakingCardProps) => {
   const asset = useFetchAsset({ chain, tokenId: tokenAddress })
-  const apy = '0.05'
-  const cryptoAmount = '100'
-  const fiatAmount = '100'
+
   if (!asset) return null
+
   return (
     <Card>
       <Card.Body>
@@ -46,12 +48,7 @@ export const StakingCard = ({
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
                 {`${asset.symbol} ${type}`}
               </RawText>
-              <Amount.Crypto
-                color='gray.500'
-                value={cryptoAmount}
-                symbol={asset.symbol}
-                lineHeight={1}
-              />
+              <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={symbol} lineHeight={1} />
             </SkeletonText>
           </Box>
         </Flex>
@@ -78,7 +75,7 @@ export const StakingCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded} maxWidth='100px' ml='auto'>
               <StatNumber color='green.500'>
-                <Amount.Percent value={apy} />
+                <Amount.Percent value={String(apy)} />
               </StatNumber>
             </Skeleton>
           </Stat>

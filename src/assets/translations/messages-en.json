@@ -35,6 +35,15 @@
       "recentTransactions": "Recent Transactions"
     }
   },
+  "connectWalletPage": {
+    "shapeshift": "ShapeShift",
+    "alpha": "Alpha",
+    "exploreThe": "Explore The",
+    "defiUniverse": "DeFi Universe",
+    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "header": "Please connect a wallet to get started",
+    "cta": "Connect Wallet"
+  },
   "connectWallet": {
     "menu": {
       "triggerButton": "Connect Wallet",
@@ -324,6 +333,10 @@
       "header": "Pair your MetaMask wallet",
       "connectButton": "Connect your MetaMask wallet"
     },
+    "portis": {
+        "header": "Pair your Portis wallet",
+        "connectButton": "Connect your Portis wallet"
+      },
     "selectModal": {
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."

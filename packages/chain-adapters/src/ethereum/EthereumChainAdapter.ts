@@ -251,6 +251,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
   }
 
+  // TODO: handle unsubscribe
   async subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
     onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Ethereum>) => void,

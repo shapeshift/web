@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.14.0...@shapeshiftoss/chain-adapters-v1.15.0) (2021-11-12)
+
+
+### Features
+
+* create unique id for subscribe txs ([#216](https://github.com/shapeshift/lib/issues/216)) ([574a2cb](https://github.com/shapeshift/lib/commit/574a2cb79c5de6ece75bacc31591e884cd5c84ec))
+
 # [@shapeshiftoss/chain-adapters-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.13.5...@shapeshiftoss/chain-adapters-v1.14.0) (2021-11-10)
 
 

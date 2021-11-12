@@ -145,7 +145,11 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
               <Text translation={sentTx ? 'transactionRow.to' : 'transactionRow.from'} />
             </Row.Label>
             <Row.Value>
-              <Link isExternal color='blue.500' href={`${asset?.explorer}/address/${tx.to ?? tx.from}`}>
+              <Link
+                isExternal
+                color='blue.500'
+                href={`${asset?.explorer}/address/${tx.to ?? tx.from}`}
+              >
                 <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
               </Link>
             </Row.Value>

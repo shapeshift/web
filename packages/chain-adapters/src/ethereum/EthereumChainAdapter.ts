@@ -186,7 +186,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   async getFeeData({
     to,
     value,
-    chainSpecific: { contractAddress, from }
+    chainSpecific: { contractAddress, from, contractData }
   }: chainAdapters.GetFeeDataInput<ChainTypes.Ethereum>): Promise<
     chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
   > {
@@ -197,17 +197,15 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
     if (!fees) throw new TypeError('ETH Gas Fees should always exist')
 
-    const data = await getErc20Data(to, value, contractAddress)
+    const data = contractData ?? (await getErc20Data(to, value, contractAddress))
 
-    const { data: feeUnits } = await this.providers.http.estimateGas({
+    const isErc20Send = !!contractAddress
+    const { data: gasLimit } = await this.providers.http.estimateGas({
       from,
-      to,
-      value,
+      to: isErc20Send ? contractAddress : to,
+      value: isErc20Send ? '0' : value,
       data
     })
-
-    // PAD LIMIT
-    const gasLimit = new BigNumber(feeUnits).times(2).toString()
 
     return {
       fast: {

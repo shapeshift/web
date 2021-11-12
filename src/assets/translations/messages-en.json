@@ -143,12 +143,12 @@
     "keepKey": {
       "passphrase": {
         "errors": {
-          "unknown": "There was an error setting your passphrase",
+          "unknown": "There was an error submitting your passphrase",
           "empty": "You are using an empty passphrase"
         },
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
-        "button": "Set Passphrase"
+        "button": "Submit Passphrase"
       }
     },
     "send": {

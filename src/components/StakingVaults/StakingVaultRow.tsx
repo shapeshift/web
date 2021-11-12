@@ -1,7 +1,8 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { YearnVault, YearnVaultApi } from 'features/earn/providers/yearn/api/api'
+import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
+import { YearnVault } from 'features/earn/providers/yearn/api/api'
 import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
@@ -16,7 +17,6 @@ import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 export const StakingVaultRow = ({
-  yearn,
   type,
   provider,
   vaultAddress,
@@ -24,10 +24,11 @@ export const StakingVaultRow = ({
   chain,
   symbol,
   isLoaded
-}: SupportedYearnVault & { yearn: YearnVaultApi; isLoaded: boolean }) => {
+}: SupportedYearnVault & { isLoaded: boolean }) => {
   const [vault, setVault] = useState<YearnVault | null>(null)
   const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
   const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
+  const { yearn, loading } = useYearn()
   const history = useHistory()
   const location = useLocation()
 
@@ -59,10 +60,10 @@ export const StakingVaultRow = ({
 
   useEffect(() => {
     ;(async () => {
-      const _vault = yearn.findByDepositTokenId(tokenAddress)
-      if (_vault) setVault(_vault)
+      if (!yearn || !wallet || loading) return null
       try {
-        if (!wallet) return
+        const _vault = yearn.findByDepositTokenId(tokenAddress)
+        if (_vault) setVault(_vault)
         const userAddress = await chainAdapter.getAddress({ wallet })
         // TODO: currently this is hard coded to yearn vaults only.
         // In the future we should add a hook to get the provider interface by vault provider
@@ -78,9 +79,18 @@ export const StakingVaultRow = ({
         console.error('StakingVaultRow useEffect', error)
       }
     })()
-  }, [chainAdapter, marketData?.price, tokenAddress, vault?.decimals, vaultAddress, wallet, yearn])
+  }, [
+    chainAdapter,
+    loading,
+    marketData?.price,
+    tokenAddress,
+    vault?.decimals,
+    vaultAddress,
+    wallet,
+    yearn
+  ])
 
-  if (!asset || !vault) return null
+  if (!asset || !vault || !yearn || loading) return null
 
   return (
     <Button

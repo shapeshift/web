@@ -4,7 +4,7 @@ import { StakingVaults as Vaults } from 'components/StakingVaults/StakingVaults'
 export const StakingVaults = () => {
   return (
     <Main>
-      <Vaults isLoaded={true} showAll />
+      <Vaults isLoaded showAll />
     </Main>
   )
 }

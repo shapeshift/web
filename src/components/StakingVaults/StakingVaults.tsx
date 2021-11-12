@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, Stack } from '@chakra-ui/react'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
-import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
@@ -18,7 +17,6 @@ type StakingVaultsProps = {
 
 export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVaultsProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
-  const { yearn, loading } = useYearn()
 
   const vaults = useMemo(() => {
     if (tokenId) {
@@ -30,7 +28,7 @@ export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVau
     }
   }, [tokenId, showAll])
 
-  if (!earnFeature || !yearn || loading || vaults.length === 0) return null
+  if (!earnFeature || vaults.length === 0) return null
 
   return (
     <Card>
@@ -50,14 +48,7 @@ export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVau
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           {vaults.map(vault => (
-            <StakingVaultRow
-              {...vault}
-              key={vault.tokenAddress}
-              isLoaded={isLoaded}
-              // TODO: currently this is hard coded to yearn vaults only.
-              // In the future we should add a hook to get the provider interface by vault provider
-              yearn={yearn}
-            />
+            <StakingVaultRow {...vault} key={vault.tokenAddress} isLoaded={isLoaded} />
           ))}
         </Stack>
       </Card.Body>

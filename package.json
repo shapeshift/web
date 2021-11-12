@@ -74,6 +74,7 @@
     "unlink-packages": "find node_modules node_modules/@* -depth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
     "build": "GENERATE_SOURCEMAP=false DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "dev": "react-scripts start",
+    "dev:silent": "BROWSER=none react-scripts start",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "test": "react-scripts test --coverage",

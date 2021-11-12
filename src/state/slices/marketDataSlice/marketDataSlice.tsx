@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { caip19 } from '@shapeshiftoss/caip'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { getByMarketCap, getMarketData, getPriceHistory } from '@shapeshiftoss/market-service'
 import {
   ChainTypes,
@@ -18,7 +18,7 @@ export type MarketDataState = {
   }
   priceHistory: {
     [k in HistoryTimeframe]: {
-      [k: string]: HistoryData[]
+      [k: CAIP19]: HistoryData[]
     }
   }
 }
@@ -89,7 +89,7 @@ export const marketData = createSlice({
       payload.forEach((price, idx) => {
         if (price.status === 'rejected') return
         state.priceHistory[timeframe][assets[idx]] = price.value.map(({ date, price }) => ({
-          date: date.valueOf(), // dates aren't serializable in store
+          date: date.valueOf().toString(), // dates aren't serializable in store
           price
         }))
       })

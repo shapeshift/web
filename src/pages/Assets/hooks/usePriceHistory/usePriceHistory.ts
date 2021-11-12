@@ -1,3 +1,4 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import keys from 'lodash/keys'
 import size from 'lodash/size'
@@ -7,12 +8,12 @@ import { ReduxState } from 'state/reducer'
 import { fetchPriceHistory } from 'state/slices/marketDataSlice/marketDataSlice'
 
 type UsePriceHistory = {
-  assets: string[] // caip19
+  assets: CAIP19[]
   timeframe: HistoryTimeframe
 }
 
 export const usePriceHistory = ({ assets, timeframe }: UsePriceHistory) => {
-  const [data, setData] = useState<HistoryData[]>([])
+  const [data, setData] = useState<{ [asset: CAIP19]: HistoryData[] }>({})
   const [loading, setLoading] = useState<boolean>(false)
   const dispatch = useDispatch()
   const priceHistoryForTimeframe = useSelector(
@@ -22,7 +23,7 @@ export const usePriceHistory = ({ assets, timeframe }: UsePriceHistory) => {
 
   useEffect(() => {
     setLoading(false)
-    setData(priceHistoryForTimeframe[timeframe])
+    setData(priceHistoryForTimeframe)
   }, [priceHistoryForTimeframe, timeframe])
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export const usePriceHistory = ({ assets, timeframe }: UsePriceHistory) => {
     const loadedPriceCount = size(keys(priceHistoryForTimeframe))
     if (assetCount === loadedPriceCount) return // dont fetch if they're all fetched
     setLoading(true)
+    console.info('dispatching')
     dispatch(fetchPriceHistory({ assets, timeframe }))
   }, [assets, dispatch, loading, marketDataLoading, priceHistoryForTimeframe, timeframe])
 

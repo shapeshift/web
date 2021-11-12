@@ -14,7 +14,7 @@ export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
   const { totalBalance, loading } = usePortfolio()
 
-  const { balanceChartData, balanceChartLoading } = useBalanceChartData({ timeframe })
+  const { balanceChartLoading } = useBalanceChartData({ assets: [], timeframe, totalBalance })
   const isLoaded = !balanceChartLoading
 
   if (loading)
@@ -46,7 +46,7 @@ export const Portfolio = () => {
           <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
         </Card.Header>
         <Card.Body p={0} height='350px'>
-          <Graph data={balanceChartData} loading={balanceChartLoading} isLoaded={isLoaded} />
+          <Graph data={[]} loading={balanceChartLoading} isLoaded={isLoaded} />
         </Card.Body>
       </Card>
       <Card>

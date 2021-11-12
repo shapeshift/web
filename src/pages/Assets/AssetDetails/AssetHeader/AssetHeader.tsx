@@ -28,6 +28,7 @@ import { fromBaseUnit } from 'lib/math'
 import { useAsset } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
+import { useBalanceChartData } from 'pages/Dashboard/hooks/useBalanceChartData/useBalanceChartData'
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
 
 import { AssetActions } from './AssetActions'
@@ -51,11 +52,19 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
   const assets = useMemo(() => [asset.caip19].filter(Boolean), [asset])
-  const { data, loading } = usePriceHistory({ assets, timeframe })
-  const graphPercentChange = usePercentChange({ data, initPercentChange: percentChange })
+  const { data } = usePriceHistory({ assets, timeframe })
+  const graphPercentChange = usePercentChange({
+    data: data[asset.caip19],
+    initPercentChange: percentChange
+  })
   const { balances } = useFlattenedBalances()
   const id = asset.tokenId ?? asset.chain
   const totalBalance = useTotalBalance({ [id]: balances[id] })
+  const { balanceChartData, balanceChartLoading } = useBalanceChartData({
+    assets,
+    timeframe,
+    totalBalance
+  })
 
   return (
     <Card variant='footer-stub'>
@@ -137,7 +146,11 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
         </Box>
       </Card.Body>
       <Card.Body px={0} py={0} position='relative' height='300px'>
-        <Graph data={data} loading={loading} isLoaded={isLoaded} />
+        <Graph
+          data={balanceChartData}
+          loading={balanceChartLoading}
+          isLoaded={!balanceChartLoading}
+        />
       </Card.Body>
       <Card.Footer>
         <AssetMarketData marketData={marketData} isLoaded={isLoaded} />

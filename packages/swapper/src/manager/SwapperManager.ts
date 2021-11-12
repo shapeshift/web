@@ -14,6 +14,7 @@ function validateSwapper(swapper: Swapper) {
     throw new SwapperError('validateSwapper - invalid swapper instance')
 }
 
+// TODO: remove me
 export class SwapperManager {
   public swappers: Map<SwapperType, Swapper>
 

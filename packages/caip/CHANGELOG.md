@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.3.0...@shapeshiftoss/caip-v1.4.0) (2021-11-12)
+
+
+### Features
+
+* export CAIP2 and CAIP19 as string alias ([#215](https://github.com/shapeshift/lib/issues/215)) ([4dacb75](https://github.com/shapeshift/lib/commit/4dacb7546a49c3d722442d89a8c1262907d34915))
+
 # [@shapeshiftoss/caip-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.2.2...@shapeshiftoss/caip-v1.3.0) (2021-11-10)
 
 

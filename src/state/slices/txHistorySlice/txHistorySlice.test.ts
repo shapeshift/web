@@ -17,17 +17,34 @@ describe('txHistorySlice', () => {
     })
 
     it('should add new transactions', async () => {
+      // new eth transaction (send)
       store.dispatch(txHistory.actions.onMessage({ message: EthSend }))
       expect(Object.values(store.getState().txHistory[ChainTypes.Ethereum]).length).toBe(1)
 
+      // duplicate eth transaction (send)
+      store.dispatch(txHistory.actions.onMessage({ message: EthSend }))
+      expect(Object.values(store.getState().txHistory[ChainTypes.Ethereum]).length).toBe(1)
+
+      // new eth transaction (receive)
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive }))
       expect(Object.values(store.getState().txHistory[ChainTypes.Ethereum]).length).toBe(2)
 
+      // eth data exists
       expect(store.getState().txHistory[ChainTypes.Ethereum]).toBeTruthy()
 
+      // new btc transaction (send)
       store.dispatch(txHistory.actions.onMessage({ message: BtcSend }))
       expect(Object.values(store.getState().txHistory[ChainTypes.Bitcoin]).length).toBe(1)
 
+      // duplicate btc transaction (send)
+      store.dispatch(txHistory.actions.onMessage({ message: BtcSend }))
+      expect(Object.values(store.getState().txHistory[ChainTypes.Bitcoin]).length).toBe(1)
+
+      // same btc transaction, different account type (send)
+      store.dispatch(txHistory.actions.onMessage({ message: {...BtcSend, accountType: 'foo' }}))
+      expect(Object.values(store.getState().txHistory[ChainTypes.Bitcoin]).length).toBe(2)
+
+      // btc data exists
       expect(store.getState().txHistory[ChainTypes.Bitcoin]).toBeTruthy()
     })
 

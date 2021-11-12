@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
-import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -14,7 +14,6 @@ import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
@@ -78,8 +77,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
-  const currentAccountType: UtxoAccountType = useSelector(
-    (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
+  const currentAccountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
 
   const estimateFees = async (): Promise<chainAdapters.FeeDataEstimate<ChainTypes>> => {
@@ -108,7 +107,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getType(),
-            addressNList: bip32ToAddressNList(toPath(accountParams.bip32Params)),
+            addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip32Params)),
             curve: 'secp256k1',
             scriptType: accountParams.scriptType
           }
@@ -175,7 +174,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toPath(accountParams.bip32Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip32Params)),
               curve: 'secp256k1',
               scriptType: accountParams.scriptType
             }

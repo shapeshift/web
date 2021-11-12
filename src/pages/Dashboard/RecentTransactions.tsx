@@ -3,12 +3,11 @@ import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-
-import { selectRecentTxHistory } from './helpers/selectRecentTxHistory/selectRecentTxHistory'
+import { ReduxState } from 'state/reducer'
+import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const RecentTransactions = () => {
-  const txs = useSelector(selectRecentTxHistory)
+  const txs = useSelector((state: ReduxState) => selectTxHistory(state, {}))
 
   return (
     <Card>

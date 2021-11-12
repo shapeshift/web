@@ -1,12 +1,12 @@
-import { toPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
 import { getAssetService } from 'lib/assetService'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
+import { ReduxState } from 'state/reducer'
 
 type UseBalancesReturnType = {
   balances: Record<string, chainAdapters.Account<ChainTypes>>
@@ -23,7 +23,7 @@ export const useBalances = (): UseBalancesReturnType => {
     state: { wallet, walletInfo }
   } = useWallet()
 
-  const allAccountTypes = useAllAccountTypes()
+  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
 
   const getBalances = useCallback(async () => {
     if (wallet) {
@@ -44,13 +44,13 @@ export const useBalances = (): UseBalancesReturnType => {
         if (adapter.getType() === 'ethereum') {
           addressOrXpub = await adapter.getAddress({ wallet })
         } else if (adapter.getType() === 'bitcoin') {
-          const accountType = allAccountTypes[getAccountTypeKey(key)]
+          const accountType = accountTypes[key]
           const accountParams = utxoAccountParams(asset, accountType, 0)
           const { bip32Params, scriptType } = accountParams
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toPath(bip32Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
               curve: 'secp256k1',
               scriptType
             }
@@ -69,7 +69,7 @@ export const useBalances = (): UseBalancesReturnType => {
     }
     // We aren't passing chainAdapter as it will always be the same object and should never change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, JSON.stringify(allAccountTypes)])
+  }, [walletInfo?.deviceId, JSON.stringify(accountTypes)])
 
   useEffect(() => {
     if (wallet) {
@@ -87,7 +87,7 @@ export const useBalances = (): UseBalancesReturnType => {
     }
     // Here we rely on the deviceId vs the wallet class
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, getBalances, JSON.stringify(allAccountTypes)])
+  }, [walletInfo?.deviceId, getBalances, JSON.stringify(accountTypes)])
 
   return {
     balances,

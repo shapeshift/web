@@ -7,11 +7,10 @@ import {
   UtxoAccountType
 } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
+import * as reactRedux from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAllAccountTypes } from 'hooks/useAllAccountTypes/useAllAccountTypes'
-import { accountTypePrefix } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
@@ -22,7 +21,6 @@ jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()
 }))
 
-jest.mock('hooks/useAllAccountTypes/useAllAccountTypes')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
@@ -102,10 +100,18 @@ const testSignedTx = '0xfakeSignedTxHash'
 const expectedTx = '0xfakeTxHash'
 
 describe('useFormSend', () => {
+  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
+
   beforeEach(() => {
-    ;(useAllAccountTypes as jest.Mock<unknown>).mockImplementation(() => ({
-      [accountTypePrefix + ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
-    }))
+    useSelectorMock.mockReturnValue({
+      state: {
+        preferences: {
+          accountTypes: {
+            [ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh
+          }
+        }
+      }
+    })
   })
 
   it('handles successfully sending a tx', async () => {

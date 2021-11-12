@@ -10,6 +10,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useQuery } from 'hooks/useQuery/useQuery'
 import { colors } from 'theme/colors'
 
 type NoWalletProps = {
@@ -20,9 +21,10 @@ type NoWalletProps = {
 export const ConnectWallet = ({ dispatch, isConnected }: NoWalletProps) => {
   const history = useHistory()
   const translate = useTranslate()
+  const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
-    isConnected && history.push('/dashboard')
-  }, [history, isConnected])
+    isConnected && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
+  }, [history, isConnected, query.returnUrl])
   return (
     <Page>
       <Flex

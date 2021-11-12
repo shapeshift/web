@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.0...@shapeshiftoss/swapper-v1.11.1) (2021-11-12)
+
+
+### Bug Fixes
+
+* keep on bumpin ([#221](https://github.com/shapeshift/lib/issues/221)) ([d13834b](https://github.com/shapeshift/lib/commit/d13834b1b6d7d3f36975d5613f7d4590d52d3ee5))
+
 # [@shapeshiftoss/swapper-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.10.7...@shapeshiftoss/swapper-v1.11.0) (2021-11-10)
 
 

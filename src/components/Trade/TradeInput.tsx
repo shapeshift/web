@@ -41,6 +41,8 @@ const FiatInput = (props: InputProps) => (
   />
 )
 
+type TS = TradeState<ChainTypes, SwapperType>
+
 export const TradeInput = ({ history }: RouterProps) => {
   const {
     control,
@@ -54,7 +56,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  type TS = TradeState<ChainTypes, SwapperType>
   const [quote, action, buyAsset, sellAsset] = useWatch({
     name: ['quote', 'action', 'buyAsset', 'sellAsset']
   }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
@@ -258,7 +259,6 @@ export const TradeInput = ({ history }: RouterProps) => {
             }
           />
         </FormControl>
-
         <Button
           type='submit'
           size='lg'

@@ -41,7 +41,7 @@ describe('txHistorySlice', () => {
       expect(Object.values(store.getState().txHistory[ChainTypes.Bitcoin]).length).toBe(1)
 
       // same btc transaction, different account type (send)
-      store.dispatch(txHistory.actions.onMessage({ message: {...BtcSend, accountType: 'foo' }}))
+      store.dispatch(txHistory.actions.onMessage({ message: { ...BtcSend, accountType: 'foo' } }))
       expect(Object.values(store.getState().txHistory[ChainTypes.Bitcoin]).length).toBe(2)
 
       // btc data exists

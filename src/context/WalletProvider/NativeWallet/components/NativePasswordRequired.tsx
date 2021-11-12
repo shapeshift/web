@@ -150,6 +150,7 @@ export const NativePasswordRequired = ({
                   pr='4.5rem'
                   type={showPw ? 'text' : 'password'}
                   placeholder='Enter password'
+                  id='password'
                 />
                 <InputRightElement>
                   <IconButton

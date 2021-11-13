@@ -1,13 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack, Tag, useToast } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
-import {
-  Asset,
-  AssetDataSource,
-  ChainTypes,
-  ContractTypes,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/earn/components/Approve/Approve'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/earn/components/Deposit/Deposit'
@@ -37,7 +30,7 @@ import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 
-import { YearnVault, YearnVaultApi } from '../../../api/api'
+import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
@@ -63,34 +56,6 @@ export type YearnDepositProps = {
   api: YearnVaultApi
 }
 
-// TODO: Remove when vaults are added to asset service
-const makeVaultAsset = (vault: YearnVault): Asset => {
-  return {
-    chain: ChainTypes.Ethereum,
-    color: '#FFFFFF',
-    contractType: ContractTypes.ERC20,
-    dataSource: AssetDataSource.CoinGecko,
-    explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    icon: vault.icon,
-    name: vault.name,
-    network: NetworkTypes.MAINNET,
-    precision: vault.decimals,
-    receiveSupport: true,
-    secondaryColor: '#FFFFFF',
-    sendSupport: true,
-    slip44: 60,
-    symbol: vault.symbol,
-    tokenId: vault.address,
-    caip19: caip19.toCAIP19({
-      chain: ChainTypes.Ethereum,
-      network: NetworkTypes.MAINNET,
-      tokenId: vault.address,
-      contractType: ContractTypes.ERC20
-    })
-  }
-}
-
 export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
@@ -102,8 +67,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const marketData = useMarketData({ chain, tokenId })
   const feeAsset = useFetchAsset({ chain })
   const feeMarketData = useMarketData({ chain })
-  // TODO: Add vaults to asset service
-  // const vaultAsset = useFetchAsset({ chain, tokenId: '' })
+  const vaultAsset = useFetchAsset({ chain, tokenId: vaultAddress })
 
   // user info
   const chainAdapterManager = useChainAdapters()
@@ -310,7 +274,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         }
       })
     } catch (error) {
-      console.error('YearnDeposit:handleConfirm error', error)
+      console.error('YearnDeposit:handleDeposit error', error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -323,7 +287,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const handleViewPosition = () => {
-    // TODO: go to position view.
+    browserHistory.push('/earn')
   }
 
   const handleCancel = () => {
@@ -334,14 +298,18 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
-    const hasValidBalance = crypto.gte(value)
+    const _value = bnOrZero(value)
+    const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+    if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 
   const validateFiatAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
     const fiat = crypto.times(marketData.price)
-    const hasValidBalance = fiat.gte(value)
+    const _value = bnOrZero(value)
+    const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
+    if (_value.isEqualTo(0)) return ''
     return hasValidBalance || 'common.insufficientFunds'
   }
 
@@ -418,7 +386,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 fiatAmount: state.deposit.fiatAmount
               },
               {
-                ...makeVaultAsset(state.vault),
+                ...vaultAsset,
                 color: '#FFFFFF',
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
                   .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
@@ -510,7 +478,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                 fiatAmount: state.deposit.fiatAmount
               },
               {
-                ...makeVaultAsset(state.vault),
+                ...vaultAsset,
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
                   .div(bnOrZero(state.pricePerShare).div(`1e+${state.vault.decimals}`))
                   .toString(),

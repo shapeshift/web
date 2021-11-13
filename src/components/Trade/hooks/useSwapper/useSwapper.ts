@@ -53,6 +53,8 @@ export enum TRADE_ERRORS {
   OVER_SLIP_SCORE = 'trade.errors.overSlipScore'
 }
 
+// TODO: (ryankk) revisit the logic inside useSwapper post bounty to see
+// if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
   const { setValue, setError, clearErrors, getValues } = useFormContext()
   const isComponentMounted = useIsComponentMounted()
@@ -74,6 +76,49 @@ export const useSwapper = () => {
     return swapper.getDefaultPair()
   }, [swapperManager, bestSwapperType])
 
+  const getSendMaxAmount = async ({
+    wallet,
+    sellAsset,
+    buyAsset
+  }: {
+    wallet: HDWallet
+    sellAsset: TradeAsset
+    buyAsset: TradeAsset
+  }) => {
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const { minimum: minimumAmount } = await swapper?.getMinMax({
+      sellAsset: sellAsset.currency,
+      buyAsset: buyAsset.currency
+    })
+
+    const completeQuote = await swapper?.buildQuoteTx({
+      input: {
+        sellAsset: sellAsset.currency,
+        buyAsset: buyAsset.currency,
+        sellAmount: toBaseUnit(minimumAmount, sellAsset.currency.precision),
+        sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+        buyAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
+      },
+      wallet
+    })
+
+    if (!completeQuote) return
+
+    const sendMaxAmount = await swapper.getSendMaxAmount({
+      wallet,
+      quote: completeQuote,
+      sellAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
+    })
+
+    const formattedMaxAmount = fromBaseUnit(sendMaxAmount, sellAsset.currency.precision)
+
+    // Set form amount value to updated max value
+    setValue('sellAsset.amount', formattedMaxAmount)
+    setValue('action', TradeActions.SELL)
+
+    return formattedMaxAmount
+  }
+
   const buildQuoteTx = async ({
     wallet,
     sellAsset,
@@ -93,11 +138,10 @@ export const useSwapper = () => {
           sellAmount: toBaseUnit(amount, sellAsset.precision),
           sellAsset,
           buyAsset,
-          sellAssetAccountId: '0', // TODO: remove hard coded accountId
-          buyAssetAccountId: '0', // TODO: remove hard coded accountId
+          sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+          buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
           slippage: trade?.slippage?.toString(),
-          priceImpact: quote?.priceImpact,
-          sendMax: false // TODO: implement sendMax
+          priceImpact: quote?.priceImpact
         },
         wallet
       })
@@ -388,6 +432,7 @@ export const useSwapper = () => {
     checkApprovalNeeded,
     approveInfinite,
     getFiatRate,
+    getSendMaxAmount,
     reset
   }
 }

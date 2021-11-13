@@ -8,8 +8,8 @@ import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetHistory } from './AssetHistory'
 
 export const AssetDetails = () => {
-  const { asset, loading } = useAsset()
-  const isLoaded = !loading
+  const { asset, marketData } = useAsset()
+  const isLoaded = !!marketData
 
   return (
     <Page style={{ width: '100%' }}>

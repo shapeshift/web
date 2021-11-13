@@ -9,6 +9,7 @@ import {
   InputProps
 } from '@chakra-ui/react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
+import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { RouterProps } from 'react-router-dom'
@@ -40,6 +41,8 @@ const FiatInput = (props: InputProps) => (
   />
 )
 
+type TS = TradeState<ChainTypes, SwapperType>
+
 export const TradeInput = ({ history }: RouterProps) => {
   const {
     control,
@@ -52,11 +55,12 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
-  type TS = TradeState<ChainTypes, SwapperType>
+  const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
   const [quote, action, buyAsset, sellAsset] = useWatch({
     name: ['quote', 'action', 'buyAsset', 'sellAsset']
   }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
-  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate } = useSwapper()
+  const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
+    useSwapper()
   const {
     state: { wallet }
   } = useWallet()
@@ -95,10 +99,35 @@ export const TradeInput = ({ history }: RouterProps) => {
     }
   }
 
+  const onSwapMax = async () => {
+    if (!wallet) return
+    try {
+      setIsSendMaxLoading(true)
+      const maxSendAmount = await getSendMaxAmount({ wallet, sellAsset, buyAsset })
+      const action = TradeActions.SELL
+      const currentSellAsset = getValues('sellAsset')
+      const currentBuyAsset = getValues('buyAsset')
+
+      if (!maxSendAmount) return
+
+      await getQuote({
+        sellAsset: currentSellAsset,
+        buyAsset: currentBuyAsset,
+        action,
+        amount: maxSendAmount
+      })
+    } catch (err) {
+      console.error(`sendMax: ${err}`)
+      // TODO: (ryankk) correct errors to reflect appropriate attributes
+      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+    } finally {
+      setIsSendMaxLoading(false)
+    }
+  }
+
   const switchAssets = () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
-    // TODO: (ryankk) make sure this is the behavior we want
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
     setValue('action', action)
     setValue('sellAsset', currentBuyAsset)
@@ -155,6 +184,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='sellAsset.amount'
+            disabled={isSendMaxLoading}
             rules={{ required: true }}
             onInputChange={(amount: string) => {
               if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
@@ -176,7 +206,8 @@ export const TradeInput = ({ history }: RouterProps) => {
                 size='sm'
                 variant='ghost'
                 colorScheme='blue'
-                onClick={() => console.info('max')}
+                isDisabled={isSendMaxLoading}
+                onClick={onSwapMax}
               >
                 Max
               </Button>
@@ -209,9 +240,10 @@ export const TradeInput = ({ history }: RouterProps) => {
           </Box>
         </FormControl>
         <FormControl mb={6}>
-          <TokenRow
+          <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='buyAsset.amount'
+            disabled={isSendMaxLoading}
             rules={{ required: true }}
             onInputChange={(amount: string) => {
               const action = amount ? TradeActions.BUY : undefined
@@ -227,13 +259,12 @@ export const TradeInput = ({ history }: RouterProps) => {
             }
           />
         </FormControl>
-
         <Button
           type='submit'
           size='lg'
           width='full'
           colorScheme={error ? 'red' : 'blue'}
-          isLoading={isSubmitting}
+          isLoading={isSubmitting || isSendMaxLoading}
           isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',

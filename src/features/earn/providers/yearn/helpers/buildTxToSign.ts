@@ -41,7 +41,7 @@ export function buildTxToSign({
     to,
     chainId, // TODO: implement for multiple chains
     data,
-    nonce: String(nonce),
+    nonce: numberToHex(nonce),
     gasPrice: numberToHex(gasPrice),
     gasLimit: numberToHex(estimatedGas)
   }

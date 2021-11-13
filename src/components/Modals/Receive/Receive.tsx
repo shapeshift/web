@@ -115,7 +115,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
                 <Card.Body>
                   <QRCode text={receiveAddress} />
                 </Card.Body>
-                <Card.Footer textAlign='center' pt={0}>
+                <Card.Footer textAlign='center' pt={0} fontSize='sm'>
                   <RawText>{receiveAddress}</RawText>
                 </Card.Footer>
               </Card>

@@ -1,4 +1,4 @@
-import { ChevronRightIcon, CloseIcon, RepeatIcon, TriangleDownIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -15,13 +15,11 @@ import { FC } from 'react'
 import { Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
-type WalletImageProps = {
-  isConnected: Boolean
-} & Pick<InitialState, 'walletInfo'>
+type WalletImageProps = Pick<InitialState, 'walletInfo'>
 
-const WalletImage = ({ isConnected, walletInfo }: WalletImageProps) => {
+export const WalletImage = ({ walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon
-  if (isConnected && Icon) {
+  if (Icon) {
     return <Icon width='18px' height='auto' />
   }
   return null
@@ -34,23 +32,28 @@ export const WalletButton: FC<FlexProps> = () => {
   return !isConnected ? (
     <Button
       onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-      leftIcon={<WalletImage isConnected={isConnected} walletInfo={walletInfo} />}
+      leftIcon={<WalletImage walletInfo={walletInfo} />}
       rightIcon={<ChevronRightIcon h={6} w={6} />}
+      variant='ghost-filled'
+      colorScheme='blue'
       mr={6}
     >
       <Text translation={'connectWallet.menu.triggerButton'} />
     </Button>
   ) : (
-    <Menu gutter={4}>
+    <Menu>
       <MenuButton
         as={Button}
-        leftIcon={<WalletImage isConnected={isConnected} walletInfo={walletInfo} />}
-        rightIcon={<TriangleDownIcon h={3} w={3} />}
+        variant='ghost'
+        leftIcon={<WalletImage walletInfo={walletInfo} />}
+        rightIcon={<ChevronDownIcon />}
+        colorScheme='green'
         mr={6}
+        disabled
       >
         {walletInfo?.name}
       </MenuButton>
-      <MenuList minW='300px'>
+      <MenuList>
         <MenuGroup title='Connected'>
           <Box
             borderRadius={0}
@@ -61,10 +64,10 @@ export const WalletButton: FC<FlexProps> = () => {
             py={2}
             display='flex'
             flexWrap='nowrap'
-            icon={<WalletImage isConnected={isConnected} walletInfo={walletInfo} />}
+            icon={<WalletImage walletInfo={walletInfo} />}
           >
             <Button
-              leftIcon={<WalletImage isConnected={isConnected} walletInfo={walletInfo} />}
+              leftIcon={<WalletImage walletInfo={walletInfo} />}
               bg='whiteAlpha.200'
               borderRadius='lg'
               px={3}

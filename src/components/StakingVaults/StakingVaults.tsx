@@ -3,6 +3,7 @@ import { Box, Button, Stack } from '@chakra-ui/react'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import { useMemo } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFeature } from 'hooks/useFeature/useFeature'
@@ -40,7 +41,14 @@ export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVau
           <Text color='gray.500' translation='assets.assetCards.stakingBody' />
         </Box>
         {!showAll && (
-          <Button size='sm' ml='auto' variant='link' colorScheme='blue'>
+          <Button
+            size='sm'
+            ml='auto'
+            variant='link'
+            colorScheme='blue'
+            as={NavLink}
+            to='/earn/staking-vaults'
+          >
             <Text translation='common.seeAll' /> <ArrowForwardIcon />
           </Button>
         )}

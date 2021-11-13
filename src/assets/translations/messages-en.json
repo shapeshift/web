@@ -7,6 +7,7 @@
     "continue": "Continue",
     "confirm": "Confirm",
     "reject": "Reject",
+    "connected": "Connected",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
@@ -14,7 +15,10 @@
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
+    "connectedWallet": "Connected Wallet",
+    "noWallet": "No Wallet Connected",
     "seeAll": "See All",
+    "darkMode": "Dark Mode",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
     "transactionFailed": "Transaction Failed",
@@ -334,9 +338,9 @@
       "connectButton": "Connect your MetaMask wallet"
     },
     "portis": {
-        "header": "Pair your Portis wallet",
-        "connectButton": "Connect your Portis wallet"
-      },
+      "header": "Pair your Portis wallet",
+      "connectButton": "Connect your Portis wallet"
+    },
     "selectModal": {
       "header": "Connect a wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."

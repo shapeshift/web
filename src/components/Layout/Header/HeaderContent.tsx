@@ -2,7 +2,6 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
-  HStack,
   IconButton,
   Portal,
   Stack,
@@ -14,9 +13,8 @@ import { pathTo, Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { breakpoints } from 'theme/theme'
 
-import { ColorModeSwitcher } from './ColorModeSwitcher/ColorModeSwitcher'
 import { NavBar } from './NavBar/NavBar'
-import { WalletButton } from './NavBar/WalletButton'
+import { UserMenu } from './NavBar/UserMenu'
 
 export const HeaderContent = ({ route }: { route: Route }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -59,13 +57,9 @@ export const HeaderContent = ({ route }: { route: Route }) => {
         </RouterLink>
         <NavBar display={{ base: 'none', md: 'flex' }} />
         <Flex alignItems='center' justifyContent='flex-end' flex={2}>
-          <HStack spacing={8} alignItems={'center'}>
-            <ColorModeSwitcher />
-            <WalletButton />
-          </HStack>
+          <UserMenu />
         </Flex>
       </Flex>
-
       {isLargerThanMd ? null : (
         <Portal>
           <Box

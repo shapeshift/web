@@ -16,7 +16,15 @@ import { Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { breakpoints } from 'theme/theme'
 
-import { WalletImage } from './WalletButton'
+type WalletImageProps = Pick<InitialState, 'walletInfo'>
+
+export const WalletImage = ({ walletInfo }: WalletImageProps) => {
+  const Icon = walletInfo?.icon
+  if (Icon) {
+    return <Icon width='18px' height='auto' />
+  }
+  return null
+}
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()

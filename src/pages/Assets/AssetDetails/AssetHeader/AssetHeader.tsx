@@ -15,6 +15,7 @@ import {
   StatNumber
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { isEmpty } from 'lodash'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -35,14 +36,14 @@ import { AssetActions } from './AssetActions'
 import { AssetMarketData } from './AssetMarketData'
 import { SegwitSelectCard } from './SegwitSelectCard'
 
-enum views {
-  price = 'price',
-  balance = 'balance'
+enum Views {
+  Price = 'price',
+  Balance = 'balance'
 }
 
 export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { asset, marketData } = useAsset()
-  const [view, setView] = useState(views.price)
+  const [view, setView] = useState(Views.Price)
   const { name, symbol, description, icon } = asset || {}
   const { changePercent24Hr, price } = marketData || {}
   const percentChange = changePercent24Hr ?? 0
@@ -52,9 +53,19 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
   const assets = useMemo(() => [asset.caip19].filter(Boolean), [asset])
-  const { data } = usePriceHistory({ assets, timeframe })
+  const { data: priceHistoryData, loading: priceHistoryDataLoading } = usePriceHistory({
+    assets,
+    timeframe
+  })
+  const assetPriceHistoryData = useMemo(() => {
+    if (isEmpty(priceHistoryData[asset?.caip19])) return []
+    return priceHistoryData[asset.caip19].map(({ price, date }) => ({
+      price, // TODO(0xdef1cafe): update charts to accept price or balance
+      date: new Date(Number(date)).toISOString()
+    }))
+  }, [priceHistoryData, asset])
   const graphPercentChange = usePercentChange({
-    data: data[asset.caip19],
+    data: assetPriceHistoryData,
     initPercentChange: percentChange
   })
   const { balances } = useFlattenedBalances()
@@ -65,6 +76,9 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
     timeframe,
     totalBalance
   })
+
+  const graphData = view === Views.Balance ? balanceChartData : assetPriceHistoryData
+  const graphLoading = view === Views.Balance ? balanceChartLoading : priceHistoryDataLoading
 
   return (
     <Card variant='footer-stub'>
@@ -94,10 +108,10 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
             <Skeleton isLoaded={isLoaded}>
               <ButtonGroup size='sm' colorScheme='blue' variant='ghost'>
-                <Button isActive={view === views.balance} onClick={() => setView(views.balance)}>
+                <Button isActive={view === Views.Balance} onClick={() => setView(Views.Balance)}>
                   <Text translation='assets.assetDetails.assetHeader.balance' />
                 </Button>
-                <Button isActive={view === views.price} onClick={() => setView(views.price)}>
+                <Button isActive={view === Views.Price} onClick={() => setView(Views.Price)}>
                   <Text translation='assets.assetDetails.assetHeader.price' />
                 </Button>
               </ButtonGroup>
@@ -110,7 +124,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
             <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
               <Skeleton isLoaded={isLoaded}>
                 <NumberFormat
-                  value={view === views.price ? assetPrice : totalBalance}
+                  value={view === Views.Price ? assetPrice : totalBalance}
                   displayType={'text'}
                   thousandSeparator={true}
                   prefix={'$'}
@@ -130,7 +144,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                   </StatNumber>
                 </Skeleton>
               </Stat>
-              {view === views.balance && (
+              {view === Views.Balance && (
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
                     <StatNumber>
@@ -146,11 +160,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
         </Box>
       </Card.Body>
       <Card.Body px={0} py={0} position='relative' height='300px'>
-        <Graph
-          data={balanceChartData}
-          loading={balanceChartLoading}
-          isLoaded={!balanceChartLoading}
-        />
+        <Graph data={graphData} loading={graphLoading} isLoaded={!graphLoading} />
       </Card.Body>
       <Card.Footer>
         <AssetMarketData marketData={marketData} isLoaded={isLoaded} />

@@ -83,7 +83,7 @@ export const makeBuckets = (timeframe: HistoryTimeframe): MakeBucketsReturn => {
     [HistoryTimeframe.WEEK]: { count: 84, duration: 2, unit: 'hours' },
     [HistoryTimeframe.MONTH]: { count: 90, duration: 8, unit: 'hours' },
     [HistoryTimeframe.YEAR]: { count: 52, duration: 1, unit: 'week' },
-    [HistoryTimeframe.ALL]: { count: 60, duration: 1, unit: 'weeks' }
+    [HistoryTimeframe.ALL]: { count: 60, duration: 1, unit: 'months' }
   }
 
   const meta = timeframeMap[timeframe]
@@ -144,10 +144,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { assets, timeframe, totalBalance } = args
   const [balanceChartLoading, setBalanceChartLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  // wait for tx's to finish loading before doing expensive computations
+  // we can't tell if txs are finished loading over the websocket, so
+  // debounce a bit before doing expensive computations
   const txs = useDebounce(
     useSelector((state: ReduxState) => selectTxHistory(state, {})),
-    250
+    500
   )
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
 
@@ -192,9 +193,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
               .div(bn(10).exponentiatedBy(assetPrecision))
               .times(price)
               .toNumber()
-            console.info('diff', diff)
             balanceAtBucket -= diff
-            console.info(`balanceAtBucket ${balanceAtBucket}`)
             bucketedTxs[i].balance = balanceAtBucket
             return
           }
@@ -203,9 +202,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
               .div(bn(10).exponentiatedBy(assetPrecision))
               .times(price)
               .toNumber()
-            console.info('diff', diff)
             balanceAtBucket += diff
-            console.info(`balanceAtBucket ${balanceAtBucket}`)
             bucketedTxs[i].balance = balanceAtBucket
             return
           }
@@ -217,7 +214,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     }
 
     const balanceChartData: Array<HistoryData> = bucketedTxs.map(bucket => ({
-      price: bucket.balance, // TODO(0xdef1cafe): update charts to accept price or balance
+      price: bn(bucket.balance).decimalPlaces(2).toNumber(), // TODO(0xdef1cafe): update charts to accept price or balance
       date: bucket.end.toISOString()
     }))
     setBalanceChartData(balanceChartData)

@@ -15,7 +15,7 @@ export const useKeyringEventHandler = (
       /*
        Log out all events so we can use the logs for reference for handling other Keyring events
        */
-      console.info('All Event Handler:', { event, values })
+      // console.info('All Event Handler:', { event, values })
     }
 
     // Handle all KeepKey events

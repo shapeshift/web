@@ -55,6 +55,7 @@ export const txHistory = createSlice({
 // create a "selector creator" that uses lodash.isequal instead of ===
 const createDeepEqualSelector = createSelectorCreator(defaultMemoize, isEqual)
 export const selectTxHistory = createDeepEqualSelector(
+  // export const selectTxHistory = createSelector(
   (state: ReduxState, { chain }: TxHistorySelect) => {
     return chain
       ? Object.values(state.txHistory[chain] ?? {})

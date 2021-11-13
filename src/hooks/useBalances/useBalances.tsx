@@ -1,3 +1,4 @@
+// import { CAIP19 } from '@shapeshiftoss/caip'
 import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'

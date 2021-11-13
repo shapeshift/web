@@ -1,4 +1,4 @@
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
   ContractTypes,
@@ -6,6 +6,7 @@ import {
   HistoryTimeframe,
   NetworkTypes
 } from '@shapeshiftoss/types'
+import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import { fill, head, reduce, reverse } from 'lodash'
 import { useEffect, useState } from 'react'
@@ -19,6 +20,7 @@ import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 type Bucket = {
   start: dayjs.Dayjs
   end: dayjs.Dayjs
+  balance: number
   txs: Tx[]
 }
 
@@ -35,28 +37,29 @@ type MakeBucketsReturn = {
 
 type PriceAtBlockTimeArgs = {
   time: number
-  caip: CAIP19
-  priceHistoryData: {
-    [k: CAIP19]: {
-      date: string // epoch ms
-      price: number // in usd
-    }[]
-  }
+  caip19: CAIP19
+  assetPriceHistoryData: {
+    date: string // epoch ms
+    price: number // in usd
+  }[]
 }
+
 type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
 
-export const priceAtBlockTime: PriceAtBlockTime = ({ time, caip, priceHistoryData }): number => {
-  const assetPrices = priceHistoryData[caip]
+export const priceAtBlockTime: PriceAtBlockTime = ({
+  caip19,
+  time,
+  assetPriceHistoryData
+}): number => {
   let result = 0
-  for (let i = 0; i < assetPrices.length; i++) {
-    if (time < Number(assetPrices[i].date)) {
+  for (let i = 0; i < assetPriceHistoryData.length; i++) {
+    if (time > Number(assetPriceHistoryData[i].date)) {
       continue
     } else {
-      result = assetPrices[i].price
+      result = assetPriceHistoryData[i].price
       break
     }
   }
-  if (result === 0) console.info(`priceAtBlockTime result is 0 for asset ${caip}`)
   return result
 }
 
@@ -67,7 +70,8 @@ export const makeBuckets = (timeframe: HistoryTimeframe): MakeBucketsReturn => {
       const end = now.subtract(idx, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []
-      const bucket = { start, end, txs }
+      const balance = 0
+      const bucket = { start, end, txs, balance }
       acc.push(bucket)
       return acc
     }
@@ -96,84 +100,130 @@ type UseBalanceChartDataReturn = {
 type UseBalanceChartDataArgs = {
   assets: CAIP19[]
   timeframe: HistoryTimeframe
-  totalBalance: number // maybe not an arg
+  totalBalance: number
 }
 
 type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
 
-// TODO(0xdef1cafe): pull this from user prefs
-const initialBuckets = makeBuckets(HistoryTimeframe.YEAR)
+// all of this should come from unchained
+const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
+const caip19FromTx = (tx: Tx): CAIP19 => {
+  const { chain, network, asset: tokenId } = tx
+  const ethereumCAIP2 = caip2.toCAIP2({
+    chain: ChainTypes.Ethereum,
+    network: NetworkTypes.MAINNET
+  })
+  const assetCAIP2 = caip2FromTx(tx)
+  const contractType =
+    assetCAIP2 === ethereumCAIP2 && tokenId.startsWith('0x') ? ContractTypes.ERC20 : undefined
+
+  const extra = contractType ? { contractType, tokenId } : undefined
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
+  return assetCAIP19
+}
+
+const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
+  const { buckets, meta } = bucketsAndMeta
+  const start = head(buckets)!.start
+  // txs are potentially a lot longer than buckets (max 95), iterate the long list once
+  const result = txs.reduce((acc, tx) => {
+    const txDayjs = dayjs(tx.blockTime * 1000) // unchained uses seconds
+    // if the tx is before the time domain ignore it, it can't be past the end (now)
+    if (txDayjs.isBefore(start)) return acc
+    const { unit } = meta
+    // the number of time units from start of chart to this tx
+    const bucketIndex = txDayjs.diff(start, unit as dayjs.OpUnitType)
+    // add to the correct bucket
+    acc[bucketIndex].txs.push(tx)
+    return acc
+  }, buckets)
+  return result
+}
 
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { timeframe, totalBalance } = args
-  const [bucketsAndMeta, setBucketsAndMeta] = useState<MakeBucketsReturn>(initialBuckets)
+  const { assets, timeframe, totalBalance } = args
   const [balanceChartLoading, setBalanceChartLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  // const { balances, loading: portfolioLoading } = usePortfolio()
-  const rawTxs = useSelector((state: ReduxState) => selectTxHistory(state, {}))
-  // wait for tx's to finish loading
-  const txs = useDebounce(rawTxs, 250)
+  // wait for tx's to finish loading before doing expensive computations
+  const txs = useDebounce(
+    useSelector((state: ReduxState) => selectTxHistory(state, {})),
+    250
+  )
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
 
   useEffect(() => {
-    setBucketsAndMeta(makeBuckets(timeframe))
-  }, [timeframe])
-
-  useEffect(() => {
     if (priceHistoryLoading) return
+    if (!assets.length) return
     if (!txs.length) return
-    const { buckets, meta } = bucketsAndMeta
-    const start = head(buckets)!.start
-    // txs are potentially a lot longer than buckets (~100), iterate the long list once
-    const bucketedTxs = txs.reduce((acc, tx) => {
-      // if we've seen this tx already ignore it
-      const txDayjs = dayjs(tx.blockTime * 1000)
-      // if the tx is before the time domain ignore it, it can't be past the end (now)
-      if (txDayjs.isBefore(start)) return acc
-      const { unit } = meta
-      // the number of time units from start to this tx
-      const bucketIndex = txDayjs.diff(start, unit as dayjs.OpUnitType)
-      // add to the correct bucket
-      acc[bucketIndex].txs.push(tx)
-      return acc
-    }, buckets)
+    if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
 
-    console.info('priceHistoryData')
-    console.info(priceHistoryData)
-    console.info(bucketedTxs)
-
-    // let balanceAtBucket = totalBalance
-
-    for (let i = bucketedTxs.length; i >= 0; i--) {
+    // put each tx into a bucket for the chart
+    const bucketedTxs = bucketTxs(txs, makeBuckets(timeframe))
+    // we iterate from latest to oldest
+    for (let i = bucketedTxs.length - 1; i >= 0; i--) {
       const bucket = bucketedTxs[i]
       const { txs } = bucket
-      if (!txs.length) continue
+
+      let balanceAtBucket = bucketedTxs[i + 1]?.balance || totalBalance
+      // if we don't have txs for this bucket, use the later one
+      if (!txs.length) {
+        bucketedTxs[i].balance = balanceAtBucket
+        continue
+      }
 
       txs.forEach(tx => {
-        const { asset, blockTime } = tx
-        const time = blockTime * 1000 // unchained uses seconds, price history ms
-        const chain = ChainTypes.Ethereum
-        const network = NetworkTypes.MAINNET
-        const contractType = ContractTypes.ERC20
-        const common = { chain, network }
-        const tokenId = asset
-        const extra = asset === 'ethereum' ? undefined : { contractType, tokenId }
-        const caip = caip19.toCAIP19({ ...common, ...extra })
-        const price = priceAtBlockTime({ time, caip, priceHistoryData })
-        console.info(`price for ${caip}`, price)
+        const assetCAIP19 = caip19FromTx(tx)
+        // don't calculate price for this asset because we didn't ask for it
+        if (!assets.includes(assetCAIP19)) {
+          bucketedTxs[i].balance = balanceAtBucket
+          return
+        }
+
+        const { blockTime, type, value: valueString } = tx
+        const value = Number(valueString) // tx value in base units
+        const time = blockTime * 1000 // unchained uses seconds, price history uses ms
+
+        const assetPriceHistoryData = priceHistoryData[assetCAIP19]
+        const price = priceAtBlockTime({ time, caip19: assetCAIP19, assetPriceHistoryData })
+        const assetPrecision = 18 // TODO(0xdef1cafe): get this from asset service
+        switch (type) {
+          case TxType.Send: {
+            const diff = bn(value)
+              .div(bn(10).exponentiatedBy(assetPrecision))
+              .times(price)
+              .toNumber()
+            console.info('diff', diff)
+            balanceAtBucket -= diff
+            console.info(`balanceAtBucket ${balanceAtBucket}`)
+            bucketedTxs[i].balance = balanceAtBucket
+            return
+          }
+          case TxType.Receive: {
+            const diff = bn(value)
+              .div(bn(10).exponentiatedBy(assetPrecision))
+              .times(price)
+              .toNumber()
+            console.info('diff', diff)
+            balanceAtBucket += diff
+            console.info(`balanceAtBucket ${balanceAtBucket}`)
+            bucketedTxs[i].balance = balanceAtBucket
+            return
+          }
+          default: {
+            throw new Error(`useBalanceChartData: invalid tx.type ${type}`)
+          }
+        }
       })
     }
 
-    // return fake data
-    const fakeData: Array<HistoryData> = buckets.map(bucket => ({
-      price: bn(Math.random()).times(420.69).decimalPlaces(2).toNumber(),
+    const balanceChartData: Array<HistoryData> = bucketedTxs.map(bucket => ({
+      price: bucket.balance, // TODO(0xdef1cafe): update charts to accept price or balance
       date: bucket.end.toISOString()
     }))
-    console.info('new balance chart data')
-    setBalanceChartData(fakeData)
+    setBalanceChartData(balanceChartData)
     setBalanceChartLoading(false)
   }, [
-    bucketsAndMeta,
+    assets,
     priceHistoryData,
     priceHistoryLoading,
     txs,

@@ -33,7 +33,6 @@ export const usePriceHistory = ({ assets, timeframe }: UsePriceHistory) => {
     const loadedPriceCount = size(keys(priceHistoryForTimeframe))
     if (assetCount === loadedPriceCount) return // dont fetch if they're all fetched
     setLoading(true)
-    console.info('dispatching')
     dispatch(fetchPriceHistory({ assets, timeframe }))
   }, [assets, dispatch, loading, marketDataLoading, priceHistoryForTimeframe, timeframe])
 

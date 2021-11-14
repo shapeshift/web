@@ -73,8 +73,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const totalBalance = useTotalBalance({ [id]: balances[id] })
   const { balanceChartData, balanceChartLoading } = useBalanceChartData({
     assets,
-    timeframe,
-    totalBalance
+    timeframe
   })
 
   const graphData = view === Views.Balance ? balanceChartData : assetPriceHistoryData

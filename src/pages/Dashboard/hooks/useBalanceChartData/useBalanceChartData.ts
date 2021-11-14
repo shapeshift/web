@@ -1,5 +1,6 @@
 import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
+  chainAdapters,
   ChainTypes,
   ContractTypes,
   HistoryData,
@@ -8,20 +9,50 @@ import {
 } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
-import { fill, head, reduce, reverse } from 'lodash'
+import fill from 'lodash/fill'
+import head from 'lodash/head'
+import isEmpty from 'lodash/isEmpty'
+import reduce from 'lodash/reduce'
+import reverse from 'lodash/reverse'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { ReduxState } from 'state/reducer'
 import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
+type BucketBalance = {
+  crypto: {
+    [k: CAIP19]: number // map of asset to base units
+  }
+  fiat: number
+}
+
 type Bucket = {
   start: dayjs.Dayjs
   end: dayjs.Dayjs
-  balance: number
+  balance: BucketBalance
   txs: Tx[]
+}
+
+type PriceAtBlockTimeArgs = {
+  time: number
+  assetPriceHistoryData: {
+    date: string // epoch ms
+    price: number // in usd
+  }[]
+}
+
+type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
+
+export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData }): number => {
+  for (let i = 0; i < assetPriceHistoryData.length; i++) {
+    if (time > Number(assetPriceHistoryData[i].date)) continue
+    return assetPriceHistoryData[i].price
+  }
+  return assetPriceHistoryData[assetPriceHistoryData.length - 1].price
 }
 
 type BucketMeta = {
@@ -35,48 +66,44 @@ type MakeBucketsReturn = {
   meta: BucketMeta
 }
 
-type PriceAtBlockTimeArgs = {
-  time: number
-  caip19: CAIP19
-  assetPriceHistoryData: {
-    date: string // epoch ms
-    price: number // in usd
-  }[]
+type MakeBucketsArgs = {
+  timeframe: HistoryTimeframe
+  assets: CAIP19[]
+  balances: { [k: CAIP19]: chainAdapters.Account<ChainTypes> }
 }
 
-type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
+type MakeBuckets = (args: MakeBucketsArgs) => MakeBucketsReturn
 
-export const priceAtBlockTime: PriceAtBlockTime = ({
-  caip19,
-  time,
-  assetPriceHistoryData
-}): number => {
-  let result = 0
-  for (let i = 0; i < assetPriceHistoryData.length; i++) {
-    if (time > Number(assetPriceHistoryData[i].date)) {
-      continue
-    } else {
-      result = assetPriceHistoryData[i].price
-      break
-    }
-  }
-  return result
-}
+export const makeBuckets: MakeBuckets = args => {
+  const { assets, balances, timeframe } = args
 
-export const makeBuckets = (timeframe: HistoryTimeframe): MakeBucketsReturn => {
+  // current asset balances, we iterate over this later and adjust on each tx
+  const assetBalances = assets.reduce<{
+    [k: CAIP19]: number
+  }>((acc, cur) => {
+    const assetAccount = balances[cur]
+    const balance = Number(assetAccount.balance)
+    acc[cur] = balance
+    return acc
+  }, {})
+
   const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
     const now = dayjs()
     return (acc: Array<Bucket>, _cur: unknown, idx: number) => {
       const end = now.subtract(idx, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []
-      const balance = 0
+      const balance = {
+        crypto: assetBalances,
+        fiat: 0
+      }
       const bucket = { start, end, txs, balance }
       acc.push(bucket)
       return acc
     }
   }
 
+  // adjust this to give charts more or less granularity
   const timeframeMap = {
     [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
     [HistoryTimeframe.DAY]: { count: 95, duration: 15, unit: 'minutes' },
@@ -100,13 +127,12 @@ type UseBalanceChartDataReturn = {
 type UseBalanceChartDataArgs = {
   assets: CAIP19[]
   timeframe: HistoryTimeframe
-  totalBalance: number
 }
 
 type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
 
-// all of this should come from unchained
 const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
+// ideally txs from unchained should include caip19
 const caip19FromTx = (tx: Tx): CAIP19 => {
   const { chain, network, asset: tokenId } = tx
   const ethereumCAIP2 = caip2.toCAIP2({
@@ -140,10 +166,43 @@ const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   return result
 }
 
+type FiatBalanceAtBucketArgs = {
+  bucket: Bucket
+  priceHistoryData: {
+    [k: CAIP19]: HistoryData[]
+  }
+}
+
+type FiatBalanceAtBucketReturn = number
+
+type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => FiatBalanceAtBucketReturn
+
+const fiatBalanceAtBucket: FiatBalanceAtBucket = ({ bucket, priceHistoryData }) => {
+  const { balance, end } = bucket
+  // TODO(0xdef1cafe):
+  // a) interpolate for more accuracy, or
+  // b) include tx timestamp in the buckets and fetch a price at that specific time
+  const time = end.valueOf()
+  const { crypto } = balance
+  const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
+    const assetPriceHistoryData = priceHistoryData[caip19]
+    const price = priceAtBlockTime({ assetPriceHistoryData, time })
+
+    const precision = 18 // TODO(0xdef1cafe): get this from a usePortfolioAssets hook
+    const assetFiatBalance = bn(assetCryptoBalance)
+      .div(bn(10).exponentiatedBy(precision))
+      .times(price)
+      .toNumber()
+    return acc + assetFiatBalance
+  }, 0)
+  return result
+}
+
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assets, timeframe, totalBalance } = args
+  const { assets, timeframe } = args
   const [balanceChartLoading, setBalanceChartLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
+  const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(
@@ -154,67 +213,58 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
   useEffect(() => {
     if (priceHistoryLoading) return
+    if (caip19BalancesLoading) return
     if (!assets.length) return
     if (!txs.length) return
+    if (isEmpty(balances)) return
     if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
 
     // put each tx into a bucket for the chart
-    const bucketedTxs = bucketTxs(txs, makeBuckets(timeframe))
+    const bucketedTxs = bucketTxs(txs, makeBuckets({ assets, balances, timeframe }))
     // we iterate from latest to oldest
     for (let i = bucketedTxs.length - 1; i >= 0; i--) {
       const bucket = bucketedTxs[i]
       const { txs } = bucket
 
-      let balanceAtBucket = bucketedTxs[i + 1]?.balance || totalBalance
-      // if we don't have txs for this bucket, use the later one
-      if (!txs.length) {
-        bucketedTxs[i].balance = balanceAtBucket
-        continue
-      }
+      // copy the balance back from the most recent bucket
+      bucket.balance = Object.assign(
+        {},
+        bucketedTxs[i + 1]?.balance || bucketedTxs[bucketedTxs.length - 1].balance
+      )
 
+      // if we have txs in this bucket, adjust the crypto balance in each bucket
       txs.forEach(tx => {
         const assetCAIP19 = caip19FromTx(tx)
         // don't calculate price for this asset because we didn't ask for it
-        if (!assets.includes(assetCAIP19)) {
-          bucketedTxs[i].balance = balanceAtBucket
-          return
-        }
+        if (!assets.includes(assetCAIP19)) return
 
-        const { blockTime, type, value: valueString } = tx
-        const value = Number(valueString) // tx value in base units
-        const time = blockTime * 1000 // unchained uses seconds, price history uses ms
-
-        const assetPriceHistoryData = priceHistoryData[assetCAIP19]
-        const price = priceAtBlockTime({ time, caip19: assetCAIP19, assetPriceHistoryData })
-        const assetPrecision = 18 // TODO(0xdef1cafe): get this from asset service
+        const { type, value: valueString } = tx
+        const feeValue = bnOrZero(tx.fee?.value)
+        const value = bnOrZero(valueString) // tx value in base units
         switch (type) {
           case TxType.Send: {
-            const diff = bn(value)
-              .div(bn(10).exponentiatedBy(assetPrecision))
-              .times(price)
-              .toNumber()
-            balanceAtBucket -= diff
-            bucketedTxs[i].balance = balanceAtBucket
-            return
+            const amount = value.plus(feeValue)
+            const cryptoDiff = bn(amount).toNumber()
+            bucket.balance.crypto[assetCAIP19] += cryptoDiff // we're going backwards, so a send means we had more before
+            break
           }
           case TxType.Receive: {
-            const diff = bn(value)
-              .div(bn(10).exponentiatedBy(assetPrecision))
-              .times(price)
-              .toNumber()
-            balanceAtBucket += diff
-            bucketedTxs[i].balance = balanceAtBucket
-            return
+            const cryptoDiff = bn(value).toNumber()
+            bucket.balance.crypto[assetCAIP19] -= cryptoDiff // we're going backwards, so a receive means we had less before
+            break
           }
           default: {
             throw new Error(`useBalanceChartData: invalid tx.type ${type}`)
           }
         }
       })
+
+      bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData })
+      bucketedTxs[i] = bucket
     }
 
     const balanceChartData: Array<HistoryData> = bucketedTxs.map(bucket => ({
-      price: bn(bucket.balance).decimalPlaces(2).toNumber(), // TODO(0xdef1cafe): update charts to accept price or balance
+      price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(), // TODO(0xdef1cafe): update charts to accept price or balance
       date: bucket.end.toISOString()
     }))
     setBalanceChartData(balanceChartData)
@@ -225,7 +275,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     priceHistoryLoading,
     txs,
     timeframe,
-    totalBalance,
+    balances,
+    caip19BalancesLoading,
     setBalanceChartData
   ])
 

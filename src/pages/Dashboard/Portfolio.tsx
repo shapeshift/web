@@ -16,8 +16,7 @@ export const Portfolio = () => {
 
   const { balanceChartData, balanceChartLoading } = useBalanceChartData({
     assets,
-    timeframe,
-    totalBalance
+    timeframe
   })
   const isLoaded = !balanceChartLoading
 

@@ -82,7 +82,10 @@ export const makeBuckets: MakeBuckets = args => {
     [k: CAIP19]: number
   }>((acc, cur) => {
     const assetAccount = balances[cur]
-    if (!assetAccount.balance) debugger
+    if (!assetAccount?.balance) {
+      console.error(`makeBuckets: no balance for ${cur}`)
+      return acc
+    }
     const balance = Number(assetAccount.balance)
     acc[cur] = balance
     return acc
@@ -122,7 +125,7 @@ export const makeBuckets: MakeBuckets = args => {
 
 type UseBalanceChartDataReturn = {
   balanceChartData: Array<HistoryData>
-  balanceChartLoading: boolean
+  balanceChartDataLoading: boolean
 }
 
 type UseBalanceChartDataArgs = {
@@ -201,7 +204,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({ bucket, priceHistoryData }) 
 
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assets, timeframe } = args
-  const [balanceChartLoading, setBalanceChartLoading] = useState(true)
+  const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
   // we can't tell if txs are finished loading over the websocket, so
@@ -269,7 +272,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       date: bucket.end.toISOString()
     }))
     setBalanceChartData(balanceChartData)
-    setBalanceChartLoading(false)
+    setBalanceChartDataLoading(false)
   }, [
     assets,
     priceHistoryData,
@@ -281,6 +284,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartData
   ])
 
-  const result = { balanceChartData, balanceChartLoading }
+  const result = { balanceChartData, balanceChartDataLoading }
   return result
 }

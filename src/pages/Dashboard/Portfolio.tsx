@@ -12,13 +12,15 @@ import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const { assets, totalBalance, loading } = usePortfolio()
+  const { assets, totalBalance, loading: portfolioLoading } = usePortfolio()
 
-  const { balanceChartData, balanceChartLoading } = useBalanceChartData({
+  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
   })
-  const isLoaded = !balanceChartLoading
+
+  const loading = portfolioLoading || balanceChartDataLoading
+  const isLoaded = !loading
 
   if (loading)
     return (
@@ -49,7 +51,7 @@ export const Portfolio = () => {
           <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
         </Card.Header>
         <Card.Body p={0} height='350px'>
-          <Graph data={balanceChartData} loading={balanceChartLoading} isLoaded={isLoaded} />
+          <Graph data={balanceChartData} loading={balanceChartDataLoading} isLoaded={isLoaded} />
         </Card.Body>
       </Card>
       <Card>

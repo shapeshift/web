@@ -71,13 +71,13 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { balances } = useFlattenedBalances()
   const id = asset.tokenId ?? asset.chain
   const totalBalance = useTotalBalance({ [id]: balances[id] })
-  const { balanceChartData, balanceChartLoading } = useBalanceChartData({
+  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
   })
 
   const graphData = view === Views.Balance ? balanceChartData : assetPriceHistoryData
-  const graphLoading = view === Views.Balance ? balanceChartLoading : priceHistoryDataLoading
+  const graphLoading = view === Views.Balance ? balanceChartDataLoading : priceHistoryDataLoading
 
   return (
     <Card variant='footer-stub'>

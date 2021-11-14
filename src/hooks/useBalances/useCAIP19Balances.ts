@@ -1,3 +1,4 @@
+import { caip19 } from '@shapeshiftoss/caip'
 import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
@@ -32,17 +33,28 @@ export const useCAIP19Balances = () => {
       const adapter = getAdapter()
 
       // this should return CAIP2
-      const key = adapter.getType()
+      const chain = adapter.getType()
+
+      const ethCAIP19 = caip19.toCAIP19({
+        chain: ChainTypes.Ethereum,
+        network: NetworkTypes.MAINNET
+      })
+      const btcCAIP19 = caip19.toCAIP19({
+        chain: ChainTypes.Bitcoin,
+        network: NetworkTypes.MAINNET
+      })
+
+      const assetCAIP19 = chain === ChainTypes.Ethereum ? ethCAIP19 : btcCAIP19
 
       // asset should contain CAIP2, or utility fn CAIP19ToCAIP2
-      const asset = assetData.find(asset => asset.chain === key)
-      if (!asset) throw new Error(`asset not found for chain ${key}`)
+      const asset = assetData.find(asset => asset.caip19 === assetCAIP19)
+      if (!asset) throw new Error(`asset not found for chain ${chain}`)
 
       let addressOrXpub
       if (adapter.getType() === ChainTypes.Ethereum) {
         addressOrXpub = await adapter.getAddress({ wallet })
       } else if (adapter.getType() === ChainTypes.Bitcoin) {
-        const accountType = accountTypes[key]
+        const accountType = accountTypes[chain]
         const accountParams = utxoAccountParams(asset, accountType, 0)
         const { bip32Params, scriptType } = accountParams
         const pubkeys = await wallet.getPublicKeys([
@@ -59,9 +71,18 @@ export const useCAIP19Balances = () => {
         throw new Error('not implemented')
       }
       if (!addressOrXpub) throw new Error('Error getting addressOrXpub')
-      const balanceResponse = await adapter.getAccount(addressOrXpub)
-      if (!balanceResponse) continue
-      acc[asset.caip19] = balanceResponse
+      const account = await adapter.getAccount(addressOrXpub)
+      if (!account) continue
+      acc[asset.caip19] = account
+      if (account.chain === ChainTypes.Ethereum) {
+        const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
+        const network = NetworkTypes.MAINNET
+        ethAccount.chainSpecific?.tokens?.forEach(token => {
+          const { contractType, contract: tokenId } = token
+          const tokenCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+          acc[tokenCAIP19] = { ...ethAccount, ...token }
+        })
+      }
     }
     return acc
     // We aren't passing chainAdapter as it will always be the same object and should never change

@@ -82,6 +82,7 @@ export const makeBuckets: MakeBuckets = args => {
     [k: CAIP19]: number
   }>((acc, cur) => {
     const assetAccount = balances[cur]
+    if (!assetAccount.balance) debugger
     const balance = Number(assetAccount.balance)
     acc[cur] = balance
     return acc

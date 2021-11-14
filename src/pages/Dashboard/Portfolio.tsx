@@ -6,9 +6,9 @@ import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
 
+import { useBalanceChartData } from '../../hooks/useBalanceChartData/useBalanceChartData'
 import { AccountList } from './components/AccountList/AccountList'
 import { usePortfolio } from './contexts/PortfolioContext'
-import { useBalanceChartData } from './hooks/useBalanceChartData/useBalanceChartData'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)

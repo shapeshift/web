@@ -241,9 +241,8 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
           bucket.balance.crypto[assetCAIP19] -= cryptoDiff // we're going backwards, so a receive means we had less before
           break
         }
-        default: {
-          throw new Error(`useBalanceChartData: invalid tx.type ${type}`)
-        }
+        default:
+          break
       }
     })
 

@@ -253,7 +253,7 @@ export const useSwapper = () => {
             minMax && setValue('trade', minMaxTrade)
           }
 
-          if (!(minMax.minimum)) return
+          if (!minMax.minimum) return
 
           const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
           if (!(newQuote && newQuote.success)) throw newQuote

@@ -130,7 +130,7 @@
     },
     "errors": {
       "title": "Something went wrong",
-      "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
+      "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction.",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",

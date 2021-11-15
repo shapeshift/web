@@ -210,7 +210,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='sellAsset.amount'
-            disabled={isSendMaxLoading || !!action}
+            disabled={isSendMaxLoading}
             rules={{ required: true }}
             onInputChange={(amount: string) => {
               if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
@@ -276,7 +276,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           <TokenRow<TradeState<ChainTypes, SwapperType>>
             control={control}
             fieldName='buyAsset.amount'
-            disabled={isSendMaxLoading || !!action}
+            disabled={isSendMaxLoading}
             rules={{ required: true }}
             onInputChange={(amount: string) => {
               const action = amount ? TradeActions.BUY : undefined

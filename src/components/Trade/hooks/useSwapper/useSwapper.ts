@@ -95,7 +95,7 @@ export const useSwapper = () => {
       buyAsset: buyAsset.currency
     })
 
-    const completeQuote = await swapper?.buildQuoteTx({
+    const minimumQuote = await swapper?.buildQuoteTx({
       input: {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
@@ -106,11 +106,11 @@ export const useSwapper = () => {
       wallet
     })
 
-    if (!completeQuote) return
+    if (!minimumQuote) return
 
     const sendMaxAmount = await swapper.getSendMaxAmount({
       wallet,
-      quote: completeQuote,
+      quote: minimumQuote,
       sellAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
     })
 
@@ -169,8 +169,15 @@ export const useSwapper = () => {
       setValue('quote', result)
       return result
     } else {
+      // TODO: (ryankk) Post bounty, these need to be revisited so the error messages can be more accurate.
       switch (result.statusReason) {
         case 'Gas estimation failed':
+          return {
+            success: false,
+            sellAsset,
+            buyAsset,
+            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS)
+          }
         case 'Insufficient funds for transaction':
           return {
             success: false,

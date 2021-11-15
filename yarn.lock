@@ -3902,7 +3902,7 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.11.3", "@shapeshiftoss/types@^1.11.4":
+"@shapeshiftoss/types@^1.11.4":
   version "1.11.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.11.4.tgz#9694b61ec3fb9cb080e18716ceddf6858e88f4bb"
   integrity sha512-0DKl+uG5Z9gH7JwMftua+TKdtWXo8rYNsBWSrkN2OC/ty/2hENqRJmwm4+41gSFwu8xS4CoY98gzT9YVSZj3Rw==

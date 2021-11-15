@@ -79,7 +79,7 @@ export const marketData = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder.addCase(fetchPriceHistory.pending, state => {
-      state.loading = false
+      state.loading = true
     })
     builder.addCase(fetchPriceHistory.rejected, state => {
       state.loading = false
@@ -96,7 +96,7 @@ export const marketData = createSlice({
       state.loading = false
     })
     builder.addCase(fetchMarketData.pending, state => {
-      state.loading = false
+      state.loading = true
     })
     builder.addCase(fetchMarketData.rejected, state => {
       state.loading = false
@@ -109,7 +109,7 @@ export const marketData = createSlice({
       state.loading = false
     })
     builder.addCase(fetchMarketCaps.pending, state => {
-      state.loading = false
+      state.loading = true
     })
     builder.addCase(fetchMarketCaps.rejected, state => {
       state.loading = false

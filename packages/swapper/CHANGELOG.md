@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.2...@shapeshiftoss/swapper-v1.11.3) (2021-11-15)
+
+
+### Bug Fixes
+
+* update deps ([#228](https://github.com/shapeshift/lib/issues/228)) ([e75d49b](https://github.com/shapeshift/lib/commit/e75d49bac8cef6387bd7934c26f38010326a617e))
+
 # [@shapeshiftoss/swapper-v1.11.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.1...@shapeshiftoss/swapper-v1.11.2) (2021-11-12)
 
 

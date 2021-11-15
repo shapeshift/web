@@ -23,7 +23,14 @@ export const Portfolio = () => {
   return (
     <Stack spacing={6} width='full' p={{ base: 0, lg: 4 }}>
       <Card variant='footer-stub'>
-        <Card.Header display='flex' justifyContent='space-between' alignItems='center' width='full'>
+        <Card.Header
+          display='flex'
+          justifyContent={{ base: 'center', md: 'space-between' }}
+          alignItems='center'
+          textAlign={{ base: 'center', md: 'inherit' }}
+          width='full'
+          flexDir={{ base: 'column', md: 'row' }}
+        >
           <Box>
             <Card.Heading as='div' color='gray.500'>
               <Text translation='dashboard.portfolio.portfolioBalance' />

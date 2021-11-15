@@ -4,13 +4,14 @@ import { StatArrow } from '@chakra-ui/stat'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type AssetMarketDataProps = {
   marketData: {
-    price?: number
-    marketCap?: number
-    volume?: number
-    changePercent24Hr?: number
+    price?: number | string
+    marketCap?: number | string
+    volume?: number | string
+    changePercent24Hr?: number | string
   }
   isLoaded?: boolean
 }
@@ -47,7 +48,7 @@ const StatValue = (props: StatProps) => (
 )
 
 export const AssetMarketData = ({ marketData, isLoaded }: AssetMarketDataProps) => {
-  const percentChange = marketData?.changePercent24Hr || 0
+  const percentChange = bnOrZero(marketData?.changePercent24Hr)
   return (
     <SimpleGrid
       gridTemplateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }}
@@ -83,8 +84,8 @@ export const AssetMarketData = ({ marketData, isLoaded }: AssetMarketDataProps) 
           <Text translation='assets.assetDetails.assetHeader.dayChange' />
         </StatLabel>
         <StatValue isLoaded={isLoaded}>
-          <StatArrow fontSize='sm' mr={1} type={percentChange > 0 ? 'increase' : 'decrease'} />
-          <Amount.Percent value={percentChange / 100 ?? 0} />
+          <StatArrow fontSize='sm' mr={1} type={percentChange.gt(0) ? 'increase' : 'decrease'} />
+          <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
         </StatValue>
       </Stat>
     </SimpleGrid>

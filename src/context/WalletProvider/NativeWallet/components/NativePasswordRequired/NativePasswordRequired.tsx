@@ -66,7 +66,6 @@ export const NativePasswordRequired = () => {
                   pr='4.5rem'
                   type={showPw ? 'text' : 'password'}
                   placeholder={translate('walletProvider.shapeShift.nativePassReq.placeholder')}
-                  id='password'
                 />
                 <InputRightElement>
                   <IconButton

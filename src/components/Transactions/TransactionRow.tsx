@@ -9,8 +9,9 @@ import {
   Tag,
   useColorModeValue
 } from '@chakra-ui/react'
-import { chainAdapters, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -25,6 +26,7 @@ import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
 
 export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) => {
   const ref = useRef<HTMLHeadingElement>(null)
@@ -91,7 +93,7 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
             <Row.Label>
               <Text translation='transactionRow.date' />
             </Row.Label>
-            <Row.Value>{dayjs(Number(tx.blockTime) * 1000).format('MM/DD/YYYY h:mm A')}</Row.Value>
+            <Row.Value>{dayjs(Number(tx.blockTime) * 1000).format('LLL')}</Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>
@@ -144,22 +146,18 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
           </Row>
           <Row variant='vertical'>
             <Row.Label>
-              <Text translation='transactionRow.network' />
-            </Row.Label>
-            <Row.Value>{tx.network}</Row.Value>
-          </Row>
-          <Row variant='vertical'>
-            <Row.Label>
-              <Text translation='transactionRow.blockHeight' />
-            </Row.Label>
-            <Row.Value>{tx.blockHeight}</Row.Value>
-          </Row>
-          <Row variant='vertical'>
-            <Row.Label>
               <Text translation={sentTx ? 'transactionRow.to' : 'transactionRow.from'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
+              <Link
+                isExternal
+                color='blue.500'
+                href={`${asset?.explorer}${
+                  asset?.chain === ChainTypes.Bitcoin ? '/btc/address/' : '/address/'
+                }${tx.to ?? tx.from}`}
+              >
+                <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
+              </Link>
             </Row.Value>
           </Row>
         </SimpleGrid>

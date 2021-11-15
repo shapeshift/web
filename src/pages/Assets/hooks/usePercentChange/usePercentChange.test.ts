@@ -25,7 +25,7 @@ describe('usePercentChange', () => {
 
   it('returns passed in percent', async () => {
     const { waitFor, result } = renderHook(
-      ({ data, initPercentChange }) => usePercentChange({ data: null, initPercentChange }),
+      ({ data, initPercentChange }) => usePercentChange({ data: [], initPercentChange }),
       {
         initialProps: {
           data: undefined,

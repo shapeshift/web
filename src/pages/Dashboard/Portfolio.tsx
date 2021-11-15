@@ -1,17 +1,29 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
+import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 
+import { useBalanceChartData } from '../../hooks/useBalanceChartData/useBalanceChartData'
 import { AccountList } from './components/AccountList/AccountList'
 import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const { totalBalance, loading } = usePortfolio()
+  const { totalBalance, loading: portfolioLoading } = usePortfolio()
+  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
+
+  const assets = useMemo(() => Object.keys(portfolioAssets).filter(Boolean), [portfolioAssets])
+  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
+    assets,
+    timeframe
+  })
+
+  const loading = portfolioLoading || portfolioAssetsLoading || balanceChartDataLoading
+  const isLoaded = !loading
 
   if (loading)
     return (
@@ -42,7 +54,7 @@ export const Portfolio = () => {
           <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
         </Card.Header>
         <Card.Body p={0} height='350px'>
-          <Graph data={[]} loading={true} />
+          <Graph data={balanceChartData} loading={balanceChartDataLoading} isLoaded={isLoaded} />
         </Card.Body>
       </Card>
       <Card>

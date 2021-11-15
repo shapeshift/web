@@ -223,7 +223,14 @@ export const TradeInput = ({ history }: RouterProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <IconButton onClick={switchAssets} aria-label='Switch' isRound icon={<ArrowDownIcon />} />
+          <IconButton
+            onClick={switchAssets}
+            aria-label='Switch'
+            isRound
+            icon={<ArrowDownIcon />}
+            isLoading={!quote || action || error ? true : false}
+            _loading={{ color: 'blue.500' }}
+          />
           <Box display='flex' alignItems='center' color='gray.500'>
             {!quote || action || error ? (
               <Text fontSize='sm' translation={error ? 'common.error' : 'trade.searchingRate'} />

@@ -70,7 +70,6 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
           <Grid
             templateColumns={{ base: '1fr repeat(2, 1fr)', lg: '2fr repeat(3, 1fr) 150px' }}
             gap='1rem'
-            py={4}
             pl={4}
             pr={4}
           >

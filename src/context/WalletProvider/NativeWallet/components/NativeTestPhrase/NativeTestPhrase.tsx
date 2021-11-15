@@ -15,7 +15,8 @@ export const NativeTestPhrase = () => {
     setTestWord,
     invalid,
     testWord,
-    handleNext
+    handleNext,
+    invalidTries
   } = useNativeTestPhrase()
 
   return !shuffledWords.length ? null : (
@@ -27,9 +28,12 @@ export const NativeTestPhrase = () => {
         <RawText>
           <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body'} />{' '}
           <Tag colorScheme='green'>
-            {shuffledWords[testCount - 1][0]}
-            {ordinalSuffix(shuffledWords[testCount - 1][0])}{' '}
-            <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body2'} />
+            {`${shuffledWords[testCount - 1][0]}${ordinalSuffix(shuffledWords[testCount - 1][0])}`}
+            <Text
+              as='span'
+              ml={1}
+              translation={'walletProvider.shapeShift.nativeTestPhrase.body2'}
+            />
           </Tag>{' '}
           <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body3'} />
         </RawText>
@@ -41,7 +45,8 @@ export const NativeTestPhrase = () => {
                 flex='1'
                 minW='30%'
                 variant='ghost-filled'
-                colorScheme={invalid ? 'red' : 'blue'}
+                colorScheme={invalid && invalidTries.includes(word) ? 'gray' : 'blue'}
+                isDisabled={invalid && invalidTries.includes(word)}
                 onClick={() => setTestWord(word)}
                 isActive={testWord === word}
               >

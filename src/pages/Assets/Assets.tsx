@@ -12,7 +12,13 @@ export const Assets = () => {
   }
   return (
     <Page style={{ flex: 1 }}>
-      <Flex role='main' flex={1} flexDir='column' height='calc(100vh - 64px)' px={4}>
+      <Flex
+        role='main'
+        flex={1}
+        flexDir='column'
+        height={{ base: 'calc(100vh - 128px)', md: 'calc(100vh - 64px)' }}
+        px={4}
+      >
         <AssetSearch onClick={onClick} />
       </Flex>
     </Page>

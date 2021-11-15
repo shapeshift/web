@@ -65,7 +65,13 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
         w='full'
       >
         <Flex alignItems='center'>
-          <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
+          <Center
+            w='10'
+            h='10'
+            bg={useColorModeValue('gray.100', 'gray.700')}
+            rounded='full'
+            mr='3'
+          >
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
           {(ref?.current?.offsetWidth || 350) >= 350 && (

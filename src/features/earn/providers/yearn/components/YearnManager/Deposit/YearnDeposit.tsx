@@ -1,5 +1,16 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Center, Flex, Link, Stack, Tag, useToast } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Box,
+  Center,
+  Flex,
+  Link,
+  Stack,
+  Tag,
+  useColorModeValue,
+  useToast
+} from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/earn/components/Approve/Approve'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
@@ -13,6 +24,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
@@ -61,6 +73,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
+  const alertText = useColorModeValue('blue.800', 'white')
 
   // Asset info
   const asset = useFetchAsset({ chain, tokenId })
@@ -367,6 +380,14 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               .toFixed(2)}
             loading={state.loading}
             loadingText='Approve on Wallet'
+            preFooter={
+              <Alert status='info' borderRadius='lg' mt={4} color='blue.500'>
+                <FaGasPump />
+                <AlertDescription textAlign='left' ml={3} color={alertText}>
+                  {translate('modals.approve.depositFee')}
+                </AlertDescription>
+              </Alert>
+            }
             onCancel={handleCancel}
             onConfirm={handleApprove}
           />

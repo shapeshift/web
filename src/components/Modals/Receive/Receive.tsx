@@ -1,4 +1,4 @@
-import { CopyIcon, ViewIcon } from '@chakra-ui/icons'
+import { CheckIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -115,7 +115,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
                 <Card.Body>
                   <QRCode text={receiveAddress} />
                 </Card.Body>
-                <Card.Footer textAlign='center' pt={0}>
+                <Card.Footer textAlign='center' pt={0} fontSize='sm'>
                   <RawText>{receiveAddress}</RawText>
                 </Card.Footer>
               </Card>
@@ -165,7 +165,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
                     size='40px'
                     _groupHover={{ bg: 'blue.500', color: 'white' }}
                   >
-                    <ViewIcon />
+                    {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
                   <Text
                     translation={`modals.receive.${

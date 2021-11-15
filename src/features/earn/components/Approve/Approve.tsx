@@ -20,6 +20,7 @@ type ApproveProps = {
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
+  preFooter?: React.ReactNode
   onConfirm(): Promise<void>
   onCancel(): void
 }
@@ -32,6 +33,7 @@ export const Approve = ({
   learnMoreLink,
   loading,
   loadingText,
+  preFooter,
   onCancel,
   onConfirm
 }: ApproveProps) => {
@@ -69,6 +71,7 @@ export const Approve = ({
               </Box>
             </Row.Value>
           </Row>
+          {preFooter}
           <Button
             onClick={onConfirm}
             width='full'

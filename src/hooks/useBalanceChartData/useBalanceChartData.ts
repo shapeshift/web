@@ -241,8 +241,10 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
           bucket.balance.crypto[assetCAIP19] -= cryptoDiff // we're going backwards, so a receive means we had less before
           break
         }
-        default:
+        default: {
+          console.warn(`calculateBucketPrices: unknown tx type ${type}`)
           break
+        }
       }
     })
 
@@ -273,10 +275,12 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
+  // assets is a caip19[] of requested assets for this balance chart
   const { assets, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
+  // portfolioAssets are all assets in a users portfolio
   const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations

@@ -1,10 +1,11 @@
 import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { RawText, Text } from 'components/Text'
+import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 
 import { useBalanceChartData } from '../../hooks/useBalanceChartData/useBalanceChartData'
 import { AccountList } from './components/AccountList/AccountList'
@@ -12,14 +13,16 @@ import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
-  const { assets, totalBalance, loading: portfolioLoading } = usePortfolio()
+  const { totalBalance, loading: portfolioLoading } = usePortfolio()
+  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
 
+  const assets = useMemo(() => Object.keys(portfolioAssets).filter(Boolean), [portfolioAssets])
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
   })
 
-  const loading = portfolioLoading || balanceChartDataLoading
+  const loading = portfolioLoading || portfolioAssetsLoading || balanceChartDataLoading
   const isLoaded = !loading
 
   if (loading)

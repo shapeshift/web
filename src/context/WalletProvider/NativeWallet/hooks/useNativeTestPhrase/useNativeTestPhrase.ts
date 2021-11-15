@@ -16,6 +16,7 @@ export const useNativeTestPhrase = () => {
   const { push } = useHistory()
   const [shuffledWords, setShuffledWords] = useState<Tuples>([])
   const [shuffledRandomWords, setShuffledRandomWords] = useState<string[]>([])
+  const [invalidTries, setInvalidTries] = useState<string[]>([])
   const [testWord, setTestWord] = useState<string>('')
   const [testCount, setTestCount] = useState<number>(1)
   const [invalid, setInvalid] = useState<boolean>(false)
@@ -47,6 +48,7 @@ export const useNativeTestPhrase = () => {
 
   const handleNext = () => {
     setTestWord('')
+    setInvalidTries([])
     if (testCount >= TEST_COUNT_REQUIRED) {
       setShuffledWords([])
       push('/native/success', { encryptedWallet: state.encryptedWallet })
@@ -54,6 +56,7 @@ export const useNativeTestPhrase = () => {
       setTestCount(Math.min(testCount + 1, TEST_COUNT_REQUIRED))
       setInvalid(false)
     } else {
+      setInvalidTries([...invalidTries, testWord])
       setInvalid(true)
     }
   }
@@ -63,6 +66,7 @@ export const useNativeTestPhrase = () => {
     handleNext,
     invalid,
     shuffledWords,
+    invalidTries,
     testCount,
     setTestWord,
     testWord

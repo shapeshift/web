@@ -5,7 +5,6 @@ import {
   Collapse,
   Flex,
   Heading,
-  HStack,
   Image,
   Skeleton,
   SkeletonCircle,
@@ -13,11 +12,9 @@ import {
   Stat,
   StatArrow,
   StatGroup,
-  StatLabel,
   StatNumber
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import numeral from 'numeral'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -34,6 +31,7 @@ import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHist
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
 
 import { AssetActions } from './AssetActions'
+import { AssetMarketData } from './AssetMarketData'
 import { SegwitSelectCard } from './SegwitSelectCard'
 
 enum views {
@@ -45,7 +43,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { asset, marketData } = useAsset()
   const [view, setView] = useState(views.price)
   const { name, symbol, description, icon } = asset || {}
-  const { changePercent24Hr, price, marketCap, volume } = marketData || {}
+  const { changePercent24Hr, price } = marketData || {}
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
@@ -142,56 +140,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
         <Graph data={data} loading={loading} isLoaded={isLoaded} />
       </Card.Body>
       <Card.Footer>
-        <HStack>
-          <Stat textAlign='center'>
-            <Skeleton isLoaded={isLoaded} variant='center' size='sm'>
-              <StatLabel color='gray.500'>Price</StatLabel>
-            </Skeleton>
-            <StatNumber>
-              <Skeleton isLoaded={isLoaded} variant='inline'>
-                <NumberFormat
-                  value={assetPrice}
-                  displayType={'text'}
-                  thousandSeparator={true}
-                  prefix={'$'}
-                />
-              </Skeleton>
-            </StatNumber>
-          </Stat>
-          <Stat textAlign='center'>
-            <Skeleton isLoaded={isLoaded} variant='center' size='sm'>
-              <StatLabel color='gray.500'>Market Cap</StatLabel>
-            </Skeleton>
-            <StatNumber>
-              <Skeleton isLoaded={isLoaded} variant='inline'>
-                {numeral(marketCap).format(`($0.00a)`)}
-              </Skeleton>
-            </StatNumber>
-          </Stat>
-          <Stat textAlign='center'>
-            <Skeleton isLoaded={isLoaded} variant='center' size='sm'>
-              <StatLabel color='gray.500'>24hr Volume</StatLabel>
-            </Skeleton>
-            <StatNumber>
-              <Skeleton isLoaded={isLoaded} variant='inline'>
-                {numeral(volume).format(`($0.00a)`)}
-              </Skeleton>
-            </StatNumber>
-          </Stat>
-          <Stat textAlign='center'>
-            <StatLabel color='gray.500'>
-              <Skeleton isLoaded={isLoaded} variant='center' size='sm'>
-                Day Change
-              </Skeleton>
-            </StatLabel>
-            <Skeleton isLoaded={isLoaded} variant='inline'>
-              <StatNumber display='flex' alignItems='center' justifyContent='center'>
-                <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
-                <RawText>{percentChange.toFixed(2)}%</RawText>
-              </StatNumber>
-            </Skeleton>
-          </Stat>
-        </HStack>
+        <AssetMarketData marketData={marketData} isLoaded={isLoaded} />
       </Card.Footer>
       {description && (
         <Card.Footer>

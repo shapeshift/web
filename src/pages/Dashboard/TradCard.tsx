@@ -2,7 +2,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { Trade } from 'components/Trade/Trade'
 
-export const CardActions = () => {
+export const TradeCard = () => {
   return (
     <Card flex={1} variant='outline'>
       <Card.Header textAlign='center'>

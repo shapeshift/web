@@ -205,6 +205,64 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   return result
 }
 
+type CalculateBucketPricesArgs = {
+  buckets: Bucket[]
+  portfolioAssets: {
+    [k: CAIP19]: Asset
+  }
+  priceHistoryData: {
+    [k: CAIP19]: HistoryData[]
+  }
+}
+
+type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
+
+const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
+  const { buckets, portfolioAssets, priceHistoryData } = args
+  // we iterate from latest to oldest
+  for (let i = buckets.length - 1; i >= 0; i--) {
+    const bucket = buckets[i]
+    const { txs } = bucket
+
+    // copy the balance back from the most recent bucket
+    bucket.balance = Object.assign(
+      {},
+      buckets[i + 1]?.balance || buckets[buckets.length - 1].balance
+    )
+
+    // if we have txs in this bucket, adjust the crypto balance in each bucket
+    txs.forEach(tx => {
+      const assetCAIP19 = caip19FromTx(tx)
+      // don't calculate price for this asset because we didn't ask for it
+      if (!Object.keys(portfolioAssets).includes(assetCAIP19)) return
+
+      const { type, value: valueString } = tx
+      const feeValue = bnOrZero(tx.fee?.value)
+      const value = bnOrZero(valueString) // tx value in base units
+      switch (type) {
+        case TxType.Send: {
+          const amount = value.plus(feeValue)
+          const cryptoDiff = bn(amount).toNumber()
+          bucket.balance.crypto[assetCAIP19] += cryptoDiff // we're going backwards, so a send means we had more before
+          break
+        }
+        case TxType.Receive: {
+          const cryptoDiff = bn(value).toNumber()
+          bucket.balance.crypto[assetCAIP19] -= cryptoDiff // we're going backwards, so a receive means we had less before
+          break
+        }
+        default: {
+          throw new Error(`useBalanceChartData: invalid tx.type ${type}`)
+        }
+      }
+    })
+
+    bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
+    buckets[i] = bucket
+  }
+  return buckets
+}
+
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assets, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
@@ -228,51 +286,14 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     if (isEmpty(balances)) return
     if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
 
+    // create empty buckets based on the assets, current balances, and timeframe
+    const emptyBuckets = makeBuckets({ assets, balances, timeframe })
     // put each tx into a bucket for the chart
-    const bucketedTxs = bucketTxs(txs, makeBuckets({ assets, balances, timeframe }))
-    // we iterate from latest to oldest
-    for (let i = bucketedTxs.length - 1; i >= 0; i--) {
-      const bucket = bucketedTxs[i]
-      const { txs } = bucket
+    const buckets = bucketTxs(txs, emptyBuckets)
+    // iterate each bucket, updating crypto balances and fiat prices per bucket
+    const calculatedBuckets = calculateBucketPrices({ buckets, priceHistoryData, portfolioAssets })
 
-      // copy the balance back from the most recent bucket
-      bucket.balance = Object.assign(
-        {},
-        bucketedTxs[i + 1]?.balance || bucketedTxs[bucketedTxs.length - 1].balance
-      )
-
-      // if we have txs in this bucket, adjust the crypto balance in each bucket
-      txs.forEach(tx => {
-        const assetCAIP19 = caip19FromTx(tx)
-        // don't calculate price for this asset because we didn't ask for it
-        if (!assets.includes(assetCAIP19)) return
-
-        const { type, value: valueString } = tx
-        const feeValue = bnOrZero(tx.fee?.value)
-        const value = bnOrZero(valueString) // tx value in base units
-        switch (type) {
-          case TxType.Send: {
-            const amount = value.plus(feeValue)
-            const cryptoDiff = bn(amount).toNumber()
-            bucket.balance.crypto[assetCAIP19] += cryptoDiff // we're going backwards, so a send means we had more before
-            break
-          }
-          case TxType.Receive: {
-            const cryptoDiff = bn(value).toNumber()
-            bucket.balance.crypto[assetCAIP19] -= cryptoDiff // we're going backwards, so a receive means we had less before
-            break
-          }
-          default: {
-            throw new Error(`useBalanceChartData: invalid tx.type ${type}`)
-          }
-        }
-      })
-
-      bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
-      bucketedTxs[i] = bucket
-    }
-
-    const balanceChartData: Array<HistoryData> = bucketedTxs.map(bucket => ({
+    const balanceChartData: Array<HistoryData> = calculatedBuckets.map(bucket => ({
       price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(), // TODO(0xdef1cafe): update charts to accept price or balance
       date: bucket.end.toISOString()
     }))

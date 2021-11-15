@@ -186,9 +186,9 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   portfolioAssets
 }) => {
   const { balance, end } = bucket
-  // TODO(0xdef1cafe):
-  // a) interpolate for more accuracy, or
-  // b) include tx timestamp in the buckets and fetch a price at that specific time
+  // TODO(0xdef1cafe): this isn't super accurate, we can
+  // a) interpolate for more accuracy (still not much better), or
+  // b) fetch a price at each specific tx time
   const time = end.valueOf()
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
@@ -218,6 +218,7 @@ type CalculateBucketPricesArgs = {
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
+// note - this mutates buckets
 const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
   const { assets, buckets, portfolioAssets, priceHistoryData } = args
   // we iterate from latest to oldest
@@ -264,6 +265,14 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
   return buckets
 }
 
+/*
+  this whole implementation is kind of jank, but it's the data we have to work with
+  we take the current asset balances, and work backwards, updating crypto
+  balances and fiat prices for each time interval (bucket) of the chart
+
+  this can leave residual value at the beginning of charts, or inaccuracies
+  especially if txs occur during periods of volatility
+*/
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assets, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
@@ -300,7 +309,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     })
 
     const balanceChartData: Array<HistoryData> = calculatedBuckets.map(bucket => ({
-      price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(), // TODO(0xdef1cafe): update charts to accept price or balance
+      // TODO(0xdef1cafe): update charts to accept price or balance
+      price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
       date: bucket.end.toISOString()
     }))
     setBalanceChartData(balanceChartData)

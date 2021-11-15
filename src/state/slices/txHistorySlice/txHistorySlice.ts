@@ -67,7 +67,7 @@ export const selectTxHistory = createDeepEqualSelector(
     return (tx: Tx): boolean => {
       let hasItem = true
       if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
-      if (filter.identifier) hasItem = tx.asset === filter.identifier && hasItem
+      if (filter.identifier) hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
       if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem
       return hasItem
     }

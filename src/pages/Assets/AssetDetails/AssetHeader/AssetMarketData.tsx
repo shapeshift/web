@@ -30,7 +30,7 @@ const Stat = (props: BoxProps) => (
 
 const StatLabel = (props: StatProps) => (
   <Skeleton mb={1} isLoaded={props?.isLoaded}>
-    <Row.Label lineHeight='1' {...props} />
+    <Row.Label lineHeight='1' fontSize={{ base: 'md', md: 'sm' }} {...props} />
   </Skeleton>
 )
 

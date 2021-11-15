@@ -2,7 +2,9 @@ import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { ModalBody, ModalFooter } from '@chakra-ui/modal'
 import { CircularProgressLabel } from '@chakra-ui/progress'
+import { Alert, AlertDescription, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -20,6 +22,7 @@ type ApproveProps = {
   learnMoreLink?: string
   loading: boolean
   loadingText?: string
+  preFooter?: React.ReactNode
   onConfirm(): Promise<void>
   onCancel(): void
 }
@@ -32,6 +35,7 @@ export const Approve = ({
   learnMoreLink,
   loading,
   loadingText,
+  preFooter,
   onCancel,
   onConfirm
 }: ApproveProps) => {
@@ -69,6 +73,7 @@ export const Approve = ({
               </Box>
             </Row.Value>
           </Row>
+          {preFooter}
           <Button
             onClick={onConfirm}
             width='full'

@@ -1,8 +1,10 @@
-import { createSelector, createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import concat from 'lodash/concat'
 import filter from 'lodash/filter'
+import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
+import { createSelectorCreator, defaultMemoize } from 'reselect'
 import { ReduxState } from 'state/reducer'
 
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: string }
@@ -23,7 +25,10 @@ export type TxHistorySelect = {
   sort?: Sort
 }
 
-const initialState = {} as TxHistory
+const initialState: TxHistory = {
+  [ChainTypes.Ethereum]: {},
+  [ChainTypes.Bitcoin]: {}
+}
 
 /**
  * Manage state of the txHistory slice
@@ -48,7 +53,11 @@ export const txHistory = createSlice({
   }
 })
 
-export const selectTxHistory = createSelector(
+// https://github.com/reduxjs/reselect#q-why-is-my-selector-recomputing-when-the-input-state-stays-the-same
+// TODO(0xdef1cafe): check this for performance
+// create a "selector creator" that uses lodash.isequal instead of ===
+const createDeepEqualSelector = createSelectorCreator(defaultMemoize, isEqual)
+export const selectTxHistory = createDeepEqualSelector(
   (state: ReduxState, { chain }: TxHistorySelect) => {
     return chain
       ? Object.values(state.txHistory[chain] ?? {})
@@ -60,7 +69,7 @@ export const selectTxHistory = createSelector(
     return (tx: Tx): boolean => {
       let hasItem = true
       if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
-      if (filter.identifier) hasItem = tx.asset === filter.identifier && hasItem
+      if (filter.identifier) hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
       if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem
       return hasItem
     }

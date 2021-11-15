@@ -23,6 +23,7 @@ export const AssetHistory = () => {
       filter: { identifier: asset.tokenId ?? asset.chain, accountType }
     })
   )
+
   const { next, data, hasMore } = useInfiniteScroll(txs)
 
   return (

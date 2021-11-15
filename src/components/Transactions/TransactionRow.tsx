@@ -61,6 +61,7 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
         alignItems='center'
         flex={1}
         justifyContent='space-between'
+        textAlign='left'
         as='button'
         w='full'
         py={4}
@@ -76,16 +77,23 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
           >
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          {!compact && <Text translation={`transactionRow.${tx.type}`} />}
-          <Amount.Crypto
-            ml={1}
-            value={fromBaseUnit(tx.value, asset?.precision)}
-            symbol={symbol}
-            maximumFractionDigits={6}
-            fontWeight='bold'
-          />
+          <Flex flexDir={compact ? 'column' : 'row'} justifyContent='flex-start'>
+            {!compact && <Text translation={`transactionRow.${tx.type}`} />}
+            <Amount.Crypto
+              ml={compact ? 0 : 1}
+              value={fromBaseUnit(tx.value, asset?.precision)}
+              symbol={symbol}
+              maximumFractionDigits={6}
+              fontWeight='bold'
+            />
+            {compact && (
+              <RawText fontSize='sm' color='gray.500'>
+                {dayjs(tx.blockTime * 1000).fromNow()}
+              </RawText>
+            )}
+          </Flex>
         </Flex>
-        <RawText color='gray.500'>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
+        {!compact && <RawText color='gray.500'>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>}
       </Flex>
       <Collapse in={isOpen} unmountOnExit>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>

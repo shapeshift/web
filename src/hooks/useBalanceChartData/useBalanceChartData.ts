@@ -119,18 +119,6 @@ export const makeBuckets: MakeBuckets = args => {
   return { buckets, meta }
 }
 
-type UseBalanceChartDataReturn = {
-  balanceChartData: Array<HistoryData>
-  balanceChartDataLoading: boolean
-}
-
-type UseBalanceChartDataArgs = {
-  assets: CAIP19[]
-  timeframe: HistoryTimeframe
-}
-
-type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
-
 const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
 // ideally txs from unchained should include caip19
 const caip19FromTx = (tx: Tx): CAIP19 => {
@@ -264,6 +252,18 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
   }
   return buckets
 }
+
+type UseBalanceChartDataReturn = {
+  balanceChartData: Array<HistoryData>
+  balanceChartDataLoading: boolean
+}
+
+type UseBalanceChartDataArgs = {
+  assets: CAIP19[]
+  timeframe: HistoryTimeframe
+}
+
+type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
 
 /*
   this whole implementation is kind of jank, but it's the data we have to work with

@@ -7,13 +7,16 @@ import { selectTxHistory, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
-    expect(store.getState().txHistory).toEqual({})
+    expect(store.getState().txHistory).toEqual({
+      [ChainTypes.Ethereum]: {},
+      [ChainTypes.Bitcoin]: {}
+    })
   })
 
   describe('onMessage', () => {
     it('should have correct starting state', async () => {
-      expect(store.getState().txHistory[ChainTypes.Ethereum]).toBeFalsy()
-      expect(store.getState().txHistory[ChainTypes.Bitcoin]).toBeFalsy()
+      expect(store.getState().txHistory[ChainTypes.Ethereum]).toEqual({})
+      expect(store.getState().txHistory[ChainTypes.Bitcoin]).toEqual({})
     })
 
     it('should add new transactions', async () => {

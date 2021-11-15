@@ -10,10 +10,10 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
-import { useTranslate } from 'react-polyglot'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'

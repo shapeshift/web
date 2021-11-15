@@ -1,5 +1,14 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack,useToast } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Link,
+  SimpleGrid,
+  Stack,
+  useToast
+} from '@chakra-ui/react'
 import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -11,7 +20,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper, TRADE_ERRORS } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'

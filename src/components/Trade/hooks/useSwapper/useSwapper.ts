@@ -1,4 +1,3 @@
-import { useTranslate } from 'react-polyglot'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { SwapperManager, ZrxSwapper } from '@shapeshiftoss/swapper'
@@ -8,12 +7,12 @@ import {
   ChainTypes,
   ExecQuoteOutput,
   Quote,
-  SwapperType,
-  MinMaxOutput
+  SwapperType
 } from '@shapeshiftoss/types'
 import debounce from 'lodash/debounce'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
@@ -59,7 +58,7 @@ export enum TRADE_ERRORS {
 // if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
   // TODO: check to see if it makes sense to set errors
-  const { setValue, setError, clearErrors, getValues } = useFormContext()
+  const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
   const [quote, trade] = useWatch({

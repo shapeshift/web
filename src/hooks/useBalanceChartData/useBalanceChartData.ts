@@ -25,22 +25,6 @@ import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHist
 import { ReduxState } from 'state/reducer'
 import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
-type CryptoBalance = {
-  [k: CAIP19]: number // map of asset to base units
-}
-
-type BucketBalance = {
-  crypto: CryptoBalance
-  fiat: number
-}
-
-type Bucket = {
-  start: dayjs.Dayjs
-  end: dayjs.Dayjs
-  balance: BucketBalance
-  txs: Tx[]
-}
-
 type PriceAtBlockTimeArgs = {
   time: number
   assetPriceHistoryData: {
@@ -57,6 +41,22 @@ export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData
     return assetPriceHistoryData[i].price
   }
   return assetPriceHistoryData[assetPriceHistoryData.length - 1].price
+}
+
+type CryptoBalance = {
+  [k: CAIP19]: number // map of asset to base units
+}
+
+type BucketBalance = {
+  crypto: CryptoBalance
+  fiat: number
+}
+
+type Bucket = {
+  start: dayjs.Dayjs
+  end: dayjs.Dayjs
+  balance: BucketBalance
+  txs: Tx[]
 }
 
 type BucketMeta = {
@@ -206,6 +206,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
+  assets: CAIP19[]
   buckets: Bucket[]
   portfolioAssets: {
     [k: CAIP19]: Asset
@@ -218,7 +219,7 @@ type CalculateBucketPricesArgs = {
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
-  const { buckets, portfolioAssets, priceHistoryData } = args
+  const { assets, buckets, portfolioAssets, priceHistoryData } = args
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
@@ -234,7 +235,7 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
     txs.forEach(tx => {
       const assetCAIP19 = caip19FromTx(tx)
       // don't calculate price for this asset because we didn't ask for it
-      if (!Object.keys(portfolioAssets).includes(assetCAIP19)) return
+      if (!assets.includes(assetCAIP19)) return
 
       const { type, value: valueString } = tx
       const feeValue = bnOrZero(tx.fee?.value)
@@ -291,7 +292,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // put each tx into a bucket for the chart
     const buckets = bucketTxs(txs, emptyBuckets)
     // iterate each bucket, updating crypto balances and fiat prices per bucket
-    const calculatedBuckets = calculateBucketPrices({ buckets, priceHistoryData, portfolioAssets })
+    const calculatedBuckets = calculateBucketPrices({
+      assets,
+      buckets,
+      priceHistoryData,
+      portfolioAssets
+    })
 
     const balanceChartData: Array<HistoryData> = calculatedBuckets.map(bucket => ({
       price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(), // TODO(0xdef1cafe): update charts to accept price or balance

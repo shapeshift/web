@@ -79,7 +79,9 @@ export const useCAIP19Balances = () => {
         const network = NetworkTypes.MAINNET
         ethAccount.chainSpecific?.tokens?.forEach(token => {
           const { contractType, contract: tokenId } = token
-          const tokenCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+          const tokenCAIP19 = caip19
+            .toCAIP19({ chain, network, contractType, tokenId })
+            .toLowerCase()
           acc[tokenCAIP19] = { ...ethAccount, ...token }
         })
       }

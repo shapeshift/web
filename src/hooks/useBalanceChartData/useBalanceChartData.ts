@@ -25,10 +25,12 @@ import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHist
 import { ReduxState } from 'state/reducer'
 import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
+type CryptoBalance = {
+  [k: CAIP19]: number // map of asset to base units
+}
+
 type BucketBalance = {
-  crypto: {
-    [k: CAIP19]: number // map of asset to base units
-  }
+  crypto: CryptoBalance
   fiat: number
 }
 
@@ -80,16 +82,8 @@ export const makeBuckets: MakeBuckets = args => {
   const { assets, balances, timeframe } = args
 
   // current asset balances, we iterate over this later and adjust on each tx
-  const assetBalances = assets.reduce<{
-    [k: CAIP19]: number
-  }>((acc, cur) => {
-    const assetAccount = balances[cur]
-    if (!assetAccount?.balance) {
-      console.error(`makeBuckets: no balance for ${cur}`)
-      return acc
-    }
-    const balance = Number(assetAccount.balance)
-    acc[cur] = balance
+  const assetBalances = assets.reduce<CryptoBalance>((acc, cur) => {
+    acc[cur] = Number(balances[cur].balance)
     return acc
   }, {})
 
@@ -113,7 +107,7 @@ export const makeBuckets: MakeBuckets = args => {
   const timeframeMap = {
     [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
     [HistoryTimeframe.DAY]: { count: 285, duration: 5, unit: 'minutes' },
-    [HistoryTimeframe.WEEK]: { count: 336, duration: 30, unit: 'minutes' },
+    [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
     [HistoryTimeframe.MONTH]: { count: 360, duration: 2, unit: 'hours' },
     [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
     [HistoryTimeframe.ALL]: { count: 260, duration: 1, unit: 'weeks' }
@@ -157,7 +151,7 @@ const caip19FromTx = (tx: Tx): CAIP19 => {
 const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
-  // txs are potentially a lot longer than buckets (max 95), iterate the long list once
+  // txs are potentially a lot longer than buckets, iterate the long list once
   const result = txs.reduce((acc, tx) => {
     const txDayjs = dayjs(tx.blockTime * 1000) // unchained uses seconds
     // if the tx is before the time domain ignore it, it can't be past the end (now)
@@ -201,7 +195,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const assetPriceHistoryData = priceHistoryData[caip19]
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
     const portfolioAsset = portfolioAssets[caip19]
-    if (!portfolioAsset) debugger
     const { precision } = portfolioAsset
     const assetFiatBalance = bn(assetCryptoBalance)
       .div(bn(10).exponentiatedBy(precision))

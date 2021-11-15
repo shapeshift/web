@@ -32,7 +32,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
           const { contractType, contract } = token
           const tokenId = contract
           const assetSpecific = { contractType, tokenId }
-          const assetCAIP19 = caip19.toCAIP19({ ...common, ...assetSpecific })
+          const assetCAIP19 = caip19.toCAIP19({ ...common, ...assetSpecific }).toLowerCase()
           acc.push(assetCAIP19)
         })
         const ethCAIP19 = caip19.toCAIP19(common)

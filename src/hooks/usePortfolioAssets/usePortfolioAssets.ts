@@ -14,7 +14,7 @@ export const usePortfolioAssets = () => {
     const assetService = await getAssetService()
     const assets = assetService.byNetwork(NetworkTypes.MAINNET)
     const portfolioAssets = Object.keys(balances).reduce<{ [k: CAIP19]: Asset }>((acc, caip19) => {
-      const a = assets.find(asset => asset.caip19 === caip19.toLowerCase())
+      const a = assets.find(asset => asset.caip19 === caip19)
       if (!a) return acc
       acc[caip19] = a
       return acc

@@ -26,7 +26,7 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 dayjs.extend(relativeTime)
 
-export const TransactionRow = ({ tx }: { tx: Tx }) => {
+export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) => {
   const ref = useRef<HTMLHeadingElement>(null)
   const dispatch = useDispatch()
   const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
@@ -50,7 +50,6 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
     <Box
       ref={ref}
       width='full'
-      py={4}
       pl={3}
       pr={4}
       rounded='lg'
@@ -61,8 +60,9 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
         flex={1}
         justifyContent='space-between'
         as='button'
-        onClick={toggleOpen}
         w='full'
+        py={4}
+        onClick={toggleOpen}
       >
         <Flex alignItems='center'>
           <Center
@@ -74,9 +74,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
           >
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          {(ref?.current?.offsetWidth || 350) >= 350 && (
-            <Text translation={`transactionRow.${tx.type}`} />
-          )}
+          {!compact && <Text translation={`transactionRow.${tx.type}`} />}
           <Amount.Crypto
             ml={1}
             value={fromBaseUnit(tx.value, asset?.precision)}

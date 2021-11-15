@@ -1,6 +1,5 @@
 import {
   Button,
-  Flex,
   FormControl,
   FormErrorMessage,
   IconButton,
@@ -37,12 +36,10 @@ export const NativePasswordRequired = () => {
   useInitializeWalletFromStorage()
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered trapFocus={false}>
       <ModalOverlay />
       <ModalContent>
-        <Flex justifyContent='spacebetween' alignItems='center' position='relative'>
-          <ModalCloseButton ml='auto' borderRadius='full' position='static' />
-        </Flex>
+        <ModalCloseButton />
         <ModalHeader>
           <Text translation={'walletProvider.shapeShift.nativePassReq.header'} />
         </ModalHeader>

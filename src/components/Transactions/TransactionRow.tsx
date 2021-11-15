@@ -9,7 +9,7 @@ import {
   Tag,
   useColorModeValue
 } from '@chakra-ui/react'
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -152,9 +152,7 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset?.explorer}${
-                  asset?.chain === ChainTypes.Bitcoin ? '/btc/address/' : '/address/'
-                }${tx.to ?? tx.from}`}
+                href={`${asset?.explorerTxLink}${tx.to ?? tx.from}`}
               >
                 <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
               </Link>

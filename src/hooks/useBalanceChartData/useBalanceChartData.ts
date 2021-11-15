@@ -1,5 +1,6 @@
 import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
+  Asset,
   chainAdapters,
   ChainTypes,
   ContractTypes,
@@ -18,6 +19,7 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { ReduxState } from 'state/reducer'
@@ -110,11 +112,11 @@ export const makeBuckets: MakeBuckets = args => {
   // adjust this to give charts more or less granularity
   const timeframeMap = {
     [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
-    [HistoryTimeframe.DAY]: { count: 95, duration: 15, unit: 'minutes' },
-    [HistoryTimeframe.WEEK]: { count: 84, duration: 2, unit: 'hours' },
-    [HistoryTimeframe.MONTH]: { count: 90, duration: 8, unit: 'hours' },
-    [HistoryTimeframe.YEAR]: { count: 52, duration: 1, unit: 'week' },
-    [HistoryTimeframe.ALL]: { count: 60, duration: 1, unit: 'months' }
+    [HistoryTimeframe.DAY]: { count: 285, duration: 5, unit: 'minutes' },
+    [HistoryTimeframe.WEEK]: { count: 336, duration: 30, unit: 'minutes' },
+    [HistoryTimeframe.MONTH]: { count: 360, duration: 2, unit: 'hours' },
+    [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
+    [HistoryTimeframe.ALL]: { count: 260, duration: 1, unit: 'weeks' }
   }
 
   const meta = timeframeMap[timeframe]
@@ -172,6 +174,9 @@ const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
 
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
+  portfolioAssets: {
+    [k: CAIP19]: Asset
+  }
   priceHistoryData: {
     [k: CAIP19]: HistoryData[]
   }
@@ -181,7 +186,11 @@ type FiatBalanceAtBucketReturn = number
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => FiatBalanceAtBucketReturn
 
-const fiatBalanceAtBucket: FiatBalanceAtBucket = ({ bucket, priceHistoryData }) => {
+const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
+  bucket,
+  priceHistoryData,
+  portfolioAssets
+}) => {
   const { balance, end } = bucket
   // TODO(0xdef1cafe):
   // a) interpolate for more accuracy, or
@@ -191,8 +200,9 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({ bucket, priceHistoryData }) 
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[caip19]
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
-
-    const precision = 18 // TODO(0xdef1cafe): get this from a usePortfolioAssets hook
+    const portfolioAsset = portfolioAssets[caip19]
+    if (!portfolioAsset) debugger
+    const { precision } = portfolioAsset
     const assetFiatBalance = bn(assetCryptoBalance)
       .div(bn(10).exponentiatedBy(precision))
       .times(price)
@@ -207,6 +217,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
+  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(
@@ -218,6 +229,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   useEffect(() => {
     if (priceHistoryLoading) return
     if (caip19BalancesLoading) return
+    if (portfolioAssetsLoading) return
     if (!assets.length) return
     if (!txs.length) return
     if (isEmpty(balances)) return
@@ -263,7 +275,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
         }
       })
 
-      bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData })
+      bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
       bucketedTxs[i] = bucket
     }
 
@@ -281,7 +293,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     timeframe,
     balances,
     caip19BalancesLoading,
-    setBalanceChartData
+    setBalanceChartData,
+    portfolioAssetsLoading,
+    portfolioAssets
   ])
 
   const result = { balanceChartData, balanceChartDataLoading }

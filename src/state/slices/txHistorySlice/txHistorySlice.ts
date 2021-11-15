@@ -25,7 +25,10 @@ export type TxHistorySelect = {
   sort?: Sort
 }
 
-const initialState = {} as TxHistory
+const initialState: TxHistory = {
+  [ChainTypes.Ethereum]: {},
+  [ChainTypes.Bitcoin]: {}
+}
 
 /**
  * Manage state of the txHistory slice

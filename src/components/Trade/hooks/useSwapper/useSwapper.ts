@@ -40,6 +40,7 @@ interface GetQuoteFromSwapper<C extends ChainTypes, S extends SwapperType> exten
 }
 
 export enum TRADE_ERRORS {
+  TITLE = 'trade.errors.title',
   NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
   AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
   NEGATIVE_MAX = 'trade.errors.negativeMax',

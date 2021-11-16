@@ -9,7 +9,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useSwapper, TRADE_ERRORS } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -57,14 +57,7 @@ export const Approval = () => {
       // TODO: (ryankk) this toast is currently assuming that the error is 'Not enough eth for tx fee' because we don't
       // get the full error response back from unchained (we get a 500 error). We can make this more precise by returning
       // the full error returned from unchained.
-      toast({
-        title: translate('trade.errors.title'),
-        description: translate('trade.errors.notEnoughEth'),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right'
-      })
+      handleToast(translate(TRADE_ERRORS.NOT_ENOUGH_ETH))
     }
 
     if (!txId) return
@@ -76,7 +69,11 @@ export const Approval = () => {
         if (approvalNeeded) return
       } catch (e) {
         console.error(`Approval:approve:checkApprovalNeeded - ${e}`)
+        handleToast()
+        approvalInterval.current && clearInterval(approvalInterval.current)
+        return history.push('/trade/input')
       }
+
       approvalInterval.current && clearInterval(approvalInterval.current)
       if (!sellAsset.amount) return
       if (!quote) return
@@ -93,14 +90,7 @@ export const Approval = () => {
       }
 
       if (!result?.success && result?.statusReason) {
-        toast({
-          title: translate('trade.errors.title'),
-          description: result.statusReason,
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-          position: 'top-right'
-        })
+        handleToast(result.statusReason)
       }
 
       if (result?.success) {
@@ -110,6 +100,17 @@ export const Approval = () => {
       }
     }, 5000)
     approvalInterval.current = interval
+  }
+
+  const handleToast = (description: string = '') => {
+    toast({
+      title: translate(TRADE_ERRORS.TITLE),
+      description,
+      status: 'error',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right'
+    })
   }
 
   useEffect(() => {

@@ -38,7 +38,7 @@ export const useBalances = (): UseBalancesReturnType => {
         const key = adapter.getType()
 
         const asset = assetData.find(asset => asset.chain === key)
-        if (!asset){
+        if (!asset) {
           throw new Error(`asset not found for chain ${key}`)
         }
 

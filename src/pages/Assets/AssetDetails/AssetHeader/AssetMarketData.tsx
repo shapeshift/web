@@ -28,21 +28,21 @@ const Stat = (props: BoxProps) => (
   />
 )
 
-const StatLabel = (props: StatProps) => (
-  <Skeleton mb={1} isLoaded={props?.isLoaded}>
-    <Row.Label lineHeight='1' fontSize={{ base: 'md', md: 'sm' }} {...props} />
+const StatLabel = ({ isLoaded, ...rest }: StatProps) => (
+  <Skeleton mb={1} isLoaded={isLoaded}>
+    <Row.Label lineHeight='1' fontSize={{ base: 'md', md: 'sm' }} {...rest} />
   </Skeleton>
 )
 
-const StatValue = (props: StatProps) => (
-  <Skeleton isLoaded={props?.isLoaded}>
+const StatValue = ({ isLoaded, ...rest }: StatProps) => (
+  <Skeleton isLoaded={isLoaded}>
     <Row.Value
       fontSize={{ base: 'md', md: '2xl' }}
       fontWeight='semibold'
       display='flex'
       lineHeight='1'
       alignItems='center'
-      {...props}
+      {...rest}
     />
   </Skeleton>
 )

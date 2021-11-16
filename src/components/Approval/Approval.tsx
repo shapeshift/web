@@ -114,7 +114,11 @@ export const Approval = () => {
           textAlign='center'
           translation={['trade.approveAsset', { symbol }]}
         />
-        <Text color='gray.500' translation={['trade.needPermission', { symbol }]} />
+        <Text
+          color='gray.500'
+          textAlign='center'
+          translation={['trade.needPermission', { symbol }]}
+        />
         <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
           <Text color='blue.500' translation='trade.whyNeedThis' />
         </Link>
@@ -141,13 +145,14 @@ export const Approval = () => {
             <Row.Label>
               <Text color='gray.500' translation='trade.estimatedGasFee' />
             </Row.Label>
-            <Row.Value>
+            <Row.Value textAlign='right'>
               <RawText>{toFiat(bnOrZero(fee).times(fiatRate).toNumber())}</RawText>
               <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
             </Row.Value>
           </Row>
           <Button
             type='submit'
+            size='lg'
             isLoading={isSubmitting || !!approvalTxId}
             colorScheme='blue'
             mt={2}
@@ -155,7 +160,7 @@ export const Approval = () => {
             <Text translation='common.confirm' />
           </Button>
           {!approvalTxId && !isSubmitting && (
-            <Button variant='ghost' mt={2} onClick={() => history.goBack()}>
+            <Button variant='ghost' mt={2} size='lg' onClick={() => history.goBack()}>
               <Text translation='common.reject' />
             </Button>
           )}

@@ -34,8 +34,8 @@ const FiatInput = (props: InputProps) => (
     variant='unstyled'
     size='xl'
     textAlign='center'
-    fontSize='3xl'
-    mb={4}
+    fontSize='5xl'
+    mb={6}
     placeholder='$0.00'
     {...props}
   />
@@ -146,7 +146,7 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   return (
     <SlideTransition>
-      <Box as='form' onSubmit={handleSubmit(onSubmit)}>
+      <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
         <FormControl isInvalid={!!errors.fiatAmount}>
           <Controller
             render={({ field: { onChange, value } }) => (

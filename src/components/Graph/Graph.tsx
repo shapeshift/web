@@ -32,7 +32,7 @@ export const Graph = ({ data, isLoaded, loading }: GraphProps) => {
                 margin={{
                   top: 16,
                   right: 0,
-                  bottom: 46,
+                  bottom: 60,
                   left: 0
                 }}
               />

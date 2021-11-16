@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { chainAdapters, NetworkTypes } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -25,8 +26,9 @@ import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
 
-export const TransactionRow = ({ tx }: { tx: Tx }) => {
+export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) => {
   const ref = useRef<HTMLHeadingElement>(null)
   const dispatch = useDispatch()
   const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
@@ -50,7 +52,6 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
     <Box
       ref={ref}
       width='full'
-      py={4}
       pl={3}
       pr={4}
       rounded='lg'
@@ -60,9 +61,11 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
         alignItems='center'
         flex={1}
         justifyContent='space-between'
+        textAlign='left'
         as='button'
-        onClick={toggleOpen}
         w='full'
+        py={4}
+        onClick={toggleOpen}
       >
         <Flex alignItems='center'>
           <Center
@@ -74,18 +77,23 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
           >
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
-          {(ref?.current?.offsetWidth || 350) >= 350 && (
-            <Text translation={`transactionRow.${tx.type}`} />
-          )}
-          <Amount.Crypto
-            ml={1}
-            value={fromBaseUnit(tx.value, asset?.precision)}
-            symbol={symbol}
-            maximumFractionDigits={6}
-            fontWeight='bold'
-          />
+          <Flex flexDir={compact ? 'column' : 'row'} justifyContent='flex-start'>
+            {!compact && <Text translation={`transactionRow.${tx.type}`} />}
+            <Amount.Crypto
+              ml={compact ? 0 : 1}
+              value={fromBaseUnit(tx.value, asset?.precision)}
+              symbol={symbol}
+              maximumFractionDigits={6}
+              fontWeight='bold'
+            />
+            {compact && (
+              <RawText fontSize='sm' color='gray.500'>
+                {dayjs(tx.blockTime * 1000).fromNow()}
+              </RawText>
+            )}
+          </Flex>
         </Flex>
-        <RawText color='gray.500'>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>
+        {!compact && <RawText color='gray.500'>{dayjs(tx.blockTime * 1000).fromNow()}</RawText>}
       </Flex>
       <Collapse in={isOpen} unmountOnExit>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit, minmax(180px, 1fr))' spacing='4' py={6}>
@@ -93,7 +101,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Label>
               <Text translation='transactionRow.date' />
             </Row.Label>
-            <Row.Value>{dayjs(Number(tx.blockTime) * 1000).format('MM/DD/YYYY h:mm A')}</Row.Value>
+            <Row.Value>{dayjs(Number(tx.blockTime) * 1000).format('LLL')}</Row.Value>
           </Row>
           <Row variant='vertical'>
             <Row.Label>
@@ -146,22 +154,16 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
           </Row>
           <Row variant='vertical'>
             <Row.Label>
-              <Text translation='transactionRow.network' />
-            </Row.Label>
-            <Row.Value>{tx.network}</Row.Value>
-          </Row>
-          <Row variant='vertical'>
-            <Row.Label>
-              <Text translation='transactionRow.blockHeight' />
-            </Row.Label>
-            <Row.Value>{tx.blockHeight}</Row.Value>
-          </Row>
-          <Row variant='vertical'>
-            <Row.Label>
               <Text translation={sentTx ? 'transactionRow.to' : 'transactionRow.from'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
+              <Link
+                isExternal
+                color='blue.500'
+                href={`${asset?.explorerTxLink}${tx.to ?? tx.from}`}
+              >
+                <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
+              </Link>
             </Row.Value>
           </Row>
         </SimpleGrid>

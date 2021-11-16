@@ -6,12 +6,14 @@ import {
   FormErrorMessage,
   IconButton,
   Input,
-  InputProps
+  InputProps,
+  useToast
 } from '@chakra-ui/react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { RouterProps } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
@@ -49,7 +51,6 @@ export const TradeInput = ({ history }: RouterProps) => {
     handleSubmit,
     getValues,
     setValue,
-    setError,
     formState: { errors, isDirty, isValid, isSubmitting }
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const {
@@ -61,6 +62,8 @@ export const TradeInput = ({ history }: RouterProps) => {
   }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
     useSwapper()
+  const toast = useToast()
+  const translate = useTranslate()
   const {
     state: { wallet }
   } = useWallet()
@@ -92,10 +95,14 @@ export const TradeInput = ({ history }: RouterProps) => {
         buyAsset: quote?.buyAsset,
         amount: sellAsset?.amount
       })
+
+      if (!result?.success && result?.statusReason) {
+        handleToast(result.statusReason)
+      }
       result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
-    } catch (e) {
-      // TODO: (ryankk) correct errors to reflect appropriate attributes
-      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+    } catch (err) {
+      console.error(`TradeInput:onSubmit - ${err}`)
+      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     }
   }
 
@@ -117,12 +124,21 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: maxSendAmount
       })
     } catch (err) {
-      console.error(`sendMax: ${err}`)
-      // TODO: (ryankk) correct errors to reflect appropriate attributes
-      setError('quote', { message: TRADE_ERRORS.NO_LIQUIDITY })
+      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     } finally {
       setIsSendMaxLoading(false)
     }
+  }
+
+  const handleToast = (description: string) => {
+    toast({
+      title: translate('trade.errors.title'),
+      description,
+      status: 'error',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right'
+    })
   }
 
   const switchAssets = () => {
@@ -206,7 +222,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 size='sm'
                 variant='ghost'
                 colorScheme='blue'
-                isDisabled={isSendMaxLoading}
+                isDisabled={isSendMaxLoading || !!action}
                 onClick={onSwapMax}
               >
                 Max
@@ -271,7 +287,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           size='lg'
           width='full'
           colorScheme={error ? 'red' : 'blue'}
-          isLoading={isSubmitting || isSendMaxLoading}
+          isLoading={isSubmitting || isSendMaxLoading || !!action}
           isDisabled={!isDirty || !isValid || !!action || !wallet}
           style={{
             whiteSpace: 'normal',

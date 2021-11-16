@@ -1,14 +1,15 @@
-import { Button, Divider, Flex, Image, Link, SkeletonCircle } from '@chakra-ui/react'
+import { Button, Divider, Flex, Image, Link, SkeletonCircle, useToast } from '@chakra-ui/react'
 import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -25,6 +26,8 @@ export const Approval = () => {
   const history = useHistory()
   const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
+  const toast = useToast()
+  const translate = useTranslate()
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const { fiatRate } = location.state
 
@@ -46,21 +49,49 @@ export const Approval = () => {
 
   const approve = async () => {
     if (!wallet) return
-    const txId = await approveInfinite(wallet)
+    let txId
+    try {
+      txId = await approveInfinite(wallet)
+    } catch (e) {
+      console.error(`Approval:approve - ${e}`)
+      // TODO: (ryankk) this toast is currently assuming that the error is 'Not enough eth for tx fee' because we don't
+      // get the full error response back from unchained (we get a 500 error). We can make this more precise by returning
+      // the full error returned from unchained.
+      handleToast(translate(TRADE_ERRORS.NOT_ENOUGH_ETH))
+    }
+
     if (!txId) return
     setApprovalTxId(txId)
+
     const interval = setInterval(async () => {
-      const approvalNeeded = await checkApprovalNeeded(wallet)
-      if (approvalNeeded) return
+      try {
+        const approvalNeeded = await checkApprovalNeeded(wallet)
+        if (approvalNeeded) return
+      } catch (e) {
+        console.error(`Approval:approve:checkApprovalNeeded - ${e}`)
+        handleToast()
+        approvalInterval.current && clearInterval(approvalInterval.current)
+        return history.push('/trade/input')
+      }
+
       approvalInterval.current && clearInterval(approvalInterval.current)
       if (!sellAsset.amount) return
       if (!quote) return
-      const result = await buildQuoteTx({
-        wallet,
-        sellAsset: quote?.sellAsset,
-        buyAsset: quote?.buyAsset,
-        amount: sellAsset?.amount
-      })
+      let result
+      try {
+        result = await buildQuoteTx({
+          wallet,
+          sellAsset: quote?.sellAsset,
+          buyAsset: quote?.buyAsset,
+          amount: sellAsset?.amount
+        })
+      } catch (e) {
+        console.error(`Approval:approve:buildQuoteTx - ${e}`)
+      }
+
+      if (!result?.success && result?.statusReason) {
+        handleToast(result.statusReason)
+      }
 
       if (result?.success) {
         history.push({ pathname: '/trade/confirm', state: { fiatRate } })
@@ -69,6 +100,17 @@ export const Approval = () => {
       }
     }, 5000)
     approvalInterval.current = interval
+  }
+
+  const handleToast = (description: string = '') => {
+    toast({
+      title: translate(TRADE_ERRORS.TITLE),
+      description,
+      status: 'error',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right'
+    })
   }
 
   useEffect(() => {

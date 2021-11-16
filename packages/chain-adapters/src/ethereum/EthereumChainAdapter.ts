@@ -301,6 +301,25 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           }
         })
 
+        if (msg.trade) {
+          onMessage({
+            ...baseTx,
+            asset: ChainTypes.Ethereum,
+            chain: ChainTypes.Ethereum,
+            value: '0',
+            chainSpecific: {},
+            type: chainAdapters.TxType.Trade,
+            tradeDetails: {
+              buyAmount: msg.trade.buyAmount,
+              buyAsset: msg.trade.buyAsset,
+              dexName: msg.trade.dexName,
+              feeAmount: msg.trade.feeAmount,
+              sellAmount: msg.trade.sellAmount,
+              sellAsset: msg.trade.sellAsset
+            }
+          })
+        }
+
         Object.entries(msg.send).forEach(([symbol, { totalValue, token }]) => {
           onMessage({
             ...baseTx,

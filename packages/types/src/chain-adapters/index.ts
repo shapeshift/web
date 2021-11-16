@@ -108,7 +108,8 @@ export type TxFee = {
 
 export enum TxType {
   Send = 'send',
-  Receive = 'receive'
+  Receive = 'receive',
+  Trade = 'trade'
 }
 
 export enum TxStatus {
@@ -131,7 +132,17 @@ export type SubscribeTxsMessage<T extends ChainTypes> = {
   from?: string
   fee?: TxFee
   status: TxStatus
+  tradeDetails?: TradeDetails
 } & TxTransfer<T>
+
+export type TradeDetails = {
+  buyAmount: string
+  buyAsset: string
+  dexName: string
+  feeAmount: string
+  sellAmount: string
+  sellAsset: string
+}
 
 type ChainSpecificTxTransfer<T> = ChainSpecific<
   T,

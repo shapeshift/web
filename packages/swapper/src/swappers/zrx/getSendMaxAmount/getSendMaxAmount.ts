@@ -42,17 +42,20 @@ export async function getSendMaxAmount(
     return balance
   }
 
+  if (!quote.txData) {
+    throw new SwapError('quote.txData is required to get correct fee estimate')
+  }
+
   const feeEstimates = await adapter.getFeeData({
     to: quote.depositAddress,
     value: balance,
     chainSpecific: {
       from: ethAddress,
-      contractAddress: tokenId
+      contractData: quote.txData
     }
   })
 
   const estimatedFee = feeEstimates[feeEstimateKey].txFee
-
   const sendMaxAmount = new BigNumber(balance).minus(estimatedFee)
 
   if (sendMaxAmount.lt(0)) {

@@ -1,6 +1,5 @@
 import { HistoryData } from '@shapeshiftoss/types'
 import { AxisScale } from '@visx/axis'
-import { LinePath } from '@visx/shape'
 import { Text } from '@visx/text'
 
 export interface LineChartProps {
@@ -9,6 +8,7 @@ export interface LineChartProps {
   yScale: AxisScale<number>
   width: number
   yMax: number
+  xDate: Date
   label: string
   yText: number
   margin: { top: number; right: number; bottom: number; left: number }
@@ -21,28 +21,39 @@ export interface LineChartProps {
   xTickFormat?: (d: any) => any
 }
 
-export const MinPrice = ({ data, label, yText, yScale, xScale, stroke, width }: LineChartProps) => {
-  const getDate = (d: HistoryData) => new Date(d?.date)
-  const getStockValue = (d: HistoryData) => d?.price
+export const MinPrice = ({
+  data,
+  label,
+  yText,
+  yScale,
+  xScale,
+  stroke,
+  width,
+  xDate
+}: LineChartProps) => {
+  const xPos = xScale(xDate)
+  const handleTextPos = (x: number): { x: number; anchor: 'end' | 'start' | 'middle' } => {
+    const offsetWidth = width / 2
+    const buffer = 16
+    const end = width - offsetWidth
+    if (x < offsetWidth) {
+      return { x: x + buffer, anchor: 'start' }
+    } else if (x > end) {
+      return { x: x, anchor: 'end' }
+    } else {
+      return { x: x, anchor: 'start' }
+    }
+  }
   return (
     <g>
-      <LinePath<HistoryData>
-        data={data}
-        x={d => xScale(getDate(d)) || 0}
-        y={d => yScale(getStockValue(d)) || 0}
-        stroke={stroke}
-        strokeWidth={1}
-        strokeDasharray='4,4'
-        strokeOpacity='.3'
-      />
       <Text
-        x={width}
+        x={handleTextPos(xPos || 0).x}
         y={yText}
-        textAnchor='end'
+        textAnchor={handleTextPos(xPos || 0).anchor}
         fill={stroke}
         fontSize='12px'
-        dy='-0.5rem'
-        dx='-0.5rem'
+        dy='1rem'
+        width={100}
       >
         {label}
       </Text>

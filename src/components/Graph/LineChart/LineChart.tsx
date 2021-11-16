@@ -60,17 +60,33 @@ export const LineChart = ({
 
   if (width < 10) return null
   return (
-    <Group left={left || margin.left} top={top || margin.top}>
-      <LinePath<HistoryData>
-        data={data}
-        x={d => xScale(getDate(d)) || 0}
-        y={d => yScale(getStockValue(d)) || 0}
-        strokeWidth={1.5}
-        stroke={stroke}
-      />
+    <>
+      <Group left={left || margin.left} top={top || margin.top}>
+        <LinePath<HistoryData>
+          data={data}
+          x={d => xScale(getDate(d)) || 0}
+          y={d => yScale(getStockValue(d)) || 0}
+          strokeWidth={1.5}
+          stroke={stroke}
+        />
+
+        {!hideLeftAxis && (
+          <AxisLeft
+            scale={yScale}
+            numTicks={5}
+            stroke={strokeColor}
+            tickStroke={strokeColor}
+            tickLabelProps={() => AXIS_LEFT_TICK_LABEL_PROPS}
+            tickFormat={d => {
+              return xTickFormat ? xTickFormat(d) : d
+            }}
+          />
+        )}
+        {children}
+      </Group>
       {!hideBottomAxis && (
         <AxisBottom
-          top={yMax + margin.top}
+          top={yMax + margin.top + 25}
           scale={xScale}
           numTicks={width > 520 ? 5 : 5}
           stroke={strokeColor}
@@ -79,19 +95,6 @@ export const LineChart = ({
           tickLabelProps={() => AXIS_BOTTOM_TICK_LABEL_PROPS}
         />
       )}
-      {!hideLeftAxis && (
-        <AxisLeft
-          scale={yScale}
-          numTicks={5}
-          stroke={strokeColor}
-          tickStroke={strokeColor}
-          tickLabelProps={() => AXIS_LEFT_TICK_LABEL_PROPS}
-          tickFormat={d => {
-            return xTickFormat ? xTickFormat(d) : d
-          }}
-        />
-      )}
-      {children}
-    </Group>
+    </>
   )
 }

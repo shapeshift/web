@@ -37,7 +37,10 @@ const balances = {
   ]
 }
 
-const wallet = {}
+const wallet = {
+  _supportsETH: true,
+  _supportsBTC: true
+}
 
 const setup = ({
   adapter = () => ({

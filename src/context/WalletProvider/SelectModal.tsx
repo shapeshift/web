@@ -1,4 +1,4 @@
-import { Button, Center, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Center, Flex, ModalBody, ModalHeader, Stack, Tag } from '@chakra-ui/react'
 import { RawText, Text } from 'components/Text'
 
 import { KeyManager, SUPPORTED_WALLETS } from './config'
@@ -6,7 +6,7 @@ import { useWallet } from './WalletProvider'
 
 export const SelectModal = () => {
   const {
-    state: { adapters },
+    state: { adapters, walletInfo },
     connect
   } = useWallet()
 
@@ -33,7 +33,14 @@ export const SelectModal = () => {
                   justifyContent='space-between'
                   onClick={() => connect(key)}
                 >
-                  <RawText fontWeight='semibold'>{option.name}</RawText>
+                  <Flex alignItems='center'>
+                    <RawText fontWeight='semibold'>{option.name}</RawText>
+                    {walletInfo?.name === option.name && (
+                      <Tag colorScheme='green' ml={2}>
+                        <Text translation='common.connected' />
+                      </Tag>
+                    )}
+                  </Flex>
                   <Center>
                     <Icon height='30px' w='auto' />
                   </Center>

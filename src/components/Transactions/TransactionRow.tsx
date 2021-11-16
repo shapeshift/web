@@ -65,7 +65,13 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
         w='full'
       >
         <Flex alignItems='center'>
-          <Center w='10' h='10' bg={'whiteAlpha.200'} rounded='full' mr='3'>
+          <Center
+            w='10'
+            h='10'
+            bg={useColorModeValue('gray.100', 'gray.700')}
+            rounded='full'
+            mr='3'
+          >
             {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
           </Center>
           {(ref?.current?.offsetWidth || 350) >= 350 && (
@@ -73,7 +79,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
           )}
           <Amount.Crypto
             ml={1}
-            value={fromBaseUnit(tx.value, asset.precision)}
+            value={fromBaseUnit(tx.value, asset?.precision)}
             symbol={symbol}
             maximumFractionDigits={6}
             fontWeight='bold'
@@ -106,7 +112,7 @@ export const TransactionRow = ({ tx }: { tx: Tx }) => {
             <Row.Value>
               {tx?.fee && (
                 <Amount.Crypto
-                  value={fromBaseUnit(tx?.fee?.value ?? '0', asset.precision)}
+                  value={fromBaseUnit(tx?.fee?.value ?? '0', asset?.precision)}
                   symbol={tx?.fee?.symbol}
                   maximumFractionDigits={6}
                 />

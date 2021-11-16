@@ -1,4 +1,4 @@
-import { CopyIcon, ViewIcon } from '@chakra-ui/icons'
+import { CheckIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -15,7 +15,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -27,7 +26,6 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData } from 'hooks/useAsset/useAsset'
 import { ReduxState } from 'state/reducer'
-import { getAccountTypeKey } from 'state/slices/preferencesSlice/preferencesSlice'
 
 type ReceivePropsType = {
   asset: AssetMarketData
@@ -43,8 +41,8 @@ const Receive = ({ asset }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const currentAccountType: UtxoAccountType = useSelector(
-    (state: ReduxState) => state.preferences[getAccountTypeKey(asset.chain)]
+  const currentAccountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
 
   useEffect(() => {
@@ -63,8 +61,14 @@ const Receive = ({ asset }: ReceivePropsType) => {
   }, [setReceiveAddress, currentAccountType, asset, wallet, chainAdapter])
 
   const handleVerify = async () => {
+    const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
+
     if (!(wallet && chainAdapter && receiveAddress)) return
-    const deviceAddress = await chainAdapter.getAddress({ wallet, showOnDevice: true })
+    const deviceAddress = await chainAdapter.getAddress({
+      wallet,
+      showOnDevice: true,
+      ...accountParams
+    })
 
     setVerified(Boolean(deviceAddress) && deviceAddress === receiveAddress)
   }
@@ -111,7 +115,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
                 <Card.Body>
                   <QRCode text={receiveAddress} />
                 </Card.Body>
-                <Card.Footer textAlign='center' pt={0}>
+                <Card.Footer textAlign='center' pt={0} fontSize='sm'>
                   <RawText>{receiveAddress}</RawText>
                 </Card.Footer>
               </Card>
@@ -161,7 +165,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
                     size='40px'
                     _groupHover={{ bg: 'blue.500', color: 'white' }}
                   >
-                    <ViewIcon />
+                    {verified ? <CheckIcon /> : <ViewIcon />}
                   </Circle>
                   <Text
                     translation={`modals.receive.${

@@ -1,5 +1,5 @@
 import { Center } from '@chakra-ui/react'
-import { HTMLMotionProps } from 'framer-motion'
+import { AnimatePresence, HTMLMotionProps } from 'framer-motion'
 import { ReactNode } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
@@ -22,9 +22,11 @@ export const Page = ({
   renderError,
   ...rest
 }: PageProps) => (
-  <PageTransition {...rest}>
-    {error && !loading ? renderError() : loading ? renderLoading() : children}
-  </PageTransition>
+  <AnimatePresence exitBeforeEnter initial>
+    <PageTransition {...rest}>
+      {error && !loading ? renderError() : loading ? renderLoading() : children}
+    </PageTransition>
+  </AnimatePresence>
 )
 
 Page.defaultProps = {

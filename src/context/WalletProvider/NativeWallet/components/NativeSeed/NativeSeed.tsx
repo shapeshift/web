@@ -60,7 +60,7 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' onClick={handleShow} leftIcon={<FaEye />}>
+        <Button colorScheme='blue' onClick={handleShow} size='lg' leftIcon={<FaEye />}>
           {`${revealed ? 'Hide' : 'Show'}`} Words
         </Button>
         {revealedOnce.current && (

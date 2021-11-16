@@ -30,9 +30,9 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
   useEffect(() => {
-    dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
-    dispatch(fetchMarketCaps())
-  }, [dispatch])
+    Object.keys(assets).length < 100 && dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+    Object.keys(assets).length < 100 && dispatch(fetchMarketCaps())
+  }, [assets, dispatch])
 
   useEffect(() => {
     setFilteredAssets(searching ? filterAssetsBySearchTerm(searchString, assets) : assets)

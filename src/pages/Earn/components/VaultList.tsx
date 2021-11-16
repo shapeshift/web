@@ -6,11 +6,15 @@ import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { SUPPORTED_VAULTS } from 'context/EarnManagerProvider/providers/yearn/constants/vaults'
 
+import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { StakingCard } from './StakingCard'
 
-export const VaultList = () => {
+export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
+  const vaults = Object.values(balances?.vaults?.vaults || {})
+
+  if (balances.vaults.loading) return null
+
   return (
     <Box mb={6}>
       <Flex alignItems='center' mb={6} justifyContent='space-between'>
@@ -36,11 +40,11 @@ export const VaultList = () => {
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {SUPPORTED_VAULTS.map((vault, index) => (
-          <StakingCard isLoaded={true} key={index} {...vault} />
-        ))}
+        {vaults.map(vault => {
+          return <StakingCard isLoaded={true} key={vault.vaultAddress} {...vault} />
+        })}
       </SimpleGrid>
-      {SUPPORTED_VAULTS.length === 0 && (
+      {vaults.length === 0 && (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>

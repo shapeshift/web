@@ -134,7 +134,14 @@ export const PinModal = ({
               </Button>
             ))}
           </SimpleGrid>
-          <Input type='password' ref={pinFieldRef} size='lg' variant='filled' mb={6} />
+          <Input
+            type='password'
+            ref={pinFieldRef}
+            size='lg'
+            variant='filled'
+            mb={6}
+            autoComplete='one-time-code'
+          />
           {error && (
             <Alert status='error'>
               <AlertIcon />

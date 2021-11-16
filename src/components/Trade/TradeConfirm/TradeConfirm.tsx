@@ -18,8 +18,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { ReduxState } from 'state/reducer'
+import { selectTxHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
-import { selectTxHistoryByTxid } from '../helpers'
 import { AssetToAsset } from './AssetToAsset'
 
 type TradeConfirmParams = {
@@ -46,9 +46,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const t = useTranslate()
   const { chain, tokenId } = sellAsset.currency
   const asset = tokenId ?? chain
-  const txs = useSelector((state: ReduxState) => {
-    return selectTxHistoryByTxid(state, chain, asset, txid)
-  })
+  const txs = useSelector((state: ReduxState) =>
+    selectTxHistory(state, { chain, filter: { identifier: asset, txid } })
+  )
   const transaction = txs[0]
   const status = transaction && transaction?.status
 

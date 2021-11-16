@@ -3,7 +3,28 @@ import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-export const OverviewHeader = () => {
+import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
+
+type EarnStatProps = {
+  label: string
+  value: string
+}
+
+function EarnStat({ label, value }: EarnStatProps) {
+  return (
+    <Stat>
+      <StatLabel>
+        <Text translation={label} />
+      </StatLabel>
+      <StatNumber>
+        <Amount.Fiat value={value} />
+      </StatNumber>
+    </Stat>
+  )
+}
+
+export const OverviewHeader = ({ balances }: { balances: UseEarnBalancesReturn }) => {
+  if (balances.vaults.loading) return null
   return (
     <Card variant='unstyled'>
       <Card.Header px={0}>
@@ -13,37 +34,14 @@ export const OverviewHeader = () => {
               <Text translation='earn.totalEarningBalance' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value='13975.25' />
+              <Amount.Fiat value={balances.totalEarningBalance} />
             </StatNumber>
           </Stat>
         </StatGroup>
       </Card.Header>
       <Card.Body px={0}>
         <StatGroup>
-          <Stat>
-            <StatLabel>
-              <Text translation='earn.stakingBalance' />
-            </StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='13532.97' />
-            </StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>
-              <Text translation='earn.farmingBalance' />
-            </StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='13532.97' />
-            </StatNumber>
-          </Stat>
-          <Stat>
-            <StatLabel>
-              <Text translation='earn.liquidityPoolBalance' />
-            </StatLabel>
-            <StatNumber>
-              <Amount.Fiat value='13532.97' />
-            </StatNumber>
-          </Stat>
+          <EarnStat label='earn.stakingBalance' value={balances.vaults.totalBalance} />
         </StatGroup>
       </Card.Body>
     </Card>

@@ -1,6 +1,6 @@
 import { mode } from '@chakra-ui/theme-tools'
 export const ModalStyle = {
-  parts: ['dialog', 'footer'],
+  parts: ['dialog', 'footer', 'closeButton'],
   // Styles for the base style
   baseStyle: (props: Record<string, any>) => ({
     dialog: {
@@ -8,6 +8,9 @@ export const ModalStyle = {
       borderRadius: 'xl',
       borderColor: mode('gray.50', 'gray.750')(props),
       borderWidth: 1
+    },
+    closeButton: {
+      borderRadius: '100%'
     }
   }),
   // Styles for the size variations

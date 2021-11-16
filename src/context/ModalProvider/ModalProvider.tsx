@@ -96,6 +96,7 @@ export function createModalContext<M>(state: M) {
 }
 
 // context
+// If initial state is removed/set to null, the KeepKey wallet modals will break
 export const ModalContext = createModalContext(initialState)
 
 type ModalProviderProps = {

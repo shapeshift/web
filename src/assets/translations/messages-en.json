@@ -7,6 +7,7 @@
     "continue": "Continue",
     "confirm": "Confirm",
     "reject": "Reject",
+    "connected": "Connected",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
@@ -14,7 +15,10 @@
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
+    "connectedWallet": "Connected Wallet",
+    "noWallet": "No Wallet Connected",
     "seeAll": "See All",
+    "darkMode": "Dark Mode",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
     "transactionFailed": "Transaction Failed",
@@ -28,16 +32,32 @@
       "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
       "price": "Price",
+      "value": "Value",
       "allocation": "Allocation"
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     }
   },
+  "connectWalletPage": {
+    "shapeshift": "ShapeShift",
+    "alpha": "Alpha",
+    "exploreThe": "Explore The",
+    "defiUniverse": "DeFi Universe",
+    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "header": "Please connect a wallet to get started",
+    "cta": "Connect Wallet"
+  },
+  "connectWallet": {
+    "menu": {
+      "triggerButton": "Connect Wallet",
+      "switchWallet": "Switch Wallet Provider",
+      "disconnect": "Disconnect"
+    }
+  },
   "earn": {
     "earn": "Earn",
     "earnBody": "Earn interest by depositing your assets.",
-    "emptyVaults": "Vaults will appear here",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -127,12 +147,12 @@
     "keepKey": {
       "passphrase": {
         "errors": {
-          "unknown": "There was an error setting your passphrase",
+          "unknown": "There was an error submitting your passphrase",
           "empty": "You are using an empty passphrase"
         },
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
-        "button": "Set Passphrase"
+        "button": "Submit Passphrase"
       }
     },
     "send": {
@@ -183,7 +203,7 @@
       "amountToDeposit": "Amount To Deposit",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "This transaction requires gas fees for two transactions, by continuing you agree to our terms of service.",
+      "footerDisclaimer": "By continuing you agree to our terms of service.",
       "slippageSettings": "Slippage Settings"
     },
     "withdraw": {
@@ -195,6 +215,7 @@
       "header": "Allow ShapeShift.io to Spend Your %{asset}",
       "body": "We need your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
+      "depositFee": "There will be separate gas fee to deposit.",
       "estimatedGas": "Estimated Gas Fee",
       "confirm": "Confirm",
       "reject": "Reject"
@@ -367,9 +388,9 @@
         "24HrVolume": "24hr Volume",
         "dayChange": "Day Change",
         "aboutAsset": "About %{asset}",
-        "segwit": "Segwit",
-        "segwitNative": "Segwit Native",
-        "legacy": "Legacy"
+        "SegwitP2sh": "Segwit",
+        "SegwitNative": "Segwit Native",
+        "P2pkh": "Legacy"
       },
       "assetDescription": {
         "showMore": "Show More",
@@ -385,6 +406,7 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",
         "currentRewards": "Current Rewards",

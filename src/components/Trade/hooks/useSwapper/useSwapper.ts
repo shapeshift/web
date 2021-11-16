@@ -57,7 +57,6 @@ export enum TRADE_ERRORS {
 // TODO: (ryankk) revisit the logic inside useSwapper post bounty to see
 // if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
-  // TODO: check to see if it makes sense to set errors
   const { setValue, clearErrors, getValues } = useFormContext()
   const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()

@@ -26,13 +26,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
       const service = await getAssetService()
       const assetData = service?.byNetwork(NetworkTypes.MAINNET)
-
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const chain = adapter.getType()
 
         const asset = assetData.find(asset => asset.chain === chain)
-        if (!asset) throw new Error(`asset not found for chain ${chain}`)
+        if (!asset) {
+          console.error(`asset not found for chain ${chain}`)
+          continue
+        }
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]
 

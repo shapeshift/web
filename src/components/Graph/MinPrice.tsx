@@ -53,6 +53,7 @@ export const MinPrice = ({
         fill={stroke}
         fontSize='12px'
         dy='1rem'
+        dx='-0.5rem'
         width={100}
       >
         {label}

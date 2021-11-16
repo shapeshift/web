@@ -11,6 +11,7 @@ import dayjs from 'dayjs'
 import numeral from 'numeral'
 import React, { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { colors } from 'theme/colors'
 
 import { AreaChart } from '../AreaChart/AreaChart'
@@ -46,6 +47,10 @@ export const PrimaryChart = ({
     tooltipTop = 0,
     tooltipLeft = 0
   } = useTooltip<HistoryData>()
+
+  const {
+    number: { toFiat }
+  } = useLocaleFormatter({ fiatType: 'USD' })
 
   const toolTipBg = useColorModeValue('white', colors.gray[800])
   const toolTipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
@@ -158,7 +163,7 @@ export const PrimaryChart = ({
             data={maxData}
             yText={priceScale(maxPrice)}
             xText={dateScale(maxPriceDate)}
-            label={formatPrice(maxPrice)}
+            label={toFiat(maxPrice)}
             xDate={maxPriceDate}
             yScale={priceScale}
             xScale={dateScale}
@@ -170,7 +175,7 @@ export const PrimaryChart = ({
           <MinPrice
             data={minData}
             yText={priceScale(minPrice)}
-            label={formatPrice(minPrice)}
+            label={toFiat(minPrice)}
             yScale={priceScale}
             xScale={dateScale}
             xDate={minPriceDate}
@@ -232,9 +237,9 @@ export const PrimaryChart = ({
           >
             <ul style={{ padding: '0', margin: '0', listStyle: 'none' }}>
               <li>
-                <Amount.Fiat fontWeight='bold' value={tooltipData.price} />
+                <Amount.Fiat fontWeight='bold' fontSize='lg' my={2} value={tooltipData.price} />
               </li>
-              <li style={{ paddingBottom: '0.25rem', fontSize: '12px' }}>
+              <li style={{ paddingBottom: '0.25rem', fontSize: '12px', color: colors.gray[500] }}>
                 {dayjs(getDate(tooltipData)).format('MMMM D, YYYY h:mm A')}
               </li>
             </ul>

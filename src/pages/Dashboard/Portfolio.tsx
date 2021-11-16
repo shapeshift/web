@@ -5,7 +5,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 
 import { useBalanceChartData } from '../../hooks/useBalanceChartData/useBalanceChartData'

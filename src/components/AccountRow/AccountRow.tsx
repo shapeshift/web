@@ -36,6 +36,7 @@ export const AccountRow = ({ allocationValue, balance, tokenId, chain }: Account
   const marketData = useSelector(
     (state: ReduxState) => state.marketData.marketData[asset?.tokenId ?? asset?.chain]
   )
+  const marketDataLoading = useSelector((state: ReduxState) => state.marketData.loading)
 
   useEffect(() => {
     ;(async () => {
@@ -104,18 +105,24 @@ export const AccountRow = ({ allocationValue, balance, tokenId, chain }: Account
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
         {!marketData?.price ? (
-          <CircularProgress isIndeterminate size='5' />
+          marketDataLoading ? (
+            <CircularProgress isIndeterminate size='5' />
+          ) : (
+            '--'
+          )
         ) : (
           <Amount.Fiat value={marketData.price} />
         )}
       </Flex>
       <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
         {!marketData?.price ? (
-          <CircularProgress isIndeterminate size='5' />
+          marketDataLoading ? (
+            <CircularProgress isIndeterminate size='5' />
+          ) : (
+            '--'
+          )
         ) : (
-          <>
-            <Amount.Fiat value={fiatValue} />
-          </>
+          <Amount.Fiat value={fiatValue} />
         )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>

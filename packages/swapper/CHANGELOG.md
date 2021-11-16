@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.4...@shapeshiftoss/swapper-v1.11.5) (2021-11-16)
+
+
+### Bug Fixes
+
+* update getSendMaxAmount to pass quote txData to getFeeData ([#227](https://github.com/shapeshift/lib/issues/227)) ([8256fa9](https://github.com/shapeshift/lib/commit/8256fa9daaee9f9c6cf6326cdd4ed1bcaef401a2))
+
 # [@shapeshiftoss/swapper-v1.11.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.3...@shapeshiftoss/swapper-v1.11.4) (2021-11-15)
 
 # [@shapeshiftoss/swapper-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.2...@shapeshiftoss/swapper-v1.11.3) (2021-11-15)

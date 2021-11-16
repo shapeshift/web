@@ -38,7 +38,9 @@ export const useBalances = (): UseBalancesReturnType => {
         const key = adapter.getType()
 
         const asset = assetData.find(asset => asset.chain === key)
-        if (!asset) throw new Error(`asset not found for chain ${key}`)
+        if (!asset){
+          throw new Error(`asset not found for chain ${key}`)
+        }
 
         let addressOrXpub
         if (adapter.getType() === 'ethereum' && supportsETH(wallet)) {

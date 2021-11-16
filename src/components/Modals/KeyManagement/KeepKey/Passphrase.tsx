@@ -59,7 +59,15 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
         </ModalHeader>
         <ModalBody>
           <Text color='gray.500' translation={`modals.keepKey.passphrase.body`} />
-          <Input type='password' ref={inputRef} size='lg' variant='filled' mt={3} mb={6} />
+          <Input
+            type='password'
+            ref={inputRef}
+            size='lg'
+            variant='filled'
+            mt={3}
+            mb={6}
+            autoComplete='current-password'
+          />
           {error && (
             <Alert status='error'>
               <AlertIcon />

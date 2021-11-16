@@ -1,12 +1,17 @@
 import { ModalBody, ModalHeader, Spinner } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { useMetaSuccess } from '../hooks/useMetaSuccess/useMetaSuccess'
 
 export const MetaSuccess = () => {
   const { isSuccessful } = useMetaSuccess()
-
+  const { dispatch } = useWallet()
+  useEffect(() => {
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+  }, [dispatch, isSuccessful])
   return (
     <>
       <ModalHeader>

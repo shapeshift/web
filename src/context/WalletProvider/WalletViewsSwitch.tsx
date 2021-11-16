@@ -47,7 +47,7 @@ export const WalletViewsSwitch = () => {
   return (
     <>
       <NativePasswordRequired />
-      <Modal isOpen={state.modal} onClose={onClose} isCentered>
+      <Modal isOpen={state.modal} onClose={onClose} isCentered trapFocus={false}>
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>

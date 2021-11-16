@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.15.4...@shapeshiftoss/chain-adapters-v1.16.0) (2021-11-16)
+
+
+### Features
+
+* send trade details over websocket from eth chain adapter ([#233](https://github.com/shapeshift/lib/issues/233)) ([8a4ed0a](https://github.com/shapeshift/lib/commit/8a4ed0aa3e746dee2c0e4bda7497ee515f4d55b7))
+
 # [@shapeshiftoss/chain-adapters-v1.15.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.15.3...@shapeshiftoss/chain-adapters-v1.15.4) (2021-11-15)
 
 # [@shapeshiftoss/chain-adapters-v1.15.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.15.2...@shapeshiftoss/chain-adapters-v1.15.3) (2021-11-12)

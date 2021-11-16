@@ -14,9 +14,16 @@ import { NativeSetupProps } from '../types'
 
 export const NativeImport = ({ history, location }: NativeSetupProps) => {
   const onSubmit = async (values: FieldValues) => {
-    const encryptedWallet = await location.state.encryptedWallet?.createWallet(values.mnemonic)
-    if (encryptedWallet?.encryptedWallet) {
-      history.push('/native/success', { encryptedWallet: location.state.encryptedWallet })
+    const vault = location.state.vault
+    if (vault) {
+      if (vault.has('#mnemonic')) {
+        throw new Error(
+          "you're about to overwrite your mnemonic, and you probably don't want to do that"
+        )
+      }
+      vault.set('#mnemonic', values.mnemonic)
+      await vault.save()
+      history.push('/native/success', { vault })
     }
   }
 

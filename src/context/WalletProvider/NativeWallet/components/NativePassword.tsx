@@ -14,15 +14,15 @@ import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
-import { getEncryptedWallet } from 'lib/nativeWallet'
 
 export const NativePassword = ({ history }: RouteComponentProps) => {
   const [showPw, setShowPw] = useState<boolean>(false)
+  const { state } = useLocation<LocationState>()
 
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
-    const encryptedWallet = await getEncryptedWallet(values.password)
-    history.push('/native/start', { encryptedWallet })
+    const vault = await location.state.vault.setPassword(values.password)
+    history.push('/native/start', { vault })
   }
 
   const {

@@ -1,3 +1,4 @@
+import * as native from '@shapeshiftoss/hdwallet-native'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -6,6 +7,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { LocationState } from 'context/WalletProvider/NativeWallet/types'
+
+const Revocable = native.crypto.Isolation.Engines.Default.Revocable
+const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 const TEST_COUNT_REQUIRED = 3
 
@@ -21,16 +25,20 @@ export const useNativeTestPhrase = () => {
   const [testCount, setTestCount] = useState<number>(1)
   const [invalid, setInvalid] = useState<boolean>(false)
   const shuffledNumbers = useMemo(() => slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED), [])
+  const revoker = useMemo(() => new (Revocable(class {}))(), [])
 
   const decrypt = useCallback(async () => {
-    if (state.encryptedWallet?.encryptedWallet) {
+    if (state.vault) {
       try {
-        const mnemonic = await state.encryptedWallet.decrypt()
+        const mnemonic = await state.vault.unwrap().get('#mnemonic')
         const words = mnemonic.split(' ')
-        let randomWords = bip39.generateMnemonic().split(' ')
-        const shuffledTuples: Tuples = []
+        let randomWords = revocable(
+          bip39.generateMnemonic().split(' '),
+          revoker.addRevoker.bind(revoker)
+        )
+        const shuffledTuples: Tuples = revocable([], revoker.addRevoker.bind(revoker))
         for (let i of shuffledNumbers) {
-          shuffledTuples.push([i + 1, words[i]])
+          shuffledTuples.push(revocable([i + 1, words[i]], revoker.addRevoker.bind(revoker)))
           // Add the words we want to check to the random words for the user to click on
           randomWords.push(words[i])
         }
@@ -40,7 +48,7 @@ export const useNativeTestPhrase = () => {
         state.error = { message: 'Error creating wallet' }
       }
     }
-  }, [state, shuffledNumbers])
+  }, [state, shuffledNumbers, revoker])
 
   useEffect(() => {
     decrypt()
@@ -51,7 +59,9 @@ export const useNativeTestPhrase = () => {
     setInvalidTries([])
     if (testCount >= TEST_COUNT_REQUIRED) {
       setShuffledWords([])
-      push('/native/success', { encryptedWallet: state.encryptedWallet })
+      state.vault?.seal()
+      revoker.revoke()
+      push('/native/success', { vault: state.vault })
     } else if (shuffledWords[testCount - 1][1] === testWord) {
       setTestCount(Math.min(testCount + 1, TEST_COUNT_REQUIRED))
       setInvalid(false)
@@ -69,6 +79,7 @@ export const useNativeTestPhrase = () => {
     invalidTries,
     testCount,
     setTestWord,
-    testWord
+    testWord,
+    revoker
   }
 }

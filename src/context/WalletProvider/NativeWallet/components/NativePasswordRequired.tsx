@@ -16,18 +16,13 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { NativeEvents, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import head from 'lodash/head'
-import toPairs from 'lodash/toPairs'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { useLocalStorage } from 'hooks/useLocalStorage/useLocalStorage'
-import { getEncryptedWallet } from 'lib/nativeWallet'
-
-type StoredWallets = Record<string, string>
 
 export const NativePasswordRequired = ({
   onConnect
@@ -38,42 +33,35 @@ export const NativePasswordRequired = ({
   const [wallet, setWallet] = useState<NativeHDWallet | null>(null)
   const [showPw, setShowPw] = useState<boolean>(false)
   const { state, dispatch } = useWallet()
-  const [localStorageWallet] = useLocalStorage<StoredWallets>('wallet', {})
 
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
     // @TODO: Grab the wallet that emitted the event by deviceId
-    const storedWallet = localStorageWallet ? head(toPairs(localStorageWallet)) : null
-    if (storedWallet) {
-      try {
-        const [deviceId, encryptedWalletString] = storedWallet
-        // @TODO: Replace this encryption with a most robust method
-        const encryptedWallet = await getEncryptedWallet(values.password, encryptedWalletString)
-        const maybeWallet: NativeHDWallet | null = state.keyring.get(deviceId)
-        if (maybeWallet) {
-          await maybeWallet.loadDevice({
-            mnemonic: await encryptedWallet.decrypt(),
-            deviceId: encryptedWallet.deviceId
-          })
-          const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet: maybeWallet,
-              name,
-              icon,
-              deviceId
-            }
-          })
-          setWallet(maybeWallet)
-        }
-      } catch (e) {
-        console.error('storedWallets', e)
-        setError('password', { message: 'Invalid password' })
+    try {
+      // @TODO: Replace this encryption with a most robust method
+      const vault = await Vault.thereCanBeOnlyOne(values.password)
+      const deviceId = vault.id
+      const maybeWallet: NativeHDWallet | null = state.keyring.get(deviceId)
+      if (maybeWallet) {
+        await maybeWallet.loadDevice({
+          mnemonic: await vault.get('#mnemonic'),
+          deviceId
+        })
+        const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: maybeWallet,
+            name,
+            icon,
+            deviceId
+          }
+        })
+        setWallet(maybeWallet)
       }
-    } else {
-      clearErrors()
-      onClose()
+    } catch (e) {
+      console.error('storedWallets', e)
+      setError('password', { message: 'Invalid password' })
     }
   }
 
@@ -86,9 +74,9 @@ export const NativePasswordRequired = ({
   } = useForm()
 
   useEffect(() => {
-    if (!(localStorageWallet && state.adapters?.has(KeyManager.Native))) return
+    if (!state.adapters?.has(KeyManager.Native)) return
     ;(async () => {
-      for (const [deviceId] of Object.entries(localStorageWallet)) {
+      for (const deviceId of await Vault.list()) {
         try {
           const device = await state.adapters?.get(KeyManager.Native)?.pairDevice(deviceId)
           await device?.initialize()
@@ -98,7 +86,7 @@ export const NativePasswordRequired = ({
         }
       }
     })()
-  }, [localStorageWallet, state.adapters])
+  }, [state.adapters])
 
   useEffect(() => {
     if (state.keyring) {

@@ -10,22 +10,54 @@ import {
   Tag,
   Wrap
 } from '@chakra-ui/react'
-import { useRef, useState } from 'react'
+import * as native from '@shapeshiftoss/hdwallet-native'
+import { useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { Text } from 'components/Text'
 
-import { useRevocableSeed } from '../../hooks/useRevocableSeed/useRevocableSeed'
 import { NativeSetupProps } from '../../types'
+
+const Revocable = native.crypto.Isolation.Engines.Default.Revocable
+const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 export const NativeSeed = ({ history, location }: NativeSetupProps) => {
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
-  const [isRevoked, setIsRevoked] = useState(false)
-  const { getSeed, revoke } = useRevocableSeed(location.state.encryptedWallet)
   const handleShow = () => {
     revealedOnce.current = true
     setRevealed(!revealed)
   }
+
+  const revoker = useMemo(() => new (Revocable(class {}))(), [])
+
+  const vault = location.state.vault!
+  const words = useMemo(() => {
+    try {
+      return vault
+        .unwrap()
+        .get('#mnemonic')
+        .split(' ')
+        .map((word: string, index: number) =>
+          revocable(
+            <Tag
+              p={2}
+              flexBasis='31%'
+              justifyContent='flex-start'
+              fontSize='md'
+              key={word}
+              colorScheme='blue'
+            >
+              <Code mr={2}>{index + 1}</Code>
+              {revealed ? word : '•••••••'}
+            </Tag>,
+            revoker.addRevoker.bind(revocable)
+          )
+        )
+    } catch (e) {
+      console.error('failed to get seed:', e)
+      return []
+    }
+  }, [vault, revealed, revoker])
 
   return (
     <>
@@ -41,22 +73,7 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
           </Alert>
         )}
         <Wrap mt={12} mb={6}>
-          {!isRevoked &&
-            getSeed()
-              ?.split(' ')
-              ?.map((word, index) => (
-                <Tag
-                  p={2}
-                  flexBasis='31%'
-                  justifyContent='flex-start'
-                  fontSize='md'
-                  key={word}
-                  colorScheme='blue'
-                >
-                  <Code mr={2}>{index + 1}</Code>
-                  {revealed ? word : '•••••••'}
-                </Tag>
-              ))}
+          {words}
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
@@ -68,9 +85,8 @@ export const NativeSeed = ({ history, location }: NativeSetupProps) => {
             colorScheme='blue'
             size='lg'
             onClick={() => {
-              setIsRevoked(true)
-              revoke()
-              history.push('/native/seed-test', { encryptedWallet: location.state.encryptedWallet })
+              revoker.revoke()
+              history.push('/native/seed-test', { vault: location.state.vault })
             }}
           >
             <Text translation={'walletProvider.shapeShift.nativeSeed.button'} />

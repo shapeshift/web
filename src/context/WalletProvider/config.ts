@@ -42,11 +42,11 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: FoxIcon,
     name: 'ShapeShift',
     routes: [
-      { path: '/native/password', component: NativePassword },
       { path: '/native/start', component: NativeStart },
-      { path: '/native/seed', component: NativeSeed },
       { path: '/native/import', component: NativeImport },
+      { path: '/native/seed', component: NativeSeed },
       { path: '/native/seed-test', component: NativeTestPhrase },
+      { path: '/native/password', component: NativePassword },
       { path: '/native/success', component: NativeSuccess }
     ]
   },

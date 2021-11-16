@@ -1,43 +1,28 @@
-import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+import * as native from '@shapeshiftoss/hdwallet-native'
+import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-export const useRevocableSeed = (encryptedWallet?: EncryptedWallet) => {
+const Revocable = native.crypto.Isolation.Engines.Default.Revocable
+
+export const useRevocableSeed = (vault: Vault) => {
   const [generating, setIsGenerating] = useState(true)
 
-  const revocableSeed = useMemo(
-    () =>
-      Proxy.revocable({} as { seed?: string }, {
-        get: (target, name) => (name === 'seed' ? target.seed : undefined),
-        set: (target, name, value) => {
-          if (name === 'seed') {
-            Object.defineProperty(target, name, {
-              enumerable: false,
-              configurable: false,
-              writable: false,
-              value
-            })
-
-            return true
-          }
-          return false
-        }
-      }),
-    []
-  )
+  const revoker = useMemo(() => new (Revocable(class {}))(), [])
+  revoker.addRevoker(() => vault.seal())
 
   const generate = useCallback(async () => {
     setIsGenerating(true)
-    if (encryptedWallet && !encryptedWallet.encryptedWallet) {
-      try {
-        await encryptedWallet.createWallet()
-        revocableSeed.proxy.seed = await encryptedWallet.decrypt()
-      } catch (error) {
-        console.error('Error creating wallet', error)
+    try {
+      if (!vault.has('#mnemonic')) {
+        vault.set('#mnemonic', GENERATE_MNEMONIC)
+        await vault.save()
       }
-      setIsGenerating(false)
+    } catch (error) {
+      console.error('Error creating wallet', error)
     }
+    setIsGenerating(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [encryptedWallet?.encryptedWallet, revocableSeed])
+  }, [vault])
 
   useEffect(() => {
     generate()
@@ -46,13 +31,13 @@ export const useRevocableSeed = (encryptedWallet?: EncryptedWallet) => {
   return {
     getSeed: () => {
       try {
-        return revocableSeed.proxy.seed
+        return vault.unwrap().get('#mnemonic')
       } catch (error) {
         console.error('Error creating wallet', error)
         return null
       }
     },
-    revoke: revocableSeed.revoke,
+    revoker,
     generating
   }
 }

@@ -6,7 +6,7 @@ import { useNativeSuccess } from '../../hooks/useNativeSuccess/useNativeSuccess'
 import { NativeSetupProps } from '../../types'
 
 export const NativeSuccess = ({ location }: NativeSetupProps) => {
-  const { isSuccessful } = useNativeSuccess({ encryptedWallet: location.state.encryptedWallet })
+  const { isSuccessful } = useNativeSuccess({ vault: location.state.vault })
 
   return (
     <>

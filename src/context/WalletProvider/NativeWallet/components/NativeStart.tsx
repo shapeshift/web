@@ -22,9 +22,7 @@ export const NativeStart = ({ history, location }: NativeSetupProps) => (
           py={4}
           justifyContent='space-between'
           rightIcon={<ArrowForwardIcon />}
-          onClick={() =>
-            history.push('/native/import', { encryptedWallet: location.state.encryptedWallet })
-          }
+          onClick={() => history.push('/native/import', { vault: location.state.vault })}
         >
           <Text translation={'walletProvider.shapeShift.nativeStart.button'} />
         </Button>
@@ -37,9 +35,7 @@ export const NativeStart = ({ history, location }: NativeSetupProps) => (
           py={4}
           justifyContent='space-between'
           rightIcon={<ArrowForwardIcon />}
-          onClick={() =>
-            history.push('/native/seed', { encryptedWallet: location.state.encryptedWallet })
-          }
+          onClick={() => history.push('/native/seed', { vault: location.state.vault })}
         >
           <Text translation={'walletProvider.shapeShift.nativeStart.button2'} />
         </Button>

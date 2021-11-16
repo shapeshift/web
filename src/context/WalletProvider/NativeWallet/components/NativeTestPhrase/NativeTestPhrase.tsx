@@ -1,7 +1,10 @@
 import { Button, ModalBody, ModalFooter, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
+import * as native from '@shapeshiftoss/hdwallet-native'
 import { RawText, Text } from 'components/Text'
 
 import { useNativeTestPhrase } from '../../hooks/useNativeTestPhrase/useNativeTestPhrase'
+
+const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 const ordinalSuffix = (n: number) => {
   return ['st', 'nd', 'rd'][((((n + 90) % 100) - 10) % 10) - 1] || 'th'
@@ -16,7 +19,8 @@ export const NativeTestPhrase = () => {
     invalid,
     testWord,
     handleNext,
-    invalidTries
+    invalidTries,
+    revoker
   } = useNativeTestPhrase()
 
   return !shuffledWords.length ? null : (
@@ -39,20 +43,23 @@ export const NativeTestPhrase = () => {
         </RawText>
         <Wrap mt={12} mb={6}>
           {shuffledRandomWords &&
-            shuffledRandomWords.map((word: string) => (
-              <Button
-                key={word}
-                flex='1'
-                minW='30%'
-                variant='ghost-filled'
-                colorScheme={invalid && invalidTries.includes(word) ? 'gray' : 'blue'}
-                isDisabled={invalid && invalidTries.includes(word)}
-                onClick={() => setTestWord(word)}
-                isActive={testWord === word}
-              >
-                {word}
-              </Button>
-            ))}
+            shuffledRandomWords.map((word: string) =>
+              revocable(
+                <Button
+                  key={word}
+                  flex='1'
+                  minW='30%'
+                  variant='ghost-filled'
+                  colorScheme={invalid && invalidTries.includes(word) ? 'gray' : 'blue'}
+                  isDisabled={invalid && invalidTries.includes(word)}
+                  onClick={() => setTestWord(word)}
+                  isActive={testWord === word}
+                >
+                  {word}
+                </Button>,
+                revoker.addRevoker.bind(revoker)
+              )
+            )}
         </Wrap>
       </ModalBody>
       <ModalFooter>

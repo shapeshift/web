@@ -1,11 +1,11 @@
-import { EncryptedWallet } from '@shapeshiftoss/hdwallet-native/dist/crypto'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
 import { ActionTypes } from '../WalletProvider'
 
 export interface LocationState {
-  encryptedWallet?: EncryptedWallet
+  vault?: Vault
   error?: {
     message: string
   }

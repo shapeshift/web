@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.4...@shapeshiftoss/types-v1.12.0) (2021-11-16)
+
+
+### Features
+
+* send trade details over websocket from eth chain adapter ([#233](https://github.com/shapeshift/lib/issues/233)) ([8a4ed0a](https://github.com/shapeshift/lib/commit/8a4ed0aa3e746dee2c0e4bda7497ee515f4d55b7))
+
 # [@shapeshiftoss/types-v1.11.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.3...@shapeshiftoss/types-v1.11.4) (2021-11-12)
 
 

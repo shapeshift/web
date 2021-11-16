@@ -261,7 +261,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     const id = toRootDerivationPath(bip32Params)
 
     await this.providers.ws.subscribeTxs(
-      { topic: 'txs', addresses: [address], id },
+      id,
+      { topic: 'txs', addresses: [address] },
       (msg) => {
         const getStatus = () => {
           const msgStatus = msg.ethereumSpecific?.status

@@ -381,7 +381,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     const id = `${toRootDerivationPath(bip32Params)}/${scriptType}`
 
     await this.providers.ws.subscribeTxs(
-      { topic: 'txs', addresses, id },
+      id,
+      { topic: 'txs', addresses },
       (msg) => {
         const status =
           msg.confirmations > 0 ? chainAdapters.TxStatus.Confirmed : chainAdapters.TxStatus.Pending

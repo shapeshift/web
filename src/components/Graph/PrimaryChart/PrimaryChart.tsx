@@ -29,7 +29,6 @@ export interface PrimaryChartProps {
 export type TooltipData = HistoryData
 
 // accessors
-const formatPrice = (value: number) => numeral(value).format('$0,0.00000')
 const getDate = (d: HistoryData) => new Date(d.date)
 const getStockValue = (d: HistoryData) => d?.price || 0
 const bisectDate = bisector<HistoryData, Date>(d => new Date(d.date)).left

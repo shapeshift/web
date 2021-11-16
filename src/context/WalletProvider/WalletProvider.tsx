@@ -101,8 +101,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
       // Otherwise the connect button for last wallet we clicked on won't work
-      if (!action.payload) {
-        newState.initialRoute = null
+      if (action.payload !== state.modal) {
+        newState.initialRoute = '/'
       }
       return newState
     case WalletActions.RESET_STATE:

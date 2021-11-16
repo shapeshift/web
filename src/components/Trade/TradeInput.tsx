@@ -97,26 +97,12 @@ export const TradeInput = ({ history }: RouterProps) => {
       })
 
       if (!result?.success && result?.statusReason) {
-        toast({
-          title: translate('trade.errors.title'),
-          description: result.statusReason, // statusReason is returned translated
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-          position: 'top-right'
-        })
+        handleToast(result.statusReason)
       }
       result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
-      toast({
-        title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.QUOTE_FAILED),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right'
-      })
+      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     }
   }
 
@@ -138,17 +124,21 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: maxSendAmount
       })
     } catch (err) {
-      toast({
-        title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.QUOTE_FAILED),
-        status: 'error',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right'
-      })
+      handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     } finally {
       setIsSendMaxLoading(false)
     }
+  }
+
+  const handleToast = (description: string) => {
+    toast({
+      title: translate('trade.errors.title'),
+      description,
+      status: 'error',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right'
+    })
   }
 
   const switchAssets = () => {

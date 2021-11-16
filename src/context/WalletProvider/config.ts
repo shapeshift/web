@@ -11,16 +11,18 @@ import { PortisIcon } from 'components/Icons/PortisIcon'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
-import { MetaStart } from './MetaMask/components/MetaStart'
-import { MetaSuccess } from './MetaMask/components/MetaSuccess'
+import { MetaMaskConnect } from './MetaMask/components/Connect'
+import { MetaMaskFailure } from './MetaMask/components/Failure'
+import { MetaMaskSuccess } from './MetaMask/components/Success'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativePassword } from './NativeWallet/components/NativePassword'
 import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
-import { PortisStart } from './Portis/components/PortisStart'
-import { PortisSuccess } from './Portis/components/PortisSuccess'
+import { PortisConnect } from './Portis/components/Connect'
+import { PortisFailure } from './Portis/components/Failure'
+import { PortisSuccess } from './Portis/components/Success'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -64,17 +66,19 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: MetaMaskIcon,
     name: 'MetaMask',
     routes: [
-      { path: '/metamask/start', component: MetaStart },
-      { path: '/metamask/success', component: MetaSuccess }
+      { path: '/metamask/connect', component: MetaMaskConnect },
+      { path: '/metamask/success', component: MetaMaskSuccess },
+      { path: '/metamask/failure', component: MetaMaskFailure }
     ]
   },
-  portis: {
+  [KeyManager.Portis]: {
     adapter: PortisAdapter,
     icon: PortisIcon,
     name: 'Portis',
     routes: [
-      { path: '/portis/start', component: PortisStart },
-      { path: '/portis/success', component: PortisSuccess }
+      { path: '/portis/connect', component: PortisConnect },
+      { path: '/portis/success', component: PortisSuccess },
+      { path: '/portis/failure', component: PortisFailure }
     ]
   }
 }

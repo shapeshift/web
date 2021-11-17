@@ -12,7 +12,6 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        await Vault.prepare()
         const localWallets = await Vault.list()
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {

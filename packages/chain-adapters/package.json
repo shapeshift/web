@@ -38,6 +38,10 @@
   },
   "devDependencies": {
     "@shapeshiftoss/hdwallet-native": "^1.17.1",
+    "@types/bs58check": "^2.1.0",
     "@types/multicoin-address-validator": "^0.5.0"
+  },
+  "peerDependencies": {
+    "bs58check": "^2.0.0"
   }
 }

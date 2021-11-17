@@ -6,9 +6,9 @@
  * @group unit
  */
 
-import { BTCInputScriptType, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP32Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { BIP32Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as bitcoin from './BitcoinChainAdapter'
@@ -283,7 +283,7 @@ describe('BitcoinChainAdapter', () => {
         wallet,
         chainSpecific: {
           opReturnData: 'nm, u',
-          scriptType: BTCInputScriptType.SpendWitness,
+          accountType: UtxoAccountType.SegwitNative,
           satoshiPerByte: '1'
         }
       }
@@ -351,7 +351,7 @@ describe('BitcoinChainAdapter', () => {
         wallet,
         chainSpecific: {
           opReturnData: 'sup fool',
-          scriptType: BTCInputScriptType.SpendWitness,
+          accountType: UtxoAccountType.SegwitNative,
           satoshiPerByte: '1'
         }
       }
@@ -418,11 +418,11 @@ describe('BitcoinChainAdapter', () => {
         isChange: false,
         index: 0
       }
-      const scriptType = BTCInputScriptType.SpendAddress
+
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.P2pkh
       })
       expect(addr).toStrictEqual('1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM')
     })
@@ -437,11 +437,10 @@ describe('BitcoinChainAdapter', () => {
         index: 1,
         isChange: false
       }
-      const scriptType = BTCInputScriptType.SpendAddress
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.P2pkh
       })
       expect(addr).toStrictEqual('1Jxtem176sCXHnK7QCShoafF5VtWvMa7eq')
     })
@@ -456,11 +455,10 @@ describe('BitcoinChainAdapter', () => {
         index: 0,
         isChange: true
       }
-      const scriptType = BTCInputScriptType.SpendAddress
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.P2pkh
       })
       expect(addr).toStrictEqual('13ZD8S4qR6h4GvkAZ2ht7rpr15TFXYxGCx')
     })
@@ -475,11 +473,10 @@ describe('BitcoinChainAdapter', () => {
         index: 0,
         isChange: false
       }
-      const scriptType = BTCInputScriptType.SpendAddress
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.P2pkh
       })
       expect(addr).toStrictEqual('1K2oFer6nGoXSPspeB5Qvt4htJvw3y31XW')
     })
@@ -494,11 +491,10 @@ describe('BitcoinChainAdapter', () => {
         isChange: false,
         index: 0
       }
-      const scriptType = BTCInputScriptType.SpendWitness
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.SegwitNative
       })
       expect(addr).toStrictEqual('bc1qkkr2uvry034tsj4p52za2pg42ug4pxg5qfxyfa')
     })
@@ -513,11 +509,10 @@ describe('BitcoinChainAdapter', () => {
         index: 1,
         isChange: false
       }
-      const scriptType = BTCInputScriptType.SpendWitness
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.SegwitNative
       })
       expect(addr).toStrictEqual('bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy')
     })
@@ -532,11 +527,10 @@ describe('BitcoinChainAdapter', () => {
         index: 0,
         isChange: true
       }
-      const scriptType = BTCInputScriptType.SpendWitness
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.SegwitNative
       })
       expect(addr).toStrictEqual('bc1qhazdhyg6ukkvnnlucxamjc3dmkj2zyfte0lqa9')
     })
@@ -551,11 +545,10 @@ describe('BitcoinChainAdapter', () => {
         index: 0,
         isChange: false
       }
-      const scriptType = BTCInputScriptType.SpendWitness
       const addr: string | undefined = await adapter.getAddress({
         bip32Params,
         wallet,
-        scriptType
+        accountType: UtxoAccountType.SegwitNative
       })
       expect(addr).toStrictEqual('bc1qgawuludfvrdxfq0x55k26ydtg2hrx64jp3u6am')
     })

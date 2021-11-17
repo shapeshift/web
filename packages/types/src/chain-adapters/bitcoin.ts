@@ -1,5 +1,4 @@
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-
+import { UtxoAccountType } from '../base'
 import { GetAddressInputBase } from '.'
 
 export type Account = {
@@ -17,7 +16,7 @@ export type Address = {
 }
 
 export type GetAddressInput = GetAddressInputBase & {
-  scriptType: BTCInputScriptType
+  accountType: UtxoAccountType
 }
 
 export type TransactionSpecific = {
@@ -80,7 +79,7 @@ export type FeeData = {
 
 export type BuildTxInput = {
   opReturnData?: string
-  scriptType: BTCInputScriptType
+  accountType: UtxoAccountType
   satoshiPerByte: string
 }
 

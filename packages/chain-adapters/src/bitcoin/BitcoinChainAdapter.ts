@@ -1,6 +1,5 @@
 import {
   bip32ToAddressNList,
-  BTCInputScriptType,
   BTCOutputAddressType,
   BTCSignTx,
   BTCSignTxInput,
@@ -9,15 +8,26 @@ import {
   PublicKey,
   supportsBTC
 } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  BIP32Params,
+  chainAdapters,
+  ChainTypes,
+  NetworkTypes,
+  UtxoAccountType
+} from '@shapeshiftoss/types'
 import { bitcoin } from '@shapeshiftoss/unchained-client'
 import coinSelect from 'coinselect'
 import WAValidator from 'multicoin-address-validator'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { toPath, toRootDerivationPath } from '../utils/bip32'
-import { toBtcOutputScriptType } from '../utils/utxoUtils'
+import {
+  accountTypeToOutputScriptType,
+  accountTypeToScriptType,
+  convertXpubVersion,
+  toPath,
+  toRootDerivationPath
+} from '../utils'
 
 export interface ChainAdapterArgs {
   providers: {
@@ -51,10 +61,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return ChainTypes.Bitcoin
   }
 
-  private async getPubKey(
+  private async getPublicKey(
     wallet: HDWallet,
     bip32Params: BIP32Params,
-    scriptType: BTCInputScriptType
+    accountType: UtxoAccountType
   ): Promise<PublicKey> {
     const path = toRootDerivationPath(bip32Params)
     const publicKeys = await wallet.getPublicKeys([
@@ -62,10 +72,15 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         coin: this.coinName,
         addressNList: bip32ToAddressNList(path),
         curve: 'secp256k1', // TODO(0xdef1cafe): from constant?
-        scriptType
+        scriptType: accountTypeToScriptType[accountType]
       }
     ])
     if (!publicKeys?.[0]) throw new Error("couldn't get public key")
+
+    if (accountType) {
+      return { xpub: convertXpubVersion(publicKeys[0].xpub, accountType) }
+    }
+
     return publicKeys[0]
   }
 
@@ -137,7 +152,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         to,
         wallet,
         bip32Params = ChainAdapter.defaultBIP32Params,
-        chainSpecific: { satoshiPerByte, scriptType }
+        chainSpecific: { satoshiPerByte, accountType }
       } = tx
 
       if (!value || !to) {
@@ -145,8 +160,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       }
 
       const path = toRootDerivationPath(bip32Params)
-      const changeScriptType = toBtcOutputScriptType(scriptType)
-      const pubkey = await this.getPubKey(wallet, bip32Params, scriptType)
+      const pubkey = await this.getPublicKey(wallet, bip32Params, accountType)
       const { data: utxos } = await this.providers.http.getUtxos({
         pubkey: pubkey.xpub
       })
@@ -160,7 +174,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       const from = await wallet.btcGetAddress({
         addressNList,
         coin: this.coinName,
-        scriptType
+        scriptType: accountTypeToScriptType[accountType]
       })
 
       if (!from) throw new Error('BitcoinChainAdapter: from undefined')
@@ -193,7 +207,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
           addressNList: bip32ToAddressNList(input.path),
           // https://github.com/shapeshift/hdwallet/issues/362
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          scriptType: scriptType as any,
+          scriptType: accountTypeToScriptType[accountType] as any,
           amount: String(input.value),
           vout: input.vout,
           txid: input.txid,
@@ -210,7 +224,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
             addressNList: bip32ToAddressNList(
               `${path}/1/${String(account.chainSpecific.nextChangeAddressIndex)}`
             ),
-            scriptType: changeScriptType,
+            scriptType: accountTypeToOutputScriptType[accountType],
             isChange: true
           }
         } else {
@@ -327,7 +341,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
   async getAddress({
     wallet,
     bip32Params = ChainAdapter.defaultBIP32Params,
-    scriptType = BTCInputScriptType.SpendWitness,
+    accountType = UtxoAccountType.SegwitP2sh,
     showOnDevice = false
   }: chainAdapters.bitcoin.GetAddressInput): Promise<string> {
     if (!supportsBTC(wallet)) {
@@ -339,7 +353,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
 
     // If an index is not passed in, we want to use the newest unused change/receive indices
     if (index === undefined) {
-      const { xpub } = await this.getPubKey(wallet, bip32Params, scriptType)
+      const { xpub } = await this.getPublicKey(wallet, bip32Params, accountType)
       const account = await this.getAccount(xpub)
       index = isChange
         ? account.chainSpecific.nextChangeAddressIndex
@@ -351,7 +365,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     const btcAddress = await wallet.btcGetAddress({
       addressNList,
       coin: this.coinName,
-      scriptType,
+      scriptType: accountTypeToScriptType[accountType],
       showDisplay: Boolean(showOnDevice)
     })
     if (!btcAddress) throw new Error('BitcoinChainAdapter: no btcAddress available from wallet')
@@ -372,13 +386,13 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     const {
       wallet,
       bip32Params = ChainAdapter.defaultBIP32Params,
-      scriptType = BTCInputScriptType.SpendWitness
+      accountType = UtxoAccountType.SegwitNative
     } = input
 
-    const { xpub } = await this.getPubKey(wallet, bip32Params, scriptType)
+    const { xpub } = await this.getPublicKey(wallet, bip32Params, accountType)
     const account = await this.getAccount(xpub)
     const addresses = (account.chainSpecific.addresses ?? []).map((address) => address.pubkey)
-    const id = `${toRootDerivationPath(bip32Params)}/${scriptType}`
+    const id = `${toRootDerivationPath(bip32Params)}/${accountType}`
 
     await this.providers.ws.subscribeTxs(
       id,

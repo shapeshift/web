@@ -1,6 +1,5 @@
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP32Params, ChainTypes } from '@shapeshiftoss/types'
+import { BIP32Params, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import dotenv from 'dotenv'
 
 import { ChainAdapterManager } from './ChainAdapterManager'
@@ -49,7 +48,7 @@ const main = async () => {
     const btcAddress = await btcChainAdapter.getAddress({
       wallet,
       bip32Params: btcBip32Params,
-      scriptType: BTCInputScriptType.SpendWitness
+      accountType: UtxoAccountType.SegwitNative
     })
     console.log('btcAddress:', btcAddress)
 
@@ -57,7 +56,7 @@ const main = async () => {
     console.log('btcAccount:', btcAccount)
 
     await btcChainAdapter.subscribeTxs(
-      { wallet, bip32Params: btcBip32Params, scriptType: BTCInputScriptType.SpendWitness },
+      { wallet, bip32Params: btcBip32Params, accountType: UtxoAccountType.SegwitNative },
       (msg) => console.log(msg),
       (err) => console.log(err)
     )
@@ -67,7 +66,7 @@ const main = async () => {
       value: '400',
       wallet,
       bip32Params: btcBip32Params,
-      chainSpecific: { scriptType: BTCInputScriptType.SpendAddress, satoshiPerByte: '4' }
+      chainSpecific: { accountType: UtxoAccountType.P2pkh, satoshiPerByte: '4' }
     }
 
     try {

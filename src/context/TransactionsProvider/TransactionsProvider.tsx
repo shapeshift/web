@@ -56,6 +56,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         }
       }
     })()
+
+    return () => {
+      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+        dispatch(txHistory.actions.clear())
+        getAdapter().unsubscribeTxs()
+      })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, walletInfo?.deviceId])
 

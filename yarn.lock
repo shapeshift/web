@@ -3618,6 +3618,21 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
+"@shapeshiftoss/bitcoin-api@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoin-api/-/bitcoin-api-3.7.0.tgz#ba7ae33b346503e301d054897ac7a3b2bd4b8dc2"
+  integrity sha512-aDYwPtVB0waLRg12mBGzCNbgmRieNyUfxNlcMn7gQZvjQ5efQfouGgwJkVSE8A0pM+NsR6RVg6xl7m0mZOhLYA==
+  dependencies:
+    "@shapeshiftoss/bitcoin-ingester" "^3.7.0"
+    "@shapeshiftoss/blockbook" "^3.7.0"
+    "@shapeshiftoss/common-api" "^3.7.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    cors "^2.8.5"
+    express "^4.17.1"
+    swagger-ui-express "^4.1.5"
+    tsoa "^3.4.0"
+    ws "^8.2.3"
+
 "@shapeshiftoss/bitcoin-ingester@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoin-ingester/-/bitcoin-ingester-3.6.0.tgz#160331fcb4175394813522527a8fa40f1ed30d81"
@@ -3628,6 +3643,18 @@
     "@shapeshiftoss/common-mongo" "^3.6.0"
     "@shapeshiftoss/logger" "^1.0.0"
     "@shapeshiftoss/thorchain" "^3.6.0"
+    axios "^0.21.2"
+
+"@shapeshiftoss/bitcoin-ingester@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoin-ingester/-/bitcoin-ingester-3.7.0.tgz#68338a3681e6eb444a8b0dd835347aabdd47280a"
+  integrity sha512-+5yRohU2VbalT+7jFSITMiiZ5ztzdy+La48xoeE+pGr+uy0x1MvtOSNOLgGOGNx9PGImfQtWXTe2zjfTBRThcA==
+  dependencies:
+    "@shapeshiftoss/blockbook" "^3.7.0"
+    "@shapeshiftoss/common-ingester" "^3.7.0"
+    "@shapeshiftoss/common-mongo" "^3.7.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    "@shapeshiftoss/thorchain" "^3.7.0"
     axios "^0.21.2"
 
 "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
@@ -3663,6 +3690,17 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
+"@shapeshiftoss/blockbook@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-3.7.0.tgz#fc7dc8ad98c50d803cb5aa6c348dfe14282a2839"
+  integrity sha512-4QiqkJ59E6ZXbuQ9+LBwJejrPAiuu8VqJxiU24dRWT7x+OXTqOy0IW4IS6Q7yyq8SJGQ9SEM85+wbrzbwankRg==
+  dependencies:
+    axios "^0.21.2"
+    express "^4.17.1"
+    swagger-ui-express "^4.1.5"
+    tsoa "^3.4.0"
+    ws "^8.2.3"
+
 "@shapeshiftoss/caip@^1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.4.1.tgz#c8fcdd2f18ebbefacb0c858c1e1a88270ff6305e"
@@ -3686,6 +3724,22 @@
     multicoin-address-validator "^0.5.2"
     web3-utils "^1.6.0"
 
+"@shapeshiftoss/chain-adapters@^1.18.0":
+  version "1.18.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.18.0.tgz#09f342a9d37626bbd50e8a16f1b7fce328fcd370"
+  integrity sha512-qFjwBD1QIi+GOvFbgIeidgL4ONGaBfznJ9OkACPXr27JbpWAkRPBTd8sRlMVsDaFDP/e5MQkEGOvlAwzzdVVhA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.17.1"
+    "@shapeshiftoss/types" "^1.12.0"
+    "@shapeshiftoss/unchained-client" "^3.7.0"
+    axios "^0.21.2"
+    bignumber.js "^9.0.1"
+    bitcoinjs-lib "^5.2.0"
+    coinselect "^3.1.12"
+    ethers "^5.4.7"
+    multicoin-address-validator "^0.5.2"
+    web3-utils "^1.6.0"
+
 "@shapeshiftoss/common-api@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-3.6.0.tgz#1b04d887f14f05b6cb5e78533d52fa6d592e33eb"
@@ -3693,6 +3747,19 @@
   dependencies:
     "@shapeshiftoss/common-ingester" "^3.6.0"
     "@shapeshiftoss/common-mongo" "^3.6.0"
+    amqp-ts "^1.8.0"
+    mongodb "^3.6.3"
+    tsoa "^3.4.0"
+    uuid "^8.3.2"
+    ws "^8.2.3"
+
+"@shapeshiftoss/common-api@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-api/-/common-api-3.7.0.tgz#92fd826479dda7ef1fefcc1a65ed3dda12ed8430"
+  integrity sha512-0MxUsWgW0/p2JYNoNZIxCjNFUva/UMTOMQxvcHgJp+qWscpvjLE6lmRDw2yHSVpPgaHFvc+jnTlXBZDcKuHBxw==
+  dependencies:
+    "@shapeshiftoss/common-ingester" "^3.7.0"
+    "@shapeshiftoss/common-mongo" "^3.7.0"
     amqp-ts "^1.8.0"
     mongodb "^3.6.3"
     tsoa "^3.4.0"
@@ -3711,10 +3778,29 @@
     mongodb "^3.6.3"
     ws "^8.2.3"
 
+"@shapeshiftoss/common-ingester@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-ingester/-/common-ingester-3.7.0.tgz#112c0e84908b86087bde622a9392e6a99752e6ff"
+  integrity sha512-muitr0kyfbqr/gaRDZuGXb/RuYt6auyw2zomXz3fvcqolzERimcjs2O49hbltbv0E8mqD+ckfyH0pThTFRJkzQ==
+  dependencies:
+    "@shapeshiftoss/blockbook" "^3.7.0"
+    "@shapeshiftoss/common-mongo" "^3.7.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    amqp-ts "^1.8.0"
+    mongodb "^3.6.3"
+    ws "^8.2.3"
+
 "@shapeshiftoss/common-mongo@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-mongo/-/common-mongo-3.6.0.tgz#5f692b36f5d0b1b2f6b06e8b0eef0b851619d427"
   integrity sha512-1mZ535ZyXC1+qht3wqOkeRvFuzEXzjH6pFo2ojCWUpqwCmrQRDZff9cddgVB8fYoOnw0XbLGvxekKLLDLwsS7Q==
+  dependencies:
+    mongodb "^3.6.3"
+
+"@shapeshiftoss/common-mongo@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-mongo/-/common-mongo-3.7.0.tgz#20317b88828b60eef04068d9740d1129bcd40b9b"
+  integrity sha512-qW2lxL/NUguA6UWYIbcTOdVkBTJjZWYJ9bNrlXzzc1UPkYF3T8tQdCDrYNrKD/4Lmv089LFhtbu8uaprAPv1Ww==
   dependencies:
     mongodb "^3.6.3"
 
@@ -3734,6 +3820,22 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
+"@shapeshiftoss/ethereum-api@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-api/-/ethereum-api-3.7.0.tgz#2968fda04f2334745f9d675d937477d0f2b5a34b"
+  integrity sha512-S/SJMAOuIUjzC7bPcDpX5FMopBm6V+tcG4kiqUECXvVqj2Xj+U3cMXLdG1z+WWeVOzpLPLwa0Wm4BZnTVlQ12g==
+  dependencies:
+    "@shapeshiftoss/blockbook" "^3.7.0"
+    "@shapeshiftoss/common-api" "^3.7.0"
+    "@shapeshiftoss/ethereum-ingester" "^3.7.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    cors "^2.8.5"
+    express "^4.17.1"
+    isomorphic-ws "^4.0.1"
+    swagger-ui-express "^4.1.5"
+    tsoa "^3.4.0"
+    ws "^8.2.3"
+
 "@shapeshiftoss/ethereum-ingester@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-ingester/-/ethereum-ingester-3.6.0.tgz#d3a275c436680e7f64bf5b6533772e98baf8d9c9"
@@ -3744,6 +3846,20 @@
     "@shapeshiftoss/common-mongo" "^3.6.0"
     "@shapeshiftoss/logger" "^1.0.0"
     "@shapeshiftoss/thorchain" "^3.6.0"
+    axios "^0.21.2"
+    bignumber.js "^9.0.1"
+    ethers "^5.4.0"
+
+"@shapeshiftoss/ethereum-ingester@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-ingester/-/ethereum-ingester-3.7.0.tgz#c458f2a5b325128c963a6724e189636857397576"
+  integrity sha512-lrn6KFTO8KpjG00uTasZBDo6bG1GUw/A1FzBjubNEwGSapAEc7MwFntWl8HnNl3bPclz6m3qjce8i3KbqYMLUg==
+  dependencies:
+    "@shapeshiftoss/blockbook" "^3.7.0"
+    "@shapeshiftoss/common-ingester" "^3.7.0"
+    "@shapeshiftoss/common-mongo" "^3.7.0"
+    "@shapeshiftoss/logger" "^1.0.0"
+    "@shapeshiftoss/thorchain" "^3.7.0"
     axios "^0.21.2"
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
@@ -3777,7 +3893,7 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.18.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.17.1", "@shapeshiftoss/hdwallet-core@^1.18.1":
+"@shapeshiftoss/hdwallet-core@1.18.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.17.1", "@shapeshiftoss/hdwallet-core@^1.18.0", "@shapeshiftoss/hdwallet-core@^1.18.1":
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.1.tgz#0d2564cc7803eae7998019e05e307273710585aa"
   integrity sha512-55nI+Ot4WfCv6u91xUCHe9PUJZ28p5J9OKgt5Sei+3yWc+iA+YLwbWo+rstIPTAxuJcFfTOLrSf+OQ1ik2H+zA==
@@ -3897,13 +4013,13 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.11.4":
-  version "1.11.7"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.11.7.tgz#61363fb824827a12f8edb8116d1cd8b501658b01"
-  integrity sha512-0XLVVzJMf3K3f0j1APyngFS0Ld1Jz5OHtaiMNRcOtCT0EIi/uBDPKVVi3N8KD8Tn4t8MRZrsyvBA+VrTbRKE+g==
+"@shapeshiftoss/swapper@^1.11.7":
+  version "1.11.8"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.11.8.tgz#2430e9573c161960841f9226df0b72c3d3802006"
+  integrity sha512-ccqtkYYCYOel2M/Acr//Znb6aZCuCw8wntaQX2K0Et+d94V+bhrQcsXGwqb6MDRBjZQ1wlSyvRBmx+Xb53CFlg==
   dependencies:
     "@shapeshiftoss/chain-adapters" "^1.16.2"
-    "@shapeshiftoss/hdwallet-core" "^1.17.1"
+    "@shapeshiftoss/hdwallet-core" "^1.18.0"
     "@shapeshiftoss/types" "^1.12.0"
     axios "^0.21.4"
     bignumber.js "^9.0.1"
@@ -3918,10 +4034,23 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
+"@shapeshiftoss/thorchain@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-3.7.0.tgz#cf5966136a65a41378724e287037345e1d50c320"
+  integrity sha512-xbxcHip691AgJHTucWeAfg9Yq6TecDPm7qTrlFoLSB72tskMViQhHhj5YJL1RJYl/aLIqt2VZ3oPfiFbpRnw5w==
+  dependencies:
+    bignumber.js "^9.0.1"
+    ethers "^5.4.0"
+
 "@shapeshiftoss/types@^1.11.4", "@shapeshiftoss/types@^1.12.0":
   version "1.12.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.12.0.tgz#c9c856950546d49c33b8d371ac540aca24f6e592"
   integrity sha512-r5M/hfnKott5R31wUBxrqiNb0dQciBN7JSlMLJ/ob1B4X5qobZQ/wFRSaq1YPJG/wwJmGtcY6hooxDjO91RHdA==
+
+"@shapeshiftoss/types@^1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.13.0.tgz#70b2282ab69784021e64ef2f458251b49d0b497a"
+  integrity sha512-N0BCoQmWntqh/Za02fh4MtqFqgcQXrskukU2iDo4nfmWUjFCGc0X6UeU31yIEZiDWgoCv57niajdGCvKSeODTw==
 
 "@shapeshiftoss/unchained-client@^3.6.0":
   version "3.6.0"
@@ -3931,6 +4060,15 @@
     "@shapeshiftoss/bitcoin-api" "^3.6.0"
     "@shapeshiftoss/common-ingester" "^3.6.0"
     "@shapeshiftoss/ethereum-api" "^3.6.0"
+
+"@shapeshiftoss/unchained-client@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-3.7.0.tgz#0e60d3f8239907e8fa1471edb3c0bec88d59e6a7"
+  integrity sha512-j7N/dqXdrrzpRNGtG3kY5orvovGNS/zeCt0sf92trbxLkr1DB5jUBFoglislyjxnZGWJIOPxyXWUZuz75rp2pg==
+  dependencies:
+    "@shapeshiftoss/bitcoin-api" "^3.7.0"
+    "@shapeshiftoss/common-ingester" "^3.7.0"
+    "@shapeshiftoss/ethereum-api" "^3.7.0"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"

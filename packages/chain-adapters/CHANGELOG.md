@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.16.2...@shapeshiftoss/chain-adapters-v1.17.0) (2021-11-17)
+
+
+### Features
+
+* portis wallet not showing BTC balance ([#225](https://github.com/shapeshift/lib/issues/225)) ([624e13a](https://github.com/shapeshift/lib/commit/624e13a1fc3a4e770ef212100919baa922b365bc))
+
 # [@shapeshiftoss/chain-adapters-v1.16.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.16.1...@shapeshiftoss/chain-adapters-v1.16.2) (2021-11-17)
 
 

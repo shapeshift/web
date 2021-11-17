@@ -1,5 +1,4 @@
 import { Stack } from '@chakra-ui/layout'
-import { Skeleton, SkeletonText } from '@chakra-ui/skeleton'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useMemo } from 'react'

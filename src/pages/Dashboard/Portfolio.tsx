@@ -1,4 +1,4 @@
-import { Box, Grid, Skeleton, Spinner, Stack } from '@chakra-ui/react'
+import { Box, Grid, Skeleton, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -37,7 +37,7 @@ export const Portfolio = () => {
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          <Box>
+          <Box mb={{ base: 6, md: 0 }}>
             <Card.Heading as='div' color='gray.500'>
               <Skeleton isLoaded={isLoaded}>
                 <Text translation='dashboard.portfolio.portfolioBalance' />
@@ -67,14 +67,23 @@ export const Portfolio = () => {
         <Card.Body px={2} pt={0}>
           <Stack spacing={0}>
             <Grid
-              templateColumns={{ base: '1fr repeat(2, 1fr)', lg: '2fr repeat(3, 1fr) 150px' }}
+              templateColumns={{
+                base: '1fr repeat(1, 1fr)',
+                md: '1fr repeat(2, 1fr)',
+                lg: '2fr repeat(3, 1fr) 150px'
+              }}
               gap='1rem'
               py={4}
               pl={4}
               pr={4}
             >
               <Text translation='dashboard.portfolio.asset' color='gray.500' />
-              <Text translation='dashboard.portfolio.balance' color='gray.500' textAlign='right' />
+              <Text
+                translation='dashboard.portfolio.balance'
+                display={{ base: 'none', md: 'block' }}
+                color='gray.500'
+                textAlign='right'
+              />
               <Text
                 translation='dashboard.portfolio.price'
                 color='gray.500'
@@ -89,7 +98,7 @@ export const Portfolio = () => {
                 display={{ base: 'none', lg: 'block' }}
               />
             </Grid>
-            <AccountList loading={true} />
+            <AccountList loading={loading} />
           </Stack>
         </Card.Body>
       </Card>

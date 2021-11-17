@@ -392,10 +392,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     const { xpub } = await this.getPublicKey(wallet, bip32Params, accountType)
     const account = await this.getAccount(xpub)
     const addresses = (account.chainSpecific.addresses ?? []).map((address) => address.pubkey)
-    const id = `${toRootDerivationPath(bip32Params)}/${accountType}`
+    const subscriptionId = `${toRootDerivationPath(bip32Params)}/${accountType}`
 
     await this.providers.ws.subscribeTxs(
-      id,
+      subscriptionId,
       { topic: 'txs', addresses },
       (msg) => {
         const status =
@@ -436,5 +436,21 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       },
       (err) => onError({ message: err.message })
     )
+  }
+
+  unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void {
+    if (!input) return this.providers.ws.unsubscribeTxs()
+
+    const {
+      bip32Params = ChainAdapter.defaultBIP32Params,
+      accountType = UtxoAccountType.SegwitNative
+    } = input
+    const subscriptionId = `${toRootDerivationPath(bip32Params)}/${accountType}`
+
+    this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
+  }
+
+  closeTxs(): void {
+    this.providers.ws.close('txs')
   }
 }

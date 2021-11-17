@@ -44,4 +44,8 @@ export interface ChainAdapter<T extends ChainTypes> {
     onMessage: (msg: chainAdapters.SubscribeTxsMessage<T>) => void,
     onError?: (err: chainAdapters.SubscribeError) => void
   ): Promise<void>
+
+  unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void
+
+  closeTxs(): void
 }

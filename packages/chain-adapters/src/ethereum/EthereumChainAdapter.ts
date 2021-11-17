@@ -249,7 +249,6 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
   }
 
-  // TODO: handle unsubscribe
   async subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
     onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Ethereum>) => void,
@@ -258,10 +257,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     const { wallet, bip32Params = ChainAdapter.defaultBIP32Params } = input
 
     const address = await this.getAddress({ wallet, bip32Params })
-    const id = toRootDerivationPath(bip32Params)
+    const subscriptionId = toRootDerivationPath(bip32Params)
 
     await this.providers.ws.subscribeTxs(
-      id,
+      subscriptionId,
       { topic: 'txs', addresses: [address] },
       (msg) => {
         const getStatus = () => {
@@ -343,5 +342,18 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
       },
       (err) => onError({ message: err.message })
     )
+  }
+
+  unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void {
+    if (!input) return this.providers.ws.unsubscribeTxs()
+
+    const { bip32Params = ChainAdapter.defaultBIP32Params } = input
+    const subscriptionId = toRootDerivationPath(bip32Params)
+
+    this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
+  }
+
+  closeTxs(): void {
+    this.providers.ws.close('txs')
   }
 }

@@ -54,6 +54,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
+          accountType: currentAccountType,
           ...accountParams
         })
       )
@@ -67,6 +68,7 @@ const Receive = ({ asset }: ReceivePropsType) => {
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
+      accountType: currentAccountType,
       ...accountParams
     })
 

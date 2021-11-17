@@ -154,6 +154,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         : {}
       const from = await adapter.getAddress({
         wallet,
+        accountType: currentAccountType,
         ...accountParams
       })
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createSlice } from '@reduxjs/toolkit'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import concat from 'lodash/concat'
@@ -14,6 +15,7 @@ export type TxMessage = { payload: { message: Tx } }
 export type Filter = {
   accountType?: string
   identifier?: string
+  tradeIdentifier?: string // Temporary hack because unchained only returns symbols for trade details
   txid?: string
 }
 export type Sort = {
@@ -36,7 +38,7 @@ const initialState: TxHistory = {
  * If transaction already exists, update the value, otherwise add the new transaction
  */
 const updateOrInsert = (txs: Record<string, Tx> | undefined, tx: Tx): Record<string, Tx> => {
-  const key = `${tx.txid}${tx.accountType || ''}`
+  const key = `${tx.txid}${tx.accountType || ''}${tx.type}`
   if (!txs) return { [key]: tx }
   txs[key] = tx
   return txs
@@ -68,9 +70,26 @@ export const selectTxHistory = createDeepEqualSelector(
 
     return (tx: Tx): boolean => {
       let hasItem = true
+
+      if (tx.tradeDetails) {
+        console.log(
+          'tradeDetails identifier is',
+          filter.tradeIdentifier,
+          tx.tradeDetails.sellAsset,
+          tx.tradeDetails.buyAsset
+        )
+        if (filter.tradeIdentifier)
+          hasItem =
+            (tx.tradeDetails.sellAsset === filter.tradeIdentifier ||
+              tx.tradeDetails.buyAsset === filter.tradeIdentifier) &&
+            hasItem
+      } else {
+        if (filter.identifier) hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
+      }
+
       if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
-      if (filter.identifier) hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
       if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem
+
       return hasItem
     }
   },

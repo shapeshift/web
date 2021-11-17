@@ -1,17 +1,23 @@
-import { ChevronRightIcon, DeleteIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Avatar,
+  Badge,
   Button,
+  ButtonGroup,
   Flex,
   ModalBody,
   ModalHeader,
   StackDivider,
+  Tag,
   VStack
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect, useState } from 'react'
+import { FaWallet } from 'react-icons/fa'
+import { IconCircle } from 'components/IconCircle'
 import { RawText, Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
@@ -83,31 +89,59 @@ export const NativeLoad = () => {
         <Text translation={'walletProvider.shapeShift.load.header'} />
       </ModalHeader>
       <ModalBody>
-        <VStack spacing={4} divider={<StackDivider />}>
+        <VStack mx={-4} spacing={0}>
           {wallets.map(wallet => {
             return (
-              <Flex w='full' alignItems='center' justifyContent='space-between' key={wallet.id}>
+              <ButtonGroup
+                width='full'
+                size='lg'
+                py={2}
+                height='auto'
+                variant='ghost'
+                px={0}
+                key={wallet.id}
+                alignItems='center'
+                borderRadius='xl'
+                justifyContent='space-between'
+                as={Button}
+                cursor='pointer'
+              >
                 <Button
-                  mr={2}
-                  size='sm'
-                  w='full'
                   justifyContent='space-between'
-                  rightIcon={<ChevronRightIcon />}
+                  variant='outline'
+                  border={0}
+                  display='flex'
+                  colorScheme='blue'
+                  _hover={{ bg: 'transaprent' }}
+                  px={4}
+                  leftIcon={
+                    <IconCircle boxSize={8}>
+                      <FaWallet />
+                    </IconCircle>
+                  }
                   onClick={() => handleWalletSelect(wallet)}
                 >
-                  <RawText overflow='hidden' fontWeight='medium' fontSize='xs'>
+                  <RawText
+                    overflow='hidden'
+                    fontWeight='medium'
+                    textOverflow='ellipsis'
+                    maxWidth='190px'
+                    fontSize='sm'
+                  >
                     {wallet.name}
                   </RawText>
                 </Button>
                 <Button
-                  size='sm'
-                  textTransform='uppercase'
                   colorScheme='red'
+                  size='xs'
+                  variant='ghost-filled'
+                  borderRardius='xl'
+                  mr={4}
                   onClick={() => handleDelete(wallet)}
                 >
-                  <DeleteIcon color='white' />
+                  Forget?
                 </Button>
-              </Flex>
+              </ButtonGroup>
             )
           })}
           {error && (

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.12.0...@shapeshiftoss/types-v1.13.0) (2021-11-17)
+
+
+### Features
+
+* portis wallet not showing BTC balance ([#225](https://github.com/shapeshift/lib/issues/225)) ([624e13a](https://github.com/shapeshift/lib/commit/624e13a1fc3a4e770ef212100919baa922b365bc))
+
 # [@shapeshiftoss/types-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.11.4...@shapeshiftoss/types-v1.12.0) (2021-11-16)
 
 

@@ -351,9 +351,6 @@
         "button": "Next"
       },
       "password": {
-        "error": {
-          "invalid": "Invalid Password"
-        },
         "header": "Enter Your Password",
         "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
         "button": "Next"

@@ -1,5 +1,9 @@
 import { useToast } from '@chakra-ui/react'
-import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import {
+  convertXpubVersion,
+  toRootDerivationPath,
+  utxoAccountParams
+} from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
@@ -113,13 +117,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           }
         ])
 
-        if (!pubkeys || !pubkeys[0]) throw new Error('no pubkeys')
-
+        if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
+        const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
         const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { pubkey: pubkeys[0].xpub }
+          chainSpecific: { pubkey }
         })
       }
       default:
@@ -180,14 +184,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             }
           ])
 
-          if (!pubkeys || !pubkeys[0]) throw new Error('no pubkeys')
-
+          if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
+          const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance.balance
           const adapterFees = await btcAdapter.getFeeData({
             to,
             value,
-            chainSpecific: { pubkey: pubkeys[0].xpub }
+            chainSpecific: { pubkey }
           })
           fastFee = adapterFees.fast.txFee
           break

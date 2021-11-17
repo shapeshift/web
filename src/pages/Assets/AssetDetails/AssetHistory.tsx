@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { ReduxState } from 'state/reducer'
 import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
@@ -14,6 +16,13 @@ import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
 export const AssetHistory = () => {
   const translate = useTranslate()
   const { asset } = useAsset()
+
+  const {
+    state: { wallet }
+  } = useWallet()
+  wallet?.getFeatures()
+
+  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
   const accountType = useSelector(
     (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
@@ -25,6 +34,8 @@ export const AssetHistory = () => {
   )
 
   const { next, data, hasMore } = useInfiniteScroll(txs)
+
+  if (!walletSupportsChain) return null
 
   return (
     <Card>

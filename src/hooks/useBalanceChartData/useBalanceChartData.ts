@@ -84,7 +84,9 @@ export const makeBuckets: MakeBuckets = args => {
 
   // current asset balances, we iterate over this later and adjust on each tx
   const assetBalances = assets.reduce<CryptoBalance>((acc, cur) => {
-    acc[cur] = Number(balances[cur].balance)
+    const account = balances[cur]
+    if (!account) return acc // we don't have a balance for this asset, e.g. metamask bitcoin
+    acc[cur] = Number(account.balance)
     return acc
   }, {})
 

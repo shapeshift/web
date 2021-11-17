@@ -5,6 +5,8 @@ import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 type UseWalletSupportsChainArgs = { asset: Asset; wallet: HDWallet | null }
 type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean
 
+// this whole thing should belong in chain adapters/future wallet SDK
+// it should also just accept a caip19 and a wallet
 export const useWalletSupportsChain: UseWalletSupportsChain = ({ asset, wallet }) => {
   if (!wallet) return false
   const ethCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })

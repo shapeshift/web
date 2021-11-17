@@ -347,7 +347,7 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your 12 word seed phrase to import an existing wallet",
+        "body": "Enter your seed phrase to import an existing wallet",
         "button": "Next"
       },
       "password": {

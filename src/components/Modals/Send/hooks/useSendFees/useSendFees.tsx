@@ -22,9 +22,9 @@ export const useSendFees = () => {
 
   useEffect(() => {
     ;(async () => {
-      if (wallet) {
+      if (wallet && asset && feeAsset) {
         const marketData = await getAssetData({
-          chain: asset?.chain
+          chain: asset.chain
         })
         const txFees = (Object.keys(estimatedFees) as chainAdapters.FeeDataKey[]).reduce(
           (acc: FeePrice, key: chainAdapters.FeeDataKey) => {

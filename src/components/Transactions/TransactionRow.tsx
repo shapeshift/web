@@ -101,10 +101,10 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
             <Amount.Crypto
               ml={compact ? 0 : 1}
               value={fromBaseUnit(
-                tradeTx ? tx.tradeDetails?.sellAmount || ' ' : tx.value,
-                asset?.precision
+                tradeTx ? tx.tradeDetails?.sellAmount || '0' : tx.value,
+                tradeTx ? sellAsset?.precision : asset?.precision
               )}
-              symbol={symbol}
+              symbol={tx.tradeDetails?.sellAsset ?? symbol}
               maximumFractionDigits={6}
               fontWeight='bold'
             />

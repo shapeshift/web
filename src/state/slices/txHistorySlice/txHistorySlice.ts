@@ -69,16 +69,13 @@ export const selectTxHistory = createDeepEqualSelector(
 
     return (tx: Tx): boolean => {
       let hasItem = true
-
-      if (tx.tradeDetails) {
-        if (filter.tradeIdentifier)
-          hasItem =
-            (tx.tradeDetails.sellAsset === filter.tradeIdentifier ||
-              tx.tradeDetails.buyAsset === filter.tradeIdentifier) &&
-            hasItem
-      } else {
-        if (filter.identifier) hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
-      }
+      if (filter.tradeIdentifier && tx.tradeDetails) {
+        hasItem =
+          (tx.tradeDetails?.sellAsset === filter.tradeIdentifier ||
+            tx.tradeDetails?.buyAsset === filter.tradeIdentifier) &&
+          hasItem
+      } else if (filter.identifier)
+        hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
 
       if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
       if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem

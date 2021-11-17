@@ -20,7 +20,7 @@ export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
         {parent =>
           loading || !isLoaded ? (
             <Fade in={loading || !isLoaded}>
-              <Center width='full' height={parent.height}>
+              <Center width='full' height={parent.height} overflow='hidden'>
                 <GraphLoading />
               </Center>
             </Fade>

@@ -380,6 +380,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
               .toFixed(2)}
             loading={state.loading}
             loadingText='Approve on Wallet'
+            learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
             preFooter={
               <Alert status='info' borderRadius='lg' mt={4} color='blue.500'>
                 <FaGasPump />

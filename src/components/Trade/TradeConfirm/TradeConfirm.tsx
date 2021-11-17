@@ -1,5 +1,14 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Link,
+  SimpleGrid,
+  Stack,
+  useToast
+} from '@chakra-ui/react'
 import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -11,7 +20,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -33,6 +42,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     handleSubmit,
     formState: { isSubmitting }
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  const toast = useToast()
+  const translate = useTranslate()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -54,11 +65,24 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
-    const result = await executeQuote({ wallet })
-    const transactionId = result?.txid
-    if (transactionId) {
-      setTxid(transactionId)
-      reset()
+    try {
+      const result = await executeQuote({ wallet })
+      const transactionId = result?.txid
+      if (transactionId) {
+        setTxid(transactionId)
+        reset()
+      }
+    } catch (err) {
+      console.error(`TradeConfirm:onSubmit - ${err}`)
+      // TODO: (ryankk) this needs to be revisited post bounty to handle actual errors coming back from unchained.
+      toast({
+        title: translate('trade.errors.title'),
+        description: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right'
+      })
     }
   }
 

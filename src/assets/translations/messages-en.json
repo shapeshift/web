@@ -106,7 +106,10 @@
     "network": "Network",
     "blockHeight": "Block Height",
     "to": "To",
-    "from": "From"
+    "from": "From",
+    "trade": "Traded",
+    "amount": "Amount",
+    "for": "for"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
@@ -347,13 +350,10 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your 12 word seed phrase to import an existing wallet",
+        "body": "Enter your seed phrase to import an existing wallet",
         "button": "Next"
       },
       "password": {
-        "error": {
-          "invalid": "Invalid Password"
-        },
         "header": "Enter Your Password",
         "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
         "button": "Next"

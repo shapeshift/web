@@ -54,7 +54,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
-  const t = useTranslate()
   const { chain, tokenId } = sellAsset.currency
   const asset = tokenId ?? chain
   const txs = useSelector((state: ReduxState) =>
@@ -126,7 +125,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </Row>
               )}
               <Row>
-                <HelperTooltip label={t('trade.tooltip.rate')}>
+                <HelperTooltip label={translate('trade.tooltip.rate')}>
                   <Row.Label>
                     <Text translation='trade.rate' />
                   </Row.Label>
@@ -139,7 +138,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </Box>
               </Row>
               <Row>
-                <HelperTooltip label={t('trade.tooltip.minerFee')}>
+                <HelperTooltip label={translate('trade.tooltip.minerFee')}>
                   <Row.Label>
                     <Text translation='trade.minerFee' />
                   </Row.Label>
@@ -147,7 +146,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 <Row.Value>{toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}</Row.Value>
               </Row>
               <Row>
-                <HelperTooltip label={t('trade.tooltip.shapeshiftFee')}>
+                <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>
                   <Row.Label>
                     <Text translation='trade.shapeshiftFee' />
                   </Row.Label>

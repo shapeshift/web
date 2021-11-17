@@ -257,7 +257,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 } = ${firstNonZeroDecimal(bnOrZero(quote?.rate))} ${
                   buyAsset?.currency?.symbol
                 }`}</RawText>
-                <HelperTooltip label='The price is ' />
+                <HelperTooltip label={translate('trade.tooltip.rate')} />
               </>
             )}
           </Box>

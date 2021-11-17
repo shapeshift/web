@@ -57,19 +57,33 @@ export async function executeQuote(
 
   const txWithQuoteData = { ...txToSign, data: quote.txData ?? '' }
 
-  try {
-    signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })
-  } catch (error) {
-    throw new SwapError(`executeQuote - signTransaction error: ${error}`)
+  if (wallet.supportsOfflineSigning()) {
+    try {
+      signedTx = await adapter.signTransaction({ txToSign: txWithQuoteData, wallet })
+    } catch (error) {
+      throw new SwapError(`executeQuote - signTransaction error: ${error}`)
+    }
+
+    if (!signedTx) {
+      throw new SwapError(`executeQuote - Signed transaction is required: ${signedTx}`)
+    }
+
+    try {
+      txid = await adapter.broadcastTransaction(signedTx)
+    } catch (error) {
+      throw new SwapError(`executeQuote - broadcastTransaction error: ${error}`)
+    }
+
+    return { txid }
+  } else if (wallet.supportsBroadcast() && adapter.signAndBroadcastTransaction) {
+    try {
+      txid = await adapter.signAndBroadcastTransaction?.({ txToSign: txWithQuoteData, wallet })
+    } catch (error) {
+      throw new SwapError(`executeQuote - signAndBroadcastTransaction error: ${error}`)
+    }
+
+    return { txid }
+  } else {
+    throw new SwapError('executeQuote - invalid HDWallet config')
   }
-
-  if (!signedTx) throw new SwapError(`executeQuote - Signed transaction is required: ${signedTx}`)
-
-  try {
-    txid = await adapter.broadcastTransaction(signedTx)
-  } catch (error) {
-    throw new SwapError(`executeQuote - broadcastTransaction error: ${error}`)
-  }
-
-  return { txid }
 }

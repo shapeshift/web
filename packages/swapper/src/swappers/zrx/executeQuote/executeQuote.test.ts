@@ -8,13 +8,16 @@ import { executeQuote } from './executeQuote'
 describe('executeQuote', () => {
   const { quoteInput, sellAsset } = setupQuote()
   const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
-  const wallet = <HDWallet>{}
+  let wallet = ({
+    supportsOfflineSigning: jest.fn(() => true)
+  } as unknown) as HDWallet
   const adapterManager = {
     byChain: jest.fn(() => ({
       buildBIP32Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
       buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: '0000000000000000' })),
       signTransaction: jest.fn(() => Promise.resolve('0000000000000000000')),
-      broadcastTransaction: jest.fn(() => Promise.resolve(txid))
+      broadcastTransaction: jest.fn(() => Promise.resolve(txid)),
+      signAndBroadcastTransaction: jest.fn(() => Promise.resolve(txid))
     }))
   }
   const deps = ({ adapterManager } as unknown) as ZrxSwapperDeps
@@ -79,7 +82,20 @@ describe('executeQuote', () => {
     )
   })
 
-  it('returns txid', async () => {
+  it('returns txid if offline signing is supported', async () => {
+    const args = {
+      quote: { ...quoteInput, depositAddress: '0x728F1973c71f7567dE2a34Fa2838D4F0FB7f9765' },
+      wallet
+    }
+
+    expect(await executeQuote(deps, args)).toEqual({ txid })
+  })
+
+  it('returns txid if offline signing is unsupported', async () => {
+    wallet = ({
+      supportsOfflineSigning: jest.fn(() => false),
+      supportsBroadcast: jest.fn(() => true)
+    } as unknown) as HDWallet
     const args = {
       quote: { ...quoteInput, depositAddress: '0x728F1973c71f7567dE2a34Fa2838D4F0FB7f9765' },
       wallet

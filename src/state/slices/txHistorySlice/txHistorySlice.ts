@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { createSlice } from '@reduxjs/toolkit'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import concat from 'lodash/concat'
@@ -83,7 +82,6 @@ export const selectTxHistory = createDeepEqualSelector(
 
       if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
       if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem
-
       return hasItem
     }
   },

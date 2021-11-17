@@ -17,7 +17,7 @@ import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { KeyManager } from '../../config'
 
-type StoredWallet = {
+type VaultInfo = {
   id: string
   name: string
 }
@@ -25,7 +25,7 @@ type StoredWallet = {
 export const NativeLoad = () => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
-  const [wallets, setWallets] = useState<StoredWallet[]>([])
+  const [wallets, setWallets] = useState<VaultInfo[]>([])
 
   useEffect(() => {
     ;(async () => {
@@ -36,7 +36,7 @@ export const NativeLoad = () => {
             return setError('walletProvider.shapeShift.load.error.noWallet')
           }
 
-          const storedWallets: StoredWallet[] = await Promise.all(
+          const storedWallets: VaultInfo[] = await Promise.all(
             vaultIds.map(async id => {
               const meta = await Vault.meta(id)
               const name = String(meta?.get('name') ?? id)
@@ -53,7 +53,7 @@ export const NativeLoad = () => {
     })()
   }, [wallets])
 
-  const handleWalletSelect = async (item: StoredWallet) => {
+  const handleWalletSelect = async (item: VaultInfo) => {
     const adapter = state.adapters?.get(KeyManager.Native)
     if (adapter) {
       try {
@@ -68,7 +68,7 @@ export const NativeLoad = () => {
     }
   }
 
-  const handleDelete = async (wallet: StoredWallet) => {
+  const handleDelete = async (wallet: VaultInfo) => {
     try {
       await Vault.delete(wallet.id)
       setWallets([])
@@ -119,7 +119,6 @@ export const NativeLoad = () => {
             </Alert>
           )}
         </VStack>
-        {/* <CircularProgress /> */}
       </ModalBody>
     </>
   )

@@ -17,6 +17,7 @@ import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
@@ -280,6 +281,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
+  const {
+    state: { walletInfo }
+  } = useWallet()
   // portfolioAssets are all assets in a users portfolio
   const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
@@ -291,6 +295,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
 
   useEffect(() => {
+    if (!walletInfo?.deviceId) return
     if (priceHistoryLoading) return
     if (caip19BalancesLoading) return
     if (portfolioAssetsLoading) return
@@ -299,6 +304,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     if (isEmpty(balances)) return
     if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
 
+    setBalanceChartDataLoading(true)
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
     // put each tx into a bucket for the chart
@@ -328,7 +334,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     caip19BalancesLoading,
     setBalanceChartData,
     portfolioAssetsLoading,
-    portfolioAssets
+    portfolioAssets,
+    walletInfo?.deviceId
   ])
 
   const result = { balanceChartData, balanceChartDataLoading }

@@ -62,7 +62,6 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const {
     state: { wallet }
   } = useWallet()
-  wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
 

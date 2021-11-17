@@ -94,20 +94,16 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   return !testState ? null : (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.nativeTestPhrase.header'} />
+        <Text translation={'walletProvider.shapeShift.testPhrase.header'} />
       </ModalHeader>
       <ModalBody>
         <RawText>
-          <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body'} />{' '}
+          <Text as='span' translation={'walletProvider.shapeShift.testPhrase.body'} />{' '}
           <Tag colorScheme='green'>
             {`${testState.targetWordIndex + 1}${ordinalSuffix(testState.targetWordIndex + 1)}`}
-            <Text
-              as='span'
-              ml={1}
-              translation={'walletProvider.shapeShift.nativeTestPhrase.body2'}
-            />
+            <Text as='span' ml={1} translation={'walletProvider.shapeShift.testPhrase.body2'} />
           </Tag>{' '}
-          <Text as='span' translation={'walletProvider.shapeShift.nativeTestPhrase.body3'} />
+          <Text as='span' translation={'walletProvider.shapeShift.testPhrase.body3'} />
         </RawText>
         <Wrap mt={12} mb={6}>
           {testState &&

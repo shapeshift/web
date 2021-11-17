@@ -98,10 +98,10 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.nativeSeed.header'} />
+        <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text translation={'walletProvider.shapeShift.nativeSeed.body'} />
+        <Text translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -114,7 +114,9 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
         <Button colorScheme='blue' onClick={handleShow} size='lg' leftIcon={<FaEye />}>
-          {`${revealed ? 'Hide' : 'Show'}`} Words
+          <Text
+            translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
+          />
         </Button>
         <Button
           colorScheme='blue'
@@ -126,7 +128,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
             }
           }}
         >
-          <Text translation={'walletProvider.shapeShift.nativeSeed.button'} />
+          <Text translation={'walletProvider.shapeShift.create.button'} />
         </Button>
       </ModalFooter>
     </>

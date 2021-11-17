@@ -25,10 +25,10 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.nativeStart.header'} />
+        <Text translation={'walletProvider.shapeShift.start.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.nativeStart.body'} />
+        <Text mb={4} color='gray.500' translation={'walletProvider.shapeShift.start.body'} />
         <Stack my={6} spacing={4}>
           <Button
             variant='ghost-filled'
@@ -42,7 +42,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             disabled={!hasLocalWallet}
             onClick={() => history.push('/native/load')}
           >
-            <Text translation={'walletProvider.shapeShift.nativeStart.load'} />
+            <Text translation={'walletProvider.shapeShift.start.load'} />
           </Button>
           <Button
             variant='ghost-filled'
@@ -55,7 +55,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             rightIcon={<ArrowForwardIcon />}
             onClick={() => history.push('/native/import')}
           >
-            <Text translation={'walletProvider.shapeShift.nativeStart.import'} />
+            <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
           <Button
             variant='ghost-filled'
@@ -68,7 +68,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             rightIcon={<ArrowForwardIcon />}
             onClick={() => history.push('/native/create')}
           >
-            <Text translation={'walletProvider.shapeShift.nativeStart.create'} />
+            <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
         </Stack>
       </ModalBody>

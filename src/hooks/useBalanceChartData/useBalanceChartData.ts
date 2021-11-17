@@ -13,6 +13,7 @@ import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
+import isNil from 'lodash/isNil'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import { useEffect, useState } from 'react'
@@ -297,7 +298,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
 
   useEffect(() => {
-    if (!walletInfo?.deviceId) return
+    if (!isNil(walletInfo?.deviceId)) return
     if (priceHistoryLoading) return
     if (caip19BalancesLoading) return
     if (portfolioAssetsLoading) return

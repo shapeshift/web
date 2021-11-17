@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.18.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.17.0...@shapeshiftoss/chain-adapters-v1.18.0) (2021-11-17)
+
+
+### Features
+
+* add unsubscribe and close functions ([#241](https://github.com/shapeshift/lib/issues/241)) ([17ffadb](https://github.com/shapeshift/lib/commit/17ffadb35310075caeef1073b8f45483cc209912))
+
 # [@shapeshiftoss/chain-adapters-v1.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.16.2...@shapeshiftoss/chain-adapters-v1.17.0) (2021-11-17)
 
 

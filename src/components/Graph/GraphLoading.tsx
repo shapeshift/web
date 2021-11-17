@@ -14,7 +14,7 @@ export const GraphLoading = () => {
 
   return (
     <>
-      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 766 300'>
+      <svg width='100%' preserveAspectRatio='xMinYMin slice' viewBox='0 0 766 300'>
         <defs>
           <linearGradient id='linear-gradient'>
             <stop offset='0%' stopColor={end} />

@@ -1,6 +1,7 @@
 import {
   Box,
   BoxProps,
+  ButtonProps,
   StylesProvider,
   TextProps,
   ThemingProps,
@@ -8,11 +9,11 @@ import {
   useStyles
 } from '@chakra-ui/react'
 
-type RowProps = BoxProps & ThemingProps
+type RowProps = BoxProps & ThemingProps & Pick<ButtonProps, 'colorScheme'>
 
 export const Row = (props: RowProps) => {
-  const { size, variant, children, ...rest } = props
-  const styles = useMultiStyleConfig('Row', { size, variant })
+  const { size, variant, colorScheme, children, ...rest } = props
+  const styles = useMultiStyleConfig('Row', { size, variant, colorScheme })
   return (
     <Box __css={styles.row} {...rest}>
       <StylesProvider value={styles}>{children}</StylesProvider>

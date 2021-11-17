@@ -87,6 +87,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
 
   const graphData = view === Views.Balance ? balanceChartData : assetPriceHistoryData
   const graphLoading = view === Views.Balance ? balanceChartDataLoading : priceHistoryDataLoading
+  const graphColor = graphPercentChange > 0 ? 'green.500' : 'red.500'
 
   return (
     <Card variant='footer-stub'>
@@ -173,7 +174,12 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
         </Box>
       </Card.Body>
       <Card.Body px={0} py={0} position='relative' height='300px'>
-        <Graph data={graphData} loading={graphLoading} isLoaded={!graphLoading} />
+        <Graph
+          data={graphData}
+          loading={graphLoading}
+          isLoaded={!graphLoading}
+          color={graphColor}
+        />
       </Card.Body>
       <Card.Footer>
         <AssetMarketData marketData={marketData} isLoaded={isLoaded} />

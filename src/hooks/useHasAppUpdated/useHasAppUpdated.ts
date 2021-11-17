@@ -2,7 +2,7 @@ import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
 import { useState } from 'react'
 
-const APP_UPDATE_CHECK_INTERVAL = 1000
+const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)

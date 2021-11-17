@@ -24,6 +24,10 @@
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed"
   },
+  "updateToast": {
+    "body": "A new version of the app is available",
+    "cta": "Reload App"
+  },
   "dashboard": {
     "portfolio": {
       "addAsset": "Add Asset",

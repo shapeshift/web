@@ -321,12 +321,25 @@
       }
     },
     "shapeShift": {
-      "nativeImport": {
+      "load": {
+        "error": {
+          "delete": "Unable to delete you wallet, sorry.",
+          "noWallet": "You have no saved wallets",
+          "pair": "Unable to pair your wallet"
+        },
+        "header": "Load A Saved Wallet",
+        "body": "Loading your saved wallet... Enter your password when prompted.",
+        "button": "Continue"
+      },
+      "import": {
         "header": "Import your wallet",
         "body": "Enter your 12 word seed phrase to import an exisiting wallet",
         "button": "Next"
       },
-      "nativePasswd": {
+      "password": {
+        "error": {
+          "invalid": "Invalid Password"
+        },
         "header": "Enter your password",
         "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
         "button": "Next"
@@ -347,13 +360,15 @@
         "button": "Next"
       },
       "nativeStart": {
-        "header": "Create or import a wallet",
+        "header": "ShapeShift Native Wallet",
         "body": "Would you like to create a new wallet or import an existing one?",
-        "button": "Import Wallet",
-        "button2": "Create Wallet"
+        "import": "Import Wallet",
+        "create": "Create Wallet",
+        "load": "Load Saved Wallet"
       },
-      "nativeSuccess": {
-        "header": "Wallet Connected",
+      "success": {
+        "encryptingWallet": "Encrypting your wallet...",
+        "header": "Wallet Conected",
         "success": "Your wallet has been connected",
         "error": "There was an error connecting your wallet"
       },

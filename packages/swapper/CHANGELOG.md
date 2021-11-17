@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.7](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.6...@shapeshiftoss/swapper-v1.11.7) (2021-11-17)
+
+
+### Bug Fixes
+
+* add MetaMask handling to swapper ([#234](https://github.com/shapeshift/lib/issues/234)) ([5565f0c](https://github.com/shapeshift/lib/commit/5565f0ca47d794008e2975b09db9a734a202e017))
+
 # [@shapeshiftoss/swapper-v1.11.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.5...@shapeshiftoss/swapper-v1.11.6) (2021-11-17)
 
 # [@shapeshiftoss/swapper-v1.11.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.4...@shapeshiftoss/swapper-v1.11.5) (2021-11-16)

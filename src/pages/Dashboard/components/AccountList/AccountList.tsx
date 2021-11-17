@@ -16,7 +16,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   const assets = useSelector((state: ReduxState) => state.assets)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
   const { balances, totalBalance } = usePortfolio()
-  const emptyAccounts = new Array(10).fill(null)
+  const emptyAccounts = new Array(5).fill(null)
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have

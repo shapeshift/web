@@ -72,12 +72,6 @@ export const selectTxHistory = createDeepEqualSelector(
       let hasItem = true
 
       if (tx.tradeDetails) {
-        console.log(
-          'tradeDetails identifier is',
-          filter.tradeIdentifier,
-          tx.tradeDetails.sellAsset,
-          tx.tradeDetails.buyAsset
-        )
         if (filter.tradeIdentifier)
           hasItem =
             (tx.tradeDetails.sellAsset === filter.tradeIdentifier ||

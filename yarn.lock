@@ -3663,17 +3663,6 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/blockbook@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-3.6.0.tgz#9916aecc60240645cebe2446e0c66c87e1f34967"
-  integrity sha512-ELHaOYMuRc98UrxYqOTw1XBXg6OL7ICnzgFfTtoh903oysRHSF6MEVzxJYNjBjnLiJ9414NdVrvCrBvcnlLpIg==
-  dependencies:
-    axios "^0.21.2"
-    express "^4.17.1"
-    swagger-ui-express "^4.1.5"
-    tsoa "^3.4.0"
-    ws "^8.2.3"
-
 "@shapeshiftoss/caip@^1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.4.1.tgz#c8fcdd2f18ebbefacb0c858c1e1a88270ff6305e"
@@ -3722,12 +3711,6 @@
     mongodb "^3.6.3"
     ws "^8.2.3"
 
-"@shapeshiftoss/ethereum-api@^3.5.0":
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-api/-/ethereum-api-3.5.0.tgz#7ef99bf4f0d3beb4d72e6241c1ac262528be78ce"
-  integrity sha512-2WkamI4Qcy1rnCbTSrDrRBvy0/CDBvaFBuSTzPnx4vxPNJIBj5HldqI9jRX5BgSqExGBAfQpnFAglUTVjJP+eA==
-
-
 "@shapeshiftoss/common-mongo@^3.6.0":
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/common-mongo/-/common-mongo-3.6.0.tgz#5f692b36f5d0b1b2f6b06e8b0eef0b851619d427"
@@ -3750,20 +3733,6 @@
     swagger-ui-express "^4.1.5"
     tsoa "^3.4.0"
     ws "^8.2.3"
-
-"@shapeshiftoss/ethereum-ingester@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/ethereum-ingester/-/ethereum-ingester-3.6.0.tgz#d3a275c436680e7f64bf5b6533772e98baf8d9c9"
-  integrity sha512-V1rjSTbNZDTleiykygeYNEgdPd6gb9b6VM4mBPzNeOXSNMaBp87Ypj/8cE2X1YnIMlRwIyRdbzqgdfziziIO+g==
-  dependencies:
-    "@shapeshiftoss/blockbook" "^3.6.0"
-    "@shapeshiftoss/common-ingester" "^3.6.0"
-    "@shapeshiftoss/common-mongo" "^3.6.0"
-    "@shapeshiftoss/logger" "^1.0.0"
-    "@shapeshiftoss/thorchain" "^3.6.0"
-    axios "^0.21.2"
-    bignumber.js "^9.0.1"
-    ethers "^5.4.0"
 
 "@shapeshiftoss/ethereum-ingester@^3.6.0":
   version "3.6.0"

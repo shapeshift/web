@@ -65,9 +65,6 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
     }
   }, [dispatch, symbol, tx.chain, tx.asset])
 
-  // eslint-disable-next-line no-console
-  if (tradeTx) console.log('trade tx', tx)
-
   return (
     <Box
       ref={ref}

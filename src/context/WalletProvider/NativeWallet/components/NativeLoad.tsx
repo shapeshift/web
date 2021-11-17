@@ -15,7 +15,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
-import { KeyManager } from '../../config'
+import { KeyManager, SUPPORTED_WALLETS } from '../../config'
 
 type VaultInfo = {
   id: string
@@ -55,10 +55,24 @@ export const NativeLoad = () => {
 
   const handleWalletSelect = async (item: VaultInfo) => {
     const adapter = state.adapters?.get(KeyManager.Native)
+    const deviceId = item.id
     if (adapter) {
+      const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
       try {
-        const wallet = await adapter.pairDevice(item.id)
-        await wallet.initialize()
+        const wallet = await adapter.pairDevice(deviceId)
+        if (!(await wallet.isInitialized())) {
+          // This will trigger the password modal and the modal will set the wallet on state
+          // after the wallet has been decrypted. If we set it now, `getPublicKeys` calls will
+          // return null, and we don't have a retry mechanism
+          await wallet.initialize()
+        } else {
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name, icon, deviceId }
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        }
+        // Always close the modal after trying to pair the wallet
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')

@@ -24,8 +24,10 @@ import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit } from 'lib/math'
 import { useAsset } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
@@ -57,6 +59,12 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
     assets,
     timeframe
   })
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
+
   const assetPriceHistoryData = useMemo(() => {
     if (isEmpty(priceHistoryData[asset?.caip19])) return []
     return priceHistoryData[asset.caip19].map(({ price, date }) => ({
@@ -64,6 +72,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
       date: new Date(Number(date)).toISOString()
     }))
   }, [priceHistoryData, asset])
+
   const graphPercentChange = usePercentChange({
     data: assetPriceHistoryData,
     initPercentChange: percentChange
@@ -100,14 +109,19 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
             </Skeleton>
           </Box>
         </Flex>
-        <AssetActions isLoaded={isLoaded} />
+        {walletSupportsChain ? <AssetActions isLoaded={isLoaded} /> : null}
       </Card.Header>
-      <SegwitSelectCard chain={asset.chain} />
+      {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>
         <Box>
           <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
             <Skeleton isLoaded={isLoaded}>
-              <ButtonGroup size='sm' colorScheme='blue' variant='ghost'>
+              <ButtonGroup
+                hidden={!walletSupportsChain}
+                size='sm'
+                colorScheme='blue'
+                variant='ghost'
+              >
                 <Button isActive={view === Views.Balance} onClick={() => setView(Views.Balance)}>
                   <Text translation='assets.assetDetails.assetHeader.balance' />
                 </Button>

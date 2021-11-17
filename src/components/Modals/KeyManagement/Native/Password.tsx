@@ -60,7 +60,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         'password',
         {
           type: 'manual',
-          message: 'modals.shapeShift.password.error.invalid'
+          message: translate('modals.shapeShift.password.error.invalid')
         },
         { shouldFocus: true }
       )
@@ -109,9 +109,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
                   />
                 </InputRightElement>
               </InputGroup>
-              <FormErrorMessage>
-                <Text translation={errors?.password?.message} />
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
             <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
               <Text translation={'walletProvider.shapeShift.password.button'} />

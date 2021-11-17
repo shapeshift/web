@@ -1,23 +1,17 @@
-import { ChevronRightIcon, CloseIcon, DeleteIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Avatar,
-  Badge,
   Button,
-  ButtonGroup,
-  Flex,
   ModalBody,
   ModalHeader,
-  StackDivider,
-  Tag,
   VStack
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { IconCircle } from 'components/IconCircle'
+import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
@@ -92,28 +86,19 @@ export const NativeLoad = () => {
         <VStack mx={-4} spacing={0}>
           {wallets.map(wallet => {
             return (
-              <ButtonGroup
-                width='full'
-                size='lg'
+              <Row
+                mx={-4}
                 py={2}
-                height='auto'
-                variant='ghost'
-                px={0}
-                key={wallet.id}
                 alignItems='center'
-                borderRadius='xl'
                 justifyContent='space-between'
-                as={Button}
-                cursor='pointer'
+                variant='btn-ghost'
+                colorScheme='blue'
               >
                 <Button
-                  justifyContent='space-between'
-                  variant='outline'
-                  border={0}
-                  display='flex'
-                  colorScheme='blue'
-                  _hover={{ bg: 'transaprent' }}
                   px={4}
+                  variant='unstyled'
+                  display='flex'
+                  pl={4}
                   leftIcon={
                     <IconCircle boxSize={8}>
                       <FaWallet />
@@ -135,13 +120,12 @@ export const NativeLoad = () => {
                   colorScheme='red'
                   size='xs'
                   variant='ghost-filled'
-                  borderRardius='xl'
                   mr={4}
                   onClick={() => handleDelete(wallet)}
                 >
-                  Forget?
+                  <Text translation='common.forget' />
                 </Button>
-              </ButtonGroup>
+              </Row>
             )
           })}
           {error && (

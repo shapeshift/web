@@ -148,9 +148,18 @@ export class YearnVaultApi {
       to: tokenContractAddress,
       value: '0'
     })
-    const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
-    if (dryRun) return signedTx
-    return this.adapter.broadcastTransaction(signedTx)
+    if (wallet.supportsOfflineSigning()) {
+      const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
+      if (dryRun) return signedTx
+      return this.adapter.broadcastTransaction(signedTx)
+    } else if (wallet.supportsBroadcast() && this.adapter.signAndBroadcastTransaction) {
+      if (dryRun) {
+        throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
+      }
+      return this.adapter.signAndBroadcastTransaction({ txToSign, wallet })
+    } else {
+      throw new Error('Invalid HDWallet configuration ')
+    }
   }
 
   async allowance(input: Allowanceinput): Promise<string> {
@@ -201,9 +210,18 @@ export class YearnVaultApi {
       to: vaultAddress,
       value: '0'
     })
-    const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
-    if (dryRun) return signedTx
-    return this.adapter.broadcastTransaction(signedTx)
+    if (wallet.supportsOfflineSigning()) {
+      const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
+      if (dryRun) return signedTx
+      return this.adapter.broadcastTransaction(signedTx)
+    } else if (wallet.supportsBroadcast() && this.adapter.signAndBroadcastTransaction) {
+      if (dryRun) {
+        throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
+      }
+      return this.adapter.signAndBroadcastTransaction({ txToSign, wallet })
+    } else {
+      throw new Error('Invalid HDWallet configuration ')
+    }
   }
 
   async withdrawEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
@@ -247,9 +265,18 @@ export class YearnVaultApi {
       to: vaultAddress,
       value: '0'
     })
-    const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
-    if (dryRun) return signedTx
-    return this.adapter.broadcastTransaction(signedTx)
+    if (wallet.supportsOfflineSigning()) {
+      const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
+      if (dryRun) return signedTx
+      return this.adapter.broadcastTransaction(signedTx)
+    } else if (wallet.supportsBroadcast() && this.adapter.signAndBroadcastTransaction) {
+      if (dryRun) {
+        throw new Error(`Cannot perform a dry run with wallet of type ${wallet.getVendor()}`)
+      }
+      return this.adapter.signAndBroadcastTransaction({ txToSign, wallet })
+    } else {
+      throw new Error('Invalid HDWallet configuration ')
+    }
   }
 
   async balance(input: BalanceInput): Promise<BigNumber> {

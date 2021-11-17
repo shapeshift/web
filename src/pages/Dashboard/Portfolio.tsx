@@ -23,7 +23,7 @@ export const Portfolio = () => {
     timeframe
   })
 
-  const loading = portfolioLoading || portfolioAssetsLoading || balanceChartDataLoading
+  const loading = portfolioLoading || portfolioAssetsLoading
   const isLoaded = !loading
 
   if (loading)

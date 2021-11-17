@@ -1,6 +1,7 @@
 import { caip19 } from '@shapeshiftoss/caip'
 import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
+import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -48,12 +49,17 @@ export const useCAIP19Balances = () => {
 
       // asset should contain CAIP2, or utility fn CAIP19ToCAIP2
       const asset = assetData.find(asset => asset.caip19 === assetCAIP19)
-      if (!asset) throw new Error(`asset not found for chain ${chain}`)
+      if (!asset) {
+        throw new Error(`asset not found for chain ${chain}`)
+      }
 
       let addressOrXpub
       if (adapter.getType() === ChainTypes.Ethereum) {
         addressOrXpub = await adapter.getAddress({ wallet })
       } else if (adapter.getType() === ChainTypes.Bitcoin) {
+        if (!supportsBTC(wallet)) {
+          continue
+        }
         const accountType = accountTypes[chain]
         const accountParams = utxoAccountParams(asset, accountType, 0)
         const { bip32Params, scriptType } = accountParams
@@ -65,12 +71,14 @@ export const useCAIP19Balances = () => {
             scriptType
           }
         ])
-        if (!pubkeys || !pubkeys[0]) throw new Error('Error getting public key')
+        if (!pubkeys || !pubkeys[0]) {
+          throw new Error('Error getting public key')
+        }
         addressOrXpub = pubkeys[0].xpub
       } else {
         throw new Error('not implemented')
       }
-      if (!addressOrXpub) throw new Error('Error getting addressOrXpub')
+
       const account = await adapter.getAccount(addressOrXpub)
       if (!account) continue
       acc[asset.caip19] = account

@@ -32,7 +32,9 @@ dayjs.extend(localizedFormat)
 export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) => {
   const ref = useRef<HTMLHeadingElement>(null)
   const dispatch = useDispatch()
-  const asset = useSelector((state: ReduxState) => state.assets[tx.chain])
+  const asset = useSelector((state: ReduxState) => state.assets[tx.asset.toLowerCase() ?? tx.chain])
+  // stables need precision of eth (18) rather than 10
+  const chainAsset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const sentTx = tx.type === chainAdapters.TxType.Send
@@ -56,11 +58,12 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
       dispatch(
         fetchAsset({
           chain: tx.chain,
-          network: NetworkTypes.MAINNET
+          network: NetworkTypes.MAINNET,
+          ...(tx.asset ? { tokenId: tx.asset.toLowerCase() } : undefined)
         })
       )
     }
-  }, [dispatch, symbol, tx.chain])
+  }, [dispatch, symbol, tx.chain, tx.asset])
 
   // eslint-disable-next-line no-console
   if (tradeTx) console.log('trade tx', tx)
@@ -162,7 +165,7 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
             <Row.Value>
               {tx?.fee && (
                 <Amount.Crypto
-                  value={fromBaseUnit(tx?.fee?.value ?? '0', asset?.precision)}
+                  value={fromBaseUnit(tx?.fee?.value ?? '0', chainAsset?.precision)}
                   symbol={tx?.fee?.symbol}
                   maximumFractionDigits={6}
                 />

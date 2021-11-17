@@ -1,9 +1,11 @@
 import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
+import { useState } from 'react'
 
-const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
+const APP_UPDATE_CHECK_INTERVAL = 1000
 
 export const useHasAppUpdated = () => {
+  const [hasUpdated, setHasUpdated] = useState(false)
   useInterval(async () => {
     // this will break if we ever eject from create react app
     const scriptIdentifier = '/static/js/main.'
@@ -19,7 +21,7 @@ export const useHasAppUpdated = () => {
     }
     if (!manifestMainJs) {
       console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
-      return false
+      return
     }
     if (!manifestMainJs.startsWith(scriptIdentifier)) {
       console.error(
@@ -30,7 +32,7 @@ export const useHasAppUpdated = () => {
     const scripts = document.getElementsByTagName('script')
     if (!scripts.length) {
       console.error(`useHasAppUpdated: can't find scripts in dom`)
-      return false
+      return
     }
     const { origin } = window?.location ?? ''
     // can't map/filter/reduce on HTMLCollectionOf
@@ -46,9 +48,9 @@ export const useHasAppUpdated = () => {
         console.info(
           `useHasAppUpdated: app updated, manifest: ${manifestMainJs}, script: ${scriptMainJs}`
         )
-        return true
+        setHasUpdated(true)
       }
     }
-    return false
   }, APP_UPDATE_CHECK_INTERVAL)
+  return hasUpdated
 }

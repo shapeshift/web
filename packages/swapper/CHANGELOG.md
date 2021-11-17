@@ -1,3 +1,5 @@
+# [@shapeshiftoss/swapper-v1.11.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.5...@shapeshiftoss/swapper-v1.11.6) (2021-11-17)
+
 # [@shapeshiftoss/swapper-v1.11.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.4...@shapeshiftoss/swapper-v1.11.5) (2021-11-16)
 
 

@@ -50,7 +50,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { changePercent24Hr, price } = marketData || {}
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)

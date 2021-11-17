@@ -19,39 +19,46 @@ import { KeyManager, SUPPORTED_WALLETS } from '../../config'
 
 type VaultInfo = {
   id: string
-  name: string
+  name?: string
+  createdAt?: number
 }
 
 export const NativeLoad = () => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
-  const [wallets, setWallets] = useState<VaultInfo[]>([])
+  const [vaultInfos, setVaultInfos] = useState<VaultInfo[]>([])
 
   useEffect(() => {
     ;(async () => {
-      if (!wallets.length) {
+      if (!vaultInfos.length) {
         try {
           const vaultIds = await Vault.list()
           if (!vaultIds.length) {
             return setError('walletProvider.shapeShift.load.error.noWallet')
           }
 
-          const storedWallets: VaultInfo[] = await Promise.all(
+          const vaultInfos: VaultInfo[] = await Promise.all(
             vaultIds.map(async id => {
               const meta = await Vault.meta(id)
-              const name = String(meta?.get('name') ?? id)
-              return { id, name }
+              return {
+                // This extra spread drops any nullish elements
+                ...{
+                  id,
+                  name: (x => (x ? String(x) : undefined))(meta?.get('name')),
+                  createdAt: (x => (x ? Number(x) : undefined))(meta?.get('createdAt'))
+                }
+              }
             })
           )
 
-          setWallets(storedWallets)
+          setVaultInfos(vaultInfos)
         } catch (e) {
           console.error('WalletProvider:NativeWallet:Load - Cannot get vault', e)
-          setWallets([])
+          setVaultInfos([])
         }
       }
     })()
-  }, [wallets])
+  }, [vaultInfos])
 
   const handleWalletSelect = async (item: VaultInfo) => {
     const adapter = state.adapters?.get(KeyManager.Native)
@@ -85,7 +92,7 @@ export const NativeLoad = () => {
   const handleDelete = async (wallet: VaultInfo) => {
     try {
       await Vault.delete(wallet.id)
-      setWallets([])
+      setVaultInfos([])
     } catch (e) {
       setError('walletProvider.shapeShift.load.error.delete')
     }
@@ -98,26 +105,26 @@ export const NativeLoad = () => {
       </ModalHeader>
       <ModalBody>
         <VStack spacing={4} divider={<StackDivider />}>
-          {wallets.map(wallet => {
+          {vaultInfos.map(vaultInfo => {
             return (
-              <Flex w='full' alignItems='center' justifyContent='space-between' key={wallet.id}>
+              <Flex w='full' alignItems='center' justifyContent='space-between' key={vaultInfo.id}>
                 <Button
                   mr={2}
                   size='sm'
                   w='full'
                   justifyContent='space-between'
                   rightIcon={<ChevronRightIcon />}
-                  onClick={() => handleWalletSelect(wallet)}
+                  onClick={() => handleWalletSelect(vaultInfo)}
                 >
                   <RawText overflow='hidden' fontWeight='medium' fontSize='xs'>
-                    {wallet.name}
+                    {vaultInfo.name ?? vaultInfo.id}
                   </RawText>
                 </Button>
                 <Button
                   size='sm'
                   textTransform='uppercase'
                   colorScheme='red'
-                  onClick={() => handleDelete(wallet)}
+                  onClick={() => handleDelete(vaultInfo)}
                 >
                   <DeleteIcon color='white' />
                 </Button>

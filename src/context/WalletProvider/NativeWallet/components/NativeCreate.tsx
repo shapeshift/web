@@ -53,6 +53,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
     ;(async () => {
       try {
         const vault = await Vault.create(undefined, false)
+        vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', GENERATE_MNEMONIC)
         setVault(vault)
       } catch (e) {

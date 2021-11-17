@@ -156,6 +156,20 @@
         "button": "Submit Passphrase"
       }
     },
+    "shapeShift": {
+      "password": {
+        "header": "Enter Your Password",
+        "body": "Enter your password to decrypt your wallet",
+        "placeholder": "Enter Password",
+        "show": "Show password",
+        "hide": "Hide password",
+        "error": {
+          "invalid": "Invalid Password",
+          "required": "Password is required",
+          "length": "Your password must be at least %{length} characters"
+        }
+      }
+    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",

@@ -55,10 +55,10 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         <ModalHeader>
-          <Text translation={`modals.keepKey.passphrase.header`} />
+          <Text translation={'modals.keepKey.passphrase.header'} />
         </ModalHeader>
         <ModalBody>
-          <Text color='gray.500' translation={`modals.keepKey.passphrase.body`} />
+          <Text color='gray.500' translation={'modals.keepKey.passphrase.body'} />
           <Input
             type='password'
             ref={inputRef}
@@ -83,7 +83,7 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
             onClick={handleSubmit}
             disabled={loading}
           >
-            <Text translation={`modals.keepKey.passphrase.button`} />
+            <Text translation={'modals.keepKey.passphrase.button'} />
           </Button>
         </ModalBody>
       </ModalContent>

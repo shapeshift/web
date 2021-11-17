@@ -19,12 +19,14 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
+  const translate = useTranslate()
   const { nativePassword } = useModal()
   const { close, isOpen } = nativePassword
   const { state, dispatch } = useWallet()
@@ -58,7 +60,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         'password',
         {
           type: 'manual',
-          message: 'walletProvider.shapeShift.password.error.invalid'
+          message: 'modals.shapeShift.password.error.invalid'
         },
         { shouldFocus: true }
       )
@@ -77,26 +79,29 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         <ModalHeader>
-          <Text translation={'walletProvider.shapeShift.password.header'} />
+          <Text translation={'modals.shapeShift.password.header'} />
         </ModalHeader>
         <ModalBody>
-          <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+          <Text mb={6} color='gray.500' translation={'modals.shapeShift.password.body'} />
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormControl isInvalid={errors.password} mb={6}>
+            <FormControl isInvalid={Boolean(errors)} mb={6}>
               <InputGroup size='lg' variant='filled'>
                 <Input
                   {...register('password', {
-                    required: 'This is required',
-                    minLength: { value: 8, message: 'Password must be at least 8 characters' }
+                    required: translate('modals.shapeShift.password.error.required'),
+                    minLength: {
+                      value: 8,
+                      message: translate('modals.shapeShift.password.error.length', { length: 8 })
+                    }
                   })}
                   pr='4.5rem'
                   type={showPw ? 'text' : 'password'}
-                  placeholder='Enter password'
+                  placeholder={translate('modals.shapeShift.password.placeholder')}
                   id='password'
                 />
                 <InputRightElement>
                   <IconButton
-                    aria-label={!showPw ? 'Show password' : 'Hide password'}
+                    aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                     h='1.75rem'
                     size='sm'
                     onClick={handleShowClick}

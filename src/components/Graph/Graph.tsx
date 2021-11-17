@@ -10,16 +10,17 @@ type GraphProps = {
   data: HistoryData[] | null
   isLoaded?: boolean
   loading?: boolean
+  color?: string
 }
 
-export const Graph = ({ data, isLoaded, loading }: GraphProps) => {
+export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
   return useMemo(
     () => (
       <ParentSize debounceTime={10}>
         {parent =>
           loading || !isLoaded ? (
             <Fade in={loading || !isLoaded}>
-              <Center width='full' height={parent.height}>
+              <Center width='full' height={parent.height} overflow='hidden'>
                 <GraphLoading />
               </Center>
             </Fade>
@@ -29,6 +30,7 @@ export const Graph = ({ data, isLoaded, loading }: GraphProps) => {
                 data={data ?? []}
                 height={parent.height}
                 width={parent.width}
+                color={color}
                 margin={{
                   top: 16,
                   right: 0,
@@ -41,6 +43,6 @@ export const Graph = ({ data, isLoaded, loading }: GraphProps) => {
         }
       </ParentSize>
     ),
-    [data, isLoaded, loading]
+    [color, data, isLoaded, loading]
   )
 }

@@ -41,7 +41,7 @@ const commonColors = {
     50: '#E6FAF5'
   },
   red: {
-    50: '#FFFDFD',
+    50: '#FFF5F5',
     100: '#FFF8F8',
     200: '#FDE3E3',
     300: '#FAC1C0',

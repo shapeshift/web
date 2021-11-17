@@ -1,4 +1,5 @@
 import { useColorModeValue } from '@chakra-ui/color-mode'
+import { useToken } from '@chakra-ui/system'
 import { HistoryData } from '@shapeshiftoss/types'
 import { localPoint } from '@visx/event'
 import { Group } from '@visx/group'
@@ -24,6 +25,7 @@ export interface PrimaryChartProps {
   width: number
   height: number
   margin?: { top: number; right: number; bottom: number; left: number }
+  color?: string
 }
 
 export type TooltipData = HistoryData
@@ -37,6 +39,7 @@ export const PrimaryChart = ({
   data,
   width = 10,
   height,
+  color = 'green.500',
   margin = { top: 0, right: 0, bottom: 0, left: 0 }
 }: PrimaryChartProps) => {
   const {
@@ -51,6 +54,7 @@ export const PrimaryChart = ({
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
 
+  const [chartColor] = useToken('colors', [color])
   const toolTipBg = useColorModeValue('white', colors.gray[800])
   const toolTipBorder = useColorModeValue(colors.gray[200], colors.gray[700])
   const toolTipColor = useColorModeValue(colors.gray[800], 'white')
@@ -128,7 +132,7 @@ export const PrimaryChart = ({
           yMax={yMax}
           xScale={dateScale}
           yScale={priceScale}
-          stroke={colors.green[500]}
+          stroke={chartColor}
           xTickFormat={d => {
             return numeral(d).format(d <= 100 ? '$0.00' : '$0,0')
           }}
@@ -142,7 +146,7 @@ export const PrimaryChart = ({
           yMax={yMax}
           xScale={dateScale}
           yScale={priceScale}
-          gradientColor={colors.green[500]}
+          gradientColor={chartColor}
         />
         {/* a transparent ele that track the pointer event, allow us to display tooltup */}
         <Bar
@@ -168,7 +172,7 @@ export const PrimaryChart = ({
             xScale={dateScale}
             width={width}
             yMax={yMax}
-            stroke={colors.green[500]}
+            stroke={chartColor}
             margin={{ ...margin }}
           />
           <MinPrice
@@ -180,7 +184,7 @@ export const PrimaryChart = ({
             xDate={minPriceDate}
             width={width}
             yMax={yMax}
-            stroke={colors.green[500]}
+            stroke={chartColor}
             margin={{ ...margin }}
           />
         </Group>

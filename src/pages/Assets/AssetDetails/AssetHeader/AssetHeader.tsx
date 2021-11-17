@@ -50,7 +50,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { changePercent24Hr, price } = marketData || {}
   const percentChange = changePercent24Hr ?? 0
   const assetPrice = price ?? 0
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
@@ -87,6 +87,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
 
   const graphData = view === Views.Balance ? balanceChartData : assetPriceHistoryData
   const graphLoading = view === Views.Balance ? balanceChartDataLoading : priceHistoryDataLoading
+  const graphColor = graphPercentChange > 0 ? 'green.500' : 'red.500'
 
   return (
     <Card variant='footer-stub'>
@@ -173,7 +174,12 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
         </Box>
       </Card.Body>
       <Card.Body px={0} py={0} position='relative' height='300px'>
-        <Graph data={graphData} loading={graphLoading} isLoaded={!graphLoading} />
+        <Graph
+          data={graphData}
+          loading={graphLoading}
+          isLoaded={!graphLoading}
+          color={graphColor}
+        />
       </Card.Body>
       <Card.Footer>
         <AssetMarketData marketData={marketData} isLoaded={isLoaded} />

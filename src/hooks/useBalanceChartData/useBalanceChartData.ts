@@ -298,7 +298,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
 
   useEffect(() => {
-    if (!isNil(walletInfo?.deviceId)) return
+    if (isNil(walletInfo?.deviceId)) return
     if (priceHistoryLoading) return
     if (caip19BalancesLoading) return
     if (portfolioAssetsLoading) return

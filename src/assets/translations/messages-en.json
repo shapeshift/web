@@ -126,7 +126,7 @@
     "tooltip": {
       "rate": "This is the rate",
       "minerFee": "This is the Miner Fee",
-      "shapeshiftFee": "This is the Shapeshift Fee"
+      "shapeshiftFee": "This is the ShapeShift Fee"
     },
     "errors": {
       "title": "Something went wrong",
@@ -154,6 +154,20 @@
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
         "button": "Submit Passphrase"
+      }
+    },
+    "shapeShift": {
+      "password": {
+        "header": "Enter Your Password",
+        "body": "Enter your password to decrypt your wallet",
+        "placeholder": "Enter Password",
+        "show": "Show password",
+        "hide": "Hide password",
+        "error": {
+          "invalid": "Invalid Password",
+          "required": "Password is required",
+          "length": "Your password must be at least %{length} characters"
+        }
       }
     },
     "send": {
@@ -229,7 +243,7 @@
         "header": "Confirm Deposit",
         "averageApr": "Average APR",
         "estimatedReturns": "Estimated Yearly Returns*",
-        "preFooter": "Rewards acure automatically"
+        "preFooter": "Rewards accrue automatically"
       },
       "withdrawFrom": "Withdraw From",
       "withdrawTo": "Withdraw To",
@@ -321,44 +335,51 @@
       }
     },
     "shapeShift": {
-      "nativeImport": {
+      "load": {
+        "error": {
+          "delete": "Unable to delete your wallet, sorry.",
+          "noWallet": "You have no saved wallets",
+          "pair": "Unable to pair your wallet"
+        },
+        "header": "Saved Wallets",
+        "body": "Loading your saved wallet... Enter your password when prompted.",
+        "button": "Continue"
+      },
+      "import": {
         "header": "Import your wallet",
-        "body": "Enter your 12 word seed phrase to import an exisiting wallet",
+        "body": "Enter your 12 word seed phrase to import an existing wallet",
         "button": "Next"
       },
-      "nativePasswd": {
-        "header": "Enter your password",
-        "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
+      "password": {
+        "error": {
+          "invalid": "Invalid Password"
+        },
+        "header": "Enter Your Password",
+        "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
         "button": "Next"
       },
-      "nativePassReq": {
-        "header": "Enter your password",
-        "body": "Enter your native wallet password to decrypt the wallet stored in your browser.",
-        "button": "Next",
-        "minLength": "Minimum length should be 8",
-        "required": "This is required",
-        "placeholder": "Enter password",
-        "showPassword": "Show password",
-        "hidePassword": "Hide password"
-      },
-      "nativeSeed": {
-        "header": "Your seed phrase",
+      "create": {
+        "header": "Your Backup Seed Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next"
+        "button": "Next",
+        "hideWords": "Hide Words",
+        "showWords": "Show Words"
       },
-      "nativeStart": {
-        "header": "Create or import a wallet",
-        "body": "Would you like to create a new wallet or import an existing one?",
-        "button": "Import Wallet",
-        "button2": "Create Wallet"
+      "start": {
+        "header": "ShapeShift Wallet",
+        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet",
+        "import": "Import a wallet",
+        "create": "Create a new wallet",
+        "load": "Saved wallets"
       },
-      "nativeSuccess": {
+      "success": {
+        "encryptingWallet": "Encrypting your wallet...",
         "header": "Wallet Connected",
         "success": "Your wallet has been connected",
         "error": "There was an error connecting your wallet"
       },
-      "nativeTestPhrase": {
-        "header": "Let's practice your secret phrase",
+      "testPhrase": {
+        "header": "Verify Your Backup Seed Phrase",
         "body": "Which of these is the",
         "body2": " word",
         "body3": "in your secret phrase.",
@@ -366,7 +387,7 @@
       }
     },
     "selectModal": {
-      "header": "Connect a wallet",
+      "header": "Connect A Wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
     }
   },
@@ -418,7 +439,7 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking or deposting your assets into a vault.",
+      "stakingBody": "Earn passive income by staking or depositing your assets into a vault.",
       "pools": "Pools"
     }
   },

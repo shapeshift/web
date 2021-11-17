@@ -13,7 +13,7 @@ import { AccountList } from './components/AccountList/AccountList'
 import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const { totalBalance, loading: portfolioLoading } = usePortfolio()
   const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
 

@@ -1,19 +1,23 @@
+import { Stack } from '@chakra-ui/layout'
+import { Skeleton, SkeletonText } from '@chakra-ui/skeleton'
 import { NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AccountRow } from 'components/AccountRow/AccountRow'
+import { LoadingRow } from 'components/AccountRow/LoadingRow'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
 import { ReduxState } from 'state/reducer'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
 
-export const AccountList = () => {
+export const AccountList = ({ loading }: { loading?: boolean }) => {
   const dispatch = useDispatch()
   const assets = useSelector((state: ReduxState) => state.assets)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
   const { balances, totalBalance } = usePortfolio()
+  const emptyAccounts = new Array(10).fill(null)
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
@@ -55,5 +59,13 @@ export const AccountList = () => {
     )
   }, [assets, balances, marketData, totalBalance])
 
-  return accountRows
+  return loading ? (
+    <Stack>
+      {emptyAccounts.map(index => (
+        <LoadingRow key={index} />
+      ))}
+    </Stack>
+  ) : (
+    accountRows
+  )
 }

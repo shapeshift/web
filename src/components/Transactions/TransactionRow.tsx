@@ -46,12 +46,12 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
 
   // TODO compare using caip ids
   // Cant do this yet because unchained doesnt only returns symbol with trade data
-  const buyAsset = Object.values(allAssets).filter(
+  const buyAsset = Object.values(allAssets).find(
     asset => asset.symbol === tx?.tradeDetails?.buyAsset
-  )[0]
-  const sellAsset = Object.values(allAssets).filter(
+  )
+  const sellAsset = Object.values(allAssets).find(
     asset => asset.symbol === tx?.tradeDetails?.sellAsset
-  )[0]
+  )
 
   useEffect(() => {
     if (!symbol) {
@@ -102,7 +102,7 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
               ml={compact ? 0 : 1}
               value={fromBaseUnit(
                 tradeTx ? tx.tradeDetails?.sellAmount || '0' : tx.value,
-                tradeTx ? sellAsset?.precision : asset?.precision
+                sellAsset ? sellAsset.precision : asset?.precision
               )}
               symbol={tx.tradeDetails?.sellAsset ?? symbol}
               maximumFractionDigits={6}
@@ -142,14 +142,20 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
             </Row.Label>
             <Row.Value>
               <Amount.Crypto
-                value={fromBaseUnit(tx.tradeDetails?.sellAmount ?? '0', sellAsset?.precision)}
-                symbol={sellAsset?.symbol}
+                value={fromBaseUnit(
+                  tx.tradeDetails?.sellAmount ?? '0',
+                  sellAsset ? sellAsset.precision : 18
+                )}
+                symbol={sellAsset ? sellAsset.symbol : ''}
                 maximumFractionDigits={6}
               />
               <Text translation='transactionRow.for' />
               <Amount.Crypto
-                value={fromBaseUnit(tx.tradeDetails?.buyAmount ?? '0', buyAsset?.precision)}
-                symbol={buyAsset?.symbol}
+                value={fromBaseUnit(
+                  tx.tradeDetails?.buyAmount ?? '0',
+                  buyAsset ? buyAsset.precision : 18
+                )}
+                symbol={buyAsset ? buyAsset.symbol : ''}
                 maximumFractionDigits={6}
               />
             </Row.Value>

@@ -14,6 +14,7 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useEffect, useRef, useState } from 'react'
+import { FaExchangeAlt } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -37,7 +38,20 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const sentTx = tx.type === chainAdapters.TxType.Send
+  const receivedTx = tx.type === chainAdapters.TxType.Receive
+  const tradeTx = tx.type === chainAdapters.TxType.Trade
   const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
+
+  const allAssets = useSelector((state: ReduxState) => state.assets)
+
+  // TODO compare using caip ids
+  // Cant do this yet because unchained doesnt only returns symbol with trade data
+  const buyAsset = Object.values(allAssets).find(
+    asset => asset.symbol === tx?.tradeDetails?.buyAsset
+  )
+  const sellAsset = Object.values(allAssets).find(
+    asset => asset.symbol === tx?.tradeDetails?.sellAsset
+  )
 
   useEffect(() => {
     if (!symbol) {
@@ -78,14 +92,19 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
             rounded='full'
             mr='3'
           >
-            {sentTx ? <ArrowUpIcon /> : <ArrowDownIcon />}
+            {sentTx && <ArrowUpIcon />}
+            {receivedTx && <ArrowDownIcon />}
+            {tradeTx && <FaExchangeAlt />}
           </Center>
           <Flex flexDir={compact ? 'column' : 'row'} justifyContent='flex-start'>
             {!compact && <Text translation={`transactionRow.${tx.type}`} />}
             <Amount.Crypto
               ml={compact ? 0 : 1}
-              value={fromBaseUnit(tx.value, asset?.precision)}
-              symbol={symbol}
+              value={fromBaseUnit(
+                tradeTx ? tx.tradeDetails?.sellAmount || '0' : tx.value,
+                sellAsset ? sellAsset.precision : asset?.precision
+              )}
+              symbol={tx.tradeDetails?.sellAsset ?? symbol}
               maximumFractionDigits={6}
               fontWeight='bold'
             />
@@ -116,6 +135,32 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
               </Link>
             </Row.Value>
           </Row>
+
+          <Row variant='vertical' hidden={!tradeTx}>
+            <Row.Label>
+              <Text translation={'transactionRow.amount'} />
+            </Row.Label>
+            <Row.Value>
+              <Amount.Crypto
+                value={fromBaseUnit(
+                  tx.tradeDetails?.sellAmount ?? '0',
+                  sellAsset ? sellAsset.precision : 18
+                )}
+                symbol={sellAsset ? sellAsset.symbol : ''}
+                maximumFractionDigits={6}
+              />
+              <Text translation='transactionRow.for' />
+              <Amount.Crypto
+                value={fromBaseUnit(
+                  tx.tradeDetails?.buyAmount ?? '0',
+                  buyAsset ? buyAsset.precision : 18
+                )}
+                symbol={buyAsset ? buyAsset.symbol : ''}
+                maximumFractionDigits={6}
+              />
+            </Row.Value>
+          </Row>
+
           <Row variant='vertical'>
             <Row.Label>
               <Text translation='transactionRow.fee' />
@@ -157,7 +202,8 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
           </Row>
           <Row variant='vertical'>
             <Row.Label>
-              <Text translation={sentTx ? 'transactionRow.to' : 'transactionRow.from'} />
+              {sentTx && <Text translation={'transactionRow.to'} />}
+              {receivedTx && <Text translation={'transactionRow.from'} />}
             </Row.Label>
             <Row.Value>
               <Link

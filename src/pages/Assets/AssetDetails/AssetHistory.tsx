@@ -29,7 +29,11 @@ export const AssetHistory = () => {
   const txs = useSelector((state: ReduxState) =>
     selectTxHistory(state, {
       chain: asset.chain,
-      filter: { identifier: asset.tokenId ?? asset.chain, accountType }
+      filter: {
+        identifier: asset.tokenId ?? asset.chain,
+        accountType,
+        tradeIdentifier: asset.symbol
+      }
     })
   )
 

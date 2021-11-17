@@ -106,7 +106,10 @@
     "network": "Network",
     "blockHeight": "Block Height",
     "to": "To",
-    "from": "From"
+    "from": "From",
+    "trade": "Traded",
+    "amount": "Amount",
+    "for": "for"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

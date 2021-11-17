@@ -119,4 +119,3 @@ export const ETHCHAIN_QUOTE_FEES = {
 }
 
 export const MIN_MAX = { minimum: '1000000', minimumPrice: '5000' }
-

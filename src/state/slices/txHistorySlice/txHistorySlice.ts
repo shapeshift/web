@@ -47,7 +47,8 @@ export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
   reducers: {
-    onMessage(state, { payload }: TxMessage) {
+    clear: () => initialState,
+    onMessage: (state, { payload }: TxMessage) => {
       const chain = payload.message.chain
       state[chain] = updateOrInsert(state[chain], payload.message)
     }

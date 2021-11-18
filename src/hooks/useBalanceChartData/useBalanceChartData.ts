@@ -9,6 +9,7 @@ import {
   NetworkTypes
 } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
@@ -46,7 +47,7 @@ export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData
 }
 
 type CryptoBalance = {
-  [k: CAIP19]: number // map of asset to base units
+  [k: CAIP19]: BigNumber // map of asset to base units
 }
 
 type BucketBalance = {
@@ -87,7 +88,7 @@ export const makeBuckets: MakeBuckets = args => {
   const assetBalances = assets.reduce<CryptoBalance>((acc, cur) => {
     const account = balances[cur]
     if (!account) return acc // we don't have a balance for this asset, e.g. metamask bitcoin
-    acc[cur] = Number(account.balance)
+    acc[cur] = bnOrZero(account.balance)
     return acc
   }, {})
 
@@ -123,9 +124,9 @@ export const makeBuckets: MakeBuckets = args => {
   return { buckets, meta }
 }
 
-const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
+export const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
 // ideally txs from unchained should include caip19
-const caip19FromTx = (tx: Tx): CAIP19 => {
+export const caip19FromTx = (tx: Tx): CAIP19 => {
   const { chain, network, asset: tokenId } = tx
   const ethereumCAIP2 = caip2.toCAIP2({
     chain: ChainTypes.Ethereum,
@@ -137,7 +138,29 @@ const caip19FromTx = (tx: Tx): CAIP19 => {
 
   const extra = contractType ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  return assetCAIP19
+  return assetCAIP19.toLowerCase()
+}
+
+export const buyAssetCAIP19FromTx = (tx: Tx, portfolioAssets: PortfolioAssets): string => {
+  const tradeDetails = tx.tradeDetails
+  if (!tradeDetails) return ''
+  const buyAssetSymbol = tradeDetails.buyAsset
+  const buyAsset: Asset | undefined = Object.values(portfolioAssets).find(
+    ({ symbol }) => symbol === buyAssetSymbol
+  )
+  if (!buyAsset) return ''
+  return buyAsset.caip19
+}
+
+export const sellAssetCAIP19FromTx = (tx: Tx, portfolioAssets: PortfolioAssets): string => {
+  const tradeDetails = tx.tradeDetails
+  if (!tradeDetails) return ''
+  const sellAssetSymbol = tradeDetails.sellAsset
+  const sellAsset: Asset | undefined = Object.values(portfolioAssets).find(
+    ({ symbol }) => symbol === sellAssetSymbol
+  )
+  if (!sellAsset) return ''
+  return sellAsset.caip19
 }
 
 const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
@@ -160,11 +183,13 @@ const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   return result
 }
 
+export type PortfolioAssets = {
+  [k: CAIP19]: Asset
+}
+
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
-  portfolioAssets: {
-    [k: CAIP19]: Asset
-  }
+  portfolioAssets: PortfolioAssets
   priceHistoryData: {
     [k: CAIP19]: HistoryData[]
   }
@@ -189,14 +214,21 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const assetPriceHistoryData = priceHistoryData[caip19]
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
     const portfolioAsset = portfolioAssets[caip19]
-    if (!portfolioAsset) return acc
+    if (!portfolioAsset) {
+      console.warn(`fiatBalanceAtBucket: no portfolioAsset for ${caip19}`)
+      console.warn('portfolioAssets', portfolioAssets)
+      // eslint-disable-next-line no-console
+      console.trace()
+      return acc
+    }
     const { precision } = portfolioAsset
-    const assetFiatBalance = bn(assetCryptoBalance)
+    const assetFiatBalance = assetCryptoBalance
       .div(bn(10).exponentiatedBy(precision))
       .times(price)
       .toNumber()
     return acc + assetFiatBalance
   }, 0)
+
   return result
 }
 
@@ -229,27 +261,37 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
-      const assetCAIP19 = caip19FromTx(tx)
+      const txAssetCAIP19 = caip19FromTx(tx)
       // don't calculate price for this asset because we didn't ask for it
-      if (!assets.includes(assetCAIP19)) return
+      if (!assets.includes(txAssetCAIP19)) return
 
-      const { type, value: valueString } = tx
       const feeValue = bnOrZero(tx.fee?.value)
-      const value = bnOrZero(valueString) // tx value in base units
-      switch (type) {
+      const value = bnOrZero(tx.value) // tx value in base units
+      switch (tx.type) {
         case TxType.Send: {
-          const amount = value.plus(feeValue)
-          const cryptoDiff = bn(amount).toNumber()
-          bucket.balance.crypto[assetCAIP19] += cryptoDiff // we're going backwards, so a send means we had more before
+          // we're going backwards, so a send means we had more before
+          bucket.balance.crypto[txAssetCAIP19].plus(value)
+          const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
+          // if we're computing a portfolio chart, we have to adjust eth (feeAsset) balances
+          // on each erc20 tx, but if we're just on an individual asset chart, we don't
+          if (assets.includes(feeAssetCAIP19)) {
+            // we're going backwards, so a send means we had more before
+            bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
+          }
           break
         }
         case TxType.Receive: {
-          const cryptoDiff = bn(value).toNumber()
-          bucket.balance.crypto[assetCAIP19] -= cryptoDiff // we're going backwards, so a receive means we had less before
+          // we're going backwards, so a receive means we had less before
+          bucket.balance.crypto[txAssetCAIP19].minus(value)
+          break
+        }
+        case TxType.Trade: {
+          // we get a corresponding send and receive for trades
+          // so we can safely ignore them
           break
         }
         default: {
-          console.warn(`calculateBucketPrices: unknown tx type ${type}`)
+          console.warn(`calculateBucketPrices: unknown tx type ${tx.type}`)
           break
         }
       }

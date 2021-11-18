@@ -151,7 +151,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
 
       {loading ? (
         <Stack>
-          {emptyAccounts.map(index => (
+          {emptyAccounts.map((row, index) => (
             <LoadingRow key={index} />
           ))}
         </Stack>

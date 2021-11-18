@@ -103,6 +103,7 @@ export const NativeLoad = () => {
               <Row
                 mx={-4}
                 py={2}
+                key={wallet.id}
                 alignItems='center'
                 justifyContent='space-between'
                 variant='btn-ghost'

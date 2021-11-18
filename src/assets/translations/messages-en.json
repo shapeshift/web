@@ -62,7 +62,7 @@
   },
   "earn": {
     "earn": "Earn",
-    "earnBody": "Earn interest by depositing your assets.",
+    "earnBody": "Earn interest on your crypto assets.",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -81,7 +81,7 @@
         "cta": "View Opportunities"
       },
       "stakingVaults": {
-        "body": "You have not deposited into a vault or staked your assets.",
+        "body": "Explore opportunities to earn interest on your crypto assets.",
         "cta": "View Opportunities"
       },
       "pools": {
@@ -132,9 +132,9 @@
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "tooltip": {
-      "rate": "This is the rate",
-      "minerFee": "This is the Miner Fee",
-      "shapeshiftFee": "This is the ShapeShift Fee"
+      "rate": "This is the expected rate for this trade pair.",
+      "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "shapeshiftFee": "ShapeShift adds no fees on trades 🎉"
     },
     "errors": {
       "title": "Something went wrong",

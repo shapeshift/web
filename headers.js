@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const csp = Object.entries({
-  'default-src': ["'none'"],
+  'default-src': ["'self'"],
   'frame-ancestors': ["'none'"],
   'connect-src': [
     "'self'",

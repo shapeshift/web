@@ -141,28 +141,6 @@ export const caip19FromTx = (tx: Tx): CAIP19 => {
   return assetCAIP19
 }
 
-export const buyAssetCAIP19FromTx = (tx: Tx, portfolioAssets: PortfolioAssets): string => {
-  const tradeDetails = tx.tradeDetails
-  if (!tradeDetails) return ''
-  const buyAssetSymbol = tradeDetails.buyAsset
-  const buyAsset: Asset | undefined = Object.values(portfolioAssets).find(
-    ({ symbol }) => symbol === buyAssetSymbol
-  )
-  if (!buyAsset) return ''
-  return buyAsset.caip19
-}
-
-export const sellAssetCAIP19FromTx = (tx: Tx, portfolioAssets: PortfolioAssets): string => {
-  const tradeDetails = tx.tradeDetails
-  if (!tradeDetails) return ''
-  const sellAssetSymbol = tradeDetails.sellAsset
-  const sellAsset: Asset | undefined = Object.values(portfolioAssets).find(
-    ({ symbol }) => symbol === sellAssetSymbol
-  )
-  if (!sellAsset) return ''
-  return sellAsset.caip19
-}
-
 const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start

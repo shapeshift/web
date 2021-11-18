@@ -78,7 +78,7 @@
     "dev:silent": "BROWSER=none react-scripts start",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
-    "test": "react-scripts test --coverage",
+    "test": "react-scripts test --coverage --watchAll=false",
     "clean": "rimraf node_modules",
     "test:dev": "react-scripts test --watch",
     "type-check": "tsc --project ./tsconfig.json --noEmit",
@@ -100,7 +100,7 @@
     ]
   },
   "jest": {
-    "collectCoverageFrom": null
+    "collectCoverageFrom": []
   },
   "browserslist": {
     "production": [

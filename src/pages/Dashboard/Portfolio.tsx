@@ -27,7 +27,7 @@ export const Portfolio = () => {
   const isLoaded = !loading
 
   return (
-    <Stack spacing={6} width='full' p={{ base: 0, lg: 4 }}>
+    <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>
       <Card variant='footer-stub'>
         <Card.Header
           display='flex'
@@ -65,41 +65,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <Stack spacing={0}>
-            <Grid
-              templateColumns={{
-                base: '1fr repeat(1, 1fr)',
-                md: '1fr repeat(2, 1fr)',
-                lg: '2fr repeat(3, 1fr) 150px'
-              }}
-              gap='1rem'
-              py={4}
-              pl={4}
-              pr={4}
-            >
-              <Text translation='dashboard.portfolio.asset' color='gray.500' />
-              <Text
-                translation='dashboard.portfolio.balance'
-                display={{ base: 'none', md: 'block' }}
-                color='gray.500'
-                textAlign='right'
-              />
-              <Text
-                translation='dashboard.portfolio.price'
-                color='gray.500'
-                textAlign='right'
-                display={{ base: 'none', lg: 'block' }}
-              />
-              <Text translation='dashboard.portfolio.value' textAlign='right' color='gray.500' />
-              <Text
-                translation='dashboard.portfolio.allocation'
-                color='gray.500'
-                textAlign='right'
-                display={{ base: 'none', lg: 'block' }}
-              />
-            </Grid>
-            <AccountList loading={loading} />
-          </Stack>
+          <AccountList loading={loading} />
         </Card.Body>
       </Card>
     </Stack>

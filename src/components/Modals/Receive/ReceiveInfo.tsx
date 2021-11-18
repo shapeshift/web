@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Circle,
+  Flex,
   HStack,
   LightMode,
   ModalBody,
@@ -20,9 +21,9 @@ import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ReduxState } from 'state/reducer'
@@ -108,24 +109,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
       <ModalCloseButton />
       {wallet && chainAdapter ? (
         <>
-          <ModalBody alignItems='center' justifyContent='center'>
-            <Card variant='inverted' width='auto' borderRadius='xl'>
-              <LightMode>
-                <Card.Body>
-                  <Skeleton isLoaded={!!receiveAddress}>
-                    <QRCode text={receiveAddress} />
-                  </Skeleton>
-                </Card.Body>
-
-                <Card.Footer textAlign='center' pt={0} fontSize='sm'>
-                  <Skeleton isLoaded={!!receiveAddress}>
-                    <RawText>{receiveAddress}</RawText>
-                  </Skeleton>
-                </Card.Footer>
-              </LightMode>
-            </Card>
-          </ModalBody>
-          <ModalFooter flexDir='column'>
+          <ModalBody alignItems='center' justifyContent='center' textAlign='center'>
             <Box>
               <SkeletonText
                 noOfLines={2}
@@ -144,7 +128,41 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                 />
               </SkeletonText>
             </Box>
-            <HStack my={6} spacing={8}>
+            <Card
+              variant='unstyled'
+              borderRadius='xl'
+              display='inline-block'
+              p={0}
+              mx='auto'
+              textAlign='center'
+              mt={8}
+              bg='white'
+            >
+              <LightMode>
+                <Card.Body display='inline-block' textAlign='center' p={6}>
+                  <Skeleton isLoaded={!!receiveAddress} mb={2}>
+                    <QRCode text={receiveAddress} />
+                  </Skeleton>
+                  <Skeleton isLoaded={!!receiveAddress}>
+                    <Flex
+                      color='gray.500'
+                      alignItems='center'
+                      justifyContent='center'
+                      fontSize='sm'
+                      onClick={copyHandler}
+                      _hover={{ color: 'blue.500' }}
+                      _active={{ color: 'blue.800' }}
+                      cursor='pointer'
+                    >
+                      <MiddleEllipsis maxWidth='250px'>{receiveAddress}</MiddleEllipsis>
+                    </Flex>
+                  </Skeleton>
+                </Card.Body>
+              </LightMode>
+            </Card>
+          </ModalBody>
+          <ModalFooter flexDir='column'>
+            <HStack pb={6} spacing={8}>
               <Button
                 onClick={copyHandler}
                 padding={2}

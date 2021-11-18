@@ -1,4 +1,3 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -12,6 +11,7 @@ import {
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps } from 'react-router-dom'
@@ -243,7 +243,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             onClick={switchAssets}
             aria-label='Switch'
             isRound
-            icon={<ArrowDownIcon />}
+            icon={<FaArrowsAltV />}
             isLoading={!quote || action || error ? true : false}
             _loading={{ color: 'blue.500' }}
           />

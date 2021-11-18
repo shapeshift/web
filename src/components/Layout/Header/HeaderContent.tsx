@@ -21,7 +21,7 @@ export const HeaderContent = ({ route }: { route: Route }) => {
   const navbarBg = useColorModeValue('white', 'gray.700')
   const navShadow = useColorModeValue('lg', 'dark-lg')
   return (
-    <Flex px={6} width='full' justifyContent='space-between'>
+    <Flex px={4} width='full' justifyContent='space-between'>
       <Flex width='full' h={16} alignItems={'center'} justifyContent={'space-between'}>
         <Box display='flex' alignItems='center' flex={2}>
           {pathTo(route).map((crumb, index, breadcrumbs) => (

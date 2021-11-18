@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/layout'
+import { Grid, Stack } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { LoadingRow } from 'components/AccountRow/LoadingRow'
 import { Card } from 'components/Card/Card'
+import { Text } from 'components/Text'
 import { RawText } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
@@ -86,13 +87,49 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     )
   }, [assets, balances, marketData, totalBalance])
 
-  return loading ? (
+  return (
     <Stack>
-      {emptyAccounts.map(index => (
-        <LoadingRow key={index} />
-      ))}
+      <Grid
+        templateColumns={{
+          base: '1fr repeat(1, 1fr)',
+          md: '1fr repeat(2, 1fr)',
+          lg: '2fr repeat(3, 1fr) 150px'
+        }}
+        gap='1rem'
+        py={4}
+        pl={4}
+        pr={4}
+      >
+        <Text translation='dashboard.portfolio.asset' color='gray.500' />
+        <Text
+          translation='dashboard.portfolio.balance'
+          display={{ base: 'none', md: 'block' }}
+          color='gray.500'
+          textAlign='right'
+        />
+        <Text
+          translation='dashboard.portfolio.price'
+          color='gray.500'
+          textAlign='right'
+          display={{ base: 'none', lg: 'block' }}
+        />
+        <Text translation='dashboard.portfolio.value' textAlign='right' color='gray.500' />
+        <Text
+          translation='dashboard.portfolio.allocation'
+          color='gray.500'
+          textAlign='right'
+          display={{ base: 'none', lg: 'block' }}
+        />
+      </Grid>
+      {loading ? (
+        <Stack>
+          {emptyAccounts.map(index => (
+            <LoadingRow key={index} />
+          ))}
+        </Stack>
+      ) : (
+        accountRows
+      )}
     </Stack>
-  ) : (
-    accountRows
   )
 }

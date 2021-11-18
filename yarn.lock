@@ -6021,6 +6021,11 @@ acorn@^8.2.4:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.5.0.tgz#4512ccb99b3698c752591e9bb4472e38ad43cee2"
   integrity sha512-yXbYeFy+jUuYd3/CDcg2NkIYE991XYX/bje7LmjJigUciaeO1JR4XxXgCIV1/Zc/dRuFEyw1L0pbA+qynJkW5Q==
 
+add@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/add/-/add-2.0.6.tgz#248f0a9f6e5a528ef2295dbeec30532130ae2235"
+  integrity sha1-JI8Kn25aUo7yKV2+7DBTITCuIjU=
+
 address@1.1.2, address@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/address/-/address-1.1.2.tgz#bf1116c9c758c51b7a933d296b72c221ed9428b6"
@@ -16852,6 +16857,11 @@ q@^1.1.2, q@^1.5.1:
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
+qr-image-color@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/qr-image-color/-/qr-image-color-3.2.1.tgz#9d40e31edd85e71aef4ed6f13d2d57fff0391483"
+  integrity sha512-3KcE4rGaYy9I6loQQlrHugNWIlOk31obcq11hmGQKhPIwCPs78xm0vXBh5dAsAwhDcxRpiMx5TzhW1BDtvbwzQ==
+
 qr-image@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/qr-image/-/qr-image-3.2.0.tgz#9fa8295beae50c4a149cf9f909a1db464a8672e8"
@@ -17234,6 +17244,13 @@ react-popper@^2.2.4:
   dependencies:
     react-fast-compare "^3.0.1"
     warning "^4.0.2"
+
+react-qr-image@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-qr-image/-/react-qr-image-1.0.2.tgz#fd4383b143a235b22472968b85e9fa9a2bee510e"
+  integrity sha512-MTag9VAsDxvimx1xUAJ2qsM9B7TAFplNOuDbkp1Eu3GyYJ5WOC6imVy6EP3usse/66MjfA2mYsk9JuF/x/EBww==
+  dependencies:
+    qr-image-color "^3.2.1"
 
 react-qr-reader@^2.2.1:
   version "2.2.1"
@@ -21495,6 +21512,11 @@ yargs@^17.0.0:
     string-width "^4.2.0"
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
+
+yarn@^1.22.17:
+  version "1.22.17"
+  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.22.17.tgz#bf910747d22497b573131f7341c0e1d15c74036c"
+  integrity sha512-H0p241BXaH0UN9IeH//RT82tl5PfNraVpSpEoW+ET7lmopNC61eZ+A+IDvU8FM6Go5vx162SncDL8J1ZjRBriQ==
 
 yauzl@^2.10.0:
   version "2.10.0"

@@ -6,6 +6,7 @@ const csp = Object.entries({
   'connect-src': [
     "'self'",
     'https://api.0x.org',
+    'https://gas.api.0x.org',
     'https://api.coingecko.com',
     'https://api.yearn.finance',
     process.env.REACT_APP_ETHEREUM_NODE_URL,

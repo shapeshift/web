@@ -98,9 +98,10 @@ export const NativeLoad = () => {
       </ModalHeader>
       <ModalBody>
         <VStack mx={-4} spacing={0}>
-          {wallets.map(wallet => {
+          {wallets.map((wallet, i) => {
             return (
               <Row
+                key={i}
                 mx={-4}
                 py={2}
                 key={wallet.id}

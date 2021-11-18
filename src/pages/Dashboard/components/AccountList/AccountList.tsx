@@ -1,6 +1,7 @@
 import { Flex, Grid, Stack } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { NetworkTypes } from '@shapeshiftoss/types'
+import range from 'lodash/range'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,17 +19,51 @@ import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
 import { ReduxState } from 'state/reducer'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
 
+const AccountHeader = () => (
+  <Grid
+    templateColumns={{
+      base: '1fr repeat(1, 1fr)',
+      md: '1fr repeat(2, 1fr)',
+      lg: '2fr repeat(3, 1fr) 150px'
+    }}
+    gap='1rem'
+    py={4}
+    pl={4}
+    pr={4}
+  >
+    <Text translation='dashboard.portfolio.asset' color='gray.500' />
+    <Text
+      translation='dashboard.portfolio.balance'
+      display={{ base: 'none', md: 'block' }}
+      color='gray.500'
+      textAlign='right'
+    />
+    <Text
+      translation='dashboard.portfolio.price'
+      color='gray.500'
+      textAlign='right'
+      display={{ base: 'none', lg: 'block' }}
+    />
+    <Text translation='dashboard.portfolio.value' textAlign='right' color='gray.500' />
+    <Text
+      translation='dashboard.portfolio.allocation'
+      color='gray.500'
+      textAlign='right'
+      display={{ base: 'none', lg: 'block' }}
+    />
+  </Grid>
+)
+
 export const AccountList = ({ loading }: { loading?: boolean }) => {
   const dispatch = useDispatch()
-  const assets = useSelector((state: ReduxState) => state.assets)
-  const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const { balances, totalBalance } = usePortfolio()
   const { receive } = useModal()
   const {
     state: { isConnected },
     dispatch: walletDispatch
   } = useWallet()
-  const emptyAccounts = new Array(5).fill(null)
+  const assets = useSelector((state: ReduxState) => state.assets)
+  const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
+  const { balances, totalBalance } = usePortfolio()
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
@@ -74,6 +109,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
 
     return (
       <>
+        <AccountHeader />
         {Object.keys(balances)
           .sort(sortByFiat({ balances, assets, marketData }))
           .filter(key => bnOrZero(balances[key].balance).gt(0))
@@ -112,52 +148,15 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     walletDispatch
   ])
 
-  return (
-    <Stack>
-      {accounts.length > 0 && (
-        <Grid
-          templateColumns={{
-            base: '1fr repeat(1, 1fr)',
-            md: '1fr repeat(2, 1fr)',
-            lg: '2fr repeat(3, 1fr) 150px'
-          }}
-          gap='1rem'
-          py={4}
-          pl={4}
-          pr={4}
-        >
-          <Text translation='dashboard.portfolio.asset' color='gray.500' />
-          <Text
-            translation='dashboard.portfolio.balance'
-            display={{ base: 'none', md: 'block' }}
-            color='gray.500'
-            textAlign='right'
-          />
-          <Text
-            translation='dashboard.portfolio.price'
-            color='gray.500'
-            textAlign='right'
-            display={{ base: 'none', lg: 'block' }}
-          />
-          <Text translation='dashboard.portfolio.value' textAlign='right' color='gray.500' />
-          <Text
-            translation='dashboard.portfolio.allocation'
-            color='gray.500'
-            textAlign='right'
-            display={{ base: 'none', lg: 'block' }}
-          />
-        </Grid>
-      )}
+  const loadingRows = useMemo(() => {
+    return (
+      <Stack>
+        {range(5).map(index => (
+          <LoadingRow key={index} />
+        ))}
+      </Stack>
+    )
+  }, [])
 
-      {loading ? (
-        <Stack>
-          {emptyAccounts.map((row, index) => (
-            <LoadingRow key={index} />
-          ))}
-        </Stack>
-      ) : (
-        accountRows
-      )}
-    </Stack>
-  )
+  return <Stack>{loading ? loadingRows : accountRows}</Stack>
 }

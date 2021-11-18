@@ -70,6 +70,7 @@ if (typeof window !== 'undefined') {
           console.info('metamaskInpageProvider: MM stub was already injected')
           return
         }
+        // This sets window.ethereum
         initProvider({
           connectionStream: new PostMessageStream({
             name: 'inpage',

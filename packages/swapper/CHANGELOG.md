@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.9](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.8...@shapeshiftoss/swapper-v1.11.9) (2021-11-18)
+
+
+### Bug Fixes
+
+* fix send max for eth bug ([#243](https://github.com/shapeshift/lib/issues/243)) ([e18bf38](https://github.com/shapeshift/lib/commit/e18bf38f515e0754720b662654d3e6186dc97f71))
+
 # [@shapeshiftoss/swapper-v1.11.8](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.7...@shapeshiftoss/swapper-v1.11.8) (2021-11-17)
 
 # [@shapeshiftoss/swapper-v1.11.7](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.6...@shapeshiftoss/swapper-v1.11.7) (2021-11-17)

@@ -1,5 +1,6 @@
 import { Stack } from '@chakra-ui/layout'
 import { NetworkTypes } from '@shapeshiftoss/types'
+import range from 'lodash/range'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,7 +17,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   const assets = useSelector((state: ReduxState) => state.assets)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
   const { balances, totalBalance } = usePortfolio()
-  const emptyAccounts = new Array(5).fill(null)
+  const emptyAccounts = range(5)
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
@@ -60,7 +61,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
 
   return loading ? (
     <Stack>
-      {emptyAccounts.map(index => (
+      {emptyAccounts.map((_, index) => (
         <LoadingRow key={index} />
       ))}
     </Stack>

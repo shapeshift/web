@@ -10,6 +10,7 @@ import {
 } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
+import { sortedIndexBy } from 'lodash'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
@@ -38,11 +39,13 @@ type PriceAtBlockTimeArgs = {
 type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
 
 export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData }): number => {
-  for (let i = 0; i < assetPriceHistoryData.length; i++) {
-    if (time > Number(assetPriceHistoryData[i].date)) continue
-    return assetPriceHistoryData[i].price
-  }
-  return assetPriceHistoryData[assetPriceHistoryData.length - 1].price
+  const { length } = assetPriceHistoryData
+  const i = sortedIndexBy(assetPriceHistoryData, { date: String(time), price: 0 }, ({ date }) =>
+    Number(date)
+  )
+  if (i === 0) return assetPriceHistoryData[i].price
+  if (i >= length) return assetPriceHistoryData[length - 1].price
+  return assetPriceHistoryData[i].price
 }
 
 type CryptoBalance = {

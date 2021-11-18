@@ -8,7 +8,7 @@ module.exports = {
   devServer: configFunction => {
     return (proxy, allowedHost) => {
       const config = configFunction(proxy, allowedHost)
-      config.headers = require('./headers')
+      config.headers = headers
       return config
     }
   }

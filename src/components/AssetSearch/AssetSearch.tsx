@@ -14,11 +14,14 @@ import { selectAndSortAssets } from './selectors/selectAndSortAssets/selectAndSo
 
 type AssetSearchProps = {
   onClick: (asset: any) => void
+  filterBy?: (asset: Asset[]) => Asset[]
 }
 
-export const AssetSearch = ({ onClick }: AssetSearchProps) => {
+export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const dispatch = useDispatch()
-  const assets = useSelector(selectAndSortAssets)
+  const assets = filterBy
+    ? filterBy(useSelector(selectAndSortAssets))
+    : useSelector(selectAndSortAssets)
   const [marketCapLoaded, marketCapLoading] = useSelector(marketCapLoadingStatus)
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({

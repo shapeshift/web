@@ -124,6 +124,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         amount: maxSendAmount
       })
     } catch (err) {
+      console.error(err)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     } finally {
       setIsSendMaxLoading(false)

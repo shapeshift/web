@@ -6,12 +6,15 @@ import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 import { StakingCard } from './StakingCard'
 
 export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
-  const vaults = Object.values(balances?.vaults?.vaults || {})
+  const activeVaults = Object.values(balances?.vaults?.vaults || {}).filter(vault =>
+    bnOrZero(vault?.balance).gt(0)
+  )
 
   if (balances.vaults.loading) return null
 
@@ -40,11 +43,11 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {vaults.map(vault => {
+        {activeVaults.map(vault => {
           return <StakingCard isLoaded={true} key={vault.vaultAddress} {...vault} />
         })}
       </SimpleGrid>
-      {vaults.length === 0 && (
+      {activeVaults.length === 0 && (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>

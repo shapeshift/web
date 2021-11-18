@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -43,7 +43,8 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     if (accounts.length === 0) {
       const handleWalletModalOpen = () =>
         walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      const handleReceiveClick = () => (isConnected ? receive.open({}) : handleWalletModalOpen())
+      const handleReceiveClick = () =>
+        isConnected ? receive.open({} as Asset) : handleWalletModalOpen()
       return (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>

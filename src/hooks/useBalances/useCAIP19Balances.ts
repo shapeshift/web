@@ -1,5 +1,9 @@
 import { caip19 } from '@shapeshiftoss/caip'
-import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import {
+  convertXpubVersion,
+  toRootDerivationPath,
+  utxoAccountParams
+} from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
@@ -71,10 +75,8 @@ export const useCAIP19Balances = () => {
             scriptType
           }
         ])
-        if (!pubkeys || !pubkeys[0]) {
-          throw new Error('Error getting public key')
-        }
-        addressOrXpub = pubkeys[0].xpub
+        if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
+        addressOrXpub = convertXpubVersion(pubkeys[0].xpub, accountType)
       } else {
         throw new Error('not implemented')
       }

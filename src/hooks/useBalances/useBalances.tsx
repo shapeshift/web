@@ -1,4 +1,8 @@
-import { toRootDerivationPath, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import {
+  convertXpubVersion,
+  toRootDerivationPath,
+  utxoAccountParams
+} from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
@@ -57,10 +61,8 @@ export const useBalances = (): UseBalancesReturnType => {
               scriptType
             }
           ])
-          if (!pubkeys || !pubkeys[0]) {
-            continue
-          }
-          addressOrXpub = pubkeys[0].xpub
+          if (!pubkeys?.[0]?.xpub) continue
+          addressOrXpub = convertXpubVersion(pubkeys[0].xpub, accountType)
         } else {
           continue
         }

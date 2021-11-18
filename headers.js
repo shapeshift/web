@@ -43,7 +43,7 @@ const csp = Object.entries({
 
 const headers = {
   'Content-Security-Policy': `${csp}`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
-  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
   'Permissions-Policy': 'document-domain=()',
   'Referrer-Policy': 'no-referrer',
   'X-Content-Type-Options': 'nosniff',

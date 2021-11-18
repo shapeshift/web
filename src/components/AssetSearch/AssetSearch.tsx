@@ -9,6 +9,7 @@ import { fetchMarketCaps } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { marketCapLoadingStatus } from './selectors/marketCapLoadingStatus/marketCapLoadingStatus'
 import { selectAndSortAssets } from './selectors/selectAndSortAssets/selectAndSortAssets'
 
 type AssetSearchProps = {
@@ -18,6 +19,7 @@ type AssetSearchProps = {
 export const AssetSearch = ({ onClick }: AssetSearchProps) => {
   const dispatch = useDispatch()
   const assets = useSelector(selectAndSortAssets)
+  const [marketCapLoaded, marketCapLoading] = useSelector(marketCapLoadingStatus)
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -30,9 +32,9 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
   useEffect(() => {
-    Object.keys(assets).length < 100 && dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
-    Object.keys(assets).length < 100 && dispatch(fetchMarketCaps())
-  }, [assets, dispatch])
+    !assets.length && dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+    !marketCapLoaded && !marketCapLoading && dispatch(fetchMarketCaps())
+  }, [assets, dispatch, marketCapLoaded, marketCapLoading])
 
   useEffect(() => {
     setFilteredAssets(searching ? filterAssetsBySearchTerm(searchString, assets) : assets)

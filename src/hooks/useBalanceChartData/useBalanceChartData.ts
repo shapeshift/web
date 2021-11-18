@@ -187,6 +187,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const assetPriceHistoryData = priceHistoryData[caip19]
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
     const portfolioAsset = portfolioAssets[caip19]
+    if (!portfolioAsset) return acc
     const { precision } = portfolioAsset
     const assetFiatBalance = bn(assetCryptoBalance)
       .div(bn(10).exponentiatedBy(precision))

@@ -248,19 +248,19 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
       switch (tx.type) {
         case TxType.Send: {
           // we're going backwards, so a send means we had more before
-          bucket.balance.crypto[txAssetCAIP19].plus(value)
+          bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
           const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
           // if we're computing a portfolio chart, we have to adjust eth (feeAsset) balances
           // on each erc20 tx, but if we're just on an individual asset chart, we don't
           if (assets.includes(feeAssetCAIP19)) {
             // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
+            bucket.balance.crypto[feeAssetCAIP19] = bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
           }
           break
         }
         case TxType.Receive: {
           // we're going backwards, so a receive means we had less before
-          bucket.balance.crypto[txAssetCAIP19].minus(value)
+          bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
           break
         }
         case TxType.Trade: {

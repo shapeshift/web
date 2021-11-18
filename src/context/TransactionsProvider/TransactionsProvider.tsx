@@ -41,7 +41,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
             await adapter.subscribeTxs(
-              { wallet, ...accountParams },
+              { wallet, accountType, ...accountParams },
               msg => {
                 dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
               },

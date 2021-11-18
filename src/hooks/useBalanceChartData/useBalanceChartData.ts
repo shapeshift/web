@@ -254,7 +254,8 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
           // on each erc20 tx, but if we're just on an individual asset chart, we don't
           if (assets.includes(feeAssetCAIP19)) {
             // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[feeAssetCAIP19] = bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
+            bucket.balance.crypto[feeAssetCAIP19] =
+              bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
           }
           break
         }

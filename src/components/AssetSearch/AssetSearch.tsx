@@ -19,12 +19,8 @@ type AssetSearchProps = {
 
 export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const dispatch = useDispatch()
-  const assets = filterBy
-    ? useMemo(
-        () => filterBy(useSelector(selectAndSortAssets)),
-        [selectAndSortAssets, filterBy, useSelector]
-      )
-    : useSelector(selectAndSortAssets)
+  const assets = useSelector(selectAndSortAssets)
+  const currentAssets = filterBy ? useMemo(() => filterBy(assets), [assets, filterBy]) : assets
   const [marketCapLoaded, marketCapLoading] = useSelector(marketCapLoadingStatus)
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
@@ -38,12 +34,12 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
   useEffect(() => {
-    !assets.length && dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+    !currentAssets.length && dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
     !marketCapLoaded && !marketCapLoading && dispatch(fetchMarketCaps())
-  }, [assets, dispatch, marketCapLoaded, marketCapLoading])
+  }, [currentAssets, dispatch, marketCapLoaded, marketCapLoading])
 
   useEffect(() => {
-    setFilteredAssets(searching ? filterAssetsBySearchTerm(searchString, assets) : assets)
+    setFilteredAssets(searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])
 
@@ -64,7 +60,7 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
         </InputGroup>
       </Box>
       <Box flex={1}>
-        <AssetList mb='10' assets={searching ? filteredAssets : assets} handleClick={onClick} />
+        <AssetList mb='10' currentAssets={searching ? filteredAssets : currentAssets} handleClick={onClick} />
       </Box>
     </>
   )

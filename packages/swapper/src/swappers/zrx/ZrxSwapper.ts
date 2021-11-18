@@ -76,8 +76,8 @@ export class ZrxSwapper implements Swapper {
 
   getDefaultPair(): Pick<Asset, 'chain' | 'symbol' | 'name'>[] {
     const ETH = { name: 'Ethereum', chain: ChainTypes.Ethereum, symbol: 'ETH' }
-    const USDC = { name: 'USD Coin', chain: ChainTypes.Ethereum, symbol: 'USDC' }
-    return [ETH, USDC]
+    const FOX = { name: 'Fox', chain: ChainTypes.Ethereum, symbol: 'FOX' }
+    return [ETH, FOX]
   }
 
   async executeQuote(args: ExecQuoteInput<ChainTypes, SwapperType>): Promise<ExecQuoteOutput> {

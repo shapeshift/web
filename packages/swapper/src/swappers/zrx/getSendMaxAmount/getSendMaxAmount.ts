@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 
 import { SwapError } from '../../../api'
 import { bnOrZero } from '../utils/bignumber'
+import { ETH_FEE_ESTIMATE_PADDING } from '../utils/constants'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
 export async function getSendMaxAmount(
@@ -21,6 +22,11 @@ export async function getSendMaxAmount(
   const ethAddress = await adapter.getAddress({ wallet, bip32Params })
 
   const account = await adapter.getAccount(ethAddress)
+
+  if (!quote.sellAsset) {
+    throw new SwapError('quote.sellAsset is required')
+  }
+
   const tokenId = quote.sellAsset?.tokenId
 
   let balance: string | undefined
@@ -48,7 +54,7 @@ export async function getSendMaxAmount(
 
   const feeEstimates = await adapter.getFeeData({
     to: quote.depositAddress,
-    value: balance,
+    value: bnOrZero(quote.sellAmount).toString(),
     chainSpecific: {
       from: ethAddress,
       contractData: quote.txData
@@ -56,9 +62,14 @@ export async function getSendMaxAmount(
   })
 
   const estimatedFee = feeEstimates[feeEstimateKey].txFee
-  const sendMaxAmount = new BigNumber(balance).minus(estimatedFee)
 
-  if (sendMaxAmount.lt(0)) {
+  // (ryankk) We need to pad the fee for ETH max sends because the fee estimate is based off
+  // of a minimum quote value (quote.sellAmount) and not the users full ETH balance.
+  const paddedFee = new BigNumber(estimatedFee).times(ETH_FEE_ESTIMATE_PADDING)
+  const sendMaxAmount = new BigNumber(balance).minus(paddedFee)
+
+  // gte covers if sendMaxAmount is NaN
+  if (!sendMaxAmount.gte(0)) {
     throw new SwapError('ETH balance is less than estimated fee')
   }
 

@@ -12,5 +12,6 @@ export const MAX_ZRX_TRADE = '100000000000000000000000000'
 export const DEFAULT_SOURCE = [{ name: '0x', proportion: '1' }]
 export const DEFAULT_SLIPPAGE = '0.03' // 3%
 export const MAX_SLIPPAGE = '0.3' // 30%
+export const ETH_FEE_ESTIMATE_PADDING = '1.2' // Padding the fee estimate by 20% to avoid trade errors.
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const APPROVAL_BUY_AMOUNT = '100000000000000000' // A valid buy amount - 0.1 ETH

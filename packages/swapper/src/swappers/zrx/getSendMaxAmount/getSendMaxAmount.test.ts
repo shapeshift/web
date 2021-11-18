@@ -2,9 +2,14 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 
+import { ETH_FEE_ESTIMATE_PADDING } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { chainAdapterMockFuncs, setupZrxDeps } from '../utils/test-data/setupZrxDeps'
 import { getSendMaxAmount } from './getSendMaxAmount'
+
+const createPaddedFee = (value: string) => {
+  return new BigNumber(value).times(ETH_FEE_ESTIMATE_PADDING).toString()
+}
 
 describe('getSendMaxAmount', () => {
   const { web3Instance, adapterManager } = setupZrxDeps()
@@ -116,6 +121,7 @@ describe('getSendMaxAmount', () => {
   it('should return max ETH balance in wei (balance minus txFee)', async () => {
     const ethBalance = '1000'
     const txFee = '100'
+    const paddedFee = createPaddedFee(txFee)
     const args = {
       quote: { ...quote, sellAsset: { ...quote.sellAsset, tokenId: undefined }, txData: 'txData' },
       wallet,
@@ -132,13 +138,14 @@ describe('getSendMaxAmount', () => {
     })
 
     expect(await getSendMaxAmount(deps, args)).toEqual(
-      new BigNumber(ethBalance).minus(txFee).toString()
+      new BigNumber(ethBalance).minus(paddedFee).toString()
     )
   })
 
   it('should return max ETH balance in wei (balance minus txFee) with correct fee data key', async () => {
     const ethBalance = '1000'
     const txFee = '500'
+    const paddedFee = createPaddedFee(txFee)
     const args = {
       quote: { ...quote, sellAsset: { ...quote.sellAsset, tokenId: undefined }, txData: 'txData' },
       wallet,
@@ -156,7 +163,7 @@ describe('getSendMaxAmount', () => {
     })
 
     expect(await getSendMaxAmount(deps, args)).toEqual(
-      new BigNumber(ethBalance).minus(txFee).toString()
+      new BigNumber(ethBalance).minus(paddedFee).toString()
     )
   })
 })

@@ -14,10 +14,17 @@ const csp = Object.entries({
     process.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
   ],
-  'frame-src': ['https://widget.portis.io'],
+  'frame-src': [
+    'https://fwd.metamask.io/',
+    'https://widget.portis.io'
+  ],
   'img-src': [
     "'self'",
+    'data:',
+    'blob:',
+    'filesystem:',
     'https://assets.coincap.io/assets/icons/',
+    'https://static.coincap.io/assets/icons/',
     'https://assets.coingecko.com/coins/images/',
     'https://rawcdn.githack.com/yearn/yearn-assets/'
   ],
@@ -27,7 +34,9 @@ const csp = Object.entries({
     "'unsafe-inline'", //TODO: The only inline code we need is the stub injected by Metamask. We can fix this by including the stub in our own bundle.
     "'report-sample'"
   ],
-  'style-src': ["'self'", "'unsafe-inline'", "'report-sample'"]
+  'style-src': ["'self'", "'unsafe-inline'", "'report-sample'"],
+  'base-uri': ["'none'"],
+  'object-src': ["'none'"]
 })
   .map(([k, v]) => `${[k, ...v].join(' ')}`)
   .join('; ')

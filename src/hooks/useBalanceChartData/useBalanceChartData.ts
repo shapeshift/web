@@ -136,9 +136,9 @@ export const caip19FromTx = (tx: Tx): CAIP19 => {
   const contractType =
     assetCAIP2 === ethereumCAIP2 && tokenId.startsWith('0x') ? ContractTypes.ERC20 : undefined
 
-  const extra = contractType ? { contractType, tokenId } : undefined
+  const extra = contractType ? { contractType, tokenId: tokenId.toLowerCase() } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  return assetCAIP19.toLowerCase()
+  return assetCAIP19
 }
 
 export const buyAssetCAIP19FromTx = (tx: Tx, portfolioAssets: PortfolioAssets): string => {

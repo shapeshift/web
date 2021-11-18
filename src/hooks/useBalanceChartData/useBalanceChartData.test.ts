@@ -49,11 +49,11 @@ const sendERC20Tx: Tx = {
     value: '1625777000000000'
   },
   status: TxStatus.Confirmed,
-  asset: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
+  asset: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   value: '4448382624806275089213',
   chainSpecific: {
     token: {
-      contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
+      contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
       contractType: ContractTypes.ERC20,
       name: 'FOX',
       precision: 18,
@@ -152,8 +152,8 @@ describe('caip2FromTx', () => {
 })
 
 describe('caip19FromTx', () => {
-  fit('can get correct caip19 from send tx', () => {
+  it('can get correct caip19 from send tx', () => {
     const sendAssetCaip19 = caip19FromTx(sendERC20Tx)
-    expect(sendAssetCaip19).toEqual('eip155:1/erc20:0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d')
+    expect(sendAssetCaip19).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
   })
 })

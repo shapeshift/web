@@ -1,8 +1,7 @@
 require('dotenv').config()
 
-const csp = Object.entries({
+const cspMeta = Object.entries({
   'default-src': ["'self'"],
-  'frame-ancestors': ["'none'"],
   'connect-src': [
     "'self'",
     'https://api.0x.org',
@@ -42,7 +41,7 @@ const csp = Object.entries({
   .join('; ')
 
 const headers = {
-  'Content-Security-Policy': `${csp}`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
+  'Content-Security-Policy': `${cspMeta}; frame-ancestors: 'none'`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Permissions-Policy': 'document-domain=()',
   'Referrer-Policy': 'no-referrer',
@@ -50,7 +49,10 @@ const headers = {
   'X-Frame-Options': 'DENY'
 }
 
-module.exports = headers
+module.exports = {
+  headers,
+  cspMeta
+}
 if (module.parent) return
 
 require('fs').writeFileSync(

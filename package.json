@@ -30,7 +30,6 @@
     "@visx/responsive": "^1.10.1",
     "@visx/shape": "^1.17.1",
     "@visx/tooltip": "^1.17.1",
-    "add": "^2.0.6",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
@@ -68,8 +67,7 @@
     "redux-persist": "^6.0.0",
     "scrypt-js": "^3.0.1",
     "web-vitals": "^2.1.0",
-    "web3": "^1.6.0",
-    "yarn": "^1.22.17"
+    "web3": "^1.6.0"
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",

@@ -353,7 +353,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.withdrawFrom' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Year Finance</Row.Value>
+                <Row.Value fontWeight='bold'>Yearn Finance</Row.Value>
               </Row>
               <Row>
                 <Row.Label>

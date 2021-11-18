@@ -20,7 +20,10 @@ type AssetSearchProps = {
 export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
   const dispatch = useDispatch()
   const assets = filterBy
-    ? filterBy(useSelector(selectAndSortAssets))
+    ? useMemo(
+        () => filterBy(useSelector(selectAndSortAssets)),
+        [selectAndSortAssets, filterBy, useSelector]
+      )
     : useSelector(selectAndSortAssets)
   const [marketCapLoaded, marketCapLoading] = useSelector(marketCapLoadingStatus)
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])

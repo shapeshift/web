@@ -40,6 +40,7 @@ type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
 
 export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData }): number => {
   const { length } = assetPriceHistoryData
+  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
   const i = sortedIndexBy(assetPriceHistoryData, { date: String(time), price: 0 }, ({ date }) =>
     Number(date)
   )

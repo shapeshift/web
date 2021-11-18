@@ -21,14 +21,19 @@ const csp = Object.entries({
     'https://assets.coingecko.com/coins/images/',
     'https://rawcdn.githack.com/yearn/yearn-assets/'
   ],
-  'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'", "'report-sample'"],
+  'script-src': [
+    "'self'",
+    "'unsafe-eval'",  //TODO: There are still a couple of libraries we depend on that use eval; notably amqp-ts and google-protobuf.
+    "'unsafe-inline'", //TODO: The only inline code we need is the stub injected by Metamask. We can fix this by including the stub in our own bundle.
+    "'report-sample'"
+  ],
   'style-src': ["'self'", "'unsafe-inline'", "'report-sample'"]
 })
   .map(([k, v]) => `${[k, ...v].join(' ')}`)
   .join('; ')
 
 const headers = {
-  'Content-Security-Policy-Report-Only': `${csp}; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
+  'Content-Security-Policy-Report-Only': `${csp}`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Permissions-Policy': 'document-domain=()',
   'Referrer-Policy': 'no-referrer',

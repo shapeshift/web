@@ -69,7 +69,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       const transactionId = result?.txid
       if (transactionId) {
         setTxid(transactionId)
-        reset()
       }
     } catch (err) {
       console.error(`TradeConfirm:onSubmit - ${err}`)
@@ -85,6 +84,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     }
   }
 
+  const handleBack = () => {
+    if (txid) {
+      reset()
+    }
+    history.push('/trade/input')
+  }
+
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
@@ -97,7 +103,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 variant='ghost'
                 fontSize='xl'
                 isRound
-                onClick={() => history.push('/trade/input')}
+                onClick={handleBack}
               />
               <Card.Heading textAlign='center'>
                 <Text translation={txid ? 'trade.complete' : 'trade.confirmTrade'} />

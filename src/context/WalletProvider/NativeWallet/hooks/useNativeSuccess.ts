@@ -17,7 +17,8 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
       const adapter = state.adapters?.get(KeyManager.Native)!
       try {
         await new Promise(resolve => setTimeout(resolve, 250))
-        await vault.save()
+        await Promise.all([navigator.storage?.persist?.(), vault.save()])
+
         const deviceId = vault.id
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
         const mnemonic = (await vault.get(

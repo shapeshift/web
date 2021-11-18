@@ -372,13 +372,13 @@
       },
       "start": {
         "header": "ShapeShift Wallet",
-        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet",
+        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet.",
         "import": "Import a wallet",
         "create": "Create a new wallet",
         "load": "Saved wallets"
       },
       "success": {
-        "encryptingWallet": "Encrypting your wallet...",
+        "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
         "success": "Your wallet has been connected",
         "error": "There was an error connecting your wallet"

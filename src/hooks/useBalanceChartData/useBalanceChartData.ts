@@ -154,7 +154,9 @@ const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
     if (txDayjs.isBefore(start)) return acc
     const { unit } = meta
     // the number of time units from start of chart to this tx
-    const bucketIndex = txDayjs.diff(start, unit as dayjs.OpUnitType)
+    let bucketIndex = txDayjs.diff(start, unit as dayjs.OpUnitType)
+    // maybe a fix for pending tx coming in after charts were last rendered
+    if (bucketIndex >= buckets.length) bucketIndex = buckets.length - 1
     // add to the correct bucket
     acc[bucketIndex].txs.push(tx)
     return acc

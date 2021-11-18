@@ -17,7 +17,6 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   const assets = useSelector((state: ReduxState) => state.assets)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
   const { balances, totalBalance } = usePortfolio()
-  const emptyAccounts = range(5)
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
@@ -59,13 +58,15 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     )
   }, [assets, balances, marketData, totalBalance])
 
-  return loading ? (
-    <Stack>
-      {emptyAccounts.map((_, index) => (
-        <LoadingRow key={index} />
-      ))}
-    </Stack>
-  ) : (
-    accountRows
+  const loadingRows = useMemo(
+    () => (
+      <Stack>
+        {range(5).map((_, index) => (
+          <LoadingRow key={index} />
+        ))}
+      </Stack>
+    ),
+    []
   )
+  return loading ? loadingRows : accountRows
 }

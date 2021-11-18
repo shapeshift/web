@@ -1,10 +1,11 @@
-import { CheckIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, CheckIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Circle,
   Flex,
   HStack,
+  IconButton,
   LightMode,
   ModalBody,
   ModalCloseButton,
@@ -20,6 +21,7 @@ import { Asset } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -27,6 +29,8 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ReduxState } from 'state/reducer'
+
+import { ReceiveRoutes } from './Receive'
 
 type ReceivePropsType = {
   asset: Asset
@@ -38,6 +42,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
+  const history = useHistory()
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
@@ -103,6 +108,18 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
 
   return (
     <>
+      <IconButton
+        variant='ghost'
+        icon={<ArrowBackIcon />}
+        aria-label={translate('common.back')}
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={() => history.push(ReceiveRoutes.Select)}
+      />
       <ModalHeader textAlign='center'>
         {translate('modals.receive.receiveAsset', { asset: name })}
       </ModalHeader>

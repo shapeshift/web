@@ -1,4 +1,4 @@
-import { Box, Grid, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'

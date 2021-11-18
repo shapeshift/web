@@ -38,7 +38,11 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
-      "allocation": "Allocation"
+      "allocation": "Allocation",
+      "empty": {
+        "title": "Cricket noises...",
+        "cta": "Send yourself some crypto!"
+      }
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"

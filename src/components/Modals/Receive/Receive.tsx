@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 import { ReceiveRouter } from './ReceiveRouter'
 
@@ -13,7 +13,7 @@ export enum ReceiveRoutes {
 export const entries = [ReceiveRoutes.Info, ReceiveRoutes.Select]
 
 type ReceivePropsType = {
-  asset: AssetMarketData
+  asset?: Asset
 }
 
 const Receive = ({ asset }: ReceivePropsType) => {

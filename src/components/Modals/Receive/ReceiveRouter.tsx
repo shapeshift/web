@@ -3,13 +3,12 @@ import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
 import { SelectAssets } from 'components/SelectAssets/SelectAssets'
-import { AssetMarketData } from 'hooks/useAsset/useAsset'
 
 import { ReceiveRoutes } from './Receive'
 import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {
-  asset?: AssetMarketData
+  asset?: Asset
 }
 export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>()

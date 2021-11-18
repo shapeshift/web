@@ -33,7 +33,7 @@ const csp = Object.entries({
   .join('; ')
 
 const headers = {
-  'Content-Security-Policy-Report-Only': `${csp}`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
+  'Content-Security-Policy': `${csp}`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Permissions-Policy': 'document-domain=()',
   'Referrer-Policy': 'no-referrer',

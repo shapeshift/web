@@ -1,7 +1,8 @@
 /**
  * React App Rewired Config
  */
-process.env.REACT_APP_CSP = require('./headers')['Content-Security-Policy'] ?? ''
+const headers = require('./headers')
+process.env.REACT_APP_CSP = headers['Content-Security-Policy'] ?? ''
 
 module.exports = {
   devServer: configFunction => {

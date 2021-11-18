@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.18.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.0...@shapeshiftoss/chain-adapters-v1.18.1) (2021-11-18)
+
+
+### Bug Fixes
+
+* treat all sends as same account ([#244](https://github.com/shapeshift/lib/issues/244)) ([50ba801](https://github.com/shapeshift/lib/commit/50ba80122ba35f7cc29c7e4acb368856440e5359))
+
 # [@shapeshiftoss/chain-adapters-v1.18.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.17.0...@shapeshiftoss/chain-adapters-v1.18.0) (2021-11-17)
 
 

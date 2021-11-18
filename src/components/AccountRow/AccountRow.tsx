@@ -72,7 +72,11 @@ export const AccountRow = ({ allocationValue, balance, tokenId, chain }: Account
       as={Link}
       to={url}
       _hover={{ bg: rowHover }}
-      templateColumns={{ base: '1fr repeat(2, 1fr)', lg: '2fr repeat(3, 1fr) 150px' }}
+      templateColumns={{
+        base: '1fr repeat(1, 1fr)',
+        md: '1fr repeat(2, 1fr)',
+        lg: '2fr repeat(3, 1fr) 150px'
+      }}
       py={4}
       pl={4}
       pr={4}
@@ -100,7 +104,7 @@ export const AccountRow = ({ allocationValue, balance, tokenId, chain }: Account
           </RawText>
         </Flex>
       </Flex>
-      <Flex justifyContent='flex-end' textAlign='right'>
+      <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
         <Amount.Crypto value={displayValue.toString()} symbol={asset.symbol} />
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
@@ -122,7 +126,15 @@ export const AccountRow = ({ allocationValue, balance, tokenId, chain }: Account
             '--'
           )
         ) : (
-          <Amount.Fiat value={fiatValue} />
+          <Flex flexDir='column' textAlign='right'>
+            <Amount.Fiat value={fiatValue} />
+            <Amount.Crypto
+              display={{ base: 'block', md: 'none' }}
+              color='gray.500'
+              value={displayValue.toString()}
+              symbol={asset.symbol}
+            />
+          </Flex>
         )}
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>

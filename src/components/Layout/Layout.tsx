@@ -14,7 +14,7 @@ export const Layout = ({ route }: { route: Route }) => {
         as='main'
         maxWidth='full'
         width='full'
-        paddingBottom={{ base: 16, md: 0 }}
+        paddingBottom={{ base: 'calc(57px + env(safe-area-inset-bottom))', md: 0 }}
         marginInline='auto'
         paddingInlineStart='0'
         paddingInlineEnd='0'

@@ -65,7 +65,7 @@ export const HeaderContent = ({ route }: { route: Route }) => {
           <Box
             position='fixed'
             p={1}
-            bottom={4}
+            bottom={'env(safe-area-inset-bottom)'}
             left='50%'
             transform='translateX(-50%)'
             display='inline-block'

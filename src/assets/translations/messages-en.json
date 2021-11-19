@@ -418,7 +418,8 @@
         "aboutAsset": "About %{asset}",
         "SegwitP2sh": "Segwit",
         "SegwitNative": "Segwit Native",
-        "P2pkh": "Legacy"
+        "P2pkh": "Legacy",
+        "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for"
       },
       "assetDescription": {
         "showMore": "Show More",

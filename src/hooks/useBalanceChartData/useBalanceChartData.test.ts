@@ -2,7 +2,7 @@ import { caip2, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { sendERC20Tx } from './balanceChartTestData'
+import { sendERC20Tx } from './balanceChartTestData.test'
 import { caip2FromTx, caip19FromTx, makeBuckets, timeframeMap } from './useBalanceChartData'
 
 describe('caip2FromTx', () => {

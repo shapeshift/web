@@ -79,6 +79,16 @@ type MakeBucketsArgs = {
   balances: { [k: CAIP19]: chainAdapters.Account<ChainTypes> }
 }
 
+// adjust this to give charts more or less granularity
+export const timeframeMap = {
+  [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
+  [HistoryTimeframe.DAY]: { count: 285, duration: 5, unit: 'minutes' },
+  [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
+  [HistoryTimeframe.MONTH]: { count: 360, duration: 2, unit: 'hours' },
+  [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
+  [HistoryTimeframe.ALL]: { count: 260, duration: 1, unit: 'weeks' }
+}
+
 type MakeBuckets = (args: MakeBucketsArgs) => MakeBucketsReturn
 
 export const makeBuckets: MakeBuckets = args => {
@@ -106,16 +116,6 @@ export const makeBuckets: MakeBuckets = args => {
       acc.push(bucket)
       return acc
     }
-  }
-
-  // adjust this to give charts more or less granularity
-  const timeframeMap = {
-    [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
-    [HistoryTimeframe.DAY]: { count: 285, duration: 5, unit: 'minutes' },
-    [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
-    [HistoryTimeframe.MONTH]: { count: 360, duration: 2, unit: 'hours' },
-    [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
-    [HistoryTimeframe.ALL]: { count: 260, duration: 1, unit: 'weeks' }
   }
 
   const meta = timeframeMap[timeframe]

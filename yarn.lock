@@ -3670,10 +3670,10 @@
   dependencies:
     "@shapeshiftoss/types" "^1.11.4"
 
-"@shapeshiftoss/chain-adapters@^1.16.2", "@shapeshiftoss/chain-adapters@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.18.2.tgz#4256f5da1380f5b821d9a6ea41e676a95fd9fe98"
-  integrity sha512-qp2XjyWJbrOcFkXhj3tzYvDxufIVWrXUoLw6soESU/xVoBfXVmZbqZ9vJ535gPHWU2VL46TdNOM/UfY5u6lOLg==
+"@shapeshiftoss/chain-adapters@^1.16.2", "@shapeshiftoss/chain-adapters@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.18.3.tgz#6376e0d8a3cb2648c054521ec3056a5df839ec8b"
+  integrity sha512-JlIIx3NAUl76cXPZhP0YcTQN88/b8o/po1qfodE+LH6SQEFrzLC/HqaELuoNfwVUCuB3+CsAjkqBifxs4PZrFA==
   dependencies:
     "@shapeshiftoss/hdwallet-core" "^1.17.1"
     "@shapeshiftoss/types" "^1.12.0"

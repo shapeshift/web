@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.18.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.2...@shapeshiftoss/chain-adapters-v1.18.3) (2021-11-19)
+
+
+### Bug Fixes
+
+* remove unused `from` calculation ([#246](https://github.com/shapeshift/lib/issues/246)) ([d2240f1](https://github.com/shapeshift/lib/commit/d2240f13cd08bb41f6e00417d3bb720c38ab6efb))
+
 # [@shapeshiftoss/chain-adapters-v1.18.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.1...@shapeshiftoss/chain-adapters-v1.18.2) (2021-11-19)
 
 

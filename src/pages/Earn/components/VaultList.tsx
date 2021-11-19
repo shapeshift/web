@@ -2,7 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { FaLock } from 'react-icons/fa'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
@@ -62,7 +62,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
               color='gray.500'
               translation='earn.empty.stakingVaults.body'
             />
-            <Button variant='ghost' colorScheme='blue'>
+            <Button variant='ghost' colorScheme='blue' as={Link} to='/earn/staking-vaults'>
               <Text translation='earn.empty.stakingVaults.cta' />
             </Button>
           </Card.Body>

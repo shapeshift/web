@@ -32,6 +32,8 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             size='lg'
             value={value}
             variant='filled'
+            pr={12}
+            autoComplete='off'
           />
         )}
         control={control}

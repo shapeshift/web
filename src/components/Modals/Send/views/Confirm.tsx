@@ -52,20 +52,28 @@ export const Confirm = () => {
 
   return (
     <SlideTransition>
-      <IconButton
-        variant='ghost'
-        icon={<ArrowBackIcon />}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={() => history.push(SendRoutes.Details)}
-      />
-      <ModalHeader textAlign='center'>
-        <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />
+      <ModalHeader
+        textAlign='center'
+        display='flex'
+        justifyContent='space-between'
+        alignItems='center'
+      >
+        <IconButton
+          variant='ghost'
+          icon={<ArrowBackIcon />}
+          aria-label={translate('common.back')}
+          fontSize='xl'
+          size='sm'
+          isRound
+          onClick={() => history.push(SendRoutes.Select)}
+        />
+        <Text
+          textOverflow='ellipsis'
+          overflow='hidden'
+          maxWidth='70%'
+          translation={['modals.send.confirm.sendAsset', { asset: asset.name }]}
+        />
+        <Box flex={1} />
       </ModalHeader>
       <ModalBody>
         <Flex flexDir='column' alignItems='center' mb={8}>

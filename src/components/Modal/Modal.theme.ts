@@ -10,7 +10,11 @@ export const ModalStyle = {
       borderWidth: 1
     },
     closeButton: {
-      borderRadius: '100%'
+      borderRadius: '100%',
+      color: 'gray.500',
+      _hover: {
+        color: mode('black', 'white')(props)
+      }
     }
   }),
   // Styles for the size variations

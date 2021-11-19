@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.18.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.1...@shapeshiftoss/chain-adapters-v1.18.2) (2021-11-19)
+
+
+### Bug Fixes
+
+* only publish send message if associated with send ([#245](https://github.com/shapeshift/lib/issues/245)) ([547e917](https://github.com/shapeshift/lib/commit/547e917b30e3069d84ca358195e8b41f8661280e))
+
 # [@shapeshiftoss/chain-adapters-v1.18.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.0...@shapeshiftoss/chain-adapters-v1.18.1) (2021-11-18)
 
 

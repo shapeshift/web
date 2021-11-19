@@ -415,13 +415,15 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         }
 
         // treat all send transfers as same account
-        onMessage({
-          ...baseTx,
-          chain: ChainTypes.Bitcoin,
-          type: chainAdapters.TxType.Send,
-          value: msg.value,
-          to: msg.vout[0]?.addresses?.[0]
-        })
+        if (Object.keys(msg.send).length) {
+          onMessage({
+            ...baseTx,
+            chain: ChainTypes.Bitcoin,
+            type: chainAdapters.TxType.Send,
+            value: msg.value,
+            to: msg.vout[0]?.addresses?.[0]
+          })
+        }
 
         Object.entries(msg.receive).forEach(([, { totalValue }]) => {
           onMessage({

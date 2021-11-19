@@ -55,29 +55,22 @@ export const Details = () => {
 
   return (
     <SlideTransition loading={balancesLoading}>
-      <ModalHeader
-        textAlign='center'
-        display='flex'
-        justifyContent='space-between'
-        alignItems='center'
-      >
-        <IconButton
-          variant='ghost'
-          icon={<ArrowBackIcon />}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={() => history.push(SendRoutes.Select)}
-        />
-        <Text
-          textOverflow='ellipsis'
-          overflow='hidden'
-          maxWidth='70%'
-          translation={['modals.send.sendForm.sendAsset', { asset: asset.name }]}
-        />
-        <ModalCloseButton position='static' />
+      <IconButton
+        variant='ghost'
+        icon={<ArrowBackIcon />}
+        aria-label='Back'
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={() => history.push(SendRoutes.Address)}
+      />
+      <ModalHeader textAlign='center'>
+        {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
       </ModalHeader>
+      <ModalCloseButton borderRadius='full' />
       <ModalBody>
         <FormControl mt={4}>
           <Box display='flex' alignItems='center' justifyContent='space-between'>

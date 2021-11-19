@@ -108,38 +108,28 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
 
   return (
     <>
-      <ModalHeader
-        textAlign='center'
-        display='flex'
-        justifyContent='space-between'
-        alignItems='center'
-      >
-        <IconButton
-          variant='ghost'
-          icon={<ArrowBackIcon />}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={() => history.push(ReceiveRoutes.Select)}
-        />
-        <Text
-          textOverflow='ellipsis'
-          whiteSpace='nowrap'
-          overflow='hidden'
-          maxWidth='70%'
-          translation={['modals.receive.receiveAsset', { asset: name }]}
-        />
-        <ModalCloseButton position='static' />
+      <IconButton
+        variant='ghost'
+        icon={<ArrowBackIcon />}
+        aria-label={translate('common.back')}
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={() => history.push(ReceiveRoutes.Select)}
+      />
+      <ModalHeader textAlign='center'>
+        {translate('modals.receive.receiveAsset', { asset: name })}
       </ModalHeader>
-
+      <ModalCloseButton />
       {wallet && chainAdapter ? (
         <>
           <ModalBody alignItems='center' justifyContent='center' textAlign='center'>
             <Box>
               <SkeletonText
                 noOfLines={2}
-                skeletonHeight='16px'
                 display='flex'
                 flexDir='column'
                 alignItems='center'

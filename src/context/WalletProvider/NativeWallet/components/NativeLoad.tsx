@@ -101,7 +101,7 @@ export const NativeLoad = () => {
           {wallets.map((wallet, i) => {
             return (
               <Row
-                key={i}
+                key={wallet.id}
                 mx={-4}
                 py={2}
                 alignItems='center'

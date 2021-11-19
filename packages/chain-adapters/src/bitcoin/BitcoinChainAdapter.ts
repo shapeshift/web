@@ -164,20 +164,11 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       const { data: utxos } = await this.providers.http.getUtxos({
         pubkey: pubkey.xpub
       })
-      const addressNList = bip32ToAddressNList(path)
 
       if (!supportsBTC(wallet))
         throw new Error(
           'BitcoinChainAdapter: signTransaction wallet does not support signing btc txs'
         )
-
-      const from = await wallet.btcGetAddress({
-        addressNList,
-        coin: this.coinName,
-        scriptType: accountTypeToScriptType[accountType]
-      })
-
-      if (!from) throw new Error('BitcoinChainAdapter: from undefined')
 
       const account = await this.getAccount(pubkey.xpub)
 

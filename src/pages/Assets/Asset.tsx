@@ -1,37 +1,60 @@
 import { Flex } from '@chakra-ui/react'
-import { AssetMarketData, getAssetData } from '@shapeshiftoss/market-service'
-import { Page } from 'components/Layout/Page'
-import { useCallback, useEffect, useState } from 'react'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { Page } from 'components/Layout/Page'
+import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
+import { useMarketData } from 'hooks/useMarketData/useMarketData'
+import { ReduxState } from 'state/reducer'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
-
 export interface MatchParams {
-  network: string
-  address: string
+  chain: ChainTypes
+  tokenId: string
+}
+
+export const initAsset = {
+  caip19: '',
+  chain: ChainTypes.Ethereum,
+  network: NetworkTypes.MAINNET,
+  symbol: '',
+  name: '',
+  precision: 18,
+  color: '',
+  secondaryColor: '',
+  icon: '',
+  sendSupport: true,
+  receiveSupport: true,
+  price: '',
+  marketCap: '',
+  volume: '',
+  changePercent24Hr: 0,
+  slip44: 60,
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  description: ''
+}
+
+export const useAsset = () => {
+  const { chain, tokenId } = useParams<MatchParams>()
+  const asset = useFetchAsset({ chain, tokenId })
+  const marketData = useMarketData({ chain, tokenId })
+  const loading = useSelector((state: ReduxState) => state.marketData.loading)
+
+  return {
+    asset: asset ?? initAsset,
+    marketData,
+    loading
+  }
 }
 
 export const Asset = () => {
-  const [asset, setAsset] = useState<AssetMarketData>()
-  const [loading, setLoading] = useState<boolean>(false)
-  let { network, address } = useParams<MatchParams>()
-
-  const getPrice = useCallback(async () => {
-    setLoading(true)
-    const asset = await getAssetData(network, address)
-    if (asset) setAsset(asset)
-    setLoading(false)
-  }, [network, address])
-
-  useEffect(() => {
-    getPrice()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [network, address])
+  const { asset } = useAsset()
 
   return (
-    <Page style={{ flex: 1 }} loading={loading} error={!asset}>
+    <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        {asset && <AssetDetails asset={asset} />}
+        <AssetDetails />
       </Flex>
     </Page>
   )

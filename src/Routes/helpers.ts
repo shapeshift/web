@@ -21,6 +21,7 @@ export type Route = {
   parent?: Route | null
   routes?: Omit<Route, 'routes'>[]
   icon?: JSX.Element
+  disable?: boolean
 }
 
 const combinePaths = (parent: string, child: string): string =>
@@ -74,6 +75,7 @@ const setupParents = (routes: Route[], Route?: Route): Route[] =>
  */
 const flattenRoutes = (routes: Route[]): Route[] =>
   routes
+    .filter(route => !route.disable)
     .map(route => [route.routes ? flattenRoutes(route.routes) : ([] as any[]), route])
     .flat(Infinity)
 

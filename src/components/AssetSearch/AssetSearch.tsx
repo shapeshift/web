@@ -1,20 +1,28 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { getAssetList, SwapCurrency } from '@shapeshiftoss/market-service'
-import sortBy from 'lodash/sortBy'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchMarketCaps } from 'state/slices/marketDataSlice/marketDataSlice'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { marketCapLoadingStatus } from './selectors/marketCapLoadingStatus/marketCapLoadingStatus'
+import { selectAndSortAssets } from './selectors/selectAndSortAssets/selectAndSortAssets'
 
 type AssetSearchProps = {
-  onClick: (asset: SwapCurrency) => void
+  onClick: (asset: any) => void
+  filterBy?: (asset: Asset[]) => Asset[]
 }
 
-export const AssetSearch = ({ onClick }: AssetSearchProps) => {
-  const [sortedAssets, setSortedAssets] = useState<SwapCurrency[]>([])
-  const [filteredAssets, setFilteredAssets] = useState<SwapCurrency[]>([])
+export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
+  const dispatch = useDispatch()
+  const assets = useSelector(selectAndSortAssets)
+  const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
+  const [marketCapLoaded, marketCapLoading] = useSelector(marketCapLoadingStatus)
+  const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
@@ -25,24 +33,14 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
   const searchString = watch('search')
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
-  const fetchTokens = useCallback(async () => {
-    try {
-      const data = await getAssetList()
-      const sorted = sortBy(data?.tokens, ['name', 'symbol'])
-      setSortedAssets(sorted)
-    } catch (e) {
-      console.warn(e)
-    }
-  }, [])
-
   useEffect(() => {
-    fetchTokens()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    !currentAssets.length && dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
+    !marketCapLoaded && !marketCapLoading && dispatch(fetchMarketCaps())
+  }, [currentAssets, dispatch, marketCapLoaded, marketCapLoading])
 
   useEffect(() => {
     setFilteredAssets(
-      searching ? filterAssetsBySearchTerm(searchString, sortedAssets) : sortedAssets
+      searching ? filterAssetsBySearchTerm(searchString, currentAssets) : currentAssets
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])
@@ -66,7 +64,7 @@ export const AssetSearch = ({ onClick }: AssetSearchProps) => {
       <Box flex={1}>
         <AssetList
           mb='10'
-          assets={searching ? filteredAssets : sortedAssets}
+          assets={searching ? filteredAssets : currentAssets}
           handleClick={onClick}
         />
       </Box>

@@ -1,6 +1,7 @@
-import { useToast } from '@chakra-ui/react'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
   Redirect,
@@ -10,79 +11,111 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
+import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
-import { Confirm } from './Confirm'
-import { Details } from './Details'
+import { useFormSend } from './hooks/useFormSend/useFormSend'
+import { SendRoutes } from './Send'
+import { Address } from './views/Address'
+import { Confirm } from './views/Confirm'
+import { Details } from './views/Details'
+import { QrCodeScanner } from './views/QrCodeScanner'
 
-// @TODO Determine if we should use symbol for display purposes or some other identifier for display
-type SendInput = {
-  address: string
-  asset: string
-  fee: string
-  crypto: {
-    amount: string
-    symbol: string
-  }
-  fiat: {
-    amount: string
-    symbol: string
-  }
+export enum SendFormFields {
+  Address = 'address',
+  Asset = 'asset',
+  FeeType = 'feeType',
+  EstimatedFees = 'estimatedFees',
+  Crypto = 'crypto',
+  CryptoAmount = 'crypto.amount',
+  CryptoSymbol = 'crypto.symbol',
+  FiatAmount = 'fiat.amount',
+  Fiat = 'fiat',
+  FiatSymbol = 'fiat.symbol',
+  Transaction = 'transaction'
 }
 
-export const Form = () => {
+export type SendInput = {
+  [SendFormFields.Address]: string
+  [SendFormFields.Asset]: AssetMarketData
+  [SendFormFields.FeeType]: chainAdapters.FeeDataKey
+  [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
+  [SendFormFields.Crypto]: {
+    amount: string
+    symbol: string
+  }
+  [SendFormFields.Fiat]: {
+    amount: string
+    symbol: string
+  }
+  // TODO(0xdef1cafe): remove this from form state
+  [SendFormFields.Transaction]: unknown
+}
+
+type SendFormProps = {
+  asset: AssetMarketData
+}
+
+export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
-  const toast = useToast()
-  const modal = useModal()
+  const { handleSend } = useFormSend()
+  const getAssetData = useGetAssetData({
+    chain: initialAsset.chain,
+    tokenId: initialAsset.tokenId
+  })
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
       address: '',
-      fee: 'Average',
+      asset: initialAsset,
+      feeType: chainAdapters.FeeDataKey.Average,
       crypto: {
         amount: '',
-        symbol: 'BTC' // @TODO wire up to state
+        symbol: initialAsset?.symbol
       },
       fiat: {
         amount: '',
-        symbol: 'USD' // @TODO wire up to state
+        symbol: 'USD' // TODO: localize currency
       }
     }
   })
 
-  const handleClick = () => {
-    history.push('/send/details')
+  const handleAssetSelect = async (asset: Asset) => {
+    const assetMarketData = await getAssetData({
+      chain: asset.chain,
+      tokenId: asset.tokenId
+    })
+    if (!assetMarketData) return console.error('Failed to get marketData')
+    methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
+    methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
+    methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })
+
+    history.push(SendRoutes.Address)
   }
 
-  const handleSubmit = (data: any) => {
-    console.info(data)
-    modal.close('send')
-    toast({
-      title: 'Bitcoin Sent.',
-      description: 'You have successfully sent 0.005 BTC',
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right'
-    })
+  const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === 'Enter') event.preventDefault()
   }
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(handleSubmit)}>
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+      <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             <Route
-              path='/send/select'
+              path={SendRoutes.Select}
               component={(props: RouteComponentProps) => (
-                <SelectAssets onClick={handleClick} {...props} />
+                <SelectAssets onClick={handleAssetSelect} {...props} />
               )}
             />
-            <Route path='/send/details' component={Details} />
-            <Route path='/send/confirm' component={Confirm} />
-            <Redirect exact from='/' to='/send/select' />
+            <Route path={SendRoutes.Address} component={Address} />
+            <Route path={SendRoutes.Details} component={Details} />
+            <Route path={SendRoutes.Scan} component={QrCodeScanner} />
+            <Route path={SendRoutes.Confirm} component={Confirm} />
+            <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>
         </AnimatePresence>
       </form>

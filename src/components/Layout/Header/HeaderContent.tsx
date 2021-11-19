@@ -2,21 +2,19 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
-  HStack,
   IconButton,
   Portal,
   Stack,
   useColorModeValue,
   useMediaQuery
 } from '@chakra-ui/react'
-import { ColorModeSwitcher } from 'components/ColorModeSwitcher/ColorModeSwitcher'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Link as RouterLink } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { breakpoints } from 'theme/theme'
 
 import { NavBar } from './NavBar/NavBar'
-import { WalletButton } from './NavBar/WalletButton'
+import { UserMenu } from './NavBar/UserMenu'
 
 export const HeaderContent = ({ route }: { route: Route }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -41,27 +39,27 @@ export const HeaderContent = ({ route }: { route: Route }) => {
               )}
             </div>
           ))}
+          <RouterLink to='/dashboard'>
+            <FoxIcon
+              w={{ base: '30px', lg: '40px' }}
+              h={{ base: '30px', lg: '40px' }}
+              display={{ base: 'none', md: 'block' }}
+            />
+          </RouterLink>
+        </Box>
+        <RouterLink to='/dashboard'>
           <FoxIcon
             w={{ base: '30px', lg: '40px' }}
             h={{ base: '30px', lg: '40px' }}
-            display={{ base: 'none', md: 'block' }}
+            display={{ base: 'block', md: 'none' }}
+            justifySelf='flex-end'
           />
-        </Box>
-        <FoxIcon
-          w={{ base: '30px', lg: '40px' }}
-          h={{ base: '30px', lg: '40px' }}
-          display={{ base: 'block', md: 'none' }}
-          justifySelf='flex-end'
-        />
+        </RouterLink>
         <NavBar display={{ base: 'none', md: 'flex' }} />
         <Flex alignItems='center' justifyContent='flex-end' flex={2}>
-          <HStack spacing={8} alignItems={'center'}>
-            <ColorModeSwitcher />
-            <WalletButton />
-          </HStack>
+          <UserMenu />
         </Flex>
       </Flex>
-
       {isLargerThanMd ? null : (
         <Portal>
           <Box

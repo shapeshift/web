@@ -1,75 +1,48 @@
-import { Center, SlideFade } from '@chakra-ui/react'
-import {
-  AssetMarketData,
-  getAssetHistory,
-  HistoryData,
-  HistoryTimeframe
-} from '@shapeshiftoss/market-service'
+import { Center, Fade, SlideFade } from '@chakra-ui/react'
+import { HistoryData } from '@shapeshiftoss/types'
 import { ParentSize } from '@visx/responsive'
-import BigNumber from 'bignumber.js'
-import { memo, useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
-import { CircularProgress } from '../CircularProgress'
+import { GraphLoading } from './GraphLoading'
 import { PrimaryChart } from './PrimaryChart/PrimaryChart'
 
 type GraphProps = {
-  asset?: AssetMarketData
-  timeframe: HistoryTimeframe
-  setPercentChange?: (percentChange: number) => void
+  data: HistoryData[] | null
+  isLoaded?: boolean
+  loading?: boolean
+  color?: string
 }
 
-export const Graph = memo(({ asset, timeframe, setPercentChange }: GraphProps) => {
-  const [data, setData] = useState<HistoryData[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-
-  useEffect(() => {
-    if (asset?.name) {
-      ;(async () => {
-        setLoading(true)
-        const data = await getAssetHistory(
-          asset.network?.toLowerCase(),
-          timeframe,
-          asset.contractAddress
-        )
-        setData(data)
-        setLoading(false)
-        const startValue = data[0]?.price
-        const endValue = data[data.length - 1]?.price
-        if (setPercentChange && startValue && endValue) {
-          const change = new BigNumber(endValue)
-            .minus(startValue)
-            .div(new BigNumber(startValue).abs())
-            .times(100)
-            .toNumber()
-          setPercentChange(change)
+export const Graph = ({ data, isLoaded, loading, color }: GraphProps) => {
+  return useMemo(
+    () => (
+      <ParentSize debounceTime={10}>
+        {parent =>
+          loading || !isLoaded ? (
+            <Fade in={loading || !isLoaded}>
+              <Center width='full' height={parent.height} overflow='hidden'>
+                <GraphLoading />
+              </Center>
+            </Fade>
+          ) : data?.length ? (
+            <SlideFade in={!loading}>
+              <PrimaryChart
+                data={data ?? []}
+                height={parent.height}
+                width={parent.width}
+                color={color}
+                margin={{
+                  top: 16,
+                  right: 0,
+                  bottom: 60,
+                  left: 0
+                }}
+              />
+            </SlideFade>
+          ) : null
         }
-      })()
-    }
-  }, [asset, timeframe, setPercentChange])
-
-  return (
-    <ParentSize debounceTime={10}>
-      {parent =>
-        loading ? (
-          <Center width='full' height={parent.height}>
-            <CircularProgress isIndeterminate />
-          </Center>
-        ) : data?.length ? (
-          <SlideFade in={!loading}>
-            <PrimaryChart
-              data={data ?? []}
-              height={parent.height}
-              width={parent.width}
-              margin={{
-                top: 16,
-                right: 0,
-                bottom: 46,
-                left: 0
-              }}
-            />
-          </SlideFade>
-        ) : null
-      }
-    </ParentSize>
+      </ParentSize>
+    ),
+    [color, data, isLoaded, loading]
   )
-})
+}

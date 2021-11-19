@@ -178,26 +178,6 @@ describe('useLocaleFormatter', () => {
         'BHD 0.00000123',
         '<BHD 0.000001'
       ]
-    ],
-    [
-      'pl-PL',
-      FiatTypeEnum.USD,
-      [
-        '123,45 USD', // 0
-        '1 234,45 USD', // 1 polyfill adds the separator here while node icu doesn't
-        '123 456 USD', // 2
-        '123 456 USD', // 3
-        '123,45 mln USD', // 4
-        '123,45 mld USD', // 5
-        '123 456 789,45 USD', // 6
-        '0,123 USD', // 7
-        '0,0123 USD', // 8
-        '0,00123 USD', // 9
-        '0,000123 USD', // 10
-        '0,0000123 USD', // 12
-        '0,00000123 USD', // 13
-        '<0,000001 USD' // 14
-      ]
     ]
   ]
 
@@ -312,7 +292,8 @@ describe('useLocaleFormatter', () => {
     const scenarios: [{ number: NumberValue; symbol?: string }, string][] = [
       [{ number: 12.3 }, '12.3 BTC'],
       [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
-      [{ number: 12, symbol: '1INCH' }, '12 1INCH']
+      [{ number: '12.', symbol: '1INCH' }, '12. 1INCH'],
+      [{ number: '.01', symbol: '' }, '0.01 ']
     ]
 
     it.each(scenarios)('parses %p and returns %s', async ({ number, symbol }, expected) => {
@@ -320,5 +301,30 @@ describe('useLocaleFormatter', () => {
 
       expect(result.current.number.toCryptoInput(number, symbol)).toEqual(expected)
     })
+  })
+
+  describe('toCrypto', () => {
+    const scenarios: [
+      { number: NumberValue; symbol?: string; options?: { maximumFractionDigits?: number } },
+      string
+    ][] = [
+      [{ number: 12.3 }, '12.3 BTC'],
+      [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
+      [
+        { number: '0.066044968372961102', symbol: 'ETH', options: { maximumFractionDigits: 6 } },
+        '0.066045 ETH'
+      ],
+      [{ number: '12.', symbol: '1INCH' }, '12 1INCH'],
+      [{ number: '.01', symbol: '' }, '0.01 ']
+    ]
+
+    it.each(scenarios)(
+      'parses %p and returns %s',
+      async ({ number, symbol, options }, expected) => {
+        const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
+
+        expect(result.current.number.toCrypto(number, symbol, options)).toEqual(expected)
+      }
+    )
   })
 })

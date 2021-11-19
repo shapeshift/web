@@ -7,23 +7,20 @@ import {
   ModalContent,
   ModalOverlay
 } from '@chakra-ui/react'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { SlideTransition } from 'components/SlideTransition'
 import { AnimatePresence } from 'framer-motion'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
 
 import { SUPPORTED_WALLETS } from './config'
-import { NativePasswordRequired } from './NativeWallet/NativePasswordRequired'
 import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
-import { WalletViewProps } from './WalletViewsRouter'
 
-export const WalletViewsSwitch = (props: WalletViewProps) => {
+export const WalletViewsSwitch = () => {
   const history = useHistory()
   const location = useLocation()
   const match = useRouteMatch('/')
-  const { dispatch } = useWallet()
+  const { state, dispatch } = useWallet()
 
   const onClose = () => {
     history.replace('/')
@@ -32,23 +29,23 @@ export const WalletViewsSwitch = (props: WalletViewProps) => {
 
   const handleBack = () => {
     history.goBack()
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    // If we're back at the select wallet modal, remove the initial route
+    // otherwise clicking the button for the same wallet doesn't do anything
+    if (history.location.pathname === '/') {
+      dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
+    }
   }
 
   useEffect(() => {
-    if (props.routePath) {
-      history.push(props.routePath as string)
+    if (state?.initialRoute) {
+      history.push(state.initialRoute)
     }
-  }, [history, props.routePath])
+  }, [history, state?.initialRoute])
 
   return (
     <>
-      <NativePasswordRequired
-        onConnect={(wallet: NativeHDWallet) => {
-          dispatch({ type: WalletActions.SET_WALLET, payload: wallet })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        }}
-      />
-      <Modal isOpen={props.modalOpen} onClose={onClose} isCentered>
+      <Modal isOpen={state.modal} onClose={onClose} isCentered trapFocus={false}>
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
@@ -68,21 +65,20 @@ export const WalletViewsSwitch = (props: WalletViewProps) => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
-                {props.type &&
-                  SUPPORTED_WALLETS[props.type].routes.map((route, index) => {
+                {state.type &&
+                  SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
                     const Component = route.component
                     return !Component ? null : (
                       <Route
                         exact
                         key={index}
                         path={route.path}
-                        render={routeProps => <Component {...props} {...routeProps} />}
-                        {...props}
+                        render={routeProps => <Component {...routeProps} />}
                       />
                     )
                   })}
 
-                <Route {...props} children={() => <SelectModal connect={props.connect} />} />
+                <Route children={() => <SelectModal />} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

@@ -1,28 +1,45 @@
 import { ListProps } from '@chakra-ui/react'
-import { SwapCurrency } from '@shapeshiftoss/market-service/'
-import { Text } from 'components/Text'
-import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
+import { Asset } from '@shapeshiftoss/types'
+import { useEffect } from 'react'
 import { useRouteMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
+import { Text } from 'components/Text'
+import { useRefCallback } from 'hooks/useRefCallback/useRefCallback'
 
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
-  handleClick: (asset: SwapCurrency) => void
-  assets: SwapCurrency[]
+  handleClick: (asset: Asset) => void
+  assets: Asset[]
 } & ListProps
 
+type ItemData<T> = {
+  items: Asset[]
+  handleClick: T
+}
+
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
+  type HandleClick = ReturnType<typeof handleClick>
+
   const match = useRouteMatch<{ address: string }>()
-  const [tokenListRef] = useRefCallback<FixedSizeList>({
+  const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<ItemData<HandleClick>>>({
     onInit: node => {
-      const index = node.props.itemData.items.findIndex(
-        ({ address }: SwapCurrency) => address === match.params.address
+      if (!node) return
+      const index = node.props.itemData?.items.findIndex(
+        ({ tokenId: address }: Asset) => address === match.params.address
       )
-      node.scrollToItem?.(index, 'center')
+      if (typeof index === 'number' && index >= 0) {
+        node.scrollToItem?.(index, 'center')
+      }
     }
   })
+
+  useEffect(() => {
+    if (!tokenListRef) return
+    tokenListRef?.scrollTo(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assets])
 
   return (
     <AutoSizer disableWidth className='auto-sizered'>
@@ -39,7 +56,7 @@ export const AssetList = ({ assets, handleClick }: AssetListProps) => {
               handleClick
             }}
             itemCount={assets.length}
-            ref={tokenListRef}
+            ref={setTokenListRef}
             className='token-list scroll-container'
             overscanCount={6}
           >

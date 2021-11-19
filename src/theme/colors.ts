@@ -41,7 +41,7 @@ const commonColors = {
     50: '#E6FAF5'
   },
   red: {
-    50: '#FFFDFD',
+    50: '#FFF5F5',
     100: '#FFF8F8',
     200: '#FDE3E3',
     300: '#FAC1C0',
@@ -54,9 +54,10 @@ const commonColors = {
   }
 }
 
-const brand = () => ({
-  primary: commonColors.blue[500]
-})
+export const brand = {
+  primary: commonColors.blue[500],
+  altBg: `radial-gradient(94.32% 94.6% at 4.04% -44.6%,${commonColors.blue[600]}66 0%,${commonColors.gray[900]}00 100%),linear-gradient(0deg,${commonColors.gray[900]},${commonColors.gray[900]})`
+}
 
 export const colors = {
   ...commonColors,

@@ -6,9 +6,9 @@ import {
   InputProps,
   InputRightElement
 } from '@chakra-ui/react'
-import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { Control, Controller, ControllerProps } from 'react-hook-form'
+import { Control, Controller, ControllerProps, Path } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 const CryptoInput = (props: InputProps) => (
   <Input
@@ -22,22 +22,26 @@ const CryptoInput = (props: InputProps) => (
   />
 )
 
-type TokenRowProps = {
-  control: Control
-  fieldName: string
+type TokenRowProps<C> = {
+  control: Control<C>
+  fieldName: Path<C>
+  disabled?: boolean
   rules?: ControllerProps['rules']
   inputLeftElement?: React.ReactNode
   inputRightElement?: React.ReactNode
+  onInputChange?: any
 } & InputGroupProps
 
-export const TokenRow = ({
+export function TokenRow<C>({
   control,
   fieldName,
   rules,
   inputLeftElement,
   inputRightElement,
+  onInputChange,
+  disabled,
   ...rest
-}: TokenRowProps) => {
+}: TokenRowProps<C>) {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -50,16 +54,22 @@ export const TokenRow = ({
         </InputLeftElement>
       )}
       <Controller
-        render={({ field: { onChange, value } }) => (
-          <NumberFormat
-            inputMode='decimal'
-            thousandSeparator={localeParts.group}
-            decimalSeparator={localeParts.decimal}
-            value={value}
-            customInput={CryptoInput}
-            onValueChange={e => onChange(e.value)}
-          />
-        )}
+        render={({ field: { onChange, value } }) => {
+          return (
+            <NumberFormat
+              inputMode='decimal'
+              thousandSeparator={localeParts.group}
+              decimalSeparator={localeParts.decimal}
+              customInput={CryptoInput}
+              value={value}
+              disabled={disabled}
+              onValueChange={e => {
+                onInputChange && e.value !== value && onInputChange(e.value)
+                onChange(e.value)
+              }}
+            />
+          )
+        }}
         name={fieldName}
         control={control}
         rules={rules}

@@ -1,8 +1,14 @@
-import { Card } from 'components/Card'
+import { Stack } from '@chakra-ui/react'
+import { useSelector } from 'react-redux'
+import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { Transactions } from 'components/Transactions/Transactions'
+import { TransactionRow } from 'components/Transactions/TransactionRow'
+import { ReduxState } from 'state/reducer'
+import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const RecentTransactions = () => {
+  const txs = useSelector((state: ReduxState) => selectTxHistory(state, {}))
+
   return (
     <Card>
       <Card.Header>
@@ -11,7 +17,11 @@ export const RecentTransactions = () => {
         </Card.Heading>
       </Card.Header>
       <Card.Body px={2} pt={0}>
-        <Transactions limit={8} />
+        <Stack spacing={0}>
+          {txs?.slice(0, 10).map((tx: Tx, i) => (
+            <TransactionRow compact key={`${i}-${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
+          ))}
+        </Stack>
       </Card.Body>
     </Card>
   )

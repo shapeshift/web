@@ -1,84 +1,129 @@
-import { Box, Button, ButtonGroup, Radio, useColorModeValue } from '@chakra-ui/react'
-import { RawText, Text } from 'components/Text'
+import { Box, Button, ButtonGroup, Radio, Spinner, useColorModeValue } from '@chakra-ui/react'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
+import { Amount } from 'components/Amount/Amount'
+import { Text } from 'components/Text'
 
-// @TODO: Read from state
-const fees = [
-  {
-    name: 'Slow',
-    translation: 'modals.send.sendForm.slow',
-    amount: '24 sat/byte',
-    fiat: '$1.32',
-    color: 'yellow'
-  },
-  {
-    name: 'Average',
-    translation: 'modals.send.sendForm.average',
-    amount: '80 sat/byte',
-    fiat: '$1.49',
-    color: 'blue'
-  },
-  {
-    name: 'Fast',
-    translation: 'modals.send.sendForm.fast',
-    amount: '115 sat/byte',
-    fiat: '$1.76',
-    color: 'green'
+import { SendFormFields } from './Form'
+import { FeePrice } from './views/Confirm'
+
+type TxFeeRadioGroupProps = {
+  fees: FeePrice | null
+}
+
+function getFeeColor(key: chainAdapters.FeeDataKey): string {
+  switch (key) {
+    case chainAdapters.FeeDataKey.Slow:
+      return 'yellow'
+    case chainAdapters.FeeDataKey.Fast:
+      return 'green'
+    case chainAdapters.FeeDataKey.Average:
+    default:
+      return 'blue'
   }
+}
+
+function getFeeTranslation(key: chainAdapters.FeeDataKey): string {
+  switch (key) {
+    case chainAdapters.FeeDataKey.Slow:
+      return 'modals.send.sendForm.slow'
+    case chainAdapters.FeeDataKey.Fast:
+      return 'modals.send.sendForm.fast'
+    case chainAdapters.FeeDataKey.Average:
+    default:
+      return 'modals.send.sendForm.average'
+  }
+}
+
+const feesOrder: chainAdapters.FeeDataKey[] = [
+  chainAdapters.FeeDataKey.Slow,
+  chainAdapters.FeeDataKey.Average,
+  chainAdapters.FeeDataKey.Fast
 ]
 
-export const TxFeeRadioGroup = () => {
+export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   const { control } = useFormContext()
   const { field } = useController({
-    name: 'fee',
+    name: SendFormFields.FeeType,
     control,
     rules: { required: true },
-    defaultValue: 'Average'
+    defaultValue: chainAdapters.FeeDataKey.Average
   })
-  const activeFee = useWatch({ name: 'fee' })
+  const [asset, activeFee] = useWatch({ name: [SendFormFields.Asset, SendFormFields.FeeType] })
+  const bg = useColorModeValue('gray.50', 'gray.850')
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  if (!fees) {
+    return (
+      <Box
+        display='flex'
+        flexDir='column'
+        alignItems='center'
+        justifyContent='center'
+        py={2}
+        width='full'
+        height='auto'
+      >
+        <Spinner />
+      </Box>
+    )
+  }
 
   return (
     <ButtonGroup
       variant='ghost-filled'
       width='full'
-      bg={useColorModeValue('gray.50', 'gray.850')}
+      bg={bg}
       borderWidth={1}
-      borderColor={useColorModeValue('gray.100', 'gray.750')}
+      borderColor={borderColor}
       borderRadius='xl'
       p={2}
       id='tx-fee'
     >
-      {fees.map((fee, index) => (
-        <Button
-          display='flex'
-          flexDir='column'
-          textAlign='left'
-          alignItems='flex-start'
-          key={`fee-${index}`}
-          py={2}
-          width='full'
-          height='auto'
-          onClick={() => field.onChange(fee.name)}
-          isActive={activeFee === fee.name}
-        >
-          <Box fontSize='sm' mb={2} display='flex' alignItems='center'>
-            <Radio
-              colorScheme={fee.color}
-              id={fee.name}
-              isChecked={activeFee === fee.name}
-              mr={2}
-              value={fee.name}
+      {feesOrder.map((key: chainAdapters.FeeDataKey) => {
+        const current = fees[key]
+        const color = getFeeColor(key)
+        const translation = getFeeTranslation(key)
+
+        return (
+          <Button
+            display='flex'
+            flexDir='column'
+            textAlign='left'
+            alignItems='flex-start'
+            key={`fee-${key}`}
+            py={2}
+            width='full'
+            height='auto'
+            onClick={() => field.onChange(key)}
+            isActive={activeFee === key}
+          >
+            <Box fontSize='sm' mb={2} display='flex' alignItems='center'>
+              <Radio
+                colorScheme={color}
+                id={key}
+                isChecked={activeFee === key}
+                mr={2}
+                value={key}
+              />
+              <Text translation={translation} />
+            </Box>
+            <Amount.Crypto
+              fontSize='sm'
+              fontWeight='normal'
+              maximumFractionDigits={6}
+              symbol={asset.tokenId ? 'ETH' : asset.symbol}
+              value={current.txFee}
             />
-            <Text translation={fee.translation} />
-          </Box>
-          <RawText fontSize='sm' fontWeight='normal'>
-            {fee.amount}
-          </RawText>
-          <RawText fontSize='sm' fontWeight='normal' color='gray.500'>
-            {fee.fiat}
-          </RawText>
-        </Button>
-      ))}
+            <Amount.Fiat
+              color='gray.500'
+              fontSize='sm'
+              fontWeight='normal'
+              value={current.fiatFee}
+            />
+          </Button>
+        )
+      })}
     </ButtonGroup>
   )
 }

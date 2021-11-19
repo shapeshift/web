@@ -209,7 +209,7 @@ export const TransactionRow = ({ tx, compact }: { tx: Tx; compact?: boolean }) =
               <Link
                 isExternal
                 color='blue.500'
-                href={`${asset?.explorerTxLink}${tx.to ?? tx.from}`}
+                href={`${asset?.explorerAddressLink}${tx.to ?? tx.from}`}
               >
                 <MiddleEllipsis maxWidth='180px'>{tx.to ?? tx.from}</MiddleEllipsis>
               </Link>

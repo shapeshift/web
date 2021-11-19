@@ -31,7 +31,7 @@
     "@visx/shape": "^2.4.0",
     "@visx/tooltip": "^2.2.2",
     "allsettled-polyfill": "^1.0.4",
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
     "bip39": "^3.0.4",
     "chakra-ui-steps": "^1.5.0",

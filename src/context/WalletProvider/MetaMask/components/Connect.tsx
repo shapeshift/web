@@ -36,6 +36,21 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
       try {
         const deviceId = await wallet.getDeviceID()
+        if (window.ethereum?.chainId !== '0x1')
+          throw new Error('walletProvider.metaMask.errors.network')
+
+        // Hack to handle MetaMask account changes
+        //TODO: handle this properly
+        const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
+        window.ethereum?.on?.('accountsChanged', resetState)
+        window.ethereum?.on?.('chainChanged', resetState)
+
+        const oldDisconnect = wallet.disconnect.bind(wallet)
+        wallet.disconnect = () => {
+          window.ethereum?.removeListener?.('accountsChanged', resetState)
+          window.ethereum?.removeListener?.('chainChanged', resetState)
+          return oldDisconnect()
+        }
 
         await wallet.initialize()
 
@@ -45,10 +60,14 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         history.push('/metamask/success')
-      } catch (e) {
-        console.error('MetaMask Connect: There was an error initializing the wallet', e)
-        setErrorLoading('walletProvider.metaMask.errors.unknown')
-        history.push('/metamask/failure')
+      } catch (e: any) {
+        if (e?.message?.startsWith('walletProvider.')) {
+          console.error('MetaMask Connect: There was an error initializing the wallet', e)
+          setErrorLoading(e?.message)
+        } else {
+          setErrorLoading('walletProvider.metaMask.errors.unknown')
+          history.push('/metamask/failure')
+        }
       }
     }
     setLoading(false)

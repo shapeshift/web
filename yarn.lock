@@ -5943,7 +5943,7 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.2.tgz#d291c6a4e97989b5c61d9acf396ae4fe133a718d"
   integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
 
-"@yarnpkg/lockfile@^1.1.0":
+"@yarnpkg/lockfile@1.1.0", "@yarnpkg/lockfile@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
@@ -14680,7 +14680,7 @@ mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@^0.5.5, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mock-fs@^4.1.0:
+mock-fs@^4.1.0, mock-fs@^4.12.0:
   version "4.14.0"
   resolved "https://registry.yarnpkg.com/mock-fs/-/mock-fs-4.14.0.tgz#ce5124d2c601421255985e6e94da80a7357b1b18"
   integrity sha512-qYvlv/exQ4+svI3UOvPUpLDF0OMX5euvUH0Ny4N5QyRyhNdgAgUrVH3iUINSzEPLvx0kbo/Bp28GJKIqvE7URw==
@@ -21495,6 +21495,15 @@ yargs@^17.0.0:
     string-width "^4.2.0"
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
+
+yarn-minify@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/yarn-minify/-/yarn-minify-1.0.1.tgz#438494693954e4ca9a1fec5298206dbcf99c9920"
+  integrity sha512-TEjlwf0SSJXrmgHI4SikJ/QcLDz+MaEZxZF2Gu+s0iqD7zZvtoWLwc0ZoQfYfApwE4WC72sWmKII7MQlGjeZ+A==
+  dependencies:
+    "@yarnpkg/lockfile" "1.1.0"
+    mock-fs "^4.12.0"
+    semver "^7.3.2"
 
 yauzl@^2.10.0:
   version "2.10.0"

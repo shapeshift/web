@@ -25,6 +25,7 @@ export const Header = ({ route }: { route: Route }) => {
         transition='box-shadow 0.2s, background-color 0.2s'
         pos='sticky'
         top='0'
+        paddingTop={`env(safe-area-inset-top)`}
         zIndex='banner'
         bg={y > height ? bg : 'transparent'}
         borderBottomWidth={y > height ? 1 : 0}

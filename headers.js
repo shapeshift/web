@@ -43,7 +43,7 @@ const cspMeta = Object.entries({
   .join('; ')
 
 const headers = {
-  'Content-Security-Policy': `${cspMeta}; frame-ancestors: 'none'`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
+  'Content-Security-Policy': `${cspMeta}; frame-ancestors 'none'`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
   'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
   'Permissions-Policy': 'document-domain=()',
   'Referrer-Policy': 'no-referrer',

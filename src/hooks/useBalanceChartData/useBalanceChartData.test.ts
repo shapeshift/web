@@ -1,16 +1,23 @@
 import { caip2, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
+import { FOXSend } from 'jest/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { sendERC20Tx } from './balanceChartTestData.test'
-import { caip2FromTx, caip19FromTx, makeBuckets, timeframeMap } from './useBalanceChartData'
+import {
+  Bucket,
+  bucketTxs,
+  caip2FromTx,
+  caip19FromTx,
+  makeBuckets,
+  timeframeMap
+} from './useBalanceChartData'
 
 describe('caip2FromTx', () => {
   it('can get correct caip2 from tx', () => {
     const chain = ChainTypes.Ethereum
     const network = NetworkTypes.MAINNET
     const ethCAIP2 = caip2.toCAIP2({ chain, network })
-    const sendCAIP2 = caip2FromTx(sendERC20Tx)
+    const sendCAIP2 = caip2FromTx(FOXSend)
     expect(sendCAIP2).toEqual(ethCAIP2)
   })
 })
@@ -22,7 +29,7 @@ describe('caip19FromTx', () => {
     const contractType = ContractTypes.ERC20
     const tokenId = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const expectedCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-    const sendAssetCaip19 = caip19FromTx(sendERC20Tx)
+    const sendAssetCaip19 = caip19FromTx(FOXSend)
     expect(sendAssetCaip19).toEqual(expectedCAIP19)
   })
 })
@@ -44,14 +51,47 @@ describe('makeBuckets', () => {
       }
     }
     ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
-      const buckets = makeBuckets({ assets, balances, timeframe })
-      expect(buckets.buckets.length).toEqual(timeframeMap[timeframe].count)
-      buckets.buckets.forEach(bucket => {
+      const bucketsAndMeta = makeBuckets({ assets, balances, timeframe })
+      expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
+      bucketsAndMeta.buckets.forEach(bucket => {
         const { balance } = bucket
         expect(balance.fiat).toEqual(0)
         expect(Object.keys(balance.crypto)).toEqual(assets)
         expect(balance.crypto[ethCAIP19]).toEqual(bn(ethBalance))
       })
     })
+  })
+})
+
+describe('bucketTxs', () => {
+  jest.useFakeTimers('modern').setSystemTime(new Date('2021-11-01T00:00:00Z').getTime())
+  fit('can bucket txs', () => {
+    const value = FOXSend.value
+    const FOXCAIP19 = caip19FromTx(FOXSend)
+    const balances = {
+      [FOXCAIP19]: {
+        balance: value,
+        pubkey: '',
+        symbol: 'FOX',
+        chain: ChainTypes.Ethereum,
+        network: NetworkTypes.MAINNET,
+        chainSpecific: {}
+      }
+    }
+    const assets = [FOXCAIP19]
+    const timeframe = HistoryTimeframe.HOUR
+    const bucketsAndMeta = makeBuckets({ assets, balances, timeframe })
+
+    const txs = [FOXSend]
+
+    const bucketedTxs = bucketTxs(txs, bucketsAndMeta)
+
+    const totalTxs = bucketedTxs.reduce<number>(
+      (acc, bucket: Bucket) => (acc += bucket.txs.length),
+      0
+    )
+
+    expect(totalTxs).toEqual(txs.length)
+    expect(bucketedTxs[30].txs.length).toEqual(1)
   })
 })

@@ -15,6 +15,7 @@ import fill from 'lodash/fill'
 import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
+import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import { useEffect, useState } from 'react'
@@ -55,7 +56,7 @@ type BucketBalance = {
   fiat: number
 }
 
-type Bucket = {
+export type Bucket = {
   start: dayjs.Dayjs
   end: dayjs.Dayjs
   balance: BucketBalance
@@ -141,19 +142,18 @@ export const caip19FromTx = (tx: Tx): CAIP19 => {
   return assetCAIP19
 }
 
-const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
+export const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
+  const end = last(buckets)!.end
   // txs are potentially a lot longer than buckets, iterate the long list once
   const result = txs.reduce((acc, tx) => {
     const txDayjs = dayjs(tx.blockTime * 1000) // unchained uses seconds
-    // if the tx is before the time domain ignore it, it can't be past the end (now)
-    if (txDayjs.isBefore(start)) return acc
+    // if the tx is outside the time domain ignore it
+    if (txDayjs.isBefore(start) || txDayjs.isAfter(end)) return acc
     const { unit } = meta
     // the number of time units from start of chart to this tx
     let bucketIndex = txDayjs.diff(start, unit as dayjs.OpUnitType)
-    // maybe a fix for pending tx coming in after charts were last rendered
-    if (bucketIndex >= buckets.length) bucketIndex = buckets.length - 1
     // add to the correct bucket
     acc[bucketIndex].txs.push(tx)
     return acc

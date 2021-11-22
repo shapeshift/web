@@ -9,6 +9,7 @@ import {
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
@@ -53,8 +54,24 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
+    if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
+      // if keepkey is connected to another tab, it does not get added to state.adapters.
+      setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+      return
+    }
     if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
-      const wallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice()
+      const wallet = await state.adapters
+        .get(KeyManager.KeepKey)
+        ?.pairDevice()
+        .catch(err => {
+          if (err.name === 'ConflictingApp') {
+            setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
+            return
+          }
+          console.error('KeepKey Connect: There was an error initializing the wallet', err)
+          setErrorLoading('walletProvider.errors.walletNotFound')
+          return
+        })
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
@@ -93,7 +110,11 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
         <Button isFullWidth colorScheme='blue' onClick={pairDevice} disabled={loading}>
-          <Text translation={'walletProvider.keepKey.connect.button'} />
+          {loading ? (
+            <CircularProgress size='5' />
+          ) : (
+            <Text translation={'walletProvider.keepKey.connect.button'} />
+          )}
         </Button>
         {error && (
           <Alert status='info' mt={4}>

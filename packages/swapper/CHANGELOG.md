@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.11.10](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.9...@shapeshiftoss/swapper-v1.11.10) (2021-11-22)
+
+
+### Bug Fixes
+
+* adds explorerAddressLink fixing front end UI issues ([#251](https://github.com/shapeshift/lib/issues/251)) ([57af00f](https://github.com/shapeshift/lib/commit/57af00f691d2388a5eca7fa4ca0e91999854f155))
+
 # [@shapeshiftoss/swapper-v1.11.9](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.8...@shapeshiftoss/swapper-v1.11.9) (2021-11-18)
 
 

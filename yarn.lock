@@ -3064,6 +3064,22 @@
     "@formatjs/intl-localematcher" "0.2.21"
     tslib "^2.1.0"
 
+"@formatjs/intl-getcanonicallocales@1.8.0", "@formatjs/intl-getcanonicallocales@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-getcanonicallocales/-/intl-getcanonicallocales-1.8.0.tgz#2987a879f399b2fdf2812e76431f1db8a5b02a64"
+  integrity sha512-nBwLvOaClSPt4UrvNKHuOf3vgQ8ofZ8jS5TB54bKBw1VKe3Rt/omvze/UhiboWFxs3VCWVHswqikHS5UfUq3SA==
+  dependencies:
+    tslib "^2.1.0"
+
+"@formatjs/intl-locale@^2.4.40":
+  version "2.4.40"
+  resolved "https://registry.yarnpkg.com/@formatjs/intl-locale/-/intl-locale-2.4.40.tgz#301cccb4f03ec0d86864ca044452d6546bfdb9ac"
+  integrity sha512-JieIcHMfNWoE6WCieQ5Cjqmdc9mOIBaI3rjAfwzA2HOo3X7d0ov6BIDIm0dV+H6PR0nZULHgHjw+QMqcFSUjxw==
+  dependencies:
+    "@formatjs/ecma402-abstract" "1.10.0"
+    "@formatjs/intl-getcanonicallocales" "1.8.0"
+    tslib "^2.1.0"
+
 "@formatjs/intl-localematcher@0.2.21":
   version "0.2.21"
   resolved "https://registry.yarnpkg.com/@formatjs/intl-localematcher/-/intl-localematcher-0.2.21.tgz#39ef33d701fe8084f3d693cd3ff7cbe03cdd3a49"

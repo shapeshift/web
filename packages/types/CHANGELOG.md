@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.13.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.13.0...@shapeshiftoss/types-v1.13.1) (2021-11-22)
+
+
+### Bug Fixes
+
+* adds explorerAddressLink fixing front end UI issues ([#251](https://github.com/shapeshift/lib/issues/251)) ([57af00f](https://github.com/shapeshift/lib/commit/57af00f691d2388a5eca7fa4ca0e91999854f155))
+
 # [@shapeshiftoss/types-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.12.0...@shapeshiftoss/types-v1.13.0) (2021-11-17)
 
 

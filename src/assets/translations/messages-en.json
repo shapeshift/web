@@ -298,7 +298,8 @@
       "connect": {
         "header": "Pair Your KeepKey",
         "body": "Connect a KeepKey device and click 'Pair.'",
-        "button": "Pair"
+        "button": "Pair",
+        "conflictingApp": "Could not find your keepkey. Is there a conflicting application trying to connect your keepkey?"
       },
       "pin": {
         "header": "Enter Your Pin",

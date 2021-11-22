@@ -3589,7 +3589,7 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@shapeshiftoss/asset-service@1.7.3":
+"@shapeshiftoss/asset-service@^1.7.3":
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.7.3.tgz#f18714bdad191f79018ee090a33b69281c55b12f"
   integrity sha512-P8lz4azmZlsmWYpSIUvPfifgVkY0zZ8CH2cOF+M5Z2GTD5iEvGrVdyPfI30TpeiIqJcwEcKNl7y9jbX2fpCWxg==
@@ -3893,7 +3893,7 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@1.11.10":
+"@shapeshiftoss/swapper@^1.11.10":
   version "1.11.10"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.11.10.tgz#3f2b452e019df0cac81deb1068be4c2b4b703a9c"
   integrity sha512-JPFbq30P/GJSr8S1nHsTfM239uiAVFXagiZ9g9rSX6czw5vT0OSvDRJLLvFZD1zolgVL14ZhZ24n/hEhq2UPtw==
@@ -3914,7 +3914,7 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@1.13.1", "@shapeshiftoss/types@^1.11.4", "@shapeshiftoss/types@^1.12.0":
+"@shapeshiftoss/types@^1.11.4", "@shapeshiftoss/types@^1.12.0", "@shapeshiftoss/types@^1.13.1":
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.13.1.tgz#260a17f6a9555ab78fd637049ef10b3e6c2d0fd0"
   integrity sha512-krddcUTaJSVCI2EIXzLS61siTj5RDJUvKqu6/LYXNrDjML4uoHp5PQ4NUFrTT+p0K6tJ2oMLxV4FwSK7maZkEA==

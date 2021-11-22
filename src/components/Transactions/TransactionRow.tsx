@@ -51,12 +51,12 @@ export const TransactionRow = ({ tx, activeAsset }: { tx: Tx; activeAsset?: Asse
   let rowTitle = `${tx.type}`
 
   if (tradeTx) {
-    value = tx?.tradeDetails?.buyAmount || '0'
+    value = tx?.tradeDetails?.buyAmount ?? '0'
     precision = buyAsset ? buyAsset.precision : asset?.precision
     txSymbol = buyAsset ? buyAsset.symbol : symbol
     rowTitle = 'trade'
     if (activeAsset?.symbol === sellAsset?.symbol) {
-      value = tx?.tradeDetails?.sellAmount || '0'
+      value = tx?.tradeDetails?.sellAmount ?? '0'
       precision = sellAsset ? sellAsset.precision : asset?.precision
       txSymbol = sellAsset ? sellAsset.symbol : symbol
       rowTitle = 'trade'

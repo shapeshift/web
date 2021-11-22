@@ -60,7 +60,11 @@ export const AssetHistory = () => {
           }
         >
           {data?.map((tx: Tx, i) => (
-            <TransactionRow key={`${i}-${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
+            <TransactionRow
+              key={`${i}-${tx.type}-${tx.txid}-${tx.asset}`}
+              tx={tx}
+              activeAsset={asset}
+            />
           ))}
         </InfiniteScroll>
       </Card.Body>

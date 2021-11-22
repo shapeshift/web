@@ -102,8 +102,8 @@
     "foxToken": "FOX Token"
   },
   "transactionRow": {
-    "send": "Sent",
-    "receive": "Received",
+    "send": "Sent %{symbol}",
+    "receive": "Received %{symbol}",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -116,7 +116,7 @@
     "blockHeight": "Block Height",
     "to": "To",
     "from": "From",
-    "trade": "Traded",
+    "trade": "Trade",
     "amount": "Amount",
     "for": "for"
   },

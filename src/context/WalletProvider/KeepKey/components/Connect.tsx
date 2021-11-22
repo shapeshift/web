@@ -9,9 +9,9 @@ import {
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
@@ -54,8 +54,8 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
-    // if keepkey is connected to another tab, it does not get added to state.adapters.
     if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
+      // if keepkey is connected to another tab, it does not get added to state.adapters.
       setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
       return
     }

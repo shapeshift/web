@@ -76,7 +76,7 @@ export const HeaderContent = ({ route }: { route: Route }) => {
             borderColor={navbarBorder}
             boxShadow={navShadow}
           >
-            <Stack as={'nav'} spacing={4} py={2} px={2}>
+            <Stack as={'nav'} spacing={4} p={2}>
               <NavBar />
             </Stack>
           </Box>

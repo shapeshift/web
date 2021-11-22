@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.7.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.7.2...@shapeshiftoss/asset-service-v1.7.3) (2021-11-22)
+
+
+### Bug Fixes
+
+* adds explorerAddressLink fixing front end UI issues ([#251](https://github.com/shapeshift/lib/issues/251)) ([57af00f](https://github.com/shapeshift/lib/commit/57af00f691d2388a5eca7fa4ca0e91999854f155))
+
 # [@shapeshiftoss/asset-service-v1.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.7.1...@shapeshiftoss/asset-service-v1.7.2) (2021-11-15)
 
 

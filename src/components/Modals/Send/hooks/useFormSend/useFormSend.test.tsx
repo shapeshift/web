@@ -46,6 +46,7 @@ const formData: SendInput = {
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true
   },

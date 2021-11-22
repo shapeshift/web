@@ -195,24 +195,31 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                 </Circle>
                 <Text translation='modals.receive.copy' />
               </Button>
-              <Button
-                color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
-                flexDir='column'
-                role='group'
-                variant='link'
-                isDisabled={!receiveAddress}
-                _hover={{ textDecoration: 'none', color: hoverColor }}
-                onClick={handleVerify}
-              >
-                <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
-                  {verified ? <CheckIcon /> : <ViewIcon />}
-                </Circle>
-                <Text
-                  translation={`modals.receive.${
-                    verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
-                  }`}
-                />
-              </Button>
+              {!(wallet.getVendor() === 'Native') ? (
+                <Button
+                  color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                  flexDir='column'
+                  role='group'
+                  variant='link'
+                  isDisabled={!receiveAddress}
+                  _hover={{ textDecoration: 'none', color: hoverColor }}
+                  onClick={handleVerify}
+                >
+                  <Circle
+                    bg={bg}
+                    mb={2}
+                    size='40px'
+                    _groupHover={{ bg: 'blue.500', color: 'white' }}
+                  >
+                    {verified ? <CheckIcon /> : <ViewIcon />}
+                  </Circle>
+                  <Text
+                    translation={`modals.receive.${
+                      verified ? 'verified' : verified === false ? 'notVerified' : 'verify'
+                    }`}
+                  />
+                </Button>
+              ) : undefined}
             </HStack>
           </ModalFooter>
         </>

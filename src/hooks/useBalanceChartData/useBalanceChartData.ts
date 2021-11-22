@@ -84,11 +84,11 @@ type MakeBucketsArgs = {
 // adjust this to give charts more or less granularity
 export const timeframeMap = {
   [HistoryTimeframe.HOUR]: { count: 60, duration: 1, unit: 'minute' },
-  [HistoryTimeframe.DAY]: { count: 285, duration: 5, unit: 'minutes' },
+  [HistoryTimeframe.DAY]: { count: 289, duration: 5, unit: 'minutes' },
   [HistoryTimeframe.WEEK]: { count: 168, duration: 1, unit: 'hours' },
-  [HistoryTimeframe.MONTH]: { count: 360, duration: 2, unit: 'hours' },
+  [HistoryTimeframe.MONTH]: { count: 362, duration: 2, unit: 'hours' },
   [HistoryTimeframe.YEAR]: { count: 365, duration: 1, unit: 'days' },
-  [HistoryTimeframe.ALL]: { count: 260, duration: 1, unit: 'weeks' }
+  [HistoryTimeframe.ALL]: { count: 262, duration: 1, unit: 'weeks' }
 }
 
 type MakeBuckets = (args: MakeBucketsArgs) => MakeBucketsReturn
@@ -107,7 +107,7 @@ export const makeBuckets: MakeBuckets = args => {
   const makeReducer = (duration: number, unit: dayjs.ManipulateType) => {
     const now = dayjs()
     return (acc: Array<Bucket>, _cur: unknown, idx: number) => {
-      const end = now.subtract(idx, unit)
+      const end = now.subtract(idx * duration, unit)
       const start = end.subtract(duration, unit).add(1, 'second')
       const txs: Tx[] = []
       const balance = {
@@ -152,9 +152,17 @@ export const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[
     const txDayjs = dayjs(tx.blockTime * 1000) // unchained uses seconds
     // if the tx is outside the time domain ignore it
     if (txDayjs.isBefore(start) || txDayjs.isAfter(end)) return acc
-    const { unit } = meta
+    const { duration, unit } = meta
     // the number of time units from start of chart to this tx
-    let bucketIndex = txDayjs.diff(start, unit as dayjs.OpUnitType)
+    let bucketIndex = Math.floor(txDayjs.diff(start, unit as dayjs.OpUnitType) / duration)
+    if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
+      console.error(
+        `bucketTxs: tx outside buckets: ${
+          tx.txid
+        }, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`
+      )
+      return acc
+    }
     // add to the correct bucket
     acc[bucketIndex].txs.push(tx)
     return acc
@@ -190,8 +198,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     if (!portfolioAsset) {
       console.warn(`fiatBalanceAtBucket: no portfolioAsset for ${caip19}`)
       console.warn('portfolioAssets', portfolioAssets)
-      // eslint-disable-next-line no-console
-      console.trace()
       return acc
     }
     const { precision } = portfolioAsset

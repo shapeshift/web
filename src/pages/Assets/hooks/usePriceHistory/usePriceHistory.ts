@@ -6,13 +6,24 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
 import { fetchPriceHistory } from 'state/slices/marketDataSlice/marketDataSlice'
 
-type UsePriceHistory = {
+type UsePriceHistoryArgs = {
   assets: CAIP19[]
   timeframe: HistoryTimeframe
 }
 
-export const usePriceHistory = ({ assets, timeframe }: UsePriceHistory) => {
-  const [data, setData] = useState<{ [asset: CAIP19]: HistoryData[] }>({})
+export type PriceHistoryData = {
+  [asset: CAIP19]: HistoryData[]
+}
+
+export type UsePriceHistoryReturn = {
+  loading: boolean
+  data: PriceHistoryData
+}
+
+export type UsePriceHistory = (args: UsePriceHistoryArgs) => UsePriceHistoryReturn
+
+export const usePriceHistory: UsePriceHistory = ({ assets, timeframe }) => {
+  const [data, setData] = useState<PriceHistoryData>({})
   const [loading, setLoading] = useState<boolean>(false)
   const dispatch = useDispatch()
   const priceHistoryForTimeframe = useSelector(

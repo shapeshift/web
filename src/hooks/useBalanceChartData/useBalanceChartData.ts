@@ -1,6 +1,5 @@
 import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
-  Asset,
   chainAdapters,
   ChainTypes,
   ContractTypes,
@@ -23,11 +22,13 @@ import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
+import { PortfolioAssets, usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { ReduxState } from 'state/reducer'
 import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+
+import { PriceHistoryData } from './../../pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -53,7 +54,7 @@ type CryptoBalance = {
 
 type BucketBalance = {
   crypto: CryptoBalance
-  fiat: number
+  fiat: BigNumber
 }
 
 export type Bucket = {
@@ -111,7 +112,7 @@ export const makeBuckets: MakeBuckets = args => {
       const txs: Tx[] = []
       const balance = {
         crypto: assetBalances,
-        fiat: 0
+        fiat: bn(0)
       }
       const bucket = { start, end, txs, balance }
       acc.push(bucket)
@@ -161,10 +162,6 @@ export const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[
   return result
 }
 
-export type PortfolioAssets = {
-  [k: CAIP19]: Asset
-}
-
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
@@ -173,9 +170,7 @@ type FiatBalanceAtBucketArgs = {
   }
 }
 
-type FiatBalanceAtBucketReturn = number
-
-type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => FiatBalanceAtBucketReturn
+type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
 
 const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
@@ -200,12 +195,10 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
       return acc
     }
     const { precision } = portfolioAsset
-    const assetFiatBalance = assetCryptoBalance
-      .div(bn(10).exponentiatedBy(precision))
-      .times(price)
-      .toNumber()
-    return acc + assetFiatBalance
-  }, 0)
+    const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
+
+    return acc.plus(assetFiatBalance)
+  }, bn(0))
 
   return result
 }
@@ -213,18 +206,14 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 type CalculateBucketPricesArgs = {
   assets: CAIP19[]
   buckets: Bucket[]
-  portfolioAssets: {
-    [k: CAIP19]: Asset
-  }
-  priceHistoryData: {
-    [k: CAIP19]: HistoryData[]
-  }
+  portfolioAssets: PortfolioAssets
+  priceHistoryData: PriceHistoryData
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
-const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
+export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
   const { assets, buckets, portfolioAssets, priceHistoryData } = args
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -240,16 +229,21 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
       const txAssetCAIP19 = caip19FromTx(tx)
-      // don't calculate price for this asset because we didn't ask for it
-      if (!assets.includes(txAssetCAIP19)) return
+      const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
+      // we only care about the list of assets being requested
+      // on a fee asset page, e.g. ethereum, we need to consider all erc20 txs
+      // as claiming an airdrop, or a trade, will appear as an erc20 receive,
+      // but we need to consider the gas paid too
+      if (!assets.includes(txAssetCAIP19) && !assets.includes(feeAssetCAIP19)) return
 
       const feeValue = bnOrZero(tx.fee?.value)
       const value = bnOrZero(tx.value) // tx value in base units
       switch (tx.type) {
         case TxType.Send: {
-          // we're going backwards, so a send means we had more before
-          bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
-          const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
+          if (bucket.balance.crypto[txAssetCAIP19]) {
+            // we're going backwards, so a send means we had more before
+            bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
+          }
           // if we're computing a portfolio chart, we have to adjust eth (feeAsset) balances
           // on each erc20 tx, but if we're just on an individual asset chart, we don't
           if (assets.includes(feeAssetCAIP19)) {
@@ -260,8 +254,19 @@ const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
           break
         }
         case TxType.Receive: {
-          // we're going backwards, so a receive means we had less before
-          bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
+          // for some contract interactions, the txAsset may be an erc20 but we may be on the eth chart
+          // we need to adjust the eth balance to account for gas
+          if (bucket.balance.crypto[txAssetCAIP19]) {
+            // we're going backwards, so a receive means we had less before
+            bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
+          }
+
+          // claims of airdrop require gas but are receives of erc20s
+          if (bucket.balance.crypto[feeAssetCAIP19]) {
+            // we're going backwards, so a send means we had more before
+            bucket.balance.crypto[feeAssetCAIP19] =
+              bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
+          }
           break
         }
         case TxType.Trade: {
@@ -345,7 +350,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     })
 
     const balanceChartData: Array<HistoryData> = calculatedBuckets.map(bucket => ({
-      // TODO(0xdef1cafe): update charts to accept price or balance
       price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
       date: bucket.end.toISOString()
     }))

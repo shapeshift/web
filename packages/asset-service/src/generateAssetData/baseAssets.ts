@@ -20,6 +20,7 @@ export const baseAssets: Array<BaseAsset> = [
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
+    explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/',
     sendSupport: true,
     receiveSupport: true
@@ -37,6 +38,7 @@ export const baseAssets: Array<BaseAsset> = [
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com',
+    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     sendSupport: false,
     receiveSupport: false
@@ -54,6 +56,7 @@ export const baseAssets: Array<BaseAsset> = [
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com/btc-testnet/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc-testnet/address/',
     explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/',
     sendSupport: false,
     receiveSupport: false
@@ -71,6 +74,7 @@ export const baseAssets: Array<BaseAsset> = [
     secondaryColor: '#FFFFFF',
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://ropsten.etherscan.io/',
+    explorerAddressLink: 'https://ropsten.etherscan.io/address/',
     explorerTxLink: 'https://ropsten.etherscan.io/tx/',
     sendSupport: false,
     receiveSupport: false,

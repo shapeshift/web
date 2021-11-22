@@ -28,6 +28,7 @@ const EthAsset: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
   explorer: 'https://ropsten.etherscan.io/',
   explorerTxLink: 'https://ropsten.etherscan.io/tx/',
+  explorerAddressLink: 'https://ropsten.etherscan.io/address/',
   sendSupport: false,
   receiveSupport: false
 }
@@ -147,6 +148,7 @@ describe('AssetService', () => {
         chain: ChainTypes.Ethereum,
         explorer: 'https://etherscan.io',
         explorerTxLink: 'https://etherscan.io/tx/',
+        explorerAddressLink: 'https://etherscan.io/address/',
         network: NetworkTypes.MAINNET,
         name: 'Test Token',
         precision: 18,

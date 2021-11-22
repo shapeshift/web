@@ -17,6 +17,7 @@ export const flattenAssetData = (assetData: BaseAsset[]): Asset[] => {
           network: baseAsset.network,
           slip44: baseAsset.slip44,
           explorer: baseAsset.explorer,
+          explorerAddressLink: baseAsset.explorerAddressLink,
           explorerTxLink: baseAsset.explorerTxLink
         })
       }

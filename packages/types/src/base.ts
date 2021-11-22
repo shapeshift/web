@@ -59,11 +59,18 @@ type AbstractAsset = {
   icon: string
   explorer: string
   explorerTxLink: string
+  explorerAddressLink: string
   sendSupport: boolean
   receiveSupport: boolean
 }
 
-type OmittedTokenAssetFields = 'chain' | 'network' | 'slip44' | 'explorer' | 'explorerTxLink'
+type OmittedTokenAssetFields =
+  | 'chain'
+  | 'network'
+  | 'slip44'
+  | 'explorer'
+  | 'explorerTxLink'
+  | 'explorerAddressLink'
 type TokenAssetFields = {
   tokenId: string
   contractType: ContractTypes

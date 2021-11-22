@@ -24,6 +24,7 @@ export const mockBaseAssets: BaseAsset[] = [
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
     tokens: [
@@ -71,6 +72,7 @@ export const mockBaseAssets: BaseAsset[] = [
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
     tokens: [
@@ -104,6 +106,7 @@ export const mockBaseAssets: BaseAsset[] = [
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     sendSupport: false,
     receiveSupport: false
   },
@@ -121,6 +124,7 @@ export const mockBaseAssets: BaseAsset[] = [
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com/btc-testnet/',
     explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc-testnet/address/',
     sendSupport: false,
     receiveSupport: false
   }
@@ -141,6 +145,7 @@ export const mockAssets: Asset[] = [
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true
   },
@@ -161,7 +166,8 @@ export const mockAssets: Asset[] = [
     network: NetworkTypes.MAINNET,
     slip44: 60,
     explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/'
+    explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/'
   },
   {
     caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
@@ -180,7 +186,8 @@ export const mockAssets: Asset[] = [
     network: NetworkTypes.MAINNET,
     slip44: 60,
     explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/'
+    explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/'
   },
   {
     caip19: 'eip155:3/slip44:60',
@@ -196,6 +203,7 @@ export const mockAssets: Asset[] = [
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true
   },
@@ -216,7 +224,8 @@ export const mockAssets: Asset[] = [
     network: NetworkTypes.ETH_ROPSTEN,
     slip44: 60,
     explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/'
+    explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/'
   },
   {
     caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
@@ -232,6 +241,7 @@ export const mockAssets: Asset[] = [
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     sendSupport: false,
     receiveSupport: false
   },
@@ -249,6 +259,7 @@ export const mockAssets: Asset[] = [
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com/btc-testnet/',
     explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc-testnet/address/',
     sendSupport: false,
     receiveSupport: false
   }
@@ -269,6 +280,7 @@ export const mockIndexedAssetData: IndexedAssetData = {
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true
   },
@@ -289,6 +301,7 @@ export const mockIndexedAssetData: IndexedAssetData = {
     network: NetworkTypes.MAINNET,
     slip44: 60,
     explorer: 'https://etherscan.io',
+    explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/'
   },
   ethereum_MAINNET_0xc770eefad204b5180df6a14ee197d99d808ee52d: {
@@ -308,6 +321,7 @@ export const mockIndexedAssetData: IndexedAssetData = {
     network: NetworkTypes.MAINNET,
     slip44: 60,
     explorer: 'https://etherscan.io',
+    explorerAddressLink: 'https://etherscan.io/address/',
     explorerTxLink: 'https://etherscan.io/tx/'
   },
   ethereum_ETH_ROPSTEN: {
@@ -324,6 +338,7 @@ export const mockIndexedAssetData: IndexedAssetData = {
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true
   },
@@ -344,7 +359,8 @@ export const mockIndexedAssetData: IndexedAssetData = {
     network: NetworkTypes.ETH_ROPSTEN,
     slip44: 60,
     explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/'
+    explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/'
   },
   bitcoin_MAINNET: {
     caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
@@ -360,6 +376,7 @@ export const mockIndexedAssetData: IndexedAssetData = {
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     sendSupport: false,
     receiveSupport: false
   },
@@ -377,6 +394,7 @@ export const mockIndexedAssetData: IndexedAssetData = {
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com/btc-testnet/',
     explorerTxLink: 'https://live.blockcypher.com/btc-testnet/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc-testnet/address/',
     sendSupport: false,
     receiveSupport: false
   }

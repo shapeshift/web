@@ -20,6 +20,7 @@ export const BTC: Asset = {
   icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
   explorer: 'https://live.blockcypher.com',
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+  explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
   sendSupport: false,
   receiveSupport: false,
   symbol: 'BTC'
@@ -40,6 +41,7 @@ export const WETH: Asset = {
   slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
   sendSupport: true,
   receiveSupport: true,
   symbol: 'WETH'
@@ -61,6 +63,7 @@ export const FOX: Asset = {
   slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
   receiveSupport: true,
   symbol: 'FOX'
 }

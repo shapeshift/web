@@ -78,7 +78,7 @@ export const Address = () => {
         <Stack flex={1}>
           <Button
             isFullWidth
-            isDisabled={!address}
+            isDisabled={!address || addressError}
             colorScheme={addressError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}

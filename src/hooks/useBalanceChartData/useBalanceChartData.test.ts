@@ -22,6 +22,15 @@ import {
   timeframeMap
 } from './useBalanceChartData'
 
+const mockedDate = '2021-11-20T00:00:00Z'
+
+jest.mock(
+  'dayjs',
+  () =>
+    (...args: any[]) =>
+      jest.requireActual('dayjs')(...(args.filter(arg => arg).length > 0 ? args : [mockedDate]))
+)
+
 describe('caip2FromTx', () => {
   it('can get correct caip2 from tx', () => {
     const chain = ChainTypes.Ethereum
@@ -73,14 +82,6 @@ describe('makeBuckets', () => {
 })
 
 describe('bucketTxs', () => {
-  beforeAll(() => {
-    jest.useFakeTimers('modern').setSystemTime(new Date('2021-11-20T00:00:00Z').getTime())
-  })
-
-  afterAll(() => {
-    jest.useRealTimers()
-  })
-
   it('can bucket txs', () => {
     const value = FOXSend.value
     const FOXCAIP19 = caip19FromTx(FOXSend)
@@ -107,26 +108,15 @@ describe('bucketTxs', () => {
       0
     )
 
-    const indexWithTxs = bucketedTxs.reduce((acc, cur, idx) => {
-      if (cur.txs.length) acc = idx
-      return acc
-    }, 0)
-    // eslint-disable-next-line no-console
-    console.log(indexWithTxs)
+    const expectedBucket = bucketedTxs[346]
     expect(totalTxs).toEqual(txs.length)
-    expect(bucketedTxs[346].txs.length).toEqual(1)
+    expect(expectedBucket.txs.length).toEqual(1)
+    expect(expectedBucket.start.isBefore(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
+    expect(expectedBucket.end.isAfter(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()
   })
 })
 
 describe('calculateBucketPrices', () => {
-  beforeAll(() => {
-    jest.useFakeTimers('modern').setSystemTime(new Date('2021-11-20T00:00:00Z').getTime())
-  })
-
-  afterAll(() => {
-    jest.useRealTimers()
-  })
-
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const FOXCAIP19 = caip19FromTx(FOXSend)
     const balances = {

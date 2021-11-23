@@ -139,16 +139,15 @@ export const NativeLoad = () => {
                       overflow='hidden'
                       fontWeight='medium'
                       textOverflow='ellipsis'
-                      maxWidth='190px'
-                      fontSize='sm'
-                      lineHeight='1'
+                      maxWidth='290px'
+                      lineHeight='1.2'
                       mb={1}
                     >
                       {wallet.name}
                     </RawText>
                     <Text
                       fontSize='sm'
-                      lineHeight='1'
+                      lineHeight='1.2'
                       color='gray.500'
                       translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
                     />

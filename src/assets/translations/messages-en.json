@@ -75,6 +75,7 @@
     "rewardValue": "Reward Value",
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
+    "yearn": "Yearn Finance",
     "empty": {
       "farming": {
         "body": "You are not currently farming anything.",

@@ -23,7 +23,8 @@
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
     "transactionFailed": "Transaction Failed",
-    "transactionFailedBody": "Transaction Failed"
+    "transactionFailedBody": "Transaction Failed",
+    "submitFeedback": "Submit Feedback"
   },
   "updateToast": {
     "body": "A new version of the app is available",

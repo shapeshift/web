@@ -1,10 +1,18 @@
-import { ChevronRightIcon, CloseIcon, HamburgerIcon, MoonIcon, RepeatIcon } from '@chakra-ui/icons'
+import {
+  ChatIcon,
+  ChevronRightIcon,
+  CloseIcon,
+  HamburgerIcon,
+  MoonIcon,
+  RepeatIcon
+} from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import {
   Button,
   ButtonGroup,
   Flex,
   IconButton,
+  Link,
   Switch,
   useColorMode,
   useColorModeValue,
@@ -107,6 +115,15 @@ export const UserMenu = () => {
             <NoWallet onClick={handleConnect} />
           )}
           <MenuDivider />
+          <MenuItem
+            icon={<ChatIcon />}
+            as={Link}
+            isExternal
+            _hover={{ textDecoration: 'none' }}
+            href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
+          >
+            <Text translation='common.submitFeedback' />
+          </MenuItem>
           <MenuItem
             icon={<MoonIcon />}
             closeOnSelect={false}

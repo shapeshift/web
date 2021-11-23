@@ -22,8 +22,6 @@ import {
   timeframeMap
 } from './useBalanceChartData'
 
-jest.useFakeTimers('modern').setSystemTime(new Date('2021-11-20T00:00:00Z').getTime())
-
 describe('caip2FromTx', () => {
   it('can get correct caip2 from tx', () => {
     const chain = ChainTypes.Ethereum
@@ -75,6 +73,14 @@ describe('makeBuckets', () => {
 })
 
 describe('bucketTxs', () => {
+  beforeAll(() => {
+    jest.useFakeTimers('modern').setSystemTime(new Date('2021-11-20T00:00:00Z').getTime())
+  })
+
+  afterAll(() => {
+    jest.useRealTimers()
+  })
+
   it('can bucket txs', () => {
     const value = FOXSend.value
     const FOXCAIP19 = caip19FromTx(FOXSend)
@@ -107,6 +113,14 @@ describe('bucketTxs', () => {
 })
 
 describe('calculateBucketPrices', () => {
+  beforeAll(() => {
+    jest.useFakeTimers('modern').setSystemTime(new Date('2021-11-20T00:00:00Z').getTime())
+  })
+
+  afterAll(() => {
+    jest.useRealTimers()
+  })
+
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const FOXCAIP19 = caip19FromTx(FOXSend)
     const balances = {

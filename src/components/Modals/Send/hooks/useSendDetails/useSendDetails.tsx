@@ -16,7 +16,7 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
 import { SendFormFields } from '../../Form'
@@ -36,6 +36,10 @@ type UseSendDetailsReturnType = {
   toggleCurrency(): void
   validateCryptoAmount(value: string): boolean | string
   validateFiatAmount(value: string): boolean | string
+  accountBalances: {
+    crypto: BigNumber
+    fiat: BigNumber
+  }
 }
 
 export const useSendDetails = (): UseSendDetailsReturnType => {
@@ -269,6 +273,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     amountFieldError,
     balancesLoading,
     fieldName,
+    accountBalances,
     handleInputChange,
     handleNextClick,
     handleSendMax,

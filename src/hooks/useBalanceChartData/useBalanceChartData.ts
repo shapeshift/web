@@ -5,7 +5,8 @@ import {
   ContractTypes,
   HistoryData,
   HistoryTimeframe,
-  NetworkTypes
+  NetworkTypes,
+  UtxoAccountType
 } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
@@ -210,6 +211,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
+  accountTypes: { [ChainTypes.Bitcoin]: UtxoAccountType }
   assets: CAIP19[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
@@ -220,7 +222,7 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
-  const { assets, buckets, portfolioAssets, priceHistoryData } = args
+  const { accountTypes, assets, buckets, portfolioAssets, priceHistoryData } = args
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
@@ -241,6 +243,13 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
       // as claiming an airdrop, or a trade, will appear as an erc20 receive,
       // but we need to consider the gas paid too
       if (!assets.includes(txAssetCAIP19) && !assets.includes(feeAssetCAIP19)) return
+
+      // TODO(0xdef1cafe): type preferencesSlice correctly and remove this chain specific hack
+      if (tx.accountType && tx.chain === ChainTypes.Bitcoin) {
+        const bitcoinAccountType = accountTypes[ChainTypes.Bitcoin]
+        // only consider the selected account type of the portfolio
+        if (tx.accountType !== bitcoinAccountType) return
+      }
 
       const feeValue = bnOrZero(tx.fee?.value)
       const value = bnOrZero(tx.value) // tx value in base units
@@ -319,6 +328,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
+  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
   const {
     state: { walletInfo }
   } = useWallet()
@@ -349,6 +359,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const buckets = bucketTxs(txs, emptyBuckets)
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
+      accountTypes,
       assets,
       buckets,
       priceHistoryData,
@@ -363,6 +374,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartDataLoading(false)
   }, [
     assets,
+    accountTypes,
     priceHistoryData,
     priceHistoryLoading,
     txs,

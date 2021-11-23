@@ -74,8 +74,9 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   }, [])
 
   const accounts = useMemo(() => {
-    return Object.keys(balances).sort(sortByFiat({ balances, assets, marketData }))
-    // .filter(key => bnOrZero(balances[key].balance).gt(0))
+    return Object.keys(balances)
+      .sort(sortByFiat({ balances, assets, marketData }))
+      .filter(key => bnOrZero(balances[key].balance).gt(0))
   }, [assets, balances, marketData])
 
   const accountRows = useMemo(() => {
@@ -111,7 +112,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
         <AccountHeader />
         {Object.keys(balances)
           .sort(sortByFiat({ balances, assets, marketData }))
-          // .filter(key => bnOrZero(balances[key].balance).gt(0))
+          .filter(key => bnOrZero(balances[key].balance).gt(0))
           .map(key => {
             const account = balances[key]
             const asset = assets[key]

@@ -85,6 +85,7 @@ export const FOXSend: Tx = {
   to: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 }
 
+// these test txs were on an account with a start date jan 2021
 const test1: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xc2f42f9dfbeb1c600ecd13dbcd624af1ea70631e13ad4d972b83a2a7c805360c',

@@ -10,8 +10,8 @@ import { PortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { ethereum, fox } from 'jest/mocks/assets'
 import { FOXSend, testTxs } from 'jest/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
+import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
-import { PriceHistoryData } from './../../pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import {
   Bucket,
   bucketTxs,
@@ -66,7 +66,7 @@ describe('makeBuckets', () => {
       expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
       bucketsAndMeta.buckets.forEach(bucket => {
         const { balance } = bucket
-        expect(balance.fiat).toEqual(0)
+        expect(balance.fiat.toNumber()).toEqual(0)
         expect(Object.keys(balance.crypto)).toEqual(assets)
         expect(balance.crypto[ethCAIP19]).toEqual(bn(ethBalance))
       })
@@ -89,7 +89,7 @@ describe('bucketTxs', () => {
       }
     }
     const assets = [FOXCAIP19]
-    const timeframe = HistoryTimeframe.HOUR
+    const timeframe = HistoryTimeframe.YEAR
     const buckets = makeBuckets({ assets, balances, timeframe })
 
     const txs = [FOXSend]
@@ -102,12 +102,12 @@ describe('bucketTxs', () => {
     )
 
     expect(totalTxs).toEqual(txs.length)
-    expect(bucketedTxs[30].txs.length).toEqual(1)
+    expect(bucketedTxs[346].txs.length).toEqual(1)
   })
 })
 
 describe('calculateBucketPrices', () => {
-  xit('has balance of single tx at start of chart', () => {
+  it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const FOXCAIP19 = caip19FromTx(FOXSend)
     const balances = {
       [FOXCAIP19]: {
@@ -120,7 +120,7 @@ describe('calculateBucketPrices', () => {
       }
     }
     const assets = [FOXCAIP19]
-    const timeframe = HistoryTimeframe.HOUR
+    const timeframe = HistoryTimeframe.YEAR
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
 
     const txs = [FOXSend]
@@ -148,6 +148,9 @@ describe('calculateBucketPrices', () => {
 
     const value = FOXSend.value
     expect(calculatedBuckets[0].balance.crypto[FOXCAIP19].toFixed(0)).toEqual(value)
+    expect(
+      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[FOXCAIP19].toFixed(0)
+    ).toEqual(FOXSend.value)
   })
 
   it('has zero balance 1 year back', () => {
@@ -186,7 +189,6 @@ describe('calculateBucketPrices', () => {
       priceHistoryData,
       portfolioAssets
     })
-    // console.log(calculatedBuckets)
     expect(calculatedBuckets[0].balance.crypto[ETHCAIP19].toNumber()).toEqual(0)
   })
 })

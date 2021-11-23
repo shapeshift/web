@@ -108,7 +108,8 @@ describe('bucketTxs', () => {
       0
     )
 
-    const expectedBucket = bucketedTxs[346]
+    // if this non null assertion is false we fail anyway
+    const expectedBucket = bucketedTxs.find(bucket => bucket.txs.length)!
     expect(totalTxs).toEqual(txs.length)
     expect(expectedBucket.txs.length).toEqual(1)
     expect(expectedBucket.start.isBefore(expectedBucket.txs[0].blockTime * 1000)).toBeTruthy()

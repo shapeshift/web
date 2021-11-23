@@ -1,8 +1,14 @@
 import { caip2, caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, ContractTypes, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  ContractTypes,
+  HistoryTimeframe,
+  NetworkTypes,
+  UtxoAccountType
+} from '@shapeshiftoss/types'
 import { PortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { ethereum, fox } from 'jest/mocks/assets'
-import { FOXSend, squigglyTxs } from 'jest/mocks/txs'
+import { FOXSend, testTxs } from 'jest/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { PriceHistoryData } from './../../pages/Assets/hooks/usePriceHistory/usePriceHistory'
@@ -41,7 +47,7 @@ describe('caip19FromTx', () => {
 })
 
 describe('makeBuckets', () => {
-  xit('can make buckets', () => {
+  it('can make buckets', () => {
     const ethCAIP19 = 'eip155:1/slip44:60'
     const assets = [ethCAIP19]
     const ethBalance = '42069'
@@ -69,7 +75,7 @@ describe('makeBuckets', () => {
 })
 
 describe('bucketTxs', () => {
-  xit('can bucket txs', () => {
+  it('can bucket txs', () => {
     const value = FOXSend.value
     const FOXCAIP19 = caip19FromTx(FOXSend)
     const balances = {
@@ -128,7 +134,12 @@ describe('calculateBucketPrices', () => {
     }
 
     const buckets = bucketTxs(txs, emptyBuckets)
+    const accountTypes = {
+      [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
+    }
+
     const calculatedBuckets = calculateBucketPrices({
+      accountTypes,
       assets,
       buckets,
       priceHistoryData,
@@ -140,7 +151,7 @@ describe('calculateBucketPrices', () => {
   })
 
   it('has zero balance 1 year back', () => {
-    const txs = squigglyTxs
+    const txs = testTxs
     const ETHCAIP19 = caip19FromTx(txs[0])
     const balances = {
       [ETHCAIP19]: {
@@ -163,7 +174,13 @@ describe('calculateBucketPrices', () => {
 
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
     const buckets = bucketTxs(txs, emptyBuckets)
+
+    const accountTypes = {
+      [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
+    }
+
     const calculatedBuckets = calculateBucketPrices({
+      accountTypes,
       assets,
       buckets,
       priceHistoryData,

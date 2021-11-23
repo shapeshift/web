@@ -85,7 +85,7 @@ export const FOXSend: Tx = {
   to: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 }
 
-const squiggly1: Tx = {
+const test1: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xc2f42f9dfbeb1c600ecd13dbcd624af1ea70631e13ad4d972b83a2a7c805360c',
   blockHeight: 13636644,
@@ -106,7 +106,7 @@ const squiggly1: Tx = {
   to: '0x67ffc0d460c38CeEe3a29A94def9Ff828E92E165'
 }
 
-const squiggly2: Tx = {
+const test2: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x2761caf9c664bb0dc9b59b18f24e7a29974c867b1181cbcefd415f881801a16e',
   blockHeight: 13508504,
@@ -127,7 +127,7 @@ const squiggly2: Tx = {
   to: '0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741'
 }
 
-const squiggly3: Tx = {
+const test3: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xe594af3d97c1ee001ab72a16671a0e05edf1ae50201eb6645dd4e5fd406e48a7',
   blockHeight: 12730373,
@@ -144,7 +144,7 @@ const squiggly3: Tx = {
   from: '0x2ee5e455454d0ba78C337a918C6E5ff80345c1e0'
 }
 
-const squiggly4: Tx = {
+const test4: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x4e427bef8984df1c1cffcd88bbc4b3f5a62c51a3f0a315cf2c49d8783d0c7603',
   blockHeight: 12279659,
@@ -165,7 +165,7 @@ const squiggly4: Tx = {
   to: '0xf9F6c86877C2Cf13f93B29FDa3c66d361A463Ab5'
 }
 
-const squiggly5: Tx = {
+const test5: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x238168ad84a353e0245399f779ee20ef352ce303ef78681c70c5c269574375e9',
   blockHeight: 11635278,
@@ -182,7 +182,7 @@ const squiggly5: Tx = {
   from: '0xD3273EBa07248020bf98A8B560ec1576a612102F'
 }
 
-const squiggly6: Tx = {
+const test6: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xe6c0ce54e78c22c2297fe8d058ba3cf944b35185016a2047974532cfe0627d17',
   blockHeight: 11615644,
@@ -200,7 +200,7 @@ const squiggly6: Tx = {
 }
 
 // THIS IS THE NAUGHTY ONE
-const squiggly7: Tx = {
+const test7: Tx = {
   address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x9f24e77cfe543625ca98539f73d3f2a60d475b715a759bb5dc43334d0fa660dd',
   blockHeight: 12826450,
@@ -229,12 +229,4 @@ const squiggly7: Tx = {
   from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535'
 }
 
-export const squigglyTxs = [
-  squiggly1,
-  squiggly2,
-  squiggly3,
-  squiggly4,
-  squiggly5,
-  squiggly6,
-  squiggly7
-]
+export const testTxs = [test1, test2, test3, test4, test5, test6, test7]

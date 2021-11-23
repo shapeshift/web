@@ -3773,7 +3773,17 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.18.1", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.17.1", "@shapeshiftoss/hdwallet-core@^1.18.0", "@shapeshiftoss/hdwallet-core@^1.18.1":
+"@shapeshiftoss/hdwallet-core@1.18.2-alpha.0", "@shapeshiftoss/hdwallet-core@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.2-alpha.0.tgz#adb29d6f6729adb1ad9d2f44ebf4f55d0530eaac"
+  integrity sha512-VQBeUR/o/7bXJkeebKoer95fZqs00D5/50GATD1bAo+VvvQEw2vBYRNeE1mjICDX4B1qPrVQRV1/2kS0ShoPvg==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.17.1", "@shapeshiftoss/hdwallet-core@^1.18.0":
   version "1.18.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.1.tgz#0d2564cc7803eae7998019e05e307273710585aa"
   integrity sha512-55nI+Ot4WfCv6u91xUCHe9PUJZ28p5J9OKgt5Sei+3yWc+iA+YLwbWo+rstIPTAxuJcFfTOLrSf+OQ1ik2H+zA==
@@ -3783,24 +3793,24 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.18.1.tgz#285d2d4a3dca6678893e58ceecfd78e5eb2010f9"
-  integrity sha512-EZ0Z4X5cOQFzWNTKJhh6Ma9f5xhcE1jhpnV/bR6D5D1sB11w5yryIn1uexpPRgWfqu1OQrOFUGfF9DqK4RNMdA==
+"@shapeshiftoss/hdwallet-keepkey-webusb@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.18.2-alpha.0.tgz#22642441984b5cb244a02af64824e3daf5f67cc7"
+  integrity sha512-MCR9HRyf0DaLI6RC3Anq2mi96lqnb4YoebbZR22ngdqQ/Wv6kXFvJJILLKifaiHnmn4S2unCMFIYLLMoSqfXxg==
   dependencies:
-    "@shapeshiftoss/hdwallet-core" "1.18.1"
-    "@shapeshiftoss/hdwallet-keepkey" "1.18.1"
+    "@shapeshiftoss/hdwallet-core" "1.18.2-alpha.0"
+    "@shapeshiftoss/hdwallet-keepkey" "1.18.2-alpha.0"
 
-"@shapeshiftoss/hdwallet-keepkey@1.18.1", "@shapeshiftoss/hdwallet-keepkey@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.18.1.tgz#bc302cc6a4c39ec4bd9ab716ba152a88c3eed0e7"
-  integrity sha512-0HdlMPzqL+iAm/a3/PL83NwOmuSbnwp7swSxGlnyGe73odSPXZVj1gELJikrsJxhmSsY6IyYqiOFvNUSlx9l/Q==
+"@shapeshiftoss/hdwallet-keepkey@1.18.2-alpha.0", "@shapeshiftoss/hdwallet-keepkey@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.18.2-alpha.0.tgz#ed44e817f2784eb68c45c610c88ddcc10eab4617"
+  integrity sha512-A5uHEdf357BJ5fzCAo/MH9M02+zD7E3C7nAWd4NIbMRJjRJI30DYGTr2L0QyiN+w+8SF1zOfAUYhLV7Z66nufw==
   dependencies:
     "@ethereumjs/common" "^2.4.0"
     "@ethereumjs/tx" "^3.3.0"
     "@keepkey/device-protocol" "^7.2.4"
     "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "1.18.1"
+    "@shapeshiftoss/hdwallet-core" "1.18.2-alpha.0"
     bignumber.js "^9.0.1"
     bnb-javascript-sdk-nobroadcast "^2.16.14"
     crypto-js "^4.0.0"
@@ -3811,26 +3821,26 @@
     semver "^6.3.0"
     tiny-secp256k1 "^1.1.6"
 
-"@shapeshiftoss/hdwallet-metamask@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.1.tgz#e8cf2834c442b6738faff6c49c1bd6c6ccaab4c9"
-  integrity sha512-1CucQFHsS+R/3YbAdhRoQWmx0b3ar4w6v6GIMDN2dvEyjdW/HJ+SXYq4cICTo7VJc8Zsmj9Hca3pRuvFF3gwIA==
+"@shapeshiftoss/hdwallet-metamask@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.2-alpha.0.tgz#22780d4082c4c1629fa4793e0779b74770bcbd79"
+  integrity sha512-PVKHJRp1RK4Cik0T4Lv3OBQvFX+eFzTyagvFmzalcd9Wx8wXLRWr4LRadl9L09rEADXKwYv7B14Dml2gvlOJAg==
   dependencies:
     "@metamask/onboarding" "^1.0.1"
     "@portis/web3" "3.0.10"
-    "@shapeshiftoss/hdwallet-core" "1.18.1"
+    "@shapeshiftoss/hdwallet-core" "1.18.2-alpha.0"
     base64-js "^1.5.1"
     bip32 "^2.0.4"
     bitcoinjs-lib "^5.1.6"
     bitcoinjs-message "^2.1.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/hdwallet-native-vault@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native-vault/-/hdwallet-native-vault-1.18.1.tgz#f1a54e7f6fd66fc7f6767647944972a6ec4363f1"
-  integrity sha512-Az4hY5D9xavRCyqgPgFxAISBPNr054vY8UJWtdA7tswEmxMDO7nehbnn8gO4og+jArjoZlOm8mxu8Htbequ+Hg==
+"@shapeshiftoss/hdwallet-native-vault@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native-vault/-/hdwallet-native-vault-1.18.2-alpha.0.tgz#ab63d1d1e3e76e33a55aca4f326550a1672adb35"
+  integrity sha512-emyaZngTia/axgIOs0rmuD+vSihrNO5SpejHfLjS6sTJ9LcS5zP8GdkYJysh7P+b4Q6sa8BhwuQWzH6RzdpNAw==
   dependencies:
-    "@shapeshiftoss/hdwallet-native" "1.18.1"
+    "@shapeshiftoss/hdwallet-native" "1.18.2-alpha.0"
     bip39 "^3.0.4"
     hash-wasm "^4.9.0"
     idb-keyval "^6.0.3"
@@ -3839,14 +3849,14 @@
     uuid "^8.3.2"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-native@1.18.1", "@shapeshiftoss/hdwallet-native@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.18.1.tgz#e686ecf9eebdf7ae19cefa4872979df28b123877"
-  integrity sha512-T5Jlw4t5T1rUaVGHB8t3N/sV7O2jVL9AFZ0Gh0FpeOLKqCbUrwsprzz7nTo49XplpUQLawOPM2reDRVwIkU2Hw==
+"@shapeshiftoss/hdwallet-native@1.18.2-alpha.0", "@shapeshiftoss/hdwallet-native@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.18.2-alpha.0.tgz#7ebf96954fc66386c51b46934ad5d1e4948225e0"
+  integrity sha512-E7JVRW03hNXC3/EnMOIG1axRtpcrJ4me0askjAaBOGQkozwgQTR5fruCMyjIpZS7wZlHJpRVurUBjUSH4avaTQ==
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
     "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.6"
-    "@shapeshiftoss/hdwallet-core" "1.18.1"
+    "@shapeshiftoss/hdwallet-core" "1.18.2-alpha.0"
     "@zxing/text-encoding" "^0.9.0"
     bchaddrjs "^0.4.9"
     bignumber.js "^9.0.1"
@@ -3864,13 +3874,13 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-portis@^1.18.1":
-  version "1.18.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.18.1.tgz#f8cba9d224fbe450508f2fb882edbf045e014138"
-  integrity sha512-B2nz79vDYNweBqexJljgN1fRF+kXpGXkOUyaZjZpHf/2kTPhInfXuEZD5MvSQVhoe/AoxFMs+cy9pVqQNocomQ==
+"@shapeshiftoss/hdwallet-portis@^1.18.2-alpha.0":
+  version "1.18.2-alpha.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.18.2-alpha.0.tgz#72ae853b6cd22d6f3668f5d700a0c791aba37c9f"
+  integrity sha512-PyeJ3JyXcbycu0W5OVjhkwc69Usp4TnJlNCKqDVYTklZ0fhCcG7kaZkFmffM0/URMDXD9Uj0o0x1E/Z2vI1nPQ==
   dependencies:
     "@portis/web3" "3.0.10"
-    "@shapeshiftoss/hdwallet-core" "1.18.1"
+    "@shapeshiftoss/hdwallet-core" "1.18.2-alpha.0"
     base64-js "^1.5.1"
     bip32 "^2.0.4"
     bitcoinjs-lib "^5.1.6"

@@ -2,12 +2,14 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Box,
   Button,
   ModalBody,
   ModalHeader,
   VStack
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { IconCircle } from 'components/IconCircle'
@@ -20,6 +22,7 @@ import { KeyManager, SUPPORTED_WALLETS } from '../../config'
 type VaultInfo = {
   id: string
   name: string
+  createdAt: number
 }
 
 export const NativeLoad = () => {
@@ -39,8 +42,9 @@ export const NativeLoad = () => {
           const storedWallets: VaultInfo[] = await Promise.all(
             vaultIds.map(async id => {
               const meta = await Vault.meta(id)
+              const createdAt = Number(meta?.get('createdAt') ?? null)
               const name = String(meta?.get('name') ?? id)
-              return { id, name }
+              return { id, name, createdAt }
             })
           )
 
@@ -115,21 +119,31 @@ export const NativeLoad = () => {
                   display='flex'
                   pl={4}
                   leftIcon={
-                    <IconCircle boxSize={8}>
+                    <IconCircle boxSize={10}>
                       <FaWallet />
                     </IconCircle>
                   }
                   onClick={() => handleWalletSelect(wallet)}
                 >
-                  <RawText
-                    overflow='hidden'
-                    fontWeight='medium'
-                    textOverflow='ellipsis'
-                    maxWidth='190px'
-                    fontSize='sm'
-                  >
-                    {wallet.name}
-                  </RawText>
+                  <Box textAlign='left'>
+                    <RawText
+                      overflow='hidden'
+                      fontWeight='medium'
+                      textOverflow='ellipsis'
+                      maxWidth='190px'
+                      fontSize='sm'
+                      lineHeight='1'
+                      mb={1}
+                    >
+                      {wallet.name}
+                    </RawText>
+                    <Text
+                      fontSize='sm'
+                      lineHeight='1'
+                      color='gray.500'
+                      translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
+                    />
+                  </Box>
                 </Button>
                 <Button
                   colorScheme='red'

@@ -8,6 +8,7 @@
     "confirm": "Confirm",
     "reject": "Reject",
     "connected": "Connected",
+    "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
@@ -171,6 +172,7 @@
     "shapeShift": {
       "password": {
         "header": "Enter Your Password",
+        "walletName": "Enter wallet nickname (optional)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
         "show": "Show password",

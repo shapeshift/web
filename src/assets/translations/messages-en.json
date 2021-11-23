@@ -8,6 +8,7 @@
     "confirm": "Confirm",
     "reject": "Reject",
     "connected": "Connected",
+    "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
@@ -172,6 +173,7 @@
     "shapeShift": {
       "password": {
         "header": "Enter Your Password",
+        "walletName": "Wallet nickname (optional)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
         "show": "Show password",
@@ -358,7 +360,8 @@
         },
         "header": "Saved Wallets",
         "body": "Loading your saved wallet... Enter your password when prompted.",
-        "button": "Continue"
+        "button": "Continue",
+        "confirmForget": "Are you sure you want to forget %{wallet}?"
       },
       "import": {
         "header": "Import your wallet",

@@ -27,6 +27,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       const vault = location.state.vault
       vault.seal()
       await vault.setPassword(values.password)
+      vault.meta.set('name', values.name)
       history.push('/native/success', { vault })
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Password - Error setting password', e)
@@ -52,7 +53,16 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       <ModalBody>
         <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl isInvalid={Boolean(errors)} mb={6}>
+          <FormControl mb={6}>
+            <Input
+              {...register('name')}
+              size='lg'
+              variant='filled'
+              id='name'
+              placeholder={translate('modals.shapeShift.password.walletName')}
+            />
+          </FormControl>
+          <FormControl mb={6} isInvalid={errors.password}>
             <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('password', {

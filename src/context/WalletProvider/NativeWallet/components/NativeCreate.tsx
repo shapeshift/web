@@ -53,6 +53,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
     ;(async () => {
       try {
         const vault = await Vault.create(undefined, false)
+        vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', GENERATE_MNEMONIC)
         setVault(vault)
       } catch (e) {
@@ -101,7 +102,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
         <Text translation={'walletProvider.shapeShift.create.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text translation={'walletProvider.shapeShift.create.body'} />
+        <Text color='gray.500' translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
             <AlertIcon />
@@ -113,7 +114,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
         </Wrap>
       </ModalBody>
       <ModalFooter justifyContent='space-between'>
-        <Button colorScheme='blue' onClick={handleShow} size='lg' leftIcon={<FaEye />}>
+        <Button colorScheme='blue' variant='ghost' onClick={handleShow} leftIcon={<FaEye />}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
           />

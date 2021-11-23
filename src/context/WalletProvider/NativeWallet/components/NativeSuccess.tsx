@@ -13,7 +13,7 @@ export const NativeSuccess = ({ location }: NativeSetupProps) => {
         <Text translation={'walletProvider.shapeShift.success.header'} />
       </ModalHeader>
       <ModalBody>
-        <Box>
+        <Box color='gray.500'>
           {isSuccessful === true ? (
             <Text translation={'walletProvider.shapeShift.success.success'} />
           ) : isSuccessful === false ? (

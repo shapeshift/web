@@ -259,8 +259,9 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
           }
-          // if we're computing a portfolio chart, we have to adjust eth (feeAsset) balances
-          // on each erc20 tx, but if we're just on an individual asset chart, we don't
+          // if we're computing a portfolio chart, we have to adjust feeAsset balances
+          // on each token tx, but if we're just on an individual token chart, we
+          // may not have the fee asset in the assets list
           if (assets.includes(feeAssetCAIP19)) {
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[feeAssetCAIP19] =
@@ -269,16 +270,17 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
           break
         }
         case TxType.Receive: {
-          // for some contract interactions, the txAsset may be an erc20 but we may be on the eth chart
-          // we need to adjust the eth balance to account for gas
+          // for some contract interactions, the txAsset may be a token (e.g. erc20)
+          // but we may be on the fee asset (e.g. eth) chart
           if (bucket.balance.crypto[txAssetCAIP19]) {
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
           }
 
-          // claims of airdrop require gas but are receives of erc20s
+          // some txs, e.g. claim an airdrop, require gas but are receives of tokens
           if (bucket.balance.crypto[feeAssetCAIP19]) {
             // we're going backwards, so a send means we had more before
+            // and even though this is a receive tx of a token, we sent the fee
             bucket.balance.crypto[feeAssetCAIP19] =
               bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
           }

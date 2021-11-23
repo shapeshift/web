@@ -107,6 +107,12 @@ describe('bucketTxs', () => {
       0
     )
 
+    const indexWithTxs = bucketedTxs.reduce((acc, cur, idx) => {
+      if (cur.txs.length) acc = idx
+      return acc
+    }, 0)
+    // eslint-disable-next-line no-console
+    console.log(indexWithTxs)
     expect(totalTxs).toEqual(txs.length)
     expect(bucketedTxs[346].txs.length).toEqual(1)
   })

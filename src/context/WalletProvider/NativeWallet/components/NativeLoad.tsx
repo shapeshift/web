@@ -12,6 +12,7 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -29,6 +30,7 @@ export const NativeLoad = () => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
+  const translate = useTranslate()
 
   useEffect(() => {
     ;(async () => {
@@ -87,11 +89,18 @@ export const NativeLoad = () => {
   }
 
   const handleDelete = async (wallet: VaultInfo) => {
-    try {
-      await Vault.delete(wallet.id)
-      setWallets([])
-    } catch (e) {
-      setError('walletProvider.shapeShift.load.error.delete')
+    const result = window.confirm(
+      translate('walletProvider.shapeShift.load.confirmForget', {
+        wallet: wallet.name ?? wallet.id
+      })
+    )
+    if (result) {
+      try {
+        await Vault.delete(wallet.id)
+        setWallets([])
+      } catch (e) {
+        setError('walletProvider.shapeShift.load.error.delete')
+      }
     }
   }
 

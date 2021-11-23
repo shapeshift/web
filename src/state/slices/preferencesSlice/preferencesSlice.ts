@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
 export type Preferences = {
-  accountTypes: Record<ChainTypes, any>
+  accountTypes: Record<string, any>
 }
 
 export const supportedAccountTypes = {
@@ -16,8 +16,7 @@ export const supportedAccountTypes = {
 
 const initialState: Preferences = {
   accountTypes: {
-    [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative,
-    [ChainTypes.Ethereum]: undefined
+    [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
   }
 }
 
@@ -25,19 +24,8 @@ export const preferences = createSlice({
   name: 'preferences',
   initialState,
   reducers: {
-    setAccountType(
-      state,
-      { payload }: { payload: { key: ChainTypes; value: UtxoAccountType | undefined } }
-    ) {
-      switch (payload.key) {
-        case ChainTypes.Bitcoin: {
-          state.accountTypes[ChainTypes.Bitcoin] = payload.value as UtxoAccountType
-          break
-        }
-        default: {
-          console.error(`preferences/setAccountType: unsupported chain ${payload.key}`)
-        }
-      }
+    setAccountType(state, { payload }: { payload: { key: ChainTypes; value: any } }) {
+      state.accountTypes[payload.key] = payload.value
     }
   }
 })

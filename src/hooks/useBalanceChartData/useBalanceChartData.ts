@@ -5,8 +5,7 @@ import {
   ContractTypes,
   HistoryData,
   HistoryTimeframe,
-  NetworkTypes,
-  UtxoAccountType
+  NetworkTypes
 } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
@@ -214,7 +213,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
-  accountTypes: { [ChainTypes.Bitcoin]: UtxoAccountType }
+  accountTypes: Record<string, any>
   assets: CAIP19[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets

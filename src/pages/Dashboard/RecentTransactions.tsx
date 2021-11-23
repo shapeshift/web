@@ -19,7 +19,7 @@ export const RecentTransactions = () => {
       <Card.Body px={2} pt={0}>
         <Stack spacing={0}>
           {txs?.slice(0, 10).map((tx: Tx, i) => (
-            <TransactionRow compact key={`${i}-${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
+            <TransactionRow key={`${i}-${tx.type}-${tx.txid}-${tx.asset}`} tx={tx} />
           ))}
         </Stack>
       </Card.Body>

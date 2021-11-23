@@ -25,7 +25,7 @@ yarn-error.log*
 
 # vs-code
 .history
-.vscode/settings.json 
+.vscode
 
 # idea
 *.iml

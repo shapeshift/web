@@ -23,6 +23,7 @@ const assets: Asset[] = [
     icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true
   },
@@ -40,6 +41,7 @@ const assets: Asset[] = [
     icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
     sendSupport: false,
     receiveSupport: false
   },
@@ -58,6 +60,7 @@ const assets: Asset[] = [
     slip44: 60,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
     symbol: 'AAMMDAI'
@@ -77,6 +80,7 @@ const assets: Asset[] = [
     slip44: 60,
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
+    explorerAddressLink: 'https://etherscan.io/address/',
     sendSupport: true,
     receiveSupport: true,
     symbol: 'DAI'

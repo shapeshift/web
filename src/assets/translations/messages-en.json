@@ -38,7 +38,11 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
-      "allocation": "Allocation"
+      "allocation": "Allocation",
+      "empty": {
+        "title": "Cricket noises...",
+        "cta": "Send yourself some crypto!"
+      }
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
@@ -98,8 +102,8 @@
     "foxToken": "FOX Token"
   },
   "transactionRow": {
-    "send": "Sent",
-    "receive": "Received",
+    "send": "Sent %{symbol}",
+    "receive": "Received %{symbol}",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -112,7 +116,7 @@
     "blockHeight": "Block Height",
     "to": "To",
     "from": "From",
-    "trade": "Traded",
+    "trade": "Trade",
     "amount": "Amount",
     "for": "for"
   },
@@ -293,8 +297,9 @@
       },
       "connect": {
         "header": "Pair Your KeepKey",
-        "body": "Connect a KeepKey device and click 'Pair.'",
-        "button": "Pair"
+        "body": "Connect a KeepKey device and click Pair.",
+        "button": "Pair",
+        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
       },
       "pin": {
         "header": "Enter Your Pin",

@@ -1,4 +1,12 @@
-import { Select } from '@chakra-ui/react'
+import {
+  Button,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Tooltip
+} from '@chakra-ui/react'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,31 +24,40 @@ export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
 
   return (
     <Card.Body hidden={!accountTypes}>
-      <Select
-        size='sm'
-        value={currentAccountType}
-        onChange={option =>
-          dispatch(
-            preferences.actions.setAccountType({
-              key: chain,
-              value: option.target.value
-            })
-          )
-        }
-      >
-        {accountTypes?.map(accountType => (
-          <option
-            value={accountType}
-            title={
-              accountType === UtxoAccountType.SegwitNative
-                ? translate('assets.assetDetails.assetHeader.SegwitNativeTooltip')
-                : undefined
+      <Menu>
+        <MenuButton as={Button} variant='ghost-filled' colorScheme='blue' size='sm'>
+          {translate('assets.assetDetails.assetHeader.btcFormat')}
+        </MenuButton>
+        <MenuList color='gray.500'>
+          <MenuOptionGroup
+            type='radio'
+            value={currentAccountType}
+            onChange={option =>
+              dispatch(
+                preferences.actions.setAccountType({
+                  key: chain,
+                  value: option
+                })
+              )
             }
           >
-            {translate(`assets.assetDetails.assetHeader.${accountType}`)}
-          </option>
-        ))}
-      </Select>
+            {accountTypes?.map(accountType => (
+              <MenuItemOption value={accountType} fontSize='sm'>
+                {accountType === UtxoAccountType.SegwitNative ? (
+                  <Tooltip
+                    label={translate('assets.assetDetails.assetHeader.SegwitNativeTooltip')}
+                    fontSize='sm'
+                  >
+                    {translate(`assets.assetDetails.assetHeader.${accountType}`)}
+                  </Tooltip>
+                ) : (
+                  translate(`assets.assetDetails.assetHeader.${accountType}`)
+                )}
+              </MenuItemOption>
+            ))}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
     </Card.Body>
   )
 }

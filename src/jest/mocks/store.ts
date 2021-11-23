@@ -1,7 +1,7 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { TxHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { ChainTypes, HistoryTimeframe, UtxoAccountType } from '@shapeshiftoss/types'
+import { ReduxState } from 'state/reducer'
 
-export const mockStore = {
+export const mockStore: ReduxState = {
   assets: {},
   marketData: {
     marketData: {},
@@ -15,8 +15,14 @@ export const mockStore = {
     },
     loading: false
   },
-  txHistory: {} as TxHistory,
+  txHistory: {
+    [ChainTypes.Bitcoin]: {},
+    [ChainTypes.Ethereum]: {}
+  },
   preferences: {
-    accountTypes: {}
+    accountTypes: {
+      [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative,
+      [ChainTypes.Ethereum]: undefined
+    }
   }
 } as const

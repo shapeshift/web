@@ -146,7 +146,7 @@ export const NativeLoad = () => {
                       {wallet.name}
                     </RawText>
                     <Text
-                      fontSize='sm'
+                      fontSize='xs'
                       lineHeight='1.2'
                       color='gray.500'
                       translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}

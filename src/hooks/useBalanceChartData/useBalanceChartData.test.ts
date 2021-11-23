@@ -24,12 +24,12 @@ import {
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
-jest.mock(
-  'dayjs',
-  () =>
-    (...args: any[]) =>
-      jest.requireActual('dayjs')(...(args.filter(arg => arg).length > 0 ? args : [mockedDate]))
-)
+// jest.mock(
+//   'dayjs',
+//   () =>
+//     (...args: any[]) =>
+//       jest.requireActual('dayjs')(...(args.filter(arg => arg).length > 0 ? args : [mockedDate]))
+// )
 
 describe('caip2FromTx', () => {
   it('can get correct caip2 from tx', () => {
@@ -82,6 +82,13 @@ describe('makeBuckets', () => {
 })
 
 describe('bucketTxs', () => {
+  beforeAll(() => {
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(new Date(mockedDate))
+  })
+
+  afterAll(() => jest.useRealTimers())
+
   it('can bucket txs', () => {
     const value = FOXSend.value
     const FOXCAIP19 = caip19FromTx(FOXSend)
@@ -118,6 +125,13 @@ describe('bucketTxs', () => {
 })
 
 describe('calculateBucketPrices', () => {
+  beforeAll(() => {
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(new Date(mockedDate))
+  })
+
+  afterAll(() => jest.useRealTimers())
+
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const FOXCAIP19 = caip19FromTx(FOXSend)
     const balances = {

@@ -18,6 +18,7 @@ import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
+import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -26,10 +27,9 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { PortfolioAssets, usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
+import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { ReduxState } from 'state/reducer'
 import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
-
-import { PriceHistoryData } from './../../pages/Assets/hooks/usePriceHistory/usePriceHistory'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -42,11 +42,14 @@ type PriceAtBlockTimeArgs = {
 type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
 
 export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData }): number => {
-  for (let i = 0; i < assetPriceHistoryData.length; i++) {
-    if (time > Number(assetPriceHistoryData[i].date)) continue
-    return assetPriceHistoryData[i].price
-  }
-  return assetPriceHistoryData[assetPriceHistoryData.length - 1].price
+  const { length } = assetPriceHistoryData
+  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
+  const i = sortedIndexBy(assetPriceHistoryData, { date: String(time), price: 0 }, ({ date }) =>
+    Number(date)
+  )
+  if (i === 0) return assetPriceHistoryData[i].price
+  if (i >= length) return assetPriceHistoryData[length - 1].price
+  return assetPriceHistoryData[i].price
 }
 
 type CryptoBalance = {
@@ -359,6 +362,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
     // put each tx into a bucket for the chart
     const buckets = bucketTxs(txs, emptyBuckets)
+
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
       accountTypes,

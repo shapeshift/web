@@ -236,6 +236,11 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
       buckets[i + 1]?.balance || buckets[buckets.length - 1].balance
     )
 
+    // unchained returns 3 tx's in redux for each trade tx; a trade, send, and receive
+    // we need to account for fees, but they appear in both the send and receive
+    // keep a set of seenTxs that we have accounted the fee for, so we don't double count
+    const seenTxs = new Set()
+
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
       const txAssetCAIP19 = caip19FromTx(tx)
@@ -261,14 +266,20 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
           }
+
           // if we're computing a portfolio chart, we have to adjust feeAsset balances
           // on each token tx, but if we're just on an individual token chart, we
           // may not have the fee asset in the assets list
+
+          // we've already seen this tx, don't double count the fee
+          if (seenTxs.has(tx.txid)) break
+
           if (assets.includes(feeAssetCAIP19)) {
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[feeAssetCAIP19] =
               bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
           }
+          seenTxs.add(tx.txid)
           break
         }
         case TxType.Receive: {
@@ -279,6 +290,9 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
             bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
           }
 
+          // we've already seen this tx, don't double count the fee
+          if (seenTxs.has(tx.txid)) break
+
           // some txs, e.g. claim an airdrop, require gas but are receives of tokens
           if (bucket.balance.crypto[feeAssetCAIP19]) {
             // we're going backwards, so a send means we had more before
@@ -286,6 +300,7 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
             bucket.balance.crypto[feeAssetCAIP19] =
               bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
           }
+          seenTxs.add(tx.txid)
           break
         }
         case TxType.Trade: {

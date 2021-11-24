@@ -58,12 +58,16 @@ describe('txHistorySlice', () => {
         })
       )
       expect(
-        store.getState().txHistory[ChainTypes.Ethereum][`${EthReceive.txid}receive`].status
+        store.getState().txHistory[ChainTypes.Ethereum][
+          `${EthReceive.txid}${EthReceive.asset}receive`
+        ].status
       ).toBe(chainAdapters.TxStatus.Pending)
 
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive }))
       expect(
-        store.getState().txHistory[ChainTypes.Ethereum][`${EthReceive.txid}receive`].status
+        store.getState().txHistory[ChainTypes.Ethereum][
+          `${EthReceive.txid}${EthReceive.asset}receive`
+        ].status
       ).toBe(chainAdapters.TxStatus.Confirmed)
     })
   })

@@ -232,6 +232,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setValue(key, amount)
 
       const estimatedFees = await estimateFees()
+      setValue(SendFormFields.EstimatedFees, estimatedFees)
 
       const values = getValues()
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.18.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.3...@shapeshiftoss/chain-adapters-v1.18.4) (2021-11-24)
+
+
+### Bug Fixes
+
+* parse ignored approved txs in eth chain adapter ([#254](https://github.com/shapeshift/lib/issues/254)) ([d1733d7](https://github.com/shapeshift/lib/commit/d1733d7f80dfbe5e8b52624eed0935bd380ec11a))
+
 # [@shapeshiftoss/chain-adapters-v1.18.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.2...@shapeshiftoss/chain-adapters-v1.18.3) (2021-11-19)
 
 

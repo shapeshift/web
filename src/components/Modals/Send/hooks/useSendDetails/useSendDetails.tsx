@@ -252,7 +252,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       chainAdapterManager,
       currentAccountType,
       getValues,
-      wallet
+      wallet,
+      accountBalances
     ]
   )
 

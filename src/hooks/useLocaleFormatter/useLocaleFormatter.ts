@@ -27,8 +27,8 @@ export type FiatParts = {
 export type NumberFormatOptions = {
   maximumFractionDigits?: number
   minimumFractionDigits?: number
-  notation?: string
-  compactDisplay?: string
+  notation?: 'compact' | 'standard' | 'scientific' | 'engineering'
+  compactDisplay?: 'short' | 'long'
   fiatType?: string
 }
 

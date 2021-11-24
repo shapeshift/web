@@ -23,26 +23,25 @@ export const useHasAppUpdated = () => {
       console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
       return
     }
-    if (!manifestMainJs.startsWith(scriptIdentifier)) {
+    if (!manifestMainJs.includes(scriptIdentifier)) {
       console.error(
         `useHasAppUpdated: manifest main.js doesn't start with identifier ${scriptIdentifier}`,
         manifestMainJs
       )
+      return
     }
     const scripts = document.getElementsByTagName('script')
     if (!scripts.length) {
       console.error(`useHasAppUpdated: can't find scripts in dom`)
       return
     }
-    const { origin } = window?.location ?? ''
     // can't map/filter/reduce on HTMLCollectionOf
     for (let i = 0; i < scripts.length; i++) {
-      const { src } = scripts[i]
-      const scriptMainJs = src.split(origin)?.[1] ?? ''
+      const { src: scriptMainJs } = scripts[i]
       if (!scriptMainJs) continue
       // this is the main entry point to the app bundle
       // create react app adds a hash to each build
-      if (!scriptMainJs.startsWith(scriptIdentifier)) continue
+      if (!scriptMainJs.includes(scriptIdentifier)) continue
       // if the asset-manifest.json main.js and current script main.js don't match we're out of date
       if (scriptMainJs !== manifestMainJs) {
         console.info(

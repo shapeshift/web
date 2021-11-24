@@ -39,7 +39,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting }
-  } = useForm()
+  } = useForm({ mode: 'onChange' })
 
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
@@ -74,6 +74,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
       isCentered
       closeOnOverlayClick={false}
       closeOnEsc={false}
+      trapFocus={false}
     >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
@@ -84,7 +85,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         <ModalBody>
           <Text mb={6} color='gray.500' translation={'modals.shapeShift.password.body'} />
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormControl isInvalid={Boolean(errors)} mb={6}>
+            <FormControl isInvalid={errors.password} mb={6}>
               <InputGroup size='lg' variant='filled'>
                 <Input
                   {...register('password', {

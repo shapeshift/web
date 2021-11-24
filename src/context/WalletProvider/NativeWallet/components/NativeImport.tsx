@@ -16,6 +16,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = await Vault.create()
+      vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', values.mnemonic)
       history.push('/native/password', { vault })
     } catch (e) {
@@ -36,7 +37,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
         <Text translation={'walletProvider.shapeShift.import.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} translation={'walletProvider.shapeShift.import.body'} />
+        <Text color='gray.500' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.mnemonic} mb={6} mt={6}>
             <Textarea

@@ -2,14 +2,17 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Box,
   Button,
   ModalBody,
   ModalHeader,
   VStack
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
+import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -20,12 +23,14 @@ import { KeyManager, SUPPORTED_WALLETS } from '../../config'
 type VaultInfo = {
   id: string
   name: string
+  createdAt: number
 }
 
 export const NativeLoad = () => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
+  const translate = useTranslate()
 
   useEffect(() => {
     ;(async () => {
@@ -39,8 +44,9 @@ export const NativeLoad = () => {
           const storedWallets: VaultInfo[] = await Promise.all(
             vaultIds.map(async id => {
               const meta = await Vault.meta(id)
+              const createdAt = Number(meta?.get('createdAt') ?? null)
               const name = String(meta?.get('name') ?? id)
-              return { id, name }
+              return { id, name, createdAt }
             })
           )
 
@@ -83,11 +89,18 @@ export const NativeLoad = () => {
   }
 
   const handleDelete = async (wallet: VaultInfo) => {
-    try {
-      await Vault.delete(wallet.id)
-      setWallets([])
-    } catch (e) {
-      setError('walletProvider.shapeShift.load.error.delete')
+    const result = window.confirm(
+      translate('walletProvider.shapeShift.load.confirmForget', {
+        wallet: wallet.name ?? wallet.id
+      })
+    )
+    if (result) {
+      try {
+        await Vault.delete(wallet.id)
+        setWallets([])
+      } catch (e) {
+        setError('walletProvider.shapeShift.load.error.delete')
+      }
     }
   }
 
@@ -101,7 +114,7 @@ export const NativeLoad = () => {
           {wallets.map((wallet, i) => {
             return (
               <Row
-                key={i}
+                key={wallet.id}
                 mx={-4}
                 py={2}
                 alignItems='center'
@@ -115,21 +128,30 @@ export const NativeLoad = () => {
                   display='flex'
                   pl={4}
                   leftIcon={
-                    <IconCircle boxSize={8}>
+                    <IconCircle boxSize={10}>
                       <FaWallet />
                     </IconCircle>
                   }
                   onClick={() => handleWalletSelect(wallet)}
                 >
-                  <RawText
-                    overflow='hidden'
-                    fontWeight='medium'
-                    textOverflow='ellipsis'
-                    maxWidth='190px'
-                    fontSize='sm'
-                  >
-                    {wallet.name}
-                  </RawText>
+                  <Box textAlign='left'>
+                    <RawText
+                      overflow='hidden'
+                      fontWeight='medium'
+                      textOverflow='ellipsis'
+                      maxWidth='290px'
+                      lineHeight='1.2'
+                      mb={1}
+                    >
+                      {wallet.name}
+                    </RawText>
+                    <Text
+                      fontSize='xs'
+                      lineHeight='1.2'
+                      color='gray.500'
+                      translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
+                    />
+                  </Box>
                 </Button>
                 <Button
                   colorScheme='red'

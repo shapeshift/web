@@ -16,6 +16,7 @@ import {
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { AccountCard } from 'components/AccountCard'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -44,6 +45,7 @@ export const Details = () => {
     amountFieldError,
     balancesLoading,
     fieldName,
+    accountBalances,
     handleInputChange,
     handleNextClick,
     handleSendMax,
@@ -72,7 +74,16 @@ export const Details = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <FormControl mt={4}>
+        <AccountCard
+          asset={asset}
+          isLoaded={!balancesLoading}
+          cryptoAmountAvailable={accountBalances.crypto.toString()}
+          fiatAmountAvailable={accountBalances.fiat.toString()}
+          showCrypto={fieldName === SendFormFields.CryptoAmount}
+          onClick={() => history.push('/send/select')}
+          mb={2}
+        />
+        <FormControl mt={6}>
           <Box display='flex' alignItems='center' justifyContent='space-between'>
             <FormLabel color='gray.500'>{translate('modals.send.sendForm.sendAmount')}</FormLabel>
             <FormHelperText
@@ -87,10 +98,10 @@ export const Details = () => {
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
               {fieldName === SendFormFields.FiatAmount ? (
-                <Amount.Crypto value={crypto.amount} symbol={crypto.symbol} />
+                <Amount.Crypto value={crypto.amount} symbol={crypto.symbol} prefix='≈' />
               ) : (
                 <Flex>
-                  <Amount.Fiat value={fiat.amount} mr={1} /> {fiat.symbol}
+                  <Amount.Fiat value={fiat.amount} mr={1} prefix='≈' /> {fiat.symbol}
                 </Flex>
               )}
             </FormHelperText>

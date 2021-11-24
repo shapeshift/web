@@ -149,7 +149,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                     <Text translation='trade.minerFee' />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}</Row.Value>
+                <Row.Value>
+                  {bnOrZero(fees?.fee).toNumber()} ≃{' '}
+                  {toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}
+                </Row.Value>
               </Row>
               <Row>
                 <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>

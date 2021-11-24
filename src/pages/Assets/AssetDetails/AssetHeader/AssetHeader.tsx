@@ -12,7 +12,8 @@ import {
   Stat,
   StatArrow,
   StatGroup,
-  StatNumber
+  StatNumber,
+  useMediaQuery
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { isEmpty } from 'lodash'
@@ -33,6 +34,7 @@ import { useAsset } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
+import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './AssetActions'
 import { AssetMarketData } from './AssetMarketData'
@@ -45,6 +47,7 @@ enum Views {
 
 export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { asset, marketData } = useAsset()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [view, setView] = useState(Views.Price)
   const { name, symbol, description, icon } = asset || {}
   const { changePercent24Hr, price } = marketData || {}
@@ -114,8 +117,12 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
       {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>
         <Box>
-          <Flex justifyContent='space-between' width='full' flexDir={{ base: 'column', md: 'row' }}>
-            <Skeleton isLoaded={isLoaded}>
+          <Flex
+            justifyContent={{ base: 'center', md: 'space-between' }}
+            width='full'
+            flexDir={{ base: 'column', md: 'row' }}
+          >
+            <Skeleton isLoaded={isLoaded} textAlign='center'>
               <ButtonGroup
                 hidden={!walletSupportsChain}
                 size='sm'
@@ -130,9 +137,11 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                 </Button>
               </ButtonGroup>
             </Skeleton>
-            <Skeleton isLoaded={isLoaded}>
-              <TimeControls onChange={setTimeframe} defaultTime={timeframe} />
-            </Skeleton>
+            {isLargerThanMd && (
+              <Skeleton isLoaded={isLoaded}>
+                <TimeControls onChange={setTimeframe} defaultTime={timeframe} />
+              </Skeleton>
+            )}
           </Flex>
           <Box width='full' alignItems='center' display='flex' flexDir='column' mt={6}>
             <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
@@ -181,6 +190,15 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
           color={graphColor}
         />
       </Card.Body>
+      {!isLargerThanMd && (
+        <Skeleton isLoaded={isLoaded} textAlign='center'>
+          <TimeControls
+            onChange={setTimeframe}
+            defaultTime={timeframe}
+            buttonGroupProps={{ display: 'flex', justifyContent: 'space-between', px: 6, py: 4 }}
+          />
+        </Skeleton>
+      )}
       <Card.Footer>
         <AssetMarketData marketData={marketData} isLoaded={isLoaded} />
       </Card.Footer>

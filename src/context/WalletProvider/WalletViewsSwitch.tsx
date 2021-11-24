@@ -45,7 +45,13 @@ export const WalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal isOpen={state.modal} onClose={onClose} isCentered trapFocus={false}>
+      <Modal
+        isOpen={state.modal}
+        onClose={onClose}
+        isCentered
+        trapFocus={false}
+        closeOnOverlayClick={false}
+      >
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>

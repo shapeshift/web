@@ -1,7 +1,7 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
@@ -47,7 +47,12 @@ export const AssetSearch = ({ onClick, filterBy }: AssetSearchProps) => {
 
   return (
     <>
-      <Box as='form' mb={3} visibility='visible' onSubmit={(e: any) => e.preventDefault()}>
+      <Box
+        as='form'
+        mb={3}
+        visibility='visible'
+        onSubmit={(e: FormEvent<unknown>) => e.preventDefault()}
+      >
         <InputGroup>
           <InputLeftElement pointerEvents='none'>
             <SearchIcon color='gray.300' />

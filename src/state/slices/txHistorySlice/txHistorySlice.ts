@@ -37,7 +37,7 @@ const initialState: TxHistory = {
  * If transaction already exists, update the value, otherwise add the new transaction
  */
 const updateOrInsert = (txs: Record<string, Tx> | undefined, tx: Tx): Record<string, Tx> => {
-  const key = `${tx.txid}${tx.accountType || ''}${tx.type}`
+  const key = `${tx.txid}${tx.asset}${tx.accountType || ''}${tx.type}`
   if (!txs) return { [key]: tx }
   txs[key] = tx
   return txs

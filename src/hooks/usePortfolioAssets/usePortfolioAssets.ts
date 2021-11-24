@@ -5,8 +5,19 @@ import { useCallback, useEffect, useState } from 'react'
 import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { getAssetService } from 'lib/assetService'
 
-export const usePortfolioAssets = () => {
-  const [portfolioAssets, setPortfolioAssets] = useState<{ [k: CAIP19]: Asset }>({})
+export type PortfolioAssets = {
+  [k: CAIP19]: Asset
+}
+
+export type UsePortfolioAssetsReturn = {
+  portfolioAssetsLoading: boolean
+  portfolioAssets: PortfolioAssets
+}
+
+export type UsePortfolioAssets = () => UsePortfolioAssetsReturn
+
+export const usePortfolioAssets: UsePortfolioAssets = () => {
+  const [portfolioAssets, setPortfolioAssets] = useState<PortfolioAssets>({})
   const [portfolioAssetsLoading, setPortfolioAssetsLoading] = useState<boolean>(true)
   // TODO(0xdef1cafe): this isn't great but it's the only way to get all accounts
   const { balances, loading: balancesLoading } = useCAIP19Balances()

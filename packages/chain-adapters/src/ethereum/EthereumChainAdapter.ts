@@ -10,6 +10,7 @@ import {
 import { ethereum, Token } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
+import isEmpty from 'lodash/isEmpty'
 import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
 
@@ -339,6 +340,19 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
             from: msg.vin[0]?.addresses?.[0]
           })
         })
+
+        // approvals don't have ws data for either send or receive
+        // but we still need to account for the fees
+        if (isEmpty(msg.send) && isEmpty(msg.receive)) {
+          onMessage({
+            ...baseTx,
+            asset: ChainTypes.Ethereum,
+            chain: ChainTypes.Ethereum,
+            value: msg.value,
+            type: chainAdapters.TxType.Send,
+            chainSpecific: {}
+          })
+        }
       },
       (err) => onError({ message: err.message })
     )

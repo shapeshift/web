@@ -31,7 +31,7 @@ type UseSendDetailsReturnType = {
   balancesLoading: boolean
   fieldName: AmountFieldName
   handleInputChange(inputValue: string): void
-  handleNextClick(): Promise<void>
+  handleNextClick(): void
   handleSendMax(): Promise<void>
   loading: boolean
   toggleCurrency(): void

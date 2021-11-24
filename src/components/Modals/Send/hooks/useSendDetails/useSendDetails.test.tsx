@@ -178,7 +178,7 @@ describe('useSendDetails', () => {
         assetBalance: balances.ethereum,
         accountBalances: getEthAccountBalances()
       })
-      expect(result.current.amountFieldError).toBe(null)
+      expect(result.current.amountFieldError).toBe('')
       expect(result.current.balancesLoading).toBe(false)
       expect(result.current.fieldName).toBe('fiat.amount')
       expect(result.current.loading).toBe(false)
@@ -219,13 +219,37 @@ describe('useSendDetails', () => {
       await waitForValueToChange(() => result.current.fieldName)
 
       expect(result.current.fieldName).toBe('crypto.amount')
-      expect(setError).toHaveBeenCalledWith('crypto.amount', {
-        message: 'common.insufficientFunds'
-      })
     })
   })
 
   it('handles input change on fiat.amount', async () => {
+    const setValue = jest.fn()
+    await act(async () => {
+      const { result } = setup({
+        assetBalance: balances.ethereum,
+        accountBalances: getEthAccountBalances(),
+        setValue
+      })
+      // Field is set to fiat.amount
+      expect(result.current.fieldName).toBe('fiat.amount')
+
+      // Set fiat amount
+      await act(async () => {
+        result.current.handleInputChange('3500')
+        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+        expect(setValue).toHaveBeenCalledWith('crypto.amount', '1')
+
+        setValue.mockClear()
+
+        await result.current.handleInputChange('0')
+        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+        expect(setValue).toHaveBeenCalledWith('crypto.amount', '0')
+        setValue.mockClear()
+      })
+    })
+  })
+
+  it('handles input change on crypto.amount', async () => {
     const setValue = jest.fn()
     await act(async () => {
       const { waitForValueToChange, result } = setup({
@@ -236,17 +260,6 @@ describe('useSendDetails', () => {
       // Field is set to fiat.amount
       expect(result.current.fieldName).toBe('fiat.amount')
 
-      // Set fiat amount
-      act(() => {
-        result.current.handleInputChange('3500')
-        expect(setValue).toHaveBeenCalledWith('crypto.amount', '1')
-        setValue.mockClear()
-
-        result.current.handleInputChange('0')
-        expect(setValue).toHaveBeenCalledWith('crypto.amount', '0')
-        setValue.mockClear()
-      })
-
       // toggle field to crypto.amount
       act(() => {
         result.current.toggleCurrency()
@@ -255,42 +268,11 @@ describe('useSendDetails', () => {
       expect(result.current.fieldName).toBe('crypto.amount')
 
       // Set crypto amount
-      act(() => {
+      await act(async () => {
         result.current.handleInputChange('1')
+        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
         expect(setValue).toHaveBeenCalledWith('fiat.amount', '3500')
         setValue.mockClear()
-      })
-    })
-  })
-
-  it('validates the fiat amount', async () => {
-    return await act(async () => {
-      const { result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances()
-      })
-      act(() => {
-        const valid = result.current.validateFiatAmount('100')
-        expect(valid).toBe(true)
-
-        const notValid = result.current.validateFiatAmount('100000000000000')
-        expect(notValid).toBe('common.insufficientFunds')
-      })
-    })
-  })
-
-  it('validates the crypto amount', async () => {
-    return await act(async () => {
-      const { result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances()
-      })
-      act(() => {
-        const valid = result.current.validateCryptoAmount('.0001')
-        expect(valid).toBe(true)
-
-        const notValid = result.current.validateCryptoAmount('10')
-        expect(notValid).toBe('common.insufficientFunds')
       })
     })
   })
@@ -324,21 +306,6 @@ describe('useSendDetails', () => {
         await result.current.handleSendMax()
         expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '21')
         expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '210.00')
-      })
-    })
-  })
-
-  it('handles building tx by clicking next', async () => {
-    const setValue = jest.fn()
-    return await act(async () => {
-      const { result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances(),
-        setValue
-      })
-      await act(async () => {
-        await result.current.handleNextClick()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'estimatedFees', estimatedFees)
       })
     })
   })

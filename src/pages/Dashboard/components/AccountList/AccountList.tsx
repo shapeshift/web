@@ -13,6 +13,7 @@ import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
@@ -54,7 +55,7 @@ const AccountHeader = () => (
   </Grid>
 )
 
-export const AccountList = ({ loading }: { loading?: boolean }) => {
+export const AccountList = () => {
   const dispatch = useDispatch()
   const { receive } = useModal()
   const {
@@ -63,7 +64,10 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   } = useWallet()
   const assets = useSelector((state: ReduxState) => state.assets)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const { balances, totalBalance } = usePortfolio()
+  const { balances, totalBalance, loading: portfolioLoading } = usePortfolio()
+  const { portfolioAssetsLoading } = usePortfolioAssets()
+
+  const loading = portfolioLoading || portfolioAssetsLoading
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have

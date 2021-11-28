@@ -69,8 +69,8 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
 
   const assetPriceHistoryData = useMemo(() => {
-    if (isEmpty(priceHistoryData[asset?.caip19])) return []
-    return priceHistoryData[asset.caip19].map(({ price, date }) => ({
+    if (isEmpty(priceHistoryData?.[asset?.caip19]?.data)) return []
+    return priceHistoryData[asset.caip19].data.map(({ price, date }) => ({
       price, // TODO(0xdef1cafe): update charts to accept price or balance
       date: new Date(Number(date)).toISOString()
     }))

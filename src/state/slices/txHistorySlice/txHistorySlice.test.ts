@@ -1,9 +1,13 @@
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import entries from 'lodash/entries'
+import map from 'lodash/map'
+import orderBy from 'lodash/orderBy'
+import shuffle from 'lodash/shuffle'
 import { mockStore } from 'jest/mocks/store'
-import { BtcSend, EthReceive, EthSend } from 'jest/mocks/txs'
+import { BtcSend, EthReceive, EthSend, testTxs } from 'jest/mocks/txs'
 import { store } from 'state/store'
 
-import { selectTxHistory, txHistory } from './txHistorySlice'
+import { selectTxHistory, Tx, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -14,6 +18,17 @@ describe('txHistorySlice', () => {
   })
 
   describe('onMessage', () => {
+    fit('can sort txs going into store', async () => {
+      const shuffledTxs = shuffle(testTxs)
+      shuffledTxs.forEach(tx => store.dispatch(txHistory.actions.onMessage({ message: tx })))
+      const history = store.getState().txHistory
+      const ids = history.ids
+      const txEntriesById = entries(history.byId)
+      const sorted = orderBy(txEntriesById, ([_id, tx]: [string, Tx]) => tx.blockTime, ['desc'])
+      const sortedIds = map(sorted, ([id]) => id)
+      expect(ids).toEqual(sortedIds)
+    })
+
     it('should have correct starting state', async () => {
       expect(store.getState().txHistory[ChainTypes.Ethereum]).toEqual({})
       expect(store.getState().txHistory[ChainTypes.Bitcoin]).toEqual({})

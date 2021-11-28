@@ -1,6 +1,8 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
-import isEqual from 'lodash/isEqual'
+import entries from 'lodash/entries'
+import isEmpty from 'lodash/isEmpty'
+import reduce from 'lodash/reduce'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
@@ -12,7 +14,10 @@ type UsePriceHistoryArgs = {
 }
 
 export type PriceHistoryData = {
-  [asset: CAIP19]: HistoryData[]
+  [asset: CAIP19]: {
+    loading: boolean
+    data: HistoryData[]
+  }
 }
 
 export type UsePriceHistoryReturn = {
@@ -29,24 +34,44 @@ export const usePriceHistory: UsePriceHistory = ({ assets, timeframe }) => {
   const priceHistoryForTimeframe = useSelector(
     (state: ReduxState) => state.marketData.priceHistory[timeframe]
   )
-  const marketDataLoading = useSelector((state: ReduxState) => state.marketData.loading)
+  useEffect(() => {
+    if (!assets.length) return
+    if (isEmpty(priceHistoryForTimeframe)) return
+
+    const hasDataChanged = reduce(
+      entries(priceHistoryForTimeframe),
+      (acc, [assetCAIP19, assetPriceHistory], _idx, col) => {
+        // we have a different number of asset price histories, it must be new
+        if (assets.length !== col.length) return true
+        // the first price history date is different, it must be new
+        // note this handles the future case of refetching fresh price history
+        if (data?.[assetCAIP19]?.data?.[0]?.date !== assetPriceHistory?.data?.[0]?.date) return true
+        return acc
+      },
+      false
+    )
+
+    if (hasDataChanged) {
+      // console.log('hook setting price history')
+      setData(priceHistoryForTimeframe)
+    }
+
+    const newLoading = Object.values(priceHistoryForTimeframe).some(({ loading }) => loading)
+    if (!newLoading && loading) setLoading(false)
+  }, [assets, loading, data, priceHistoryForTimeframe])
 
   useEffect(() => {
-    if (marketDataLoading) return
     if (!assets.length) return
-    if (!assets.every(asset => (priceHistoryForTimeframe[asset] ?? []).length)) return // need price history for all assets
-    if (isEqual(priceHistoryForTimeframe, data)) return // don't rerender same data
-    setLoading(false)
-    setData(priceHistoryForTimeframe)
-  }, [assets, data, priceHistoryForTimeframe, marketDataLoading, timeframe])
-
-  useEffect(() => {
-    if (loading || marketDataLoading) return // don't fetch if they're loading
-    if (!assets.length) return
-    if (assets.every(asset => (priceHistoryForTimeframe[asset] ?? []).length)) return // dont fetch if they're all fetched
-    setLoading(true)
-    dispatch(fetchPriceHistory({ assets, timeframe }))
-  }, [assets, dispatch, loading, marketDataLoading, priceHistoryForTimeframe, timeframe])
+    assets.forEach(asset => {
+      const assetPriceHistoryForTimeframe = priceHistoryForTimeframe[asset]
+      const loading = assetPriceHistoryForTimeframe?.loading
+      const data = assetPriceHistoryForTimeframe?.data
+      if (loading || data?.length) return
+      // console.log('hook fetching price history')
+      setLoading(true)
+      setTimeout(() => dispatch(fetchPriceHistory({ asset, timeframe })), 0)
+    })
+  }, [assets, dispatch, priceHistoryForTimeframe, timeframe])
 
   return { data, loading }
 }

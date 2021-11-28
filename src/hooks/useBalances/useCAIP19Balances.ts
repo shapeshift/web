@@ -7,6 +7,7 @@ import {
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -99,15 +100,16 @@ export const useCAIP19Balances = () => {
     return acc
     // We aren't passing chainAdapter as it will always be the same object and should never change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, JSON.stringify(accountTypes)])
+  }, [walletInfo?.deviceId, accountTypes])
 
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
       try {
         setLoading(true)
-        const balances = await getBalances()
-        balances && setBalances(balances)
+        const bals = await getBalances()
+        if (bals && !isEqual(bals, balances)) setBalances(bals)
+        setLoading(false)
       } catch (error) {
         setError(error)
       } finally {

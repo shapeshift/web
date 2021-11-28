@@ -1,12 +1,5 @@
-import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
-import {
-  chainAdapters,
-  ChainTypes,
-  ContractTypes,
-  HistoryData,
-  HistoryTimeframe,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -25,10 +18,11 @@ import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { PortfolioAssets, usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { caip19FromTx } from 'lib/txs'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { ReduxState } from 'state/reducer'
-import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxs, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -129,23 +123,6 @@ export const makeBuckets: MakeBuckets = args => {
   return { buckets, meta }
 }
 
-export const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
-// ideally txs from unchained should include caip19
-export const caip19FromTx = (tx: Tx): CAIP19 => {
-  const { chain, network, asset: tokenId } = tx
-  const ethereumCAIP2 = caip2.toCAIP2({
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET
-  })
-  const assetCAIP2 = caip2FromTx(tx)
-  const contractType =
-    assetCAIP2 === ethereumCAIP2 && tokenId.startsWith('0x') ? ContractTypes.ERC20 : undefined
-
-  const extra = contractType ? { contractType, tokenId: tokenId.toLowerCase() } : undefined
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  return assetCAIP19
-}
-
 export const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
@@ -177,7 +154,10 @@ type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
   priceHistoryData: {
-    [k: CAIP19]: HistoryData[]
+    [k: CAIP19]: {
+      loading: boolean
+      data: HistoryData[]
+    }
   }
 }
 
@@ -195,8 +175,8 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const time = end.valueOf()
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
-    const assetPriceHistoryData = priceHistoryData[caip19]
-    const price = priceAtBlockTime({ assetPriceHistoryData, time })
+    const assetPriceHistoryData = priceHistoryData?.[caip19]?.data
+    const price = assetPriceHistoryData ? priceAtBlockTime({ assetPriceHistoryData, time }) : 0
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
       console.warn(`fiatBalanceAtBucket: no portfolioAsset for ${caip19}`)
@@ -355,11 +335,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
-  const txs = useDebounce(
-    useSelector((state: ReduxState) => selectTxHistory(state, {})),
-    500
-  )
+  const txs = useDebounce(useSelector(selectTxs), 500)
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
+
+  useEffect(() => setBalanceChartDataLoading(true), [timeframe])
 
   useEffect(() => {
     if (isNil(walletInfo?.deviceId)) return
@@ -369,9 +348,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     if (!assets.length) return
     if (!txs.length) return
     if (isEmpty(balances)) return
-    if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
+    // need price history for all assets
+    if (assets.some(asset => priceHistoryData[asset].loading)) return
 
     setBalanceChartDataLoading(true)
+
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
     // put each tx into a bucket for the chart

@@ -18,45 +18,31 @@ export type MarketDataState = {
   }
   priceHistory: {
     [k in HistoryTimeframe]: {
-      [k: CAIP19]: HistoryData[]
+      [k: CAIP19]: {
+        loading: boolean
+        data: HistoryData[]
+      }
     }
   }
 }
 
 export const fetchMarketData = createAsyncThunk(
   'marketData/fetchMarketData',
-  async ({ tokenId, chain }: { tokenId?: string; chain: ChainTypes }) => {
-    try {
-      const marketData: MarketData = await getMarketData({
-        chain,
-        tokenId
-      })
-      if (!marketData) return {}
-      return { [tokenId || chain]: marketData }
-    } catch (error) {
-      console.error(error)
-      return {}
-    }
-  }
+  async ({ tokenId, chain }: { tokenId?: string; chain: ChainTypes }) =>
+    getMarketData({
+      chain,
+      tokenId
+    })
 )
 
 export const fetchPriceHistory = createAsyncThunk(
   'marketData/priceHistory',
-  async ({ assets, timeframe }: { assets: CAIP19[]; timeframe: HistoryTimeframe }) => {
-    const responses = await Promise.allSettled(
-      assets.map(async asset => await getPriceHistory({ timeframe, ...caip19.fromCAIP19(asset) }))
-    )
-
-    const result = responses.reduce<HistoryData[][]>((acc, response) => {
-      if (response.status === 'rejected') return acc
-      const mapped = response.value.map(({ date, price }) => ({
-        date: date.valueOf().toString(), // dates aren't serializable in redux actions or state
-        price
-      }))
-      acc.push(mapped)
-      return acc
-    }, [])
-
+  async ({ asset, timeframe }: { asset: CAIP19; timeframe: HistoryTimeframe }) => {
+    const priceHistory = await getPriceHistory({ timeframe, ...caip19.fromCAIP19(asset) })
+    const result = priceHistory.map(({ date, price }) => ({
+      date: date.valueOf().toString(), // dates aren't serializable in redux actions or state
+      price
+    }))
     return result
   }
 )
@@ -90,16 +76,22 @@ export const marketData = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(fetchPriceHistory.pending, state => {
-      state.loading = true
+    builder.addCase(fetchPriceHistory.pending, (state, { meta }) => {
+      const { asset, timeframe } = meta.arg
+      state.priceHistory[timeframe][asset].loading = true
     })
-    builder.addCase(fetchPriceHistory.rejected, state => {
-      state.loading = false
+    builder.addCase(fetchPriceHistory.rejected, (state, { meta }) => {
+      const { asset, timeframe } = meta.arg
+      const priceHistoryForAsset = {
+        data: state.priceHistory?.[timeframe]?.[asset]?.data ?? [],
+        loading: false
+      }
+      state.priceHistory[timeframe][asset] = priceHistoryForAsset
     })
     builder.addCase(fetchPriceHistory.fulfilled, (state, { payload, meta }) => {
-      const { assets, timeframe } = meta.arg
-      payload.forEach((priceData, idx) => (state.priceHistory[timeframe][assets[idx]] = priceData))
-      state.loading = false
+      const { asset, timeframe } = meta.arg
+      state.priceHistory[timeframe][asset].data = payload
+      state.priceHistory[timeframe][asset].loading = false
     })
     builder.addCase(fetchMarketData.pending, state => {
       state.loading = true
@@ -109,9 +101,7 @@ export const marketData = createSlice({
     })
     builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
       const tokenId = meta.arg.tokenId ?? meta.arg.chain
-      if (payload[tokenId]) {
-        state.marketData[tokenId] = payload[tokenId]
-      }
+      state.marketData[tokenId] = payload
       state.loading = false
     })
     builder.addCase(fetchMarketCaps.pending, state => {
@@ -122,9 +112,9 @@ export const marketData = createSlice({
     })
     builder.addCase(fetchMarketCaps.fulfilled, (state, { payload }) => {
       const { marketCap } = payload
+      state.loading = false
       if (!marketCap) return
       state.marketCap = marketCap
-      state.loading = false
     })
   }
 })

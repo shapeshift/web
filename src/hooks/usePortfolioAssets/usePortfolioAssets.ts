@@ -1,6 +1,7 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
 import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { getAssetService } from 'lib/assetService'
@@ -25,14 +26,21 @@ export const usePortfolioAssets: UsePortfolioAssets = () => {
   const getPortfolioAssets = useCallback(async () => {
     const assetService = await getAssetService()
     const assets = assetService.byNetwork(NetworkTypes.MAINNET)
-    const portfolioAssets = Object.keys(balances).reduce<{ [k: CAIP19]: Asset }>((acc, caip19) => {
-      const a = assets.find(asset => asset.caip19 === caip19)
-      if (!a) return acc
-      acc[caip19] = a
-      return acc
-    }, {})
-    setPortfolioAssets(portfolioAssets)
+    const newPortfolioAssets = Object.keys(balances).reduce<{ [k: CAIP19]: Asset }>(
+      (acc, caip19) => {
+        const a = assets.find(asset => asset.caip19 === caip19)
+        if (!a) return acc
+        acc[caip19] = a
+        return acc
+      },
+      {}
+    )
+    // TODO(0xdef1cafe): remove this hack and stop calling this so often
+    if (!isEmpty(newPortfolioAssets) && !isEqual(newPortfolioAssets, portfolioAssets))
+      setPortfolioAssets(newPortfolioAssets)
+
     setPortfolioAssetsLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [balances, setPortfolioAssets])
 
   useEffect(() => {

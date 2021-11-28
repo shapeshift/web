@@ -1,29 +1,20 @@
 import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
-import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
-import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 
-import { useBalanceChartData } from '../../hooks/useBalanceChartData/useBalanceChartData'
 import { AccountList } from './components/AccountList/AccountList'
 import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const { totalBalance, loading: portfolioLoading } = usePortfolio()
-  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
 
-  const assets = useMemo(() => Object.keys(portfolioAssets).filter(Boolean), [portfolioAssets])
-  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
-    assets,
-    timeframe
-  })
-
-  const loading = portfolioLoading || portfolioAssetsLoading
+  const loading = portfolioLoading
   const isLoaded = !loading
 
   return (
@@ -54,9 +45,7 @@ export const Portfolio = () => {
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>
         </Card.Header>
-        <Card.Body p={0} height='350px'>
-          <Graph data={balanceChartData} loading={balanceChartDataLoading} isLoaded={isLoaded} />
-        </Card.Body>
+        <BalanceChart height={'350px'} timeframe={timeframe} />
       </Card>
       <Card>
         <Card.Header>
@@ -65,7 +54,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <AccountList loading={loading} />
+          <AccountList />
         </Card.Body>
       </Card>
     </Stack>

@@ -16,15 +16,18 @@ import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxById } from 'state/slices/txHistorySlice/txHistorySlice'
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-export const TransactionRow = ({ tx, activeAsset }: { tx: Tx; activeAsset?: Asset }) => {
+export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsset?: Asset }) => {
   const ref = useRef<HTMLHeadingElement>(null)
   const dispatch = useDispatch()
-  const asset = useSelector((state: ReduxState) => state.assets[tx.asset.toLowerCase() ?? tx.chain])
+  const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
+  const asset = useSelector(
+    (state: ReduxState) => state.assets?.[tx.asset.toLowerCase() ?? tx.chain]
+  )
   // stables need precision of eth (18) rather than 10
   const chainAsset = useSelector((state: ReduxState) => state.assets[tx.chain])
   const [isOpen, setIsOpen] = useState(false)

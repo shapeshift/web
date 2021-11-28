@@ -37,13 +37,19 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]
 
-        for await (const accountType of accountTypes) {
+        for (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
-                dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
+                // don't block up main thread with redux loading the full tx history
+                // yield to the event queue so other things have a chance to render
+                setTimeout(
+                  () => dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } })),
+                  0
+                )
+                // dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
               },
               (err: any) => console.error(err)
             )

@@ -24,9 +24,9 @@ export const AssetHistory = () => {
   wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-  const accountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
+  // const accountType = useSelector(
+  //   (state: ReduxState) => state.preferences.accountTypes[asset.chain]
+  // )
   const txIds = useSelector((state: ReduxState) => selectTxIdsByCAIP19(state, asset.caip19))
 
   const { next, data, hasMore } = useInfiniteScroll(txIds)

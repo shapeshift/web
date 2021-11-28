@@ -84,16 +84,13 @@ export const txHistory = createSlice({
   }
 })
 
-export const selectTxs = createSelector(
-  (state: ReduxState) => values(state.txHistory.byId),
-  txs => txs
-)
+export const selectTxs = (state: ReduxState) => values(state.txHistory.byId)
 
-export const selectTxHistory = createSelector(
+export const selectTxHistoryByFilter = createSelector(
   (state: ReduxState) => state.txHistory,
   (_state: ReduxState, txFilter: TxFilter) => txFilter,
   (txHistory: TxHistory, txFilter: TxFilter) => {
-    if (!txFilter) return txHistory
+    if (!txFilter) return values(txHistory.byId)
     const { symbol, txid, accountType, caip19 } = txFilter
     const filterFunc = (tx: Tx) => {
       let hasItem = true
@@ -129,10 +126,9 @@ export const selectTxById = createSelector(
 )
 
 export const selectTxIdsByCAIP19 = createSelector(
-  (state: ReduxState) => state.txHistory.byId,
   (state: ReduxState) => state.txHistory.ids,
   (_state: ReduxState, caip19: string) => caip19,
-  (byId, ids, caip19) => ids.filter(id => id.includes(caip19)) // .map(id => byId[id])
+  (ids, caip19) => ids.filter(id => id.includes(caip19))
 )
 
 // https://github.com/reduxjs/reselect#q-why-is-my-selector-recomputing-when-the-input-state-stays-the-same

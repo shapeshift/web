@@ -28,7 +28,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { ReduxState } from 'state/reducer'
-import { selectTxHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxHistoryByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { AssetToAsset } from './AssetToAsset'
 
@@ -60,7 +60,9 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const contractType = ContractTypes.ERC20
   const extra = { contractType, tokenId }
   const caip = caip19.toCAIP19({ chain, network, ...(tokenId ? extra : undefined) })
-  const txs = useSelector((state: ReduxState) => selectTxHistory(state, { caip19: caip, txid }))
+  const txs = useSelector((state: ReduxState) =>
+    selectTxHistoryByFilter(state, { caip19: caip, txid })
+  )
   const transaction = txs[0]
   const status = transaction && transaction?.status
 

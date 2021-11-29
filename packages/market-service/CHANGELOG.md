@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.3.2...@shapeshiftoss/market-service-v1.4.0) (2021-11-29)
+
+
+### Features
+
+* return dates as epoch times ([06de6b8](https://github.com/shapeshift/lib/commit/06de6b8cb684f4565de963c511e849be03906300))
+
 # [@shapeshiftoss/market-service-v1.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.3.1...@shapeshiftoss/market-service-v1.3.2) (2021-11-15)
 
 

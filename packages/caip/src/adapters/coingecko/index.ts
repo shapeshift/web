@@ -8,7 +8,7 @@ const generatedCAIP19ToCoingeckoMap = Object.values(adapters).reduce((acc, cur) 
 })) as Record<string, string>
 
 const invert = <T extends Record<string, string>>(data: T) =>
-  Object.entries(data).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {})
+  Object.entries(data).reduce((acc, [k, v]) => ((acc[v] = k), acc), {} as Record<string, string>)
 
 const generatedCoingeckoToCAIP19Map: Record<string, string> = invert(generatedCAIP19ToCoingeckoMap)
 

@@ -29,20 +29,21 @@ import { SendRoutes } from '../Send'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
-  const {
-    control,
-    formState: { isValid }
-  } = useFormContext()
+  const { control } = useFormContext()
   const history = useHistory()
   const translate = useTranslate()
 
-  const [asset, crypto, fiat] = useWatch({
-    name: [SendFormFields.Asset, SendFormFields.Crypto, SendFormFields.Fiat]
+  const [asset, crypto, fiat, amountFieldError] = useWatch({
+    name: [
+      SendFormFields.Asset,
+      SendFormFields.Crypto,
+      SendFormFields.Fiat,
+      SendFormFields.AmountFieldError
+    ]
   })
 
   const { send } = useModal()
   const {
-    amountFieldError,
     balancesLoading,
     fieldName,
     accountBalances,
@@ -50,9 +51,7 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency,
-    validateCryptoAmount,
-    validateFiatAmount
+    toggleCurrency
   } = useSendDetails()
 
   return (
@@ -125,8 +124,7 @@ export const Details = () => {
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
               rules={{
-                required: true,
-                validate: { validateCryptoAmount }
+                required: true
               }}
             />
           )}
@@ -149,8 +147,7 @@ export const Details = () => {
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
               rules={{
-                required: true,
-                validate: { validateFiatAmount }
+                required: true
               }}
             />
           )}
@@ -160,7 +157,7 @@ export const Details = () => {
         <Stack flex={1}>
           <Button
             isFullWidth
-            isDisabled={!isValid || loading}
+            isDisabled={!!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}

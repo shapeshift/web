@@ -33,13 +33,17 @@ export const Details = () => {
   const history = useHistory()
   const translate = useTranslate()
 
-  const [asset, crypto, fiat] = useWatch({
-    name: [SendFormFields.Asset, SendFormFields.Crypto, SendFormFields.Fiat]
+  const [asset, crypto, fiat, amountFieldError] = useWatch({
+    name: [
+      SendFormFields.Asset,
+      SendFormFields.Crypto,
+      SendFormFields.Fiat,
+      SendFormFields.AmountFieldError
+    ]
   })
 
   const { send } = useModal()
   const {
-    amountFieldError,
     balancesLoading,
     fieldName,
     accountBalances,

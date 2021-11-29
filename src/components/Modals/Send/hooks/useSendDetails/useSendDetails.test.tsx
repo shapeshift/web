@@ -178,7 +178,6 @@ describe('useSendDetails', () => {
         assetBalance: balances.ethereum,
         accountBalances: getEthAccountBalances()
       })
-      expect(result.current.amountFieldError).toBe('')
       expect(result.current.balancesLoading).toBe(false)
       expect(result.current.fieldName).toBe('fiat.amount')
       expect(result.current.loading).toBe(false)

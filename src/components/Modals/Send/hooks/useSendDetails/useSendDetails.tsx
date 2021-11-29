@@ -27,7 +27,6 @@ import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 
 type UseSendDetailsReturnType = {
-  amountFieldError: string
   balancesLoading: boolean
   fieldName: AmountFieldName
   handleInputChange(inputValue: string): void
@@ -62,8 +61,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { chain, tokenId } = asset
 
   const getAssetData = useGetAssetData({ chain, tokenId })
-
-  const [amountFieldError, setAmountFieldError] = useState('')
 
   useEffect(() => {
     if (balanceError) {
@@ -240,8 +237,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         .minus(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
         .gte(values.crypto.amount)
 
-      if (!hasValidBalance) setAmountFieldError('common.insufficientFunds')
-      else setAmountFieldError('')
+      if (!hasValidBalance) setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+      else setValue(SendFormFields.AmountFieldError, '')
     }, 1000),
     [
       asset.price,
@@ -267,7 +264,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   return {
-    amountFieldError,
     balancesLoading,
     fieldName,
     accountBalances,

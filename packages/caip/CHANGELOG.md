@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.4.1...@shapeshiftoss/caip-v1.4.2) (2021-11-29)
+
+
+### Bug Fixes
+
+* speed up invert of generated caip info ([#256](https://github.com/shapeshift/lib/issues/256)) ([b7d58e4](https://github.com/shapeshift/lib/commit/b7d58e4d69015066b2fe3b800178e2c76a57972f))
+
 # [@shapeshiftoss/caip-v1.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.4.0...@shapeshiftoss/caip-v1.4.1) (2021-11-12)
 
 

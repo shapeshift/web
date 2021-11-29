@@ -18,10 +18,10 @@ export const KeepKeySuccess = () => {
         <Text
           fontSize='lg'
           fontWeight='bold'
-          translation={'walletProvider.shapeShift.nativeSuccess.header'}
+          translation={'walletProvider.shapeShift.success.success'}
         />
         {isSuccessful && (
-          <Text color='gray.500' translation={'walletProvider.shapeShift.nativeSuccess.success'} />
+          <Text color='gray.500' translation={'walletProvider.shapeShift.success.success'} />
         )}
       </ModalBody>
     </>

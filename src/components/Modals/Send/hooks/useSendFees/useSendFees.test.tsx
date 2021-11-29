@@ -4,6 +4,7 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
+import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { TestProviders } from 'jest/TestProviders'
 
 import { useSendFees } from './useSendFees'
@@ -12,6 +13,7 @@ jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('hooks/useAsset/useAsset')
+jest.mock('hooks/useFetchAsset/useFetchAsset')
 
 const fees = {
   [chainAdapters.FeeDataKey.Slow]: {
@@ -54,11 +56,12 @@ const getAssetData = () =>
     precision: 18
   })
 
-const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
+const setup = ({ asset = {}, estimatedFees = {}, wallet = {}, feeAsset = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
     state: { wallet }
   }))
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
+  ;(useFetchAsset as jest.Mock<unknown>).mockImplementation(() => feeAsset)
 
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
 
@@ -73,7 +76,11 @@ describe('useSendFees', () => {
 
   it('returns the fees with market data', async () => {
     return await act(async () => {
-      const { waitForValueToChange, result } = setup({ asset: ethAsset, estimatedFees: fees })
+      const { waitForValueToChange, result } = setup({
+        asset: ethAsset,
+        estimatedFees: fees,
+        feeAsset: ethAsset
+      })
       await waitForValueToChange(() => result.current.fees)
       expect(result.current.fees?.slow.fiatFee).toBe('0.000147')
       expect(result.current.fees?.average.fiatFee).toBe('0.000147')

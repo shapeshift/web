@@ -18,10 +18,11 @@ import { UserMenu } from './NavBar/UserMenu'
 
 export const HeaderContent = ({ route }: { route: Route }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const navbarBg = useColorModeValue('white', 'gray.700')
+  const navbarBg = useColorModeValue('white', 'gray.800')
+  const navbarBorder = useColorModeValue('gray.100', 'gray.750')
   const navShadow = useColorModeValue('lg', 'dark-lg')
   return (
-    <Flex px={6} width='full' justifyContent='space-between'>
+    <Flex px={4} width='full' justifyContent='space-between'>
       <Flex width='full' h={16} alignItems={'center'} justifyContent={'space-between'}>
         <Box display='flex' alignItems='center' flex={2}>
           {pathTo(route).map((crumb, index, breadcrumbs) => (
@@ -64,16 +65,18 @@ export const HeaderContent = ({ route }: { route: Route }) => {
         <Portal>
           <Box
             position='fixed'
-            p={1}
-            bottom={4}
+            width='full'
+            bottom={0}
+            pb={'env(safe-area-inset-bottom)'}
             left='50%'
             transform='translateX(-50%)'
             display='inline-block'
             bg={navbarBg}
-            borderRadius='full'
+            borderTopWidth={1}
+            borderColor={navbarBorder}
             boxShadow={navShadow}
           >
-            <Stack as={'nav'} spacing={4}>
+            <Stack as={'nav'} spacing={4} p={2}>
               <NavBar />
             </Stack>
           </Box>

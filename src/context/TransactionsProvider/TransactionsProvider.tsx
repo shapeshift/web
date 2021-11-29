@@ -26,13 +26,14 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
       const service = await getAssetService()
       const assetData = service?.byNetwork(NetworkTypes.MAINNET)
-
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const chain = adapter.getType()
 
         const asset = assetData.find(asset => asset.chain === chain)
-        if (!asset) throw new Error(`asset not found for chain ${chain}`)
+        if (!asset) {
+          throw new Error(`asset not found for chain ${chain}`)
+        }
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]
 
@@ -40,7 +41,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
             await adapter.subscribeTxs(
-              { wallet, ...accountParams },
+              { wallet, accountType, ...accountParams },
               msg => {
                 dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
               },
@@ -55,6 +56,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         }
       }
     })()
+
+    return () => {
+      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+        dispatch(txHistory.actions.clear())
+        getAdapter().unsubscribeTxs()
+      })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, walletInfo?.deviceId])
 

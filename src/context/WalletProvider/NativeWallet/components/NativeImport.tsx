@@ -6,21 +6,26 @@ import {
   ModalHeader,
   Textarea
 } from '@chakra-ui/react'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import { FieldValues, useForm } from 'react-hook-form'
+import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
-
-export const NativeImport = ({ history, location }: NativeSetupProps) => {
+export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
-    const encryptedWallet = await location.state.encryptedWallet?.createWallet(values.mnemonic)
-    if (encryptedWallet?.encryptedWallet) {
-      history.push('/native/success', { encryptedWallet: location.state.encryptedWallet })
+    try {
+      const vault = await Vault.create()
+      vault.meta.set('createdAt', Date.now())
+      vault.set('#mnemonic', values.mnemonic)
+      history.push('/native/password', { vault })
+    } catch (e) {
+      setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }
   }
 
   const {
+    setError,
     handleSubmit,
     register,
     formState: { errors, isSubmitting }
@@ -29,10 +34,10 @@ export const NativeImport = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.nativeImport.header'} />
+        <Text translation={'walletProvider.shapeShift.import.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={4} translation={'walletProvider.shapeShift.nativeImport.body'} />
+        <Text color='gray.500' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl isInvalid={errors.mnemonic} mb={6} mt={6}>
             <Textarea
@@ -51,7 +56,7 @@ export const NativeImport = ({ history, location }: NativeSetupProps) => {
             <FormErrorMessage>{errors.mnemonic?.message}</FormErrorMessage>
           </FormControl>
           <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
-            <Text translation={'walletProvider.shapeShift.nativeImport.button'} />
+            <Text translation={'walletProvider.shapeShift.import.button'} />
           </Button>
         </form>
       </ModalBody>

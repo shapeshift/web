@@ -1,5 +1,14 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Button, Divider, IconButton, Link, SimpleGrid, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Link,
+  SimpleGrid,
+  Stack,
+  useToast
+} from '@chakra-ui/react'
 import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -11,7 +20,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TRADE_ERRORS, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -33,6 +42,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     handleSubmit,
     formState: { isSubmitting }
   } = useFormContext<TradeState<ChainTypes, SwapperType>>()
+  const toast = useToast()
+  const translate = useTranslate()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote, reset } = useSwapper()
   const location = useLocation<TradeConfirmParams>()
@@ -43,7 +54,6 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
-  const t = useTranslate()
   const { chain, tokenId } = sellAsset.currency
   const asset = tokenId ?? chain
   const txs = useSelector((state: ReduxState) =>
@@ -54,12 +64,31 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const onSubmit = async () => {
     if (!wallet) return
-    const result = await executeQuote({ wallet })
-    const transactionId = result?.txid
-    if (transactionId) {
-      setTxid(transactionId)
+    try {
+      const result = await executeQuote({ wallet })
+      const transactionId = result?.txid
+      if (transactionId) {
+        setTxid(transactionId)
+      }
+    } catch (err) {
+      console.error(`TradeConfirm:onSubmit - ${err}`)
+      // TODO: (ryankk) this needs to be revisited post bounty to handle actual errors coming back from unchained.
+      toast({
+        title: translate('trade.errors.title'),
+        description: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right'
+      })
+    }
+  }
+
+  const handleBack = () => {
+    if (txid) {
       reset()
     }
+    history.push('/trade/input')
   }
 
   return (
@@ -74,7 +103,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 variant='ghost'
                 fontSize='xl'
                 isRound
-                onClick={() => history.push('/trade/input')}
+                onClick={handleBack}
               />
               <Card.Heading textAlign='center'>
                 <Text translation={txid ? 'trade.complete' : 'trade.confirmTrade'} />
@@ -102,7 +131,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </Row>
               )}
               <Row>
-                <HelperTooltip label={t('trade.tooltip.rate')}>
+                <HelperTooltip label={translate('trade.tooltip.rate')}>
                   <Row.Label>
                     <Text translation='trade.rate' />
                   </Row.Label>
@@ -115,15 +144,18 @@ export const TradeConfirm = ({ history }: RouterProps) => {
                 </Box>
               </Row>
               <Row>
-                <HelperTooltip label={t('trade.tooltip.minerFee')}>
+                <HelperTooltip label={translate('trade.tooltip.minerFee')}>
                   <Row.Label>
                     <Text translation='trade.minerFee' />
                   </Row.Label>
                 </HelperTooltip>
-                <Row.Value>{toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}</Row.Value>
+                <Row.Value>
+                  {bnOrZero(fees?.fee).toNumber()} ≃{' '}
+                  {toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}
+                </Row.Value>
               </Row>
               <Row>
-                <HelperTooltip label={t('trade.tooltip.shapeshiftFee')}>
+                <HelperTooltip label={translate('trade.tooltip.shapeshiftFee')}>
                   <Row.Label>
                     <Text translation='trade.shapeshiftFee' />
                   </Row.Label>

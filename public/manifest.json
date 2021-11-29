@@ -1,25 +1,32 @@
 {
-  "short_name": "ShapeShift",
+  "theme_color": "#171923",
+  "background_color": "#171923",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": ".",
   "name": "ShapeShift",
+  "short_name": "ShapeShift",
+  "description": "Your Web3 & DeFi Portal",
   "icons": [
     {
-      "src": "favi-blue.png",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "FOX_Icon_white.svg",
-      "type": "image/png",
-      "sizes": "230x208"
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
     },
     {
-      "src": "FOX_Icon_white.png",
-      "type": "image/png",
-      "sizes": "500x500"
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  ]
 }

@@ -1,4 +1,4 @@
-import { Box, Grid, Spinner, Stack } from '@chakra-ui/react'
+import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -13,7 +13,7 @@ import { AccountList } from './components/AccountList/AccountList'
 import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.YEAR)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const { totalBalance, loading: portfolioLoading } = usePortfolio()
   const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
 
@@ -23,18 +23,11 @@ export const Portfolio = () => {
     timeframe
   })
 
-  const loading = portfolioLoading || portfolioAssetsLoading || balanceChartDataLoading
+  const loading = portfolioLoading || portfolioAssetsLoading
   const isLoaded = !loading
 
-  if (loading)
-    return (
-      <Box d='flex' width='full' justifyContent='center' alignItems='center'>
-        <Spinner />
-      </Box>
-    )
-
   return (
-    <Stack spacing={6} width='full' p={{ base: 0, lg: 4 }}>
+    <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>
       <Card variant='footer-stub'>
         <Card.Header
           display='flex'
@@ -44,15 +37,22 @@ export const Portfolio = () => {
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          <Box>
+          <Box mb={{ base: 6, md: 0 }}>
             <Card.Heading as='div' color='gray.500'>
-              <Text translation='dashboard.portfolio.portfolioBalance' />
+              <Skeleton isLoaded={isLoaded}>
+                <Text translation='dashboard.portfolio.portfolioBalance' />
+              </Skeleton>
             </Card.Heading>
-            <Card.Heading as='h2' fontSize='4xl'>
-              <Amount.Fiat value={totalBalance} />
+
+            <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
+              <Skeleton isLoaded={isLoaded}>
+                <Amount.Fiat value={totalBalance} />
+              </Skeleton>
             </Card.Heading>
           </Box>
-          <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
+          <Skeleton isLoaded={isLoaded}>
+            <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
+          </Skeleton>
         </Card.Header>
         <Card.Body p={0} height='350px'>
           <Graph data={balanceChartData} loading={balanceChartDataLoading} isLoaded={isLoaded} />
@@ -65,32 +65,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <Stack spacing={0}>
-            <Grid
-              templateColumns={{ base: '1fr repeat(2, 1fr)', lg: '2fr repeat(3, 1fr) 150px' }}
-              gap='1rem'
-              py={4}
-              pl={4}
-              pr={4}
-            >
-              <Text translation='dashboard.portfolio.asset' color='gray.500' />
-              <Text translation='dashboard.portfolio.balance' color='gray.500' textAlign='right' />
-              <Text
-                translation='dashboard.portfolio.price'
-                color='gray.500'
-                textAlign='right'
-                display={{ base: 'none', lg: 'block' }}
-              />
-              <Text translation='dashboard.portfolio.value' textAlign='right' color='gray.500' />
-              <Text
-                translation='dashboard.portfolio.allocation'
-                color='gray.500'
-                textAlign='right'
-                display={{ base: 'none', lg: 'block' }}
-              />
-            </Grid>
-            <AccountList />
-          </Stack>
+          <AccountList loading={loading} />
         </Card.Body>
       </Card>
     </Stack>

@@ -13,7 +13,6 @@ import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-rou
 import { SlideTransition } from 'components/SlideTransition'
 
 import { SUPPORTED_WALLETS } from './config'
-import { NativePasswordRequired } from './NativeWallet/components/NativePasswordRequired/NativePasswordRequired'
 import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
 
@@ -46,8 +45,13 @@ export const WalletViewsSwitch = () => {
 
   return (
     <>
-      <NativePasswordRequired />
-      <Modal isOpen={state.modal} onClose={onClose} isCentered trapFocus={false}>
+      <Modal
+        isOpen={state.modal}
+        onClose={onClose}
+        isCentered
+        trapFocus={false}
+        closeOnOverlayClick={false}
+      >
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>

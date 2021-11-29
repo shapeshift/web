@@ -8,6 +8,7 @@
     "confirm": "Confirm",
     "reject": "Reject",
     "connected": "Connected",
+    "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
@@ -19,10 +20,17 @@
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
     "darkMode": "Dark Mode",
+    "forget": "Forget?",
+    "available": "available",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
     "transactionFailed": "Transaction Failed",
-    "transactionFailedBody": "Transaction Failed"
+    "transactionFailedBody": "Transaction Failed",
+    "submitFeedback": "Submit Feedback"
+  },
+  "updateToast": {
+    "body": "A new version of the app is available",
+    "cta": "Reload App"
   },
   "dashboard": {
     "portfolio": {
@@ -33,7 +41,11 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
-      "allocation": "Allocation"
+      "allocation": "Allocation",
+      "empty": {
+        "title": "Cricket noises...",
+        "cta": "Send yourself some crypto!"
+      }
     },
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
@@ -57,7 +69,7 @@
   },
   "earn": {
     "earn": "Earn",
-    "earnBody": "Earn interest by depositing your assets.",
+    "earnBody": "Earn interest on your crypto assets.",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -70,13 +82,14 @@
     "rewardValue": "Reward Value",
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
+    "yearn": "Yearn Finance",
     "empty": {
       "farming": {
         "body": "You are not currently farming anything.",
         "cta": "View Opportunities"
       },
       "stakingVaults": {
-        "body": "You have not deposited into a vault or staked your assets.",
+        "body": "Explore opportunities to earn interest on your crypto assets.",
         "cta": "View Opportunities"
       },
       "pools": {
@@ -93,8 +106,8 @@
     "foxToken": "FOX Token"
   },
   "transactionRow": {
-    "send": "Sent",
-    "receive": "Received",
+    "send": "Sent %{symbol}",
+    "receive": "Received %{symbol}",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -106,7 +119,10 @@
     "network": "Network",
     "blockHeight": "Block Height",
     "to": "To",
-    "from": "From"
+    "from": "From",
+    "trade": "Trade",
+    "amount": "Amount",
+    "for": "for"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
@@ -124,12 +140,13 @@
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "tooltip": {
-      "rate": "This is the rate",
-      "minerFee": "This is the Miner Fee",
-      "shapeshiftFee": "This is the Shapeshift Fee"
+      "rate": "This is the expected rate for this trade pair.",
+      "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
+      "shapeshiftFee": "ShapeShift adds no fees on trades 🎉"
     },
     "errors": {
-      "notEnoughEth": "Not enough Ethereum for the gas fee on this transaction. Est gas fee %{estimatedMinerFee}",
+      "title": "Something went wrong",
+      "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
       "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
       "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
@@ -153,6 +170,21 @@
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
         "button": "Submit Passphrase"
+      }
+    },
+    "shapeShift": {
+      "password": {
+        "header": "Enter Your Password",
+        "walletName": "Wallet nickname (optional)",
+        "body": "Enter your password to decrypt your wallet",
+        "placeholder": "Enter Password",
+        "show": "Show password",
+        "hide": "Hide password",
+        "error": {
+          "invalid": "Invalid Password",
+          "required": "Password is required",
+          "length": "Your password must be at least %{length} characters"
+        }
       }
     },
     "send": {
@@ -228,7 +260,7 @@
         "header": "Confirm Deposit",
         "averageApr": "Average APR",
         "estimatedReturns": "Estimated Yearly Returns*",
-        "preFooter": "Rewards acure automatically"
+        "preFooter": "Rewards accrue automatically"
       },
       "withdrawFrom": "Withdraw From",
       "withdrawTo": "Withdraw To",
@@ -270,8 +302,9 @@
       },
       "connect": {
         "header": "Pair Your KeepKey",
-        "body": "Connect a KeepKey device and click 'Pair.'",
-        "button": "Pair"
+        "body": "Connect a KeepKey device and click Pair.",
+        "button": "Pair",
+        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
       },
       "pin": {
         "header": "Enter Your Pin",
@@ -292,7 +325,8 @@
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
-        "connectFailure": "Unable to connect MetaMask wallet"
+        "connectFailure": "Unable to connect MetaMask wallet",
+        "network": "MetaMask isn't set to Ethereum Mainnet"
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -320,44 +354,49 @@
       }
     },
     "shapeShift": {
-      "nativeImport": {
+      "load": {
+        "error": {
+          "delete": "Unable to delete your wallet, sorry.",
+          "noWallet": "You have no saved wallets",
+          "pair": "Unable to pair your wallet"
+        },
+        "header": "Saved Wallets",
+        "body": "Loading your saved wallet... Enter your password when prompted.",
+        "button": "Continue",
+        "confirmForget": "Are you sure you want to forget %{wallet}?"
+      },
+      "import": {
         "header": "Import your wallet",
-        "body": "Enter your 12 word seed phrase to import an exisiting wallet",
+        "body": "Enter your seed phrase to import an existing wallet",
         "button": "Next"
       },
-      "nativePasswd": {
-        "header": "Enter your password",
-        "body": "Enter a password to encrypt your wallet. In order to securely store your keys we will encrypt them, choose a string password you can remember.",
+      "password": {
+        "header": "Enter Your Password",
+        "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
         "button": "Next"
       },
-      "nativePassReq": {
-        "header": "Enter your password",
-        "body": "Enter your native wallet password to decrypt the wallet stored in your browser.",
-        "button": "Next",
-        "minLength": "Minimum length should be 8",
-        "required": "This is required",
-        "placeholder": "Enter password",
-        "showPassword": "Show password",
-        "hidePassword": "Hide password"
-      },
-      "nativeSeed": {
-        "header": "Your seed phrase",
+      "create": {
+        "header": "Your Backup Seed Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next"
+        "button": "Next",
+        "hideWords": "Hide Words",
+        "showWords": "Show Words"
       },
-      "nativeStart": {
-        "header": "Create or import a wallet",
-        "body": "Would you like to create a new wallet or import an existing one?",
-        "button": "Import Wallet",
-        "button2": "Create Wallet"
+      "start": {
+        "header": "ShapeShift Wallet",
+        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet.",
+        "import": "Import a wallet",
+        "create": "Create a new wallet",
+        "load": "Saved wallets"
       },
-      "nativeSuccess": {
+      "success": {
+        "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
         "success": "Your wallet has been connected",
         "error": "There was an error connecting your wallet"
       },
-      "nativeTestPhrase": {
-        "header": "Let's practice your secret phrase",
+      "testPhrase": {
+        "header": "Verify Your Backup Seed Phrase",
         "body": "Which of these is the",
         "body2": " word",
         "body3": "in your secret phrase.",
@@ -365,7 +404,7 @@
       }
     },
     "selectModal": {
-      "header": "Connect a wallet",
+      "header": "Connect A Wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
     }
   },
@@ -390,7 +429,9 @@
         "aboutAsset": "About %{asset}",
         "SegwitP2sh": "Segwit",
         "SegwitNative": "Segwit Native",
-        "P2pkh": "Legacy"
+        "P2pkh": "Legacy",
+        "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
+        "btcFormat": "BTC format"
       },
       "assetDescription": {
         "showMore": "Show More",
@@ -417,7 +458,7 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking or deposting your assets into a vault.",
+      "stakingBody": "Earn passive income by staking or depositing your assets into a vault.",
       "pools": "Pools"
     }
   },

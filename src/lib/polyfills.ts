@@ -1,4 +1,6 @@
 import 'allsettled-polyfill'
+import '@formatjs/intl-getcanonicallocales/polyfill'
+import '@formatjs/intl-locale/polyfill'
 import '@formatjs/intl-numberformat/polyfill'
 import '@formatjs/intl-numberformat/locale-data/ar'
 import '@formatjs/intl-numberformat/locale-data/bn'

@@ -14,12 +14,13 @@ import { KeepKeySuccess } from './KeepKey/components/Success'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskSuccess } from './MetaMask/components/Success'
+import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
+import { NativeLoad } from './NativeWallet/components/NativeLoad'
 import { NativePassword } from './NativeWallet/components/NativePassword'
-import { NativeSeed } from './NativeWallet/components/NativeSeed/NativeSeed'
 import { NativeStart } from './NativeWallet/components/NativeStart'
-import { NativeSuccess } from './NativeWallet/components/NativeSuccess/NativeSuccess'
-import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase/NativeTestPhrase'
+import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
+import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisSuccess } from './Portis/components/Success'
@@ -44,11 +45,12 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: FoxIcon,
     name: 'ShapeShift',
     routes: [
-      { path: '/native/password', component: NativePassword },
       { path: '/native/start', component: NativeStart },
-      { path: '/native/seed', component: NativeSeed },
+      { path: '/native/load', component: NativeLoad },
+      { path: '/native/password', component: NativePassword },
       { path: '/native/import', component: NativeImport },
-      { path: '/native/seed-test', component: NativeTestPhrase },
+      { path: '/native/create', component: NativeCreate },
+      { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess }
     ]
   },

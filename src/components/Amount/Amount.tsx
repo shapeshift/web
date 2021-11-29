@@ -104,7 +104,7 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: Fi
       <RawText {...props}>
         {prefix && `${prefix} `}
         {fiat}
-        {suffix && `${suffix} `}
+        {suffix && ` ${suffix}`}
       </RawText>
     )
   }

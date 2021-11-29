@@ -12,6 +12,7 @@ import {
 import debounce from 'lodash/debounce'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { TradeAsset, TradeState } from 'components/Trade/Trade'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useIsComponentMounted } from 'hooks/useIsComponentMounted/useIsComponentMounted'
@@ -39,6 +40,7 @@ interface GetQuoteFromSwapper<C extends ChainTypes, S extends SwapperType> exten
 }
 
 export enum TRADE_ERRORS {
+  TITLE = 'trade.errors.title',
   NOT_ENOUGH_ETH = 'trade.errors.notEnoughEth',
   AMOUNT_TO_SMALL = 'trade.errors.amountToSmall',
   NEGATIVE_MAX = 'trade.errors.negativeMax',
@@ -56,7 +58,8 @@ export enum TRADE_ERRORS {
 // TODO: (ryankk) revisit the logic inside useSwapper post bounty to see
 // if it makes sense to move some of it down to lib.
 export const useSwapper = () => {
-  const { setValue, setError, clearErrors, getValues } = useFormContext()
+  const { setValue, clearErrors, getValues } = useFormContext()
+  const translate = useTranslate()
   const isComponentMounted = useIsComponentMounted()
   const [quote, trade] = useWatch({
     name: ['quote', 'trade']
@@ -91,7 +94,7 @@ export const useSwapper = () => {
       buyAsset: buyAsset.currency
     })
 
-    const completeQuote = await swapper?.buildQuoteTx({
+    const minimumQuote = await swapper?.buildQuoteTx({
       input: {
         sellAsset: sellAsset.currency,
         buyAsset: buyAsset.currency,
@@ -102,11 +105,11 @@ export const useSwapper = () => {
       wallet
     })
 
-    if (!completeQuote) return
+    if (!minimumQuote) return
 
     const sendMaxAmount = await swapper.getSendMaxAmount({
       wallet,
-      quote: completeQuote,
+      quote: minimumQuote,
       sellAssetAccountId: '0' // TODO: remove hard coded accountId when multiple accounts are implemented
     })
 
@@ -130,32 +133,68 @@ export const useSwapper = () => {
     buyAsset: Asset
     amount: string
   }): Promise<Quote<ChainTypes, SwapperType> | undefined> => {
-    let result
-    try {
-      const swapper = swapperManager.getSwapper(bestSwapperType)
-      result = await swapper?.buildQuoteTx({
-        input: {
-          sellAmount: toBaseUnit(amount, sellAsset.precision),
-          sellAsset,
-          buyAsset,
-          sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-          buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
-          slippage: trade?.slippage?.toString(),
-          priceImpact: quote?.priceImpact
-        },
-        wallet
-      })
-    } catch (err) {
-      console.error(`TradeProvider - buildTransaction error: ${err}`)
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const { minimum } = await swapper.getMinMax({
+      sellAsset,
+      buyAsset
+    })
+    const sellAmount = toBaseUnit(amount, sellAsset.precision)
+    const minSellAmount = toBaseUnit(minimum, sellAsset.precision)
+
+    if (bnOrZero(sellAmount).lt(minSellAmount)) {
+      return {
+        success: false,
+        sellAsset,
+        buyAsset,
+        statusReason: translate(TRADE_ERRORS.AMOUNT_TO_SMALL, { minLimit: minimum })
+      }
     }
+
+    const result = await swapper?.buildQuoteTx({
+      input: {
+        sellAmount,
+        sellAsset,
+        buyAsset,
+        sellAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+        buyAssetAccountId: '0', // TODO: remove hard coded accountId when multiple accounts are implemented
+        slippage: trade?.slippage?.toString(),
+        priceImpact: quote?.priceImpact
+      },
+      wallet
+    })
+
     if (result?.success) {
       setFees(result, sellAsset)
       setValue('quote', result)
+      return result
     } else {
-      // TODO: (ryankk) fix errors to reflect correct trade attribute
-      setError('useSwapper', { message: TRADE_ERRORS.INSUFFICIENT_FUNDS })
+      // TODO: (ryankk) Post bounty, these need to be revisited so the error messages can be more accurate.
+      switch (result.statusReason) {
+        case 'Gas estimation failed':
+          return {
+            success: false,
+            sellAsset,
+            buyAsset,
+            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS)
+          }
+        case 'Insufficient funds for transaction':
+          return {
+            success: false,
+            sellAsset,
+            buyAsset,
+            statusReason: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS_FOR_AMOUNT, {
+              symbol: sellAsset.symbol
+            })
+          }
+        default:
+          return {
+            success: false,
+            sellAsset,
+            buyAsset,
+            statusReason: translate(TRADE_ERRORS.QUOTE_FAILED)
+          }
+      }
     }
-    return result
   }
 
   const executeQuote = async ({
@@ -163,14 +202,8 @@ export const useSwapper = () => {
   }: {
     wallet: HDWallet
   }): Promise<ExecQuoteOutput | undefined> => {
-    let result
-    try {
-      const swapper = swapperManager.getSwapper(bestSwapperType)
-      result = await swapper.executeQuote({ quote, wallet })
-    } catch (err) {
-      setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
-      console.error(`TradeProvider - executeQuote error: ${err}`) // eslint-disable-line no-console
-    }
+    const swapper = swapperManager.getSwapper(bestSwapperType)
+    const result = await swapper.executeQuote({ quote, wallet })
     return result
   }
 
@@ -211,19 +244,17 @@ export const useSwapper = () => {
 
           const { trade } = getValues()
           let minMax = trade
+
           if (
-            quote?.sellAsset?.symbol !== sellAsset.symbol &&
-            quote?.buyAsset?.symbol !== buyAsset.symbol
+            !quote ||
+            (quote?.sellAsset?.symbol !== sellAsset.symbol &&
+              quote?.buyAsset?.symbol !== buyAsset.symbol)
           ) {
-            try {
-              const minMax = await swapper.getMinMax(quoteInput)
-              const minMaxTrade = { ...minMax, ...trade }
-              minMax && setValue('trade', minMaxTrade)
-            } catch (err) {
-              console.error(`getQuoteFromSwapper:getMinMax - ${err}`)
-              setValue('trade', { minimum: '0', maximum: '0', minimumPrice: '0', ...trade })
-            }
+            minMax = await swapper.getMinMax(quoteInput)
+            const minMaxTrade = { ...minMax, ...trade }
+            minMax && setValue('trade', minMaxTrade)
           }
+
           const newQuote = await swapper.getQuote({ ...quoteInput, ...minMax })
           if (!(newQuote && newQuote.success)) throw newQuote
 
@@ -248,10 +279,8 @@ export const useSwapper = () => {
           setValue('sellAsset.fiatRate', sellAssetUsdRate.toString())
           setValue('buyAsset.fiatRate', buyAssetUsdRate.toString())
           if (action) onFinish(newQuote)
-        } catch (err: any) {
-          const message = err?.statusReason
-          if (message) setError('useSwapper', { message: TRADE_ERRORS.NO_LIQUIDITY })
-          else setError('useSwapper', { message: TRADE_ERRORS.QUOTE_FAILED })
+        } catch (e) {
+          console.error(e)
         }
       }
     }, debounceTime)
@@ -282,8 +311,9 @@ export const useSwapper = () => {
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {
         const { sellAsset, buyAsset, action, fiatAmount } = getValues()
-        // TODO:(ryankk) should this return be handled with an error state instead?
+
         if (!(quote.buyAmount && quote.sellAmount)) return
+
         const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
         const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)

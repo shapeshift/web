@@ -13,6 +13,7 @@ import React, {
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
+import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
 export enum WalletActions {
@@ -98,7 +99,13 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_WALLET_MODAL:
-      return { ...state, modal: action.payload }
+      const newState = { ...state, modal: action.payload }
+      // If we're closing the modal, then we need to forget the route we were on
+      // Otherwise the connect button for last wallet we clicked on won't work
+      if (action.payload !== state.modal) {
+        newState.initialRoute = '/'
+      }
+      return newState
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -119,6 +126,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
+  useNativeEventHandler(state, dispatch)
 
   useEffect(() => {
     if (state.keyring) {

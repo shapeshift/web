@@ -28,6 +28,7 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit } from 'lib/math'
 import { useAsset } from 'pages/Assets/Asset'
@@ -52,7 +53,10 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const { name, symbol, description, icon } = asset || {}
   const { changePercent24Hr, price } = marketData || {}
   const percentChange = changePercent24Hr ?? 0
-  const assetPrice = price ?? 0
+  const {
+    number: { toFiat }
+  } = useLocaleFormatter({ fiatType: 'USD' })
+  const assetPrice = toFiat(price) ?? 0
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)

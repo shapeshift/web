@@ -151,7 +151,7 @@ export class CoinGeckoMarketService implements MarketService {
       )
       return historyData?.prices?.map((data: [string, number]) => {
         return {
-          date: new Date(data[0]),
+          date: data[0],
           price: data[1]
         }
       })

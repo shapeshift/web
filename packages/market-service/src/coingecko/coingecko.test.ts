@@ -183,10 +183,10 @@ describe('coingecko market service', () => {
       ]
 
       const expected = [
-        { date: new Date('2021-09-15T00:00:00.000Z'), price: 47135.43199562694 },
-        { date: new Date('2021-09-14T00:00:00.000Z'), price: 45139.83396873267 },
-        { date: new Date('2021-09-13T00:00:00.000Z'), price: 46195.21830082935 },
-        { date: new Date('2021-09-12T00:00:00.000Z'), price: 45196.488277558245 }
+        { date: new Date('2021-09-15T00:00:00.000Z').valueOf(), price: 47135.43199562694 },
+        { date: new Date('2021-09-14T00:00:00.000Z').valueOf(), price: 45139.83396873267 },
+        { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 46195.21830082935 },
+        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 }
       ]
       mockedAxios.get.mockResolvedValue({ data: { prices: mockHistoryData } })
       expect(await getPriceHistory(args)).toEqual(expected)

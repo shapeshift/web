@@ -6,13 +6,13 @@ import { getUsdRate, normalizeAmount } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
 import { ZrxError } from '../ZrxSwapper'
 
-export const getMinMax = async (
+export const getZrxMinMax = async (
   input: Pick<GetQuoteInput, 'sellAsset' | 'buyAsset'>
 ): Promise<MinMaxOutput> => {
   const { sellAsset, buyAsset } = input
 
   if (sellAsset.chain !== ChainTypes.Ethereum || buyAsset.chain !== ChainTypes.Ethereum) {
-    throw new ZrxError('getMinMax - must be eth assets')
+    throw new ZrxError('getZrxMinMax - must be eth assets')
   }
   const buyToken = buyAsset.tokenId || buyAsset.symbol
   const sellToken = sellAsset.tokenId || sellAsset.symbol

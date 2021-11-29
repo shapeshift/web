@@ -20,7 +20,7 @@ import { getERC20Allowance } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function approvalNeeded(
+export async function ZrxApprovalNeeded(
   { adapterManager, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApprovalNeededInput<ChainTypes, SwapperType>
 ): Promise<ApprovalNeededOutput> {
@@ -31,7 +31,7 @@ export async function approvalNeeded(
   }
 
   if (sellAsset.chain !== ChainTypes.Ethereum) {
-    throw new SwapError('ZrxSwapper:approvalNeeded only Ethereum chain type is supported')
+    throw new SwapError('ZrxSwapper:ZrxApprovalNeeded only Ethereum chain type is supported')
   }
 
   const accountNumber = quote.sellAssetAccountId ? Number(quote.sellAssetAccountId) : 0
@@ -66,7 +66,7 @@ export async function approvalNeeded(
   const { data } = quoteResponse
 
   if (!quote.sellAsset.tokenId || !data.allowanceTarget) {
-    throw new SwapError('approvalNeeded - tokenId and allowanceTarget are required')
+    throw new SwapError('ZrxApprovalNeeded - tokenId and allowanceTarget are required')
   }
   const allowanceResult = await getERC20Allowance({
     web3,

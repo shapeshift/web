@@ -17,14 +17,14 @@ import {
 import Web3 from 'web3'
 
 import { Swapper } from '../../api'
-import { approvalNeeded } from './approvalNeeded/approvalNeeded'
-import { approveInfinite } from './approveInfinite/approveInfinite'
-import { buildQuoteTx } from './buildQuoteTx/buildQuoteTx'
-import { executeQuote } from './executeQuote/executeQuote'
-import { getMinMax } from './getMinMax/getMinMax'
-import { getZrxQuote } from './getQuote/getQuote'
-import { getSendMaxAmount } from './getSendMaxAmount/getSendMaxAmount'
+import { getZrxMinMax } from './getZrxMinMax/getZrxMinMax'
+import { getZrxQuote } from './getZrxQuote/getZrxQuote'
+import { getZrxSendMaxAmount } from './getZrxSendMaxAmount/getZrxSendMaxAmount'
 import { getUsdRate } from './utils/helpers/helpers'
+import { ZrxApprovalNeeded } from './ZrxApprovalNeeded/ZrxApprovalNeeded'
+import { ZrxApproveInfinite } from './ZrxApproveInfinite/ZrxApproveInfinite'
+import { ZrxBuildQuoteTx } from './ZrxBuildQuoteTx/ZrxBuildQuoteTx'
+import { ZrxExecuteQuote } from './ZrxExecuteQuote/ZrxExecuteQuote'
 export type ZrxSwapperDeps = {
   adapterManager: ChainAdapterManager
   web3: Web3
@@ -50,7 +50,7 @@ export class ZrxSwapper implements Swapper {
   }
 
   async buildQuoteTx(args: BuildQuoteTxInput): Promise<Quote<ChainTypes, SwapperType>> {
-    return buildQuoteTx(this.deps, args)
+    return ZrxBuildQuoteTx(this.deps, args)
   }
 
   async getQuote(input: GetQuoteInput): Promise<Quote<ChainTypes, SwapperType>> {
@@ -62,7 +62,7 @@ export class ZrxSwapper implements Swapper {
   }
 
   async getMinMax(input: GetQuoteInput): Promise<MinMaxOutput> {
-    return getMinMax(input)
+    return getZrxMinMax(input)
   }
 
   getAvailableAssets(assets: Asset[]): Asset[] {
@@ -81,20 +81,20 @@ export class ZrxSwapper implements Swapper {
   }
 
   async executeQuote(args: ExecQuoteInput<ChainTypes, SwapperType>): Promise<ExecQuoteOutput> {
-    return executeQuote(this.deps, args)
+    return ZrxExecuteQuote(this.deps, args)
   }
 
   async approvalNeeded(
     args: ApprovalNeededInput<ChainTypes, SwapperType>
   ): Promise<ApprovalNeededOutput> {
-    return approvalNeeded(this.deps, args)
+    return ZrxApprovalNeeded(this.deps, args)
   }
 
   async approveInfinite(args: ApproveInfiniteInput<ChainTypes, SwapperType>): Promise<string> {
-    return approveInfinite(this.deps, args)
+    return ZrxApproveInfinite(this.deps, args)
   }
 
   async getSendMaxAmount(args: SendMaxAmountInput): Promise<string> {
-    return getSendMaxAmount(this.deps, args)
+    return getZrxSendMaxAmount(this.deps, args)
   }
 }

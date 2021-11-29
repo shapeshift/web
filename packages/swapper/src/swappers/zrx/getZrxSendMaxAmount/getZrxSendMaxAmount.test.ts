@@ -5,13 +5,13 @@ import BigNumber from 'bignumber.js'
 import { ETH_FEE_ESTIMATE_PADDING } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { chainAdapterMockFuncs, setupZrxDeps } from '../utils/test-data/setupZrxDeps'
-import { getSendMaxAmount } from './getSendMaxAmount'
+import { getZrxSendMaxAmount } from './getZrxSendMaxAmount'
 
 const createPaddedFee = (value: string) => {
   return new BigNumber(value).times(ETH_FEE_ESTIMATE_PADDING).toString()
 }
 
-describe('getSendMaxAmount', () => {
+describe('getZrxSendMaxAmount', () => {
   const { web3Instance, adapterManager } = setupZrxDeps()
   const { quoteInput: quote } = setupQuote()
   const deps = { web3: web3Instance, adapterManager }
@@ -34,7 +34,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    await expect(getSendMaxAmount(deps, args)).rejects.toThrow(
+    await expect(getZrxSendMaxAmount(deps, args)).rejects.toThrow(
       `No balance found for ${quote.sellAsset.symbol}`
     )
   })
@@ -52,7 +52,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    await expect(getSendMaxAmount(deps, args)).rejects.toThrow(`No balance found for ETH`)
+    await expect(getZrxSendMaxAmount(deps, args)).rejects.toThrow(`No balance found for ETH`)
   })
 
   it('should throw an error if ETH balance is less than the estimated fee', async () => {
@@ -73,7 +73,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    await expect(getSendMaxAmount(deps, args)).rejects.toThrow(
+    await expect(getZrxSendMaxAmount(deps, args)).rejects.toThrow(
       'ETH balance is less than estimated fee'
     )
   })
@@ -96,7 +96,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    await expect(getSendMaxAmount(deps, args)).rejects.toThrow(
+    await expect(getZrxSendMaxAmount(deps, args)).rejects.toThrow(
       'quote.txData is required to get correct fee estimate'
     )
   })
@@ -115,7 +115,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    expect(await getSendMaxAmount(deps, args)).toEqual(erc20Balance)
+    expect(await getZrxSendMaxAmount(deps, args)).toEqual(erc20Balance)
   })
 
   it('should return max ETH balance in wei (balance minus txFee)', async () => {
@@ -137,7 +137,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    expect(await getSendMaxAmount(deps, args)).toEqual(
+    expect(await getZrxSendMaxAmount(deps, args)).toEqual(
       new BigNumber(ethBalance).minus(paddedFee).toString()
     )
   })
@@ -162,7 +162,7 @@ describe('getSendMaxAmount', () => {
       })
     })
 
-    expect(await getSendMaxAmount(deps, args)).toEqual(
+    expect(await getZrxSendMaxAmount(deps, args)).toEqual(
       new BigNumber(ethBalance).minus(paddedFee).toString()
     )
   })

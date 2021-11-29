@@ -7,7 +7,7 @@ import Web3 from 'web3'
 import { APPROVAL_GAS_LIMIT, DEFAULT_SLIPPAGE, MAX_SLIPPAGE } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { zrxService } from '../utils/zrxService'
-import { buildQuoteTx } from './buildQuoteTx'
+import { ZrxBuildQuoteTx } from './ZrxBuildQuoteTx'
 
 jest.mock('web3')
 
@@ -120,7 +120,7 @@ const setup = () => {
   return { web3Instance, adapterManager }
 }
 
-describe('buildQuoteTx', () => {
+describe('ZrxBuildQuoteTx', () => {
   const { quoteInput, sellAsset, buyAsset } = setupQuote()
   const { web3Instance, adapterManager } = setup()
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -135,32 +135,32 @@ describe('buildQuoteTx', () => {
   it('should throw error if sellAmount AND buyAmount is provided', async () => {
     const input = { ...quoteInput, buyAmount: '1234.12', sellAmount: '1234.12' }
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      'ZrxSwapper:buildQuoteTx Exactly one of buyAmount or sellAmount is required'
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      'ZrxSwapper:ZrxBuildQuoteTx Exactly one of buyAmount or sellAmount is required'
     )
   })
 
   it('should throw error if sellAmount AND buyAmount are NOT provided', async () => {
     const input = { ...quoteInput, sellAmount: '', buyAmount: '' }
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      'ZrxSwapper:buildQuoteTx Exactly one of buyAmount or sellAmount is required'
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      'ZrxSwapper:ZrxBuildQuoteTx Exactly one of buyAmount or sellAmount is required'
     )
   })
 
   it('should throw error if sellAssetAccountId is NOT provided', async () => {
     const input = { ...quoteInput, sellAssetAccountId: '' }
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      'ZrxSwapper:buildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      'ZrxSwapper:ZrxBuildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
     )
   })
 
   it('should throw error if buyAssetAccountId is NOT provided', async () => {
     const input = { ...quoteInput, buyAssetAccountId: '' }
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      'ZrxSwapper:buildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      'ZrxSwapper:ZrxBuildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
     )
   })
 
@@ -168,8 +168,8 @@ describe('buildQuoteTx', () => {
     const slippage = '31.0'
     const input = { ...quoteInput, slippage }
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      `ZrxSwapper:buildQuoteTx slippage value of ${slippage} is greater than max slippage value of ${MAX_SLIPPAGE}`
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      `ZrxSwapper:ZrxBuildQuoteTx slippage value of ${slippage} is greater than max slippage value of ${MAX_SLIPPAGE}`
     )
   })
 
@@ -184,8 +184,8 @@ describe('buildQuoteTx', () => {
       }
     } as unknown) as GetQuoteInput
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      'ZrxSwapper:buildQuoteTx One of buyAssetContract or buyAssetSymbol or buyAssetNetwork are required'
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      'ZrxSwapper:ZrxBuildQuoteTx One of buyAssetContract or buyAssetSymbol or buyAssetNetwork are required'
     )
   })
 
@@ -200,8 +200,8 @@ describe('buildQuoteTx', () => {
       }
     } as unknown) as GetQuoteInput
 
-    await expect(buildQuoteTx(deps, { input, wallet })).rejects.toThrow(
-      'ZrxSwapper:buildQuoteTx One of sellAssetContract or sellAssetSymbol or sellAssetNetwork are required'
+    await expect(ZrxBuildQuoteTx(deps, { input, wallet })).rejects.toThrow(
+      'ZrxSwapper:ZrxBuildQuoteTx One of sellAssetContract or sellAssetSymbol or sellAssetNetwork are required'
     )
   })
 
@@ -219,7 +219,7 @@ describe('buildQuoteTx', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await buildQuoteTx(deps, { input: quoteInput, wallet })).toEqual(mockQuoteResponse)
+    expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual(mockQuoteResponse)
   })
 
   it('should return a quote response with rate when price is given', async () => {
@@ -238,7 +238,7 @@ describe('buildQuoteTx', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await buildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
+    expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       ...mockQuoteResponse,
       rate: price
     })
@@ -254,7 +254,7 @@ describe('buildQuoteTx', () => {
     }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await buildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
+    expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       ...mockQuoteResponse,
       feeData: {
         ...mockQuoteResponse.feeData,
@@ -276,7 +276,7 @@ describe('buildQuoteTx', () => {
     }
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await buildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
+    expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       ...mockQuoteResponse,
       allowanceContract: allowanceTarget
     })
@@ -287,7 +287,7 @@ describe('buildQuoteTx', () => {
       Promise.reject({ response: { data: { code: 400 } } })
     )
 
-    expect(await buildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
+    expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       success: false,
       statusCode: 400,
       statusReason: 'Unknown Error',
@@ -301,7 +301,7 @@ describe('buildQuoteTx', () => {
       Promise.reject({ response: { data: { code: 500 } } })
     )
 
-    expect(await buildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
+    expect(await ZrxBuildQuoteTx(deps, { input: quoteInput, wallet })).toEqual({
       success: false,
       statusCode: 500,
       statusReason: 'Unknown Error',

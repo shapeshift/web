@@ -10,7 +10,7 @@ import { grantAllowance } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function approveInfinite(
+export async function ZrxApproveInfinite(
   { adapterManager, web3 }: ZrxSwapperDeps,
   { quote, wallet }: ApproveInfiniteInput<ChainTypes, SwapperType>
 ) {

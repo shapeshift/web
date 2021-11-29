@@ -23,7 +23,7 @@ import { getAllowanceRequired, normalizeAmount } from '../utils/helpers/helpers'
 import { zrxService } from '../utils/zrxService'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function buildQuoteTx(
+export async function ZrxBuildQuoteTx(
   { adapterManager, web3 }: ZrxSwapperDeps,
   { input, wallet }: BuildQuoteTxInput
 ): Promise<Quote<ChainTypes, SwapperType>> {
@@ -40,13 +40,13 @@ export async function buildQuoteTx(
 
   if ((buyAmount && sellAmount) || (!buyAmount && !sellAmount)) {
     throw new SwapError(
-      'ZrxSwapper:buildQuoteTx Exactly one of buyAmount or sellAmount is required'
+      'ZrxSwapper:ZrxBuildQuoteTx Exactly one of buyAmount or sellAmount is required'
     )
   }
 
   if (!sellAssetAccountId || !buyAssetAccountId) {
     throw new SwapError(
-      'ZrxSwapper:buildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
+      'ZrxSwapper:ZrxBuildQuoteTx Both sellAssetAccountId and buyAssetAccountId are required'
     )
   }
 
@@ -54,18 +54,18 @@ export async function buildQuoteTx(
   const sellToken = sellAsset.tokenId || sellAsset.symbol || sellAsset.network
   if (!buyToken) {
     throw new SwapError(
-      'ZrxSwapper:buildQuoteTx One of buyAssetContract or buyAssetSymbol or buyAssetNetwork are required'
+      'ZrxSwapper:ZrxBuildQuoteTx One of buyAssetContract or buyAssetSymbol or buyAssetNetwork are required'
     )
   }
   if (!sellToken) {
     throw new SwapError(
-      'ZrxSwapper:buildQuoteTx One of sellAssetContract or sellAssetSymbol or sellAssetNetwork are required'
+      'ZrxSwapper:ZrxBuildQuoteTx One of sellAssetContract or sellAssetSymbol or sellAssetNetwork are required'
     )
   }
 
   if (buyAsset.chain !== ChainTypes.Ethereum) {
     throw new SwapError(
-      `ZrxSwapper:buildQuoteTx buyAsset must be on chain [${ChainTypes.Ethereum}]`
+      `ZrxSwapper:ZrxBuildQuoteTx buyAsset must be on chain [${ChainTypes.Ethereum}]`
     )
   }
 
@@ -75,7 +75,7 @@ export async function buildQuoteTx(
 
   if (new BigNumber(slippage || 0).gt(MAX_SLIPPAGE)) {
     throw new SwapError(
-      `ZrxSwapper:buildQuoteTx slippage value of ${slippage} is greater than max slippage value of ${MAX_SLIPPAGE}`
+      `ZrxSwapper:ZrxBuildQuoteTx slippage value of ${slippage} is greater than max slippage value of ${MAX_SLIPPAGE}`
     )
   }
 

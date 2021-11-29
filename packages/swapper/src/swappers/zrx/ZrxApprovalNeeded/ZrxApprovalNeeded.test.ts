@@ -6,7 +6,7 @@ import { APPROVAL_GAS_LIMIT } from '../utils/constants'
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { setupZrxDeps } from '../utils/test-data/setupZrxDeps'
 import { zrxService } from '../utils/zrxService'
-import { approvalNeeded } from './approvalNeeded'
+import { ZrxApprovalNeeded } from './ZrxApprovalNeeded'
 
 jest.mock('web3')
 jest.mock('axios', () => ({
@@ -28,7 +28,7 @@ Web3.mockImplementation(() => ({
   }
 }))
 
-describe('approvalNeeded', () => {
+describe('ZrxApprovalNeeded', () => {
   const { web3Instance: web3, adapterManager } = setupZrxDeps()
   const args = { web3, adapterManager }
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -44,7 +44,7 @@ describe('approvalNeeded', () => {
       wallet
     }
 
-    expect(await approvalNeeded(args, input)).toEqual({ approvalNeeded: false })
+    expect(await ZrxApprovalNeeded(args, input)).toEqual({ approvalNeeded: false })
   })
 
   it('throws an error if sellAsset chain is not ETH', async () => {
@@ -53,8 +53,8 @@ describe('approvalNeeded', () => {
       wallet
     }
 
-    await expect(approvalNeeded(args, input)).rejects.toThrow(
-      'ZrxSwapper:approvalNeeded only Ethereum chain type is supported'
+    await expect(ZrxApprovalNeeded(args, input)).rejects.toThrow(
+      'ZrxSwapper:ZrxApprovalNeeded only Ethereum chain type is supported'
     )
   })
 
@@ -74,7 +74,7 @@ describe('approvalNeeded', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await approvalNeeded(args, input)).toEqual({
+    expect(await ZrxApprovalNeeded(args, input)).toEqual({
       approvalNeeded: false,
       gas: APPROVAL_GAS_LIMIT,
       gasPrice: data.gasPrice
@@ -97,7 +97,7 @@ describe('approvalNeeded', () => {
     }))
     ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data }))
 
-    expect(await approvalNeeded(args, input)).toEqual({
+    expect(await ZrxApprovalNeeded(args, input)).toEqual({
       approvalNeeded: true,
       gas: APPROVAL_GAS_LIMIT,
       gasPrice: data.gasPrice

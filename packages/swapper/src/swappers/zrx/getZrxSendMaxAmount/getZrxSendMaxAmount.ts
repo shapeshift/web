@@ -6,7 +6,7 @@ import { bnOrZero } from '../utils/bignumber'
 import { ETH_FEE_ESTIMATE_PADDING } from '../utils/constants'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
 
-export async function getSendMaxAmount(
+export async function getZrxSendMaxAmount(
   { adapterManager }: ZrxSwapperDeps,
   {
     wallet,

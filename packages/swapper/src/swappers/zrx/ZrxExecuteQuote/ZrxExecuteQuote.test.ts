@@ -3,9 +3,9 @@ import { ChainTypes, ExecQuoteInput, SwapperType } from '@shapeshiftoss/types'
 
 import { setupQuote } from '../utils/test-data/setupSwapQuote'
 import { ZrxSwapperDeps } from '../ZrxSwapper'
-import { executeQuote } from './executeQuote'
+import { ZrxExecuteQuote } from './ZrxExecuteQuote'
 
-describe('executeQuote', () => {
+describe('ZrxExecuteQuote', () => {
   const { quoteInput, sellAsset } = setupQuote()
   const txid = '0xffaac3dd529171e8a9a2adaf36b0344877c4894720d65dfd86e4b3a56c5a857e'
   let wallet = ({
@@ -27,8 +27,8 @@ describe('executeQuote', () => {
       quote: { ...quoteInput, success: false },
       wallet
     }
-    await expect(executeQuote(deps, args)).rejects.toThrow(
-      'ZrxSwapper:executeQuote Cannot execute a failed quote'
+    await expect(ZrxExecuteQuote(deps, args)).rejects.toThrow(
+      'ZrxSwapper:ZrxExecuteQuote Cannot execute a failed quote'
     )
   })
 
@@ -37,8 +37,8 @@ describe('executeQuote', () => {
       quote: { ...quoteInput, sellAsset: { ...sellAsset, network: '' } },
       wallet
     } as unknown) as ExecQuoteInput<ChainTypes, SwapperType>
-    await expect(executeQuote(deps, args)).rejects.toThrow(
-      'ZrxSwapper:executeQuote sellAssetNetwork and sellAssetSymbol are required'
+    await expect(ZrxExecuteQuote(deps, args)).rejects.toThrow(
+      'ZrxSwapper:ZrxExecuteQuote sellAssetNetwork and sellAssetSymbol are required'
     )
   })
 
@@ -47,8 +47,8 @@ describe('executeQuote', () => {
       quote: { ...quoteInput, sellAsset: { ...sellAsset, symbol: '' } },
       wallet
     }
-    await expect(executeQuote(deps, args)).rejects.toThrow(
-      'ZrxSwapper:executeQuote sellAssetNetwork and sellAssetSymbol are required'
+    await expect(ZrxExecuteQuote(deps, args)).rejects.toThrow(
+      'ZrxSwapper:ZrxExecuteQuote sellAssetNetwork and sellAssetSymbol are required'
     )
   })
 
@@ -57,8 +57,8 @@ describe('executeQuote', () => {
       quote: { ...quoteInput, sellAssetAccountId: '' },
       wallet
     }
-    await expect(executeQuote(deps, args)).rejects.toThrow(
-      'ZrxSwapper:executeQuote sellAssetAccountId is required'
+    await expect(ZrxExecuteQuote(deps, args)).rejects.toThrow(
+      'ZrxSwapper:ZrxExecuteQuote sellAssetAccountId is required'
     )
   })
 
@@ -67,8 +67,8 @@ describe('executeQuote', () => {
       quote: { ...quoteInput, sellAmount: '' },
       wallet
     }
-    await expect(executeQuote(deps, args)).rejects.toThrow(
-      'ZrxSwapper:executeQuote sellAmount is required'
+    await expect(ZrxExecuteQuote(deps, args)).rejects.toThrow(
+      'ZrxSwapper:ZrxExecuteQuote sellAmount is required'
     )
   })
 
@@ -77,8 +77,8 @@ describe('executeQuote', () => {
       quote: { ...quoteInput, depositAddress: '' },
       wallet
     }
-    await expect(executeQuote(deps, args)).rejects.toThrow(
-      'ZrxSwapper:executeQuote depositAddress is required'
+    await expect(ZrxExecuteQuote(deps, args)).rejects.toThrow(
+      'ZrxSwapper:ZrxExecuteQuote depositAddress is required'
     )
   })
 
@@ -88,7 +88,7 @@ describe('executeQuote', () => {
       wallet
     }
 
-    expect(await executeQuote(deps, args)).toEqual({ txid })
+    expect(await ZrxExecuteQuote(deps, args)).toEqual({ txid })
   })
 
   it('returns txid if offline signing is unsupported', async () => {
@@ -101,6 +101,6 @@ describe('executeQuote', () => {
       wallet
     }
 
-    expect(await executeQuote(deps, args)).toEqual({ txid })
+    expect(await ZrxExecuteQuote(deps, args)).toEqual({ txid })
   })
 })

@@ -176,7 +176,9 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData?.[caip19]?.data
-    const price = assetPriceHistoryData ? priceAtBlockTime({ assetPriceHistoryData, time }) : 0
+    const price = !isEmpty(assetPriceHistoryData)
+      ? priceAtBlockTime({ assetPriceHistoryData, time })
+      : 0
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
       console.warn(`fiatBalanceAtBucket: no portfolioAsset for ${caip19}`)
@@ -349,7 +351,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     if (!txs.length) return
     if (isEmpty(balances)) return
     // need price history for all assets
-    if (assets.some(asset => priceHistoryData[asset].loading)) return
+    if (assets.some(asset => priceHistoryData?.[asset]?.loading)) return
 
     setBalanceChartDataLoading(true)
 

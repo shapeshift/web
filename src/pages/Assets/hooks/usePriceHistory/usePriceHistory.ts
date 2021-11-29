@@ -56,7 +56,7 @@ export const usePriceHistory: UsePriceHistory = ({ assets, timeframe }) => {
       setData(priceHistoryForTimeframe)
     }
 
-    const newLoading = Object.values(priceHistoryForTimeframe).some(({ loading }) => loading)
+    const newLoading = Object.values(priceHistoryForTimeframe).every(({ data }) => data?.length)
     if (!newLoading && loading) setLoading(false)
   }, [assets, loading, data, priceHistoryForTimeframe])
 
@@ -67,9 +67,8 @@ export const usePriceHistory: UsePriceHistory = ({ assets, timeframe }) => {
       const loading = assetPriceHistoryForTimeframe?.loading
       const data = assetPriceHistoryForTimeframe?.data
       if (loading || data?.length) return
-      // console.log('hook fetching price history')
       setLoading(true)
-      setTimeout(() => dispatch(fetchPriceHistory({ asset, timeframe })), 0)
+      dispatch(fetchPriceHistory({ asset, timeframe }))
     })
   }, [assets, dispatch, priceHistoryForTimeframe, timeframe])
 

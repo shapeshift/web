@@ -37,14 +37,8 @@ export const fetchMarketData = createAsyncThunk(
 
 export const fetchPriceHistory = createAsyncThunk(
   'marketData/priceHistory',
-  async ({ asset, timeframe }: { asset: CAIP19; timeframe: HistoryTimeframe }) => {
-    const priceHistory = await getPriceHistory({ timeframe, ...caip19.fromCAIP19(asset) })
-    const result = priceHistory.map(({ date, price }) => ({
-      date: date.valueOf().toString(), // dates aren't serializable in redux actions or state
-      price
-    }))
-    return result
-  }
+  async ({ asset, timeframe }: { asset: CAIP19; timeframe: HistoryTimeframe }) =>
+    getPriceHistory({ timeframe, ...caip19.fromCAIP19(asset) })
 )
 
 export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
@@ -82,6 +76,7 @@ export const marketData = createSlice({
     })
     builder.addCase(fetchPriceHistory.rejected, (state, { meta }) => {
       const { asset, timeframe } = meta.arg
+      console.log('fetchPriceHistory.rejected', asset)
       const priceHistoryForAsset = {
         data: state.priceHistory?.[timeframe]?.[asset]?.data ?? [],
         loading: false
@@ -90,7 +85,10 @@ export const marketData = createSlice({
     })
     builder.addCase(fetchPriceHistory.fulfilled, (state, { payload, meta }) => {
       const { asset, timeframe } = meta.arg
-      state.priceHistory[timeframe][asset].data = payload
+      state.priceHistory[timeframe][asset].data = payload.map(({ date, price }) => ({
+        date: date.valueOf().toString(), // dates aren't serializable in redux actions or state
+        price
+      }))
       state.priceHistory[timeframe][asset].loading = false
     })
     builder.addCase(fetchMarketData.pending, state => {

@@ -1,9 +1,9 @@
 #!/bin/bash
 # Different command for macOS and Linux
-COMMAND="sha1sum"
-# Check if we're running macOS
-if hash shasum 2> /dev/null; then
-  COMMAND="shasum"
+COMMAND="shasum"
+# Fallback if we don't have "shasum" installed
+if hash sha1sum 2> /dev/null; then
+  COMMAND="sha1sum"
 fi
 
 LOCK_HASH=$($COMMAND yarn.lock)

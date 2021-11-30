@@ -1,13 +1,14 @@
-import { chainAdapters, UtxoAccountType } from '@shapeshiftoss/types'
+import { caip2 } from '@shapeshiftoss/caip'
+import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import entries from 'lodash/entries'
 import map from 'lodash/map'
 import orderBy from 'lodash/orderBy'
 import shuffle from 'lodash/shuffle'
-// import { mockStore } from 'jest/mocks/store'
+import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend, testTxs } from 'jest/mocks/txs'
 import { store } from 'state/store'
 
-import { makeTxId, Tx, txHistory } from './txHistorySlice'
+import { makeTxId, selectTxHistoryByFilter, Tx, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -87,133 +88,138 @@ describe('txHistorySlice', () => {
   })
 })
 
-// describe('selectTxHistory', () => {
-//   it('should return all txs', () => {
-//     const store = {
-//       ...mockStore,
-//       txHistory: {
-//         [ChainTypes.Ethereum]: {
-//           [EthSend.txid]: EthSend
-//         },
-//         [ChainTypes.Bitcoin]: {
-//           [BtcSend.txid]: BtcSend
-//         }
-//       }
-//     }
+describe('selectTxHistory', () => {
+  const ethSendId = makeTxId(EthSend)
+  const btcSendId = makeTxId(BtcSend)
+  it('should return all txs', () => {
+    const store = {
+      ...mockStore,
+      txHistory: {
+        byId: {
+          [ethSendId]: EthSend,
+          [btcSendId]: BtcSend
+        },
+        ids: [ethSendId, btcSendId]
+      }
+    }
 
-//     const result = selectTxHistory(store, {})
+    const result = selectTxHistoryByFilter(store, {})
 
-//     expect(result.length).toBe(2)
-//   })
+    expect(result.length).toBe(2)
+  })
 
-//   it('should return txs by chain', () => {
-//     const store = {
-//       ...mockStore,
-//       txHistory: {
-//         [ChainTypes.Ethereum]: {
-//           [EthSend.txid]: EthSend
-//         },
-//         [ChainTypes.Bitcoin]: {
-//           [BtcSend.txid]: BtcSend
-//         }
-//       }
-//     }
+  it('should return txs by chain', () => {
+    const store = {
+      ...mockStore,
+      txHistory: {
+        byId: {
+          [ethSendId]: EthSend,
+          [btcSendId]: BtcSend
+        },
+        ids: [ethSendId, btcSendId]
+      }
+    }
 
-//     const result = selectTxHistory(store, { chain: ChainTypes.Ethereum })
+    const chain = ChainTypes.Ethereum
+    const network = NetworkTypes.MAINNET
+    const ethCAIP2 = caip2.toCAIP2({ chain, network })
 
-//     expect(result.length).toBe(1)
-//   })
+    const result = selectTxHistoryByFilter(store, { caip2: ethCAIP2 })
 
-//   it('should filter txs', () => {
-//     const store = {
-//       ...mockStore,
-//       txHistory: {
-//         [ChainTypes.Ethereum]: {
-//           [EthSend.txid]: EthSend,
-//           [EthReceive.txid]: EthReceive,
-//           [`${EthReceive.txid}z`]: { ...EthReceive, txid: `${EthReceive.txid}z`, asset: '123' }
-//         },
-//         [ChainTypes.Bitcoin]: {
-//           [BtcSend.txid]: { ...BtcSend, accountType: 'segwit' },
-//           [`${BtcSend.txid}x`]: { ...BtcSend, accountType: 'segwit-native' },
-//           [`${BtcSend.txid}y`]: { ...BtcSend, accountType: 'segwit-native' }
-//         }
-//       }
-//     }
+    expect(result.length).toBe(1)
+  })
 
-//     let result = selectTxHistory(store, {
-//       chain: ChainTypes.Ethereum,
-//       filter: {
-//         identifier: ChainTypes.Ethereum
-//       }
-//     })
-//     expect(result.length).toBe(2)
+  //   it('should filter txs', () => {
+  //     const store = {
+  //       ...mockStore,
+  //       txHistory: {
+  //         [ChainTypes.Ethereum]: {
+  //           [EthSend.txid]: EthSend,
+  //           [EthReceive.txid]: EthReceive,
+  //           [`${EthReceive.txid}z`]: { ...EthReceive, txid: `${EthReceive.txid}z`, asset: '123' }
+  //         },
+  //         [ChainTypes.Bitcoin]: {
+  //           [BtcSend.txid]: { ...BtcSend, accountType: 'segwit' },
+  //           [`${BtcSend.txid}x`]: { ...BtcSend, accountType: 'segwit-native' },
+  //           [`${BtcSend.txid}y`]: { ...BtcSend, accountType: 'segwit-native' }
+  //         }
+  //       }
+  //     }
 
-//     result = selectTxHistory(store, {
-//       chain: ChainTypes.Ethereum,
-//       filter: {
-//         identifier: '123'
-//       }
-//     })
-//     expect(result.length).toBe(1)
+  //     let result = selectTxHistory(store, {
+  //       chain: ChainTypes.Ethereum,
+  //       filter: {
+  //         identifier: ChainTypes.Ethereum
+  //       }
+  //     })
+  //     expect(result.length).toBe(2)
 
-//     result = selectTxHistory(store, {
-//       chain: ChainTypes.Ethereum,
-//       filter: {
-//         identifier: ChainTypes.Ethereum,
-//         txid: `${EthReceive.txid}z`
-//       }
-//     })
-//     expect(result.length).toBe(0)
+  //     result = selectTxHistory(store, {
+  //       chain: ChainTypes.Ethereum,
+  //       filter: {
+  //         identifier: '123'
+  //       }
+  //     })
+  //     expect(result.length).toBe(1)
 
-//     result = selectTxHistory(store, {
-//       chain: ChainTypes.Ethereum,
-//       filter: {
-//         identifier: '123',
-//         txid: `${EthReceive.txid}z`
-//       }
-//     })
-//     expect(result.length).toBe(1)
+  //     result = selectTxHistory(store, {
+  //       chain: ChainTypes.Ethereum,
+  //       filter: {
+  //         identifier: ChainTypes.Ethereum,
+  //         txid: `${EthReceive.txid}z`
+  //       }
+  //     })
+  //     expect(result.length).toBe(0)
 
-//     result = selectTxHistory(store, {
-//       chain: ChainTypes.Bitcoin,
-//       filter: {
-//         accountType: 'segwit'
-//       }
-//     })
-//     expect(result.length).toBe(1)
+  //     result = selectTxHistory(store, {
+  //       chain: ChainTypes.Ethereum,
+  //       filter: {
+  //         identifier: '123',
+  //         txid: `${EthReceive.txid}z`
+  //       }
+  //     })
+  //     expect(result.length).toBe(1)
 
-//     result = selectTxHistory(store, {
-//       chain: ChainTypes.Bitcoin,
-//       filter: {
-//         accountType: 'segwit-native'
-//       }
-//     })
-//     expect(result.length).toBe(2)
-//   })
+  //     result = selectTxHistory(store, {
+  //       chain: ChainTypes.Bitcoin,
+  //       filter: {
+  //         accountType: 'segwit'
+  //       }
+  //     })
+  //     expect(result.length).toBe(1)
 
-//   it('should sort txs', () => {
-//     const store = {
-//       ...mockStore,
-//       txHistory: {
-//         [ChainTypes.Ethereum]: {
-//           [EthSend.txid]: { ...EthSend, blockTime: 1 },
-//           [EthReceive.txid]: { ...EthReceive, blockTime: 2 },
-//           [`${EthReceive.txid}z`]: {
-//             ...EthReceive,
-//             txid: `${EthReceive.txid}z`,
-//             blockTime: 2,
-//             status: chainAdapters.TxStatus.Pending
-//           }
-//         },
-//         [ChainTypes.Bitcoin]: {}
-//       }
-//     }
+  //     result = selectTxHistory(store, {
+  //       chain: ChainTypes.Bitcoin,
+  //       filter: {
+  //         accountType: 'segwit-native'
+  //       }
+  //     })
+  //     expect(result.length).toBe(2)
+  //   })
 
-//     let result = selectTxHistory(store, {
-//       chain: ChainTypes.Ethereum
-//     })
-//     expect(result[0].txid).toBe(`${EthReceive.txid}z`)
-//     expect(result[1].txid).toBe(EthReceive.txid)
-//     expect(result[2].txid).toBe(EthSend.txid)
-//   })
+  //   it('should sort txs', () => {
+  //     const store = {
+  //       ...mockStore,
+  //       txHistory: {
+  //         [ChainTypes.Ethereum]: {
+  //           [EthSend.txid]: { ...EthSend, blockTime: 1 },
+  //           [EthReceive.txid]: { ...EthReceive, blockTime: 2 },
+  //           [`${EthReceive.txid}z`]: {
+  //             ...EthReceive,
+  //             txid: `${EthReceive.txid}z`,
+  //             blockTime: 2,
+  //             status: chainAdapters.TxStatus.Pending
+  //           }
+  //         },
+  //         [ChainTypes.Bitcoin]: {}
+  //       }
+  //     }
+
+  //     let result = selectTxHistory(store, {
+  //       chain: ChainTypes.Ethereum
+  //     })
+  //     expect(result[0].txid).toBe(`${EthReceive.txid}z`)
+  //     expect(result[1].txid).toBe(EthReceive.txid)
+  //     expect(result[2].txid).toBe(EthSend.txid)
+  //   })
+})

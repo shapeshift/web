@@ -6,7 +6,7 @@ import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect'
-import { caip19FromTx } from 'lib/txs'
+import { caip2FromTx, caip19FromTx } from 'lib/txs'
 import { ReduxState } from 'state/reducer'
 
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & {
@@ -91,7 +91,7 @@ export const selectTxHistoryByFilter = createSelector(
   (_state: ReduxState, txFilter: TxFilter) => txFilter,
   (txHistory: TxHistory, txFilter: TxFilter) => {
     if (!txFilter) return values(txHistory.byId)
-    const { symbol, txid, accountType, caip19 } = txFilter
+    const { symbol, txid, accountType, caip19, caip2 } = txFilter
     const filterFunc = (tx: Tx) => {
       let hasItem = true
       if (symbol && tx.tradeDetails) {
@@ -99,6 +99,8 @@ export const selectTxHistoryByFilter = createSelector(
           (tx.tradeDetails?.sellAsset === symbol || tx.tradeDetails?.buyAsset === symbol) && hasItem
       } else if (caip19) {
         hasItem = caip19FromTx(tx) === caip19 && hasItem
+      } else if (caip2) {
+        hasItem = caip2FromTx(tx) === caip2 && hasItem
       }
 
       if (txid) hasItem = tx.txid === txid && hasItem

@@ -32,7 +32,8 @@ export enum SendFormFields {
   FiatAmount = 'fiat.amount',
   Fiat = 'fiat',
   FiatSymbol = 'fiat.symbol',
-  Transaction = 'transaction'
+  Transaction = 'transaction',
+  AmountFieldError = 'amountFieldError'
 }
 
 export type SendInput = {

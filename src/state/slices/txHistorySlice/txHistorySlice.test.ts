@@ -196,30 +196,4 @@ describe('selectTxHistory', () => {
   //     })
   //     expect(result.length).toBe(2)
   //   })
-
-  //   it('should sort txs', () => {
-  //     const store = {
-  //       ...mockStore,
-  //       txHistory: {
-  //         [ChainTypes.Ethereum]: {
-  //           [EthSend.txid]: { ...EthSend, blockTime: 1 },
-  //           [EthReceive.txid]: { ...EthReceive, blockTime: 2 },
-  //           [`${EthReceive.txid}z`]: {
-  //             ...EthReceive,
-  //             txid: `${EthReceive.txid}z`,
-  //             blockTime: 2,
-  //             status: chainAdapters.TxStatus.Pending
-  //           }
-  //         },
-  //         [ChainTypes.Bitcoin]: {}
-  //       }
-  //     }
-
-  //     let result = selectTxHistory(store, {
-  //       chain: ChainTypes.Ethereum
-  //     })
-  //     expect(result[0].txid).toBe(`${EthReceive.txid}z`)
-  //     expect(result[1].txid).toBe(EthReceive.txid)
-  //     expect(result[2].txid).toBe(EthSend.txid)
-  //   })
 })

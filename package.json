@@ -37,6 +37,7 @@
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
     "bip39": "^3.0.4",
+    "bs58check": "^2.1.2",
     "chakra-ui-steps": "^1.5.0",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",

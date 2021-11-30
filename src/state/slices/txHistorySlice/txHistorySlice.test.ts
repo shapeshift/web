@@ -1,4 +1,4 @@
-import { caip2 } from '@shapeshiftoss/caip'
+import { caip2, caip19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import entries from 'lodash/entries'
 import map from 'lodash/map'
@@ -97,6 +97,14 @@ describe('txHistorySlice', () => {
 describe('selectTxHistory', () => {
   const ethSendId = makeTxId(EthSend)
   const btcSendId = makeTxId(BtcSend)
+
+  const ethChain = ChainTypes.Ethereum
+  const network = NetworkTypes.MAINNET
+  const ethCAIP2 = caip2.toCAIP2({ chain: ethChain, network })
+  const ethCAIP19 = caip19.toCAIP19({ chain: ethChain, network })
+
+  const btcCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network })
+
   it('should return all txs', () => {
     const store = {
       ...mockStore,
@@ -126,80 +134,69 @@ describe('selectTxHistory', () => {
       }
     }
 
-    const chain = ChainTypes.Ethereum
-    const network = NetworkTypes.MAINNET
-    const ethCAIP2 = caip2.toCAIP2({ chain, network })
-
     const result = selectTxHistoryByFilter(store, { caip2: ethCAIP2 })
 
     expect(result.length).toBe(1)
   })
 
-  //   it('should filter txs', () => {
-  //     const store = {
-  //       ...mockStore,
-  //       txHistory: {
-  //         [ChainTypes.Ethereum]: {
-  //           [EthSend.txid]: EthSend,
-  //           [EthReceive.txid]: EthReceive,
-  //           [`${EthReceive.txid}z`]: { ...EthReceive, txid: `${EthReceive.txid}z`, asset: '123' }
-  //         },
-  //         [ChainTypes.Bitcoin]: {
-  //           [BtcSend.txid]: { ...BtcSend, accountType: 'segwit' },
-  //           [`${BtcSend.txid}x`]: { ...BtcSend, accountType: 'segwit-native' },
-  //           [`${BtcSend.txid}y`]: { ...BtcSend, accountType: 'segwit-native' }
-  //         }
-  //       }
-  //     }
+  it('should filter txs', () => {
+    const ethSendId = makeTxId(EthSend)
+    const ethReceiveId = makeTxId(EthReceive)
 
-  //     let result = selectTxHistory(store, {
-  //       chain: ChainTypes.Ethereum,
-  //       filter: {
-  //         identifier: ChainTypes.Ethereum
-  //       }
-  //     })
-  //     expect(result.length).toBe(2)
+    const FOXCAIP19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    const EthReceiveFOX = {
+      ...EthReceive,
+      txid: `${EthReceive.txid}z`,
+      asset: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+    }
+    const ethReceiveFOXId = makeTxId(EthReceiveFOX)
 
-  //     result = selectTxHistory(store, {
-  //       chain: ChainTypes.Ethereum,
-  //       filter: {
-  //         identifier: '123'
-  //       }
-  //     })
-  //     expect(result.length).toBe(1)
+    const BtcSendSegwitP2sh = { ...BtcSend, accountType: UtxoAccountType.SegwitP2sh }
+    const btcSendSegwitP2shId = makeTxId(BtcSendSegwitP2sh)
 
-  //     result = selectTxHistory(store, {
-  //       chain: ChainTypes.Ethereum,
-  //       filter: {
-  //         identifier: ChainTypes.Ethereum,
-  //         txid: `${EthReceive.txid}z`
-  //       }
-  //     })
-  //     expect(result.length).toBe(0)
+    const BtcSendSegwitNative = { ...BtcSend, accountType: UtxoAccountType.SegwitNative }
+    const btcSendSegwitNativeId = makeTxId(BtcSendSegwitNative)
 
-  //     result = selectTxHistory(store, {
-  //       chain: ChainTypes.Ethereum,
-  //       filter: {
-  //         identifier: '123',
-  //         txid: `${EthReceive.txid}z`
-  //       }
-  //     })
-  //     expect(result.length).toBe(1)
+    const store = {
+      ...mockStore,
+      txHistory: {
+        byId: {
+          [ethSendId]: EthSend,
+          [ethReceiveId]: EthReceive,
+          [ethReceiveFOXId]: EthReceiveFOX,
+          [btcSendSegwitP2shId]: BtcSendSegwitP2sh,
+          [btcSendSegwitNativeId]: BtcSendSegwitNative
+        },
+        ids: [ethSendId, ethReceiveId, ethReceiveFOXId, btcSendSegwitP2shId, btcSendSegwitNativeId]
+      }
+    }
 
-  //     result = selectTxHistory(store, {
-  //       chain: ChainTypes.Bitcoin,
-  //       filter: {
-  //         accountType: 'segwit'
-  //       }
-  //     })
-  //     expect(result.length).toBe(1)
+    let result = selectTxHistoryByFilter(store, { caip19: ethCAIP19 })
+    expect(result.length).toBe(2)
 
-  //     result = selectTxHistory(store, {
-  //       chain: ChainTypes.Bitcoin,
-  //       filter: {
-  //         accountType: 'segwit-native'
-  //       }
-  //     })
-  //     expect(result.length).toBe(2)
-  //   })
+    result = selectTxHistoryByFilter(store, { caip2: ethCAIP2, caip19: FOXCAIP19 })
+    expect(result.length).toBe(1)
+
+    result = selectTxHistoryByFilter(store, {
+      caip2: ethCAIP2,
+      caip19: ethCAIP19,
+      txid: ethReceiveFOXId
+    })
+    expect(result.length).toBe(0)
+
+    result = selectTxHistoryByFilter(store, { caip2: ethCAIP2, txid: EthReceiveFOX.txid })
+    expect(result.length).toBe(1)
+
+    result = selectTxHistoryByFilter(store, {
+      caip2: btcCAIP2,
+      accountType: UtxoAccountType.SegwitNative
+    })
+    expect(result.length).toBe(1)
+
+    result = selectTxHistoryByFilter(store, {
+      caip2: btcCAIP2,
+      accountType: UtxoAccountType.SegwitP2sh
+    })
+    expect(result.length).toBe(1)
+  })
 })

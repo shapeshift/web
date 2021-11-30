@@ -97,12 +97,9 @@ export const selectTxHistoryByFilter = createSelector(
       if (symbol && tx.tradeDetails) {
         hasItem =
           (tx.tradeDetails?.sellAsset === symbol || tx.tradeDetails?.buyAsset === symbol) && hasItem
-      } else if (caip19) {
-        hasItem = caip19FromTx(tx) === caip19 && hasItem
-      } else if (caip2) {
-        hasItem = caip2FromTx(tx) === caip2 && hasItem
       }
-
+      if (caip2) hasItem = caip2FromTx(tx) === caip2 && hasItem
+      if (caip19) hasItem = caip19FromTx(tx) === caip19 && hasItem
       if (txid) hasItem = tx.txid === txid && hasItem
       if (accountType) hasItem = tx.accountType === accountType && hasItem
       return hasItem
@@ -132,42 +129,3 @@ export const selectTxIdsByCAIP19 = createSelector(
   (_state: ReduxState, caip19: string) => caip19,
   (ids, caip19) => ids.filter(id => id.includes(caip19))
 )
-
-// https://github.com/reduxjs/reselect#q-why-is-my-selector-recomputing-when-the-input-state-stays-the-same
-// TODO(0xdef1cafe): check this for performance
-// create a "selector creator" that uses lodash.isequal instead of ===
-// const createDeepEqualSelector = createSelectorCreator(defaultMemoize, isEqual)
-// export const selectTxHistory = createDeepEqualSelector(
-//   (state: ReduxState, { chain }: TxHistorySelect) => {
-//     return state.txHistory
-//     // return chain
-//     //   ? Object.values(state.txHistory[chain] ?? {})
-//     //   : concat(...Object.values(state.txHistory).map(txMap => Object.values(txMap)))
-//   },
-//   (_, { filter }: TxHistorySelect) => {
-//     if (!filter) return
-
-//     return (tx: Tx): boolean => {
-//       let hasItem = true
-//       if (filter.tradeIdentifier && tx.tradeDetails) {
-//         hasItem =
-//           (tx.tradeDetails?.sellAsset === filter.tradeIdentifier ||
-//             tx.tradeDetails?.buyAsset === filter.tradeIdentifier) &&
-//           hasItem
-//       } else if (filter.identifier)
-//         hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
-
-//       if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
-//       if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem
-//       return hasItem
-//     }
-//   },
-//   (_, { sort }: TxHistorySelect) => ({
-//     keys: ['blockTime', 'status'],
-//     direction: [sort?.direction ?? 'desc', 'desc'] as Array<boolean | 'asc' | 'desc'>
-//   }),
-//   (txHistory, filterFunc, sort) => {
-//     if (filterFunc) txHistory = filter(txHistory, filterFunc)
-//     return orderBy(txHistory, sort.keys, sort.direction)
-//   }
-// )

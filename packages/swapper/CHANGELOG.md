@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.12...@shapeshiftoss/swapper-v1.12.0) (2021-11-30)
+
+
+### Features
+
+* use sibling packages as peerDependencies ([#229](https://github.com/shapeshift/lib/issues/229)) ([7de039e](https://github.com/shapeshift/lib/commit/7de039e89907d98048fe6b1e39b4a1e64377cb50))
+
 # [@shapeshiftoss/swapper-v1.11.12](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.11...@shapeshiftoss/swapper-v1.11.12) (2021-11-29)
 
 

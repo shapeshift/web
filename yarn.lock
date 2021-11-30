@@ -3909,10 +3909,10 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.11.11":
-  version "1.11.11"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.11.11.tgz#f3d8bcdd923a2a495fcd5286012859fcffa026ff"
-  integrity sha512-8gjz5HAB8f3CSpofUYwlqAqSmQfU80Jm8Ti+TD5uTbC4x1CY7IbXv4ghCe17kYOCRc/xQCXlYM0JPSf9wneh9Q==
+"@shapeshiftoss/swapper@^1.11.12":
+  version "1.11.12"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.11.12.tgz#83ae445509f4b649c45793adb003674fe8d1b9cc"
+  integrity sha512-sPjYcgpqgDex/Td0ceUSDsgWDryJY7Tn7PP6Nw12OQlG119R1rc+jcVrjeuDgvm+fkc8PlVbWsuvpHIq77WMlg==
   dependencies:
     "@shapeshiftoss/chain-adapters" "^1.16.2"
     "@shapeshiftoss/hdwallet-core" "^1.18.0"

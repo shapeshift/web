@@ -23,7 +23,7 @@
     "@shapeshiftoss/hdwallet-native-vault": "^1.18.2",
     "@shapeshiftoss/hdwallet-portis": "^1.18.2",
     "@shapeshiftoss/market-service": "^1.4.1",
-    "@shapeshiftoss/swapper": "^1.11.11",
+    "@shapeshiftoss/swapper": "^1.11.12",
     "@shapeshiftoss/types": "^1.13.1",
     "@types/history": "^4.7.9",
     "@visx/axis": "^2.4.0",

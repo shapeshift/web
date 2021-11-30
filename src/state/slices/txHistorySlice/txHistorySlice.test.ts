@@ -18,13 +18,19 @@ describe('txHistorySlice', () => {
   describe('onMessage', () => {
     it('can sort txs going into store', async () => {
       store.dispatch(txHistory.actions.clear())
+
+      // shuffle txs before inserting them into the store
       const shuffledTxs = shuffle(testTxs)
       shuffledTxs.forEach(tx => store.dispatch(txHistory.actions.onMessage({ message: tx })))
       const history = store.getState().txHistory
+      // these ids should be sorted by the reducer going in
       const ids = history.ids
+
+      // this is the same sorting logic, by block time descending
       const txEntriesById = entries(history.byId)
       const sorted = orderBy(txEntriesById, ([_id, tx]: [string, Tx]) => tx.blockTime, ['desc'])
       const sortedIds = map(sorted, ([id]) => id)
+
       expect(ids).toEqual(sortedIds)
     })
 

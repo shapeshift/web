@@ -15,8 +15,6 @@
     "jest/globals": true
   },
   "rules": {
-    "jest/valid-describe": "off",
-    "jest/valid-describe-callback": "error",
     "jsx-a11y/alt-text": "error",
     "jsx-a11y/no-autofocus": "error",
     "no-console": [

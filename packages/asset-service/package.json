@@ -25,12 +25,16 @@
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "^1.4.2",
-    "@shapeshiftoss/types": "^1.11.4",
     "axios": "^0.24.0",
     "lodash": "^4.17.21"
   },
+  "peerDependencies": {
+    "@shapeshiftoss/caip": "^1.4.2",
+    "@shapeshiftoss/types": "^1.13.1"
+  },
   "devDependencies": {
+    "@shapeshiftoss/caip": "^1.4.2",
+    "@shapeshiftoss/types": "^1.13.1",
     "@types/lodash": "^4.14.172"
   }
 }

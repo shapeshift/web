@@ -41,7 +41,7 @@ const initialState: TxHistory = {
   ids: [] // sorted, newest first
 }
 
-const makeTxId = (tx: Tx): string =>
+export const makeTxId = (tx: Tx): string =>
   `${caip19FromTx(tx)}-${tx.txid}-${tx.asset}-${tx.accountType || ''}${tx.type}`
 
 /**
@@ -66,7 +66,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
   }
   // splice the new tx in the correct order
   // this *mutates* the array, keeping the same ref
-  txHistory.ids.splice(index, 0, id)
+  if (!txHistory.ids.includes(id)) txHistory.ids.splice(index, 0, id)
 
   // order in the object doesn't matter, but we must do this after
   // figuring out the index

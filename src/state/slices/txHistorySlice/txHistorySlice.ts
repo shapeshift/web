@@ -129,3 +129,12 @@ export const selectTxIdsByCAIP19 = createSelector(
   (_state: ReduxState, caip19: string) => caip19,
   (ids, caip19) => ids.filter(id => id.includes(caip19))
 )
+
+export const selectTxIdsByFilter = createSelector(
+  (state: ReduxState) => state.txHistory.ids,
+  (_state: ReduxState, filter: TxFilter) => filter,
+  (ids, txFilter) => {
+    const vals = filter(values(txFilter), Boolean) // only include non null filters
+    return filter(ids, id => vals.every(val => id.includes(val)))
+  }
+)

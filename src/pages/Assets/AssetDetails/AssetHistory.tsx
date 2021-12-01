@@ -9,7 +9,7 @@ import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { ReduxState } from 'state/reducer'
-import { selectTxIdsByCAIP19 } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxIdsByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { useAsset } from '../Asset'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
@@ -24,10 +24,12 @@ export const AssetHistory = () => {
   wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-  // const accountType = useSelector(
-  //   (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  // )
-  const txIds = useSelector((state: ReduxState) => selectTxIdsByCAIP19(state, asset.caip19))
+  const accountType = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
+  )
+  const txIds = useSelector((state: ReduxState) =>
+    selectTxIdsByFilter(state, { accountType, caip19: asset.caip19 })
+  )
 
   const { next, data, hasMore } = useInfiniteScroll(txIds)
 
@@ -47,20 +49,22 @@ export const AssetHistory = () => {
           {translate('assets.assetDetails.assetHistory.transactionHistory')}
         </Card.Heading>
       </Card.Header>
-      <Card.Body px={2} pt={0}>
-        <InfiniteScroll
-          pageStart={0}
-          loadMore={next}
-          hasMore={hasMore}
-          loader={
-            <Center key={0}>
-              <CircularProgress isIndeterminate />
-            </Center>
-          }
-        >
-          {txRows}
-        </InfiniteScroll>
-      </Card.Body>
+      {data?.length ? (
+        <Card.Body px={2} pt={0}>
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={next}
+            hasMore={hasMore}
+            loader={
+              <Center key={0}>
+                <CircularProgress isIndeterminate />
+              </Center>
+            }
+          >
+            {txRows}
+          </InfiniteScroll>
+        </Card.Body>
+      ) : null}
     </Card>
   )
 }

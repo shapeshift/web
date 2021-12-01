@@ -208,7 +208,7 @@ describe('selectTxHistory', () => {
 })
 
 describe('selectLastNTxIds', () => {
-  fit('should memoize', () => {
+  it('should memoize', () => {
     const state = {
       ...mockStore,
       txHistory: {

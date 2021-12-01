@@ -114,6 +114,8 @@ export const selectLastNTxIds = createSelector(
   (ids, count) => ids.slice(0, count),
   // https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc-selectoroptions
   // we're doing a deel equality check on the output
+  // meaning the selector returns the same array ref
+  // regardless of if the input has changed
   { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 

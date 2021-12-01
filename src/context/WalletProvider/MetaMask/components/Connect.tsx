@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { ConnectModal } from '../../components/ConnectModal'
+import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
@@ -26,6 +28,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
+
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
       const wallet = await state.adapters.get(KeyManager.MetaMask)?.pairDevice()
       if (!wallet) {
@@ -73,7 +76,18 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }
 
-  return (
+  return isMobile ? (
+    <RedirectModal
+      headerText={'walletProvider.metaMask.redirect.header'}
+      bodyText={'walletProvider.metaMask.redirect.body'}
+      buttonText={'walletProvider.metaMask.redirect.button'}
+      onClickAction={() => {
+        window.location.assign('https://metamask.app.link/dapp/app.shapeshift.com')
+      }}
+      loading={loading}
+      error={error}
+    ></RedirectModal>
+  ) : (
     <ConnectModal
       headerText={'walletProvider.metaMask.connect.header'}
       bodyText={'walletProvider.metaMask.connect.body'}

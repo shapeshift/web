@@ -336,6 +336,11 @@
       "failure": {
         "header": "Error",
         "body": "Unable to connect MetaMask wallet"
+      },
+      "redirect": {
+        "header": "Open in MetaMask App",
+        "body": "Click to open ShapeShift dashboard in MetaMask",
+        "button": "Open"
       }
     },
     "portis": {

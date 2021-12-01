@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import filter from 'lodash/filter'
+import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
@@ -107,9 +108,13 @@ export const selectTxHistoryByFilter = createSelector(
 )
 
 export const selectLastNTxIds = createSelector(
+  // ids will always change
   (state: ReduxState) => state.txHistory.ids,
   (_state: ReduxState, count: number) => count,
-  (ids, count) => ids.slice(0, count)
+  (ids, count) => ids.slice(0, count),
+  // https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc-selectoroptions
+  // we're doing a deel equality check on the output
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 
 export const selectTxById = createSelector(

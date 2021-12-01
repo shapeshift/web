@@ -8,7 +8,13 @@ import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend, testTxs } from 'jest/mocks/txs'
 import { store } from 'state/store'
 
-import { makeTxId, selectTxHistoryByFilter, Tx, txHistory } from './txHistorySlice'
+import {
+  makeTxId,
+  selectLastNTxIds,
+  selectTxHistoryByFilter,
+  Tx,
+  txHistory
+} from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -198,5 +204,32 @@ describe('selectTxHistory', () => {
       accountType: UtxoAccountType.SegwitP2sh
     })
     expect(result.length).toBe(1)
+  })
+})
+
+describe('selectLastNTxIds', () => {
+  fit('should memoize', () => {
+    const state = {
+      ...mockStore,
+      txHistory: {
+        byId: {},
+        ids: ['a', 'b']
+      }
+    }
+    const first = selectLastNTxIds(state, 1)
+
+    // redux will replace the array on update
+    const newState = {
+      ...mockStore,
+      txHistory: {
+        byId: {},
+        // this array will always change on every new tx
+        ids: ['a', 'b', 'c']
+      }
+    }
+    const second = selectLastNTxIds(newState, 1)
+
+    // toBe uses reference equality, not like isEqual deep equal check
+    expect(first).toBe(second)
   })
 })

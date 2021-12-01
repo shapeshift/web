@@ -11,9 +11,7 @@ export const RecentTransactions = () => {
   const recentTxIds = useSelector((state: ReduxState) => selectLastNTxIds(state, 10))
   const txRows = useMemo(
     () => recentTxIds.map((txId, i) => <TransactionRow key={`${txId}-${i}`} txId={txId} />),
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [JSON.stringify(recentTxIds)]
+    [recentTxIds]
   )
 
   return (

@@ -9,12 +9,7 @@ import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect'
 import { caip2FromTx, caip19FromTx } from 'lib/txs'
 import { ReduxState } from 'state/reducer'
 
-export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & {
-  accountType?: UtxoAccountType
-  // TODO(0xdef1cafe): add these on the way into the store
-  // txCAIP19: CAIP19
-  // feeCAIP19: CAIP19
-}
+export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType
@@ -64,15 +59,17 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
     index = i + 1
     break
   }
+
   // splice the new tx in the correct order
-  // this *mutates* the array, keeping the same ref
   if (!txHistory.ids.includes(id)) txHistory.ids.splice(index, 0, id)
 
   // order in the object doesn't matter, but we must do this after
   // figuring out the index
   txHistory.byId[id] = tx
 
-  // return txHistory
+  // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
+  // this looks like it's not doing anything, but changes written to the proxy
+  // get applied to state when it goes out of scope
 }
 
 export const txHistory = createSlice({

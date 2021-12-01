@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { getConfig } from 'config'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
@@ -82,7 +83,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       bodyText={'walletProvider.metaMask.redirect.body'}
       buttonText={'walletProvider.metaMask.redirect.button'}
       onClickAction={() => {
-        window.location.assign('https://metamask.app.link/dapp/app.shapeshift.com')
+        window.location.assign(getConfig().REACT_APP_METAMASK_DEEPLINK_URL)
       }}
       loading={loading}
       error={error}

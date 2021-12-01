@@ -3,16 +3,16 @@ import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { getByMarketCap, getMarketData, getPriceHistory } from '@shapeshiftoss/market-service'
 import {
   ChainTypes,
-  CoinGeckoMarketCapResult,
   GetByMarketCapArgs,
   HistoryData,
   HistoryTimeframe,
+  MarketCapResult,
   MarketData
 } from '@shapeshiftoss/types'
 
 export type MarketDataState = {
   loading: boolean
-  marketCap?: CoinGeckoMarketCapResult
+  marketCap?: MarketCapResult
   marketData: {
     [key: string]: MarketData
   }

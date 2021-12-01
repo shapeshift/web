@@ -62,6 +62,8 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
   // splice the new tx in the correct order
   if (!txHistory.ids.includes(id)) txHistory.ids.splice(index, 0, id)
 
+  // TODO(0xdef1cafe): we should maintain multiple indexes, e.g. by chain, asset, orders
+
   // order in the object doesn't matter, but we must do this after
   // figuring out the index
   txHistory.byId[id] = tx

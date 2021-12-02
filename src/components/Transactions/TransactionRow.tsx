@@ -17,7 +17,11 @@ import { RawText, Text } from 'components/Text'
 import { caip19FromTx } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
-import { fetchAsset, selectAssetBySymbol } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  fetchAsset,
+  selectAssetByCAIP19,
+  selectAssetBySymbol
+} from 'state/slices/assetsSlice/assetsSlice'
 import { selectTxById } from 'state/slices/txHistorySlice/txHistorySlice'
 
 dayjs.extend(relativeTime)
@@ -27,11 +31,12 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   const ref = useRef<HTMLHeadingElement>(null)
   const dispatch = useDispatch()
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
-  const asset = useSelector((state: ReduxState) => state.assets.byId[caip19FromTx(tx)])
+  const assetCAIP19 = caip19FromTx(tx)
+  const asset = useSelector((state: ReduxState) => selectAssetByCAIP19(state, assetCAIP19))
   // TODO(0xdef1cafe): pull this directly from tx when we have it from unchained
   const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
   // stables need precision of eth (18) rather than 10
-  const feeAsset = useSelector((state: ReduxState) => state.assets.byId[feeAssetCAIP19])
+  const feeAsset = useSelector((state: ReduxState) => selectAssetByCAIP19(state, feeAssetCAIP19))
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const sentTx = tx.type === chainAdapters.TxType.Send
@@ -66,11 +71,9 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   }
 
   useEffect(() => {
-    if (symbol) return
     const assetCAIP19 = caip19FromTx(tx)
     dispatch(fetchAsset(assetCAIP19))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, symbol, tx.asset, tx.chain])
+  }, [dispatch, tx])
 
   return (
     <Box

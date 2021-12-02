@@ -1,55 +1,33 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
-export type FullAsset = Asset & { description?: string }
-export type AssetsState = { [key: string]: Asset & { description?: string } }
-
-export const fetchAsset = createAsyncThunk(
-  'asset/fetchAsset',
-  async ({
-    tokenId,
-    chain,
-    network
-  }: {
-    tokenId?: string
-    chain: ChainTypes
-    network: NetworkTypes
-  }) => {
-    try {
-      const service = await getAssetService()
-
-      const assetData = service?.byTokenId({ chain, network, tokenId })
-      const description = await service?.description({ asset: assetData })
-      if (!assetData) return {}
-      if (!description) return { [tokenId || chain]: assetData }
-      return { [tokenId || chain]: { ...assetData, description } }
-    } catch (error) {
-      console.error(error)
-      return {}
-    }
+export type AssetsState = {
+  byId: {
+    [key: CAIP19]: Asset
   }
-)
+  ids: CAIP19[]
+}
+
+export const fetchAsset = createAsyncThunk('asset/fetchAsset', async (assetCAIP19: CAIP19) => {
+  try {
+    const service = await getAssetService()
+    const assetData = service?.byTokenId({ ...caip19.fromCAIP19(assetCAIP19) })
+    return service?.description({ asset: assetData })
+  } catch (error) {
+    console.error(error)
+    return ''
+  }
+})
 
 export const fetchAssets = createAsyncThunk(
   'asset/fetchAssets',
-  async ({ network }: { network: NetworkTypes }, thunkApi) => {
-    try {
-      const service = await getAssetService()
-      const assets = service?.byNetwork(network)
-      const assetsObj = {} as AssetsState
-      const state = thunkApi.getState() as ReduxState
-
-      assets.forEach((asset: Asset) => {
-        const key = asset.tokenId ?? asset.chain
-        assetsObj[key] = { ...(state?.assets[key] ? state?.assets[key] : {}), ...asset }
-      })
-      return assetsObj
-    } catch (error) {
-      console.error(error)
-      return {}
-    }
+  // TODO(0xdef1cafe): change this to caip2 - we will actually need chain and network in future
+  async ({ network }: { network: NetworkTypes }) => {
+    const service = await getAssetService()
+    return service?.byNetwork(network)
   }
 )
 
@@ -61,16 +39,35 @@ export const assets = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
-        const tokenId = meta.arg.tokenId ?? meta.arg.chain
-        if (payload[tokenId]) {
-          state[tokenId] = payload[tokenId]
-        }
+      .addCase(fetchAsset.fulfilled, (state, { payload: description, meta }) => {
+        const assetCAIP19 = meta.arg
+        if (!description) return
+        state.byId[assetCAIP19].description = description
       })
-      .addCase(fetchAssets.fulfilled, (state, { payload }) => {
-        Object.keys(payload).forEach(key => {
-          state[key] = payload[key]
+      .addCase(fetchAssets.fulfilled, (state, { payload: assets }) => {
+        assets?.forEach(asset => {
+          const { caip19 } = asset
+          state.byId[caip19] = asset
+          if (!state.ids.includes(caip19)) state.ids.push(caip19)
         })
       })
   }
 })
+
+export const selectAssetByCAIP19 = createSelector(
+  (state: ReduxState) => state.assets.byId,
+  (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
+  (byId, CAIP19) => byId[CAIP19]
+)
+
+// TODO(0xdef1cafe): remove this and find by buy/
+export const selectAssetBySymbol = createSelector(
+  (state: ReduxState) => state.assets.byId,
+  (_state: ReduxState, symbol: string) => symbol,
+  (byId, symbol) => Object.values(byId).find(asset => asset.symbol === symbol)
+)
+
+export const selectAssetsById = createSelector(
+  (state: ReduxState) => state.assets.byId,
+  byId => byId
+)

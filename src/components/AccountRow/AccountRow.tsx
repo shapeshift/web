@@ -1,5 +1,5 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -18,21 +18,20 @@ import { Allocations } from './Allocations'
 export type AccountRowArgs = {
   allocationValue: number
   balance: string
-  tokenId?: string
-  chain: ChainTypes
+  CAIP19: CAIP19
 }
 
-export const AccountRow = ({ allocationValue, balance, tokenId, chain }: AccountRowArgs) => {
+export const AccountRow = ({ allocationValue, balance, CAIP19 }: AccountRowArgs) => {
   const dispatch = useDispatch()
   const rowHover = useColorModeValue('gray.100', 'gray.750')
-  const contract = useMemo(() => tokenId?.toLowerCase(), [tokenId])
+  const { chain, tokenId } = caip19.fromCAIP19(CAIP19)
   const url = useMemo(() => {
     let baseUrl = `/assets/${chain}`
-    if (contract) baseUrl = baseUrl + `/${contract}`
+    if (tokenId) baseUrl = baseUrl + `/${tokenId}`
     return baseUrl
-  }, [chain, contract])
+  }, [chain, tokenId])
 
-  const asset = useFetchAsset({ chain, tokenId: contract })
+  const asset = useFetchAsset(CAIP19)
   const marketData = useSelector(
     (state: ReduxState) => state.marketData.marketData[asset?.tokenId ?? asset?.chain]
   )

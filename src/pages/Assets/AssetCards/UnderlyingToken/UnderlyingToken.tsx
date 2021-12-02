@@ -1,5 +1,6 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { caip19 } from '@shapeshiftoss/caip'
+import { Asset, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
@@ -20,7 +21,7 @@ type UnderlyingTokenProps = {
 // In the future we should add a hook to get the provider interface by vault provider
 export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
-  const [tokenId, setTokenId] = useState('')
+  const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const [balance, setBalance] = useState('')
   const { loading, yearn } = useYearn()
 
@@ -47,12 +48,16 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
           userAddress
         })
         setBalance(_balance.toString())
-        setTokenId(toLower(token))
+        const chain = asset.chain
+        const network = NetworkTypes.MAINNET
+        const contractType = ContractTypes.ERC20
+        const tokenId = toLower(token)
+        setUnderlyingCAIP19(caip19.toCAIP19({ chain, network, contractType, tokenId }))
       } catch (error) {
         console.error(error)
       }
     })()
-  }, [shouldHide, asset.tokenId, chainAdapter, vault, wallet, yearn])
+  }, [shouldHide, asset.tokenId, asset.chain, chainAdapter, vault, wallet, yearn])
 
   if (shouldHide || loading) return null
 
@@ -89,12 +94,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
               display={{ base: 'none', lg: 'block' }}
             />
           </Grid>
-          <AccountRow
-            allocationValue={100}
-            balance={balance}
-            chain={asset.chain}
-            tokenId={tokenId}
-          />
+          <AccountRow allocationValue={100} balance={balance} CAIP19={underlyingCAIP19} />
         </Stack>
       </Card.Body>
     </Card>

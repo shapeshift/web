@@ -1,31 +1,17 @@
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
-import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchAsset, selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 
-export const ALLOWED_CHAINS = {
-  [ChainTypes.Ethereum]: true,
-  [ChainTypes.Bitcoin]: true
-}
-
-export const useFetchAsset = ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }) => {
+export const useFetchAsset = (caip19: CAIP19) => {
   const dispatch = useDispatch()
-  const asset = useSelector((state: ReduxState) => state.assets[tokenId ?? chain])
+  const asset = useSelector((state: ReduxState) => selectAssetByCAIP19(state, caip19))
 
   useEffect(() => {
-    if (ALLOWED_CHAINS[chain]) {
-      if (!asset) {
-        dispatch(
-          fetchAsset({
-            chain,
-            network: NetworkTypes.MAINNET,
-            tokenId
-          })
-        )
-      }
-    }
-  }, [asset, chain, dispatch, tokenId])
+    if (asset) return
+    dispatch(fetchAsset(caip19))
+  }, [asset, caip19, dispatch])
 
   return asset
 }

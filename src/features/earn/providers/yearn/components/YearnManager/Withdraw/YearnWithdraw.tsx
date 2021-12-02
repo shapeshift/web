@@ -1,6 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { caip19 } from '@shapeshiftoss/caip'
+import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
 import { EarnActionButtons } from 'features/earn/components/EarnActionButtons'
 import { TxStatus } from 'features/earn/components/TxStatus/TxStatus'
@@ -56,11 +57,16 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
   // Asset info
-  const underlyingAsset = useFetchAsset({ chain, tokenId })
-  const asset = useFetchAsset({ chain, tokenId: vaultAddress })
+  const underlyingAssetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+  const underlyingAsset = useFetchAsset(underlyingAssetCAIP19)
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const asset = useFetchAsset(assetCAIP19)
   const marketData = useMarketData({ chain, tokenId })
-  const feeAsset = useFetchAsset({ chain })
+  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const feeAsset = useFetchAsset(feeAssetCAIP19)
   const feeMarketData = useMarketData({ chain })
 
   // user info

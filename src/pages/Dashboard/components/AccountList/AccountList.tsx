@@ -17,7 +17,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
 import { ReduxState } from 'state/reducer'
-import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchAssets, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 const AccountHeader = () => (
   <Grid
@@ -61,7 +61,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     state: { isConnected },
     dispatch: walletDispatch
   } = useWallet()
-  const assets = useSelector((state: ReduxState) => state.assets)
+  const assets = useSelector(selectAssetsById)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
   const { balances, totalBalance } = usePortfolio()
 
@@ -128,10 +128,9 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
                   .div(bnOrZero(totalBalance))
                   .times(100)
                   .toNumber()}
-                key={account.contract ?? account.chain}
                 balance={account.balance ?? '0'}
-                chain={account.chain}
-                tokenId={account.contract}
+                CAIP19={asset.caip19}
+                key={asset.caip19}
               />
             )
           })}

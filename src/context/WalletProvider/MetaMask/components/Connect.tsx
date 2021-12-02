@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
 import { getConfig } from 'config'
+import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'

@@ -1,3 +1,4 @@
+import { caip19 } from '@shapeshiftoss/caip'
 import { getMarketData } from '@shapeshiftoss/market-service'
 import { Asset, ChainTypes, ContractTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
@@ -91,19 +92,13 @@ describe('useTotalBalance', () => {
         }
       })
 
-      await store.dispatch(
-        fetchAsset({
-          tokenId: rune.tokenId,
-          chain: ChainTypes.Ethereum,
-          network: NetworkTypes.MAINNET
-        })
-      )
-      await store.dispatch(
-        fetchMarketData({
-          tokenId: rune.tokenId,
-          chain: ChainTypes.Ethereum
-        })
-      )
+      const chain = ChainTypes.Ethereum
+      const network = NetworkTypes.MAINNET
+      const contractType = ContractTypes.ERC20
+      const tokenId = rune.tokenId
+      const runeCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+      await store.dispatch(fetchAsset(runeCAIP19))
+      await store.dispatch(fetchMarketData(runeCAIP19))
       await waitForValueToChange(() => result.current)
       expect(result.current).toBe(210)
     })

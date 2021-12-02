@@ -73,31 +73,5 @@ describe('assetsSlice', () => {
       expect(store.getState().assets[aapl.tokenId as string]).toBeTruthy()
       expect(store.getState().assets[aapl.tokenId as string].description).toBeTruthy()
     })
-
-    it('does not update state if error is thrown', async () => {
-      const consoleError = jest.spyOn(console, 'error').mockImplementation()
-      ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({
-        byTokenId: jest.fn().mockRejectedValue(
-          // @ts-ignore
-          'Network error: Something went wrong'
-        ),
-        description: jest.fn().mockRejectedValue(
-          // @ts-ignore
-          'Network error: Something went wrong'
-        )
-      }))
-
-      expect(store.getState().assets[zero.tokenId as string]).toBeFalsy()
-      await store.dispatch(
-        fetchAsset({
-          tokenId: zero.tokenId,
-          chain: ChainTypes.Ethereum,
-          network: NetworkTypes.MAINNET
-        })
-      )
-      expect(store.getState().assets[zero.tokenId as string]).toBeFalsy()
-      expect(console.error).toBeCalled()
-      consoleError.mockRestore()
-    })
   })
 })

@@ -77,14 +77,12 @@ describe('assetsSlice', () => {
     it('does not update state if error is thrown', async () => {
       const consoleError = jest.spyOn(console, 'error').mockImplementation()
       ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({
-        byTokenId: jest.fn().mockRejectedValue(
-          // @ts-ignore
-          'Network error: Something went wrong'
-        ),
-        description: jest.fn().mockRejectedValue(
-          // @ts-ignore
-          'Network error: Something went wrong'
-        )
+        byTokenId: jest.fn().mockImplementation(() => {
+          throw new Error('Mock Network error: Something went wrong')
+        }),
+        description: jest.fn().mockImplementation(() => {
+          throw new Error('Mock Network error: Something went wrong')
+        })
       }))
 
       expect(store.getState().assets[zero.tokenId as string]).toBeFalsy()

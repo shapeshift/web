@@ -12,7 +12,7 @@ export interface RedirectModalProps {
   headerText: string
   bodyText: string
   buttonText: string
-  onClickAction(): any
+  onClickAction(): () => any
   loading: boolean
   error: string | null
   children?: any

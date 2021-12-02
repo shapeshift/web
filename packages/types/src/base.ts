@@ -37,6 +37,7 @@ export enum UtxoAccountType {
   P2pkh = 'P2pkh'
 }
 
+// TODO(0xdef1cafe): remove this, client should not be aware of where data is from
 // Describes the data source for where to get the asset details or asset description.
 export enum AssetDataSource {
   CoinGecko = 'coingecko',
@@ -48,6 +49,7 @@ export enum AssetDataSource {
 type AbstractAsset = {
   caip19: string
   chain: ChainTypes
+  description?: string
   dataSource: AssetDataSource
   network: NetworkTypes
   symbol: string

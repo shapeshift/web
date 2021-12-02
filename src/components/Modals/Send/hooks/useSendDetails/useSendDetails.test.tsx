@@ -286,8 +286,12 @@ describe('useSendDetails', () => {
       })
       await act(async () => {
         await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '5')
-        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '17500.00')
+        expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
+        expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
+          fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
+        })
+        expect(setValue).toHaveBeenNthCalledWith(3, 'crypto.amount', '5')
+        expect(setValue).toHaveBeenNthCalledWith(4, 'fiat.amount', '17500.00')
       })
     })
   })
@@ -303,8 +307,11 @@ describe('useSendDetails', () => {
       })
       await act(async () => {
         await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'crypto.amount', '21')
-        expect(setValue).toHaveBeenNthCalledWith(2, 'fiat.amount', '210.00')
+        expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
+        expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
+          fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
+        })
+        expect(setValue).toHaveBeenNthCalledWith(3, 'crypto.amount', '21')
       })
     })
   })

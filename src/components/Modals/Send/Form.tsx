@@ -33,7 +33,8 @@ export enum SendFormFields {
   Fiat = 'fiat',
   FiatSymbol = 'fiat.symbol',
   Transaction = 'transaction',
-  AmountFieldError = 'amountFieldError'
+  AmountFieldError = 'amountFieldError',
+  SendMax = 'sendMax'
 }
 
 export type SendInput = {
@@ -51,6 +52,7 @@ export type SendInput = {
   }
   // TODO(0xdef1cafe): remove this from form state
   [SendFormFields.Transaction]: unknown
+  [SendFormFields.SendMax]: boolean
 }
 
 type SendFormProps = {

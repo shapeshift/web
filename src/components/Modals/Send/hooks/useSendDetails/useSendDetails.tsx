@@ -81,7 +81,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
 
-  const estimateFees = useCallback(async (): Promise<chainAdapters.FeeDataEstimate<ChainTypes>> => {
+  const estimateFormFees = useCallback(async (): Promise<
+    chainAdapters.FeeDataEstimate<ChainTypes>
+  > => {
     const values = getValues()
 
     if (!wallet) throw new Error('No wallet connected')
@@ -99,7 +101,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return ethereumChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { from, contractAddress: values.asset.tokenId }
+          chainSpecific: { from, contractAddress: values.asset.tokenId },
+          sendMax: values.sendMax
         })
       }
       case ChainTypes.Bitcoin: {
@@ -119,7 +122,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { pubkey }
+          chainSpecific: { pubkey },
+          sendMax: values.sendMax
         })
       }
       default:
@@ -140,6 +144,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const handleSendMax = async () => {
     if (assetBalance && wallet) {
+      setValue(SendFormFields.SendMax, true)
       setLoading(true)
       const to = address
 
@@ -155,15 +160,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       // Assume fast fee for send max
       // This is used to make make sure its impossible to send more than our balance
       let fastFee: string = ''
+      let adapterFees
       switch (chain) {
         case ChainTypes.Ethereum: {
           const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
           const contractAddress = tokenId
-          const value = asset.tokenId ? '0' : assetBalance.balance
-          const adapterFees = await ethAdapter.getFeeData({
+          const value = assetBalance.balance
+          adapterFees = await ethAdapter.getFeeData({
             to,
             value,
-            chainSpecific: { contractAddress, from }
+            chainSpecific: { contractAddress, from },
+            sendMax: true
           })
           fastFee = adapterFees.fast.txFee
           break
@@ -183,10 +190,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance.balance
-          const adapterFees = await btcAdapter.getFeeData({
+          adapterFees = await btcAdapter.getFeeData({
             to,
             value,
-            chainSpecific: { pubkey }
+            chainSpecific: { pubkey },
+            sendMax: true
           })
           fastFee = adapterFees.fast.txFee
           break
@@ -196,6 +204,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         }
       }
 
+      setValue(SendFormFields.EstimatedFees, adapterFees)
       const marketData = await getAssetData({ chain, tokenId })
       // TODO: get network precision from network asset, not send asset
       const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
@@ -216,6 +225,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleInputChange = useCallback(
     debounce(async (inputValue: string) => {
+      setValue(SendFormFields.SendMax, false)
       const key =
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
@@ -228,7 +238,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       setValue(key, amount)
 
-      const estimatedFees = await estimateFees()
+      const estimatedFees = await estimateFormFees()
       setValue(SendFormFields.EstimatedFees, estimatedFees)
 
       const values = getValues()
@@ -244,7 +254,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       asset.price,
       fieldName,
       setValue,
-      estimateFees,
+      estimateFormFees,
       adapter,
       asset,
       chainAdapterManager,

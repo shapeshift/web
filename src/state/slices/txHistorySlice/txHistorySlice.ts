@@ -1,46 +1,77 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import concat from 'lodash/concat'
+import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import filter from 'lodash/filter'
 import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
-import { createSelectorCreator, defaultMemoize } from 'reselect'
+import values from 'lodash/values'
+import { createSelector } from 'reselect'
+import { caip2FromTx, caip19FromTx } from 'lib/txs'
 import { ReduxState } from 'state/reducer'
 
-export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: string }
-export type TxHistory = Record<ChainTypes, Record<string, Tx>>
-export type TxMessage = { payload: { message: Tx } }
+export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
 
-export type Filter = {
-  accountType?: string
-  identifier?: string
-  tradeIdentifier?: string // Temporary hack because unchained only returns symbols for trade details
+export type TxFilter = {
+  accountType?: UtxoAccountType
+  symbol?: string
+  caip19?: CAIP19
+  caip2?: CAIP2
   txid?: string
 }
-export type Sort = {
-  direction: 'asc' | 'desc'
-}
-export type TxHistorySelect = {
-  chain?: ChainTypes
-  filter?: Filter
-  sort?: Sort
+
+export type TxHistoryById = {
+  [k: string]: Tx
 }
 
-const initialState: TxHistory = {
-  [ChainTypes.Ethereum]: {},
-  [ChainTypes.Bitcoin]: {}
+export type TxHistory = {
+  byId: TxHistoryById
+  ids: string[]
 }
+
+export type TxMessage = { payload: { message: Tx } }
+
+// https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
+const initialState: TxHistory = {
+  byId: {},
+  ids: [] // sorted, newest first
+}
+
+export const makeTxId = (tx: Tx): string =>
+  `${caip19FromTx(tx)}-${tx.txid}-${tx.asset}-${tx.accountType || ''}${tx.type}`
 
 /**
  * Manage state of the txHistory slice
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-const updateOrInsert = (txs: Record<string, Tx> | undefined, tx: Tx): Record<string, Tx> => {
-  const key = `${tx.txid}${tx.asset}${tx.accountType || ''}${tx.type}`
-  if (!txs) return { [key]: tx }
-  txs[key] = tx
-  return txs
+const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
+  // the unique id to key by
+  const id = makeTxId(tx)
+
+  // desc is newest first
+  const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
+
+  // where to insert the unique id in our sorted index
+  // unchained generally returns newest first, so iterate backwards
+  let index = 0
+  for (let i = txHistory.ids.length - 1; i >= 0; i--) {
+    if (tx.blockTime > orderedTxs[i]?.blockTime) continue
+    index = i + 1
+    break
+  }
+
+  // splice the new tx in the correct order
+  if (!txHistory.ids.includes(id)) txHistory.ids.splice(index, 0, id)
+
+  // TODO(0xdef1cafe): we should maintain multiple indexes, e.g. by chain, asset, orders
+
+  // order in the object doesn't matter, but we must do this after
+  // figuring out the index
+  txHistory.byId[id] = tx
+
+  // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
+  // this looks like it's not doing anything, but changes written to the proxy
+  // get applied to state when it goes out of scope
 }
 
 export const txHistory = createSlice({
@@ -48,47 +79,57 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    onMessage: (state, { payload }: TxMessage) => {
-      const chain = payload.message.chain
-      state[chain] = updateOrInsert(state[chain], payload.message)
-    }
+    onMessage: (state, { payload }: TxMessage) => updateOrInsert(state, payload.message)
   }
 })
 
-// https://github.com/reduxjs/reselect#q-why-is-my-selector-recomputing-when-the-input-state-stays-the-same
-// TODO(0xdef1cafe): check this for performance
-// create a "selector creator" that uses lodash.isequal instead of ===
-const createDeepEqualSelector = createSelectorCreator(defaultMemoize, isEqual)
-export const selectTxHistory = createDeepEqualSelector(
-  (state: ReduxState, { chain }: TxHistorySelect) => {
-    return chain
-      ? Object.values(state.txHistory[chain] ?? {})
-      : concat(...Object.values(state.txHistory).map(txMap => Object.values(txMap)))
-  },
-  (_, { filter }: TxHistorySelect) => {
-    if (!filter) return
+export const selectTxs = (state: ReduxState) => values(state.txHistory.byId)
 
-    return (tx: Tx): boolean => {
+export const selectTxHistoryByFilter = createSelector(
+  (state: ReduxState) => state.txHistory,
+  (_state: ReduxState, txFilter: TxFilter) => txFilter,
+  (txHistory: TxHistory, txFilter: TxFilter) => {
+    if (!txFilter) return values(txHistory.byId)
+    const { symbol, txid, accountType, caip19, caip2 } = txFilter
+    const filterFunc = (tx: Tx) => {
       let hasItem = true
-      if (filter.tradeIdentifier && tx.tradeDetails) {
+      if (symbol && tx.tradeDetails) {
         hasItem =
-          (tx.tradeDetails?.sellAsset === filter.tradeIdentifier ||
-            tx.tradeDetails?.buyAsset === filter.tradeIdentifier) &&
-          hasItem
-      } else if (filter.identifier)
-        hasItem = tx.asset.toLowerCase() === filter.identifier && hasItem
-
-      if (filter.txid) hasItem = tx.txid === filter.txid && hasItem
-      if (filter.accountType) hasItem = tx.accountType === filter.accountType && hasItem
+          (tx.tradeDetails?.sellAsset === symbol || tx.tradeDetails?.buyAsset === symbol) && hasItem
+      }
+      if (caip2) hasItem = caip2FromTx(tx) === caip2 && hasItem
+      if (caip19) hasItem = caip19FromTx(tx) === caip19 && hasItem
+      if (txid) hasItem = tx.txid === txid && hasItem
+      if (accountType) hasItem = tx.accountType === accountType && hasItem
       return hasItem
     }
-  },
-  (_, { sort }: TxHistorySelect) => ({
-    keys: ['blockTime', 'status'],
-    direction: [sort?.direction ?? 'desc', 'desc'] as Array<boolean | 'asc' | 'desc'>
-  }),
-  (txHistory, filterFunc, sort) => {
-    if (filterFunc) txHistory = filter(txHistory, filterFunc)
-    return orderBy(txHistory, sort.keys, sort.direction)
+    return filter(txHistory.byId, filterFunc)
+  }
+)
+
+export const selectLastNTxIds = createSelector(
+  // ids will always change
+  (state: ReduxState) => state.txHistory.ids,
+  (_state: ReduxState, count: number) => count,
+  (ids, count) => ids.slice(0, count),
+  // https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc-selectoroptions
+  // we're doing a deel equality check on the output
+  // meaning the selector returns the same array ref
+  // regardless of if the input has changed
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
+
+export const selectTxById = createSelector(
+  (state: ReduxState) => state.txHistory.byId,
+  (_state: ReduxState, txId: string) => txId,
+  (txsById, txId) => txsById[txId]
+)
+
+export const selectTxIdsByFilter = createSelector(
+  (state: ReduxState) => state.txHistory.ids,
+  (_state: ReduxState, filter: TxFilter) => filter,
+  (ids, txFilter) => {
+    const vals = filter(values(txFilter), Boolean) // only include non null filters
+    return filter(ids, id => vals.every(val => id.includes(val)))
   }
 )

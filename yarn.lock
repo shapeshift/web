@@ -3683,10 +3683,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.5.0.tgz#c2f64754c154142471c86b1d5f45c41c6a6e00d0"
   integrity sha512-ZoOdyxYLbtWsQIpPbkBh1I5Sl2xXbdjKHPUrcIkJq+VUC2Am54lfdUdkOvvmzC+snO6IRmtsGDMlvPeAlt87CA==
 
-"@shapeshiftoss/chain-adapters@^1.19.0":
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.19.0.tgz#9545dc2ec57a955cd6615733d3175f2caed6b977"
-  integrity sha512-U+7GkVLlOkY0sHXnIgY7f2RRqa/Ni7xPMMjtdajFZwviSJunmUt5S/81wt6WE1EVhMYPnRnbUCCgFGut77ZX0w==
+"@shapeshiftoss/chain-adapters@^1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.20.0.tgz#f2af73960fdbd156b97340de96b915d4e47119e0"
+  integrity sha512-Fa4xiPkHlw/hlO/qWhiau8ykAwDdVUpHoYls1t8yk9MziDsZE0xX8Cm7Dg0QRj/ZpFrUPMuhLTv2kVy+7rAxvw==
   dependencies:
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -3898,10 +3898,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.0.3.tgz#945437281a5ca67c6f00149b97a5a4605ee25233"
   integrity sha512-q6+/Q6OaCVdu1QL6aKOJcvq9cnEVXbv2wbLG9uEeeG8TouFMtORPk48iAIi93xI27nLg04z4tAA4hUrP6GDnRQ==
 
-"@shapeshiftoss/market-service@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.5.0.tgz#ec6db9e52241de930032ca5f36e008588d47be62"
-  integrity sha512-NaqzEHsihqdR0OqX6/L2EDeWT+FKxB/NSPojGVXaGj+KKFSQpjDqV0qousZ0P7L0gDw6wNJkI6DWpDCdHyUqVQ==
+"@shapeshiftoss/market-service@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.5.1.tgz#bf71ff1ab778d4cb998d6e84f9697699b0df233d"
+  integrity sha512-OvlRP95bZDjiN3MBfErbDxE+qQCbUMMiMZHIJAL5/mXx1WJIayzYR+JayACsQ6XA/OcsMpwB5N+y4SowJN6mLQ==
   dependencies:
     axios "^0.21.2"
     dayjs "^1.10.6"
@@ -3924,10 +3924,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.14.0.tgz#d138f68105b403555f2a58141a050bfe2f03eb23"
-  integrity sha512-mL9ynAEzovGZ1sTrvDr19nuIe0GOabilU0ofoSjGMstyHL130mjmyQYsx5/MdP8ldJj9irAuWHkwuGDFaRHXQw==
+"@shapeshiftoss/types@^1.16.1":
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.16.1.tgz#fc3251568355cb7b7e648af9a79d095c4aef4c65"
+  integrity sha512-gy/g1Kfnskg+BtRk42FYOn9BV+bEpAT5a1IJa6ojLovdFNbTNYOZh7VfpSxLAkTNu9Oi6nBVEzOMlZ5vUv2Oig==
 
 "@shapeshiftoss/unchained-client@^3.7.0":
   version "3.7.0"
@@ -17849,10 +17849,10 @@ requires-port@^1.0.0:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=
 
-reselect@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/reselect/-/reselect-4.0.0.tgz#f2529830e5d3d0e021408b246a206ef4ea4437f7"
-  integrity sha512-qUgANli03jjAyGlnbYVAV5vvnOmJnODyABz51RdBN7M4WaVu8mecZWgyQNkG8Yqe3KRGRt0l4K4B3XVEULC4CA==
+reselect@^4.0.0, reselect@^4.1.5:
+  version "4.1.5"
+  resolved "https://registry.yarnpkg.com/reselect/-/reselect-4.1.5.tgz#852c361247198da6756d07d9296c2b51eddb79f6"
+  integrity sha512-uVdlz8J7OO+ASpBYoz1Zypgx0KasCY20H+N8JD13oUMtPvSHQuscrHop4KbXrbsBcdB9Ds7lVK7eRkBIfO43vQ==
 
 resize-observer-polyfill@1.5.1:
   version "1.5.1"

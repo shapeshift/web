@@ -1,8 +1,6 @@
 import { adapters } from '@shapeshiftoss/caip'
 import {
   ChainTypes,
-  CoinGeckoMarketCap,
-  CoinGeckoMarketCapNoId,
   GetByMarketCapArgs,
   HistoryData,
   HistoryTimeframe,
@@ -15,6 +13,7 @@ import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 
 import { MarketService } from '../api'
+import { CoinGeckoMarketCap } from './coingecko-types'
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {
@@ -71,12 +70,17 @@ export class CoinGeckoMarketService implements MarketService {
           try {
             const caip19 = adapters.coingeckoToCAIP19(id)
             const curWithoutId = omit(cur, 'id') // don't leak this through to clients
-            acc[caip19] = curWithoutId
+            acc[caip19] = {
+              price: curWithoutId.current_price.toString(),
+              marketCap: curWithoutId.market_cap.toString(),
+              volume: curWithoutId.total_volume.toString(),
+              changePercent24Hr: curWithoutId.price_change_percentage_24h
+            }
             return acc
           } catch {
             return acc // no caip found, we don't support this asset
           }
-        }, {} as Record<string, CoinGeckoMarketCapNoId>)
+        }, {} as Record<string, MarketData>)
     } catch (e) {
       return {}
     }

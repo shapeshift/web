@@ -13,6 +13,7 @@ import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
@@ -63,7 +64,8 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   } = useWallet()
   const assets = useSelector(selectAssetsById)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const { balances, totalBalance } = usePortfolio()
+  const { balances } = useCAIP19Balances()
+  const { totalBalance } = usePortfolio()
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have

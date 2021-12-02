@@ -40,7 +40,8 @@ export const useAsset = () => {
   const { chain, tokenId } = useParams<MatchParams>()
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+  const extra = tokenId ? { contractType, tokenId } : undefined
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
   const asset = useFetchAsset(assetCAIP19)
   const marketData = useMarketData({ chain, tokenId })
   const loading = useSelector((state: ReduxState) => state.marketData.loading)

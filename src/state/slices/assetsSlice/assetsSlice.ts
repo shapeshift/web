@@ -12,14 +12,11 @@ export type AssetsState = {
 }
 
 export const fetchAsset = createAsyncThunk('asset/fetchAsset', async (assetCAIP19: CAIP19) => {
-  try {
-    const service = await getAssetService()
-    const assetData = service?.byTokenId({ ...caip19.fromCAIP19(assetCAIP19) })
-    return service?.description({ asset: assetData })
-  } catch (error) {
-    console.error(error)
-    return ''
-  }
+  const service = await getAssetService()
+  const asset = service?.byTokenId({ ...caip19.fromCAIP19(assetCAIP19) })
+  const description = await service?.description({ asset })
+  const result = { ...asset, description }
+  return result
 })
 
 export const fetchAssets = createAsyncThunk(
@@ -42,10 +39,12 @@ export const assets = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-      .addCase(fetchAsset.fulfilled, (state, { payload: description, meta }) => {
+      .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
         const assetCAIP19 = meta.arg
-        if (!description) return
-        state.byId[assetCAIP19].description = description
+        state.byId[assetCAIP19] = payload
+      })
+      .addCase(fetchAsset.rejected, (state, { payload, meta }) => {
+        console.error('fetchAsset rejected')
       })
       .addCase(fetchAssets.fulfilled, (state, { payload: assets }) => {
         const byId = assets.reduce<AssetsState['byId']>((acc, cur) => {

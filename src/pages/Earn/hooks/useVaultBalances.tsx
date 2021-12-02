@@ -102,19 +102,24 @@ export function useVaultBalances(): UseVaultBalancesReturn {
 
   const makeVaultFiatAmount = useCallback(
     vault => {
-      const vaultAddress = vault.vaultAddress
-      const asset = assets[vaultAddress]
-      const pricePerShare = bnOrZero(vault.pricePerShare).div(`1e+${asset?.precision}`)
-      const { chain } = asset
+      const chain = ChainTypes.Ethereum
       const network = NetworkTypes.MAINNET
       const contractType = ContractTypes.ERC20
-      const vaultCAIP19 = caip19.toCAIP19({
+      const vaultTokenCAIP19 = caip19.toCAIP19({
         chain,
         network,
         contractType,
         tokenId: vault.tokenAddress
       })
-      const marketPrice = marketData.byId[vaultCAIP19]?.price
+      const vaultContractCAIP19 = caip19.toCAIP19({
+        chain,
+        network,
+        contractType,
+        tokenId: vault.vaultAddress
+      })
+      const asset = assets[vaultContractCAIP19]
+      const pricePerShare = bnOrZero(vault.pricePerShare).div(`1e+${asset?.precision}`)
+      const marketPrice = marketData.byId[vaultTokenCAIP19]?.price
       return bnOrZero(vault.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)

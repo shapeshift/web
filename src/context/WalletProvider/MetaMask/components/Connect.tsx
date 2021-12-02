@@ -1,3 +1,4 @@
+import detectEthereumProvider from '@metamask/detect-provider'
 import { getConfig } from 'config'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -23,6 +24,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const provider: any = detectEthereumProvider()
+
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
@@ -40,19 +43,25 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
       try {
         const deviceId = await wallet.getDeviceID()
-        if (window.ethereum?.chainId !== '0x1')
+
+        if (provider !== window.ethereum) {
+          throw new Error('walletProvider.metaMask.errors.multipleWallets')
+        }
+
+        if (provider?.chainId !== '0x1') {
           throw new Error('walletProvider.metaMask.errors.network')
+        }
 
         // Hack to handle MetaMask account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
-        window.ethereum?.on?.('accountsChanged', resetState)
-        window.ethereum?.on?.('chainChanged', resetState)
+        provider?.on?.('accountsChanged', resetState)
+        provider?.on?.('chainChanged', resetState)
 
         const oldDisconnect = wallet.disconnect.bind(wallet)
         wallet.disconnect = () => {
-          window.ethereum?.removeListener?.('accountsChanged', resetState)
-          window.ethereum?.removeListener?.('chainChanged', resetState)
+          provider?.removeListener?.('accountsChanged', resetState)
+          provider?.removeListener?.('chainChanged', resetState)
           return oldDisconnect()
         }
 
@@ -82,7 +91,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}
       buttonText={'walletProvider.metaMask.redirect.button'}
-      onClickAction={() => {
+      onClickAction={(): any => {
         window.location.assign(getConfig().REACT_APP_METAMASK_DEEPLINK_URL)
       }}
       loading={loading}

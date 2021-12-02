@@ -326,7 +326,8 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
-        "network": "MetaMask isn't set to Ethereum Mainnet"
+        "network": "MetaMask isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
       },
       "connect": {
         "header": "Pair MetaMask",

@@ -11,6 +11,7 @@
     "@formatjs/intl-locale": "^2.4.40",
     "@formatjs/intl-numberformat": "^7.2.2",
     "@formatjs/intl-pluralrules": "^4.1.2",
+    "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.6.1",
     "@shapeshiftoss/asset-service": "^1.8.0",
     "@shapeshiftoss/caip": "^1.5.0",

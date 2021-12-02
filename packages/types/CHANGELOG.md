@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.14.0...@shapeshiftoss/types-v1.15.0) (2021-12-02)
+
+
+### Features
+
+* send max ([#262](https://github.com/shapeshift/lib/issues/262)) ([dab48ec](https://github.com/shapeshift/lib/commit/dab48ecabc808ecf0de8989bf390003bd6483517))
+
 # [@shapeshiftoss/types-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.13.1...@shapeshiftoss/types-v1.14.0) (2021-11-30)
 
 

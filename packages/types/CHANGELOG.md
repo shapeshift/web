@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.15.0...@shapeshiftoss/types-v1.16.0) (2021-12-02)
+
+
+### Features
+
+* add optional description to base asset type ([#264](https://github.com/shapeshift/lib/issues/264)) ([9fc4c63](https://github.com/shapeshift/lib/commit/9fc4c637286c3f285cdeb21970f370ca63b19301))
+
 # [@shapeshiftoss/types-v1.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.14.0...@shapeshiftoss/types-v1.15.0) (2021-12-02)
 
 

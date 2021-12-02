@@ -1,6 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { ChainTypes, MarketSourceEnum } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
 import { EarnActionButtons } from 'features/earn/components/EarnActionButtons'
 import { TxStatus } from 'features/earn/components/TxStatus/TxStatus'
@@ -230,7 +230,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               validate: { validateFiatAmount }
             }}
             marketData={{
-              marketSource: MarketSourceEnum.YEARN,
               // The vault asset doesnt have market data.
               // We're making our own market data object for the withdraw view
               price: vaultTokenPrice.toString(),

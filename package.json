@@ -68,6 +68,7 @@
     "react-virtualized-auto-sizer": "^1.0.5",
     "react-window": "^1.8.6",
     "redux-persist": "^6.0.0",
+    "reselect": "^4.1.5",
     "scrypt-js": "^3.0.1",
     "web-vitals": "^2.1.0",
     "web3": "^1.6.0"

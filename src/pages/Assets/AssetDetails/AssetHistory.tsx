@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/layout'
+import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -8,7 +9,7 @@ import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { ReduxState } from 'state/reducer'
-import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxIdsByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { useAsset } from '../Asset'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
@@ -26,18 +27,18 @@ export const AssetHistory = () => {
   const accountType = useSelector(
     (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
-  const txs = useSelector((state: ReduxState) =>
-    selectTxHistory(state, {
-      chain: asset.chain,
-      filter: {
-        identifier: asset.tokenId ?? asset.chain,
-        accountType,
-        tradeIdentifier: asset.symbol
-      }
-    })
+  const txIds = useSelector((state: ReduxState) =>
+    selectTxIdsByFilter(state, { accountType, caip19: asset.caip19 })
   )
 
-  const { next, data, hasMore } = useInfiniteScroll(txs)
+  const { next, data, hasMore } = useInfiniteScroll(txIds)
+
+  const txRows = useMemo(() => {
+    if (!asset.caip19) return null
+    return data?.map((txId: string, i) => (
+      <TransactionRow key={txId} txId={txId} activeAsset={asset} />
+    ))
+  }, [asset, data])
 
   if (!walletSupportsChain) return null
 
@@ -48,26 +49,22 @@ export const AssetHistory = () => {
           {translate('assets.assetDetails.assetHistory.transactionHistory')}
         </Card.Heading>
       </Card.Header>
-      <Card.Body px={2} pt={0}>
-        <InfiniteScroll
-          pageStart={0}
-          loadMore={next}
-          hasMore={hasMore}
-          loader={
-            <Center key={0}>
-              <CircularProgress isIndeterminate />
-            </Center>
-          }
-        >
-          {data?.map((tx: Tx, i) => (
-            <TransactionRow
-              key={`${i}-${tx.type}-${tx.txid}-${tx.asset}`}
-              tx={tx}
-              activeAsset={asset}
-            />
-          ))}
-        </InfiniteScroll>
-      </Card.Body>
+      {data?.length ? (
+        <Card.Body px={2} pt={0}>
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={next}
+            hasMore={hasMore}
+            loader={
+              <Center key={0}>
+                <CircularProgress isIndeterminate />
+              </Center>
+            }
+          >
+            {txRows}
+          </InfiniteScroll>
+        </Card.Body>
+      ) : null}
     </Card>
   )
 }

@@ -42,7 +42,7 @@ export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
             }
           >
             {accountTypes?.map(accountType => (
-              <MenuItemOption value={accountType} fontSize='sm'>
+              <MenuItemOption value={accountType} key={accountType} fontSize='sm'>
                 {accountType === UtxoAccountType.SegwitNative ? (
                   <Tooltip
                     label={translate('assets.assetDetails.assetHeader.SegwitNativeTooltip')}

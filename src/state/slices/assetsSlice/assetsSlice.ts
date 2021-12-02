@@ -31,7 +31,10 @@ export const fetchAssets = createAsyncThunk(
   }
 )
 
-const initialState = {} as AssetsState
+const initialState: AssetsState = {
+  byId: {},
+  ids: []
+}
 
 export const assets = createSlice({
   name: 'asset',
@@ -45,9 +48,14 @@ export const assets = createSlice({
         state.byId[assetCAIP19].description = description
       })
       .addCase(fetchAssets.fulfilled, (state, { payload: assets }) => {
-        assets?.forEach(asset => {
-          const { caip19 } = asset
-          state.byId[caip19] = asset
+        const byId = assets.reduce<AssetsState['byId']>((acc, cur) => {
+          const { caip19 } = cur
+          acc[caip19] = cur
+          return acc
+        }, {})
+        state.byId = byId
+
+        assets?.forEach(({ caip19 }) => {
           if (!state.ids.includes(caip19)) state.ids.push(caip19)
         })
       })

@@ -67,7 +67,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
-    if (Object.keys(assets).length < 100) {
+    if (Object.keys(assets ?? {}).length < 100) {
       dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,6 +121,8 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
               : bnOrZero(0)
             const market = marketData[key]
             const fiatValue = balance.times(bnOrZero(market?.price)).toNumber()
+
+            if (!asset?.caip19) return null
 
             return (
               <AccountRow

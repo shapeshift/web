@@ -1,15 +1,19 @@
 import { aapl, ethereum, rune, zero } from 'jest/mocks/assets'
 import { mockStore } from 'jest/mocks/store'
+import { ReduxState } from 'state/reducer'
 
 import { selectAndSortAssets } from './selectAndSortAssets'
 
-const store = {
+const store: ReduxState = {
   ...mockStore,
   assets: {
-    [rune.tokenId as string]: rune,
-    [aapl.tokenId as string]: aapl,
-    [ethereum.chain as string]: ethereum,
-    [zero.tokenId as string]: zero
+    byId: {
+      [rune.tokenId as string]: rune,
+      [aapl.tokenId as string]: aapl,
+      [ethereum.chain as string]: ethereum,
+      [zero.tokenId as string]: zero
+    },
+    ids: []
   }
 }
 

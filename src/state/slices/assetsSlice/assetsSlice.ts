@@ -42,6 +42,7 @@ export const assets = createSlice({
       .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
         const assetCAIP19 = meta.arg
         state.byId[assetCAIP19] = payload
+        if (!state.ids.includes(assetCAIP19)) state.ids.push(assetCAIP19)
       })
       .addCase(fetchAsset.rejected, (state, { payload, meta }) => {
         console.error('fetchAsset rejected')

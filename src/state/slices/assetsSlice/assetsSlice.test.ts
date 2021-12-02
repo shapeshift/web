@@ -1,5 +1,5 @@
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { aapl, rune, zero } from 'jest/mocks/assets'
+import { aapl, rune } from 'jest/mocks/assets'
 import { getAssetService } from 'lib/assetService'
 import { store } from 'state/store'
 

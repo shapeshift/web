@@ -120,25 +120,43 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         to,
         wallet,
         bip32Params = ChainAdapter.defaultBIP32Params,
-        chainSpecific: { erc20ContractAddress, gasPrice, gasLimit }
+        chainSpecific: { erc20ContractAddress, gasPrice, gasLimit },
+        sendMax = false
       } = tx
 
       if (!to) throw new Error('EthereumChainAdapter: to is required')
       if (!tx?.value) throw new Error('EthereumChainAdapter: value is required')
 
-      const value = erc20ContractAddress ? '0' : tx?.value
       const destAddress = erc20ContractAddress ?? to
 
       const path = toPath(bip32Params)
       const addressNList = bip32ToAddressNList(path)
 
-      const data = await getErc20Data(to, tx?.value, erc20ContractAddress)
       const from = await this.getAddress({ bip32Params, wallet })
       const { chainSpecific } = await this.getAccount(from)
 
+      const isErc20Send = !!erc20ContractAddress
+
+      if (sendMax) {
+        const account = await this.getAccount(from)
+        if (isErc20Send) {
+          if (!erc20ContractAddress) throw new Error('no token address')
+          const erc20Balance = account?.chainSpecific?.tokens?.find(
+            (token: { contract: string; balance: string }) =>
+              token.contract.toLowerCase() === erc20ContractAddress.toLowerCase()
+          )?.balance
+          if (!erc20Balance) throw new Error('no balance')
+          tx.value = erc20Balance
+        } else {
+          const fee = new BigNumber(gasPrice).times(gasLimit)
+          tx.value = new BigNumber(account.balance).minus(fee).toString()
+        }
+      }
+      const data = await getErc20Data(to, tx?.value, erc20ContractAddress)
+
       const txToSign: ETHSignTx = {
         addressNList,
-        value: numberToHex(value),
+        value: numberToHex(isErc20Send ? '0' : tx?.value),
         to: destAddress,
         chainId: 1, // TODO: implement for multiple chains
         data,
@@ -187,7 +205,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   async getFeeData({
     to,
     value,
-    chainSpecific: { contractAddress, from, contractData }
+    chainSpecific: { contractAddress, from, contractData },
+    sendMax = false
   }: chainAdapters.GetFeeDataInput<ChainTypes.Ethereum>): Promise<
     chainAdapters.FeeDataEstimate<ChainTypes.Ethereum>
   > {
@@ -198,9 +217,23 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
     if (!fees) throw new TypeError('ETH Gas Fees should always exist')
 
+    const isErc20Send = !!contractAddress
+
+    // Only care about sendMax for erc20
+    // its hard to estimate eth fees for sendmax to contracts
+    // in MOST cases any eth amount will cost the same 21000 gas
+    if (sendMax && isErc20Send && contractAddress) {
+      const account = await this.getAccount(from)
+      const erc20Balance = account?.chainSpecific?.tokens?.find(
+        (token: { contract: string; balance: string }) =>
+          token.contract.toLowerCase() === contractAddress.toLowerCase()
+      )?.balance
+      if (!erc20Balance) throw new Error('no balance')
+      value = erc20Balance
+    }
+
     const data = contractData ?? (await getErc20Data(to, value, contractAddress))
 
-    const isErc20Send = !!contractAddress
     const { data: gasLimit } = await this.providers.http.estimateGas({
       from,
       to: isErc20Send ? contractAddress : to,

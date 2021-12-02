@@ -180,6 +180,7 @@ export type BuildSendTxInput<T extends ChainTypes> = {
   value: string
   wallet: HDWallet
   bip32Params?: BIP32Params // TODO maybe these shouldnt be optional
+  sendMax?: boolean
 } & ChainSpecificBuildTxData<T>
 
 type ChainSpecificBuildTxData<T> = ChainSpecific<
@@ -223,6 +224,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
 export type GetFeeDataInput<T extends ChainTypes> = {
   to: string
   value: string
+  sendMax?: boolean
 } & ChainSpecificGetFeeDataInput<T>
 
 export enum ValidAddressResultType {

@@ -21,9 +21,8 @@ export const useTotalBalance = (accounts: ReturnType<typeof flattenTokenBalances
       const network = account?.network ?? NetworkTypes.MAINNET
       const contractType = account?.contractType
       const tokenId = account?.contract
-      // const identifier = account.contract ?? account.chain
       const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-      const accountMarketData = marketData.marketData[assetCAIP19]
+      const accountMarketData = marketData.marketData.byId[assetCAIP19]
       const accountAsset = assets[assetCAIP19]
       if (accountMarketData && accountAsset) {
         const cryptoValue = fromBaseUnit(account.balance ?? '0', accountAsset.precision)

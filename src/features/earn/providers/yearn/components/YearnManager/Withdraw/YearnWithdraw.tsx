@@ -64,10 +64,10 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const underlyingAsset = useFetchAsset(underlyingAssetCAIP19)
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
   const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData({ chain, tokenId })
+  const marketData = useMarketData(assetCAIP19)
   const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
   const feeAsset = useFetchAsset(feeAssetCAIP19)
-  const feeMarketData = useMarketData({ chain })
+  const feeMarketData = useMarketData(feeAssetCAIP19)
 
   // user info
   const chainAdapterManager = useChainAdapters()

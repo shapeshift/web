@@ -63,7 +63,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     dispatch: walletDispatch
   } = useWallet()
   const assets = useSelector(selectAssetsById)
-  const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
+  const marketData = useSelector((state: ReduxState) => state.marketData.marketData.byId)
   const { balances } = useCAIP19Balances()
   const { totalBalance } = usePortfolio()
 

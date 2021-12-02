@@ -89,7 +89,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
             tokenId: vault.tokenAddress
           })
           dispatch(fetchAsset(tokenCAIP19))
-          dispatch(fetchMarketData({ chain: vault.chain, tokenId: vault.tokenAddress }))
+          dispatch(fetchMarketData(tokenCAIP19))
         })
         setVaults(yearnVaults)
       } catch (error) {
@@ -105,7 +105,16 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       const vaultAddress = vault.vaultAddress
       const asset = assets[vaultAddress]
       const pricePerShare = bnOrZero(vault.pricePerShare).div(`1e+${asset?.precision}`)
-      const marketPrice = marketData[vault.tokenAddress]?.price
+      const { chain } = asset
+      const network = NetworkTypes.MAINNET
+      const contractType = ContractTypes.ERC20
+      const vaultCAIP19 = caip19.toCAIP19({
+        chain,
+        network,
+        contractType,
+        tokenId: vault.tokenAddress
+      })
+      const marketPrice = marketData.byId[vaultCAIP19]?.price
       return bnOrZero(vault.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)

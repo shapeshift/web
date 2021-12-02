@@ -37,10 +37,9 @@ export const StakingVaultRow = ({
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
   // asset
-  const asset = useFetchAsset(
-    caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
-  )
-  const marketData = useMarketData({ chain, tokenId: tokenAddress })
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const asset = useFetchAsset(assetCAIP19)
+  const marketData = useMarketData(assetCAIP19)
 
   // account info
   const chainAdapterManager = useChainAdapters()

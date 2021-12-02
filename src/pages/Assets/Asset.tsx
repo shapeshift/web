@@ -43,7 +43,7 @@ export const useAsset = () => {
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
   const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData({ chain, tokenId })
+  const marketData = useMarketData(assetCAIP19)
   const loading = useSelector((state: ReduxState) => state.marketData.loading)
 
   return {

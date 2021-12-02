@@ -81,9 +81,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
   const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
   const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData({ chain, tokenId })
+  const marketData = useMarketData(assetCAIP19)
   const feeAsset = useFetchAsset(feeAssetCAIP19)
-  const feeMarketData = useMarketData({ chain })
+  const feeMarketData = useMarketData(feeAssetCAIP19)
   const vaultCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
   const vaultAsset = useFetchAsset(vaultCAIP19)
 

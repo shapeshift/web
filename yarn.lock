@@ -3678,10 +3678,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.5.0.tgz#c2f64754c154142471c86b1d5f45c41c6a6e00d0"
   integrity sha512-ZoOdyxYLbtWsQIpPbkBh1I5Sl2xXbdjKHPUrcIkJq+VUC2Am54lfdUdkOvvmzC+snO6IRmtsGDMlvPeAlt87CA==
 
-"@shapeshiftoss/chain-adapters@^1.19.0":
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.19.0.tgz#9545dc2ec57a955cd6615733d3175f2caed6b977"
-  integrity sha512-U+7GkVLlOkY0sHXnIgY7f2RRqa/Ni7xPMMjtdajFZwviSJunmUt5S/81wt6WE1EVhMYPnRnbUCCgFGut77ZX0w==
+"@shapeshiftoss/chain-adapters@^1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.20.0.tgz#f2af73960fdbd156b97340de96b915d4e47119e0"
+  integrity sha512-Fa4xiPkHlw/hlO/qWhiau8ykAwDdVUpHoYls1t8yk9MziDsZE0xX8Cm7Dg0QRj/ZpFrUPMuhLTv2kVy+7rAxvw==
   dependencies:
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -3918,10 +3918,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.14.0.tgz#d138f68105b403555f2a58141a050bfe2f03eb23"
-  integrity sha512-mL9ynAEzovGZ1sTrvDr19nuIe0GOabilU0ofoSjGMstyHL130mjmyQYsx5/MdP8ldJj9irAuWHkwuGDFaRHXQw==
+"@shapeshiftoss/types@^1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.15.0.tgz#91948855fd6dfc7e2bb8e0543095d657b4eeb0ec"
+  integrity sha512-waMmE5pb/3IS+wG36Gawlaty0pyA3OHOwl6brPqee0wSF7y43AWGFuTUbwLTKS9Sl17wBEYf7+5F+k2cZ1qDEw==
 
 "@shapeshiftoss/unchained-client@^3.7.0":
   version "3.7.0"

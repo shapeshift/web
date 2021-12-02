@@ -3892,10 +3892,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.0.3.tgz#945437281a5ca67c6f00149b97a5a4605ee25233"
   integrity sha512-q6+/Q6OaCVdu1QL6aKOJcvq9cnEVXbv2wbLG9uEeeG8TouFMtORPk48iAIi93xI27nLg04z4tAA4hUrP6GDnRQ==
 
-"@shapeshiftoss/market-service@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.5.0.tgz#ec6db9e52241de930032ca5f36e008588d47be62"
-  integrity sha512-NaqzEHsihqdR0OqX6/L2EDeWT+FKxB/NSPojGVXaGj+KKFSQpjDqV0qousZ0P7L0gDw6wNJkI6DWpDCdHyUqVQ==
+"@shapeshiftoss/market-service@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.5.1.tgz#bf71ff1ab778d4cb998d6e84f9697699b0df233d"
+  integrity sha512-OvlRP95bZDjiN3MBfErbDxE+qQCbUMMiMZHIJAL5/mXx1WJIayzYR+JayACsQ6XA/OcsMpwB5N+y4SowJN6mLQ==
   dependencies:
     axios "^0.21.2"
     dayjs "^1.10.6"
@@ -3918,10 +3918,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.15.0":
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.15.0.tgz#91948855fd6dfc7e2bb8e0543095d657b4eeb0ec"
-  integrity sha512-waMmE5pb/3IS+wG36Gawlaty0pyA3OHOwl6brPqee0wSF7y43AWGFuTUbwLTKS9Sl17wBEYf7+5F+k2cZ1qDEw==
+"@shapeshiftoss/types@^1.16.1":
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.16.1.tgz#fc3251568355cb7b7e648af9a79d095c4aef4c65"
+  integrity sha512-gy/g1Kfnskg+BtRk42FYOn9BV+bEpAT5a1IJa6ojLovdFNbTNYOZh7VfpSxLAkTNu9Oi6nBVEzOMlZ5vUv2Oig==
 
 "@shapeshiftoss/unchained-client@^3.7.0":
   version "3.7.0"

@@ -26,7 +26,7 @@ const setup = ({
   }))
 }
 
-describe.skip('assetsSlice', () => {
+describe('assetsSlice', () => {
   it('returns empty object for initialState', async () => {
     expect(store.getState().assets).toEqual({})
   })

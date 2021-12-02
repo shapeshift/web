@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.20.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.19.0...@shapeshiftoss/chain-adapters-v1.20.0) (2021-12-02)
+
+
+### Features
+
+* send max ([#262](https://github.com/shapeshift/lib/issues/262)) ([dab48ec](https://github.com/shapeshift/lib/commit/dab48ecabc808ecf0de8989bf390003bd6483517))
+
 # [@shapeshiftoss/chain-adapters-v1.19.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.18.4...@shapeshiftoss/chain-adapters-v1.19.0) (2021-11-30)
 
 

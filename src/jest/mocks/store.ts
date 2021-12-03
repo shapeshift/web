@@ -1,10 +1,16 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { TxHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { ReduxState } from 'state/reducer'
 
-export const mockStore = {
-  assets: {},
+export const mockStore: ReduxState = {
+  assets: {
+    byId: {},
+    ids: []
+  },
   marketData: {
-    marketData: {},
+    marketData: {
+      byId: {},
+      ids: []
+    },
     priceHistory: {
       [HistoryTimeframe.DAY]: {},
       [HistoryTimeframe.HOUR]: {},
@@ -15,8 +21,11 @@ export const mockStore = {
     },
     loading: false
   },
-  txHistory: {} as TxHistory,
+  txHistory: {
+    byId: {},
+    ids: []
+  },
   preferences: {
     accountTypes: {}
   }
-} as const
+}

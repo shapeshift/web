@@ -15,10 +15,7 @@ type UseAccountBalancesProps = {
 
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {
   const [marketData, setMarketData] = useState<MarketData | null>(null)
-  const getAssetData = useGetAssetData({
-    chain: asset.chain,
-    tokenId: asset.tokenId
-  })
+  const getAssetData = useGetAssetData(asset.caip19)
   const assetBalance = asset?.tokenId ? balances[asset?.tokenId] : balances[asset.chain]
 
   useEffect(() => {

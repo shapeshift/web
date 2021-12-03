@@ -63,10 +63,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
-  const getAssetData = useGetAssetData({
-    chain: initialAsset.chain,
-    tokenId: initialAsset.tokenId
-  })
+  const getAssetData = useGetAssetData(initialAsset.caip19)
 
   const methods = useForm<SendInput>({
     mode: 'onChange',

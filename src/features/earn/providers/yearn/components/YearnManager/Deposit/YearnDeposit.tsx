@@ -11,7 +11,8 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { caip19 } from '@shapeshiftoss/caip'
+import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/earn/components/Approve/Approve'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/earn/components/Deposit/Deposit'
@@ -75,12 +76,16 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
-  // Asset info
-  const asset = useFetchAsset({ chain, tokenId })
-  const marketData = useMarketData({ chain, tokenId })
-  const feeAsset = useFetchAsset({ chain })
-  const feeMarketData = useMarketData({ chain })
-  const vaultAsset = useFetchAsset({ chain, tokenId: vaultAddress })
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const asset = useFetchAsset(assetCAIP19)
+  const marketData = useMarketData(assetCAIP19)
+  const feeAsset = useFetchAsset(feeAssetCAIP19)
+  const feeMarketData = useMarketData(feeAssetCAIP19)
+  const vaultCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const vaultAsset = useFetchAsset(vaultCAIP19)
 
   // user info
   const chainAdapterManager = useChainAdapters()

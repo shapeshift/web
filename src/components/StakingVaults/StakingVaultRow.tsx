@@ -1,6 +1,8 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
+import { caip19 } from '@shapeshiftoss/caip'
+import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { YearnVault } from 'features/earn/providers/yearn/api/api'
 import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
@@ -32,9 +34,12 @@ export const StakingVaultRow = ({
   const history = useHistory()
   const location = useLocation()
 
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
   // asset
-  const asset = useFetchAsset({ chain, tokenId: tokenAddress })
-  const marketData = useMarketData({ chain, tokenId: tokenAddress })
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const asset = useFetchAsset(assetCAIP19)
+  const marketData = useMarketData(assetCAIP19)
 
   // account info
   const chainAdapterManager = useChainAdapters()

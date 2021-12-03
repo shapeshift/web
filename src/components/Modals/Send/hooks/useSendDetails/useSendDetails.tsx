@@ -60,7 +60,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const { chain, tokenId } = asset
 
-  const getAssetData = useGetAssetData({ chain, tokenId })
+  const getAssetData = useGetAssetData(asset.caip19)
 
   useEffect(() => {
     if (balanceError) {

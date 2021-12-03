@@ -4,7 +4,7 @@ import { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 
 type SortByFiatInput = {
   balances: Record<string, Partial<chainAdapters.Account<ChainTypes>>>
-  assets: AssetsState
+  assets: AssetsState['byId']
   marketData: Record<string, MarketData>
 }
 

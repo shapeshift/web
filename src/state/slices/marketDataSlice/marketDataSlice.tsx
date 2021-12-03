@@ -1,20 +1,23 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { getByMarketCap, getMarketData, getPriceHistory } from '@shapeshiftoss/market-service'
 import {
-  ChainTypes,
   GetByMarketCapArgs,
   HistoryData,
   HistoryTimeframe,
   MarketCapResult,
   MarketData
 } from '@shapeshiftoss/types'
+import { ReduxState } from 'state/reducer'
 
 export type MarketDataState = {
   loading: boolean
   marketCap?: MarketCapResult
   marketData: {
-    [key: string]: MarketData
+    byId: {
+      [k: CAIP19]: MarketData
+    }
+    ids: CAIP19[]
   }
   priceHistory: {
     [k in HistoryTimeframe]: {
@@ -25,18 +28,10 @@ export type MarketDataState = {
 
 export const fetchMarketData = createAsyncThunk(
   'marketData/fetchMarketData',
-  async ({ tokenId, chain }: { tokenId?: string; chain: ChainTypes }) => {
-    try {
-      const marketData: MarketData = await getMarketData({
-        chain,
-        tokenId
-      })
-      if (!marketData) return {}
-      return { [tokenId || chain]: marketData }
-    } catch (error) {
-      console.error(error)
-      return {}
-    }
+  async (CAIP19: CAIP19) => {
+    const parts = caip19.fromCAIP19(CAIP19)
+    const { chain, tokenId } = parts
+    return getMarketData({ chain, tokenId })
   }
 )
 
@@ -73,7 +68,10 @@ export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', as
 })
 
 const initialState: MarketDataState = {
-  marketData: {},
+  marketData: {
+    byId: {},
+    ids: []
+  },
   priceHistory: {
     [HistoryTimeframe.HOUR]: {},
     [HistoryTimeframe.DAY]: {},
@@ -108,10 +106,9 @@ export const marketData = createSlice({
       state.loading = false
     })
     builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
-      const tokenId = meta.arg.tokenId ?? meta.arg.chain
-      if (payload[tokenId]) {
-        state.marketData[tokenId] = payload[tokenId]
-      }
+      const assetCAIP19 = meta.arg
+      state.marketData.byId[assetCAIP19] = payload
+      if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
       state.loading = false
     })
     builder.addCase(fetchMarketCaps.pending, state => {
@@ -128,3 +125,9 @@ export const marketData = createSlice({
     })
   }
 })
+
+export const selectMarketDataById = createSelector(
+  (state: ReduxState) => state.marketData.marketData.byId,
+  (_state: ReduxState, id: CAIP19) => id,
+  (byId, id) => byId[id]
+)

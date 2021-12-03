@@ -8,6 +8,8 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
+import { caip19 } from '@shapeshiftoss/caip'
+import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -30,7 +32,10 @@ export const StakingCard = ({
   cryptoAmount,
   fiatAmount
 }: StakingCardProps) => {
-  const asset = useFetchAsset({ chain, tokenId: tokenAddress })
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const asset = useFetchAsset(assetCAIP19)
 
   if (!asset) return null
 

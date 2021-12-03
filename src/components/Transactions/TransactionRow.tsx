@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, Link, SimpleGrid, Tag, useColorModeValue } from '@chakra-ui/react'
-import { Asset, chainAdapters, NetworkTypes } from '@shapeshiftoss/types'
+import { caip19 } from '@shapeshiftoss/caip'
+import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -13,9 +14,14 @@ import { IconCircle } from 'components/IconCircle'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { caip19FromTx } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
-import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  fetchAsset,
+  selectAssetByCAIP19,
+  selectAssetBySymbol
+} from 'state/slices/assetsSlice/assetsSlice'
 import { selectTxById } from 'state/slices/txHistorySlice/txHistorySlice'
 
 dayjs.extend(relativeTime)
@@ -25,11 +31,12 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   const ref = useRef<HTMLHeadingElement>(null)
   const dispatch = useDispatch()
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
-  const asset = useSelector(
-    (state: ReduxState) => state.assets?.[tx.asset.toLowerCase() ?? tx.chain]
-  )
+  const assetCAIP19 = caip19FromTx(tx)
+  const asset = useSelector((state: ReduxState) => selectAssetByCAIP19(state, assetCAIP19))
+  // TODO(0xdef1cafe): pull this directly from tx when we have it from unchained
+  const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
   // stables need precision of eth (18) rather than 10
-  const chainAsset = useSelector((state: ReduxState) => state.assets[tx.chain])
+  const feeAsset = useSelector((state: ReduxState) => selectAssetByCAIP19(state, feeAssetCAIP19))
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const sentTx = tx.type === chainAdapters.TxType.Send
@@ -37,17 +44,14 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   const tradeTx = tx.type === chainAdapters.TxType.Trade
   const symbol = tx?.chainSpecific?.token?.symbol ?? asset?.symbol
 
-  const allAssets = useSelector((state: ReduxState) => state.assets)
-
   // TODO compare using caip ids
   // Cant do this yet because unchained doesnt only returns symbol with trade data
-  const buyAsset = Object.values(allAssets).find(
-    asset => asset.symbol === tx?.tradeDetails?.buyAsset
+  const buyAsset = useSelector((state: ReduxState) =>
+    selectAssetBySymbol(state, tx?.tradeDetails?.buyAsset ?? '')
   )
-  const sellAsset = Object.values(allAssets).find(
-    asset => asset.symbol === tx?.tradeDetails?.sellAsset
+  const sellAsset = useSelector((state: ReduxState) =>
+    selectAssetBySymbol(state, tx?.tradeDetails?.sellAsset ?? '')
   )
-
   let value = tx.value
   let precision = asset?.precision
   let txSymbol = symbol
@@ -67,16 +71,9 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   }
 
   useEffect(() => {
-    if (!symbol) {
-      dispatch(
-        fetchAsset({
-          chain: tx.chain,
-          network: NetworkTypes.MAINNET,
-          ...(tx.asset ? { tokenId: tx.asset.toLowerCase() } : undefined)
-        })
-      )
-    }
-  }, [dispatch, symbol, tx.chain, tx.asset])
+    const assetCAIP19 = caip19FromTx(tx)
+    dispatch(fetchAsset(assetCAIP19))
+  }, [dispatch, tx])
 
   return (
     <Box
@@ -185,7 +182,7 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
             <Row.Value>
               {tx?.fee && (
                 <Amount.Crypto
-                  value={fromBaseUnit(tx?.fee?.value ?? '0', chainAsset?.precision)}
+                  value={fromBaseUnit(tx?.fee?.value ?? '0', feeAsset?.precision)}
                   symbol={tx?.fee?.symbol}
                   maximumFractionDigits={6}
                 />

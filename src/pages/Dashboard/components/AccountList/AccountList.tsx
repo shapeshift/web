@@ -13,11 +13,12 @@ import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
 import { ReduxState } from 'state/reducer'
-import { fetchAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchAssets, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 const AccountHeader = () => (
   <Grid
@@ -61,13 +62,14 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
     state: { isConnected },
     dispatch: walletDispatch
   } = useWallet()
-  const assets = useSelector((state: ReduxState) => state.assets)
-  const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const { balances, totalBalance } = usePortfolio()
+  const assets = useSelector(selectAssetsById)
+  const marketData = useSelector((state: ReduxState) => state.marketData.marketData.byId)
+  const { balances } = useCAIP19Balances()
+  const { totalBalance } = usePortfolio()
 
   useEffect(() => {
     // arbitrary number to just make sure we dont fetch all assets if we already have
-    if (Object.keys(assets).length < 100) {
+    if (Object.keys(assets ?? {}).length < 100) {
       dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,16 +124,17 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
             const market = marketData[key]
             const fiatValue = balance.times(bnOrZero(market?.price)).toNumber()
 
+            if (!asset?.caip19) return null
+
             return (
               <AccountRow
                 allocationValue={bnOrZero(fiatValue)
                   .div(bnOrZero(totalBalance))
                   .times(100)
                   .toNumber()}
-                key={account.contract ?? account.chain}
                 balance={account.balance ?? '0'}
-                chain={account.chain}
-                tokenId={account.contract}
+                CAIP19={asset.caip19}
+                key={asset.caip19}
               />
             )
           })}

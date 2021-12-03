@@ -9,17 +9,17 @@ import {
 import { ReactNode } from 'react'
 import { Text } from 'components/Text'
 
-export type ConnectModalProps = {
+export type RedirectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
-  pairDevice(): any
+  onClickAction(): () => any
   loading: boolean
   error: string | null
   children?: ReactNode
 }
 
-export const ConnectModal: React.FC<ConnectModalProps> = props => {
+export const RedirectModal: React.FC<RedirectModalProps> = props => {
   return (
     <>
       <ModalHeader>
@@ -27,7 +27,12 @@ export const ConnectModal: React.FC<ConnectModalProps> = props => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={props.bodyText} />
-        <Button isFullWidth colorScheme='blue' onClick={props.pairDevice} disabled={props.loading}>
+        <Button
+          isFullWidth
+          colorScheme='blue'
+          onClick={props.onClickAction}
+          disabled={props.loading}
+        >
           <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
         </Button>
         {props.error && (

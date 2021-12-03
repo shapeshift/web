@@ -3405,6 +3405,11 @@
   resolved "https://registry.yarnpkg.com/@mdx-js/util/-/util-1.6.22.tgz#219dfd89ae5b97a8801f015323ffa4b62f45718b"
   integrity sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==
 
+"@metamask/detect-provider@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@metamask/detect-provider/-/detect-provider-1.2.0.tgz#3667a7531f2a682e3c3a43eaf3a1958bdb42a696"
+  integrity sha512-ocA76vt+8D0thgXZ7LxFPyqw3H7988qblgzddTDA6B8a/yU0uKV42QR/DhA+Jh11rJjxW0jKvwb5htA6krNZDQ==
+
 "@metamask/onboarding@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@metamask/onboarding/-/onboarding-1.0.1.tgz#14a36e1e175e2f69f09598e2008ab6dc1b3297e6"
@@ -3782,34 +3787,34 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.18.2", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.2.tgz#f09d11386f9576b24864351b2013569d37fd18ce"
-  integrity sha512-tVZxTA6EGR+3DUqSjB6tP0KbAIHvzmiNMWaeEh0zY6O7O2agRiUDnZOphBJVaQ4A+YXLVChmO20DT8qnwWjdsA==
+"@shapeshiftoss/hdwallet-core@1.18.3", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.3.tgz#844e70c8e72ec9d7cd8c7d4f93ac85d2c804db65"
+  integrity sha512-31JFa9owa7qnnzdKlwqp0kLdOlUHlq4XDm0XlWtrGCa3dT90mWtf2+pbJ5byvn9+2NSYHFAHnohnTkJ+A9N2Fw==
   dependencies:
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.18.2.tgz#11f201cb07b908fa5d45cb713f01c980885b8f5e"
-  integrity sha512-QO5SMQQOOzOdDA+1vpdUVZ+0IrTRE3o0pePiG9f9a08htpxR783Tghaf2kVAdrbqVl8jdhhPKM/mOYebiP4bJg==
+"@shapeshiftoss/hdwallet-keepkey-webusb@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.18.3.tgz#6098b79d1a64243b3ea6b1b509eb02399988a726"
+  integrity sha512-X2iEu9zYS0hmbdlWyCeWJgvoLGxLsyozpF2/7tauJHuLJIusruRlQkDV7i0IdCNfO0TXNA42YCXMKVii5/mHBg==
   dependencies:
-    "@shapeshiftoss/hdwallet-core" "1.18.2"
-    "@shapeshiftoss/hdwallet-keepkey" "1.18.2"
+    "@shapeshiftoss/hdwallet-core" "1.18.3"
+    "@shapeshiftoss/hdwallet-keepkey" "1.18.3"
 
-"@shapeshiftoss/hdwallet-keepkey@1.18.2", "@shapeshiftoss/hdwallet-keepkey@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.18.2.tgz#e7aed7c0fdbe08c9f4e9d9f14dbd618934f82503"
-  integrity sha512-RVv4gZnN0nwqs5O0PlpXyMIxg5KhcI41jZLO7rVkYkjZbJMA9Y4XawHrUeJYvyJB/RkGqNDv9Via+O8HVwy8TA==
+"@shapeshiftoss/hdwallet-keepkey@1.18.3", "@shapeshiftoss/hdwallet-keepkey@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.18.3.tgz#6ea092a7c6f7a3dd13526686e4da2100d1dd18b0"
+  integrity sha512-ma9CxQj4RLVORTH0/7swu52E4MF/k2jh+vyXrCa1YA3PgN6HyeC27ZjRi3Wn6bBWxbxMguUm9Hfi6Te5wOZtlg==
   dependencies:
     "@ethereumjs/common" "^2.4.0"
     "@ethereumjs/tx" "^3.3.0"
     "@keepkey/device-protocol" "^7.2.4"
     "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "1.18.2"
+    "@shapeshiftoss/hdwallet-core" "1.18.3"
     bignumber.js "^9.0.1"
     bnb-javascript-sdk-nobroadcast "^2.16.14"
     crypto-js "^4.0.0"
@@ -3820,26 +3825,27 @@
     semver "^6.3.0"
     tiny-secp256k1 "^1.1.6"
 
-"@shapeshiftoss/hdwallet-metamask@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.2.tgz#c205173472b9b8ef5c72d5679e270c4b65eb4459"
-  integrity sha512-ItuiOrf6kl9QKlTh1z5x9jOQMrU/8WuQE7GiCcVa3R2Rui/nyB+yfgHU8MQeg+ck+pDWGoo9bLof8/B3WCMn1g==
+"@shapeshiftoss/hdwallet-metamask@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.3.tgz#76c601822ef5dbbf873005030dce5e77b63a8eac"
+  integrity sha512-CZdVzzMi+9Be6XcMKhwHnXA766F1x5MTH0ht4/IJWQtUfuul1lfifWlVFB7Ec4lnuPGPv671OEmDFh5HNG5tsQ==
   dependencies:
+    "@metamask/detect-provider" "^1.2.0"
     "@metamask/onboarding" "^1.0.1"
     "@portis/web3" "3.0.10"
-    "@shapeshiftoss/hdwallet-core" "1.18.2"
+    "@shapeshiftoss/hdwallet-core" "1.18.3"
     base64-js "^1.5.1"
     bip32 "^2.0.4"
     bitcoinjs-lib "^5.1.6"
     bitcoinjs-message "^2.1.0"
     lodash "^4.17.21"
 
-"@shapeshiftoss/hdwallet-native-vault@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native-vault/-/hdwallet-native-vault-1.18.2.tgz#9b8c661f3e9cae38e2c700c557358903821f561d"
-  integrity sha512-vTopDIHA1c3VvOnKojXbwi/ze/QQLiWZtFeAkZ1YMlbg9YyugJWJiLxiLB66MRIsZ5sgaAJaZjTWSpsP5NfMjg==
+"@shapeshiftoss/hdwallet-native-vault@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native-vault/-/hdwallet-native-vault-1.18.3.tgz#62101317fb11ceceb19be7f642a8bbd046fe49bb"
+  integrity sha512-t0lGV4+ZFhXknfY0LATKrIkEmWS+8o/biR0kJjCkDIShHQvyIZ8iXpjMvOrMPNhSFZ89rCLkVTosDClvb3xX9w==
   dependencies:
-    "@shapeshiftoss/hdwallet-native" "1.18.2"
+    "@shapeshiftoss/hdwallet-native" "1.18.3"
     bip39 "^3.0.4"
     hash-wasm "^4.9.0"
     idb-keyval "^6.0.3"
@@ -3848,14 +3854,14 @@
     uuid "^8.3.2"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-native@1.18.2", "@shapeshiftoss/hdwallet-native@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.18.2.tgz#4454b342b7039fc768688172b8dcd7eb071e08e7"
-  integrity sha512-BbBME7v4eFeX2+6xro1NzngyQW3CFstiN4WPTWFWD2g+KVl9ygibzRY6iWu8SoIe2QRfEa/JX6IHNxV4hPZQig==
+"@shapeshiftoss/hdwallet-native@1.18.3", "@shapeshiftoss/hdwallet-native@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.18.3.tgz#d12c77548b1f94e39d128478928a076ec26d745a"
+  integrity sha512-SSwUw5V0JWuboL6DRWRx8AcBVRsb12lhLPFZf6fVFFddoEH6+FpcwOSBxVQftAI+Ytx6QIT8ucaVpZVwcWn1lQ==
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib" "5.2.0-shapeshift.2"
     "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.6"
-    "@shapeshiftoss/hdwallet-core" "1.18.2"
+    "@shapeshiftoss/hdwallet-core" "1.18.3"
     "@zxing/text-encoding" "^0.9.0"
     bchaddrjs "^0.4.9"
     bignumber.js "^9.0.1"
@@ -3873,13 +3879,13 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/hdwallet-portis@^1.18.2":
-  version "1.18.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.18.2.tgz#f5a9044f2d15a50f86e90e4dabbeabea4e1398f5"
-  integrity sha512-jwX38pduRE9BpKZiANvpaqEbt4soPuErg1Umz6by1+na268z8Cw3zkvWUkwlT3y0g7LWuh2+oUSb4EIgNOMcoA==
+"@shapeshiftoss/hdwallet-portis@^1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.18.3.tgz#c0e0e30a8d568f766883782cc97b49c43a247def"
+  integrity sha512-5VrZSO0i2Sgt1zSfJSDXAacsmPeoHBJkmkjuFk0/c77/oXZRl6hRS3b0PO7dHwCwF5xUjHy4YG8RQC1I4+ZK4w==
   dependencies:
     "@portis/web3" "3.0.10"
-    "@shapeshiftoss/hdwallet-core" "1.18.2"
+    "@shapeshiftoss/hdwallet-core" "1.18.3"
     base64-js "^1.5.1"
     bip32 "^2.0.4"
     bitcoinjs-lib "^5.1.6"
@@ -17046,6 +17052,13 @@ react-dev-utils@^11.0.3:
     strip-ansi "6.0.0"
     text-table "0.2.0"
 
+react-device-detect@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/react-device-detect/-/react-device-detect-2.1.2.tgz#60abb6fa361ec4cc839469a0c4c3e9b8ea17d6b5"
+  integrity sha512-N42xttwez3ECgu4KpOL2ICesdfoz8NCBfmc1rH9FRYSjH7NmMyANPSrQ3EvAtJyj/6TzJNhrANSO38iXjCB2Ug==
+  dependencies:
+    ua-parser-js "^0.7.30"
+
 react-docgen-typescript-plugin@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-docgen-typescript-plugin/-/react-docgen-typescript-plugin-1.0.0.tgz#f3b13df1acf3126957c689c47cd8552d42734feb"
@@ -19840,6 +19853,11 @@ typescript@^4.1.2, typescript@^4.4.3, typescript@^4.5.2:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
   integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
+
+ua-parser-js@^0.7.30:
+  version "0.7.31"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.31.tgz#649a656b191dffab4f21d5e053e27ca17cbff5c6"
+  integrity sha512-qLK/Xe9E2uzmYI3qLeOmI0tEOt+TBBQyUIAh4aAgU05FVYzeZrKUdkAZfBNVGRaHVgV0TDkdEngJSw/SyQchkQ==
 
 uglify-js@^3.1.4:
   version "3.14.4"

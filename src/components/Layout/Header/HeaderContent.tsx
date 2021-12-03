@@ -1,23 +1,13 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Flex,
-  IconButton,
-  Portal,
-  Stack,
-  useColorModeValue,
-  useMediaQuery
-} from '@chakra-ui/react'
+import { Box, Flex, IconButton, Portal, Stack, useColorModeValue } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
-import { breakpoints } from 'theme/theme'
 
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
 export const HeaderContent = ({ route }: { route: Route }) => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const navbarBg = useColorModeValue('white', 'gray.800')
   const navbarBorder = useColorModeValue('gray.100', 'gray.750')
   const navShadow = useColorModeValue('lg', 'dark-lg')
@@ -61,27 +51,25 @@ export const HeaderContent = ({ route }: { route: Route }) => {
           <UserMenu />
         </Flex>
       </Flex>
-      {isLargerThanMd ? null : (
-        <Portal>
-          <Box
-            position='fixed'
-            width='full'
-            bottom={0}
-            pb={'env(safe-area-inset-bottom)'}
-            left='50%'
-            transform='translateX(-50%)'
-            display='inline-block'
-            bg={navbarBg}
-            borderTopWidth={1}
-            borderColor={navbarBorder}
-            boxShadow={navShadow}
-          >
-            <Stack as={'nav'} spacing={4} p={2}>
-              <NavBar />
-            </Stack>
-          </Box>
-        </Portal>
-      )}
+      <Portal>
+        <Box
+          position='fixed'
+          width='full'
+          display={{ base: 'inline-block', md: 'none' }}
+          bottom={0}
+          pb={'env(safe-area-inset-bottom)'}
+          left='50%'
+          transform='translateX(-50%)'
+          bg={navbarBg}
+          borderTopWidth={1}
+          borderColor={navbarBorder}
+          boxShadow={navShadow}
+        >
+          <Stack as={'nav'} spacing={4} p={2}>
+            <NavBar />
+          </Stack>
+        </Box>
+      </Portal>
     </Flex>
   )
 }

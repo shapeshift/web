@@ -6,19 +6,20 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
+import { ReactNode } from 'react'
 import { Text } from 'components/Text'
 
-export interface RedirectModalProps {
+export type RedirectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
   onClickAction(): () => any
   loading: boolean
   error: string | null
-  children?: any
+  children?: ReactNode
 }
 
-export const RedirectModal = (props: RedirectModalProps) => {
+export const RedirectModal: React.FC<RedirectModalProps> = props => {
   return (
     <>
       <ModalHeader>

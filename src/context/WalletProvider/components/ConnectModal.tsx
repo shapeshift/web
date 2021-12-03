@@ -6,19 +6,20 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
+import { ReactNode } from 'react'
 import { Text } from 'components/Text'
 
-export interface ConnectModalProps {
+export type ConnectModalProps = {
   headerText: string
   bodyText: string
   buttonText: string
   pairDevice(): any
   loading: boolean
   error: string | null
-  children?: any
+  children?: ReactNode
 }
 
-export const ConnectModal = (props: ConnectModalProps) => {
+export const ConnectModal: React.FC<ConnectModalProps> = props => {
   return (
     <>
       <ModalHeader>

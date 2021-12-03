@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.20.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.20.0...@shapeshiftoss/chain-adapters-v1.20.1) (2021-12-03)
+
+
+### Bug Fixes
+
+* to address on erc20 sends ([#265](https://github.com/shapeshift/lib/issues/265)) ([3c0b439](https://github.com/shapeshift/lib/commit/3c0b4397454e8f25c03092e7b6c5c9c569247743))
+
 # [@shapeshiftoss/chain-adapters-v1.20.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.19.0...@shapeshiftoss/chain-adapters-v1.20.0) (2021-12-02)
 
 

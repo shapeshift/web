@@ -15,6 +15,11 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const { balances, loading } = useFlattenedBalances()
   const totalBalance = useTotalBalance(balances)
 
+  // TOOD(0xdef1cafe): go ham on this and replace all the other hooks
+  // const CAIP2 = 'eip155:1'
+  // const pubkey = '0x934be745172066EDF795ffc5EA9F28f19b440c63'
+  // const { data, error, isLoading } = useGetAccountQuery({ CAIP2, pubkey })
+
   return (
     <PortfolioContext.Provider value={{ totalBalance, loading, balances }}>
       {children}

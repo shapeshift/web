@@ -10,13 +10,24 @@ type ChainAdaptersContextProps = ChainAdapterManager | null
 
 const ChainAdaptersContext = createContext<ChainAdaptersContextProps>(null)
 
+let _chainAdapters: ChainAdapterManager | null
+
+// expose these so we can use them outside react components as a singleton
+export const getChainAdapters = () => {
+  if (_chainAdapters) return _chainAdapters
+  throw new Error('getChainAdapters: not initialized')
+}
+
+const setChainAdapters = (cam: ChainAdapterManager) => {
+  _chainAdapters = cam
+}
+
 export const ChainAdaptersProvider = ({
   children,
   unchainedUrls
 }: ChainAdaptersProviderProps): JSX.Element => {
-  const chainAdapterManager = useRef<ChainAdapterManager | null>(
-    new ChainAdapterManager(unchainedUrls)
-  )
+  setChainAdapters(new ChainAdapterManager(unchainedUrls))
+  const chainAdapterManager = useRef<ChainAdapterManager | null>(getChainAdapters())
 
   const context = useMemo(() => chainAdapterManager.current, [])
 

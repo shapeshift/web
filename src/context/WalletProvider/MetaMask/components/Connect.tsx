@@ -104,6 +104,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       buttonText={'walletProvider.metaMask.connect.button'}
       pairDevice={pairDevice}
       loading={loading}
+      autopair={true}
       error={error}
     ></ConnectModal>
   )

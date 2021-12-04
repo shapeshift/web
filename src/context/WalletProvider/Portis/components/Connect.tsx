@@ -57,6 +57,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
       buttonText={'walletProvider.portis.connect.button'}
       pairDevice={pairDevice}
       loading={loading}
+      autopair={true}
       error={error}
     ></ConnectModal>
   )

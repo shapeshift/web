@@ -330,9 +330,8 @@
         "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
       },
       "connect": {
-        "header": "Pair MetaMask",
-        "body": "Click Pair and login to MetaMask from the popup window",
-        "button": "Pair"
+        "header": "Pairing MetaMask",
+        "body": "Login to MetaMask from the popup window"
       },
       "failure": {
         "header": "Error",
@@ -350,9 +349,8 @@
         "connectFailure": "Unable to connect Portis wallet"
       },
       "connect": {
-        "header": "Pair Portis",
-        "body": "Click Pair then select Portis from the popup window",
-        "button": "Pair"
+        "header": "Pairing Portis",
+        "body": "Select Portis from the popup window"
       },
       "failure": {
         "header": "Error",

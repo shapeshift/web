@@ -1,5 +1,7 @@
-import React, { useContext } from 'react'
+import isEmpty from 'lodash/isEmpty'
+import React, { useContext, useEffect } from 'react'
 import { flattenTokenBalances, useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { usePubkeys } from 'hooks/usePubkeys/usePubkeys'
 
 import { useTotalBalance } from '../hooks/useTotalBalance/useTotalBalance'
 
@@ -14,6 +16,13 @@ const PortfolioContext = React.createContext<PortfolioContextProps | null>(null)
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
   const { balances, loading } = useFlattenedBalances()
   const totalBalance = useTotalBalance(balances)
+
+  const pubkeys = usePubkeys()
+
+  useEffect(() => {
+    if (isEmpty(pubkeys)) return
+    console.info('PortfolioProvider pubkeys', pubkeys)
+  }, [pubkeys])
 
   // TOOD(0xdef1cafe): go ham on this and replace all the other hooks
   // const CAIP2 = 'eip155:1'

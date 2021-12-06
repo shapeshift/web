@@ -75,7 +75,4 @@ export const selectAssetBySymbol = createSelector(
   (byId, symbol) => Object.values(byId).find(asset => asset.symbol === symbol)
 )
 
-export const selectAssetsById = createSelector(
-  (state: ReduxState) => state.assets.byId,
-  byId => byId
-)
+export const selectAssetsById = (state: ReduxState) => state.assets.byId

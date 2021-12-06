@@ -6,14 +6,12 @@ import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
-import { caip2FromTx, caip19FromTx } from 'lib/txs'
 import { ReduxState } from 'state/reducer'
 
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType
-  symbol?: string
   caip19?: CAIP19
   caip2?: CAIP2
   txid?: string
@@ -36,8 +34,7 @@ const initialState: TxHistory = {
   ids: [] // sorted, newest first
 }
 
-export const makeTxId = (tx: Tx): string =>
-  `${caip19FromTx(tx)}-${tx.txid}-${tx.asset}-${tx.accountType || ''}${tx.type}`
+export const txToId = (tx: Tx): string => `${tx.caip2}-${tx.txid}-${tx.accountType ?? ''}`
 
 /**
  * Manage state of the txHistory slice
@@ -46,28 +43,21 @@ export const makeTxId = (tx: Tx): string =>
  */
 const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
   // the unique id to key by
-  const id = makeTxId(tx)
+  const id = txToId(tx)
+  const isNew = !txHistory.byId[id]
 
-  // desc is newest first
-  const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
-
-  // where to insert the unique id in our sorted index
-  // unchained generally returns newest first, so iterate backwards
-  let index = 0
-  for (let i = txHistory.ids.length - 1; i >= 0; i--) {
-    if (tx.blockTime > orderedTxs[i]?.blockTime) continue
-    index = i + 1
-    break
-  }
-
-  // splice the new tx in the correct order
-  if (!txHistory.ids.includes(id)) txHistory.ids.splice(index, 0, id)
+  // update or insert tx
+  txHistory.byId[id] = tx
 
   // TODO(0xdef1cafe): we should maintain multiple indexes, e.g. by chain, asset, orders
-
-  // order in the object doesn't matter, but we must do this after
-  // figuring out the index
-  txHistory.byId[id] = tx
+  // add id to ordered set for new tx
+  if (isNew) {
+    const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
+    const index = orderedTxs.findIndex(
+      t => t.txid === tx.txid && t.caip2 === tx.caip2 && t.accountType === tx.accountType
+    )
+    txHistory.ids.splice(index, 0, id)
+  }
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
   // this looks like it's not doing anything, but changes written to the proxy
@@ -90,15 +80,11 @@ export const selectTxHistoryByFilter = createSelector(
   (_state: ReduxState, txFilter: TxFilter) => txFilter,
   (txHistory: TxHistory, txFilter: TxFilter) => {
     if (!txFilter) return values(txHistory.byId)
-    const { symbol, txid, accountType, caip19, caip2 } = txFilter
+    const { txid, accountType, caip19, caip2 } = txFilter
     const filterFunc = (tx: Tx) => {
       let hasItem = true
-      if (symbol && tx.tradeDetails) {
-        hasItem =
-          (tx.tradeDetails?.sellAsset === symbol || tx.tradeDetails?.buyAsset === symbol) && hasItem
-      }
-      if (caip2) hasItem = caip2FromTx(tx) === caip2 && hasItem
-      if (caip19) hasItem = caip19FromTx(tx) === caip19 && hasItem
+      if (caip2) hasItem = tx.caip2 === caip2 && hasItem
+      if (caip19) hasItem = tx.transfers.some(t => t.caip19 === caip19) && hasItem
       if (txid) hasItem = tx.txid === txid && hasItem
       if (accountType) hasItem = tx.accountType === accountType && hasItem
       return hasItem

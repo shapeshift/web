@@ -19,7 +19,7 @@
     "@shapeshiftoss/hdwallet-core": "^1.18.3",
     "@shapeshiftoss/hdwallet-keepkey": "^1.18.3",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.18.3",
-    "@shapeshiftoss/hdwallet-metamask": "^1.18.3",
+    "@shapeshiftoss/hdwallet-metamask": "^1.18.4",
     "@shapeshiftoss/hdwallet-native": "^1.18.3",
     "@shapeshiftoss/hdwallet-native-vault": "^1.18.3",
     "@shapeshiftoss/hdwallet-portis": "^1.18.3",

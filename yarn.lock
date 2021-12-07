@@ -3787,10 +3787,20 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.18.3", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.18.3":
+"@shapeshiftoss/hdwallet-core@1.18.3":
   version "1.18.3"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.3.tgz#844e70c8e72ec9d7cd8c7d4f93ac85d2c804db65"
   integrity sha512-31JFa9owa7qnnzdKlwqp0kLdOlUHlq4XDm0XlWtrGCa3dT90mWtf2+pbJ5byvn9+2NSYHFAHnohnTkJ+A9N2Fw==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@1.18.4", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.18.3":
+  version "1.18.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.4.tgz#7272baa4b43de0fbb5e651d47cdeb9554f4ddd33"
+  integrity sha512-dnzh6EmicNVb4AZPjN3d00z04SqLvKAUMqEhLq9v/rUtY7yb8dcvw5vHCnLEtq3a+N4UkH6rDA33i/hMjTBhUQ==
   dependencies:
     eventemitter2 "^5.0.1"
     lodash "^4.17.21"
@@ -3825,15 +3835,15 @@
     semver "^6.3.0"
     tiny-secp256k1 "^1.1.6"
 
-"@shapeshiftoss/hdwallet-metamask@^1.18.3":
-  version "1.18.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.3.tgz#76c601822ef5dbbf873005030dce5e77b63a8eac"
-  integrity sha512-CZdVzzMi+9Be6XcMKhwHnXA766F1x5MTH0ht4/IJWQtUfuul1lfifWlVFB7Ec4lnuPGPv671OEmDFh5HNG5tsQ==
+"@shapeshiftoss/hdwallet-metamask@^1.18.4":
+  version "1.18.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.4.tgz#1fdb27231c125db8075029acdc11c63b3c2f2825"
+  integrity sha512-0OfZ6iBFYNAAxLuldE4I0OdvLMwIis4cR2quYWPNAodpMyvH6aZPIt2ulqzE88YPe11+vD8pT+hCXSLyV1giDQ==
   dependencies:
     "@metamask/detect-provider" "^1.2.0"
     "@metamask/onboarding" "^1.0.1"
     "@portis/web3" "3.0.10"
-    "@shapeshiftoss/hdwallet-core" "1.18.3"
+    "@shapeshiftoss/hdwallet-core" "1.18.4"
     base64-js "^1.5.1"
     bip32 "^2.0.4"
     bitcoinjs-lib "^5.1.6"

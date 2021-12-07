@@ -1,5 +1,5 @@
 import { caip19 } from '@shapeshiftoss/caip'
-import { getMarketData } from '@shapeshiftoss/market-service'
+import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { Asset, ChainTypes, ContractTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
@@ -21,7 +21,7 @@ jest.mock('lib/assetService', () => ({
 }))
 
 jest.mock('@shapeshiftoss/market-service', () => ({
-  getMarketData: jest.fn()
+  findByCaip19: jest.fn()
 }))
 
 const balances: ReturnType<typeof useFlattenedBalances>['balances'] = {
@@ -69,7 +69,7 @@ const setup = ({
     byTokenId: jest.fn().mockImplementation(() => assetData),
     description: jest.fn().mockImplementation(() => description)
   }))
-  ;(getMarketData as unknown as jest.Mock<unknown>).mockImplementation(() =>
+  ;(findByCaip19 as unknown as jest.Mock<unknown>).mockImplementation(() =>
     Promise.resolve(marketData)
   )
   const wrapper: React.FC = ({ children }) => {

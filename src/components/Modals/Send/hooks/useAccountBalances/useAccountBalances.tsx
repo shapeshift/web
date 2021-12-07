@@ -20,13 +20,10 @@ export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps)
 
   useEffect(() => {
     ;(async () => {
-      const data = await getAssetData({
-        chain: asset.chain,
-        tokenId: asset.tokenId
-      })
+      const data = await getAssetData()
       setMarketData(data)
     })()
-  }, [asset.chain, asset.tokenId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [asset.caip19]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const accountBalances = useMemo(() => {
     const crypto = bnOrZero(assetBalance?.balance).div(`1e${asset.precision}`)

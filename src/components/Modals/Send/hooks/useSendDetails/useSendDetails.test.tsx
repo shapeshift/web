@@ -1,4 +1,4 @@
-import { getMarketData } from '@shapeshiftoss/market-service'
+import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -162,7 +162,7 @@ describe('useSendDetails', () => {
         })
       })
     }))
-    ;(getMarketData as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(findByCaip19 as jest.Mock<unknown>).mockImplementation(() => ({
       price: 3500,
       network: 'ethereum'
     }))

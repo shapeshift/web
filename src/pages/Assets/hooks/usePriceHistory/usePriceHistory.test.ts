@@ -1,4 +1,4 @@
-import { getPriceHistory } from '@shapeshiftoss/market-service'
+import { findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { ethereum } from 'jest/mocks/assets'
@@ -21,7 +21,9 @@ describe.skip('usePriceHistory', () => {
       }
     ]
 
-    ;(getPriceHistory as jest.Mock<unknown>).mockImplementation(() => Promise.resolve(historyData))
+    ;(findPriceHistoryByCaip19 as jest.Mock<unknown>).mockImplementation(() =>
+      Promise.resolve(historyData)
+    )
     const { waitForValueToChange, result } = renderHook(
       ({ asset, timeframe }) => usePriceHistory({ assets: [], timeframe }),
       {
@@ -40,7 +42,9 @@ describe.skip('usePriceHistory', () => {
 
   it('unsuccessfully loads data', async () => {
     await act(async () => {
-      ;(getPriceHistory as jest.Mock<unknown>).mockImplementation(() => Promise.reject(null))
+      ;(findPriceHistoryByCaip19 as jest.Mock<unknown>).mockImplementation(() =>
+        Promise.reject(null)
+      )
       const { waitFor, result } = renderHook(
         ({ asset, timeframe }) => usePriceHistory({ assets: [], timeframe }),
         {

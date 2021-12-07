@@ -2,7 +2,7 @@ import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import {
-  findAllMarketArgs,
+  FindAllMarketArgs,
   HistoryData,
   HistoryTimeframe,
   MarketCapResult,
@@ -58,7 +58,7 @@ export const fetchPriceHistory = createAsyncThunk(
 
 export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
   try {
-    const args: findAllMarketArgs = { pages: 1, perPage: 250 }
+    const args: FindAllMarketArgs = { pages: 1, perPage: 250 }
     const marketCap = await findAll(args)
     return { marketCap }
   } catch (error) {

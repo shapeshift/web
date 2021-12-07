@@ -49,13 +49,10 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
   // update or insert tx
   txHistory.byId[id] = tx
 
-  // TODO(0xdef1cafe): we should maintain multiple indexes, e.g. by chain, asset, orders
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(
-      t => t.txid === tx.txid && t.caip2 === tx.caip2 && t.accountType === tx.accountType
-    )
+    const index = orderedTxs.findIndex(t => txToId(t) === id)
     txHistory.ids.splice(index, 0, id)
   }
 

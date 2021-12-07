@@ -27,6 +27,8 @@ export const AssetHistory = () => {
   const accountType = useSelector(
     (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
+
+  // TODO: this selector does not work anymore with the changes to tx message payloads (fixme)
   const txIds = useSelector((state: ReduxState) =>
     selectTxIdsByFilter(state, { accountType, caip19: asset.caip19 })
   )
@@ -35,7 +37,7 @@ export const AssetHistory = () => {
 
   const txRows = useMemo(() => {
     if (!asset.caip19) return null
-    return data?.map((txId: string, i) => (
+    return data?.map((txId: string) => (
       <TransactionRow key={txId} txId={txId} activeAsset={asset} />
     ))
   }, [asset, data])

@@ -10,8 +10,6 @@ import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
-
-
 export interface MetaMaskSetupProps
   extends RouteComponentProps<
     {},
@@ -27,7 +25,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [error, setError] = useState<string | null>(null)
   let provider: any
 
-
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
@@ -37,7 +34,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     try {
       provider = await detectEthereumProvider()
-    } catch(error) {
+    } catch (error) {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
@@ -50,7 +47,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
       try {
-        
         const deviceId = await wallet.getDeviceID()
 
         if (provider !== window.ethereum) {

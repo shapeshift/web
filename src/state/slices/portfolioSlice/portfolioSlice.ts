@@ -56,6 +56,8 @@ export const portfolio = createSlice({
 
 type AccountToPortfolio = (account: chainAdapters.Account<ChainTypes>) => Portfolio
 
+// this should live in chain adapters but is here for backwards compatibility
+// until we can kill all the other places in web fetching this data
 export const accountToPortfolio: AccountToPortfolio = account => {
   const portfolio: Portfolio = {
     accounts: {
@@ -104,6 +106,8 @@ export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   // not actually used, only used to satisfy createApi, we use a queryFn for each
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
   endpoints: build => ({
     getAccount: build.query<chainAdapters.Account<ChainTypes>, { CAIP2: CAIP2; pubkey: string }>({
       queryFn: async args => {

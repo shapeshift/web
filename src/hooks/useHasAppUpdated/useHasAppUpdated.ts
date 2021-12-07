@@ -2,11 +2,15 @@ import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
 import { useState } from 'react'
 
+import { getConfig } from '../../config'
+
 const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)
   useInterval(async () => {
+    // we don't care about updates locally obv
+    if (getConfig().isDevelopment) return
     // this will break if we ever eject from create react app
     const scriptIdentifier = '/static/js/main.'
     // asset-manifest tells us the latest minified built files

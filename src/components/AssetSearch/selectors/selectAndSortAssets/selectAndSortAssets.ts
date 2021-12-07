@@ -1,4 +1,4 @@
-import { CoinGeckoMarketCapResult } from '@shapeshiftoss/types'
+import { MarketCapResult } from '@shapeshiftoss/types'
 import sortBy from 'lodash/sortBy'
 import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
@@ -7,7 +7,7 @@ import { AssetsState, FullAsset } from 'state/slices/assetsSlice/assetsSlice'
 export const selectAndSortAssets = createSelector(
   (state: ReduxState) => state.assets,
   (state: ReduxState) => state.marketData.marketCap,
-  (assets: AssetsState, marketCap?: CoinGeckoMarketCapResult) => {
+  (assets: AssetsState, marketCap?: MarketCapResult) => {
     let sortedAssets: FullAsset[] = []
     const assetsEntries = Object.entries(assets)
     if (marketCap) {

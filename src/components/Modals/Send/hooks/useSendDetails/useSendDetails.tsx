@@ -6,8 +6,8 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import get from 'lodash/get'
-import { useEffect, useState } from 'react'
+import { debounce } from 'lodash'
+import { useCallback, useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -17,6 +17,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 
 import { SendFormFields } from '../../Form'
@@ -26,16 +27,13 @@ import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 
 type UseSendDetailsReturnType = {
-  amountFieldError: string
   balancesLoading: boolean
   fieldName: AmountFieldName
   handleInputChange(inputValue: string): void
-  handleNextClick(): Promise<void>
+  handleNextClick(): void
   handleSendMax(): Promise<void>
   loading: boolean
   toggleCurrency(): void
-  validateCryptoAmount(value: string): boolean | string
-  validateFiatAmount(value: string): boolean | string
   accountBalances: {
     crypto: BigNumber
     fiat: BigNumber
@@ -48,13 +46,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
-  const {
-    clearErrors,
-    getValues,
-    setValue,
-    setError,
-    formState: { errors }
-  } = useFormContext()
+  const { getValues, setValue } = useFormContext()
   const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] }) as [
     AssetMarketData,
     string
@@ -89,7 +81,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
 
-  const estimateFees = async (): Promise<chainAdapters.FeeDataEstimate<ChainTypes>> => {
+  const estimateFormFees = useCallback(async (): Promise<
+    chainAdapters.FeeDataEstimate<ChainTypes>
+  > => {
     const values = getValues()
 
     if (!wallet) throw new Error('No wallet connected')
@@ -107,7 +101,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return ethereumChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { from, contractAddress: values.asset.tokenId }
+          chainSpecific: { from, contractAddress: values.asset.tokenId },
+          sendMax: values.sendMax
         })
       }
       case ChainTypes.Bitcoin: {
@@ -127,19 +122,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
-          chainSpecific: { pubkey }
+          chainSpecific: { pubkey },
+          sendMax: values.sendMax
         })
       }
       default:
         throw new Error('unsupported chain type')
     }
-  }
+  }, [adapter, asset, chainAdapterManager, currentAccountType, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
       setLoading(true)
-      const estimatedFees = await estimateFees()
-      setValue(SendFormFields.EstimatedFees, estimatedFees)
       history.push(SendRoutes.Confirm)
     } catch (error) {
       console.error(error)
@@ -150,6 +144,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const handleSendMax = async () => {
     if (assetBalance && wallet) {
+      setValue(SendFormFields.SendMax, true)
       setLoading(true)
       const to = address
 
@@ -165,15 +160,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       // Assume fast fee for send max
       // This is used to make make sure its impossible to send more than our balance
       let fastFee: string = ''
+      let adapterFees
       switch (chain) {
         case ChainTypes.Ethereum: {
           const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
           const contractAddress = tokenId
-          const value = asset.tokenId ? '0' : assetBalance.balance
-          const adapterFees = await ethAdapter.getFeeData({
+          const value = assetBalance.balance
+          adapterFees = await ethAdapter.getFeeData({
             to,
             value,
-            chainSpecific: { contractAddress, from }
+            chainSpecific: { contractAddress, from },
+            sendMax: true
           })
           fastFee = adapterFees.fast.txFee
           break
@@ -193,10 +190,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance.balance
-          const adapterFees = await btcAdapter.getFeeData({
+          adapterFees = await btcAdapter.getFeeData({
             to,
             value,
-            chainSpecific: { pubkey }
+            chainSpecific: { pubkey },
+            sendMax: true
           })
           fastFee = adapterFees.fast.txFee
           break
@@ -206,6 +204,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         }
       }
 
+      setValue(SendFormFields.EstimatedFees, adapterFees)
       const marketData = await getAssetData({ chain, tokenId })
       // TODO: get network precision from network asset, not send asset
       const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
@@ -223,45 +222,50 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
   }
 
-  const handleInputChange = (inputValue: string) => {
-    const key =
-      fieldName !== SendFormFields.FiatAmount
-        ? SendFormFields.FiatAmount
-        : SendFormFields.CryptoAmount
-    const assetPrice = asset.price
-    const amount =
-      fieldName === SendFormFields.FiatAmount
-        ? bnOrZero(inputValue).div(assetPrice).toString()
-        : bnOrZero(inputValue).times(assetPrice).toString()
-    setValue(key, amount)
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleInputChange = useCallback(
+    debounce(async (inputValue: string) => {
+      setValue(SendFormFields.SendMax, false)
+      const key =
+        fieldName !== SendFormFields.FiatAmount
+          ? SendFormFields.FiatAmount
+          : SendFormFields.CryptoAmount
+      const assetPrice = asset.price
+      const amount =
+        fieldName === SendFormFields.FiatAmount
+          ? bnOrZero(inputValue).div(assetPrice).toString()
+          : bnOrZero(inputValue).times(assetPrice).toString()
 
-  const validateCryptoAmount = (value: string) => {
-    const hasValidBalance = accountBalances.crypto.gte(value)
-    const _value = bnOrZero(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+      setValue(key, amount)
 
-  const validateFiatAmount = (value: string) => {
-    const hasValidBalance = accountBalances.fiat.gte(value)
-    const _value = bnOrZero(value)
-    if (_value.isEqualTo(0)) return ''
-    return hasValidBalance || 'common.insufficientFunds'
-  }
+      const estimatedFees = await estimateFormFees()
+      setValue(SendFormFields.EstimatedFees, estimatedFees)
 
-  const cryptoError = get(errors, 'crypto.amount.message', null)
-  const fiatError = get(errors, 'fiat.amount.message', null)
-  const amountFieldError = cryptoError || fiatError
+      const values = getValues()
+
+      const hasValidBalance = accountBalances.crypto
+        .minus(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
+        .gte(values.crypto.amount)
+
+      if (!hasValidBalance) setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+      else setValue(SendFormFields.AmountFieldError, '')
+    }, 1000),
+    [
+      asset.price,
+      fieldName,
+      setValue,
+      estimateFormFees,
+      adapter,
+      asset,
+      chainAdapterManager,
+      currentAccountType,
+      getValues,
+      wallet,
+      accountBalances
+    ]
+  )
 
   const toggleCurrency = () => {
-    if (amountFieldError) {
-      // Toggles an existing error to the other field if present
-      const clearErrorKey = fiatError ? SendFormFields.FiatAmount : SendFormFields.CryptoAmount
-      const setErrorKey = fiatError ? SendFormFields.CryptoAmount : SendFormFields.FiatAmount
-      clearErrors(clearErrorKey)
-      setError(setErrorKey, { message: 'common.insufficientFunds' })
-    }
     setFieldName(
       fieldName === SendFormFields.FiatAmount
         ? SendFormFields.CryptoAmount
@@ -270,7 +274,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   return {
-    amountFieldError,
     balancesLoading,
     fieldName,
     accountBalances,
@@ -278,8 +281,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleNextClick,
     handleSendMax,
     loading,
-    toggleCurrency,
-    validateCryptoAmount,
-    validateFiatAmount
+    toggleCurrency
   }
 }

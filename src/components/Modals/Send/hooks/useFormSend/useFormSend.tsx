@@ -43,7 +43,8 @@ export const useFormSend = () => {
             to,
             value,
             wallet,
-            chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit }
+            chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit },
+            sendMax: data.sendMax
           })
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
@@ -58,7 +59,8 @@ export const useFormSend = () => {
             chainSpecific: {
               satoshiPerByte: fees.chainSpecific.satoshiPerByte,
               accountType
-            }
+            },
+            sendMax: data.sendMax
           })
         } else {
           throw new Error('unsupported adapterType')

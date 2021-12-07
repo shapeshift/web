@@ -82,7 +82,8 @@ const formData: SendInput = {
     amount: '3500',
     symbol: 'USD'
   },
-  transaction: {}
+  transaction: {},
+  sendMax: false
 }
 
 const textTxToSign = {

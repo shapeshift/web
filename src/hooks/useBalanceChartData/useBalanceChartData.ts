@@ -28,7 +28,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { ReduxState } from 'state/reducer'
-import { selectTxHistory, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxs, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -355,10 +355,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
-  const txs = useDebounce(
-    useSelector((state: ReduxState) => selectTxHistory(state, {})),
-    500
-  )
+  const txs = useDebounce(useSelector(selectTxs), 500)
   const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
 
   useEffect(() => {

@@ -32,32 +32,77 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 - [shapeshift](https://shapeshift.com/developer-portal)
 
 ## Dependencies
-
 - [hdwallet](https://github.com/shapeshift/hdwallet)
 - [lib](https://github.com/shapeshift/lib)
 - [unchained](https://github.com/shapeshift/unchained)
+- [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) (optional; must be installed manually)
 
-## Developer Onboarding
+## Quick Start
 
 On Linux and MacOS it works out of the box following the steps.<br/>
 ⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL).
 
-- Copy sample env file:
+- Clone the repo
+
+- (optional) Make sure you're using the right Node.js version.
+
+  ```sh
+  nvm use
+  ```
+The .env file contains global variables that the program needs to function properly. The following variables are not publicly available for security reasons:
+
+REACT_APP_PORTIS_DAPP_ID<br>
+Allows you to connect a Portis wallet. Without this the program will hang after choosing Portis and 
+clicking the "Pair" button. To get it, make a post asking for it in the Discord.
+
+REACT_APP_ETHEREUM_NODE_URL <br>
+Program crashes when connecting wallet without this. Obtain by doing the following: 
+1. Go to https://infura.io/dashboard
+2. Set up a free account
+3. Make a new project 
+<br>Your key should use "JSON-RPC over HTTPS" and look like this: 
+https://mainnet.infura.io/v3/YOUR-PROJECT-ID
+
+- Install Dependencies:
+
+  ```sh
+  # This is short for `yarn install`; be sure to use `yarn install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
+  yarn
+  ```
+
+- Copy `sample.env` to `.env`, and configure it according to the [.env section](#.env) below.
 
   ```sh
   cp sample.env .env
   ```
 
-- Install Dependencies:
-
+- Have fun!
   ```sh
-  yarn
-  ```
-
-- Run server
-  ```sh
+  # Launch a local dev-mode server with hot-reload support:
   yarn dev
+  # Or, compile a static production version:
+  yarn build
   ```
+
+### `.env`
+
+The `.env` file contains environment variables that the program needs to function properly. Some of these variables are deployment-specific, so they aren't included in the repository.
+
+- `REACT_APP_PORTIS_DAPP_ID`
+
+  Allows you to connect a Portis wallet. Without this the program will hang after choosing Portis and clicking the "Pair" button. Portis Dapp IDs aren't secret, but they are domain-specific; you can get the one we use for testing by making a post asking for it in the [Discord](https://discord.gg/shapeshift).
+
+- `REACT_APP_ETHEREUM_NODE_URL`
+
+  Needed for certain Defi integrations such as Yearn; the app will malfunction when connecting a wallet without it.
+
+  Any Ethereum node should do, but you can get your own node URL for testing by doing the following:
+
+  1. Go to https://infura.io/dashboard
+  2. Set up a free account
+  3. Make a new project
+
+      Your key should use "JSON-RPC over HTTPS" and look like `https://mainnet.infura.io/v3/<your project id>`
 
 ### Commands
 
@@ -75,7 +120,7 @@ Launches the test runner in the interactive watch mode.<br /> See the section
 about
 [running tests](https://facebook.github.io/create-react-app/docs/running-tests)
 for more information.
-It also creates an html page you can interact with at the root level of the project in `/coverage`.
+It also creates a html page you can interact with at the root level of the project in `/coverage`.
 
 ```sh
     yarn test
@@ -114,3 +159,94 @@ From your projects folder:
 Now your web's chain-adapters have a symlink to your lib's
 
 You can use `yarn run show-linked-packages` to show what is currently symlinked via yarn
+
+## Developer Onboarding
+
+1.  Create your own fork of the project.
+2.  (optional) Install [Pull](https://github.com/apps/pull) so that your fork automatically stays up-to-date with changes from the ShapeShift repo.
+3.  Install [Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager/releases)
+    so that you don't need to authenticate when executing git commands.
+
+        (Note that the Linux packages for versions 2.0.567 and 2.0.605, which are the two latest versions at time of writing, are broken. Until a fixed version is released, you'll want to use [2.0.498](https://github.com/GitCredentialManager/git-credential-manager/releases/tag/v2.0.498).)
+
+        On Debian-based Linux distros, including Ubuntu, Mint, and Pop OS, download the `.deb` package for the version you want to install. Then run:
+
+        ```sh
+        sudo dpkg -i '<path to .deb file>'
+        git-credential-manager-core configure
+        git config --global credential.credentialStore secretservice
+        ```
+
+4.  Check out a copy of your fork on your local machine.
+    ```sh
+    git clone https://github.com/<username>/<fork name>
+    cd <fork name>
+    git remote add upstream https://github.com/shapeshift/web
+    ```
+
+## Developer Workflow
+
+1. Create a new feature branch.
+
+   ```sh
+   git checkout -b <new branch name> # Use -B instead to overwrite an existing branch with the same name
+   ```
+
+2. Make your desired changes.
+3. Run tests with `yarn test` as described in [Commands](#commands)
+4. Push your feature branch up to your fork.
+
+   ```sh
+   git push
+   ```
+
+5. (optional) Sometimes, if other changes have been made in the ShapeShift repo, the changes in your branch may conflict. GitHub will let you know about these conflicts when you create a pull request.
+
+   If this happens, rebase your feature branch. This process takes the changes you've made and tries to make them again, starting with the lastest code from the ShapeShift repo. You'll be asked to resolve any conflicts as they come up.
+
+   ```sh
+   # Fetch the latest changes from the ShapeShift repo
+   git fetch upstream
+   # Re-apply your changes to the latest ShapeShift code (you can leave out the -i flag if you don't care about seeing the preview of what will happen)
+   git rebase -i upstream/develop
+   # Update your fork with the resolutions
+   git push --force-with-lease
+   ```
+
+6. Create a pull request on Github. (You can do this at `https://github.com/<username>/<fork name>/pull/new/<branch name>`.)
+
+   Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
+
+7. Post a link to your new pull request in `#engineering-prs` in the [Discord](https://discord.gg/shapeshift)
+8. (optional) Return to the `develop` branch to get ready to start another task.
+
+   If you use the Pull app to keep your fork up-to-date:
+
+   ```sh
+   # Check out your local copy's develop branch
+   git checkout develop
+   # Update your local copy to match your fork; the Pull app will make sure your fork always matches the ShapeShift repo
+   git pull --ff-only
+   ```
+
+   If you prefer to keep your fork up-to-date manually:
+
+   ```sh
+   # Check out your local copy's develop branch
+   git checkout develop
+   # Fetch changes from the ShapeShift repo
+   git fetch upstream
+   # Reset your local copy to match the ShapeShift repo
+   git reset --hard upstream/develop
+   # Update your fork to match your updated local copy
+   git push --force-with-lease
+   ```
+
+9. (optional) Once your PR is accepted, you may want to tidy up by deleting your local copy's branch and/or your fork's branch.
+
+   ```sh
+   # Delete your local branch
+   git branch -D <branch name>
+   # Delete your fork's branch
+   git push origin -d <branch name>
+   ```

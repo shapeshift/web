@@ -2,6 +2,7 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Spinner,
   Button,
   ModalBody,
   ModalHeader
@@ -19,6 +20,7 @@ export type ConnectModalProps = {
   children?: ReactNode
 }
 
+
 export const ConnectModal: React.FC<ConnectModalProps> = props => {
   return (
     <>
@@ -27,9 +29,24 @@ export const ConnectModal: React.FC<ConnectModalProps> = props => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={props.bodyText} />
-        <Button isFullWidth colorScheme='blue' onClick={props.pairDevice} disabled={props.loading}>
+        {props.loading ? 
+        <Button 
+          isFullWidth 
+          colorScheme='blue' 
+          isLoading
+          loadingText='Pairing Wallet'
+          spinner={<Spinner color='white' />}
+          disabled={props.loading}>
           <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
-        </Button>
+        </Button> :
+        <Button 
+          isFullWidth 
+          colorScheme='blue' 
+          onClick={
+            props.pairDevice} 
+          disabled={props.loading}>
+          <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
+        </Button>}
         {props.error && (
           <Alert status='info' mt={4}>
             <AlertIcon />

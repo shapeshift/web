@@ -10,6 +10,8 @@ import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
+
+
 export interface MetaMaskSetupProps
   extends RouteComponentProps<
     {},
@@ -23,8 +25,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  let provider: any
 
-  const provider: any = detectEthereumProvider()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -32,6 +34,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
+
+    try {
+      provider = await detectEthereumProvider()
+    } catch(error) {
+      throw new Error('walletProvider.metaMask.errors.connectFailure')
+    }
 
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
       const wallet = await state.adapters.get(KeyManager.MetaMask)?.pairDevice()
@@ -42,6 +50,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
       try {
+        
         const deviceId = await wallet.getDeviceID()
 
         if (provider !== window.ethereum) {

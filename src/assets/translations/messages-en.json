@@ -229,7 +229,8 @@
       "setAmount": "Set Amount",
       "verify": "Verify",
       "verified": "Verified",
-      "notVerified": "Address Mismatch"
+      "notVerified": "Address Mismatch",
+      "blockExplorer": "Explorer"
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",

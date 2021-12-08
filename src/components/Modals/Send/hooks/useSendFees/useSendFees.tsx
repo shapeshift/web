@@ -23,9 +23,7 @@ export const useSendFees = () => {
   useEffect(() => {
     ;(async () => {
       if (wallet && asset && feeAsset) {
-        const marketData = await getAssetData({
-          chain: asset.chain
-        })
+        const marketData = await getAssetData()
         const txFees = (Object.keys(estimatedFees) as chainAdapters.FeeDataKey[]).reduce(
           (acc: FeePrice, key: chainAdapters.FeeDataKey) => {
             const txFee = bnOrZero(estimatedFees[key].txFee)
@@ -42,7 +40,7 @@ export const useSendFees = () => {
     })()
     // We only want this effect to run on mount or when the estimatedFees in state change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estimatedFees])
+  }, [estimatedFees, asset.caip19])
 
   return { fees }
 }

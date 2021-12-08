@@ -23,8 +23,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const provider: any = detectEthereumProvider()
+  let provider: any
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -32,6 +31,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
+
+    try {
+      provider = await detectEthereumProvider()
+    } catch (error) {
+      throw new Error('walletProvider.metaMask.errors.connectFailure')
+    }
 
     if (state.adapters && state.adapters?.has(KeyManager.MetaMask)) {
       const wallet = await state.adapters.get(KeyManager.MetaMask)?.pairDevice()

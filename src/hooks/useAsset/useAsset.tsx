@@ -1,6 +1,6 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { getMarketData } from '@shapeshiftoss/market-service'
-import { Asset, ChainTypes, MarketData } from '@shapeshiftoss/types'
+import { findByCaip19 } from '@shapeshiftoss/market-service'
+import { Asset, MarketData } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
@@ -18,12 +18,12 @@ export const useGetAssetData = (caip19: CAIP19) => {
   }, [asset, caip19, dispatch])
 
   const fetchMarketData = useCallback(
-    async ({ chain, tokenId }: { chain: ChainTypes; tokenId?: string }): Promise<MarketData> => {
-      const marketData: MarketData | null = await getMarketData({ chain, tokenId })
+    async (caip?: CAIP19): Promise<MarketData | null> => {
+      const marketData: MarketData | null = await findByCaip19({ caip19: caip || caip19 })
 
       return marketData
     },
-    []
+    [caip19]
   )
   return fetchMarketData
 }

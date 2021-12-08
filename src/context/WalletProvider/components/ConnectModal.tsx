@@ -4,7 +4,8 @@ import {
   AlertIcon,
   Button,
   ModalBody,
-  ModalHeader
+  ModalHeader,
+  Spinner
 } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 import { Text } from 'components/Text'
@@ -27,9 +28,27 @@ export const ConnectModal: React.FC<ConnectModalProps> = props => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={props.bodyText} />
-        <Button isFullWidth colorScheme='blue' onClick={props.pairDevice} disabled={props.loading}>
-          <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
-        </Button>
+        {props.loading ? (
+          <Button
+            isFullWidth
+            colorScheme='blue'
+            isLoading
+            loadingText='Pairing Wallet'
+            spinner={<Spinner color='white' />}
+            disabled={props.loading}
+          >
+            <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
+          </Button>
+        ) : (
+          <Button
+            isFullWidth
+            colorScheme='blue'
+            onClick={props.pairDevice}
+            disabled={props.loading}
+          >
+            <Text translation={props.buttonText || 'walletProvider.keepKey.connect.button'} />
+          </Button>
+        )}
         {props.error && (
           <Alert status='info' mt={4}>
             <AlertIcon />

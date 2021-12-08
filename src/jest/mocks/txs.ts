@@ -54,7 +54,7 @@ export const BtcSend: Tx = {
   chain: ChainTypes.Bitcoin,
   confirmations: 875,
   txid: 'e12cb64834058bb785b7b8932f079deafc3633f999f722779ee9de351273af65',
-  fee: { value: '2234067070809000', symbol: 'BTC' },
+  fee: { value: '2234067070809000', caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0' },
   status: chainAdapters.TxStatus.Confirmed,
   transfers: [
     {
@@ -95,16 +95,7 @@ export const FOXSend: Tx = {
       from: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
       to: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
       value: '4448382624806275089213',
-      type: chainAdapters.TxType.Send,
-      chainSpecific: {
-        token: {
-          contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          contractType: ContractTypes.ERC20,
-          name: 'FOX',
-          precision: 18,
-          symbol: 'FOX'
-        }
-      }
+      type: chainAdapters.TxType.Send
     }
   ]
 }
@@ -269,16 +260,7 @@ const test7: Tx = {
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
       value: '900000000000000000000',
-      type: chainAdapters.TxType.Receive,
-      chainSpecific: {
-        token: {
-          contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          contractType: ContractTypes.ERC20,
-          name: 'FOX',
-          precision: 18,
-          symbol: 'FOX'
-        }
-      }
+      type: chainAdapters.TxType.Receive
     }
   ]
 }

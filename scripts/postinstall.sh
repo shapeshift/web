@@ -5,5 +5,3 @@ LOCK_HASH_AFTER=$(sha1sum yarn.lock)
 if [ "$LOCK_HASH" != "$LOCK_HASH_AFTER" ]; then
   yarn
 fi
-yarn patch-package
-

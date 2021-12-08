@@ -1,4 +1,4 @@
-import { chainAdapters, ChainTypes, ContractTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {

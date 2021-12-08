@@ -27,6 +27,8 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
 
+  const bg = useColorModeValue('gray.50', 'whiteAlpha.100')
+
   // stables need precision of eth (18) rather than 10
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
 
@@ -65,7 +67,7 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
 
   // log what transactions we are currently not parsing so we can update accordingly
   if (!type) {
-    console.log('unsupported transaction:', tx)
+    console.warn('unsupported transaction:', tx)
     return null
   }
 
@@ -75,14 +77,7 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   //}, [dispatch, tx])
 
   return (
-    <Box
-      ref={ref}
-      width='full'
-      pl={3}
-      pr={4}
-      rounded='lg'
-      _hover={{ bg: useColorModeValue('gray.50', 'whiteAlpha.100') }}
-    >
+    <Box ref={ref} width='full' pl={3} pr={4} rounded='lg' _hover={{ bg }}>
       <Flex
         alignItems='center'
         flex={1}

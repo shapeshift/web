@@ -23,7 +23,6 @@ dayjs.extend(localizedFormat)
 
 export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsset?: Asset }) => {
   const ref = useRef<HTMLHeadingElement>(null)
-  //const dispatch = useDispatch()
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
 

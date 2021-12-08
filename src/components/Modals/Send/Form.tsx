@@ -83,10 +83,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
   })
 
   const handleAssetSelect = async (asset: Asset) => {
-    const assetMarketData = await getAssetData({
-      chain: asset.chain,
-      tokenId: asset.tokenId
-    })
+    const assetMarketData = await getAssetData(asset.caip19)
     if (!assetMarketData) return console.error('Failed to get marketData')
     methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
     methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })

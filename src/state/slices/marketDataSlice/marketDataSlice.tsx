@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { getByMarketCap, getMarketData, getPriceHistory } from '@shapeshiftoss/market-service'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import {
-  GetByMarketCapArgs,
+  FindAllMarketArgs,
   HistoryData,
   HistoryTimeframe,
   MarketCapResult,
@@ -28,10 +28,8 @@ export type MarketDataState = {
 
 export const fetchMarketData = createAsyncThunk(
   'marketData/fetchMarketData',
-  async (CAIP19: CAIP19) => {
-    const parts = caip19.fromCAIP19(CAIP19)
-    const { chain, tokenId } = parts
-    return getMarketData({ chain, tokenId })
+  async (caip: CAIP19) => {
+    return findByCaip19({ caip19: caip })
   }
 )
 
@@ -39,7 +37,9 @@ export const fetchPriceHistory = createAsyncThunk(
   'marketData/priceHistory',
   async ({ assets, timeframe }: { assets: CAIP19[]; timeframe: HistoryTimeframe }) => {
     const responses = await Promise.allSettled(
-      assets.map(async asset => await getPriceHistory({ timeframe, ...caip19.fromCAIP19(asset) }))
+      assets.map(async asset => {
+        return await findPriceHistoryByCaip19({ timeframe, caip19: asset })
+      })
     )
 
     const result = responses.reduce<HistoryData[][]>((acc, response) => {
@@ -58,8 +58,8 @@ export const fetchPriceHistory = createAsyncThunk(
 
 export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
   try {
-    const args: GetByMarketCapArgs = { pages: 1, perPage: 250 }
-    const marketCap = await getByMarketCap(args)
+    const args: FindAllMarketArgs = { pages: 1, perPage: 250 }
+    const marketCap = await findAll(args)
     return { marketCap }
   } catch (error) {
     console.error(error)
@@ -107,8 +107,10 @@ export const marketData = createSlice({
     })
     builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
       const assetCAIP19 = meta.arg
-      state.marketData.byId[assetCAIP19] = payload
-      if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
+      if (payload) {
+        state.marketData.byId[assetCAIP19] = payload
+        if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
+      }
       state.loading = false
     })
     builder.addCase(fetchMarketCaps.pending, state => {

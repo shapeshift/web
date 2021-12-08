@@ -205,7 +205,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       setValue(SendFormFields.EstimatedFees, adapterFees)
-      const marketData = await getAssetData({ chain, tokenId })
+      const marketData = await getAssetData()
       // TODO: get network precision from network asset, not send asset
       const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
 

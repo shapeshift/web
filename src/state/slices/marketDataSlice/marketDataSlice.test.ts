@@ -1,5 +1,5 @@
 import { caip19 } from '@shapeshiftoss/caip'
-import { getMarketData } from '@shapeshiftoss/market-service'
+import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { rune } from 'jest/mocks/assets'
 import { store } from 'state/store'
@@ -7,7 +7,7 @@ import { store } from 'state/store'
 import { fetchMarketData } from './marketDataSlice'
 
 jest.mock('@shapeshiftoss/market-service', () => ({
-  getMarketData: jest.fn()
+  findByCaip19: jest.fn()
 }))
 
 describe('marketDataSlice', () => {
@@ -18,7 +18,7 @@ describe('marketDataSlice', () => {
     const tokenId = rune.tokenId
     const runeCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
     it('does not update state if marketData does not exist', async () => {
-      ;(getMarketData as unknown as jest.Mock<unknown>).mockImplementation(() =>
+      ;(findByCaip19 as unknown as jest.Mock<unknown>).mockImplementation(() =>
         Promise.resolve(null)
       )
       expect(store.getState().marketData.marketData.byId[runeCAIP19]).toBeFalsy()
@@ -27,7 +27,7 @@ describe('marketDataSlice', () => {
     })
 
     it('updates state if marketData exists with tokenId', async () => {
-      ;(getMarketData as unknown as jest.Mock<unknown>).mockImplementation(() =>
+      ;(findByCaip19 as unknown as jest.Mock<unknown>).mockImplementation(() =>
         Promise.resolve({
           price: 10,
           marketCap: 1000000,
@@ -41,7 +41,7 @@ describe('marketDataSlice', () => {
     })
 
     it('updates state if marketData exists without tokenId', async () => {
-      ;(getMarketData as unknown as jest.Mock<unknown>).mockImplementation(() =>
+      ;(findByCaip19 as unknown as jest.Mock<unknown>).mockImplementation(() =>
         Promise.resolve({
           price: 10,
           marketCap: 1000000,

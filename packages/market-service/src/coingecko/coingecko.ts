@@ -1,9 +1,11 @@
 import { adapters } from '@shapeshiftoss/caip'
+import { fromCAIP19 } from '@shapeshiftoss/caip/dist/caip19/caip19'
 import {
   ChainTypes,
-  GetByMarketCapArgs,
+  FindAllMarketArgs,
   HistoryData,
   HistoryTimeframe,
+  MarketCapResult,
   MarketData,
   MarketDataArgs,
   PriceHistoryArgs
@@ -30,24 +32,15 @@ type CoinGeckoAssetData = {
   }
 }
 
-type CoinGeckoIDMap = {
-  [k in ChainTypes]: string
-}
-
-const coingeckoIDMap: CoinGeckoIDMap = Object.freeze({
-  [ChainTypes.Ethereum]: 'ethereum',
-  [ChainTypes.Bitcoin]: 'bitcoin'
-})
-
 export class CoinGeckoMarketService implements MarketService {
   baseUrl = 'https://api.coingecko.com/api/v3'
 
-  private readonly defaultGetByMarketCapArgs: GetByMarketCapArgs = {
+  private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     pages: 10,
     perPage: 250
   }
 
-  async getByMarketCap(args?: GetByMarketCapArgs) {
+  findAll = async (args?: FindAllMarketArgs) => {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { pages, perPage } = argsToUse
     const urlAtPage = (page: number) =>
@@ -80,16 +73,17 @@ export class CoinGeckoMarketService implements MarketService {
           } catch {
             return acc // no caip found, we don't support this asset
           }
-        }, {} as Record<string, MarketData>)
+        }, {} as MarketCapResult)
     } catch (e) {
       return {}
     }
   }
 
-  getMarketData = async ({ chain, tokenId }: MarketDataArgs): Promise<MarketData> => {
-    const id = coingeckoIDMap[chain]
+  findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData> => {
     try {
+      const { tokenId } = fromCAIP19(caip19)
       const isToken = !!tokenId
+      const id = isToken ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
       const contractUrl = isToken ? `/contract/${tokenId}` : ''
 
       const { data }: { data: CoinGeckoAssetData } = await axios.get(
@@ -107,16 +101,16 @@ export class CoinGeckoMarketService implements MarketService {
       }
     } catch (e) {
       console.warn(e)
-      throw new Error('MarketService(getMarketData): error fetching market data')
+      throw new Error('MarketService(findByCaip19): error fetching market data')
     }
   }
 
-  getPriceHistory = async ({
-    chain,
-    timeframe,
-    tokenId
+  findPriceHistoryByCaip19 = async ({
+    caip19,
+    timeframe
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
-    const id = coingeckoIDMap[chain]
+    const { tokenId } = fromCAIP19(caip19)
+    const id = tokenId ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
 
     const end = dayjs().startOf('minute')
     let start
@@ -161,7 +155,7 @@ export class CoinGeckoMarketService implements MarketService {
       })
     } catch (e) {
       console.warn(e)
-      throw new Error('MarketService(getPriceHistory): error fetching price history')
+      throw new Error('MarketService(findPriceHistoryByCaip19): error fetching price history')
     }
   }
 }

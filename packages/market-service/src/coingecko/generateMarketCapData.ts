@@ -1,9 +1,9 @@
 import fs from 'fs'
 
-import { getByMarketCap } from '..'
+import { findAll } from '..'
 
 const generateMarketCapData = async () => {
-  const marketCapData = await getByMarketCap()
+  const marketCapData = await findAll()
   await fs.promises.writeFile(
     `./src/coingecko/cachedMarketCapData.json`,
     JSON.stringify(marketCapData)

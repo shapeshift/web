@@ -1,3 +1,5 @@
+import toLower from 'lodash/toLower'
+
 import * as adapters from './generated'
 
 export const url = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
@@ -21,9 +23,9 @@ export const coingeckoToCAIP19 = (id: string): string => {
 }
 
 export const CAIP19ToCoingecko = (caip19: string): string => {
-  const generated = generatedCAIP19ToCoingeckoMap[caip19]
+  const generated = generatedCAIP19ToCoingeckoMap[toLower(caip19)]
   if (!generated) {
-    throw new Error(`CAIP19ToCoingecko: no id found for caip19 ${caip19}`)
+    throw new Error(`CAIP19ToCoingecko: no id found for caip19 ${toLower(caip19)}`)
   }
   return generated
 }

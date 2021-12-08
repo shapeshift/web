@@ -1,32 +1,50 @@
 import {
-  GetByMarketCapType,
   HistoryData,
+  MarketCapResult,
+  MarketData,
   MarketDataArgs,
-  MarketDataType,
   PriceHistoryArgs,
   PriceHistoryType
 } from '@shapeshiftoss/types'
-import { GetByMarketCapArgs } from '@shapeshiftoss/types/src'
+import { FindAllMarketArgs } from '@shapeshiftoss/types/src'
 
-import { MarketService } from './api'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 
-export const getDefaultMarketService = (): MarketService => {
-  return new CoinGeckoMarketService()
+// Order of this MarketProviders array constitutes the order of provders we will be checking first.
+// More reliable providers should be listed first.
+const MarketProviders = [new CoinGeckoMarketService()]
+
+export const findAll = async (args?: FindAllMarketArgs): Promise<MarketCapResult> => {
+  let result: MarketCapResult | null = null
+  // Go through market providers listed above and look for market data for all assets.
+  // Once data is found, exit the loop and return result. If no data is found for any
+  // provider, throw an error.
+  for (let i = 0; i < MarketProviders.length && !result; i++) {
+    result = await MarketProviders[i].findAll(args)
+  }
+  if (!result) throw new Error('Cannot find market service provider for market data.')
+  return result
 }
 
-export const getByMarketCap: GetByMarketCapType = async (args?: GetByMarketCapArgs) => {
-  return getDefaultMarketService().getByMarketCap(args)
+export const findByCaip19 = async ({ caip19 }: MarketDataArgs) => {
+  let result: MarketData | null = null
+  // Loop through market providers and look for asset market data. Once found, exit loop.
+  for (let i = 0; i < MarketProviders.length && !result; i++) {
+    result = await MarketProviders[i].findByCaip19({ caip19 })
+  }
+  if (!result) return null
+  return result
 }
 
-export const getMarketData: MarketDataType = async ({ chain, tokenId }: MarketDataArgs) => {
-  return getDefaultMarketService().getMarketData({ chain, tokenId })
-}
-
-export const getPriceHistory: PriceHistoryType = ({
-  chain,
-  timeframe,
-  tokenId
+export const findPriceHistoryByCaip19: PriceHistoryType = async ({
+  caip19,
+  timeframe
 }: PriceHistoryArgs): Promise<HistoryData[]> => {
-  return getDefaultMarketService().getPriceHistory({ chain, timeframe, tokenId })
+  let result: HistoryData[] | null = null
+  // Loop through market providers and look for asset price history data. Once found, exit loop.
+  for (let i = 0; i < MarketProviders.length && !result; i++) {
+    result = await MarketProviders[i].findPriceHistoryByCaip19({ caip19, timeframe })
+  }
+  if (!result) return []
+  return result
 }

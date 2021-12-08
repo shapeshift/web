@@ -102,14 +102,14 @@ export type SubscribeTxsInput = {
 }
 
 export type TxFee = {
-  symbol: string
+  caip19: string
   value: string
 }
 
 export enum TxType {
   Send = 'send',
   Receive = 'receive',
-  Trade = 'trade'
+  Unknown = 'unknown'
 }
 
 export enum TxStatus {
@@ -125,37 +125,33 @@ export type SubscribeTxsMessage<T extends ChainTypes> = {
   blockHeight: number
   blockTime: number
   chain: T
+  caip2: string
   confirmations: number
-  network: NetworkTypes
   txid: string
-  to?: string
-  from?: string
   fee?: TxFee
   status: TxStatus
   tradeDetails?: TradeDetails
-} & TxTransfer<T>
-
-export type TradeDetails = {
-  buyAmount: string
-  buyAsset: string
-  dexName: string
-  feeAmount: string
-  sellAmount: string
-  sellAsset: string
+  transfers: Array<TxTransfer>
 }
 
-type ChainSpecificTxTransfer<T> = ChainSpecific<
-  T,
-  {
-    [ChainTypes.Ethereum]: ethereum.TxTransfer
-  }
->
+export enum TradeType {
+  Trade = 'trade',
+  Refund = 'refund'
+}
 
-export type TxTransfer<T extends ChainTypes> = {
-  asset: string
+export type TradeDetails = {
+  dexName: string
+  memo?: string
+  type: TradeType
+}
+
+export type TxTransfer = {
+  caip19: string
+  from: string
+  to: string
   type: TxType
   value: string
-} & ChainSpecificTxTransfer<T>
+}
 
 export type SubscribeError = {
   message: string

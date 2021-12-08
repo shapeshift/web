@@ -17,10 +17,6 @@ export type TokenWithBalance = Token & {
   balance: string
 }
 
-export type TxTransfer = {
-  token?: Token
-}
-
 export type FeeData = {
   gasPrice: string
   gasLimit: string

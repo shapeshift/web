@@ -1,4 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
+import { caip19 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   BIP32Params,
@@ -7,16 +8,15 @@ import {
   ContractTypes,
   NetworkTypes
 } from '@shapeshiftoss/types'
-import { ethereum, Token } from '@shapeshiftoss/unchained-client'
+import { ethereum } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
-import isEmpty from 'lodash/isEmpty'
 import WAValidator from 'multicoin-address-validator'
 import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { toPath, toRootDerivationPath } from '../utils/bip32'
+import { getStatus, getType, toPath, toRootDerivationPath } from '../utils'
 import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {
@@ -297,103 +297,40 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
       subscriptionId,
       { topic: 'txs', addresses: [address] },
       (msg) => {
-        const getStatus = () => {
-          const msgStatus = msg.ethereumSpecific?.status
+        const transfers = msg.transfers.map<chainAdapters.TxTransfer>((transfer) => ({
+          caip19: transfer.caip19,
+          from: transfer.from,
+          to: transfer.to,
+          type: getType(transfer.type),
+          value: transfer.totalValue,
+          chainSpecific: {
+            ...(transfer.token && {
+              token: {
+                contract: transfer.token.contract,
+                contractType:
+                  caip19.fromCAIP19(transfer.caip19).contractType ?? ContractTypes.ERC20,
+                name: transfer.token.name,
+                precision: transfer.token.decimals,
+                symbol: transfer.token.symbol
+              }
+            })
+          }
+        }))
 
-          if (msgStatus === -1 && msg.confirmations <= 0) return chainAdapters.TxStatus.Pending
-          if (msgStatus === 1 && msg.confirmations > 0) return chainAdapters.TxStatus.Confirmed
-          if (msgStatus === 0) return chainAdapters.TxStatus.Failed
-
-          return chainAdapters.TxStatus.Unknown
-        }
-
-        const baseTx = {
+        onMessage({
           address: msg.address,
           blockHash: msg.blockHash,
           blockHeight: msg.blockHeight,
           blockTime: msg.blockTime,
+          caip2: msg.caip2,
+          chain: ChainTypes.Ethereum,
           confirmations: msg.confirmations,
-          network: NetworkTypes.MAINNET,
-          txid: msg.txid,
           fee: msg.fee,
-          status: getStatus()
-        }
-
-        const specificTx = (symbol: string, value: string, token?: Token) => ({
-          asset: token?.contract || ChainTypes.Ethereum,
-          value,
-          chainSpecific: {
-            ...(token && {
-              token: {
-                contract: token.contract,
-                contractType: ContractTypes.ERC20,
-                name: token.name,
-                precision: token.decimals,
-                symbol
-              }
-            })
-          }
+          status: getStatus(msg.status),
+          tradeDetails: msg.trade,
+          transfers,
+          txid: msg.txid
         })
-
-        if (msg.trade) {
-          onMessage({
-            ...baseTx,
-            asset: ChainTypes.Ethereum,
-            chain: ChainTypes.Ethereum,
-            value: '0',
-            chainSpecific: {},
-            type: chainAdapters.TxType.Trade,
-            tradeDetails: {
-              buyAmount: msg.trade.buyAmount,
-              buyAsset: msg.trade.buyAsset,
-              dexName: msg.trade.dexName,
-              feeAmount: msg.trade.feeAmount,
-              sellAmount: msg.trade.sellAmount,
-              sellAsset: msg.trade.sellAsset
-            }
-          })
-        }
-
-        Object.entries(msg.send).forEach(([symbol, { totalValue, token }]) => {
-          const tokenTransferTo = msg?.tokenTransfers?.find((transfer) => {
-            return (
-              transfer.from === msg.vin[0]?.addresses?.[0] &&
-              transfer.token === token?.contract &&
-              transfer.value === totalValue
-            )
-          })?.to
-          onMessage({
-            ...baseTx,
-            ...specificTx(symbol, totalValue, token),
-            chain: ChainTypes.Ethereum,
-            type: chainAdapters.TxType.Send,
-            // For erc20 sends the vout address is the contract
-            to: tokenTransferTo || msg.vout[0]?.addresses?.[0]
-          })
-        })
-
-        Object.entries(msg.receive).forEach(([symbol, { totalValue, token }]) => {
-          onMessage({
-            ...baseTx,
-            ...specificTx(symbol, totalValue, token),
-            chain: ChainTypes.Ethereum,
-            type: chainAdapters.TxType.Receive,
-            from: msg.vin[0]?.addresses?.[0]
-          })
-        })
-
-        // approvals don't have ws data for either send or receive
-        // but we still need to account for the fees
-        if (isEmpty(msg.send) && isEmpty(msg.receive)) {
-          onMessage({
-            ...baseTx,
-            asset: ChainTypes.Ethereum,
-            chain: ChainTypes.Ethereum,
-            value: msg.value,
-            type: chainAdapters.TxType.Send,
-            chainSpecific: {}
-          })
-        }
       },
       (err) => onError({ message: err.message })
     )

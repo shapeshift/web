@@ -287,6 +287,9 @@
       "continue": "View My Position",
       "viewAsset": "View Asset",
       "close": "Close"
+    },
+    "connect": {
+      "loadingText": "Pairing Wallet"
     }
   },
   "walletProvider": {

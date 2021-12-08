@@ -3678,10 +3678,10 @@
     tsoa "^3.4.0"
     ws "^8.2.3"
 
-"@shapeshiftoss/caip@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.5.0.tgz#c2f64754c154142471c86b1d5f45c41c6a6e00d0"
-  integrity sha512-ZoOdyxYLbtWsQIpPbkBh1I5Sl2xXbdjKHPUrcIkJq+VUC2Am54lfdUdkOvvmzC+snO6IRmtsGDMlvPeAlt87CA==
+"@shapeshiftoss/caip@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.5.1.tgz#92b05c72f36cf732b467dee046e59ae127537178"
+  integrity sha512-XRJDVQMq8x9H3xGRoRh8AuA9CwPe0kT6IPHZqxcwv/GT/t1Ajmdcc1bcoUnJBLrPS7LACDTdCFpiW6iUDKvLtw==
 
 "@shapeshiftoss/chain-adapters@^1.20.1":
   version "1.20.1"
@@ -3908,10 +3908,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.0.3.tgz#945437281a5ca67c6f00149b97a5a4605ee25233"
   integrity sha512-q6+/Q6OaCVdu1QL6aKOJcvq9cnEVXbv2wbLG9uEeeG8TouFMtORPk48iAIi93xI27nLg04z4tAA4hUrP6GDnRQ==
 
-"@shapeshiftoss/market-service@^1.5.1":
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.5.1.tgz#bf71ff1ab778d4cb998d6e84f9697699b0df233d"
-  integrity sha512-OvlRP95bZDjiN3MBfErbDxE+qQCbUMMiMZHIJAL5/mXx1WJIayzYR+JayACsQ6XA/OcsMpwB5N+y4SowJN6mLQ==
+"@shapeshiftoss/market-service@^1.5.2":
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.5.2.tgz#b106cfbf3f2160d96c5c6ff17a171381aa1692c3"
+  integrity sha512-W1biQiniRf/aRzdcxyE755dHhuj/C6SiPkeCKTaMERXt0UmzjRUkT0iKtVrj8EA9pZDdWmNmfjpfc0AyHy5N/g==
   dependencies:
     axios "^0.21.2"
     dayjs "^1.10.6"
@@ -3934,10 +3934,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.16.1":
-  version "1.16.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.16.1.tgz#fc3251568355cb7b7e648af9a79d095c4aef4c65"
-  integrity sha512-gy/g1Kfnskg+BtRk42FYOn9BV+bEpAT5a1IJa6ojLovdFNbTNYOZh7VfpSxLAkTNu9Oi6nBVEzOMlZ5vUv2Oig==
+"@shapeshiftoss/types@^1.16.2":
+  version "1.16.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.16.2.tgz#1f3ce1984d37a7c936f92dedab91568e8c766c5e"
+  integrity sha512-DQou0DAV80yAJrfgnsUScaxUcOTqma5KAkaKz8WnoZ4V2K9qtIi8IKZvMazBZ8BqAL0uzZoLhktq+8hNNbTzdw==
 
 "@shapeshiftoss/unchained-client@^3.7.0":
   version "3.7.0"

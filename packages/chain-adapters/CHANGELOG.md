@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.21.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.20.1...@shapeshiftoss/chain-adapters-v1.21.0) (2021-12-08)
+
+
+### Features
+
+* update subscribeTxs to use new tx parser payloads ([#266](https://github.com/shapeshift/lib/issues/266)) ([f77a277](https://github.com/shapeshift/lib/commit/f77a277e1942a4ee4229ce095c17e9c51907e2b9))
+
 # [@shapeshiftoss/chain-adapters-v1.20.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.20.0...@shapeshiftoss/chain-adapters-v1.20.1) (2021-12-03)
 
 

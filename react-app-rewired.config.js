@@ -1,9 +1,12 @@
 /**
  * React App Rewired Config
  */
+const fs = require('fs')
 const _ = require('lodash')
 const path = require('path')
+const ssri = require('ssri')
 const webpack = require('webpack')
+const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
 
 const headers = require('./headers')
 process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
@@ -18,6 +21,24 @@ const reactEnvEntries = Object.entries(process.env)
   })
 reactEnvEntries.forEach(([k]) => delete process.env[k])
 reactEnvEntries.forEach(([k, v]) => (process.env[k] = v))
+
+// The HTML template can pull in static assets from outside of the Webpack
+// pipeline; these need SRI too. This generates SRI attributes for each static
+// asset, exporting them as predictably-named REACT_APP_SRI_FILENAME_EXT
+// environment variables that can be used in the template.
+for (const dirent of fs.readdirSync('./public', { withFileTypes: true })) {
+  if (!dirent.isFile()) continue
+  const integrity = ssri.fromData(fs.readFileSync(`./public/${dirent.name}`), {
+    strict: true,
+    algorithms: ['sha256']
+  })
+  const mungedName = dirent.name
+    .toUpperCase()
+    .split('')
+    .map(x => (/^[0-9A-Z]$/.test(x) ? x : '_'))
+    .join('')
+  process.env[`REACT_APP_SRI_${mungedName}`] = integrity.toString()
+}
 
 module.exports = {
   webpack: (config, mode) => {
@@ -90,6 +111,20 @@ module.exports = {
           );
         }
       ],
+    })
+
+    // Generate and embed Subresource Integrity (SRI) attributes for all files.
+    // Automatically embeds SRI hashes when generating the embedded webpack loaders
+    // for split code.
+    _.merge(config, {
+      output: {
+        // This is the default, but the SRI spec requires it to be set explicitly.
+        crossOriginLoading: 'anonymous',
+      },
+      // SubresourceIntegrityPlugin automatically disables itself in development.
+      plugins: [...config.plugins, new SubresourceIntegrityPlugin({
+        hashFuncNames: ['sha256'],
+      })],
     })
 
     return config

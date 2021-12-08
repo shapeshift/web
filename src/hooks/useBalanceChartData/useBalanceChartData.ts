@@ -1,12 +1,5 @@
-import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
-import {
-  chainAdapters,
-  ChainTypes,
-  ContractTypes,
-  HistoryData,
-  HistoryTimeframe,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -129,23 +122,6 @@ export const makeBuckets: MakeBuckets = args => {
   return { buckets, meta }
 }
 
-export const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
-// ideally txs from unchained should include caip19
-export const caip19FromTx = (tx: Tx): CAIP19 => {
-  const { chain, network, asset: tokenId } = tx
-  const ethereumCAIP2 = caip2.toCAIP2({
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET
-  })
-  const assetCAIP2 = caip2FromTx(tx)
-  const contractType =
-    assetCAIP2 === ethereumCAIP2 && tokenId.startsWith('0x') ? ContractTypes.ERC20 : undefined
-
-  const extra = contractType ? { contractType, tokenId: tokenId.toLowerCase() } : undefined
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  return assetCAIP19
-}
-
 export const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
   const { buckets, meta } = bucketsAndMeta
   const start = head(buckets)!.start
@@ -225,94 +201,50 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
   const { accountTypes, assets, buckets, portfolioAssets, priceHistoryData } = args
+
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
     const { txs } = bucket
 
     // copy the balance back from the most recent bucket
-    bucket.balance = Object.assign(
-      {},
-      buckets[i + 1]?.balance || buckets[buckets.length - 1].balance
-    )
-
-    // unchained returns 3 tx's in redux for each trade tx; a trade, send, and receive
-    // we need to account for fees, but they appear in both the send and receive
-    // keep a set of seenTxs that we have accounted the fee for, so we don't double count
-    const seenTxs = new Set()
+    const currentBalance = buckets[i + 1]?.balance ?? buckets[buckets.length - 1].balance
+    bucket.balance = Object.assign({}, currentBalance)
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
-      const txAssetCAIP19 = caip19FromTx(tx)
-      const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
-      // we only care about the list of assets being requested
-      // on a fee asset page, e.g. ethereum, we need to consider all erc20 txs
-      // as claiming an airdrop, or a trade, will appear as an erc20 receive,
-      // but we need to consider the gas paid too
-      if (!assets.includes(txAssetCAIP19) && !assets.includes(feeAssetCAIP19)) return
-
       // TODO(0xdef1cafe): type preferencesSlice correctly and remove this chain specific hack
-      if (tx.accountType && tx.chain === ChainTypes.Bitcoin) {
-        const bitcoinAccountType = accountTypes[ChainTypes.Bitcoin]
-        // only consider the selected account type of the portfolio
-        if (tx.accountType !== bitcoinAccountType) return
+      // only consider the selected account type of the portfolio
+      if (tx.accountType && tx.accountType !== accountTypes[tx.chain]) return
+
+      if (tx.fee && assets.includes(tx.fee.caip19)) {
+        // balance history being built in descending order, so fee means we had more before
+        bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
+          bnOrZero(tx.fee.value)
+        )
       }
 
-      const feeValue = bnOrZero(tx.fee?.value)
-      const value = bnOrZero(tx.value) // tx value in base units
-      switch (tx.type) {
-        case TxType.Send: {
-          if (bucket.balance.crypto[txAssetCAIP19]) {
+      tx.transfers.forEach(transfer => {
+        if (!assets.includes(transfer.caip19)) return
+
+        const asset = transfer.caip19
+        const bucketValue = bnOrZero(bucket.balance.crypto[asset])
+        const transferValue = bnOrZero(transfer.value)
+
+        switch (transfer.type) {
+          case TxType.Send:
             // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
-          }
-
-          // if we're computing a portfolio chart, we have to adjust feeAsset balances
-          // on each token tx, but if we're just on an individual token chart, we
-          // may not have the fee asset in the assets list
-
-          // we've already seen this tx, don't double count the fee
-          if (seenTxs.has(tx.txid)) break
-
-          if (assets.includes(feeAssetCAIP19)) {
-            // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[feeAssetCAIP19] =
-              bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
-          }
-          seenTxs.add(tx.txid)
-          break
-        }
-        case TxType.Receive: {
-          // for some contract interactions, the txAsset may be a token (e.g. erc20)
-          // but we may be on the fee asset (e.g. eth) chart
-          if (bucket.balance.crypto[txAssetCAIP19]) {
+            bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
+            break
+          case TxType.Receive:
             // we're going backwards, so a receive means we had less before
-            bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
+            bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
+            break
+          default: {
+            console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }
-
-          // we've already seen this tx, don't double count the fee
-          if (seenTxs.has(tx.txid)) break
-
-          // some txs, e.g. claim an airdrop, require gas but are receives of tokens
-          if (bucket.balance.crypto[feeAssetCAIP19]) {
-            // we're going backwards, so a send means we had more before
-            // and even though this is a receive tx of a token, we sent the fee
-            bucket.balance.crypto[feeAssetCAIP19] =
-              bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
-          }
-          seenTxs.add(tx.txid)
-          break
         }
-        case TxType.Trade: {
-          // we get a corresponding send and receive for trades
-          // so we can safely ignore them
-          break
-        }
-        default: {
-          console.warn(`calculateBucketPrices: unknown tx type ${tx.type}`)
-          break
-        }
-      }
+      })
     })
 
     bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })

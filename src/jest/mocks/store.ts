@@ -2,8 +2,22 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ReduxState } from 'state/reducer'
 
 export const mockStore: ReduxState = {
-  // TODO(0xdef1cafe): hurrrrrrrr
-  portfolioApi: {} as any,
+  portfolioApi: {
+    queries: {},
+    mutations: {},
+    provided: {},
+    subscriptions: {},
+    config: {
+      reducerPath: 'portfolioApi',
+      keepUnusedDataFor: 0,
+      online: false,
+      focused: false,
+      middlewareRegistered: false,
+      refetchOnFocus: false,
+      refetchOnMountOrArgChange: false,
+      refetchOnReconnect: false
+    }
+  },
   portfolio: {
     accounts: {
       byId: {},

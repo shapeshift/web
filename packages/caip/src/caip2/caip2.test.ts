@@ -1,6 +1,6 @@
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { fromCAIP2, toCAIP2 } from './caip2'
+import { fromCAIP2, isCAIP2, toCAIP2 } from './caip2'
 
 describe('caip2', () => {
   describe('toCAIP2', () => {
@@ -76,5 +76,57 @@ describe('caip2', () => {
       expect(chain).toEqual(ChainTypes.Ethereum)
       expect(network).toEqual(NetworkTypes.ETH_RINKEBY)
     })
+  })
+})
+
+describe('isCAIP2', () => {
+  it('throws on eip155', () => {
+    // missing network
+    expect(() => isCAIP2('eip155')).toThrow()
+  })
+
+  it('validates eip155:1 as true', () => {
+    // mainnet
+    expect(isCAIP2('eip155:1')).toBeTruthy()
+  })
+
+  it('throws on eip155:2', () => {
+    // doesn't exist
+    expect(() => isCAIP2('eip155:2')).toThrow()
+  })
+
+  it('validates eip155:3 as true', () => {
+    // ropsten
+    expect(isCAIP2('eip155:3')).toBeTruthy()
+  })
+
+  it('validates eip155:4 as true', () => {
+    // rinkeby
+    expect(isCAIP2('eip155:4')).toBeTruthy()
+  })
+
+  it('validates bip122:000000000019d6689c085ae165831e93 as true', () => {
+    // mainnet
+    expect(isCAIP2('bip122:000000000019d6689c085ae165831e93')).toBeTruthy()
+  })
+
+  it('validates bip122:000000000933ea01ad0ee984209779ba as true', () => {
+    // testnet
+    expect(isCAIP2('bip122:000000000933ea01ad0ee984209779ba')).toBeTruthy()
+  })
+
+  it('throws on bip122:1', () => {
+    // wrong network
+    expect(() => isCAIP2('bip122:1')).toThrow()
+  })
+
+  it('throws on bip122', () => {
+    // missing network
+    expect(() => isCAIP2('bip122')).toThrow()
+  })
+
+  it('throws on empty string', () => {
+    // missing network
+    expect(() => isCAIP2('')).toThrow()
   })
 })

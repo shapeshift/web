@@ -92,7 +92,7 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
     throw new Error(`fromCAIP19: error parsing caip19, chain: ${c}, network: ${n}`)
   }
   switch (c) {
-    case 'eip155': {
+    case ChainNamespace.Ethereum: {
       const chain = ChainTypes.Ethereum
       switch (n) {
         case ChainReference.EthereumMainnet: {
@@ -112,7 +112,7 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
         }
       }
     }
-    case 'bip122': {
+    case ChainNamespace.Bitcoin: {
       const chain = ChainTypes.Bitcoin
       switch (n) {
         case ChainReference.BitcoinMainnet: {
@@ -131,4 +131,34 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
   }
 
   throw new Error(`fromCAIP19: unsupported chain: ${c}`)
+}
+
+type IsCAIP2 = (caip2: string) => boolean
+
+export const isCAIP2: IsCAIP2 = (caip2) => {
+  const [c, n] = caip2.split(':')
+  if (!(c && n)) {
+    throw new Error(`isCAIP2: error parsing caip19, chain: ${c}, network: ${n}`)
+  }
+
+  switch (c) {
+    case ChainNamespace.Ethereum: {
+      switch (n) {
+        case ChainReference.EthereumMainnet:
+        case ChainReference.EthereumRopsten:
+        case ChainReference.EthereumRinkeby:
+          return true
+      }
+      break
+    }
+    case ChainNamespace.Bitcoin: {
+      switch (n) {
+        case ChainReference.BitcoinMainnet:
+        case ChainReference.BitcoinTestnet:
+          return true
+      }
+    }
+  }
+
+  throw new Error(`isCAIP2: invalid caip2 ${caip2}`)
 }

@@ -91,7 +91,7 @@ export const FOXSend: Tx = {
   chain: ChainTypes.Ethereum,
   transfers: [
     {
-      caip19: 'eip155:1/erc20:0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
+      caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
       from: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
       to: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
       value: '4448382624806275089213',
@@ -255,6 +255,13 @@ const test7: Tx = {
   status: chainAdapters.TxStatus.Confirmed,
   chain: ChainTypes.Ethereum,
   transfers: [
+    {
+      caip19: 'eip155:1/slip44:60',
+      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      value: '900000000000000000000',
+      type: chainAdapters.TxType.Send
+    },
     {
       caip19: 'eip155:1/slip44:60',
       from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',

@@ -225,9 +225,10 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
       }
 
       tx.transfers.forEach(transfer => {
-        if (!assets.includes(transfer.caip19)) return
-
         const asset = transfer.caip19
+
+        if (!assets.includes(asset)) return
+
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
 

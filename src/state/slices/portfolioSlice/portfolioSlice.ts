@@ -1,6 +1,6 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { caip2, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { caip2, CAIP10, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
@@ -9,11 +9,6 @@ import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { Pubkeys } from 'hooks/usePubkeys/usePubkeys'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
-
-// TODO(0xdef1cafe): implement this in @shapeshiftoss/caip first
-// caip10 is account spec
-// https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-10.md
-export type CAIP10 = string
 
 export type PortfolioAccounts = {
   byId: {

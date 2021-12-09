@@ -31,6 +31,8 @@ export const toCAIP19: ToCAIP19 = ({ chain, network, contractType, tokenId }) =>
 
   switch (chain) {
     case ChainTypes.Ethereum: {
+      tokenId = tokenId?.toLowerCase()
+
       if (contractType) {
         if (!tokenId) {
           throw new Error(`toCAIP19: no tokenId provided with contract type ${contractType}`)
@@ -134,12 +136,12 @@ export const fromCAIP19: FromCAIP19 = (caip19) => {
         }
         case AssetNamespace.ERC20: {
           const contractType = ContractTypes.ERC20
-          const tokenId = referenceString
+          const tokenId = referenceString.toLowerCase()
           return { chain, network, contractType, tokenId }
         }
         case AssetNamespace.ERC721: {
           const contractType = ContractTypes.ERC721
-          const tokenId = referenceString
+          const tokenId = referenceString.toLowerCase()
           return { chain, network, contractType, tokenId }
         }
       }

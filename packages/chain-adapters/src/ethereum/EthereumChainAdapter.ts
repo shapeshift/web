@@ -1,5 +1,4 @@
 import { Contract } from '@ethersproject/contracts'
-import { caip19 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   BIP32Params,
@@ -302,19 +301,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           from: transfer.from,
           to: transfer.to,
           type: getType(transfer.type),
-          value: transfer.totalValue,
-          chainSpecific: {
-            ...(transfer.token && {
-              token: {
-                contract: transfer.token.contract,
-                contractType:
-                  caip19.fromCAIP19(transfer.caip19).contractType ?? ContractTypes.ERC20,
-                name: transfer.token.name,
-                precision: transfer.token.decimals,
-                symbol: transfer.token.symbol
-              }
-            })
-          }
+          value: transfer.totalValue
         }))
 
         onMessage({

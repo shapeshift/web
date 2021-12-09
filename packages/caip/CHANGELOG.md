@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.5.1...@shapeshiftoss/caip-v1.6.0) (2021-12-09)
+
+
+### Features
+
+* caip10 account spec ([#269](https://github.com/shapeshift/lib/issues/269)) ([a794818](https://github.com/shapeshift/lib/commit/a794818ac31ac426c1c3500dfa3b63c69ac7fb53))
+
 # [@shapeshiftoss/caip-v1.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.5.0...@shapeshiftoss/caip-v1.5.1) (2021-12-08)
 
 # [@shapeshiftoss/caip-v1.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.4.2...@shapeshiftoss/caip-v1.5.0) (2021-11-30)

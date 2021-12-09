@@ -6,16 +6,14 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import isEmpty from 'lodash/isEmpty'
-import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ReduxState } from 'state/reducer'
-import { selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetIds, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
-type Pubkeys = { [k: CAIP2]: string }
+export type Pubkeys = { [k: CAIP2]: string }
 type UsePubkeys = () => Pubkeys
 
 export const usePubkeys: UsePubkeys = () => {
@@ -27,6 +25,7 @@ export const usePubkeys: UsePubkeys = () => {
 
   const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
   const assetsById = useSelector(selectAssetsById)
+  const assetIds = useSelector(selectAssetIds)
 
   const getPubkeys = useCallback(async () => {
     if (!wallet) return
@@ -76,14 +75,20 @@ export const usePubkeys: UsePubkeys = () => {
       const CAIP2 = caip2.toCAIP2({ chain, network })
       acc[CAIP2] = pubkey
     }
-    if (!isEqual(pubkeys, acc)) setPubkeys(acc)
-  }, [walletInfo?.deviceId, assetsById])
+    setPubkeys(acc)
+    // this is called by the effect below with the right logic to only call once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assetsById])
 
   useEffect(() => {
-    if (!wallet) return
-    if (isEmpty(assetsById)) return
+    if (!wallet || !walletInfo?.deviceId) return
+    if (!assetIds?.length) return
     getPubkeys()
-  }, [walletInfo?.deviceId, assetsById])
+    // once the asset ids are loaded, the asset data we need is in the store
+    // the asset data may change as we lazily load descriptions later,
+    // so don't include the assetsById as a dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletInfo?.deviceId, assetIds])
 
   return pubkeys
 }

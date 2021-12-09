@@ -16,7 +16,7 @@ export const supportedAccountTypes = {
 
 const initialState: Preferences = {
   accountTypes: {
-    [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
+    [ChainTypes.Bitcoin]: UtxoAccountType.SegwitP2sh // Native
   }
 }
 

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.6.0...@shapeshiftoss/caip-v1.6.1) (2021-12-09)
+
+
+### Bug Fixes
+
+* normalize case for caip contract identifiers (eth). remove chainSpecific from subscribeTxs (eth) ([#277](https://github.com/shapeshift/lib/issues/277)) ([6da16c2](https://github.com/shapeshift/lib/commit/6da16c203b86d19983c8c66f45e25d363d482df5))
+
 # [@shapeshiftoss/caip-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.5.1...@shapeshiftoss/caip-v1.6.0) (2021-12-09)
 
 

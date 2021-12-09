@@ -58,15 +58,15 @@ export const portfolio = createSlice({
   }
 })
 
-type AccountToPortfolioArgs = {
+type AccountsToPortfolioArgs = {
   [k: CAIP10]: chainAdapters.Account<ChainTypes>
 }
 
-type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
+type AccountsToPortfolio = (args: AccountsToPortfolioArgs) => Portfolio
 
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
-export const accountToPortfolio: AccountToPortfolio = args => {
+export const accountsToPortfolio: AccountsToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args).forEach(([CAIP10, account]) => {
@@ -122,7 +122,7 @@ export const portfolioApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getAccounts: build.query<AccountToPortfolioArgs, Pubkeys>({
+    getAccounts: build.query<AccountsToPortfolioArgs, Pubkeys>({
       queryFn: async pubkeys => {
         // can't call hooks conditionally, this is a valid return
         if (isEmpty(pubkeys)) return { data: {} }
@@ -139,7 +139,7 @@ export const portfolioApi = createApi({
         // allow failures of individual chains
         const maybeAccounts = await Promise.allSettled(promises)
 
-        const data = maybeAccounts.reduce<AccountToPortfolioArgs>((acc, cur) => {
+        const data = maybeAccounts.reduce<AccountsToPortfolioArgs>((acc, cur) => {
           if (cur.status === 'rejected') {
             // TODO(0xdef1cafe): handle error - this can't return both
             console.error(`portfolioApi: ${cur.reason}`)
@@ -163,7 +163,7 @@ export const portfolioApi = createApi({
         const account = getCacheEntry().data
         if (!account) return
 
-        dispatch(portfolio.actions.setPortfolio(accountToPortfolio(account)))
+        dispatch(portfolio.actions.setPortfolio(accountsToPortfolio(account)))
       }
     })
   })

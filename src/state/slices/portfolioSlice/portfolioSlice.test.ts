@@ -1,6 +1,7 @@
+import { caip2, caip10 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { accountToPortfolio, Portfolio } from './portfolioSlice'
+import { accountsToPortfolio, Portfolio } from './portfolioSlice'
 
 const account = {
   balance: '27803816548287370',
@@ -69,7 +70,15 @@ const portfolio: Portfolio = {
 
 describe('accountToPortfolio', () => {
   it('can normalize eth account to portfolio', () => {
-    const result = accountToPortfolio(account)
+    const chain = ChainTypes.Ethereum
+    const network = NetworkTypes.MAINNET
+    const ethCAIP2 = caip2.toCAIP2({ chain, network })
+
+    const CAIP10 = caip10.toCAIP10({ caip2: ethCAIP2, account: account.pubkey })
+    const accounts = {
+      [CAIP10]: account
+    }
+    const result = accountsToPortfolio(accounts)
     expect(result).toEqual(portfolio)
   })
 })

@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
-// import isEqual from 'lodash/isEqual'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
@@ -77,10 +76,10 @@ export const selectAssetBySymbol = createSelector(
 )
 
 // asset descriptions get lazily updated, this changes often
+// until we do the assets provider
 export const selectAssetsById = createSelector(
   (state: ReduxState) => state.assets.byId,
   byId => byId
-  // { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 
 // these will only get set once, no need to memoize

@@ -1,6 +1,13 @@
 import { Flex } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  Asset as A,
+  AssetDataSource,
+  ChainTypes,
+  ContractTypes,
+  MarketData,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
@@ -14,7 +21,7 @@ export interface MatchParams {
   tokenId: string
 }
 
-export const initAsset = {
+export const initAsset: A = {
   caip19: '',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
@@ -26,14 +33,19 @@ export const initAsset = {
   icon: '',
   sendSupport: true,
   receiveSupport: true,
-  price: '',
-  marketCap: '',
-  volume: '',
-  changePercent24Hr: 0,
   slip44: 60,
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: '',
+  dataSource: AssetDataSource.CoinGecko,
   description: ''
+}
+
+export const initMarketData: MarketData = {
+  price: '',
+  marketCap: '',
+  volume: '',
+  changePercent24Hr: 0
 }
 
 export const useAsset = () => {
@@ -48,7 +60,7 @@ export const useAsset = () => {
 
   return {
     asset: asset ?? initAsset,
-    marketData,
+    marketData: marketData ?? initMarketData,
     loading
   }
 }

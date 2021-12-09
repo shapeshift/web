@@ -8,13 +8,7 @@ import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend, testTxs } from 'jest/mocks/txs'
 import { store } from 'state/store'
 
-import {
-  makeTxId,
-  selectLastNTxIds,
-  selectTxHistoryByFilter,
-  Tx,
-  txHistory
-} from './txHistorySlice'
+import { selectLastNTxIds, selectTxHistoryByFilter, Tx, txHistory, txToId } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -51,8 +45,8 @@ describe('txHistorySlice', () => {
       store.dispatch(txHistory.actions.onMessage({ message: EthSend }))
       expect(Object.values(store.getState().txHistory.ids).length).toBe(1)
 
-      const ethSendTxid = makeTxId(EthSend)
-      const ethReceiveTxid = makeTxId(EthReceive)
+      const ethSendTxid = txToId(EthSend)
+      const ethReceiveTxid = txToId(EthReceive)
 
       // new eth transaction (receive)
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive }))
@@ -75,8 +69,8 @@ describe('txHistorySlice', () => {
       store.dispatch(txHistory.actions.onMessage({ message: BtcSendSegwit }))
       expect(Object.values(store.getState().txHistory.ids).length).toBe(4)
 
-      const btcSendTxId = makeTxId(BtcSend)
-      const btcSendSegwitTxId = makeTxId(BtcSendSegwit)
+      const btcSendTxId = txToId(BtcSend)
+      const btcSendSegwitTxId = txToId(BtcSendSegwit)
       // btc data exists
       expect(store.getState().txHistory.byId[btcSendTxId]).toEqual(BtcSend)
       expect(store.getState().txHistory.byId[btcSendSegwitTxId]).toEqual(BtcSendSegwit)
@@ -85,13 +79,13 @@ describe('txHistorySlice', () => {
     it('should update existing transactions', async () => {
       const EthReceivePending = { ...EthReceive, status: chainAdapters.TxStatus.Pending }
       store.dispatch(txHistory.actions.onMessage({ message: EthReceivePending }))
-      const ethReceivePendingId = makeTxId(EthReceivePending)
+      const ethReceivePendingId = txToId(EthReceivePending)
 
       expect(store.getState().txHistory.byId[ethReceivePendingId].status).toBe(
         chainAdapters.TxStatus.Pending
       )
 
-      const ethReceiveConfirmedId = makeTxId(EthReceive)
+      const ethReceiveConfirmedId = txToId(EthReceive)
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive }))
       expect(store.getState().txHistory.byId[ethReceiveConfirmedId].status).toBe(
         chainAdapters.TxStatus.Confirmed
@@ -101,8 +95,8 @@ describe('txHistorySlice', () => {
 })
 
 describe('selectTxHistory', () => {
-  const ethSendId = makeTxId(EthSend)
-  const btcSendId = makeTxId(BtcSend)
+  const ethSendId = txToId(EthSend)
+  const btcSendId = txToId(BtcSend)
 
   const ethChain = ChainTypes.Ethereum
   const network = NetworkTypes.MAINNET
@@ -146,22 +140,30 @@ describe('selectTxHistory', () => {
   })
 
   it('should filter txs', () => {
-    const ethSendId = makeTxId(EthSend)
-    const ethReceiveId = makeTxId(EthReceive)
+    const ethSendId = txToId(EthSend)
+    const ethReceiveId = txToId(EthReceive)
 
     const FOXCAIP19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const EthReceiveFOX = {
       ...EthReceive,
       txid: `${EthReceive.txid}z`,
-      asset: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+      transfers: [
+        {
+          caip19: FOXCAIP19,
+          from: EthReceive.transfers[0].from,
+          to: EthReceive.transfers[0].to,
+          value: EthReceive.transfers[0].value,
+          type: EthReceive.transfers[0].type
+        }
+      ]
     }
-    const ethReceiveFOXId = makeTxId(EthReceiveFOX)
+    const ethReceiveFOXId = txToId(EthReceiveFOX)
 
     const BtcSendSegwitP2sh = { ...BtcSend, accountType: UtxoAccountType.SegwitP2sh }
-    const btcSendSegwitP2shId = makeTxId(BtcSendSegwitP2sh)
+    const btcSendSegwitP2shId = txToId(BtcSendSegwitP2sh)
 
     const BtcSendSegwitNative = { ...BtcSend, accountType: UtxoAccountType.SegwitNative }
-    const btcSendSegwitNativeId = makeTxId(BtcSendSegwitNative)
+    const btcSendSegwitNativeId = txToId(BtcSendSegwitNative)
 
     const store = {
       ...mockStore,

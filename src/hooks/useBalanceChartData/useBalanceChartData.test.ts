@@ -1,11 +1,4 @@
-import { caip2, caip19 } from '@shapeshiftoss/caip'
-import {
-  ChainTypes,
-  ContractTypes,
-  HistoryTimeframe,
-  NetworkTypes,
-  UtxoAccountType
-} from '@shapeshiftoss/types'
+import { ChainTypes, HistoryTimeframe, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { PortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { ethereum, fox } from 'jest/mocks/assets'
 import { FOXSend, testTxs } from 'jest/mocks/txs'
@@ -15,8 +8,6 @@ import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHis
 import {
   Bucket,
   bucketTxs,
-  caip2FromTx,
-  caip19FromTx,
   calculateBucketPrices,
   makeBuckets,
   timeframeMap
@@ -30,28 +21,6 @@ const mockedDate = '2021-11-20T00:00:00Z'
 //     (...args: any[]) =>
 //       jest.requireActual('dayjs')(...(args.filter(arg => arg).length > 0 ? args : [mockedDate]))
 // )
-
-describe('caip2FromTx', () => {
-  it('can get correct caip2 from tx', () => {
-    const chain = ChainTypes.Ethereum
-    const network = NetworkTypes.MAINNET
-    const ethCAIP2 = caip2.toCAIP2({ chain, network })
-    const sendCAIP2 = caip2FromTx(FOXSend)
-    expect(sendCAIP2).toEqual(ethCAIP2)
-  })
-})
-
-describe('caip19FromTx', () => {
-  it('can get correct caip19 from send tx', () => {
-    const chain = ChainTypes.Ethereum
-    const network = NetworkTypes.MAINNET
-    const contractType = ContractTypes.ERC20
-    const tokenId = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-    const expectedCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-    const sendAssetCaip19 = caip19FromTx(FOXSend)
-    expect(sendAssetCaip19).toEqual(expectedCAIP19)
-  })
-})
 
 describe('makeBuckets', () => {
   it('can make buckets', () => {
@@ -90,8 +59,10 @@ describe('bucketTxs', () => {
   afterAll(() => jest.useRealTimers())
 
   it('can bucket txs', () => {
-    const value = FOXSend.value
-    const FOXCAIP19 = caip19FromTx(FOXSend)
+    const transfer = FOXSend.transfers[0]
+    const FOXCAIP19 = transfer.caip19
+    const value = transfer.value
+
     const balances = {
       [FOXCAIP19]: {
         balance: value,
@@ -133,7 +104,10 @@ describe('calculateBucketPrices', () => {
   afterAll(() => jest.useRealTimers())
 
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
-    const FOXCAIP19 = caip19FromTx(FOXSend)
+    const transfer = FOXSend.transfers[0]
+    const FOXCAIP19 = transfer.caip19
+    const value = transfer.value
+
     const balances = {
       [FOXCAIP19]: {
         balance: '0',
@@ -171,16 +145,15 @@ describe('calculateBucketPrices', () => {
       portfolioAssets
     })
 
-    const value = FOXSend.value
     expect(calculatedBuckets[0].balance.crypto[FOXCAIP19].toFixed(0)).toEqual(value)
     expect(
       calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[FOXCAIP19].toFixed(0)
-    ).toEqual(FOXSend.value)
+    ).toEqual(value)
   })
 
   it('has zero balance 1 year back', () => {
     const txs = testTxs
-    const ETHCAIP19 = caip19FromTx(txs[0])
+    const ETHCAIP19 = txs[0].transfers[0].caip19
     const balances = {
       [ETHCAIP19]: {
         balance: '52430152924656054',

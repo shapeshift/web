@@ -14,5 +14,3 @@ echo "[$LOCK_HASH] vs [$LOCK_HASH_AFTER]"
 if [ "$LOCK_HASH" != "$LOCK_HASH_AFTER" ]; then
   yarn
 fi
-yarn patch-package
-

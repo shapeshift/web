@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.22.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.21.1...@shapeshiftoss/chain-adapters-v1.22.0) (2021-12-10)
+
+
+### Features
+
+* add getcaip2 and caip identifiers to getaccount ([#279](https://github.com/shapeshift/lib/issues/279)) ([c1c819b](https://github.com/shapeshift/lib/commit/c1c819b682920b2887f7e11d1c3459f67354aadf))
+
 # [@shapeshiftoss/chain-adapters-v1.21.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.21.0...@shapeshiftoss/chain-adapters-v1.21.1) (2021-12-09)
 
 

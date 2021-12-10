@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import {
@@ -86,7 +87,12 @@ const initialState: MarketDataState = {
 export const marketData = createSlice({
   name: 'marketData',
   initialState,
-  reducers: {},
+  reducers: {
+    setMarketData: (state, { payload }) => {
+      state.marketData.byId = payload
+      state.marketData.ids = Object.keys(payload)
+    }
+  },
   extraReducers: builder => {
     builder.addCase(fetchPriceHistory.pending, state => {
       state.loading = true
@@ -127,6 +133,27 @@ export const marketData = createSlice({
     })
   }
 })
+
+export const marketApi = createApi({
+  reducerPath: 'marketApi',
+  // not actually used, only used to satisfy createApi, we use a custom queryFn
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
+  endpoints: build => ({
+    findAll: build.query<MarketCapResult, Partial<FindAllMarketArgs>>({
+      // top 1000 assets
+      queryFn: async () => ({ data: await findAll({ pages: 4, perPage: 250 }) }),
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(marketData.actions.setMarketData(data))
+      }
+    })
+  })
+})
+
+export const { useFindAllQuery } = marketApi
 
 export const selectMarketDataById = createSelector(
   (state: ReduxState) => state.marketData.marketData.byId,

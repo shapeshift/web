@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.12.0...@shapeshiftoss/swapper-v1.13.0) (2021-12-10)
+
+
+### Features
+
+* add getcaip2 and caip identifiers to getaccount ([#279](https://github.com/shapeshift/lib/issues/279)) ([c1c819b](https://github.com/shapeshift/lib/commit/c1c819b682920b2887f7e11d1c3459f67354aadf))
+
 # [@shapeshiftoss/swapper-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.11.12...@shapeshiftoss/swapper-v1.12.0) (2021-11-30)
 
 

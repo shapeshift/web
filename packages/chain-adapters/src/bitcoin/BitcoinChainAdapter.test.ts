@@ -159,6 +159,7 @@ describe('BitcoinChainAdapter', () => {
   describe('getAccount', () => {
     it('should return account info for a specified address', async () => {
       args.providers.http = {
+        getInfo: jest.fn().mockResolvedValue({ data: { network: 'mainnet' } }),
         getAccount: jest.fn().mockResolvedValue({
           data: {
             pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
@@ -179,6 +180,7 @@ describe('BitcoinChainAdapter', () => {
 
     it('should throw for an unspecified address', async () => {
       args.providers.http = {
+        getInfo: jest.fn().mockResolvedValue({ data: { network: 'mainnet' } }),
         getAccount: jest.fn<any, any>().mockResolvedValue({
           pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
           balance: '0'
@@ -261,6 +263,7 @@ describe('BitcoinChainAdapter', () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
+        getInfo: jest.fn().mockResolvedValue({ data: { network: 'mainnet' } }),
         getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
         getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
         getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),
@@ -329,6 +332,7 @@ describe('BitcoinChainAdapter', () => {
       const wallet: any = await getWallet()
 
       args.providers.http = {
+        getInfo: jest.fn().mockResolvedValue({ data: { network: 'mainnet' } }),
         getUtxos: jest.fn<any, any>().mockResolvedValue(getUtxosMockResponse),
         getTransaction: jest.fn<any, any>().mockResolvedValue(getTransactionMockResponse),
         getAccount: jest.fn().mockResolvedValue(getAccountMockResponse),

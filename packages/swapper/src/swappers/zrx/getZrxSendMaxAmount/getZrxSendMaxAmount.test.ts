@@ -30,7 +30,7 @@ describe('getZrxSendMaxAmount', () => {
     ;(adapterManager.byChain as jest.Mock<unknown>).mockReturnValue({
       ...chainAdapterMockFuncs,
       getAccount: jest.fn().mockResolvedValue({
-        chainSpecific: { tokens: [{ contract: 'contractAddress', balance }] }
+        chainSpecific: { tokens: [{ caip19: 'eip155:1/erc20:contractAddress', balance }] }
       })
     })
 
@@ -111,7 +111,9 @@ describe('getZrxSendMaxAmount', () => {
     ;(adapterManager.byChain as jest.Mock<unknown>).mockReturnValue({
       ...chainAdapterMockFuncs,
       getAccount: jest.fn().mockResolvedValue({
-        chainSpecific: { tokens: [{ contract: 'contractAddress', balance: erc20Balance }] }
+        chainSpecific: {
+          tokens: [{ caip19: 'eip155:1/erc20:contractAddress', balance: erc20Balance }]
+        }
       })
     })
 

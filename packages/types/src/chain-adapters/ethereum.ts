@@ -1,20 +1,8 @@
-import { ContractTypes } from '../base'
+import { AssetBalance } from '.'
 
 export type Account = {
   nonce: number
-  tokens?: Array<TokenWithBalance>
-}
-
-export type Token = {
-  contract: string
-  precision: number
-  name: string
-  symbol: string
-  contractType: ContractTypes
-}
-
-export type TokenWithBalance = Token & {
-  balance: string
+  tokens?: Array<AssetBalance>
 }
 
 export type FeeData = {

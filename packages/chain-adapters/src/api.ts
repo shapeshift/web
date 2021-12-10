@@ -1,3 +1,4 @@
+import { CAIP2 } from '@shapeshiftoss/caip'
 import { BIP32Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
 export interface ChainAdapter<T extends ChainTypes> {
@@ -5,6 +6,8 @@ export interface ChainAdapter<T extends ChainTypes> {
    * Get type of adapter
    */
   getType(): T
+
+  getCaip2(): Promise<CAIP2>
 
   /**
    * Get the balance of an address

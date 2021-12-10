@@ -1,8 +1,16 @@
-import { chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters, ContractTypes } from '@shapeshiftoss/types'
 import { Status, TransferType } from '@shapeshiftoss/unchained-tx-parser'
 
 export * from './bip32'
 export * from './utxoUtils'
+
+export const getContractType = (type?: string): ContractTypes => {
+  if (!type) return ContractTypes.NONE
+  if (type === 'ERC20') return ContractTypes.ERC20
+  if (type === 'ERC721') return ContractTypes.ERC721
+
+  return ContractTypes.OTHER
+}
 
 export const getStatus = (status: Status): chainAdapters.TxStatus => {
   if (status === Status.Pending) return chainAdapters.TxStatus.Pending

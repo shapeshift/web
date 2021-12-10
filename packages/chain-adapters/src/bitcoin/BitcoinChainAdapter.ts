@@ -1,3 +1,4 @@
+import { CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   BTCOutputAddressType,
@@ -64,6 +65,23 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return ChainTypes.Bitcoin
   }
 
+  async getCaip2(): Promise<CAIP2> {
+    try {
+      const { data } = await this.providers.http.getInfo()
+
+      switch (data.network) {
+        case 'mainnet':
+          return caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
+        case 'testnet':
+          return caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.TESTNET })
+        default:
+          throw new Error(`BitcoinChainAdapter: network is not supported: ${data.network}`)
+      }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
   private async getPublicKey(
     wallet: HDWallet,
     bip32Params: BIP32Params,
@@ -93,19 +111,21 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     }
 
     try {
+      const caip = await this.getCaip2()
+      const { chain, network } = caip2.fromCAIP2(caip)
       const { data } = await this.providers.http.getAccount({ pubkey: pubkey })
 
       return {
         balance: data.balance,
         chain: ChainTypes.Bitcoin,
+        caip2: caip,
+        caip19: caip19.toCAIP19({ chain, network }),
         chainSpecific: {
           addresses: data.addresses,
           nextChangeAddressIndex: data.nextChangeAddressIndex,
           nextReceiveAddressIndex: data.nextReceiveAddressIndex
         },
-        network: NetworkTypes.MAINNET,
-        pubkey: data.pubkey,
-        symbol: 'BTC'
+        pubkey: data.pubkey
       }
     } catch (err) {
       return ErrorHandler(err)

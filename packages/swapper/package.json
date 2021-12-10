@@ -28,12 +28,14 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/asset-service": "^1.6.1",
+    "@shapeshiftoss/caip": "^1.6.1",
     "@shapeshiftoss/chain-adapters": "^1.15.3",
     "@shapeshiftoss/hdwallet-core": "^1.18.2",
     "@shapeshiftoss/types": "^1.13.1"
   },
   "devDependencies": {
     "@shapeshiftoss/asset-service": "^1.6.1",
+    "@shapeshiftoss/caip": "^1.6.1",
     "@shapeshiftoss/chain-adapters": "^1.16.2",
     "@shapeshiftoss/hdwallet-core": "^1.18.2",
     "@shapeshiftoss/types": "^1.13.1",

@@ -47,8 +47,8 @@
     "@shapeshiftoss/hdwallet-core": "^1.18.2",
     "@shapeshiftoss/hdwallet-native": "^1.18.2",
     "@shapeshiftoss/types": "^1.13.1",
-    "@shapeshiftoss/unchained-client": "^4.0.0",
-    "@shapeshiftoss/unchained-tx-parser": "^4.0.0",
+    "@shapeshiftoss/unchained-client": "^4.0.1",
+    "@shapeshiftoss/unchained-tx-parser": "^4.0.1",
     "@types/bs58check": "^2.1.0",
     "@types/multicoin-address-validator": "^0.5.0"
   }

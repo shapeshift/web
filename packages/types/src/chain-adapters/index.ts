@@ -18,10 +18,15 @@ type ChainSpecificAccount<T> = ChainSpecific<
 export type Account<T extends ChainTypes> = {
   balance: string
   pubkey: string
-  symbol: string
+  caip2: string
+  caip19: string
   chain: T
-  network: NetworkTypes
 } & ChainSpecificAccount<T>
+
+export type AssetBalance = {
+  balance: string
+  caip19: string
+}
 
 type ChainSpecificTransaction<T> = ChainSpecific<
   T,

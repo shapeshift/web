@@ -1,12 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
+import { CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import {
-  BIP32Params,
-  chainAdapters,
-  ChainTypes,
-  ContractTypes,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { BIP32Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { ethereum } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -15,7 +10,7 @@ import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { getStatus, getType, toPath, toRootDerivationPath } from '../utils'
+import { getContractType, getStatus, getType, toPath, toRootDerivationPath } from '../utils'
 import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {
@@ -51,30 +46,49 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return ChainTypes.Ethereum
   }
 
+  async getCaip2(): Promise<CAIP2> {
+    try {
+      const { data } = await this.providers.http.getInfo()
+
+      switch (data.network) {
+        case 'mainnet':
+          return caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
+        case 'ropsten':
+          return caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.ETH_ROPSTEN })
+        case 'rinkeby':
+          return caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.ETH_RINKEBY })
+        default:
+          throw new Error(`EthereumChainAdapter: network is not supported: ${data.network}`)
+      }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
   async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Ethereum>> {
     try {
+      const caip = await this.getCaip2()
+      const { chain, network } = caip2.fromCAIP2(caip)
       const { data } = await this.providers.http.getAccount({ pubkey })
 
       return {
         balance: data.balance,
+        caip2: caip,
+        caip19: caip19.toCAIP19({ chain, network }),
         chain: ChainTypes.Ethereum,
         chainSpecific: {
           nonce: data.nonce,
           tokens: data.tokens.map((token) => ({
             balance: token.balance,
-            contract: token.contract,
-            // note: unchained gets token types from blockbook
-            // blockbook only has one definition of a TokenType for ethereum
-            // https://github1s.com/trezor/blockbook/blob/master/api/types.go#L140
-            contractType: ContractTypes.ERC20,
-            name: token.name,
-            precision: token.decimals,
-            symbol: token.symbol
+            caip19: caip19.toCAIP19({
+              chain,
+              network,
+              contractType: getContractType(token.type),
+              tokenId: token.contract
+            })
           }))
         },
-        network: NetworkTypes.MAINNET, // TODO(0xdef1cafe): need to reflect this from the provider
-        pubkey: data.pubkey,
-        symbol: 'ETH' // TODO(0xdef1cafe): this is real dirty
+        pubkey: data.pubkey
       }
     } catch (err) {
       return ErrorHandler(err)
@@ -140,10 +154,9 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         const account = await this.getAccount(from)
         if (isErc20Send) {
           if (!erc20ContractAddress) throw new Error('no token address')
-          const erc20Balance = account?.chainSpecific?.tokens?.find(
-            (token: { contract: string; balance: string }) =>
-              token.contract.toLowerCase() === erc20ContractAddress.toLowerCase()
-          )?.balance
+          const erc20Balance = account?.chainSpecific?.tokens?.find((token) => {
+            return caip19.fromCAIP19(token.caip19).tokenId === erc20ContractAddress.toLowerCase()
+          })?.balance
           if (!erc20Balance) throw new Error('no balance')
           tx.value = erc20Balance
         } else {
@@ -223,10 +236,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     // in MOST cases any eth amount will cost the same 21000 gas
     if (sendMax && isErc20Send && contractAddress) {
       const account = await this.getAccount(from)
-      const erc20Balance = account?.chainSpecific?.tokens?.find(
-        (token: { contract: string; balance: string }) =>
-          token.contract.toLowerCase() === contractAddress.toLowerCase()
-      )?.balance
+      const erc20Balance = account?.chainSpecific?.tokens?.find((token) => {
+        const { tokenId } = caip19.fromCAIP19(token.caip19)
+        return tokenId === contractAddress.toLowerCase()
+      })?.balance
       if (!erc20Balance) throw new Error('no balance')
       value = erc20Balance
     }

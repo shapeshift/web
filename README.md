@@ -39,6 +39,9 @@ ShapeShift's OSS 2nd generation Web application. (Under Development)
 
 ## Developer Onboarding
 
+On Linux and MacOS it works out of the box following the steps.<br/>
+⚠️ On Windows you should use the _Windows Subsystem for Linux_ (WSL).
+
 - Copy sample env file:
 
   ```sh

@@ -113,6 +113,22 @@ module.exports = {
       ],
     })
 
+    // Remove synthetic CSP/SRI environment variables from DefinePlugin.
+    _.merge(config, {
+      plugins: config.plugins.map(plugin => {
+        if (plugin.constructor.name !== 'DefinePlugin') return plugin
+  
+        const definitions = JSON.parse(JSON.stringify(plugin.definitions))
+        const env = definitions['process.env'] || {}
+
+        for (const key in env) {
+          if (/^REACT_APP_(CSP|SRI)_.*$/.test(key)) delete env[key]
+        }
+
+        return new webpack.DefinePlugin(definitions)
+      }),
+    })
+
     // Generate and embed Subresource Integrity (SRI) attributes for all files.
     // Automatically embeds SRI hashes when generating the embedded webpack loaders
     // for split code.

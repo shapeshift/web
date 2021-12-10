@@ -15,7 +15,7 @@ import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -51,7 +51,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     AssetMarketData,
     string
   ]
-  const { balances, error: balanceError, loading: balancesLoading } = useFlattenedBalances()
+  const { balances, error: balanceError, loading: balancesLoading } = useBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapterManager = useChainAdapters()
   const {

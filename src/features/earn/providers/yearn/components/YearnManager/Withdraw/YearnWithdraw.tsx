@@ -12,7 +12,6 @@ import {
 } from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
-import toLower from 'lodash/toLower'
 import { useEffect, useReducer } from 'react'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
@@ -24,7 +23,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { useBalances } from 'hooks/useBalances/useBalances'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -73,7 +72,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const { balances, loading } = useFlattenedBalances()
+  const { balances, loading } = useBalances()
 
   // navigation
   const memoryHistory = useHistory()
@@ -184,7 +183,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     browserHistory.goBack()
   }
 
-  const balance = balances[toLower(vaultAddress)]?.balance
+  const balance = balances[assetCAIP19]?.balance
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)

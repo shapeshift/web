@@ -1,4 +1,4 @@
-import { ChainTypes, HistoryTimeframe, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { ChainTypes, HistoryTimeframe, UtxoAccountType } from '@shapeshiftoss/types'
 import { PortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { ethereum, fox } from 'jest/mocks/assets'
 import { FOXSend, testTxs } from 'jest/mocks/txs'
@@ -31,9 +31,9 @@ describe('makeBuckets', () => {
       [ethCAIP19]: {
         balance: ethBalance,
         pubkey: '',
-        symbol: 'ETH',
         chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
+        caip2: 'eip155:1',
+        caip19: ethCAIP19,
         chainSpecific: {}
       }
     }
@@ -68,8 +68,9 @@ describe('bucketTxs', () => {
         balance: value,
         pubkey: '',
         symbol: 'FOX',
+        caip2: 'eip155:1',
+        caip19: FOXCAIP19,
         chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
         chainSpecific: {}
       }
     }
@@ -112,9 +113,9 @@ describe('calculateBucketPrices', () => {
       [FOXCAIP19]: {
         balance: '0',
         pubkey: '',
-        symbol: 'FOX',
+        caip2: 'eip155:1',
+        caip19: FOXCAIP19,
         chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
         chainSpecific: {}
       }
     }
@@ -158,9 +159,9 @@ describe('calculateBucketPrices', () => {
       [ETHCAIP19]: {
         balance: '52430152924656054',
         pubkey: '',
-        symbol: 'ETH',
+        caip2: 'eip155:1',
+        caip19: ETHCAIP19,
         chain: ChainTypes.Ethereum,
-        network: NetworkTypes.MAINNET,
         chainSpecific: {}
       }
     }

@@ -2,7 +2,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect, useState } from 'react'
-import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
+import { useBalances } from 'hooks/useBalances/useBalances'
 import { getAssetService } from 'lib/assetService'
 
 export type PortfolioAssets = {
@@ -20,12 +20,12 @@ export const usePortfolioAssets: UsePortfolioAssets = () => {
   const [portfolioAssets, setPortfolioAssets] = useState<PortfolioAssets>({})
   const [portfolioAssetsLoading, setPortfolioAssetsLoading] = useState<boolean>(true)
   // TODO(0xdef1cafe): this isn't great but it's the only way to get all accounts
-  const { balances, loading: balancesLoading } = useCAIP19Balances()
+  const { balances, loading: balancesLoading } = useBalances()
 
   const getPortfolioAssets = useCallback(async () => {
     const assetService = await getAssetService()
     const assets = assetService.byNetwork(NetworkTypes.MAINNET)
-    const portfolioAssets = Object.keys(balances).reduce<{ [k: CAIP19]: Asset }>((acc, caip19) => {
+    const portfolioAssets = Object.keys(balances).reduce<PortfolioAssets>((acc, caip19) => {
       const a = assets.find(asset => asset.caip19 === caip19)
       if (!a) return acc
       acc[caip19] = a

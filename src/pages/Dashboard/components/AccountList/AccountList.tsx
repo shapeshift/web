@@ -13,7 +13,7 @@ import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
+import { useBalances } from 'hooks/useBalances/useBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePortfolio } from 'pages/Dashboard/contexts/PortfolioContext'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
@@ -64,7 +64,7 @@ export const AccountList = ({ loading }: { loading?: boolean }) => {
   } = useWallet()
   const assets = useSelector(selectAssetsById)
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData.byId)
-  const { balances } = useCAIP19Balances()
+  const { balances } = useBalances()
   const { totalBalance } = usePortfolio()
 
   useEffect(() => {

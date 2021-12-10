@@ -1,6 +1,7 @@
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
+import { Balances } from 'hooks/useBalances/useBalances'
 import { TestProviders } from 'jest/TestProviders'
 
 import { useAccountBalances } from './useAccountBalances'
@@ -8,39 +9,38 @@ import { useAccountBalances } from './useAccountBalances'
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('hooks/useAsset/useAsset')
 
-const mockBalances = {
-  ethereum: {
-    network: 'ethereum',
-    symbol: 'ETH',
-    address: '0x0000000000000000000000000000000000000000',
+const ethCaip2 = 'eip155:1'
+const ethCaip19 = 'eip155:1/slip44:60'
+const runeCaip19 = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
+
+const mockBalances: Balances = {
+  [ethCaip19]: {
+    caip2: ethCaip2,
+    caip19: ethCaip19,
+    chain: ChainTypes.Ethereum,
+    pubkey: '0x0000000000000000000000000000000000000000',
     balance: '50000000000000000',
-    unconfirmedBalance: '0',
-    unconfirmedTxs: 0,
-    txs: 198,
-    tokens: [
-      {
-        type: 'ERC20',
-        name: 'THORChain ETH.RUNE',
-        contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-        transfers: 10,
-        symbol: 'RUNE',
-        decimals: 18,
-        balance: '21000000000000000000'
-      }
-    ]
+    chainSpecific: {
+      nonce: 0,
+      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
+    }
   },
-  '0x3155ba85d5f96b2d030a4966af206230e46849cb': {
-    type: 'ERC20',
-    name: 'THORChain ETH.RUNE',
-    contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-    transfers: 10,
-    symbol: 'RUNE',
-    decimals: 18,
-    balance: '21000000000000000000'
+  [runeCaip19]: {
+    caip2: ethCaip2,
+    caip19: runeCaip19,
+    chain: ChainTypes.Ethereum,
+    balance: '21000000000000000000',
+    pubkey: '0x0000000000000000000000000000000000000000',
+    chainSpecific: {
+      nonce: 0,
+      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
+    }
   }
 }
 
 const mockEth = {
+  caip2: ethCaip2,
+  caip19: ethCaip19,
   name: 'Ethereum',
   chain: ChainTypes.Ethereum,
   symbol: 'ETH',
@@ -48,6 +48,8 @@ const mockEth = {
 }
 
 const mockRuneErc20 = {
+  caip2: ethCaip2,
+  caip19: runeCaip19,
   tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
   name: 'THORChain (ERC20)',
   chain: ChainTypes.Ethereum,
@@ -56,6 +58,8 @@ const mockRuneErc20 = {
 }
 
 const fooBarErc20 = {
+  caip2: ethCaip2,
+  caip19: 'eip155:1/erc20:0xfoobar',
   tokenId: '0xfoobar',
   name: 'THORChain (ERC20)',
   chain: 'ethereum',
@@ -89,7 +93,7 @@ describe('useAccountBalances', () => {
       const { waitForNextUpdate, result } = hook
       await waitForNextUpdate()
 
-      expect(result.current.assetBalance).toEqual(mockBalances.ethereum)
+      expect(result.current.assetBalance).toEqual(mockBalances[ethCaip19])
 
       const expectedCrypto = '0.05'
       const crypto = result.current.accountBalances.crypto.toString()
@@ -107,9 +111,7 @@ describe('useAccountBalances', () => {
         asset: mockRuneErc20 as unknown as Asset,
         balances: mockBalances
       })
-      expect(result.current.assetBalance).toEqual(
-        mockBalances['0x3155ba85d5f96b2d030a4966af206230e46849cb']
-      )
+      expect(result.current.assetBalance).toEqual(mockBalances[runeCaip19])
 
       await waitForNextUpdate()
 

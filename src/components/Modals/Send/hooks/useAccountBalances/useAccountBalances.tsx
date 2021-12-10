@@ -7,16 +7,13 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 type UseAccountBalancesProps = {
   asset: Asset
   // TODO(0xdef1cafe): remove this coupling to ethereum specific tokens
-  balances: Record<
-    string,
-    Partial<chainAdapters.Account<ChainTypes> & chainAdapters.ethereum.Token>
-  >
+  balances: Record<string, Partial<chainAdapters.Account<ChainTypes> & chainAdapters.AssetBalance>>
 }
 
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {
   const [marketData, setMarketData] = useState<MarketData | null>(null)
   const getAssetData = useGetAssetData(asset.caip19)
-  const assetBalance = asset?.tokenId ? balances[asset?.tokenId] : balances[asset.chain]
+  const assetBalance = balances[asset.caip19]
 
   useEffect(() => {
     ;(async () => {

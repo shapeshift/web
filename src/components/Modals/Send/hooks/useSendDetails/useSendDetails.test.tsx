@@ -1,12 +1,12 @@
 import { findByCaip19 } from '@shapeshiftoss/market-service'
-import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { TestProviders } from 'jest/TestProviders'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -20,37 +20,34 @@ jest.mock('components/Modals/Send/hooks/useAccountBalances/useAccountBalances')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('hooks/useAsset/useAsset')
-jest.mock('hooks/useBalances/useFlattenedBalances')
+jest.mock('hooks/useBalances/useBalances')
 
-const balances: ReturnType<typeof useFlattenedBalances>['balances'] = {
-  [ChainTypes.Ethereum]: {
+const ethCaip2 = 'eip155:1'
+const ethCaip19 = 'eip155:1/slip44:60'
+const runeCaip19 = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
+
+const balances: Balances = {
+  [ethCaip19]: {
+    caip2: ethCaip2,
+    caip19: ethCaip19,
     chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
-    symbol: 'ETH',
     pubkey: '0x0000000000000000000000000000000000000000',
     balance: '5000000000000000000',
     chainSpecific: {
       nonce: 0,
-      tokens: [
-        {
-          contractType: ContractTypes.ERC20,
-          name: 'THORChain ETH.RUNE',
-          contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-          symbol: 'RUNE',
-          precision: 18,
-          balance: '21000000000000000000'
-        }
-      ]
+      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
     }
   },
-  '0x3155ba85d5f96b2d030a4966af206230e46849cb': {
-    contractType: ContractTypes.ERC20,
+  [runeCaip19]: {
+    caip2: ethCaip2,
+    caip19: runeCaip19,
     chain: ChainTypes.Ethereum,
-    name: 'THORChain ETH.RUNE',
-    contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-    symbol: 'RUNE',
-    precision: 18,
-    balance: '21000000000000000000'
+    balance: '21000000000000000000',
+    pubkey: '0x0000000000000000000000000000000000000000',
+    chainSpecific: {
+      nonce: 0,
+      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
+    }
   }
 }
 
@@ -83,7 +80,7 @@ const estimatedFees = {
 }
 
 const getEthAccountBalances = () => {
-  const crypto = bnOrZero(balances.ethereum.balance).div('1e18')
+  const crypto = bnOrZero(balances[ethCaip19].balance).div('1e18')
   const fiat = crypto.times(ethAsset.price)
   return {
     crypto,
@@ -92,9 +89,7 @@ const getEthAccountBalances = () => {
 }
 
 const getRuneAccountBalances = () => {
-  const crypto = bnOrZero(balances['0x3155ba85d5f96b2d030a4966af206230e46849cb'].balance).div(
-    '1e18'
-  )
+  const crypto = bnOrZero(balances[runeCaip19].balance).div('1e18')
   const fiat = crypto.times(erc20RuneAsset.price)
   return {
     crypto,
@@ -129,7 +124,7 @@ const setup = ({
     assetBalance,
     accountBalances
   }))
-  ;(useFlattenedBalances as jest.Mock<unknown>).mockImplementation(() => ({
+  ;(useBalances as jest.Mock<unknown>).mockImplementation(() => ({
     balances,
     error: balanceError,
     loading: false
@@ -175,7 +170,7 @@ describe('useSendDetails', () => {
   it('returns the default useSendDetails state', async () => {
     return await act(async () => {
       const { result } = setup({
-        assetBalance: balances.ethereum,
+        assetBalance: balances[ethCaip19],
         accountBalances: getEthAccountBalances()
       })
       expect(result.current.balancesLoading).toBe(false)
@@ -187,7 +182,7 @@ describe('useSendDetails', () => {
   it('toggles the input field', async () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances.ethereum,
+        assetBalance: balances[ethCaip19],
         accountBalances: getEthAccountBalances()
       })
       expect(result.current.fieldName).toBe('fiat.amount')
@@ -203,7 +198,7 @@ describe('useSendDetails', () => {
     return await act(async () => {
       let setError = jest.fn()
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances.ethereum,
+        assetBalance: balances[ethCaip19],
         accountBalances: getEthAccountBalances(),
         formErrors: {
           fiat: { amount: { message: 'common.insufficientFunds' } }
@@ -225,7 +220,7 @@ describe('useSendDetails', () => {
     const setValue = jest.fn()
     await act(async () => {
       const { result } = setup({
-        assetBalance: balances.ethereum,
+        assetBalance: balances[ethCaip19],
         accountBalances: getEthAccountBalances(),
         setValue
       })
@@ -252,7 +247,7 @@ describe('useSendDetails', () => {
     const setValue = jest.fn()
     await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances.ethereum,
+        assetBalance: balances[ethCaip19],
         accountBalances: getEthAccountBalances(),
         setValue
       })
@@ -280,7 +275,7 @@ describe('useSendDetails', () => {
     const setValue = jest.fn()
     return await act(async () => {
       const { result } = setup({
-        assetBalance: balances.ethereum,
+        assetBalance: balances[ethCaip19],
         accountBalances: getEthAccountBalances(),
         setValue
       })
@@ -301,7 +296,7 @@ describe('useSendDetails', () => {
     return await act(async () => {
       const { result } = setup({
         asset: erc20RuneAsset,
-        assetBalance: balances['0x3155ba85d5f96b2d030a4966af206230e46849cb'],
+        assetBalance: balances[runeCaip19],
         accountBalances: getRuneAccountBalances(),
         setValue
       })

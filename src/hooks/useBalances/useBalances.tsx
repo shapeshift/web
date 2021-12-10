@@ -1,10 +1,11 @@
+import { caip2, CAIP19 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
   toRootDerivationPath,
   utxoAccountParams
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -12,8 +13,10 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
+export type Balances = Record<CAIP19, chainAdapters.Account<ChainTypes>>
+
 type UseBalancesReturnType = {
-  balances: Record<string, chainAdapters.Account<ChainTypes>>
+  balances: Balances
   error?: Error | unknown
   loading: boolean
 }
@@ -35,41 +38,59 @@ export const useBalances = (): UseBalancesReturnType => {
       const acc: Record<string, chainAdapters.Account<ChainTypes>> = {}
 
       const service = await getAssetService()
-      const assetData = service?.byNetwork(NetworkTypes.MAINNET)
 
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
-        const key = adapter.getType()
+        const caip = await adapter.getCaip2()
+        const { chain, network } = caip2.fromCAIP2(caip)
+        const assetData = service.byNetwork(network)
 
-        const asset = assetData.find(asset => asset.chain === key)
-        if (!asset) {
-          throw new Error(`asset not found for chain ${key}`)
+        // TODO: asset service should provide caip2
+        const asset = assetData.find(asset => asset.chain === chain)
+        if (!asset) throw new Error(`asset not found for: ${caip}`)
+
+        let pubkey
+        switch (chain) {
+          case ChainTypes.Bitcoin: {
+            if (!supportsBTC(wallet)) continue
+
+            const accountType = accountTypes[chain]
+            const accountParams = utxoAccountParams(asset, accountType, 0)
+            const { bip32Params, scriptType } = accountParams
+            const pubkeys = await wallet.getPublicKeys([
+              {
+                coin: chain,
+                addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
+                curve: 'secp256k1',
+                scriptType
+              }
+            ])
+
+            if (!pubkeys?.[0]?.xpub) continue
+
+            pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
+            break
+          }
+          case ChainTypes.Ethereum:
+            if (!supportsETH(wallet)) continue
+            pubkey = await adapter.getAddress({ wallet })
+            break
+          default:
+            console.warn(`chain not supported: ${chain}`)
+            continue
         }
 
-        let addressOrXpub
-        if (adapter.getType() === 'ethereum' && supportsETH(wallet)) {
-          addressOrXpub = await adapter.getAddress({ wallet })
-        } else if (adapter.getType() === 'bitcoin' && supportsBTC(wallet)) {
-          const accountType = accountTypes[key]
-          const accountParams = utxoAccountParams(asset, accountType, 0)
-          const { bip32Params, scriptType } = accountParams
-          const pubkeys = await wallet.getPublicKeys([
-            {
-              coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
-              curve: 'secp256k1',
-              scriptType
-            }
-          ])
-          if (!pubkeys?.[0]?.xpub) continue
-          addressOrXpub = convertXpubVersion(pubkeys[0].xpub, accountType)
-        } else {
-          continue
-        }
+        const account = await adapter.getAccount(pubkey)
+        if (!account) continue
 
-        const balanceResponse = await adapter.getAccount(addressOrXpub)
-        if (!balanceResponse) continue
-        acc[key] = balanceResponse
+        acc[account.caip19] = account
+
+        if (account.chain === ChainTypes.Ethereum) {
+          const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
+          ethAccount.chainSpecific.tokens?.forEach(token => {
+            acc[token.caip19] = { ...ethAccount, ...token }
+          })
+        }
       }
       return acc
     }

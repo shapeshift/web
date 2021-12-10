@@ -27,7 +27,7 @@ import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { useBalances } from 'hooks/useBalances/useBalances'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { fromBaseUnit } from 'lib/math'
@@ -84,9 +84,8 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
     data: assetPriceHistoryData,
     initPercentChange: percentChange
   })
-  const { balances } = useFlattenedBalances()
-  const id = asset.tokenId ?? asset.chain
-  const totalBalance = useTotalBalance({ [id]: balances[id] })
+  const { balances } = useBalances()
+  const totalBalance = useTotalBalance({ [asset.caip19]: balances[asset.caip19] })
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
@@ -175,7 +174,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
                     <StatNumber>
-                      {`${fromBaseUnit(balances[id]?.balance ?? '0', asset.precision)}${
+                      {`${fromBaseUnit(balances[asset.caip19]?.balance ?? '0', asset.precision)}${
                         asset.symbol
                       }`}
                     </StatNumber>

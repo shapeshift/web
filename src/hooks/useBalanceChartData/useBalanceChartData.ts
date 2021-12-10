@@ -1,5 +1,5 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -14,7 +14,7 @@ import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
+import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { PortfolioAssets, usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -74,7 +74,7 @@ type MakeBucketsReturn = {
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assets: CAIP19[]
-  balances: { [k: CAIP19]: chainAdapters.Account<ChainTypes> }
+  balances: Balances
 }
 
 // adjust this to give charts more or less granularity
@@ -279,7 +279,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { assets, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
+  const { balances, loading: caip19BalancesLoading } = useBalances()
   const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
   const {
     state: { walletInfo }

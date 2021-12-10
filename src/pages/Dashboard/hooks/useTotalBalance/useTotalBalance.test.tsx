@@ -2,7 +2,7 @@ import { caip19 } from '@shapeshiftoss/caip'
 import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { Asset, ChainTypes, ContractTypes, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { Balances } from 'hooks/useBalances/useBalances'
 import { rune } from 'jest/mocks/assets'
 import { TestProviders } from 'jest/TestProviders'
 import { getAssetService } from 'lib/assetService'
@@ -24,35 +24,32 @@ jest.mock('@shapeshiftoss/market-service', () => ({
   findByCaip19: jest.fn()
 }))
 
-const balances: ReturnType<typeof useFlattenedBalances>['balances'] = {
-  [ChainTypes.Ethereum]: {
+const ethCaip2 = 'eip155:1'
+const ethCaip19 = 'eip155:1/slip44:60'
+const runeCaip19 = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
+
+const balances: Balances = {
+  [ethCaip19]: {
+    caip2: ethCaip2,
+    caip19: ethCaip19,
     chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
-    symbol: 'ETH',
     pubkey: '0x0000000000000000000000000000000000000000',
     balance: '5000000000000000000',
     chainSpecific: {
       nonce: 0,
-      tokens: [
-        {
-          contractType: ContractTypes.ERC20,
-          name: 'THORChain ETH.RUNE',
-          contract: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
-          symbol: 'RUNE',
-          precision: 18,
-          balance: '21000000000000000000'
-        }
-      ]
+      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
     }
   },
-  '0x3155ba85d5f96b2d030a4966af206230e46849cb': {
-    contractType: ContractTypes.ERC20,
+  [runeCaip19]: {
+    caip2: ethCaip2,
+    caip19: runeCaip19,
     chain: ChainTypes.Ethereum,
-    name: 'THORChain ETH.RUNE',
-    contract: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
-    symbol: 'RUNE',
-    precision: 18,
-    balance: '21000000000000000000'
+    balance: '21000000000000000000',
+    pubkey: '0x0000000000000000000000000000000000000000',
+    chainSpecific: {
+      nonce: 0,
+      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
+    }
   }
 }
 

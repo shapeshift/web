@@ -1,5 +1,5 @@
 import { caip10 } from '@shapeshiftoss/caip'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { accountsToPortfolio, Portfolio } from './portfolioSlice'
 

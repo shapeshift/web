@@ -22,18 +22,21 @@ const mockedDate = '2021-11-20T00:00:00Z'
 //       jest.requireActual('dayjs')(...(args.filter(arg => arg).length > 0 ? args : [mockedDate]))
 // )
 
+const ethCaip2 = 'eip155:1'
+const ethCaip19 = 'eip155:1/slip44:60'
+const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
+
 describe('makeBuckets', () => {
   it('can make buckets', () => {
-    const ethCAIP19 = 'eip155:1/slip44:60'
-    const assets = [ethCAIP19]
+    const assets = [ethCaip19]
     const ethBalance = '42069'
     const balances = {
-      [ethCAIP19]: {
+      [ethCaip19]: {
         balance: ethBalance,
         pubkey: '',
         chain: ChainTypes.Ethereum,
-        caip2: 'eip155:1',
-        caip19: ethCAIP19,
+        caip2: ethCaip2,
+        caip19: ethCaip19,
         chainSpecific: {}
       }
     }
@@ -44,7 +47,7 @@ describe('makeBuckets', () => {
         const { balance } = bucket
         expect(balance.fiat.toNumber()).toEqual(0)
         expect(Object.keys(balance.crypto)).toEqual(assets)
-        expect(balance.crypto[ethCAIP19]).toEqual(bn(ethBalance))
+        expect(balance.crypto[ethCaip19]).toEqual(bn(ethBalance))
       })
     })
   })
@@ -60,21 +63,20 @@ describe('bucketTxs', () => {
 
   it('can bucket txs', () => {
     const transfer = FOXSend.transfers[0]
-    const FOXCAIP19 = transfer.caip19
     const value = transfer.value
 
     const balances = {
-      [FOXCAIP19]: {
+      [foxCaip19]: {
         balance: value,
         pubkey: '',
         symbol: 'FOX',
-        caip2: 'eip155:1',
-        caip19: FOXCAIP19,
+        caip2: ethCaip2,
+        caip19: foxCaip19,
         chain: ChainTypes.Ethereum,
         chainSpecific: {}
       }
     }
-    const assets = [FOXCAIP19]
+    const assets = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const buckets = makeBuckets({ assets, balances, timeframe })
 
@@ -106,31 +108,30 @@ describe('calculateBucketPrices', () => {
 
   it('has balance of single tx at start of chart, balance of 0 at end of chart', () => {
     const transfer = FOXSend.transfers[0]
-    const FOXCAIP19 = transfer.caip19
     const value = transfer.value
 
     const balances = {
-      [FOXCAIP19]: {
+      [foxCaip19]: {
         balance: '0',
         pubkey: '',
-        caip2: 'eip155:1',
-        caip19: FOXCAIP19,
+        caip2: ethCaip2,
+        caip19: foxCaip19,
         chain: ChainTypes.Ethereum,
         chainSpecific: {}
       }
     }
-    const assets = [FOXCAIP19]
+    const assets = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
 
     const txs = [FOXSend]
 
     const priceHistoryData: PriceHistoryData = {
-      [FOXCAIP19]: [{ price: 0, date: String() }]
+      [foxCaip19]: [{ price: 0, date: String() }]
     }
 
     const portfolioAssets: PortfolioAssets = {
-      [FOXCAIP19]: fox
+      [foxCaip19]: fox
     }
 
     const buckets = bucketTxs(txs, emptyBuckets)
@@ -146,32 +147,31 @@ describe('calculateBucketPrices', () => {
       portfolioAssets
     })
 
-    expect(calculatedBuckets[0].balance.crypto[FOXCAIP19].toFixed(0)).toEqual(value)
+    expect(calculatedBuckets[0].balance.crypto[foxCaip19].toFixed(0)).toEqual(value)
     expect(
-      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[FOXCAIP19].toFixed(0)
+      calculatedBuckets[calculatedBuckets.length - 1].balance.crypto[foxCaip19].toFixed(0)
     ).toEqual(value)
   })
 
   it('has zero balance 1 year back', () => {
     const txs = testTxs
-    const ETHCAIP19 = txs[0].transfers[0].caip19
     const balances = {
-      [ETHCAIP19]: {
+      [ethCaip19]: {
         balance: '52430152924656054',
         pubkey: '',
-        caip2: 'eip155:1',
-        caip19: ETHCAIP19,
+        caip2: ethCaip2,
+        caip19: ethCaip19,
         chain: ChainTypes.Ethereum,
         chainSpecific: {}
       }
     }
-    const assets = [ETHCAIP19]
+    const assets = [ethCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const priceHistoryData: PriceHistoryData = {
-      [ETHCAIP19]: [{ price: 0, date: String() }]
+      [ethCaip19]: [{ price: 0, date: String() }]
     }
     const portfolioAssets: PortfolioAssets = {
-      [ETHCAIP19]: ethereum
+      [ethCaip19]: ethereum
     }
 
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
@@ -188,6 +188,6 @@ describe('calculateBucketPrices', () => {
       priceHistoryData,
       portfolioAssets
     })
-    expect(calculatedBuckets[0].balance.crypto[ETHCAIP19].toNumber()).toEqual(0)
+    expect(calculatedBuckets[0].balance.crypto[ethCaip19].toNumber()).toEqual(0)
   })
 })

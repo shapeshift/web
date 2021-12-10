@@ -75,7 +75,12 @@ export const selectAssetBySymbol = createSelector(
   (byId, symbol) => Object.values(byId).find(asset => asset.symbol === symbol)
 )
 
+// asset descriptions get lazily updated, this changes often
+// until we do the assets provider
 export const selectAssetsById = createSelector(
   (state: ReduxState) => state.assets.byId,
   byId => byId
 )
+
+// these will only get set once, no need to memoize
+export const selectAssetIds = (state: ReduxState) => state.assets.ids

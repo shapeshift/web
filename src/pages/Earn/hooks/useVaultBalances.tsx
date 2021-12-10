@@ -21,6 +21,7 @@ export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
 async function getYearnVaults(balances: Balances, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}
   for (let index = 0; index < SUPPORTED_VAULTS.length; index++) {
+    // TODO: caip indentifiers in SUPPORTED_VAULTS
     const vault = SUPPORTED_VAULTS[index]
     const vaultCaip19 = caip19.toCAIP19({
       chain: vault.chain,

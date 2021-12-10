@@ -89,8 +89,9 @@ export const marketData = createSlice({
   initialState,
   reducers: {
     setMarketData: (state, { payload }) => {
-      state.marketData.byId = payload
-      state.marketData.ids = Object.keys(payload)
+      state.marketData.byId = { ...state.marketData.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...(state.marketData.ids ?? []), ...Object.keys(payload)]))
+      state.marketData.ids = ids // upsert unique
     }
   },
   extraReducers: builder => {
@@ -149,14 +150,31 @@ export const marketApi = createApi({
         const data = getCacheEntry().data
         data && dispatch(marketData.actions.setMarketData(data))
       }
+    }),
+    findByCaip19: build.query<MarketCapResult, CAIP19>({
+      queryFn: async (caip19: CAIP19) => {
+        const marketData = await findByCaip19({ caip19 })
+        const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
+        return marketData ? { data: { [caip19]: marketData } } : { error }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(marketData.actions.setMarketData(data))
+      }
     })
   })
 })
 
-export const { useFindAllQuery } = marketApi
+export const { useFindAllQuery, useFindByCaip19Query } = marketApi
 
 export const selectMarketDataById = createSelector(
   (state: ReduxState) => state.marketData.marketData.byId,
   (_state: ReduxState, id: CAIP19) => id,
   (byId, id) => byId[id]
 )
+
+export const selectMarketData = (state: ReduxState) => state.marketData.marketData.byId
+
+// assets we have loaded market data for
+export const selectAvailableMarketDataIds = (state: ReduxState) => state.marketData.marketData.ids

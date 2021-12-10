@@ -11,20 +11,22 @@ import {
 } from '@shapeshiftoss/types'
 import { ReduxState } from 'state/reducer'
 
+type PriceHistoryByTimeframe = {
+  [k in HistoryTimeframe]: {
+    [k: CAIP19]: HistoryData[]
+  }
+}
+
 export type MarketDataState = {
-  loading: boolean
-  marketCap?: MarketCapResult
+  loading: boolean // remove this, if selector returns null we don't have it
+  marketCap?: MarketCapResult // remove this as it's the same as marketData.byId
   marketData: {
     byId: {
       [k: CAIP19]: MarketData
     }
     ids: CAIP19[]
   }
-  priceHistory: {
-    [k in HistoryTimeframe]: {
-      [k: CAIP19]: HistoryData[]
-    }
-  }
+  priceHistory: PriceHistoryByTimeframe
 }
 
 export const fetchMarketData = createAsyncThunk(
@@ -68,19 +70,21 @@ export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', as
   }
 })
 
+const initialPriceHistory = {
+  [HistoryTimeframe.HOUR]: {},
+  [HistoryTimeframe.DAY]: {},
+  [HistoryTimeframe.WEEK]: {},
+  [HistoryTimeframe.MONTH]: {},
+  [HistoryTimeframe.YEAR]: {},
+  [HistoryTimeframe.ALL]: {}
+}
+
 const initialState: MarketDataState = {
   marketData: {
     byId: {},
     ids: []
   },
-  priceHistory: {
-    [HistoryTimeframe.HOUR]: {},
-    [HistoryTimeframe.DAY]: {},
-    [HistoryTimeframe.WEEK]: {},
-    [HistoryTimeframe.MONTH]: {},
-    [HistoryTimeframe.YEAR]: {},
-    [HistoryTimeframe.ALL]: {}
-  },
+  priceHistory: initialPriceHistory,
   loading: false
 }
 
@@ -92,6 +96,9 @@ export const marketData = createSlice({
       state.marketData.byId = { ...state.marketData.byId, ...payload } // upsert
       const ids = Array.from(new Set([...(state.marketData.ids ?? []), ...Object.keys(payload)]))
       state.marketData.ids = ids // upsert unique
+    },
+    setPriceHistory: (state, { payload }: { payload: Partial<typeof initialPriceHistory> }) => {
+      state.priceHistory = { ...state.priceHistory, ...payload } // upsert
     }
   },
   extraReducers: builder => {
@@ -135,6 +142,8 @@ export const marketData = createSlice({
   }
 })
 
+type FindPriceHistoryByCaip19Args = { assets: CAIP19[]; timeframe: HistoryTimeframe }
+
 export const marketApi = createApi({
   reducerPath: 'marketApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
@@ -162,11 +171,32 @@ export const marketApi = createApi({
         const data = getCacheEntry().data
         data && dispatch(marketData.actions.setMarketData(data))
       }
+    }),
+    findPriceHistoryByCaip19: build.query<PriceHistoryByTimeframe, FindPriceHistoryByCaip19Args>({
+      queryFn: async ({ assets, timeframe }) => {
+        const reqs = assets.map(async a => findPriceHistoryByCaip19({ timeframe, caip19: a }))
+        const responses = await Promise.allSettled(reqs)
+        const fulfilled = responses.filter(
+          (res): res is PromiseFulfilledResult<HistoryData[]> => res.status === 'fulfilled'
+        )
+
+        const data = fulfilled.reduce<PriceHistoryByTimeframe>((acc, res, idx) => {
+          acc[timeframe][assets[idx]] = res.value
+          return acc
+        }, initialPriceHistory)
+
+        return { data }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(marketData.actions.setPriceHistory(data))
+      }
     })
   })
 })
 
-export const { useFindAllQuery, useFindByCaip19Query } = marketApi
+export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi
 
 export const selectMarketDataById = createSelector(
   (state: ReduxState) => state.marketData.marketData.byId,

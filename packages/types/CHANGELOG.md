@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.18.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.17.0...@shapeshiftoss/types-v1.18.0) (2021-12-10)
+
+
+### Features
+
+* add getcaip2 and caip identifiers to getaccount ([#279](https://github.com/shapeshift/lib/issues/279)) ([c1c819b](https://github.com/shapeshift/lib/commit/c1c819b682920b2887f7e11d1c3459f67354aadf))
+
 # [@shapeshiftoss/types-v1.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.16.2...@shapeshiftoss/types-v1.17.0) (2021-12-08)
 
 

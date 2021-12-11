@@ -7,7 +7,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   provided: {},
   subscriptions: {},
   config: {
-    reducerPath: reducerPath as T,
+    reducerPath,
     keepUnusedDataFor: 0,
     online: false,
     focused: false,

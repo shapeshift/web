@@ -1,7 +1,5 @@
 import React from 'react'
 import { useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
-// import { useSelector } from 'react-redux'
-// import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/portfolioSlice'
 
 export interface DataProps {
   date: string
@@ -24,7 +22,6 @@ export const MarketDataContext = React.createContext<MarketContextProps>({
 
 export const MarketDataProvider: React.FC = ({ children }) => {
   const [filteredData, setFilteredData] = React.useState<DataProps[]>([])
-  // const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
 
   // we always want to load market cap data
   useFindAllQuery({})

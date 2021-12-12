@@ -1,4 +1,5 @@
-import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import { getAssetService } from 'lib/assetService'
@@ -36,7 +37,11 @@ const initialState: AssetsState = {
 export const assets = createSlice({
   name: 'asset',
   initialState,
-  reducers: {},
+  reducers: {
+    setAssets: (state, action: PayloadAction<AssetsState>) => {
+      state = action.payload
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
@@ -60,6 +65,35 @@ export const assets = createSlice({
         })
       })
   }
+})
+
+export const marketApi = createApi({
+  reducerPath: 'assetApi',
+  // not actually used, only used to satisfy createApi, we use a custom queryFn
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
+  endpoints: build => ({
+    getAssets: build.query<AssetsState, void>({
+      // all assets
+      queryFn: async () => {
+        const service = await getAssetService()
+        const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
+        const data = assetArray.reduce<AssetsState>((acc, cur) => {
+          const { caip19 } = cur
+          acc.byId[caip19] = cur
+          acc.ids.push(caip19)
+          return acc
+        }, initialState)
+        return { data }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(assets.actions.setAssets(data))
+      }
+    })
+  })
 })
 
 export const selectAssetByCAIP19 = createSelector(

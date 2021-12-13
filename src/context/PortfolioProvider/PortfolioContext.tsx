@@ -33,10 +33,10 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const pubkeys = usePubkeys() // pubkeys change when the wallet changes
   const { isLoading: isPortfolioLoading } = useGetAccountsQuery(pubkeys)
 
+  // eagerly load asset descriptions
   useEffect(() => {
     if (isPortfolioLoading) return
     if (!portfolioAssetIds.length) return
-    // eagerly load asset descriptions
     dispatch(assetApi.endpoints.getAssetDescriptions.initiate(portfolioAssetIds))
   }, [isPortfolioLoading, portfolioAssetIds, dispatch])
 

@@ -95,6 +95,7 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       }
     }),
+    // TODO(0xdef1cafe): make this take a single asset and dispatch multiple actions
     getAssetDescriptions: build.query<AssetsState, CAIP19[]>({
       queryFn: async (assetIds, { getState }) => {
         const service = await getAssetService()

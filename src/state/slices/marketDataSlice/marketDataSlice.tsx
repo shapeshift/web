@@ -172,6 +172,7 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       }
     }),
+    // TODO(0xdef1cafe): make this take a single asset and dispatch multiple actions
     findPriceHistoryByCaip19: build.query<PriceHistoryByTimeframe, FindPriceHistoryByCaip19Args>({
       queryFn: async ({ assets, timeframe }, { getState }) => {
         const data: PriceHistoryByTimeframe = (getState() as ReduxState).marketData.priceHistory

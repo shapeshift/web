@@ -117,6 +117,7 @@ export const portfolioApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
+    // TODO(0xdef1cafe): make this take a single account and dispatch multiple actions
     getAccounts: build.query<AccountsToPortfolioArgs, Pubkeys>({
       queryFn: async pubkeys => {
         // can't call hooks conditionally, this is a valid return

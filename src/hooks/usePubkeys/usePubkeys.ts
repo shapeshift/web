@@ -78,7 +78,7 @@ export const usePubkeys: UsePubkeys = () => {
     setPubkeys(acc)
     // this is called by the effect below with the right logic to only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assetsById])
+  }, [walletInfo?.deviceId, assetsById])
 
   useEffect(() => {
     if (!wallet || !walletInfo?.deviceId) return

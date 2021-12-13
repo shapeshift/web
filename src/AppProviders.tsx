@@ -12,6 +12,7 @@ import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRout
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { MarketDataProvider } from 'context/MarketDataProvider/MarketDataProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
+import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { useFeature } from 'hooks/useFeature/useFeature'
@@ -48,13 +49,15 @@ export function AppProviders({ children }: ProvidersProps) {
             <I18n locale={locale} messages={messages}>
               <WalletProvider>
                 <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                  <MarketDataProvider>
-                    <TransactionsProvider>
-                      <ModalProvider>
-                        <EarnProvider>{children}</EarnProvider>
-                      </ModalProvider>
-                    </TransactionsProvider>
-                  </MarketDataProvider>
+                  <PortfolioProvider>
+                    <MarketDataProvider>
+                      <TransactionsProvider>
+                        <ModalProvider>
+                          <EarnProvider>{children}</EarnProvider>
+                        </ModalProvider>
+                      </TransactionsProvider>
+                    </MarketDataProvider>
+                  </PortfolioProvider>
                 </ChainAdaptersProvider>
               </WalletProvider>
             </I18n>

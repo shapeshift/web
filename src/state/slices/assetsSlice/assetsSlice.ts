@@ -2,6 +2,7 @@ import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@r
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import cloneDeep from 'lodash/cloneDeep'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
@@ -77,7 +78,7 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: async () => {
+      queryFn: async args => {
         const service = await getAssetService()
         const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
@@ -85,7 +86,7 @@ export const assetApi = createApi({
           acc.byId[caip19] = cur
           acc.ids.push(caip19)
           return acc
-        }, Object.assign({}, initialState))
+        }, cloneDeep(initialState))
         return { data }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
@@ -97,7 +98,9 @@ export const assetApi = createApi({
     getAssetDescriptions: build.query<AssetsState, CAIP19[]>({
       queryFn: async (assetIds, { getState }) => {
         const service = await getAssetService()
-        const { byId, ids } = (getState() as ReduxState).assets
+        // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
+        const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
+        const byId = cloneDeep(byIdOriginal)
         const reqs = assetIds.map(async id => service.description({ asset: byId[id] }))
         const responses = await Promise.allSettled(reqs)
         responses.forEach((res, idx) => {
@@ -105,7 +108,7 @@ export const assetApi = createApi({
             console.warn(`getAssetDescription: failed to fetch description for ${assetIds[idx]}`)
             return
           }
-          byId[idx].description = res.value
+          byId[assetIds[idx]].description = res.value
         })
 
         const data = { byId, ids }
@@ -119,6 +122,8 @@ export const assetApi = createApi({
     })
   })
 })
+
+export const { useGetAssetsQuery } = assetApi
 
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,

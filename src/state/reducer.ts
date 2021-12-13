@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit'
 
-import { assets } from './slices/assetsSlice/assetsSlice'
+import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
@@ -12,6 +12,7 @@ export const reducer = combineReducers({
   marketData: marketData.reducer,
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
+  [assetApi.reducerPath]: assetApi.reducer,
   [portfolioApi.reducerPath]: portfolioApi.reducer,
   [marketApi.reducerPath]: marketApi.reducer
 })

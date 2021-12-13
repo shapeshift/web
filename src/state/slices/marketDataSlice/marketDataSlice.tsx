@@ -151,7 +151,7 @@ export const marketApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    findAll: build.query<MarketCapResult, Partial<FindAllMarketArgs>>({
+    findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
       queryFn: async () => ({ data: await findAll({ pages: 4, perPage: 250 }) }),
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {

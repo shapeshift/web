@@ -19,6 +19,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
 })
 
 export const mockStore: ReduxState = {
+  assetApi: mockApiFactory('assetApi' as const),
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
   portfolio: {

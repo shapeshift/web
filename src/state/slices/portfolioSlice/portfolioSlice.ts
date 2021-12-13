@@ -209,3 +209,10 @@ export const selectPortfolioCryptoBalanceById = createSelector(
   (_state: ReduxState, id: CAIP19) => id,
   (byId, id) => byId[id]
 )
+
+export const selectPortfolioCryptoHumanBalanceById = createSelector(
+  selectAssetsById,
+  selectPortfolioBalances,
+  (_state: ReduxState, id: CAIP19) => id,
+  (assets, balances, id) => fromBaseUnit(bnOrZero(balances[id]), assets[id]?.precision ?? 0)
+)

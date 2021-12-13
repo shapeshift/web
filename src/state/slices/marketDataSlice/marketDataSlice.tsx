@@ -94,7 +94,7 @@ export const marketData = createSlice({
   reducers: {
     setMarketData: (state, { payload }) => {
       state.marketData.byId = { ...state.marketData.byId, ...payload } // upsert
-      const ids = Array.from(new Set([...(state.marketData.ids ?? []), ...Object.keys(payload)]))
+      const ids = Array.from(new Set([...state.marketData.ids, ...Object.keys(payload)]))
       state.marketData.ids = ids // upsert unique
     },
     setPriceHistory: (state, { payload }: { payload: Partial<typeof initialPriceHistory> }) => {
@@ -173,17 +173,18 @@ export const marketApi = createApi({
       }
     }),
     findPriceHistoryByCaip19: build.query<PriceHistoryByTimeframe, FindPriceHistoryByCaip19Args>({
-      queryFn: async ({ assets, timeframe }) => {
+      queryFn: async ({ assets, timeframe }, { getState }) => {
+        const data: PriceHistoryByTimeframe = (getState() as ReduxState).marketData.priceHistory
         const reqs = assets.map(async a => findPriceHistoryByCaip19({ timeframe, caip19: a }))
         const responses = await Promise.allSettled(reqs)
-        const fulfilled = responses.filter(
-          (res): res is PromiseFulfilledResult<HistoryData[]> => res.status === 'fulfilled'
-        )
 
-        const data = fulfilled.reduce<PriceHistoryByTimeframe>((acc, res, idx) => {
-          acc[timeframe][assets[idx]] = res.value
-          return acc
-        }, initialPriceHistory)
+        responses.forEach((res, idx) => {
+          if (res.status === 'rejected') {
+            console.warn(`findPriceHistoryByCaip19: failed to get price history for ${assets[idx]}`)
+            return
+          }
+          data[timeframe][assets[idx]] = res.value
+        })
 
         return { data }
       },

@@ -39,7 +39,8 @@ export const assets = createSlice({
   initialState,
   reducers: {
     setAssets: (state, action: PayloadAction<AssetsState>) => {
-      state = action.payload
+      state.byId = { ...state.byId, ...action.payload.byId } // upsert
+      state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
     }
   },
   extraReducers: builder => {
@@ -67,7 +68,7 @@ export const assets = createSlice({
   }
 })
 
-export const marketApi = createApi({
+export const assetApi = createApi({
   reducerPath: 'assetApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -84,7 +85,30 @@ export const marketApi = createApi({
           acc.byId[caip19] = cur
           acc.ids.push(caip19)
           return acc
-        }, initialState)
+        }, Object.assign({}, initialState))
+        return { data }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(assets.actions.setAssets(data))
+      }
+    }),
+    getAssetDescriptions: build.query<AssetsState, CAIP19[]>({
+      queryFn: async (assetIds, { getState }) => {
+        const service = await getAssetService()
+        const { byId, ids } = (getState() as ReduxState).assets
+        const reqs = assetIds.map(async id => service.description({ asset: byId[id] }))
+        const responses = await Promise.allSettled(reqs)
+        responses.forEach((res, idx) => {
+          if (res.status === 'rejected') {
+            console.warn(`getAssetDescription: failed to fetch description for ${assetIds[idx]}`)
+            return
+          }
+          byId[idx].description = res.value
+        })
+
+        const data = { byId, ids }
         return { data }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {

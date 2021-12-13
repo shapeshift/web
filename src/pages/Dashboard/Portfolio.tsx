@@ -68,7 +68,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <AccountList loading={loading} />
+          <AccountList />
         </Card.Body>
       </Card>
     </Stack>

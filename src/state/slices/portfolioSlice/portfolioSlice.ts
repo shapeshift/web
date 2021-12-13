@@ -1,7 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -165,36 +165,36 @@ export const { useGetAccountsQuery } = portfolioApi
 export const selectPortfolioAssetIds = (state: ReduxState) => state.portfolio.balances.ids
 export const selectPortfolioBalances = (state: ReduxState) => state.portfolio.balances.byId
 
-export const selectPortfolioTotalFiatBalance = createSelector(
+export const selectPortfolioFiatBalances = createSelector(
   selectAssetsById,
   selectMarketData,
   selectPortfolioBalances,
   (assetsById, marketData, balances) =>
-    Object.entries(balances)
-      .reduce((acc, [assetId, baseUnitBalance]) => {
+    Object.entries(balances).reduce<PortfolioBalances['byId']>(
+      (acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-        const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-        return acc.plus(assetFiatBalance)
-      }, bn(0))
-      .decimalPlaces(2)
-      .toNumber()
+        const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price)).toFixed(2)
+        acc[assetId] = assetFiatBalance
+        return acc
+      },
+      {}
+    )
+)
+
+export const selectPortfolioTotalFiatBalance = createSelector(
+  selectPortfolioFiatBalances,
+  (portfolioFiatBalances): string =>
+    Object.values(portfolioFiatBalances)
+      .reduce((acc, assetFiatBalance) => acc.plus(bnOrZero(assetFiatBalance)), bn(0))
+      .toFixed(2)
 )
 
 export const selectPortfolioFiatBalanceById = createSelector(
-  selectAssetsById,
-  selectMarketData,
-  selectPortfolioBalances,
+  selectPortfolioFiatBalances,
   (_state: ReduxState, id: CAIP19) => id,
-  (assetsById, marketData, balances, assetId) => {
-    const baseUnitBalance = balances[assetId]
-    const precision = assetsById[assetId]?.precision
-    const price = marketData[assetId]?.price
-    const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-    const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-    return assetFiatBalance.decimalPlaces(2).toNumber()
-  }
+  (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
 export const selectPortfolioCryptoBalanceById = createSelector(
@@ -230,4 +230,30 @@ export const selectPortfolioAccountIds = (state: ReduxState) => state.portfolio.
 export const selectPortfolioLoading = createSelector(
   selectPortfolioAccountIds,
   ids => !Boolean(ids.length)
+)
+
+export const selectPortfolioAssetBalancesSortedFiat = createSelector(
+  selectPortfolioFiatBalances,
+  portfolioFiatBalances =>
+    Object.entries(portfolioFiatBalances)
+      .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
+      .reduce<PortfolioBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
+        acc[assetId] = assetFiatBalance
+        return acc
+      }, {})
+)
+
+export const selectPortfolioAllocationPercent = createSelector(
+  selectPortfolioTotalFiatBalance,
+  selectPortfolioFiatBalances,
+  (totalBalance, fiatBalances) =>
+    Object.entries(fiatBalances).reduce<{ [k: CAIP19]: number }>((acc, [assetId, fiatBalance]) => {
+      acc[assetId] = bnOrZero(fiatBalance).div(bnOrZero(totalBalance)).times(100).toNumber()
+      return acc
+    }, {})
+)
+
+export const selectPortfolioIsEmpty = createSelector(
+  selectPortfolioAssetIds,
+  assetIds => !assetIds.length
 )

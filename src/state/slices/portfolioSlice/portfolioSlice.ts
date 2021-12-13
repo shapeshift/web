@@ -1,7 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { caip2, CAIP10, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -215,4 +215,26 @@ export const selectPortfolioCryptoHumanBalanceById = createSelector(
   selectPortfolioBalances,
   (_state: ReduxState, id: CAIP19) => id,
   (assets, balances, id) => fromBaseUnit(bnOrZero(balances[id]), assets[id]?.precision ?? 0)
+)
+
+export type PortfolioAssets = {
+  [k: CAIP19]: Asset
+}
+
+export const selectPortfolioAssets = createSelector(
+  selectAssetsById,
+  selectPortfolioAssetIds,
+  (assetsById, portfolioAssetIds) =>
+    portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {
+      acc[cur] = assetsById[cur]
+      return acc
+    }, {})
+)
+
+export const selectPortfolioAccountIds = (state: ReduxState) => state.portfolio.accounts.ids
+
+// we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
+export const selectPortfolioLoading = createSelector(
+  selectPortfolioAccountIds,
+  ids => !Boolean(ids.length)
 )

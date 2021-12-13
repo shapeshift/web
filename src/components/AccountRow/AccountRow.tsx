@@ -1,17 +1,15 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { useEffect, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
-import { fetchMarketData, selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { Allocations } from './Allocations'
 
@@ -22,7 +20,6 @@ export type AccountRowArgs = {
 }
 
 export const AccountRow = ({ allocationValue, balance, CAIP19 }: AccountRowArgs) => {
-  const dispatch = useDispatch()
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const { chain, tokenId } = caip19.fromCAIP19(CAIP19)
   const url = useMemo(() => {
@@ -31,17 +28,8 @@ export const AccountRow = ({ allocationValue, balance, CAIP19 }: AccountRowArgs)
     return baseUrl
   }, [chain, tokenId])
 
-  const asset = useFetchAsset(CAIP19)
-  const marketData = useSelector((state: ReduxState) => selectMarketDataById(state, CAIP19))
-  const marketDataLoading = useSelector((state: ReduxState) => state.marketData.loading)
-
-  useEffect(() => {
-    ;(async () => {
-      if (asset && !marketData) {
-        dispatch(fetchMarketData(CAIP19))
-      }
-    })()
-  }, [asset, CAIP19, dispatch, marketData])
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, CAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, CAIP19))
 
   const displayValue = useMemo(
     () => (asset ? fromBaseUnit(balance, asset.precision) : 0),
@@ -100,23 +88,11 @@ export const AccountRow = ({ allocationValue, balance, CAIP19 }: AccountRowArgs)
         <Amount.Crypto value={displayValue.toString()} symbol={asset.symbol} />
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
-        {!marketData?.price ? (
-          marketDataLoading ? (
-            <CircularProgress isIndeterminate size='5' />
-          ) : (
-            '--'
-          )
-        ) : (
-          <Amount.Fiat value={marketData.price} />
-        )}
+        {!marketData?.price ? '--' : <Amount.Fiat value={marketData.price} />}
       </Flex>
       <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
         {!marketData?.price ? (
-          marketDataLoading ? (
-            <CircularProgress isIndeterminate size='5' />
-          ) : (
-            '--'
-          )
+          '--'
         ) : (
           <Flex flexDir='column' textAlign='right'>
             <Amount.Fiat value={fiatValue} />

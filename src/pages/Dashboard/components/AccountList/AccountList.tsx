@@ -1,10 +1,8 @@
 import { Flex, Grid, Stack } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import range from 'lodash/range'
-import { useEffect } from 'react'
 import { useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { LoadingRow } from 'components/AccountRow/LoadingRow'
 import { Card } from 'components/Card/Card'
@@ -12,13 +10,13 @@ import { IconCircle } from 'components/IconCircle'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { usePortfolio } from 'context/PortfolioProvider/PortfolioContext'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { sortByFiat } from 'pages/Dashboard/helpers/sortByFiat/sortByFiat'
-import { ReduxState } from 'state/reducer'
-import { fetchAssets, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectPortfolioTotalFiatBalance } from 'state/slices/portfolioSlice/portfolioSlice'
 
 const AccountHeader = () => (
   <Grid
@@ -56,24 +54,15 @@ const AccountHeader = () => (
 )
 
 export const AccountList = ({ loading }: { loading?: boolean }) => {
-  const dispatch = useDispatch()
   const { receive } = useModal()
   const {
     state: { isConnected },
     dispatch: walletDispatch
   } = useWallet()
   const assets = useSelector(selectAssetsById)
-  const marketData = useSelector((state: ReduxState) => state.marketData.marketData.byId)
+  const marketData = useSelector(selectMarketData)
   const { balances } = useCAIP19Balances()
-  const { totalBalance } = usePortfolio()
-
-  useEffect(() => {
-    // arbitrary number to just make sure we dont fetch all assets if we already have
-    if (Object.keys(assets ?? {}).length < 100) {
-      dispatch(fetchAssets({ network: NetworkTypes.MAINNET }))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
 
   const accounts = useMemo(() => {
     return Object.keys(balances)

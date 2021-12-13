@@ -1,5 +1,5 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { chainAdapters, ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -14,13 +14,16 @@ import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { PortfolioAssets, usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
 import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { ReduxState } from 'state/reducer'
+import { PortfolioAssets, selectPortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  PortfolioBalances,
+  selectPortfolioBalances
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxs, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type PriceAtBlockTimeArgs = {
@@ -74,7 +77,7 @@ type MakeBucketsReturn = {
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assets: CAIP19[]
-  balances: { [k: CAIP19]: chainAdapters.Account<ChainTypes> }
+  balances: PortfolioBalances['byId']
 }
 
 // adjust this to give charts more or less granularity
@@ -94,9 +97,7 @@ export const makeBuckets: MakeBuckets = args => {
 
   // current asset balances, we iterate over this later and adjust on each tx
   const assetBalances = assets.reduce<CryptoBalance>((acc, cur) => {
-    const account = balances[cur]
-    if (!account) return acc // we don't have a balance for this asset, e.g. metamask bitcoin
-    acc[cur] = bnOrZero(account.balance)
+    acc[cur] = bnOrZero(balances[cur])
     return acc
   }, {})
 
@@ -172,6 +173,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[caip19]
+    if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
@@ -279,27 +281,22 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { assets, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
-  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
+  const balances = useSelector(selectPortfolioBalances)
+  const accountTypes = useSelector(selectAccountTypes)
+  const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo }
   } = useWallet()
-  // portfolioAssets are all assets in a users portfolio
-  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(useSelector(selectTxs), 500)
-  const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
+  const { data: priceHistoryData } = usePriceHistory(args)
 
   useEffect(() => {
     if (isNil(walletInfo?.deviceId)) return
-    if (priceHistoryLoading) return
-    if (caip19BalancesLoading) return
-    if (portfolioAssetsLoading) return
     if (!assets.length) return
     if (!txs.length) return
     if (isEmpty(balances)) return
-    if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
 
     setBalanceChartDataLoading(true)
     // create empty buckets based on the assets, current balances, and timeframe
@@ -326,13 +323,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     assets,
     accountTypes,
     priceHistoryData,
-    priceHistoryLoading,
     txs,
     timeframe,
     balances,
-    caip19BalancesLoading,
     setBalanceChartData,
-    portfolioAssetsLoading,
     portfolioAssets,
     walletInfo?.deviceId
   ])

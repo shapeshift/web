@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { flattenTokenBalances, useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { usePubkeys } from 'hooks/usePubkeys/usePubkeys'
 import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
 import { assetApi, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -13,14 +13,14 @@ import {
 type PortfolioContextProps = {
   totalBalance: number
   loading: boolean
-  balances: ReturnType<typeof flattenTokenBalances>
+  balances: Balances
 }
 
 const PortfolioContext = React.createContext<PortfolioContextProps | null>(null)
 
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
   // these get replaced by selectors
-  const { balances, loading } = useFlattenedBalances()
+  const { balances, loading } = useBalances()
   const totalBalance = useTotalBalance(balances)
   const dispatch = useDispatch()
 

@@ -175,6 +175,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 suffix={localeParts.postfix}
                 value={value}
                 customInput={FiatInput}
+                isNumericString={true}
                 onValueChange={e => {
                   onChange(e.value)
                   if (e.value !== value) {

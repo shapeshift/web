@@ -61,6 +61,7 @@ export function TokenRow<C extends FieldValues>({
               thousandSeparator={localeParts.group}
               decimalSeparator={localeParts.decimal}
               customInput={CryptoInput}
+              isNumericString={true}
               value={value}
               disabled={disabled}
               onValueChange={e => {

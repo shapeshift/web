@@ -1,5 +1,4 @@
 import React from 'react'
-import { useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export interface DataProps {
   date: string
@@ -20,11 +19,9 @@ export const MarketDataContext = React.createContext<MarketContextProps>({
   }
 })
 
+// TODO(0xdef1cafe): remove this whole provider
 export const MarketDataProvider: React.FC = ({ children }) => {
   const [filteredData, setFilteredData] = React.useState<DataProps[]>([])
-
-  // we always want to load market cap data
-  useFindAllQuery({})
 
   return (
     <MarketDataContext.Provider

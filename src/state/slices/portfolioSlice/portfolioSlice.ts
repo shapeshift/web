@@ -1,7 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { caip2, CAIP10, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -67,30 +67,24 @@ export const accountsToPortfolio: AccountsToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args).forEach(([CAIP10, account]) => {
-    const { chain, network } = account
+    const { chain } = account
     portfolio.accounts.byId[CAIP10] = []
     portfolio.accounts.ids.push(CAIP10)
     switch (chain) {
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
-        const ethCAIP19 = caip19.toCAIP19({ chain, network })
-        portfolio.accounts.byId[CAIP10].push(ethCAIP19)
-        portfolio.balances.ids.push(ethCAIP19)
-        portfolio.balances.byId[ethCAIP19] = ethAccount.balance
-        const { tokens } = ethAccount.chainSpecific
-        if (!tokens) break
-        tokens.forEach(token => {
-          const { contractType, contract: tokenId, balance } = token
-          const tokenCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-          portfolio.accounts.byId[CAIP10].push(tokenCAIP19)
-          portfolio.balances.ids.push(tokenCAIP19)
-          portfolio.balances.byId[tokenCAIP19] = balance
+        portfolio.accounts.byId[CAIP10].push(account.caip19)
+        portfolio.balances.ids.push(account.caip19)
+        portfolio.balances.byId[account.caip19] = ethAccount.balance
+        ethAccount.chainSpecific.tokens?.forEach(token => {
+          portfolio.accounts.byId[CAIP10].push(token.caip19)
+          portfolio.balances.ids.push(token.caip19)
+          portfolio.balances.byId[token.caip19] = token.balance
         })
         break
       }
       case ChainTypes.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
-        const btcCAIP19 = caip19.toCAIP19({ chain, network })
         const addresses = btcAccount.chainSpecific.addresses ?? []
         // TODO(0xdef1cafe): is there only one with a balance here...?
         const totalSats = addresses.reduce((acc, cur) => acc.plus(bnOrZero(cur.balance)), bn(0))
@@ -98,9 +92,9 @@ export const accountsToPortfolio: AccountsToPortfolio = args => {
 
         // this will index accounts by xpub/ypub/zpub
         // with a combined balance of all sats in all addresses owned by that xpub
-        portfolio.accounts.byId[CAIP10].push(btcCAIP19)
-        portfolio.balances.byId[btcCAIP19] = balance
-        portfolio.balances.ids.push(btcCAIP19)
+        portfolio.accounts.byId[CAIP10].push(account.caip19)
+        portfolio.balances.byId[account.caip19] = balance
+        portfolio.balances.ids.push(account.caip19)
 
         break
       }
@@ -142,8 +136,7 @@ export const portfolioApi = createApi({
             // TODO(0xdef1cafe): handle error - this can't return both
             console.error(`portfolioApi: ${cur.reason}`)
           } else if (cur.status === 'fulfilled') {
-            const CAIP2 = caip2.toCAIP2({ chain: cur.value.chain, network: cur.value.network })
-            const CAIP10 = caip10.toCAIP10({ caip2: CAIP2, account: cur.value.pubkey })
+            const CAIP10 = caip10.toCAIP10({ caip2: cur.value.caip2, account: cur.value.pubkey })
             acc[CAIP10] = cur.value
           }
           return acc

@@ -12,23 +12,24 @@ export interface MarketContextProps {
   }
 }
 
-export const MarketContext = React.createContext<MarketContextProps>({
+export const MarketDataContext = React.createContext<MarketContextProps>({
   filteredDataState: {
     filteredData: [],
     setFilteredData: () => {}
   }
 })
 
-export const MarketProvider: React.FC = ({ children }) => {
+// TODO(0xdef1cafe): remove this whole provider
+export const MarketDataProvider: React.FC = ({ children }) => {
   const [filteredData, setFilteredData] = React.useState<DataProps[]>([])
 
   return (
-    <MarketContext.Provider
+    <MarketDataContext.Provider
       value={{
         filteredDataState: { filteredData, setFilteredData }
       }}
     >
       {children}
-    </MarketContext.Provider>
+    </MarketDataContext.Provider>
   )
 }

@@ -6,11 +6,11 @@ import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
+import { usePortfolio } from 'context/PortfolioProvider/PortfolioContext'
+import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 
-import { useBalanceChartData } from '../../hooks/useBalanceChartData/useBalanceChartData'
 import { AccountList } from './components/AccountList/AccountList'
-import { usePortfolio } from './contexts/PortfolioContext'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)

@@ -175,6 +175,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 suffix={localeParts.postfix}
                 value={value}
                 customInput={FiatInput}
+                isNumericString={true}
                 onValueChange={e => {
                   onChange(e.value)
                   if (e.value !== value) {
@@ -248,16 +249,18 @@ export const TradeInput = ({ history }: RouterProps) => {
             isLoading={!quote || action || error ? true : false}
             _loading={{ color: 'blue.500' }}
           />
-          <Box display='flex' alignItems='center' color='gray.500'>
+          <Box display='flex' alignItems='center' color='gray.500' fontSize='sm' spacing='24px'>
             {!quote || action || error ? (
-              <Text fontSize='sm' translation={error ? 'common.error' : 'trade.searchingRate'} />
+              <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
             ) : (
               <>
-                <RawText textAlign='right' fontSize='sm'>{`1 ${
-                  sellAsset.currency?.symbol
-                } = ${firstNonZeroDecimal(bnOrZero(quote?.rate))} ${
-                  buyAsset?.currency?.symbol
-                }`}</RawText>
+                <RawText whiteSpace={'pre'}>{`1 ${sellAsset.currency?.symbol} = `}</RawText>
+                <NumberFormat
+                  value={firstNonZeroDecimal(bnOrZero(quote?.rate))}
+                  displayType={'text'}
+                  thousandSeparator={true}
+                />
+                <RawText whiteSpace={'pre'}>{` ${buyAsset?.currency?.symbol}`}</RawText>
                 <HelperTooltip label={translate('trade.tooltip.rate')} />
               </>
             )}

@@ -272,6 +272,7 @@ export const Deposit = ({
                       return (
                         <NumberFormat
                           customInput={CryptoInput}
+                          isNumericString={true}
                           decimalSeparator={localeParts.decimal}
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
@@ -298,6 +299,7 @@ export const Deposit = ({
                       return (
                         <NumberFormat
                           customInput={CryptoInput}
+                          isNumericString={true}
                           decimalSeparator={localeParts.decimal}
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}

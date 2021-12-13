@@ -20,6 +20,7 @@ import { isEmpty } from 'lodash'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
@@ -34,7 +35,8 @@ import { fromBaseUnit } from 'lib/math'
 import { useAsset } from 'pages/Assets/Asset'
 import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
+import { ReduxState } from 'state/reducer'
+import { selectPortfolioFiatBalanceById } from 'state/slices/portfolioSlice/portfolioSlice'
 import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './AssetActions'
@@ -86,7 +88,9 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   })
   const { balances } = useFlattenedBalances()
   const id = asset.tokenId ?? asset.chain
-  const totalBalance = useTotalBalance({ [id]: balances[id] })
+  const totalBalance = useSelector((state: ReduxState) =>
+    selectPortfolioFiatBalanceById(state, asset.caip19)
+  )
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe

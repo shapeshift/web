@@ -3651,10 +3651,15 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.4.2", "@shapeshiftoss/caip@^1.6.0":
+"@shapeshiftoss/caip@^1.4.2":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.6.0.tgz#583917ecbfb74859417eb977d845619cdd9a17e8"
   integrity sha512-FSsDaB1zDWK/UbU9BW2Sy1pnE9JfSIDUkuZW21LsjAyVQFsroI50wp1Wy9HYDOTNvlzP9MxanSB6g81b1X4ctQ==
+
+"@shapeshiftoss/caip@^1.6.1":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.6.1.tgz#d9a7928543349536f4cdaf4455de0f6966eed0f4"
+  integrity sha512-T7LPjZO9YLuTfVPg2bBbqJH5mSWbcGrcmTJYd41QBRkS1XlAhI63gscENkPo2WeNunrEJFLHITiwk/ddlkme8A==
 
 "@shapeshiftoss/chain-adapters@^1.21.0":
   version "1.21.0"

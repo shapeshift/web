@@ -61,7 +61,7 @@ export const fetchPriceHistory = createAsyncThunk(
 
 export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
   try {
-    const args: FindAllMarketArgs = { pages: 1, perPage: 250 }
+    const args: FindAllMarketArgs = { count: 250 }
     const marketCap = await findAll(args)
     return { marketCap }
   } catch (error) {
@@ -153,7 +153,7 @@ export const marketApi = createApi({
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
-      queryFn: async () => ({ data: await findAll({ pages: 4, perPage: 250 }) }),
+      queryFn: async () => ({ data: await findAll({ count: 1000 }) }),
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.8.0...@shapeshiftoss/asset-service-v1.9.0) (2021-12-14)
+
+
+### Features
+
+* add CAIP2 and unit tests ([#284](https://github.com/shapeshift/lib/issues/284)) ([42c1e02](https://github.com/shapeshift/lib/commit/42c1e02e86380f976f7de77d9c99c135d53065ad))
+
 # [@shapeshiftoss/asset-service-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.7.4...@shapeshiftoss/asset-service-v1.8.0) (2021-11-30)
 
 

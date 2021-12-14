@@ -9,6 +9,7 @@ import {
   MarketCapResult,
   MarketData
 } from '@shapeshiftoss/types'
+import { isEmpty } from 'lodash'
 import { ReduxState } from 'state/reducer'
 
 type PriceHistoryByTimeframe = {
@@ -210,3 +211,9 @@ export const selectMarketData = (state: ReduxState) => state.marketData.marketDa
 
 // assets we have loaded market data for
 export const selectAvailableMarketDataIds = (state: ReduxState) => state.marketData.marketData.ids
+
+// if we don't have it it's loading
+export const selectMarketDataLoadingById = createSelector(
+  selectMarketDataById,
+  (assetMarketData): boolean => isEmpty(assetMarketData)
+)

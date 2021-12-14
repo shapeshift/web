@@ -15,8 +15,9 @@ import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 export const StakingVaultRow = ({
   type,
@@ -39,7 +40,7 @@ export const StakingVaultRow = ({
   // asset
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
   const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData(assetCAIP19)
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
 
   // account info
   const chainAdapterManager = useChainAdapters()

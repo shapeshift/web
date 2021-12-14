@@ -25,9 +25,10 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalances } from 'hooks/useBalances/useBalances'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
@@ -63,10 +64,10 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const underlyingAsset = useFetchAsset(underlyingAssetCAIP19)
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
   const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData(underlyingAssetCAIP19)
+  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
   const feeAsset = useFetchAsset(feeAssetCAIP19)
-  const feeMarketData = useMarketData(feeAssetCAIP19)
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   // user info
   const chainAdapterManager = useChainAdapters()

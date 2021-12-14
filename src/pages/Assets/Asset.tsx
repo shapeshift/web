@@ -8,12 +8,14 @@ import {
   MarketData,
   NetworkTypes
 } from '@shapeshiftoss/types'
-import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useMarketData } from 'hooks/useMarketData/useMarketData'
-import { ReduxState } from 'state/reducer'
+import {
+  selectMarketDataById,
+  selectMarketDataLoadingById
+} from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 export interface MatchParams {
@@ -55,8 +57,8 @@ export const useAsset = () => {
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
   const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData(assetCAIP19)
-  const loading = useSelector((state: ReduxState) => state.marketData.loading)
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))
 
   return {
     asset: asset ?? initAsset,

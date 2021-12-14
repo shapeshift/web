@@ -162,8 +162,10 @@ export const portfolioApi = createApi({
 
 export const { useGetAccountsQuery } = portfolioApi
 
-export const selectPortfolioAssetIds = (state: ReduxState) => state.portfolio.balances.ids
-export const selectPortfolioBalances = (state: ReduxState) => state.portfolio.balances.byId
+export const selectPortfolioAssetIds = (state: ReduxState): PortfolioBalances['ids'] =>
+  state.portfolio.balances.ids
+export const selectPortfolioBalances = (state: ReduxState): PortfolioBalances['byId'] =>
+  state.portfolio.balances.byId
 
 export const selectPortfolioFiatBalances = createSelector(
   selectAssetsById,
@@ -191,23 +193,26 @@ export const selectPortfolioTotalFiatBalance = createSelector(
       .toFixed(2)
 )
 
+const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
+
 export const selectPortfolioFiatBalanceById = createSelector(
   selectPortfolioFiatBalances,
-  (_state: ReduxState, id: CAIP19) => id,
+  selectAssetIdParam,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
 export const selectPortfolioCryptoBalanceById = createSelector(
   selectPortfolioBalances,
-  (_state: ReduxState, id: CAIP19) => id,
-  (byId, id) => byId[id]
+  selectAssetIdParam,
+  (byId, assetId): string => byId[assetId]
 )
 
 export const selectPortfolioCryptoHumanBalanceById = createSelector(
   selectAssetsById,
   selectPortfolioBalances,
-  (_state: ReduxState, id: CAIP19) => id,
-  (assets, balances, id) => fromBaseUnit(bnOrZero(balances[id]), assets[id]?.precision ?? 0)
+  selectAssetIdParam,
+  (assets, balances, assetId): string =>
+    fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
 )
 
 export type PortfolioAssets = {
@@ -217,24 +222,25 @@ export type PortfolioAssets = {
 export const selectPortfolioAssets = createSelector(
   selectAssetsById,
   selectPortfolioAssetIds,
-  (assetsById, portfolioAssetIds) =>
+  (assetsById, portfolioAssetIds): { [k: CAIP19]: Asset } =>
     portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {
       acc[cur] = assetsById[cur]
       return acc
     }, {})
 )
 
-export const selectPortfolioAccountIds = (state: ReduxState) => state.portfolio.accounts.ids
+export const selectPortfolioAccountIds = (state: ReduxState): CAIP19[] =>
+  state.portfolio.accounts.ids
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
 export const selectPortfolioLoading = createSelector(
   selectPortfolioAccountIds,
-  ids => !Boolean(ids.length)
+  (ids): boolean => !Boolean(ids.length)
 )
 
 export const selectPortfolioAssetBalancesSortedFiat = createSelector(
   selectPortfolioFiatBalances,
-  portfolioFiatBalances =>
+  (portfolioFiatBalances): { [k: CAIP19]: string } =>
     Object.entries(portfolioFiatBalances)
       .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
       .reduce<PortfolioBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
@@ -245,13 +251,13 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
 
 export const selectPortfolioAssetIdsSortedFiat = createSelector(
   selectPortfolioAssetBalancesSortedFiat,
-  sortedBalances => Object.keys(sortedBalances)
+  (sortedBalances): CAIP19[] => Object.keys(sortedBalances)
 )
 
 export const selectPortfolioAllocationPercent = createSelector(
   selectPortfolioTotalFiatBalance,
   selectPortfolioFiatBalances,
-  (totalBalance, fiatBalances) =>
+  (totalBalance, fiatBalances): { [k: CAIP19]: number } =>
     Object.entries(fiatBalances).reduce<{ [k: CAIP19]: number }>((acc, [assetId, fiatBalance]) => {
       acc[assetId] = bnOrZero(fiatBalance).div(bnOrZero(totalBalance)).times(100).toNumber()
       return acc
@@ -260,5 +266,5 @@ export const selectPortfolioAllocationPercent = createSelector(
 
 export const selectPortfolioIsEmpty = createSelector(
   selectPortfolioAssetIds,
-  assetIds => !assetIds.length
+  (assetIds): boolean => !assetIds.length
 )

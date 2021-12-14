@@ -1,3 +1,4 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
@@ -5,7 +6,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { TestProviders } from 'jest/TestProviders'
-import { useAppSelector } from 'state/store'
+import { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
@@ -13,7 +14,10 @@ jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('hooks/useAsset/useAsset')
-jest.mock('hooks/useFetchAsset/useFetchAsset')
+jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
+  ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
+  selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => ethAsset
+}))
 
 const fees = {
   [chainAdapters.FeeDataKey.Slow]: {
@@ -56,12 +60,11 @@ const getAssetData = () =>
     precision: 18
   })
 
-const setup = ({ asset = {}, estimatedFees = {}, wallet = {}, feeAsset = {} }) => {
+const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
     state: { wallet }
   }))
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
-  ;(useAppSelector as jest.Mock<unknown>).mockImplementation(() => feeAsset)
 
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
 
@@ -78,8 +81,7 @@ describe('useSendFees', () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
         asset: ethAsset,
-        estimatedFees: fees,
-        feeAsset: ethAsset
+        estimatedFees: fees
       })
       await waitForValueToChange(() => result.current.fees)
       expect(result.current.fees?.slow.fiatFee).toBe('0.000147')
@@ -93,8 +95,7 @@ describe('useSendFees', () => {
       const { result } = setup({
         asset: ethAsset,
         estimatedFees: fees,
-        // @ts-ignore Type 'null' is not assignable to type '{} | undefined'
-        wallet: null
+        wallet: {}
       })
       expect(result.current.fees).toBe(null)
     })

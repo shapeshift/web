@@ -28,6 +28,7 @@ jest.mock('context/WalletProvider/WalletProvider')
 const formData: SendInput = {
   address: '0xMyWalletAddres',
   asset: {
+    caip2: '',
     caip19: '',
     description: '',
     price: '',

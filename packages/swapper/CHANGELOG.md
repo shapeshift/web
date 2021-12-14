@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.13.0...@shapeshiftoss/swapper-v1.14.0) (2021-12-14)
+
+
+### Features
+
+* add CAIP2 and unit tests ([#284](https://github.com/shapeshift/lib/issues/284)) ([42c1e02](https://github.com/shapeshift/lib/commit/42c1e02e86380f976f7de77d9c99c135d53065ad))
+
 # [@shapeshiftoss/swapper-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.12.0...@shapeshiftoss/swapper-v1.13.0) (2021-12-10)
 
 

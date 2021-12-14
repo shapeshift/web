@@ -164,9 +164,15 @@ export const marketApi = createApi({
     }),
     findByCaip19: build.query<MarketCapResult, CAIP19>({
       queryFn: async (caip19: CAIP19) => {
-        const marketData = await findByCaip19({ caip19 })
-        const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
-        return marketData ? { data: { [caip19]: marketData } } : { error }
+        try {
+          const marketData = await findByCaip19({ caip19 })
+          if (!marketData) throw new Error()
+          const data = { [caip19]: marketData }
+          return { data }
+        } catch (e) {
+          const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
+          return { error }
+        }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded

@@ -10,7 +10,7 @@ import {
 } from '@shapeshiftoss/types'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectMarketDataById,
   selectMarketDataLoadingById
@@ -56,7 +56,7 @@ export const useAsset = () => {
   const contractType = ContractTypes.ERC20
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  const asset = useFetchAsset(assetCAIP19)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))
 

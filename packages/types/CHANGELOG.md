@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.19.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.18.0...@shapeshiftoss/types-v1.19.0) (2021-12-14)
+
+
+### Features
+
+* add CAIP2 and unit tests ([#284](https://github.com/shapeshift/lib/issues/284)) ([42c1e02](https://github.com/shapeshift/lib/commit/42c1e02e86380f976f7de77d9c99c135d53065ad))
+
 # [@shapeshiftoss/types-v1.18.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.17.0...@shapeshiftoss/types-v1.18.0) (2021-12-10)
 
 

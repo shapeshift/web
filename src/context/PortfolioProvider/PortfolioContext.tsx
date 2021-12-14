@@ -1,7 +1,7 @@
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { usePubkeys } from 'hooks/usePubkeys/usePubkeys'
+import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -10,8 +10,8 @@ import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch()
   useGetAssetsQuery() // load all assets
-  useFindAllQuery() // load all market data
-  const pubkeys = usePubkeys()
+  useFindAllQuery() // load top 1000 assets market data
+  const pubkeys = useAccountSpecifiers()
 
   useEffect(() => {
     if (isEmpty(pubkeys)) return

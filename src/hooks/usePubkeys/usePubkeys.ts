@@ -14,10 +14,10 @@ import { ReduxState } from 'state/reducer'
 import { selectAssetIds, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
 
 export type Pubkeys = { [k: CAIP2]: string }
-type UsePubkeys = () => Pubkeys
+type UsePubkeys = () => Pubkeys[]
 
 export const usePubkeys: UsePubkeys = () => {
-  const [pubkeys, setPubkeys] = useState<Pubkeys>({})
+  const [pubkeys, setPubkeys] = useState<Pubkeys[]>([])
   const chainAdapter = useChainAdapters()
   const {
     state: { wallet, walletInfo }
@@ -30,7 +30,7 @@ export const usePubkeys: UsePubkeys = () => {
   const getPubkeys = useCallback(async () => {
     if (!wallet) return
     const supportedAdapters = chainAdapter.getSupportedAdapters()
-    const acc: Pubkeys = {}
+    const acc: Pubkeys[] = []
 
     for (const getAdapter of supportedAdapters) {
       const adapter = getAdapter()
@@ -73,7 +73,7 @@ export const usePubkeys: UsePubkeys = () => {
 
       if (!pubkey) continue
       const CAIP2 = caip2.toCAIP2({ chain, network })
-      acc[CAIP2] = pubkey
+      acc.push({ [CAIP2]: pubkey })
     }
     setPubkeys(acc)
     // this is called by the effect below with the right logic to only call once

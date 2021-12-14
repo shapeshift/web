@@ -1,9 +1,10 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
+import merge from 'lodash/merge'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Pubkeys } from 'hooks/usePubkeys/usePubkeys'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -51,7 +52,7 @@ export const portfolio = createSlice({
   initialState,
   reducers: {
     clearPortfolio: () => initialState,
-    setPortfolio: (_state, { payload }: { payload: Portfolio }) => payload
+    setPortfolio: (state, { payload }: { payload: Portfolio }) => merge(state, payload) // upsert
   }
 })
 
@@ -114,35 +115,26 @@ export const portfolioApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     // TODO(0xdef1cafe): make this take a single account and dispatch multiple actions
-    getAccounts: build.query<Portfolio, Pubkeys>({
+    getAccount: build.query<Portfolio, Pubkeys>({
       queryFn: async pubkeys => {
         // can't call hooks conditionally, this is a valid return
         if (isEmpty(pubkeys)) return { data: cloneDeep(initialState) }
-
         const chainAdapters = getChainAdapters()
-
-        // fetch accounts for each chain
-        const promises = Object.entries(pubkeys).map(async ([CAIP2, pubkey]) => {
-          // TODO(0xdef1cafe): chainAdapters.byCAIP2()
-          const { chain } = caip2.fromCAIP2(CAIP2)
-          return chainAdapters.byChain(chain).getAccount(pubkey)
-        })
-
-        // allow failures of individual chains
-        const maybeAccounts = await Promise.allSettled(promises)
-
-        const accounts = maybeAccounts.reduce<AccountsToPortfolioArgs>((acc, cur) => {
-          if (cur.status === 'rejected') {
-            // TODO(0xdef1cafe): handle error - this can't return both
-            console.error(`portfolioApi: ${cur.reason}`)
-          } else if (cur.status === 'fulfilled') {
-            const CAIP10 = caip10.toCAIP10({ caip2: cur.value.caip2, account: cur.value.pubkey })
-            acc[CAIP10] = cur.value
-          }
-          return acc
-        }, {})
-        const data = accountsToPortfolio(accounts)
-        return { data }
+        const [accountCAIP2, pubkey] = Object.entries(pubkeys)[0] as [CAIP2, string]
+        // TODO(0xdef1cafe): chainAdapters.byCAIP2()
+        const { chain } = caip2.fromCAIP2(accountCAIP2)
+        try {
+          const chainAdaptersAccount = await chainAdapters.byChain(chain).getAccount(pubkey)
+          const CAIP10 = caip10.toCAIP10({ caip2: accountCAIP2, account: pubkey })
+          const account = { [CAIP10]: chainAdaptersAccount }
+          const data = accountsToPortfolio(account)
+          return { data }
+        } catch (e) {
+          const status = 400
+          const data = JSON.stringify(e)
+          const error = { status, data }
+          return { error }
+        }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         // we don't really have a 1:1 mapping between the chain adapters
@@ -160,8 +152,6 @@ export const portfolioApi = createApi({
     })
   })
 })
-
-export const { useGetAccountsQuery } = portfolioApi
 
 export const selectPortfolioAssetIds = (state: ReduxState): PortfolioBalances['ids'] =>
   state.portfolio.balances.ids

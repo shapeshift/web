@@ -92,11 +92,11 @@ export const AccountList = () => {
       <>
         <AccountHeader />
         {Object.entries(sortedBalances)
+          // TODO(0xdef1cafe): add a toggle to show balances
           .filter(([assetId]) => bnOrZero(sortedBalances[assetId]).gt(0))
-          .map(([assetId, balance]) => (
+          .map(([assetId]) => (
             <AccountRow
               allocationValue={portfolioAllocationPercent[assetId]}
-              balance={balance}
               CAIP19={assetId}
               key={assetId}
             />

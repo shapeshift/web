@@ -243,6 +243,11 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
       }, {})
 )
 
+export const selectPortfolioAssetIdsSortedFiat = createSelector(
+  selectPortfolioAssetBalancesSortedFiat,
+  sortedBalances => Object.keys(sortedBalances)
+)
+
 export const selectPortfolioAllocationPercent = createSelector(
   selectPortfolioTotalFiatBalance,
   selectPortfolioFiatBalances,

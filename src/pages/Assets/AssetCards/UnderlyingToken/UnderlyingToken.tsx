@@ -59,7 +59,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
     })()
   }, [shouldHide, asset.tokenId, asset.chain, chainAdapter, vault, wallet, yearn])
 
-  if (shouldHide || loading) return null
+  if (shouldHide || loading || !underlyingCAIP19) return null
 
   return (
     <Card>

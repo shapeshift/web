@@ -30,8 +30,8 @@ import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartDa
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useAsset } from 'pages/Assets/Asset'
-import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
+import { selectMarketAssetPercentChangeById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoHumanBalanceById,
   selectPortfolioFiatBalanceById
@@ -53,8 +53,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [view, setView] = useState(Views.Price)
   const { name, symbol, description, icon } = asset || {}
-  const { changePercent24Hr, price } = marketData || {}
-  const percentChange = changePercent24Hr ?? 0
+  const { price } = marketData || {}
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -82,10 +81,9 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
     }))
   }, [priceHistoryData, asset])
 
-  const graphPercentChange = usePercentChange({
-    data: assetPriceHistoryData,
-    initPercentChange: percentChange
-  })
+  const graphPercentChange = useAppSelector(state =>
+    selectMarketAssetPercentChangeById(state, { assetId: asset.caip19, timeframe })
+  )
   const cryptoBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceById(state, asset.caip19)
   )

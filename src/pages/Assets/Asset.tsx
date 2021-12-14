@@ -23,7 +23,9 @@ export interface MatchParams {
   tokenId: string
 }
 
+// TODO(0xdef1cafe): this has to die, we can't return invalid assets
 export const initAsset: A = {
+  caip2: '',
   caip19: '',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,

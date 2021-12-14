@@ -9,6 +9,8 @@ import {
   MarketCapResult,
   MarketData
 } from '@shapeshiftoss/types'
+import { isEmpty } from 'lodash'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
 type PriceHistoryByTimeframe = {
@@ -200,13 +202,40 @@ export const marketApi = createApi({
 
 export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi
 
-export const selectMarketDataById = createSelector(
-  (state: ReduxState) => state.marketData.marketData.byId,
-  (_state: ReduxState, id: CAIP19) => id,
-  (byId, id) => byId[id]
-)
-
 export const selectMarketData = (state: ReduxState) => state.marketData.marketData.byId
+
+const selectAssetId = (_state: ReduxState, assetId: CAIP19) => assetId
+
+export const selectMarketDataById = createSelector(
+  selectMarketData,
+  selectAssetId,
+  (marketData, assetId) => marketData[assetId]
+)
 
 // assets we have loaded market data for
 export const selectAvailableMarketDataIds = (state: ReduxState) => state.marketData.marketData.ids
+
+// if we don't have it it's loading
+export const selectMarketDataLoadingById = createSelector(
+  selectMarketDataById,
+  (assetMarketData): boolean => isEmpty(assetMarketData)
+)
+
+export const selectPriceHistory = (state: ReduxState) => state.marketData.priceHistory
+
+export const selectMarketAssetPercentChangeById = createSelector(
+  selectMarketData,
+  selectPriceHistory,
+  (_state: ReduxState, args: { assetId: CAIP19; timeframe: HistoryTimeframe }) => args,
+  (marketData, priceHistory, { assetId, timeframe }): number => {
+    const naivePriceChange = marketData?.[assetId]?.changePercent24Hr
+    const assetPriceHistory = priceHistory[timeframe]?.[assetId]
+    const start = assetPriceHistory?.[0]?.price
+    const end = assetPriceHistory?.[assetPriceHistory.length - 1]?.price
+    if (!(start && end)) return naivePriceChange
+    const startBn = bnOrZero(start)
+    const startAbs = startBn.abs()
+    const endBn = bnOrZero(end)
+    return endBn.minus(startBn).div(startAbs).times(100).toNumber()
+  }
+)

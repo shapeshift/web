@@ -66,7 +66,7 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
 
   // log what transactions we are currently not parsing so we can update accordingly
   if (!type) {
-    console.warn('unsupported transaction:', tx)
+    console.warn('unsupported transaction:', tx.txid)
     return null
   }
 

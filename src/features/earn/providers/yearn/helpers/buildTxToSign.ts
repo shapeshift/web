@@ -1,9 +1,9 @@
 import { bip32ToAddressNList, ETHSignTx } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params } from '@shapeshiftoss/types'
+import { BIP44Params } from '@shapeshiftoss/types'
 import { numberToHex } from 'web3-utils'
 
 type BuildTxToSignInput = {
-  bip32Params: BIP32Params
+  bip44Params: BIP44Params
   chainId: number
   data: string
   estimatedGas: string
@@ -13,17 +13,17 @@ type BuildTxToSignInput = {
   to: string
 }
 
-function toPath(bip32Params: BIP32Params): string {
-  const { purpose, coinType, accountNumber, isChange = false, index = 0 } = bip32Params
-  if (typeof purpose === 'undefined') throw new Error('toPath: bip32Params.purpose is required')
-  if (typeof coinType === 'undefined') throw new Error('toPath: bip32Params.coinType is required')
+function toPath(bip44Params: BIP44Params): string {
+  const { purpose, coinType, accountNumber, isChange = false, index = 0 } = bip44Params
+  if (typeof purpose === 'undefined') throw new Error('toPath: bip44Params.purpose is required')
+  if (typeof coinType === 'undefined') throw new Error('toPath: bip44Params.coinType is required')
   if (typeof accountNumber === 'undefined')
-    throw new Error('toPath: bip32Params.accountNumber is required')
+    throw new Error('toPath: bip44Params.accountNumber is required')
   return `m/${purpose}'/${coinType}'/${accountNumber}'/${Number(isChange)}/${index}`
 }
 
 export function buildTxToSign({
-  bip32Params,
+  bip44Params,
   chainId = 1,
   data,
   estimatedGas,
@@ -32,7 +32,7 @@ export function buildTxToSign({
   to,
   value
 }: BuildTxToSignInput): ETHSignTx {
-  const path = toPath(bip32Params)
+  const path = toPath(bip44Params)
   const addressNList = bip32ToAddressNList(path)
 
   return {

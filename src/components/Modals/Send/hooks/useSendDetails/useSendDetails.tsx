@@ -110,7 +110,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getType(),
-            addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip32Params)),
+            addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip44Params)),
             curve: 'secp256k1',
             scriptType: accountParams.scriptType
           }
@@ -180,7 +180,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip32Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip44Params)),
               curve: 'secp256k1',
               scriptType: accountParams.scriptType
             }

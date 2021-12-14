@@ -55,7 +55,7 @@ export const useFormSend = () => {
             to,
             value,
             wallet,
-            bip32Params: utxoParams.bip32Params,
+            bip44Params: utxoParams.bip44Params,
             chainSpecific: {
               satoshiPerByte: fees.chainSpecific.satoshiPerByte,
               accountType

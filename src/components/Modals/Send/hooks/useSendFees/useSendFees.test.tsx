@@ -4,8 +4,8 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { TestProviders } from 'jest/TestProviders'
+import { useAppSelector } from 'state/store'
 
 import { useSendFees } from './useSendFees'
 
@@ -61,7 +61,7 @@ const setup = ({ asset = {}, estimatedFees = {}, wallet = {}, feeAsset = {} }) =
     state: { wallet }
   }))
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => ({ asset, estimatedFees }))
-  ;(useFetchAsset as jest.Mock<unknown>).mockImplementation(() => feeAsset)
+  ;(useAppSelector as jest.Mock<unknown>).mockImplementation(() => feeAsset)
 
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
 

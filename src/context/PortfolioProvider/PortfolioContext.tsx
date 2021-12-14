@@ -8,7 +8,11 @@ import {
   selectMarketData,
   useFindAllQuery
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { portfolioApi, selectPortfolioAssetIds } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  portfolio,
+  portfolioApi,
+  selectPortfolioAssetIds
+} from 'state/slices/portfolioSlice/portfolioSlice'
 
 // TODO(0xdef1cafe): make this a data provider
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
@@ -27,6 +31,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // accounts for each chain/account specifier combination
   useEffect(() => {
     if (isEmpty(accountSpecifiers)) return
+    // clear the old portfolio, we have different non null data, we're switching wallet
+    dispatch(portfolio.actions.clearPortfolio())
     // fetch each account
     accountSpecifiers.forEach(accountSpecifier =>
       dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier))
@@ -41,10 +47,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     if (!portfolioAssetIds.length) return
     portfolioAssetIds.forEach(assetId => {
-      if (!marketData[assetId]) {
-        debugger
-        dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-      }
+      if (!marketData[assetId]) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
     })
   }, [portfolioAssetIds, marketData, dispatch])
 

@@ -169,7 +169,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                     color={graphPercentChange > 0 ? 'green.500' : 'red.500'}
                   >
                     <StatArrow type={graphPercentChange > 0 ? 'increase' : 'decrease'} />
-                    <RawText>{graphPercentChange.toFixed(2)}%</RawText>
+                    <RawText>{graphPercentChange}%</RawText>
                   </StatNumber>
                 </Skeleton>
               </Stat>

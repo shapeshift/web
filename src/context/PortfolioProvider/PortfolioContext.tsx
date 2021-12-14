@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { usePubkeys } from 'hooks/usePubkeys/usePubkeys'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -8,6 +8,10 @@ import { useGetAccountsQuery } from 'state/slices/portfolioSlice/portfolioSlice'
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
   useGetAssetsQuery() // load all assets
   useFindAllQuery() // load all market data
-  useGetAccountsQuery(usePubkeys()) // load portfolio when wallet is loaded
+  const { data: portfolio, isLoading: portfolioLoading } = useGetAccountsQuery(usePubkeys()) // load portfolio when wallet is loaded
+
+  useEffect(() => {
+    if (portfolioLoading || !portfolio) return
+  }, [portfolio, portfolioLoading])
   return <>{children}</>
 }

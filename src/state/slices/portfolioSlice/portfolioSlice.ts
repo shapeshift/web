@@ -114,10 +114,10 @@ export const portfolioApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     // TODO(0xdef1cafe): make this take a single account and dispatch multiple actions
-    getAccounts: build.query<AccountsToPortfolioArgs, Pubkeys>({
+    getAccounts: build.query<Portfolio, Pubkeys>({
       queryFn: async pubkeys => {
         // can't call hooks conditionally, this is a valid return
-        if (isEmpty(pubkeys)) return { data: {} }
+        if (isEmpty(pubkeys)) return { data: cloneDeep(initialState) }
 
         const chainAdapters = getChainAdapters()
 
@@ -131,7 +131,7 @@ export const portfolioApi = createApi({
         // allow failures of individual chains
         const maybeAccounts = await Promise.allSettled(promises)
 
-        const data = maybeAccounts.reduce<AccountsToPortfolioArgs>((acc, cur) => {
+        const accounts = maybeAccounts.reduce<AccountsToPortfolioArgs>((acc, cur) => {
           if (cur.status === 'rejected') {
             // TODO(0xdef1cafe): handle error - this can't return both
             console.error(`portfolioApi: ${cur.reason}`)
@@ -141,6 +141,7 @@ export const portfolioApi = createApi({
           }
           return acc
         }, {})
+        const data = accountsToPortfolio(accounts)
         return { data }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
@@ -151,10 +152,10 @@ export const portfolioApi = createApi({
 
         await cacheDataLoaded
 
-        const account = getCacheEntry().data
-        if (!account) return
+        const port = getCacheEntry().data
+        if (!port) return
 
-        dispatch(portfolio.actions.setPortfolio(accountsToPortfolio(account)))
+        dispatch(portfolio.actions.setPortfolio(port))
       }
     })
   })

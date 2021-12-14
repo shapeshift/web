@@ -48,6 +48,7 @@ export enum AssetDataSource {
 
 type AbstractAsset = {
   caip19: string
+  caip2: string
   chain: ChainTypes
   description?: string
   dataSource: AssetDataSource

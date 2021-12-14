@@ -1,4 +1,4 @@
-import { caip19 } from '@shapeshiftoss/caip'
+import { caip2, caip19 } from '@shapeshiftoss/caip'
 import {
   AssetDataSource,
   ChainTypes,
@@ -58,6 +58,10 @@ export const extendErc20 = async (): Promise<TokenAsset[]> => {
       sendSupport: true,
       symbol: vault.symbol,
       tokenId: toLower(vault.address),
+      caip2: caip2.toCAIP2({
+        chain: ChainTypes.Ethereum,
+        network: NetworkTypes.MAINNET
+      }),
       caip19: caip19.toCAIP19({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,

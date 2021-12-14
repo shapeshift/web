@@ -8,6 +8,7 @@ import {
 
 export const BTC: Asset = {
   caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  caip2: 'bip122:000000000019d6689c085ae165831e93',
   name: 'bitcoin',
   chain: ChainTypes.Bitcoin,
   dataSource: AssetDataSource.CoinGecko,
@@ -28,6 +29,7 @@ export const BTC: Asset = {
 
 export const WETH: Asset = {
   caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  caip2: 'eip155:1',
   name: 'WETH',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,
@@ -49,6 +51,7 @@ export const WETH: Asset = {
 
 export const FOX: Asset = {
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+  caip2: 'eip155:1',
   name: 'FOX',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,

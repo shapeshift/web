@@ -9,6 +9,7 @@ import {
 export const baseAssets: Array<BaseAsset> = [
   {
     caip19: 'eip155:1/slip44:60',
+    caip2: 'eip155:1',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
@@ -27,6 +28,7 @@ export const baseAssets: Array<BaseAsset> = [
   },
   {
     caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+    caip2: 'bip122:000000000019d6689c085ae165831e93',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
@@ -45,6 +47,7 @@ export const baseAssets: Array<BaseAsset> = [
   },
   {
     caip19: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
+    caip2: 'bip122:000000000933ea01ad0ee984209779ba',
     chain: ChainTypes.Bitcoin,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.TESTNET,
@@ -63,6 +66,7 @@ export const baseAssets: Array<BaseAsset> = [
   },
   {
     caip19: 'eip155:3/slip44:60',
+    caip2: 'eip155:3',
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.ETH_ROPSTEN,
@@ -81,6 +85,7 @@ export const baseAssets: Array<BaseAsset> = [
     tokens: [
       {
         caip19: 'eip155:3/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
+        caip2: 'eip155:3',
         name: 'Test Token',
         precision: 18,
         tokenId: '0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',

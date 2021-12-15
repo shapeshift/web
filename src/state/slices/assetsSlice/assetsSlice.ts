@@ -109,13 +109,6 @@ export const selectAssetByCAIP19 = createSelector(
   (byId, CAIP19) => byId[CAIP19]
 )
 
-// TODO(0xdef1cafe): add caip19s to buy and sell assets in swapper and remove this
-export const selectAssetBySymbol = createSelector(
-  (state: ReduxState) => state.assets.byId,
-  (_state: ReduxState, symbol: string) => symbol,
-  (byId, symbol) => Object.values(byId).find(asset => asset.symbol === symbol)
-)
-
 export const selectAssets = (state: ReduxState) => state.assets.byId
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 

@@ -17,7 +17,6 @@ import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferences
 export type AccountSpecifier = { [k: CAIP2]: string }
 type UseAccountSpecifiers = () => AccountSpecifier[]
 
-// rename this to useAccountSpecifier
 export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   const [accountSpecifiers, setAccountSpecifiers] = useState<AccountSpecifier[]>([])
   const chainAdapter = useChainAdapters()

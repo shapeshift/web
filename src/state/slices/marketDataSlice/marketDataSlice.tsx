@@ -48,7 +48,7 @@ export const fetchPriceHistory = createAsyncThunk(
   }
 )
 
-const initialPriceHistory = {
+const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},
   [HistoryTimeframe.WEEK]: {},
@@ -75,7 +75,7 @@ export const marketData = createSlice({
       const ids = Array.from(new Set([...state.marketData.ids, ...Object.keys(payload)]))
       state.marketData.ids = ids // upsert unique
     },
-    setPriceHistory: (state, { payload }: { payload: Partial<typeof initialPriceHistory> }) => {
+    setPriceHistory: (state, { payload }: { payload: PriceHistoryByTimeframe }) => {
       state.priceHistory = { ...state.priceHistory, ...payload } // upsert
     }
   },

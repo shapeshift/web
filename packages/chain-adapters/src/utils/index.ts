@@ -1,7 +1,7 @@
 import { chainAdapters, ContractTypes } from '@shapeshiftoss/types'
 import { Status, TransferType } from '@shapeshiftoss/unchained-tx-parser'
 
-export * from './bip32'
+export * from './bip44'
 export * from './utxoUtils'
 
 export const getContractType = (type?: string): ContractTypes => {

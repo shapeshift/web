@@ -15,10 +15,10 @@ export async function ZrxApproveInfinite(
   { quote, wallet }: ApproveInfiniteInput<ChainTypes, SwapperType>
 ) {
   const adapter: ChainAdapter<ChainTypes.Ethereum> = adapterManager.byChain(ChainTypes.Ethereum)
-  const bip32Params = adapter.buildBIP32Params({
+  const bip44Params = adapter.buildBIP44Params({
     accountNumber: bnOrZero(quote.sellAssetAccountId).toNumber()
   }) // TODO: Add account number
-  const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
+  const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
   /**
    * /swap/v1/quote

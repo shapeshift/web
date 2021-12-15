@@ -8,7 +8,7 @@
 
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP32Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as bitcoin from './BitcoinChainAdapter'
@@ -272,7 +272,7 @@ describe('BitcoinChainAdapter', () => {
 
       const adapter = new bitcoin.ChainAdapter(args)
 
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         purpose: 84,
         coinType: 0,
         accountNumber: 0,
@@ -280,7 +280,7 @@ describe('BitcoinChainAdapter', () => {
       }
 
       const txInput: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin> = {
-        bip32Params,
+        bip44Params,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
         wallet,
@@ -341,7 +341,7 @@ describe('BitcoinChainAdapter', () => {
 
       const adapter = new bitcoin.ChainAdapter(args)
 
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         purpose: 84,
         coinType: 0,
         accountNumber: 0,
@@ -349,7 +349,7 @@ describe('BitcoinChainAdapter', () => {
       }
 
       const txInput: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin> = {
-        bip32Params,
+        bip44Params,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
         wallet,
@@ -415,7 +415,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a p2pkh address for valid derivation root path parameters (m/44'/0'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 44,
         accountNumber: 0,
@@ -424,7 +424,7 @@ describe('BitcoinChainAdapter', () => {
       }
 
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.P2pkh
       })
@@ -434,7 +434,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2pkh address for the first receive index path (m/44'/0'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 44,
         accountNumber: 0,
@@ -442,7 +442,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.P2pkh
       })
@@ -452,7 +452,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2pkh change address for the first receive index path (m/44'/0'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 44,
         accountNumber: 0,
@@ -460,7 +460,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: true
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.P2pkh
       })
@@ -470,7 +470,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2pkh address at the 2nd account root path (m/44'/0'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 44,
         accountNumber: 1,
@@ -478,7 +478,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.P2pkh
       })
@@ -488,7 +488,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a p2wpkh address for valid derivation root path parameters (m/84'/0'/0'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 84,
         accountNumber: 0,
@@ -496,7 +496,7 @@ describe('BitcoinChainAdapter', () => {
         index: 0
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.SegwitNative
       })
@@ -506,7 +506,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2wpkh address for the first receive index path (m/84'/0'/0'/0/1)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 84,
         accountNumber: 0,
@@ -514,7 +514,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.SegwitNative
       })
@@ -524,7 +524,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2wpkh change address for the first receive index path (m/44'/0'/0'/1/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 84,
         accountNumber: 0,
@@ -532,7 +532,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: true
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.SegwitNative
       })
@@ -542,7 +542,7 @@ describe('BitcoinChainAdapter', () => {
     it("should return a valid p2wpkh address at the 2nd account root path (m/84'/0'/1'/0/0)", async () => {
       const wallet: HDWallet = await getWallet()
       const adapter = new bitcoin.ChainAdapter(args)
-      const bip32Params: BIP32Params = {
+      const bip44Params: BIP44Params = {
         coinType: 0,
         purpose: 84,
         accountNumber: 1,
@@ -550,7 +550,7 @@ describe('BitcoinChainAdapter', () => {
         isChange: false
       }
       const addr: string | undefined = await adapter.getAddress({
-        bip32Params,
+        bip44Params,
         wallet,
         accountType: UtxoAccountType.SegwitNative
       })

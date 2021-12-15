@@ -1,5 +1,5 @@
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { BIP32Params, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { BIP44Params, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import dotenv from 'dotenv'
 
 import { ChainAdapterManager } from './ChainAdapterManager'
@@ -37,7 +37,7 @@ const main = async () => {
 
     /** BITCOIN CLI */
     const btcChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
-    const btcBip32Params: BIP32Params = {
+    const btcBip44Params: BIP44Params = {
       purpose: 84,
       coinType: 0,
       accountNumber: 0,
@@ -47,7 +47,7 @@ const main = async () => {
 
     const btcAddress = await btcChainAdapter.getAddress({
       wallet,
-      bip32Params: btcBip32Params,
+      bip44Params: btcBip44Params,
       accountType: UtxoAccountType.SegwitNative
     })
     console.log('btcAddress:', btcAddress)
@@ -56,7 +56,7 @@ const main = async () => {
     console.log('btcAccount:', btcAccount)
 
     await btcChainAdapter.subscribeTxs(
-      { wallet, bip32Params: btcBip32Params, accountType: UtxoAccountType.SegwitNative },
+      { wallet, bip44Params: btcBip44Params, accountType: UtxoAccountType.SegwitNative },
       (msg) => console.log(msg),
       (err) => console.log(err)
     )
@@ -65,7 +65,7 @@ const main = async () => {
       to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
       value: '400',
       wallet,
-      bip32Params: btcBip32Params,
+      bip44Params: btcBip44Params,
       chainSpecific: { accountType: UtxoAccountType.P2pkh, satoshiPerByte: '4' }
     }
 
@@ -85,16 +85,16 @@ const main = async () => {
 
     /** ETHEREUM CLI */
     const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-    const ethBip32Params: BIP32Params = { purpose: 44, coinType: 60, accountNumber: 0 }
+    const ethBip44Params: BIP44Params = { purpose: 44, coinType: 60, accountNumber: 0 }
 
-    const ethAddress = await ethChainAdapter.getAddress({ wallet, bip32Params: ethBip32Params })
+    const ethAddress = await ethChainAdapter.getAddress({ wallet, bip44Params: ethBip44Params })
     console.log('ethAddress:', ethAddress)
 
     const ethAccount = await ethChainAdapter.getAccount(ethAddress)
     console.log('ethAccount:', ethAccount)
 
     await ethChainAdapter.subscribeTxs(
-      { wallet, bip32Params: ethBip32Params },
+      { wallet, bip44Params: ethBip44Params },
       (msg) => console.log(msg),
       (err) => console.log(err)
     )
@@ -105,7 +105,7 @@ const main = async () => {
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
         value: '1',
         wallet,
-        bip32Params: ethBip32Params,
+        bip44Params: ethBip44Params,
         chainSpecific: { gasPrice: '0', gasLimit: '0' }
       })
       const ethSignedTx = await ethChainAdapter.signTransaction({
@@ -126,7 +126,7 @@ const main = async () => {
         to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
         value: '1',
         wallet,
-        bip32Params: ethBip32Params,
+        bip44Params: ethBip44Params,
         chainSpecific: { gasPrice: '0', gasLimit: '0', erc20ContractAddress: foxContractAddress }
       })
       const erc20SignedTx = await ethChainAdapter.signTransaction({

@@ -1,6 +1,6 @@
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { Asset } from '@shapeshiftoss/types'
-import { BIP32Params, UtxoAccountType } from '@shapeshiftoss/types'
+import { BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
 
 /**
@@ -24,22 +24,22 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
 }
 
 /**
- * Utility function to get BIP32Params and scriptType for chain-adapter functions (getAddress, buildSendTransaction)
+ * Utility function to get BIP44Params and scriptType for chain-adapter functions (getAddress, buildSendTransaction)
  * @param accountType
  * @param asset
  * @param accountNumber
- * @returns object with BIP32Params and scriptType or undefined
+ * @returns object with BIP44Params and scriptType or undefined
  */
 export const utxoAccountParams = (
   asset: Asset,
   accountType: UtxoAccountType,
   accountNumber: number
-): { bip32Params: BIP32Params; scriptType: BTCInputScriptType } => {
+): { bip44Params: BIP44Params; scriptType: BTCInputScriptType } => {
   switch (accountType) {
     case UtxoAccountType.SegwitNative:
       return {
         scriptType: BTCInputScriptType.SpendWitness,
-        bip32Params: {
+        bip44Params: {
           purpose: 84,
           coinType: asset.slip44,
           accountNumber
@@ -48,7 +48,7 @@ export const utxoAccountParams = (
     case UtxoAccountType.SegwitP2sh:
       return {
         scriptType: BTCInputScriptType.SpendP2SHWitness,
-        bip32Params: {
+        bip44Params: {
           purpose: 49,
           coinType: asset.slip44,
           accountNumber
@@ -57,7 +57,7 @@ export const utxoAccountParams = (
     case UtxoAccountType.P2pkh:
       return {
         scriptType: BTCInputScriptType.SpendAddress,
-        bip32Params: {
+        bip44Params: {
           purpose: 44,
           coinType: asset.slip44,
           accountNumber
@@ -99,7 +99,7 @@ export const scriptTypeToAccountType: Record<
 /*
  * @see https://github.com/blockkeeper/blockkeeper-frontend-web/issues/38
  *
- * ypub and zpub are defined by BIP48 and BIP84 as special version bytes for use in the BIP32
+ * ypub and zpub are defined by BIP48 and BIP84 as special version bytes for use in the BIP44
  * encoding of the keys for their respective account types. Defining custom serialization formats
  * for different account types has since fallen out of favor (as in BIP86) but getting these bytes
  * correct is relevant for interoperation with a variety of other software (like Blockbook).
@@ -109,7 +109,7 @@ export const scriptTypeToAccountType: Record<
  *
  * The easiest way to fix it is to decode from base58check, replace the prefix to
  * standard xpub or ypub and then to encode back to base58check. Then one can use this xpub
- * as normal bip32 master key.
+ * as normal bip44 master key.
  *
  * It may make sense to remember the type of the public key as it tells what type of script
  * is used in the wallet.

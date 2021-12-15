@@ -17,10 +17,10 @@ export async function getZrxSendMaxAmount(
   }: SendMaxAmountInput
 ): Promise<string> {
   const adapter = adapterManager.byChain(ChainTypes.Ethereum)
-  const bip32Params = adapter.buildBIP32Params({
+  const bip44Params = adapter.buildBIP44Params({
     accountNumber: bnOrZero(sellAssetAccountId).toNumber()
   })
-  const ethAddress = await adapter.getAddress({ wallet, bip32Params })
+  const ethAddress = await adapter.getAddress({ wallet, bip44Params })
 
   const account = await adapter.getAccount(ethAddress)
 

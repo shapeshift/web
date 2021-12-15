@@ -4,7 +4,7 @@ import { FeeDataKey, QuoteFeeData, SignTxInput } from './chain-adapters'
 
 /** Common */
 
-export type BIP32Params = {
+export type BIP44Params = {
   purpose: number
   coinType: number
   accountNumber: number

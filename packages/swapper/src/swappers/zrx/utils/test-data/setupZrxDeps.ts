@@ -5,7 +5,7 @@ import Web3 from 'web3'
 jest.mock('@shapeshiftoss/chain-adapters')
 
 export const chainAdapterMockFuncs = {
-  buildBIP32Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
+  buildBIP44Params: jest.fn(() => ({ purpose: 44, coinType: 60, accountNumber: 0 })),
   buildSendTransaction: jest.fn(() => Promise.resolve({ txToSign: {} })),
   signTransaction: jest.fn(() => Promise.resolve('signedTx')),
   broadcastTransaction: jest.fn(() => Promise.resolve('broadcastedTx')),

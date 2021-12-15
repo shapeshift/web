@@ -37,8 +37,8 @@ export async function ZrxApprovalNeeded(
   const accountNumber = quote.sellAssetAccountId ? Number(quote.sellAssetAccountId) : 0
 
   const adapter = adapterManager.byChain(sellAsset.chain)
-  const bip32Params = adapter.buildBIP32Params({ accountNumber })
-  const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
+  const bip44Params = adapter.buildBIP44Params({ accountNumber })
+  const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
   /**
    * /swap/v1/quote

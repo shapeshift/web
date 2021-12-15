@@ -70,8 +70,8 @@ export async function ZrxBuildQuoteTx(
   }
 
   const adapter = adapterManager.byChain(buyAsset.chain)
-  const bip32Params = adapter.buildBIP32Params({ accountNumber: Number(buyAssetAccountId) })
-  const receiveAddress = await adapter.getAddress({ wallet, bip32Params })
+  const bip44Params = adapter.buildBIP44Params({ accountNumber: Number(buyAssetAccountId) })
+  const receiveAddress = await adapter.getAddress({ wallet, bip44Params })
 
   if (new BigNumber(slippage || 0).gt(MAX_SLIPPAGE)) {
     throw new SwapError(

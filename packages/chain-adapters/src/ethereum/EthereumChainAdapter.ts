@@ -1,7 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { BIP32Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { BIP44Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { ethereum } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
@@ -32,7 +32,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     http: ethereum.api.V1Api
     ws: ethereum.ws.Client
   }
-  public static readonly defaultBIP32Params: BIP32Params = {
+  public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: 60,
     accountNumber: 0
@@ -95,8 +95,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  buildBIP32Params(params: Partial<BIP32Params>): BIP32Params {
-    return { ...ChainAdapter.defaultBIP32Params, ...params }
+  buildBIP44Params(params: Partial<BIP44Params>): BIP44Params {
+    return { ...ChainAdapter.defaultBIP44Params, ...params }
   }
 
   async getTxHistory({
@@ -132,7 +132,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
       const {
         to,
         wallet,
-        bip32Params = ChainAdapter.defaultBIP32Params,
+        bip44Params = ChainAdapter.defaultBIP44Params,
         chainSpecific: { erc20ContractAddress, gasPrice, gasLimit },
         sendMax = false
       } = tx
@@ -142,10 +142,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
       const destAddress = erc20ContractAddress ?? to
 
-      const path = toPath(bip32Params)
+      const path = toPath(bip44Params)
       const addressNList = bip32ToAddressNList(path)
 
-      const from = await this.getAddress({ bip32Params, wallet })
+      const from = await this.getAddress({ bip44Params, wallet })
       const { chainSpecific } = await this.getAccount(from)
 
       const isErc20Send = !!erc20ContractAddress
@@ -279,8 +279,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   }
 
   async getAddress(input: chainAdapters.GetAddressInput): Promise<string> {
-    const { wallet, bip32Params = ChainAdapter.defaultBIP32Params } = input
-    const path = toPath(bip32Params)
+    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
+    const path = toPath(bip44Params)
     const addressNList = bip32ToAddressNList(path)
     const ethAddress = await (wallet as ETHWallet).ethGetAddress({
       addressNList,
@@ -300,10 +300,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Ethereum>) => void,
     onError: (err: chainAdapters.SubscribeError) => void
   ): Promise<void> {
-    const { wallet, bip32Params = ChainAdapter.defaultBIP32Params } = input
+    const { wallet, bip44Params = ChainAdapter.defaultBIP44Params } = input
 
-    const address = await this.getAddress({ wallet, bip32Params })
-    const subscriptionId = toRootDerivationPath(bip32Params)
+    const address = await this.getAddress({ wallet, bip44Params })
+    const subscriptionId = toRootDerivationPath(bip44Params)
 
     await this.providers.ws.subscribeTxs(
       subscriptionId,
@@ -339,8 +339,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void {
     if (!input) return this.providers.ws.unsubscribeTxs()
 
-    const { bip32Params = ChainAdapter.defaultBIP32Params } = input
-    const subscriptionId = toRootDerivationPath(bip32Params)
+    const { bip44Params = ChainAdapter.defaultBIP44Params } = input
+    const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
   }

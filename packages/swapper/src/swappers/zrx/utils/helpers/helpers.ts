@@ -131,7 +131,7 @@ export const grantAllowance = async ({
     .approve(quote.allowanceContract, quote.sellAmount)
     .encodeABI()
 
-  const bip32Params = adapter.buildBIP32Params({
+  const bip44Params = adapter.buildBIP44Params({
     accountNumber: Number(quote.sellAssetAccountId) || 0
   })
 
@@ -141,7 +141,7 @@ export const grantAllowance = async ({
     const { txToSign } = await adapter.buildSendTransaction({
       wallet,
       to: quote.sellAsset.tokenId,
-      bip32Params,
+      bip44Params,
       value: '0',
       chainSpecific: {
         erc20ContractAddress: quote.sellAsset.tokenId,

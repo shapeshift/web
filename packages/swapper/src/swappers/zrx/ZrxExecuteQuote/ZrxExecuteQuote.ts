@@ -35,7 +35,7 @@ export async function ZrxExecuteQuote(
   // value is 0 for erc20s
   const value = sellAsset.symbol === 'ETH' ? quote.sellAmount : '0'
   const adapter = adapterManager.byChain(sellAsset.chain)
-  const bip32Params = adapter.buildBIP32Params({
+  const bip44Params = adapter.buildBIP44Params({
     accountNumber: Number(quote.sellAssetAccountId)
   })
 
@@ -49,7 +49,7 @@ export async function ZrxExecuteQuote(
         gasPrice: numberToHex(quote.feeData?.chainSpecific?.gasPrice || 0),
         gasLimit: numberToHex(quote.feeData?.chainSpecific?.estimatedGas || 0)
       },
-      bip32Params
+      bip44Params
     })
   } catch (error) {
     throw new SwapError(`ZrxExecuteQuote - buildSendTransaction error: ${error}`)

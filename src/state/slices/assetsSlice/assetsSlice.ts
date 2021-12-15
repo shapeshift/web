@@ -1,12 +1,27 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { AssetService } from '@shapeshiftoss/asset-service'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
-import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+
+let service: AssetService | undefined = undefined
+
+// TODO(0xdef1cafe): this should not be exported as nothing
+// should directly consume the asset service, only this api
+export const getAssetService = async () => {
+  if (!service) {
+    service = new AssetService('')
+  }
+  if (!service?.isInitialized) {
+    await service.initialize()
+  }
+
+  return service
+}
 
 // TODO(0xdef1cafe): not sure else to put this for now
 export type AssetMarketData = Asset & MarketData

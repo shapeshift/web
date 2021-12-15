@@ -2,8 +2,8 @@ import { Asset, ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/typ
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { getAssetService } from 'lib/assetService'
 import { getByIdentifier } from 'lib/math'
+import { getAssetService } from 'state/slices/assetsSlice/assetsSlice'
 
 import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'

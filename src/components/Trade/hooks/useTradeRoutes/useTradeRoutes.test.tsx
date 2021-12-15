@@ -4,7 +4,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { FOX, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
-import { getAssetService } from 'lib/assetService'
+import { getAssetService } from 'state/slices/assetsSlice/assetsSlice'
 
 import { useTradeRoutes } from './useTradeRoutes'
 

@@ -14,13 +14,13 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useBalances } from 'hooks/useBalances/useBalances'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 
-import { SendFormFields } from '../../Form'
+import { SendFormFields, SendInput } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
@@ -46,11 +46,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
-  const { getValues, setValue } = useFormContext()
-  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] }) as [
-    AssetMarketData,
-    string
-  ]
+  const { getValues, setValue } = useFormContext<SendInput>()
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const { balances, error: balanceError, loading: balancesLoading } = useBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapterManager = useChainAdapters()
@@ -88,7 +86,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     if (!wallet) throw new Error('No wallet connected')
 
-    const value = bnOrZero(values.crypto.amount)
+    const value = bnOrZero(values.cryptoAmount)
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
@@ -207,7 +205,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setValue(SendFormFields.EstimatedFees, adapterFees)
       const marketData = await getAssetData()
       // TODO: get network precision from network asset, not send asset
-      const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
+      const networkFee = bnOrZero(bn(fastFee).div(`1e${asset.precision}`))
 
       if (asset.tokenId) {
         setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())
@@ -233,8 +231,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const assetPrice = asset.price
       const amount =
         fieldName === SendFormFields.FiatAmount
-          ? bnOrZero(inputValue).div(assetPrice).toString()
-          : bnOrZero(inputValue).times(assetPrice).toString()
+          ? bnOrZero(bn(inputValue).div(assetPrice)).toString()
+          : bnOrZero(bn(inputValue).times(assetPrice)).toString()
 
       setValue(key, amount)
 
@@ -245,7 +243,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const hasValidBalance = accountBalances.crypto
         .minus(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
-        .gte(values.crypto.amount)
+        .gte(values.cryptoAmount)
 
       if (!hasValidBalance) setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
       else setValue(SendFormFields.AmountFieldError, '')

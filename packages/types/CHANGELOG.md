@@ -1,3 +1,5 @@
+# [@shapeshiftoss/types-v1.19.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.19.0...@shapeshiftoss/types-v1.19.1) (2021-12-15)
+
 # [@shapeshiftoss/types-v1.19.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.18.0...@shapeshiftoss/types-v1.19.0) (2021-12-14)
 
 

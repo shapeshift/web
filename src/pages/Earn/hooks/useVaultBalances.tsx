@@ -12,7 +12,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
-import { fetchAsset, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { fetchAsset, selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
@@ -70,7 +70,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
   const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const assets = useSelector(selectAssetsById)
+  const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()

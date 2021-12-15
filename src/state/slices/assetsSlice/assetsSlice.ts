@@ -3,9 +3,10 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import sortBy from 'lodash/sortBy'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
-
+import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 export type AssetsState = {
   byId: {
     [key: CAIP19]: Asset
@@ -139,5 +140,29 @@ export const selectAssetBySymbol = createSelector(
   (byId, symbol) => Object.values(byId).find(asset => asset.symbol === symbol)
 )
 
-export const selectAssetsById = (state: ReduxState) => state.assets.byId
+export const selectAssets = (state: ReduxState) => state.assets.byId
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
+
+export const selectAssetsByMarketCap = createSelector(
+  selectAssets,
+  selectMarketData,
+  (assetsByIdOriginal, marketData) => {
+    const assetById = cloneDeep(assetsByIdOriginal)
+    if (marketData) {
+      // we only fetch market data for the top 1000 assets
+      // and want this to be fairly performant so do some mutatey things
+      const caip19ByMarketCap = Object.keys(marketData)
+      const sortedWithMarketCap = caip19ByMarketCap.reduce<Asset[]>((acc, cur) => {
+        const asset = assetById[cur]
+        if (!asset) return acc
+        acc.push(asset)
+        delete assetById[cur]
+        return acc
+      }, [])
+      const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
+      return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
+    } else {
+      return sortBy(assetById, ['name', 'symbol'])
+    }
+  }
+)

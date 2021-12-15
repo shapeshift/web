@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { selectAssetIds, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetIds, selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 
 // the value is an xpub/ypub/zpub, or eth account, used to query unchained
@@ -25,7 +25,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     state: { wallet, walletInfo }
   } = useWallet()
 
-  const assetsById = useSelector(selectAssetsById)
+  const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
 
   const getAccountSpecifiers = useCallback(async () => {

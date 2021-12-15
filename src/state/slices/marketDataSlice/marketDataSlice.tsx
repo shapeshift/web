@@ -2,13 +2,7 @@ import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
-import {
-  FindAllMarketArgs,
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData
-} from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { isEmpty } from 'lodash'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
@@ -60,17 +54,6 @@ export const fetchPriceHistory = createAsyncThunk(
     return result
   }
 )
-
-export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
-  try {
-    const args: FindAllMarketArgs = { pages: 1, perPage: 250 }
-    const marketCap = await findAll(args)
-    return { marketCap }
-  } catch (error) {
-    console.error(error)
-    return {}
-  }
-})
 
 const initialPriceHistory = {
   [HistoryTimeframe.HOUR]: {},
@@ -127,18 +110,6 @@ export const marketData = createSlice({
         state.marketData.byId[assetCAIP19] = payload
         if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
       }
-      state.loading = false
-    })
-    builder.addCase(fetchMarketCaps.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchMarketCaps.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchMarketCaps.fulfilled, (state, { payload }) => {
-      const { marketCap } = payload
-      if (!marketCap) return
-      state.marketCap = marketCap
       state.loading = false
     })
   }

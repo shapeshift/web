@@ -9,7 +9,7 @@ import { AccountSpecifier } from 'hooks/useAccountSpecifiers/useAccountSpecifier
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
-import { selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export type PortfolioAccounts = {
@@ -188,7 +188,7 @@ export const selectPortfolioBalances = (state: ReduxState): PortfolioBalances['b
   state.portfolio.balances.byId
 
 export const selectPortfolioFiatBalances = createSelector(
-  selectAssetsById,
+  selectAssets,
   selectMarketData,
   selectPortfolioBalances,
   (assetsById, marketData, balances) =>
@@ -228,7 +228,7 @@ export const selectPortfolioCryptoBalanceById = createSelector(
 )
 
 export const selectPortfolioCryptoHumanBalanceById = createSelector(
-  selectAssetsById,
+  selectAssets,
   selectPortfolioBalances,
   selectAssetIdParam,
   (assets, balances, assetId): string =>
@@ -240,7 +240,7 @@ export type PortfolioAssets = {
 }
 
 export const selectPortfolioAssets = createSelector(
-  selectAssetsById,
+  selectAssets,
   selectPortfolioAssetIds,
   (assetsById, portfolioAssetIds): { [k: CAIP19]: Asset } =>
     portfolioAssetIds.reduce<PortfolioAssets>((acc, cur) => {

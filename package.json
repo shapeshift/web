@@ -44,6 +44,7 @@
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
     "dompurify": "^2.3.2",
+    "dotenv": "^10.0.0",
     "envalid": "^7.2.1",
     "framer-motion": "^4",
     "localforage": "^1.10.0",
@@ -73,6 +74,7 @@
     "redux-persist": "^6.0.0",
     "reselect": "^4.1.5",
     "scrypt-js": "^3.0.1",
+    "wait-promise": "^0.4.1",
     "web-vitals": "^2.1.0",
     "web3": "^1.6.0"
   },
@@ -89,6 +91,7 @@
     "test": "react-app-rewired test --coverage --watchAll=false",
     "clean": "rimraf node_modules",
     "test:dev": "react-app-rewired test --watch",
+    "test:e2e": "yarn run cypress open",
     "type-check": "tsc --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",

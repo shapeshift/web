@@ -3840,12 +3840,7 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.17.0":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.18.0.tgz#230a9bc05dbb055836ead04e151c39b68da06535"
-  integrity sha512-0OvetoPU3vlXgEKhIWhXX8k2uJESpiRUNhE38t4G4k2WknsAfAp1leMpugKEzqUjdDoM07jpNm+UdRq2Gb9jTw==
-
-"@shapeshiftoss/types@^1.19.0":
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.19.0":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.19.0.tgz#b3570b7aa7e7f57607473ed3c978a29066a4be82"
   integrity sha512-y4jL+lIhAnaa3zrBy7doLVaVXzshjc7C0uR5pMZjVb9P56FCgFQG+2C+f14cJddyZTuPtwRBVzhSrdwoD/CZBQ==
@@ -9282,6 +9277,11 @@ dotenv@8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
   integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
+
+dotenv@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
+  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
 dotenv@^6.2.0:
   version "6.2.0"
@@ -20154,6 +20154,11 @@ w3c-xmlserializer@^2.0.0:
   integrity sha512-4tzD0mF8iSiMiNs30BiLO3EpfGLZUT2MSX/G+o7ZywDzliWQ3OPtTZ0PTC3B3ca1UAf4cJMHB+2Bf56EriJuRA==
   dependencies:
     xml-name-validator "^3.0.0"
+
+wait-promise@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/wait-promise/-/wait-promise-0.4.1.tgz#1ead8f82d291a25010c0b1eef8d4711323cc4dab"
+  integrity sha1-Hq2PgtKRolAQwLHu+NRxEyPMTas=
 
 walker@^1.0.7, walker@~1.0.5:
   version "1.0.7"

@@ -10,9 +10,9 @@ import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 let service: AssetService | undefined = undefined
 
-// TODO(0xdef1cafe): this should not be exported as nothing
-// should directly consume the asset service, only this api
-export const getAssetService = async () => {
+// do not export this, views get data from selectors
+// or directly from the store outside react components
+const getAssetService = async () => {
   if (!service) {
     service = new AssetService('')
   }

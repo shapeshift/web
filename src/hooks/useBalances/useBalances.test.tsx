@@ -3,18 +3,11 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ethereum as mockEthereum } from 'jest/mocks/assets'
 
 import { Balances, useBalances } from './useBalances'
 
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
-jest.mock('lib/assetService', () => ({
-  getAssetService: () =>
-    Promise.resolve({
-      byNetwork: () => [mockEthereum]
-    })
-}))
 
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'

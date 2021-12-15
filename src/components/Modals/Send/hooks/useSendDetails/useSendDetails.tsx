@@ -15,7 +15,7 @@ import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalances } from 'hooks/useBalances/useBalances'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { AssetMarketData } from 'state/slices/assetsSlice/assetsSlice'
@@ -89,7 +89,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     if (!wallet) throw new Error('No wallet connected')
 
-    const value = bnOrZero(values.crypto.amount)
+    const value = bnOrZero(values.cryptoAmount)
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)
 
@@ -207,7 +207,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       setValue(SendFormFields.EstimatedFees, adapterFees)
       // TODO: get network precision from network asset, not send asset
-      const networkFee = bnOrZero(fastFee).div(`1e${asset.precision}`)
+      const networkFee = bnOrZero(bn(fastFee).div(`1e${asset.precision}`))
 
       if (asset.tokenId) {
         setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())
@@ -233,8 +233,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const assetPrice = asset.price
       const amount =
         fieldName === SendFormFields.FiatAmount
-          ? bnOrZero(inputValue).div(assetPrice).toString()
-          : bnOrZero(inputValue).times(assetPrice).toString()
+          ? bnOrZero(bn(inputValue).div(assetPrice)).toString()
+          : bnOrZero(bn(inputValue).times(assetPrice)).toString()
 
       setValue(key, amount)
 
@@ -245,7 +245,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const hasValidBalance = accountBalances.crypto
         .minus(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
-        .gte(values.crypto.amount)
+        .gte(values.cryptoAmount)
 
       if (!hasValidBalance) setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
       else setValue(SendFormFields.AmountFieldError, '')

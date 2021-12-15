@@ -28,12 +28,10 @@ export enum SendFormFields {
   Asset = 'asset',
   FeeType = 'feeType',
   EstimatedFees = 'estimatedFees',
-  Crypto = 'crypto',
-  CryptoAmount = 'crypto.amount',
-  CryptoSymbol = 'crypto.symbol',
-  FiatAmount = 'fiat.amount',
-  Fiat = 'fiat',
-  FiatSymbol = 'fiat.symbol',
+  CryptoAmount = 'cryptoAmount',
+  CryptoSymbol = 'cryptoSymbol',
+  FiatAmount = 'fiatAmount',
+  FiatSymbol = 'fiatSymbol',
   Transaction = 'transaction',
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax'
@@ -41,17 +39,14 @@ export enum SendFormFields {
 
 export type SendInput = {
   [SendFormFields.Address]: string
+  [SendFormFields.AmountFieldError]: string
   [SendFormFields.Asset]: AssetMarketData
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
-  [SendFormFields.Crypto]: {
-    amount: string
-    symbol: string
-  }
-  [SendFormFields.Fiat]: {
-    amount: string
-    symbol: string
-  }
+  [SendFormFields.CryptoAmount]: string
+  [SendFormFields.CryptoSymbol]: string
+  [SendFormFields.FiatAmount]: string
+  [SendFormFields.FiatSymbol]: string
   // TODO(0xdef1cafe): remove this from form state
   [SendFormFields.Transaction]: unknown
   [SendFormFields.SendMax]: boolean
@@ -73,21 +68,19 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
       address: '',
       asset: initialAsset,
       feeType: chainAdapters.FeeDataKey.Average,
-      crypto: {
-        amount: '',
-        symbol: initialAsset?.symbol
-      },
-      fiat: {
-        amount: '',
-        symbol: 'USD' // TODO: localize currency
-      }
+      cryptoAmount: '',
+      cryptoSymbol: initialAsset?.symbol,
+      fiatAmount: '',
+      fiatSymbol: 'USD' // TODO: use user preferences to get default fiat currency
     }
   })
 
   const handleAssetSelect = async (asset: Asset) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
-    methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
-    methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })
+    methods.setValue(SendFormFields.CryptoAmount, '')
+    methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
+    methods.setValue(SendFormFields.FiatAmount, '')
+    methods.setValue(SendFormFields.FiatSymbol, 'USD')
 
     history.push(SendRoutes.Address)
   }

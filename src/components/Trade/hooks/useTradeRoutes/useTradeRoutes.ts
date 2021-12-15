@@ -3,7 +3,6 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { getByIdentifier } from 'lib/math'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 
 import { TradeState } from '../../Trade'
@@ -50,7 +49,7 @@ export const useTradeRoutes = (): {
   const handleSellClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (buyAsset.currency && getByIdentifier(asset) === getByIdentifier(buyAsset.currency))
+        if (buyAsset.currency && asset.caip19 === buyAsset.currency.caip19)
           setValue('buyAsset.currency', sellAsset.currency)
         const action = buyAsset.amount ? TradeActions.SELL : undefined
         setValue('sellAsset.currency', asset)
@@ -71,7 +70,7 @@ export const useTradeRoutes = (): {
   const handleBuyClick = useCallback(
     async (asset: Asset) => {
       try {
-        if (sellAsset.currency && getByIdentifier(asset) === getByIdentifier(sellAsset.currency))
+        if (sellAsset.currency && asset.caip19 === sellAsset.currency.caip19)
           setValue('sellAsset.currency', buyAsset.currency)
         const action = sellAsset.amount ? TradeActions.BUY : undefined
         setValue('buyAsset.currency', asset)

@@ -165,7 +165,7 @@ export const selectMarketDataById = createSelector(
 )
 
 // assets we have loaded market data for
-export const selectAvailableMarketDataIds = (state: ReduxState) => state.marketData.ids
+export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids
 
 // if we don't have it it's loading
 export const selectMarketDataLoadingById = createSelector(

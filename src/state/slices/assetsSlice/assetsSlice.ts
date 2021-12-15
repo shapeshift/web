@@ -6,7 +6,7 @@ import { Asset, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import { ReduxState } from 'state/reducer'
-import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectMarketDataIds } from 'state/slices/marketDataSlice/marketDataSlice'
 
 let service: AssetService | undefined = undefined
 
@@ -114,24 +114,20 @@ export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
 export const selectAssetsByMarketCap = createSelector(
   selectAssets,
-  selectMarketData,
-  (assetsByIdOriginal, marketData) => {
+  selectMarketDataIds,
+  (assetsByIdOriginal, marketDataIds) => {
     const assetById = cloneDeep(assetsByIdOriginal)
-    if (marketData) {
-      // we only fetch market data for the top 1000 assets
-      // and want this to be fairly performant so do some mutatey things
-      const caip19ByMarketCap = Object.keys(marketData)
-      const sortedWithMarketCap = caip19ByMarketCap.reduce<Asset[]>((acc, cur) => {
-        const asset = assetById[cur]
-        if (!asset) return acc
-        acc.push(asset)
-        delete assetById[cur]
-        return acc
-      }, [])
-      const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
-      return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
-    } else {
-      return sortBy(assetById, ['name', 'symbol'])
-    }
+    // we only prefetch market data for some
+    // and want this to be fairly performant so do some mutatey things
+    // market data ids are already sorted by market cap
+    const sortedWithMarketCap = marketDataIds.reduce<Asset[]>((acc, cur) => {
+      const asset = assetById[cur]
+      if (!asset) return acc
+      acc.push(asset)
+      delete assetById[cur]
+      return acc
+    }, [])
+    const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
+    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
   }
 )

@@ -80,15 +80,15 @@ export const portfolio = createSlice({
   }
 })
 
-type AccountsToPortfolioArgs = {
+type AccountToPortfolioArgs = {
   [k: CAIP10]: chainAdapters.Account<ChainTypes>
 }
 
-type AccountsToPortfolio = (args: AccountsToPortfolioArgs) => Portfolio
+type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
-export const accountsToPortfolio: AccountsToPortfolio = args => {
+export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args).forEach(([_xpubOrAccount, account]) => {
@@ -162,7 +162,7 @@ export const portfolioApi = createApi({
             .byChain(chain)
             .getAccount(accountSpecifier)
           const account = { [accountSpecifier]: chainAdaptersAccount }
-          const data = accountsToPortfolio(account)
+          const data = accountToPortfolio(account)
           return { data }
         } catch (e) {
           const status = 400

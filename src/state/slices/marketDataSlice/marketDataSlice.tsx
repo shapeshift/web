@@ -15,6 +15,7 @@ type PriceHistoryByTimeframe = {
 
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
+  // TODO(0xdef1cafe): flatten this down now we don't have market cap
   marketData: {
     byId: {
       [k: CAIP19]: MarketData

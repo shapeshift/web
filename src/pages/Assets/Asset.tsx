@@ -8,12 +8,14 @@ import {
   MarketData,
   NetworkTypes
 } from '@shapeshiftoss/types'
-import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useMarketData } from 'hooks/useMarketData/useMarketData'
-import { ReduxState } from 'state/reducer'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  selectMarketDataById,
+  selectMarketDataLoadingById
+} from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 export interface MatchParams {
@@ -21,7 +23,9 @@ export interface MatchParams {
   tokenId: string
 }
 
+// TODO(0xdef1cafe): this has to die, we can't return invalid assets
 export const initAsset: A = {
+  caip2: '',
   caip19: '',
   chain: ChainTypes.Ethereum,
   network: NetworkTypes.MAINNET,
@@ -54,9 +58,9 @@ export const useAsset = () => {
   const contractType = ContractTypes.ERC20
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData(assetCAIP19)
-  const loading = useSelector((state: ReduxState) => state.marketData.loading)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))
 
   return {
     asset: asset ?? initAsset,

@@ -14,7 +14,8 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { useAppSelector } from 'state/store'
 
 import { MergedEarnVault } from '../hooks/useVaultBalances'
 
@@ -35,7 +36,7 @@ export const StakingCard = ({
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
-  const asset = useFetchAsset(assetCAIP19)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
 
   if (!asset) return null
 

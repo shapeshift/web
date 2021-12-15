@@ -1,9 +1,9 @@
 import { ChainTypes, HistoryTimeframe, UtxoAccountType } from '@shapeshiftoss/types'
-import { PortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
 import { ethereum, fox } from 'jest/mocks/assets'
 import { FOXSend, testTxs } from 'jest/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
+import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import {
   Bucket,
@@ -15,14 +15,6 @@ import {
 
 const mockedDate = '2021-11-20T00:00:00Z'
 
-// jest.mock(
-//   'dayjs',
-//   () =>
-//     (...args: any[]) =>
-//       jest.requireActual('dayjs')(...(args.filter(arg => arg).length > 0 ? args : [mockedDate]))
-// )
-
-const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'
 const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
@@ -31,14 +23,7 @@ describe('makeBuckets', () => {
     const assets = [ethCaip19]
     const ethBalance = '42069'
     const balances = {
-      [ethCaip19]: {
-        balance: ethBalance,
-        pubkey: '',
-        chain: ChainTypes.Ethereum,
-        caip2: ethCaip2,
-        caip19: ethCaip19,
-        chainSpecific: {}
-      }
+      [ethCaip19]: ethBalance
     }
     ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
       const bucketsAndMeta = makeBuckets({ assets, balances, timeframe })
@@ -66,15 +51,7 @@ describe('bucketTxs', () => {
     const value = transfer.value
 
     const balances = {
-      [foxCaip19]: {
-        balance: value,
-        pubkey: '',
-        symbol: 'FOX',
-        caip2: ethCaip2,
-        caip19: foxCaip19,
-        chain: ChainTypes.Ethereum,
-        chainSpecific: {}
-      }
+      [foxCaip19]: value
     }
     const assets = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
@@ -111,14 +88,7 @@ describe('calculateBucketPrices', () => {
     const value = transfer.value
 
     const balances = {
-      [foxCaip19]: {
-        balance: '0',
-        pubkey: '',
-        caip2: ethCaip2,
-        caip19: foxCaip19,
-        chain: ChainTypes.Ethereum,
-        chainSpecific: {}
-      }
+      [foxCaip19]: '0'
     }
     const assets = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
@@ -156,14 +126,7 @@ describe('calculateBucketPrices', () => {
   it('has zero balance 1 year back', () => {
     const txs = testTxs
     const balances = {
-      [ethCaip19]: {
-        balance: '52430152924656054',
-        pubkey: '',
-        caip2: ethCaip2,
-        caip19: ethCaip19,
-        chain: ChainTypes.Ethereum,
-        chainSpecific: {}
-      }
+      [ethCaip19]: '52430152924656054'
     }
     const assets = [ethCaip19]
     const timeframe = HistoryTimeframe.YEAR

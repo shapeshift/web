@@ -1,10 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { TypedUseSelectorHook, useSelector } from 'react-redux'
 
-import { reducer } from './reducer'
+import { reducer, ReduxState } from './reducer'
+import { assetApi } from './slices/assetsSlice/assetsSlice'
+import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
+
+const apiMiddleware = [portfolioApi.middleware, marketApi.middleware, assetApi.middleware]
 
 export const store = configureStore({
   reducer,
-  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(portfolioApi.middleware),
+  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiMiddleware),
   devTools: true
 })
+
+export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector

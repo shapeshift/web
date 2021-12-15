@@ -24,10 +24,11 @@ import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterPro
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalances } from 'hooks/useBalances/useBalances'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
@@ -60,13 +61,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const contractType = ContractTypes.ERC20
   // Asset info
   const underlyingAssetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-  const underlyingAsset = useFetchAsset(underlyingAssetCAIP19)
+  const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
-  const asset = useFetchAsset(assetCAIP19)
-  const marketData = useMarketData(underlyingAssetCAIP19)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
-  const feeAsset = useFetchAsset(feeAssetCAIP19)
-  const feeMarketData = useMarketData(feeAssetCAIP19)
+  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   // user info
   const chainAdapterManager = useChainAdapters()

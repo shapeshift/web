@@ -1,6 +1,8 @@
-import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import cloneDeep from 'lodash/cloneDeep'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 
@@ -36,7 +38,12 @@ const initialState: AssetsState = {
 export const assets = createSlice({
   name: 'asset',
   initialState,
-  reducers: {},
+  reducers: {
+    setAssets: (state, action: PayloadAction<AssetsState>) => {
+      state.byId = { ...state.byId, ...action.payload.byId } // upsert
+      state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
+    }
+  },
   extraReducers: builder => {
     builder
       .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
@@ -62,6 +69,63 @@ export const assets = createSlice({
   }
 })
 
+export const assetApi = createApi({
+  reducerPath: 'assetApi',
+  // not actually used, only used to satisfy createApi, we use a custom queryFn
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
+  endpoints: build => ({
+    getAssets: build.query<AssetsState, void>({
+      // all assets
+      queryFn: async () => {
+        const service = await getAssetService()
+        const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
+        const data = assetArray.reduce<AssetsState>((acc, cur) => {
+          const { caip19 } = cur
+          acc.byId[caip19] = cur
+          acc.ids.push(caip19)
+          return acc
+        }, cloneDeep(initialState))
+        return { data }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(assets.actions.setAssets(data))
+      }
+    }),
+    // TODO(0xdef1cafe): make this take a single asset and dispatch multiple actions
+    getAssetDescriptions: build.query<AssetsState, CAIP19[]>({
+      queryFn: async (assetIds, { getState }) => {
+        const service = await getAssetService()
+        // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
+        const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
+        const byId = cloneDeep(byIdOriginal)
+        const reqs = assetIds.map(async id => service.description({ asset: byId[id] }))
+        const responses = await Promise.allSettled(reqs)
+        responses.forEach((res, idx) => {
+          if (res.status === 'rejected') {
+            console.warn(`getAssetDescription: failed to fetch description for ${assetIds[idx]}`)
+            return
+          }
+          byId[assetIds[idx]].description = res.value
+        })
+
+        const data = { byId, ids }
+        return { data }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(assets.actions.setAssets(data))
+      }
+    })
+  })
+})
+
+export const { useGetAssetsQuery } = assetApi
+
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
@@ -75,12 +139,5 @@ export const selectAssetBySymbol = createSelector(
   (byId, symbol) => Object.values(byId).find(asset => asset.symbol === symbol)
 )
 
-// asset descriptions get lazily updated, this changes often
-// until we do the assets provider
-export const selectAssetsById = createSelector(
-  (state: ReduxState) => state.assets.byId,
-  byId => byId
-)
-
-// these will only get set once, no need to memoize
+export const selectAssetsById = (state: ReduxState) => state.assets.byId
 export const selectAssetIds = (state: ReduxState) => state.assets.ids

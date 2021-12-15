@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { ReduxState } from 'state/reducer'
 
 export type Preferences = {
   accountTypes: Record<string, any>
@@ -29,3 +30,5 @@ export const preferences = createSlice({
     }
   }
 })
+
+export const selectAccountTypes = (state: ReduxState) => state.preferences.accountTypes

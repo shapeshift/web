@@ -7,6 +7,7 @@ import {
 } from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
+  caip2: 'bip122:000000000019d6689c085ae165831e93',
   caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   name: 'bitcoin',
   chain: ChainTypes.Bitcoin,
@@ -26,6 +27,7 @@ export const BTC: Asset = {
   symbol: 'BTC'
 }
 export const WETH: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
   name: 'WETH',
   chain: ChainTypes.Ethereum,
@@ -46,6 +48,7 @@ export const WETH: Asset = {
   symbol: 'WETH'
 }
 export const FOX: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   name: 'Fox',
   chain: ChainTypes.Ethereum,
@@ -66,6 +69,7 @@ export const FOX: Asset = {
   symbol: 'FOX'
 }
 export const USDC: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   name: 'USD Coin',
   chain: ChainTypes.Ethereum,

@@ -139,7 +139,7 @@ export class YearnVaultApi {
     const gasPrice: string = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
+      bip44Params: this.adapter.buildBIP44Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -201,7 +201,7 @@ export class YearnVaultApi {
     const gasPrice = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
+      bip44Params: this.adapter.buildBIP44Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),
@@ -256,7 +256,7 @@ export class YearnVaultApi {
     const gasPrice = await this.web3.eth.getGasPrice()
 
     const txToSign = buildTxToSign({
-      bip32Params: this.adapter.buildBIP32Params({ accountNumber }),
+      bip44Params: this.adapter.buildBIP44Params({ accountNumber }),
       chainId: 1,
       data,
       estimatedGas: estimatedGas.toString(),

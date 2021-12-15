@@ -56,11 +56,11 @@ export const useBalances = (): UseBalancesReturnType => {
 
             const accountType = accountTypes[chain]
             const accountParams = utxoAccountParams(asset, accountType, 0)
-            const { bip32Params, scriptType } = accountParams
+            const { bip44Params, scriptType } = accountParams
             const pubkeys = await wallet.getPublicKeys([
               {
                 coin: chain,
-                addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
+                addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                 curve: 'secp256k1',
                 scriptType
               }

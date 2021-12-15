@@ -3656,10 +3656,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.6.1.tgz#d9a7928543349536f4cdaf4455de0f6966eed0f4"
   integrity sha512-T7LPjZO9YLuTfVPg2bBbqJH5mSWbcGrcmTJYd41QBRkS1XlAhI63gscENkPo2WeNunrEJFLHITiwk/ddlkme8A==
 
-"@shapeshiftoss/chain-adapters@^1.22.0":
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.22.0.tgz#cb0c701e0fbd9041ef407ff90d73997565e2c3a0"
-  integrity sha512-Zlm1GWohZiuR5GPt+ZZWdIBmbbG4/40ySocflaCpnJ2wwe95ynYUCN/c5NL380RRKppwwh87hG4sED9/UHZUEg==
+"@shapeshiftoss/chain-adapters@^1.22.1":
+  version "1.22.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.22.1.tgz#6ddac5828c51ea5abfb5637c1b2342f9a70ddab8"
+  integrity sha512-HgfkUBXsWqmwqpFuLwfBE6HVDWqD22ZoumJ1n73cyipIpqop7Jti5XQPqUirYy0UrTRga4x88vHm28bxhIqxJw==
   dependencies:
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -3822,10 +3822,10 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.14.0.tgz#2140bed029a1350cb1dd3e99ed66e6714e0cc3a6"
-  integrity sha512-AfaJ7MCITKF5xHZOaopJXptWBF5vKtPr9O4wTLdPhTEroIFuVrJuplr3DKQNA0nNUF8YMO5FRN8gfNSUJ+kx5w==
+"@shapeshiftoss/swapper@^1.14.1":
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.14.1.tgz#e6c0aac6bac6b7a9f318134274ddffdd3bb0ac3a"
+  integrity sha512-G0nQF6/sfBv2er1NPlFRaStro6Z5yzmTGx5TD87lo6IO+aKvB04+a8+7HqqymE3rWbLFiqUwtVAeDKTI23lE3A==
   dependencies:
     axios "^0.21.4"
     bignumber.js "^9.0.1"
@@ -3840,10 +3840,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.19.0":
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.19.0.tgz#b3570b7aa7e7f57607473ed3c978a29066a4be82"
-  integrity sha512-y4jL+lIhAnaa3zrBy7doLVaVXzshjc7C0uR5pMZjVb9P56FCgFQG+2C+f14cJddyZTuPtwRBVzhSrdwoD/CZBQ==
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.19.1.tgz#8aec1fc1c85c74b9d12965c9bca7148707b4cd4f"
+  integrity sha512-2sh+yjX493E+N6gTAT7XY2kduOkD0sTLx7QMKJBVqnXwt0TSEhOvYoVBUioH7SMmf9JFFR4qac66zH1iCilURA==
 
 "@shapeshiftoss/unchained-client@^4.1.0":
   version "4.1.0"

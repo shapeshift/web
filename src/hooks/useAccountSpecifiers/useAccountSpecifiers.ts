@@ -55,11 +55,11 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
           if (!bitcoin) continue
           supportedAccountTypes.bitcoin.forEach(async accountType => {
             const accountParams = utxoAccountParams(bitcoin, accountType, 0)
-            const { bip32Params, scriptType } = accountParams
+            const { bip44Params, scriptType } = accountParams
             const pubkeys = await wallet.getPublicKeys([
               {
                 coin: adapter.getType(),
-                addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
+                addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                 curve: 'secp256k1',
                 scriptType
               }

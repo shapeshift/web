@@ -22,15 +22,6 @@ export const fetchAsset = createAsyncThunk('asset/fetchAsset', async (assetCAIP1
   return result
 })
 
-export const fetchAssets = createAsyncThunk(
-  'asset/fetchAssets',
-  // TODO(0xdef1cafe): change this to caip2 - we will actually need chain and network in future
-  async ({ network }: { network: NetworkTypes }) => {
-    const service = await getAssetService()
-    return service?.byNetwork(network)
-  }
-)
-
 const initialState: AssetsState = {
   byId: {},
   ids: []
@@ -54,18 +45,6 @@ export const assets = createSlice({
       })
       .addCase(fetchAsset.rejected, (state, { payload, meta }) => {
         console.error('fetchAsset rejected')
-      })
-      .addCase(fetchAssets.fulfilled, (state, { payload: assets }) => {
-        const byId = assets.reduce<AssetsState['byId']>((acc, cur) => {
-          const { caip19 } = cur
-          acc[caip19] = cur
-          return acc
-        }, {})
-        state.byId = byId
-
-        assets?.forEach(({ caip19 }) => {
-          if (!state.ids.includes(caip19)) state.ids.push(caip19)
-        })
       })
   }
 })

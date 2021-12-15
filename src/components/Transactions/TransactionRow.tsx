@@ -70,11 +70,6 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
     return null
   }
 
-  // TODO: new tx message payloads changed how this will need to happen (fixme)
-  //useEffect(() => {
-  //  dispatch(fetchAsset(assetCAIP19))
-  //}, [dispatch, tx])
-
   return (
     <Box ref={ref} width='full' pl={3} pr={4} rounded='lg' _hover={{ bg }}>
       <Flex

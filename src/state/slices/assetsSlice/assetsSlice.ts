@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
@@ -18,14 +18,6 @@ export type AssetsState = {
   ids: CAIP19[]
 }
 
-export const fetchAsset = createAsyncThunk('asset/fetchAsset', async (assetCAIP19: CAIP19) => {
-  const service = await getAssetService()
-  const asset = service?.byTokenId({ ...caip19.fromCAIP19(assetCAIP19) })
-  const description = await service?.description({ asset })
-  const result = { ...asset, description }
-  return result
-})
-
 const initialState: AssetsState = {
   byId: {},
   ids: []
@@ -39,17 +31,6 @@ export const assets = createSlice({
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
     }
-  },
-  extraReducers: builder => {
-    builder
-      .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
-        const assetCAIP19 = meta.arg
-        state.byId[assetCAIP19] = payload
-        if (!state.ids.includes(assetCAIP19)) state.ids.push(assetCAIP19)
-      })
-      .addCase(fetchAsset.rejected, (state, { payload, meta }) => {
-        console.error('fetchAsset rejected')
-      })
   }
 })
 

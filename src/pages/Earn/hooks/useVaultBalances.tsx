@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { fetchAsset, selectAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
@@ -81,11 +81,6 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       setLoading(true)
       try {
         const yearnVaults = await getYearnVaults(balances, yearn)
-        // get asset and market data for all underlying assets/vault assets
-        Object.values(yearnVaults).forEach(vault => {
-          dispatch(fetchAsset(vault.vaultCaip19))
-          dispatch(fetchAsset(vault.tokenCaip19))
-        })
         setVaults(yearnVaults)
       } catch (error) {
         console.error('error', error)

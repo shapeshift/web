@@ -1,12 +1,16 @@
 import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import { Asset, MarketData, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+
+// TODO(0xdef1cafe): not sure else to put this for now
+export type AssetMarketData = Asset & MarketData
+
 export type AssetsState = {
   byId: {
     [key: CAIP19]: Asset

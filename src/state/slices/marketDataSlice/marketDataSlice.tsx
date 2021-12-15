@@ -188,6 +188,6 @@ export const selectMarketAssetPercentChangeById = createSelector(
     const startBn = bnOrZero(start)
     const startAbs = startBn.abs()
     const endBn = bnOrZero(end)
-    return endBn.minus(startBn).div(startAbs).times(100).toNumber()
+    return endBn.minus(startBn).div(startAbs).times(100).decimalPlaces(2).toNumber()
   }
 )

@@ -102,18 +102,18 @@ function useLocationBackground() {
 export const Routes = () => {
   const { background, location } = useLocationBackground()
   const { state, dispatch } = useWallet()
-  const { isConnected } = state
+  const hasWallet = Boolean(state.walletInfo?.deviceId)
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
         return (
-          <PrivateRoute key={index} path={route.path} exact isConnected={isConnected}>
+          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
             <Layout route={route} />
           </PrivateRoute>
         )
       })}
       <Route path='/connect-wallet'>
-        <ConnectWallet dispatch={dispatch} isConnected={isConnected} />
+        <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

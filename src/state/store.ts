@@ -10,7 +10,11 @@ const apiMiddleware = [portfolioApi.middleware, marketApi.middleware, assetApi.m
 
 export const store = configureStore({
   reducer,
-  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiMiddleware),
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      immutableCheck: { warnAfter: 128 },
+      serializableCheck: { warnAfter: 128 }
+    }).concat(apiMiddleware),
   devTools: true
 })
 

@@ -2,13 +2,7 @@ import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
-import {
-  FindAllMarketArgs,
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData
-} from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import { isEmpty } from 'lodash'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
@@ -21,7 +15,7 @@ type PriceHistoryByTimeframe = {
 
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
-  marketCap?: MarketCapResult // remove this as it's the same as marketData.byId
+  // TODO(0xdef1cafe): flatten this down now we don't have market cap
   marketData: {
     byId: {
       [k: CAIP19]: MarketData
@@ -31,13 +25,7 @@ export type MarketDataState = {
   priceHistory: PriceHistoryByTimeframe
 }
 
-export const fetchMarketData = createAsyncThunk(
-  'marketData/fetchMarketData',
-  async (caip: CAIP19) => {
-    return findByCaip19({ caip19: caip })
-  }
-)
-
+// TODO(0xdef1cafe): put this in the marketApi, fetch individually, kill usePriceHistory hook!
 export const fetchPriceHistory = createAsyncThunk(
   'marketData/priceHistory',
   async ({ assets, timeframe }: { assets: CAIP19[]; timeframe: HistoryTimeframe }) => {
@@ -61,18 +49,7 @@ export const fetchPriceHistory = createAsyncThunk(
   }
 )
 
-export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
-  try {
-    const args: FindAllMarketArgs = { pages: 1, perPage: 250 }
-    const marketCap = await findAll(args)
-    return { marketCap }
-  } catch (error) {
-    console.error(error)
-    return {}
-  }
-})
-
-const initialPriceHistory = {
+const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},
   [HistoryTimeframe.WEEK]: {},
@@ -99,7 +76,7 @@ export const marketData = createSlice({
       const ids = Array.from(new Set([...state.marketData.ids, ...Object.keys(payload)]))
       state.marketData.ids = ids // upsert unique
     },
-    setPriceHistory: (state, { payload }: { payload: Partial<typeof initialPriceHistory> }) => {
+    setPriceHistory: (state, { payload }: { payload: PriceHistoryByTimeframe }) => {
       state.priceHistory = { ...state.priceHistory, ...payload } // upsert
     }
   },
@@ -113,32 +90,6 @@ export const marketData = createSlice({
     builder.addCase(fetchPriceHistory.fulfilled, (state, { payload, meta }) => {
       const { assets, timeframe } = meta.arg
       payload.forEach((priceData, idx) => (state.priceHistory[timeframe][assets[idx]] = priceData))
-      state.loading = false
-    })
-    builder.addCase(fetchMarketData.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchMarketData.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
-      const assetCAIP19 = meta.arg
-      if (payload) {
-        state.marketData.byId[assetCAIP19] = payload
-        if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
-      }
-      state.loading = false
-    })
-    builder.addCase(fetchMarketCaps.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchMarketCaps.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchMarketCaps.fulfilled, (state, { payload }) => {
-      const { marketCap } = payload
-      if (!marketCap) return
-      state.marketCap = marketCap
       state.loading = false
     })
   }
@@ -164,9 +115,15 @@ export const marketApi = createApi({
     }),
     findByCaip19: build.query<MarketCapResult, CAIP19>({
       queryFn: async (caip19: CAIP19) => {
-        const marketData = await findByCaip19({ caip19 })
-        const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
-        return marketData ? { data: { [caip19]: marketData } } : { error }
+        try {
+          const marketData = await findByCaip19({ caip19 })
+          if (!marketData) throw new Error()
+          const data = { [caip19]: marketData }
+          return { data }
+        } catch (e) {
+          const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
+          return { error }
+        }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded

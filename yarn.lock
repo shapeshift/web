@@ -3840,12 +3840,7 @@
     bignumber.js "^9.0.1"
     ethers "^5.4.0"
 
-"@shapeshiftoss/types@^1.17.0":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.18.0.tgz#230a9bc05dbb055836ead04e151c39b68da06535"
-  integrity sha512-0OvetoPU3vlXgEKhIWhXX8k2uJESpiRUNhE38t4G4k2WknsAfAp1leMpugKEzqUjdDoM07jpNm+UdRq2Gb9jTw==
-
-"@shapeshiftoss/types@^1.19.0":
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.19.0":
   version "1.19.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.19.0.tgz#b3570b7aa7e7f57607473ed3c978a29066a4be82"
   integrity sha512-y4jL+lIhAnaa3zrBy7doLVaVXzshjc7C0uR5pMZjVb9P56FCgFQG+2C+f14cJddyZTuPtwRBVzhSrdwoD/CZBQ==

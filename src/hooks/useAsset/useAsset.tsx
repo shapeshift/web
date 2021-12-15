@@ -8,6 +8,8 @@ import { useAppSelector } from 'state/store'
 
 export type AssetMarketData = Asset & MarketData & { description?: string }
 
+// TODO(0xdef1cafe): delete this as it's just calling two selectors
+// or use new assetApi and marketApi dispatch
 export const useGetAssetData = (caip19: CAIP19) => {
   const dispatch = useDispatch()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))

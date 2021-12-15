@@ -10,7 +10,6 @@ import { IconCircle } from 'components/IconCircle'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectPortfolioAllocationPercent,
   selectPortfolioAssetBalancesSortedFiat,
@@ -93,7 +92,7 @@ export const AccountList = () => {
         <AccountHeader />
         {Object.entries(sortedBalances)
           // TODO(0xdef1cafe): add a toggle to show balances
-          .filter(([assetId]) => bnOrZero(sortedBalances[assetId]).gt(0))
+          // .filter(([assetId]) => bnOrZero(sortedBalances[assetId]).gt(0))
           .map(([assetId]) => (
             <AccountRow
               allocationValue={portfolioAllocationPercent[assetId]}

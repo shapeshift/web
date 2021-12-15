@@ -15,7 +15,6 @@ type PriceHistoryByTimeframe = {
 
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
-  marketCap?: MarketCapResult // remove this as it's the same as marketData.byId
   marketData: {
     byId: {
       [k: CAIP19]: MarketData
@@ -25,13 +24,7 @@ export type MarketDataState = {
   priceHistory: PriceHistoryByTimeframe
 }
 
-export const fetchMarketData = createAsyncThunk(
-  'marketData/fetchMarketData',
-  async (caip: CAIP19) => {
-    return findByCaip19({ caip19: caip })
-  }
-)
-
+// TODO(0xdef1cafe): put this in the marketApi, fetch individually, kill usePriceHistory hook!
 export const fetchPriceHistory = createAsyncThunk(
   'marketData/priceHistory',
   async ({ assets, timeframe }: { assets: CAIP19[]; timeframe: HistoryTimeframe }) => {
@@ -96,20 +89,6 @@ export const marketData = createSlice({
     builder.addCase(fetchPriceHistory.fulfilled, (state, { payload, meta }) => {
       const { assets, timeframe } = meta.arg
       payload.forEach((priceData, idx) => (state.priceHistory[timeframe][assets[idx]] = priceData))
-      state.loading = false
-    })
-    builder.addCase(fetchMarketData.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchMarketData.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
-      const assetCAIP19 = meta.arg
-      if (payload) {
-        state.marketData.byId[assetCAIP19] = payload
-        if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
-      }
       state.loading = false
     })
   }

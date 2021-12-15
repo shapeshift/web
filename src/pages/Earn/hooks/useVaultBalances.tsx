@@ -13,7 +13,6 @@ import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 import { fetchAsset, selectAssets } from 'state/slices/assetsSlice/assetsSlice'
-import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
   SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }
@@ -86,7 +85,6 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         Object.values(yearnVaults).forEach(vault => {
           dispatch(fetchAsset(vault.vaultCaip19))
           dispatch(fetchAsset(vault.tokenCaip19))
-          dispatch(fetchMarketData(vault.tokenCaip19))
         })
         setVaults(yearnVaults)
       } catch (error) {

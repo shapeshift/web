@@ -152,7 +152,6 @@ export const portfolioApi = createApi({
   endpoints: build => ({
     getAccount: build.query<Portfolio, AccountSpecifier>({
       queryFn: async accountSpecifiers => {
-        // can't call hooks conditionally, this is a valid return
         if (isEmpty(accountSpecifiers)) return { data: cloneDeep(initialState) }
         const chainAdapters = getChainAdapters()
         const [CAIP2, accountSpecifier] = Object.entries(accountSpecifiers)[0] as [CAIP2, string]

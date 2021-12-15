@@ -75,25 +75,22 @@ export const assetApi = createApi({
         data && dispatch(assets.actions.setAssets(data))
       }
     }),
-    // TODO(0xdef1cafe): make this take a single asset and dispatch multiple actions
-    getAssetDescriptions: build.query<AssetsState, CAIP19[]>({
-      queryFn: async (assetIds, { getState }) => {
+    getAssetDescription: build.query<AssetsState, CAIP19>({
+      queryFn: async (assetId, { getState }) => {
         const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
-        const reqs = assetIds.map(async id => service.description({ asset: byId[id] }))
-        const responses = await Promise.allSettled(reqs)
-        responses.forEach((res, idx) => {
-          if (res.status === 'rejected') {
-            console.warn(`getAssetDescription: failed to fetch description for ${assetIds[idx]}`)
-            return
-          }
-          byId[assetIds[idx]].description = res.value
-        })
-
-        const data = { byId, ids }
-        return { data }
+        try {
+          byId[assetId].description = await service.description({ asset: byId[assetId] })
+          const data = { byId, ids }
+          return { data }
+        } catch (e) {
+          const data = `getAssetDescription: error fetching description for ${assetId}`
+          const status = 400
+          const error = { data, status }
+          return { error }
+        }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded

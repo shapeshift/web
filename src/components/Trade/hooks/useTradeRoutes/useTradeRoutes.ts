@@ -1,9 +1,10 @@
-import { Asset, ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { getByIdentifier } from 'lib/math'
-import { getAssetService } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 
 import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
@@ -17,18 +18,13 @@ export const useTradeRoutes = (): {
   const { getQuote, getBestSwapper, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
+  const assets = useSelector(selectAssets)
 
   const setDefaultAssets = useCallback(async () => {
     try {
-      const defaultPair = getDefaultPair()
-      const service = await getAssetService()
-      const data = service?.byNetwork(NetworkTypes.MAINNET)
-      const sellAsset = data.find(
-        asset => getByIdentifier(defaultPair?.[0]) === getByIdentifier(asset)
-      )
-      const buyAsset = data.find(
-        asset => getByIdentifier(defaultPair?.[1]) === getByIdentifier(asset)
-      )
+      const [sellAssetId, buyAssetId] = getDefaultPair()
+      const sellAsset = assets[sellAssetId]
+      const buyAsset = assets[buyAssetId]
       if (sellAsset && buyAsset) {
         await getBestSwapper({
           sellAsset: { currency: sellAsset },
@@ -45,7 +41,7 @@ export const useTradeRoutes = (): {
     } catch (e) {
       console.warn(e)
     }
-  }, [setValue, getQuote, getDefaultPair, getBestSwapper])
+  }, [assets, setValue, getQuote, getDefaultPair, getBestSwapper])
 
   useEffect(() => {
     setDefaultAssets()

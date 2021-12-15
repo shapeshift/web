@@ -24,6 +24,7 @@ export const firstNonZeroDecimal = (number: BN) => {
   return number.toFixed(10).match(/^-?\d*\.?0*\d{0,2}/)?.[0]
 }
 
+// TODO(0xdef1cafe): delete this
 export const getByIdentifier = (asset: Pick<Asset, 'chain' | 'symbol' | 'name'>) => {
   return asset.chain + asset.symbol + asset.name
 }

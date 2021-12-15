@@ -1,6 +1,5 @@
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { Balances } from 'hooks/useBalances/useBalances'
 import { TestProviders } from 'jest/TestProviders'
 
@@ -67,16 +66,16 @@ const fooBarErc20 = {
   precision: 18
 }
 
-const getAssetData = () =>
-  Promise.resolve({
-    name: 'Ethereum',
-    chain: ChainTypes.Ethereum,
-    price: '3500',
-    symbol: 'ETH'
-  })
+// const getAssetData = () =>
+//   Promise.resolve({
+//     name: 'Ethereum',
+//     chain: ChainTypes.Ethereum,
+//     price: '3500',
+//     symbol: 'ETH'
+//   })
 
 const setup = ({ asset = {} as Asset, balances = {} }: { asset: Asset; balances: any }) => {
-  ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
+  // ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   const wrapper: React.FC = ({ children }) => {
     return <TestProviders>{children}</TestProviders>
   }

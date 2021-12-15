@@ -1,10 +1,8 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { TestProviders } from 'jest/TestProviders'
 import { ReduxState } from 'state/reducer'
 
@@ -51,14 +49,14 @@ const ethAsset = {
   precision: 18
 }
 
-const getAssetData = () =>
-  Promise.resolve({
-    name: 'Ethereum',
-    chain: ChainTypes.Ethereum,
-    price: '3500',
-    symbol: 'ETH',
-    precision: 18
-  })
+// const getAssetData = () =>
+//   Promise.resolve({
+//     name: 'Ethereum',
+//     chain: ChainTypes.Ethereum,
+//     price: '3500',
+//     symbol: 'ETH',
+//     precision: 18
+//   })
 
 const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
@@ -74,7 +72,7 @@ const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
 describe('useSendFees', () => {
   beforeEach(() => {
     ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
-    ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
+    // ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   })
 
   it('returns the fees with market data', async () => {

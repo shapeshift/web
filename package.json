@@ -74,7 +74,7 @@
     "reselect": "^4.1.5",
     "scrypt-js": "^3.0.1",
     "web-vitals": "^2.1.0",
-    "web3": "^1.6.0"
+    "web3": "^1.6.1"
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",

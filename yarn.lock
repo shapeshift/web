@@ -3822,10 +3822,10 @@
     axios "^0.21.2"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.14.1":
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.14.1.tgz#e6c0aac6bac6b7a9f318134274ddffdd3bb0ac3a"
-  integrity sha512-G0nQF6/sfBv2er1NPlFRaStro6Z5yzmTGx5TD87lo6IO+aKvB04+a8+7HqqymE3rWbLFiqUwtVAeDKTI23lE3A==
+"@shapeshiftoss/swapper@^1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.15.0.tgz#f5157982dfcaa08c36af45c195ac44fe91fa5696"
+  integrity sha512-me4y0bLTCdBnCGn9O+OF1VfDcb6Rb/G6DGJh3u19F23vh9wzJ2mL+C1UwacFabOrjYtDgjXG3veDfhTj4wjDQg==
   dependencies:
     axios "^0.21.4"
     bignumber.js "^9.0.1"

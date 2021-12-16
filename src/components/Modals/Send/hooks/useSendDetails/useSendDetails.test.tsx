@@ -5,7 +5,6 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { TestProviders } from 'jest/TestProviders'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -97,14 +96,14 @@ const getRuneAccountBalances = () => {
   }
 }
 
-const getAssetData = () =>
-  Promise.resolve({
-    name: 'Ethereum',
-    chain: ChainTypes.Ethereum,
-    price: '3500',
-    symbol: 'ETH',
-    precision: 18
-  })
+// const getAssetData = () =>
+//   Promise.resolve({
+//     name: 'Ethereum',
+//     chain: ChainTypes.Ethereum,
+//     price: '3500',
+//     symbol: 'ETH',
+//     precision: 18
+//   })
 
 const setup = ({
   asset = ethAsset,
@@ -115,10 +114,11 @@ const setup = ({
   setError = jest.fn(),
   setValue = jest.fn()
 }) => {
-  ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) =>
-    name === 'asset' ? asset : '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
-  )
+  // ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
+    asset,
+    '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
+  ])
   ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
     assetBalance,
     accountBalances

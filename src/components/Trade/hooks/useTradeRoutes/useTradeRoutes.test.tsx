@@ -1,10 +1,9 @@
-import { NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 import { FOX, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
-import { getAssetService } from 'lib/assetService'
 
 import { useTradeRoutes } from './useTradeRoutes'
 
@@ -16,7 +15,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
-jest.mock('lib/assetService')
 
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const getQuote = jest.fn()
@@ -26,9 +24,6 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
     getQuote: getQuote,
     getBestSwapper: () => SwapperType.Zrx,
     getDefaultPair: () => [FOX, WETH]
-  }))
-  ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({
-    byNetwork: (_: NetworkTypes) => [FOX, WETH]
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,

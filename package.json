@@ -90,6 +90,7 @@
     "clean": "rimraf node_modules",
     "test:dev": "react-app-rewired test --watch",
     "type-check": "tsc --project ./tsconfig.json --noEmit",
+    "type-check-watch": "tsc --watch --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh"

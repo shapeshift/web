@@ -14,13 +14,15 @@ import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
+import { AssetMarketData } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
-import { SendFormFields, SendInput } from '../../Form'
+import { SendFormFields } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
@@ -46,9 +48,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
-  const { getValues, setValue } = useFormContext<SendInput>()
-  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
-  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const { getValues, setValue } = useFormContext()
+  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] }) as [
+    AssetMarketData,
+    string
+  ]
+  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
   const { balances, error: balanceError, loading: balancesLoading } = useBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
   const chainAdapterManager = useChainAdapters()
@@ -57,8 +62,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   } = useWallet()
 
   const { chain, tokenId } = asset
-
-  const getAssetData = useGetAssetData(asset.caip19)
 
   useEffect(() => {
     if (balanceError) {
@@ -203,7 +206,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       setValue(SendFormFields.EstimatedFees, adapterFees)
-      const marketData = await getAssetData()
       // TODO: get network precision from network asset, not send asset
       const networkFee = bnOrZero(bn(fastFee).div(`1e${asset.precision}`))
 
@@ -212,7 +214,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         setValue(SendFormFields.FiatAmount, accountBalances.fiat.toFixed(2))
       } else {
         const maxCrypto = accountBalances.crypto.minus(networkFee)
-        const maxFiat = maxCrypto.times(marketData?.price || 0)
+        const maxFiat = maxCrypto.times(price)
         setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       }

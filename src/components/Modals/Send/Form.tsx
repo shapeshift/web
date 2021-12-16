@@ -11,7 +11,9 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { AssetMarketData } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -58,7 +60,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
-  const getAssetData = useGetAssetData(initialAsset.caip19)
+  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -74,9 +76,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
   })
 
   const handleAssetSelect = async (asset: Asset) => {
-    const assetMarketData = await getAssetData(asset.caip19)
-    if (!assetMarketData) return console.error('Failed to get marketData')
-    methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
+    methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')

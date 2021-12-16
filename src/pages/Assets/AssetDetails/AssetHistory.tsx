@@ -7,7 +7,8 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectTxIdsByAssetId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectAccountTypeByChain } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectTxIdsByAssetIdAccountType } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { useAsset } from '../Asset'
@@ -23,7 +24,14 @@ export const AssetHistory = () => {
   wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-  const txIds = useAppSelector(state => selectTxIdsByAssetId(state, asset.caip19))
+  const accountType = useAppSelector(state => selectAccountTypeByChain(state, asset.chain))
+
+  // TODO(0xdef1cafe): change this to use selectTxIdsByAssetId once we have
+  // the account -> address mapping in portfolio locked down
+  const txIds = useAppSelector(state =>
+    selectTxIdsByAssetIdAccountType(state, asset.caip19, accountType)
+  )
+
   const { next, data, hasMore } = useInfiniteScroll(txIds)
 
   const txRows = useMemo(() => {

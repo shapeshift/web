@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import filter from 'lodash/filter'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
@@ -144,8 +145,34 @@ export const selectTxById = createSelector(
 
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId
 
+const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
+
 export const selectTxIdsByAssetId = createSelector(
   selectTxsByAssetId,
-  (_state: ReduxState, assetId: CAIP19) => assetId,
-  (txsByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
+  selectAssetIdParam,
+  (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
+)
+
+// TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
+// and only specific to bitcoin
+export const selectTxIdsByAssetIdAccountType = createSelector(
+  selectTxs,
+  selectTxsByAssetId,
+  selectAssetIdParam,
+  (_state: ReduxState, _assetId: CAIP19, accountType: UtxoAccountType) => accountType,
+  (
+    txsById: TxHistoryById,
+    txsByAssetId: TxIdByAssetId,
+    assetId: CAIP19,
+    accountType: UtxoAccountType
+  ): string[] => {
+    if (!accountType) return txsByAssetId[assetId] ?? []
+    if (isEmpty(txsByAssetId)) return []
+    const txIds = txsByAssetId[assetId] ?? []
+    const txs = txIds.map(txid => txsById[txid])
+    const result = txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
+    debugger
+    return result
+  },
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
 )

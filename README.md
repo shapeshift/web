@@ -49,19 +49,6 @@ On Linux and MacOS it works out of the box following the steps.<br/>
   ```sh
   nvm use
   ```
-The .env file contains global variables that the program needs to function properly. The following variables are not publicly available for security reasons:
-
-REACT_APP_PORTIS_DAPP_ID<br>
-Allows you to connect a Portis wallet. Without this the program will hang after choosing Portis and 
-clicking the "Pair" button. To get it, make a post asking for it in the Discord.
-
-REACT_APP_ETHEREUM_NODE_URL <br>
-Program crashes when connecting wallet without this. Obtain by doing the following: 
-1. Go to https://infura.io/dashboard
-2. Set up a free account
-3. Make a new project 
-<br>Your key should use "JSON-RPC over HTTPS" and look like this: 
-https://mainnet.infura.io/v3/YOUR-PROJECT-ID
 
 - Install Dependencies:
 
@@ -74,14 +61,6 @@ https://mainnet.infura.io/v3/YOUR-PROJECT-ID
 
   ```sh
   cp sample.env .env
-  ```
-
-- Have fun!
-  ```sh
-  # Launch a local dev-mode server with hot-reload support:
-  yarn dev
-  # Or, compile a static production version:
-  yarn build
   ```
 
 ### `.env`
@@ -102,7 +81,7 @@ The `.env` file contains environment variables that the program needs to functio
   2. Set up a free account
   3. Make a new project
 
-      Your key should use "JSON-RPC over HTTPS" and look like `https://mainnet.infura.io/v3/<your project id>`
+      Your key should use "JSON-RPC over HTTPS" and look like this: `https://mainnet.infura.io/v3/<your project id>`
 
 ### Commands
 

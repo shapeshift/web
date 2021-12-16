@@ -65,7 +65,7 @@
     "react-polyglot": "^0.7.2",
     "react-qr-reader": "^2.2.1",
     "react-redux": "^7.2.6",
-    "react-router-dom": "^5.2.0",
+    "react-router-dom": "^6.1.1",
     "react-scripts": "4.0.3",
     "react-text-mask": "^5.4.3",
     "react-virtualized-auto-sizer": "^1.0.5",

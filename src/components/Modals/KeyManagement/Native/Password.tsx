@@ -98,6 +98,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
                   pr='4.5rem'
                   type={showPw ? 'text' : 'password'}
                   placeholder={translate('modals.shapeShift.password.placeholder')}
+                  autoComplete={'password'}
                   id='password'
                 />
                 <InputRightElement>

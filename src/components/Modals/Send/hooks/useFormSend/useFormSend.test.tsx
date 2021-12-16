@@ -12,7 +12,7 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
-import { SendInput } from '../../Form'
+import { SendFormFields, SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
 
 jest.mock('@chakra-ui/react')
@@ -26,8 +26,9 @@ jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
 
 const formData: SendInput = {
-  address: '0xMyWalletAddres',
-  asset: {
+  [SendFormFields.Address]: '0xMyWalletAddres',
+  [SendFormFields.Asset]: {
+    caip2: '',
     caip19: '',
     description: '',
     price: '',
@@ -50,8 +51,9 @@ const formData: SendInput = {
     sendSupport: true,
     receiveSupport: true
   },
-  feeType: chainAdapters.FeeDataKey.Average,
-  estimatedFees: {
+  [SendFormFields.AmountFieldError]: '',
+  [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
+  [SendFormFields.EstimatedFees]: {
     [chainAdapters.FeeDataKey.Slow]: {
       txFee: '3100000000000000',
       chainSpecific: {
@@ -74,16 +76,12 @@ const formData: SendInput = {
       }
     }
   },
-  crypto: {
-    amount: '1',
-    symbol: 'ETH'
-  },
-  fiat: {
-    amount: '3500',
-    symbol: 'USD'
-  },
-  transaction: {},
-  sendMax: false
+  [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.CryptoSymbol]: 'ETH',
+  [SendFormFields.FiatAmount]: '3500',
+  [SendFormFields.FiatSymbol]: 'USD',
+  [SendFormFields.Transaction]: {},
+  [SendFormFields.SendMax]: false
 }
 
 const textTxToSign = {

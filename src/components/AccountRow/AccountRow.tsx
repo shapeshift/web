@@ -1,63 +1,41 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { useEffect, useMemo } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
-import { fetchMarketData, selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectPortfolioCryptoHumanBalanceById,
+  selectPortfolioFiatBalanceById
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppSelector } from 'state/store'
 
 import { Allocations } from './Allocations'
 
 export type AccountRowArgs = {
   allocationValue: number
-  balance: string
   CAIP19: CAIP19
 }
 
-export const AccountRow = ({ allocationValue, balance, CAIP19 }: AccountRowArgs) => {
-  const dispatch = useDispatch()
+export const AccountRow = ({ allocationValue, CAIP19 }: AccountRowArgs) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
-  const { chain, tokenId } = caip19.fromCAIP19(CAIP19)
   const url = useMemo(() => {
+    if (!CAIP19) return ''
+    const { chain, tokenId } = caip19.fromCAIP19(CAIP19)
     let baseUrl = `/assets/${chain}`
     if (tokenId) baseUrl = baseUrl + `/${tokenId}`
     return baseUrl
-  }, [chain, tokenId])
+  }, [CAIP19])
 
-  const asset = useFetchAsset(CAIP19)
-  const marketData = useSelector((state: ReduxState) => selectMarketDataById(state, CAIP19))
-  const marketDataLoading = useSelector((state: ReduxState) => state.marketData.loading)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, CAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, CAIP19))
+  const cryptoValue = useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, CAIP19))
+  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceById(state, CAIP19))
 
-  useEffect(() => {
-    ;(async () => {
-      if (asset && !marketData) {
-        dispatch(fetchMarketData(CAIP19))
-      }
-    })()
-  }, [asset, CAIP19, dispatch, marketData])
-
-  const displayValue = useMemo(
-    () => (asset ? fromBaseUnit(balance, asset.precision) : 0),
-    [asset, balance]
-  )
-
-  const fiatValue = useMemo(
-    () =>
-      bn(displayValue)
-        .times(marketData?.price ?? 0)
-        .toFixed(2)
-        .toString(),
-    [displayValue, marketData]
-  )
-
-  if (!asset) return null
+  if (!asset) return null // users may have assets we don't support
 
   return (
     <SimpleGrid
@@ -97,33 +75,21 @@ export const AccountRow = ({ allocationValue, balance, CAIP19 }: AccountRowArgs)
         </Flex>
       </Flex>
       <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
-        <Amount.Crypto value={displayValue.toString()} symbol={asset.symbol} />
+        <Amount.Crypto value={cryptoValue} symbol={asset.symbol} />
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
-        {!marketData?.price ? (
-          marketDataLoading ? (
-            <CircularProgress isIndeterminate size='5' />
-          ) : (
-            '--'
-          )
-        ) : (
-          <Amount.Fiat value={marketData.price} />
-        )}
+        {!marketData?.price ? '--' : <Amount.Fiat value={marketData.price} />}
       </Flex>
       <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
         {!marketData?.price ? (
-          marketDataLoading ? (
-            <CircularProgress isIndeterminate size='5' />
-          ) : (
-            '--'
-          )
+          '--'
         ) : (
           <Flex flexDir='column' textAlign='right'>
             <Amount.Fiat value={fiatValue} />
             <Amount.Crypto
               display={{ base: 'block', md: 'none' }}
               color='gray.500'
-              value={displayValue.toString()}
+              value={cryptoValue}
               symbol={asset.symbol}
             />
           </Flex>

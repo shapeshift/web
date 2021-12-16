@@ -28,7 +28,6 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
 
   const bg = useColorModeValue('gray.50', 'whiteAlpha.100')
 
-  // stables need precision of eth (18) rather than 10
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
 
   const standardTx = tx.transfers.length === 1 ? tx.transfers[0] : undefined
@@ -43,6 +42,8 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   const standardAsset = useSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, standardTx?.caip19 ?? '')
   )
+
+  // stables need precision of eth (18) rather than 10
   const feeAsset = useSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, tx.fee?.caip19 ?? '')
   )
@@ -66,14 +67,9 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
 
   // log what transactions we are currently not parsing so we can update accordingly
   if (!type) {
-    console.warn('unsupported transaction:', tx)
+    // console.warn('unsupported transaction:', tx.txid)
     return null
   }
-
-  // TODO: new tx message payloads changed how this will need to happen (fixme)
-  //useEffect(() => {
-  //  dispatch(fetchAsset(assetCAIP19))
-  //}, [dispatch, tx])
 
   return (
     <Box ref={ref} width='full' pl={3} pr={4} rounded='lg' _hover={{ bg }}>

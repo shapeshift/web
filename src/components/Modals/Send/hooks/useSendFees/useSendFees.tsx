@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useGetAssetData } from 'hooks/useAsset/useAsset'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { useAppSelector } from 'state/store'
 
 import { FeePrice } from '../../views/Confirm'
 
@@ -15,7 +16,7 @@ export const useSendFees = () => {
     control
   })
   const getAssetData = useGetAssetData(asset.caip19)
-  const feeAsset = useFetchAsset(asset.caip19)
+  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, asset.caip19))
   const {
     state: { wallet }
   } = useWallet()

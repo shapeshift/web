@@ -45,16 +45,13 @@ describe('txHistorySlice', () => {
       store.dispatch(txHistory.actions.onMessage({ message: EthSend }))
       expect(Object.values(store.getState().txHistory.ids).length).toBe(1)
 
-      const ethSendTxid = txToId(EthSend)
-      const ethReceiveTxid = txToId(EthReceive)
-
       // new eth transaction (receive)
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive }))
       expect(Object.values(store.getState().txHistory.ids).length).toBe(2)
 
       // eth data exists
-      expect(store.getState().txHistory.byId[ethSendTxid]).toEqual(EthSend)
-      expect(store.getState().txHistory.byId[ethReceiveTxid]).toEqual(EthReceive)
+      expect(store.getState().txHistory.byId[EthSend.txid]).toEqual(EthSend)
+      expect(store.getState().txHistory.byId[EthReceive.txid]).toEqual(EthReceive)
 
       // new btc transaction (send)
       store.dispatch(txHistory.actions.onMessage({ message: BtcSend }))
@@ -69,25 +66,21 @@ describe('txHistorySlice', () => {
       store.dispatch(txHistory.actions.onMessage({ message: BtcSendSegwit }))
       expect(Object.values(store.getState().txHistory.ids).length).toBe(4)
 
-      const btcSendTxId = txToId(BtcSend)
-      const btcSendSegwitTxId = txToId(BtcSendSegwit)
       // btc data exists
-      expect(store.getState().txHistory.byId[btcSendTxId]).toEqual(BtcSend)
-      expect(store.getState().txHistory.byId[btcSendSegwitTxId]).toEqual(BtcSendSegwit)
+      expect(store.getState().txHistory.byId[BtcSend.txid]).toEqual(BtcSend)
+      expect(store.getState().txHistory.byId[BtcSendSegwit.txid]).toEqual(BtcSendSegwit)
     })
 
     it('should update existing transactions', async () => {
       const EthReceivePending = { ...EthReceive, status: chainAdapters.TxStatus.Pending }
       store.dispatch(txHistory.actions.onMessage({ message: EthReceivePending }))
-      const ethReceivePendingId = txToId(EthReceivePending)
 
-      expect(store.getState().txHistory.byId[ethReceivePendingId].status).toBe(
+      expect(store.getState().txHistory.byId[EthReceivePending.txid].status).toBe(
         chainAdapters.TxStatus.Pending
       )
 
-      const ethReceiveConfirmedId = txToId(EthReceive)
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive }))
-      expect(store.getState().txHistory.byId[ethReceiveConfirmedId].status).toBe(
+      expect(store.getState().txHistory.byId[EthReceive.txid].status).toBe(
         chainAdapters.TxStatus.Confirmed
       )
     })
@@ -95,9 +88,6 @@ describe('txHistorySlice', () => {
 })
 
 describe('selectTxHistory', () => {
-  const ethSendId = txToId(EthSend)
-  const btcSendId = txToId(BtcSend)
-
   const ethChain = ChainTypes.Ethereum
   const network = NetworkTypes.MAINNET
   const ethCAIP2 = caip2.toCAIP2({ chain: ethChain, network })
@@ -110,11 +100,11 @@ describe('selectTxHistory', () => {
       ...mockStore,
       txHistory: {
         byId: {
-          [ethSendId]: EthSend,
-          [btcSendId]: BtcSend
+          [EthSend.txid]: EthSend,
+          [BtcSend.txid]: BtcSend
         },
         byAssetId: {},
-        ids: [ethSendId, btcSendId]
+        ids: [EthSend.txid, BtcSend.txid]
       }
     }
 
@@ -128,11 +118,11 @@ describe('selectTxHistory', () => {
       ...mockStore,
       txHistory: {
         byId: {
-          [ethSendId]: EthSend,
-          [btcSendId]: BtcSend
+          [EthSend.txid]: EthSend,
+          [BtcSend.txid]: BtcSend
         },
         byAssetId: {},
-        ids: [ethSendId, btcSendId]
+        ids: [EthSend.txid, BtcSend.txid]
       }
     }
 
@@ -142,9 +132,6 @@ describe('selectTxHistory', () => {
   })
 
   it('should filter txs', () => {
-    const ethSendId = txToId(EthSend)
-    const ethReceiveId = txToId(EthReceive)
-
     const FOXCAIP19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
     const EthReceiveFOX = {
       ...EthReceive,
@@ -159,26 +146,28 @@ describe('selectTxHistory', () => {
         }
       ]
     }
-    const ethReceiveFOXId = txToId(EthReceiveFOX)
-
     const BtcSendSegwitP2sh = { ...BtcSend, accountType: UtxoAccountType.SegwitP2sh }
-    const btcSendSegwitP2shId = txToId(BtcSendSegwitP2sh)
 
     const BtcSendSegwitNative = { ...BtcSend, accountType: UtxoAccountType.SegwitNative }
-    const btcSendSegwitNativeId = txToId(BtcSendSegwitNative)
 
     const store = {
       ...mockStore,
       txHistory: {
         byId: {
-          [ethSendId]: EthSend,
-          [ethReceiveId]: EthReceive,
-          [ethReceiveFOXId]: EthReceiveFOX,
-          [btcSendSegwitP2shId]: BtcSendSegwitP2sh,
-          [btcSendSegwitNativeId]: BtcSendSegwitNative
+          [EthSend.txid]: EthSend,
+          [EthReceive.txid]: EthReceive,
+          [EthReceiveFOX.txid]: EthReceiveFOX,
+          [BtcSendSegwitP2sh.txid]: BtcSendSegwitP2sh,
+          [BtcSendSegwitNative.txid]: BtcSendSegwitNative
         },
         byAssetId: {},
-        ids: [ethSendId, ethReceiveId, ethReceiveFOXId, btcSendSegwitP2shId, btcSendSegwitNativeId]
+        ids: [
+          EthSend.txid,
+          EthReceive.txid,
+          EthReceiveFOX.txid,
+          BtcSendSegwitP2sh.txid,
+          BtcSendSegwitNative.txid
+        ]
       }
     }
 
@@ -191,7 +180,7 @@ describe('selectTxHistory', () => {
     result = selectTxHistoryByFilter(store, {
       caip2: ethCAIP2,
       caip19: ethCAIP19,
-      txid: ethReceiveFOXId
+      txid: EthReceiveFOX.txid
     })
     expect(result.length).toBe(0)
 

@@ -49,17 +49,6 @@ export const fetchPriceHistory = createAsyncThunk(
   }
 )
 
-export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
-  try {
-    const args: FindAllMarketArgs = { count: 250 }
-    const marketCap = await findAll(args)
-    return { marketCap }
-  } catch (error) {
-    console.error(error)
-    return {}
-  }
-})
-
 const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},

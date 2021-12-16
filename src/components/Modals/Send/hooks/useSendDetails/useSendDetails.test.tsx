@@ -115,10 +115,9 @@ const setup = ({
   setValue = jest.fn()
 }) => {
   // ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
-    asset,
-    '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
-  ])
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) =>
+    name === 'asset' ? asset : '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
+  )
   ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
     assetBalance,
     accountBalances

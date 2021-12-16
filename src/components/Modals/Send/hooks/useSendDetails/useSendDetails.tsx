@@ -18,11 +18,10 @@ import { useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
-import { AssetMarketData } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
-import { SendFormFields } from '../../Form'
+import { SendFormFields, SendInput } from '../../Form'
 import { SendRoutes } from '../../Send'
 import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
@@ -48,11 +47,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const history = useHistory()
   const toast = useToast()
   const translate = useTranslate()
-  const { getValues, setValue } = useFormContext()
-  const [asset, address] = useWatch({ name: [SendFormFields.Asset, SendFormFields.Address] }) as [
-    AssetMarketData,
-    string
-  ]
+  const { getValues, setValue } = useFormContext<SendInput>()
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
   const { balances, error: balanceError, loading: balancesLoading } = useBalances()
   const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })

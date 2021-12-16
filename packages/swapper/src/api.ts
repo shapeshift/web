@@ -1,3 +1,4 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   ApprovalNeededInput,
@@ -49,7 +50,7 @@ export interface Swapper {
   /**
    * Get the default pair of the swapper
    */
-  getDefaultPair(): Pick<Asset, 'chain' | 'symbol' | 'name'>[]
+  getDefaultPair(): [CAIP19, CAIP19]
 
   /**
    * Get the minimum and maximum trade value of the sellAsset and buyAsset

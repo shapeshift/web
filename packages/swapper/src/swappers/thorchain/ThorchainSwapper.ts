@@ -1,3 +1,4 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import {
   ApprovalNeededOutput,
   Asset,
@@ -48,7 +49,7 @@ export class ThorchainSwapper implements Swapper {
     throw new Error('ThorchainSwapper: executeQuote unimplemented')
   }
 
-  getDefaultPair(): Pick<Asset, 'chain' | 'symbol' | 'name'>[] {
+  getDefaultPair(): [CAIP19, CAIP19] {
     throw new Error('ThorchainSwapper: getDefaultPair unimplemented')
   }
 

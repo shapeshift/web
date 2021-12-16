@@ -67,7 +67,6 @@ const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
 describe('useSendFees', () => {
   beforeEach(() => {
     ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
-    // ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   })
 
   it('returns the fees with market data', async () => {

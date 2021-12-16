@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.14.1...@shapeshiftoss/swapper-v1.15.0) (2021-12-16)
+
+
+### Features
+
+* use caip19s for default pair in swapper ([#287](https://github.com/shapeshift/lib/issues/287)) ([0e6d85b](https://github.com/shapeshift/lib/commit/0e6d85b3df60003767c7f62a3fef966d1b00126e))
+
 # [@shapeshiftoss/swapper-v1.14.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.14.0...@shapeshiftoss/swapper-v1.14.1) (2021-12-15)
 
 # [@shapeshiftoss/swapper-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.13.0...@shapeshiftoss/swapper-v1.14.0) (2021-12-14)

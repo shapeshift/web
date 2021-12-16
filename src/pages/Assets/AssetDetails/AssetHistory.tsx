@@ -2,14 +2,13 @@ import { Center } from '@chakra-ui/layout'
 import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { ReduxState } from 'state/reducer'
-import { selectTxIdsByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxIdsByAssetId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
 
 import { useAsset } from '../Asset'
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
@@ -24,15 +23,7 @@ export const AssetHistory = () => {
   wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-  const accountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
-
-  // TODO: this selector does not work anymore with the changes to tx message payloads (fixme)
-  const txIds = useSelector((state: ReduxState) =>
-    selectTxIdsByFilter(state, { accountType, caip19: asset.caip19 })
-  )
-
+  const txIds = useAppSelector(state => selectTxIdsByAssetId(state, asset.caip19))
   const { next, data, hasMore } = useInfiniteScroll(txIds)
 
   const txRows = useMemo(() => {

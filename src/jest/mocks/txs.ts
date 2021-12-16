@@ -272,4 +272,36 @@ const test7: Tx = {
   ]
 }
 
+export const yearnVaultDeposit: Tx = {
+  address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+  blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
+  blockHeight: 13730189,
+  blockTime: 1638487560,
+  caip2: 'eip155:1',
+  chain: ChainTypes.Ethereum,
+  confirmations: 84026,
+  fee: {
+    caip19: 'eip155:1/slip44:60',
+    value: '9099683709794574'
+  },
+  status: chainAdapters.TxStatus.Confirmed,
+  transfers: [
+    {
+      caip19: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
+      from: '0x0000000000000000000000000000000000000000',
+      to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+      type: chainAdapters.TxType.Receive,
+      value: '9178352'
+    },
+    {
+      caip19: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+      to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
+      type: chainAdapters.TxType.Send,
+      value: '10000000'
+    }
+  ],
+  txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083'
+}
+
 export const testTxs = [test1, test2, test3, test4, test5, test6, test7]

@@ -6,7 +6,10 @@ import isEqual from 'lodash/isEqual'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
+import { upsertArray } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
+
+import { getRelatedAssetIds } from './utils'
 
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
 
@@ -21,8 +24,30 @@ export type TxHistoryById = {
   [k: string]: Tx
 }
 
+/* this is a one to many relationship of asset id to tx id, built up as
+ * tx's come into the store over websockets
+ *
+ * e.g. an account with a single trade of FOX to USDC will produce the following
+ *
+ * {
+ *   foxCAIP19: [txid]
+ *   usdcCAIP19: [txid]
+ *   ethCAIP19: [txid]
+ * }
+ *
+ * where txid is the same txid related to all the above assets, as the
+ * sell asset, buy asset, and fee asset respectively
+ *
+ * this allows us to O(1) select all related transactions to a given asset
+ */
+
+export type TxIdByAssetId = {
+  [k: CAIP19]: string[]
+}
+
 export type TxHistory = {
   byId: TxHistoryById
+  byAssetId: TxIdByAssetId
   ids: string[]
 }
 
@@ -31,10 +56,9 @@ export type TxMessage = { payload: { message: Tx } }
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
   byId: {},
-  ids: [] // sorted, newest first
+  ids: [], // sorted, newest first
+  byAssetId: {}
 }
-
-export const txToId = (tx: Tx): string => `${tx.caip2}-${tx.txid}-${tx.accountType ?? ''}`
 
 /**
  * Manage state of the txHistory slice
@@ -42,19 +66,27 @@ export const txToId = (tx: Tx): string => `${tx.caip2}-${tx.txid}-${tx.accountTy
  * If transaction already exists, update the value, otherwise add the new transaction
  */
 const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
-  // the unique id to key by
-  const id = txToId(tx)
-  const isNew = !txHistory.byId[id]
+  const { txid } = tx
+  const isNew = !txHistory.byId[txid]
 
   // update or insert tx
-  txHistory.byId[id] = tx
+  txHistory.byId[txid] = tx
 
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(t => txToId(t) === id)
-    txHistory.ids.splice(index, 0, id)
+    const index = orderedTxs.findIndex(tx => tx.txid === txid)
+    txHistory.ids.splice(index, 0, txid)
   }
+
+  // for a given tx, find all the related assetIds, and keep an index of
+  // txids related to each asset id
+  getRelatedAssetIds(tx).forEach(relatedAssetId => {
+    txHistory.byAssetId[relatedAssetId] = upsertArray(
+      txHistory.byAssetId[relatedAssetId] ?? [],
+      tx.txid
+    )
+  })
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
   // this looks like it's not doing anything, but changes written to the proxy
@@ -70,7 +102,9 @@ export const txHistory = createSlice({
   }
 })
 
-export const selectTxs = (state: ReduxState) => values(state.txHistory.byId)
+export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId)
+export const selectTxs = (state: ReduxState) => state.txHistory.byId
+export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 
 export const selectTxHistoryByFilter = createSelector(
   (state: ReduxState) => state.txHistory,
@@ -92,7 +126,7 @@ export const selectTxHistoryByFilter = createSelector(
 
 export const selectLastNTxIds = createSelector(
   // ids will always change
-  (state: ReduxState) => state.txHistory.ids,
+  selectTxIds,
   (_state: ReduxState, count: number) => count,
   (ids, count) => ids.slice(0, count),
   // https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc-selectoroptions
@@ -108,11 +142,10 @@ export const selectTxById = createSelector(
   (txsById, txId) => txsById[txId]
 )
 
-export const selectTxIdsByFilter = createSelector(
-  (state: ReduxState) => state.txHistory.ids,
-  (_state: ReduxState, filter: TxFilter) => filter,
-  (ids, txFilter) => {
-    const vals = filter(values(txFilter), Boolean) // only include non null filters
-    return filter(ids, id => vals.every(val => id.includes(val)))
-  }
+export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId
+
+export const selectTxIdsByAssetId = createSelector(
+  selectTxsByAssetId,
+  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (txsByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
 )

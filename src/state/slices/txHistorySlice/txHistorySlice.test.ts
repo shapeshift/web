@@ -8,7 +8,7 @@ import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend, testTxs } from 'jest/mocks/txs'
 import { store } from 'state/store'
 
-import { selectLastNTxIds, selectTxHistoryByFilter, Tx, txHistory, txToId } from './txHistorySlice'
+import { selectLastNTxIds, selectTxHistoryByFilter, Tx, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -113,6 +113,7 @@ describe('selectTxHistory', () => {
           [ethSendId]: EthSend,
           [btcSendId]: BtcSend
         },
+        byAssetId: {},
         ids: [ethSendId, btcSendId]
       }
     }
@@ -130,6 +131,7 @@ describe('selectTxHistory', () => {
           [ethSendId]: EthSend,
           [btcSendId]: BtcSend
         },
+        byAssetId: {},
         ids: [ethSendId, btcSendId]
       }
     }
@@ -175,6 +177,7 @@ describe('selectTxHistory', () => {
           [btcSendSegwitP2shId]: BtcSendSegwitP2sh,
           [btcSendSegwitNativeId]: BtcSendSegwitNative
         },
+        byAssetId: {},
         ids: [ethSendId, ethReceiveId, ethReceiveFOXId, btcSendSegwitP2shId, btcSendSegwitNativeId]
       }
     }
@@ -215,6 +218,7 @@ describe('selectLastNTxIds', () => {
       ...mockStore,
       txHistory: {
         byId: {},
+        byAssetId: {},
         ids: ['a', 'b']
       }
     }
@@ -225,6 +229,7 @@ describe('selectLastNTxIds', () => {
       ...mockStore,
       txHistory: {
         byId: {},
+        byAssetId: {},
         // this array will always change on every new tx
         ids: ['a', 'b', 'c']
       }

@@ -1,4 +1,4 @@
-import { caip2, CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -10,8 +10,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { getAssetService } from 'lib/assetService'
 import { ReduxState } from 'state/reducer'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 
 export type Balances = Record<CAIP19, chainAdapters.Account<ChainTypes>>
 
@@ -30,6 +30,8 @@ export const useBalances = (): UseBalancesReturnType => {
     state: { wallet, walletInfo }
   } = useWallet()
 
+  const assets = useSelector(selectAssets)
+
   const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
 
   const getBalances = useCallback(async () => {
@@ -37,17 +39,13 @@ export const useBalances = (): UseBalancesReturnType => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
       const acc: Record<string, chainAdapters.Account<ChainTypes>> = {}
 
-      const service = await getAssetService()
-
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
-        const caip = await adapter.getCaip2()
-        const { chain, network } = caip2.fromCAIP2(caip)
-        const assetData = service.byNetwork(network)
+        const adapterCAIP2 = await adapter.getCaip2()
+        const chain = adapter.getType()
 
-        // TODO: asset service should provide caip2
-        const asset = assetData.find(asset => asset.chain === chain)
-        if (!asset) throw new Error(`asset not found for: ${caip}`)
+        const asset = Object.values(assets).find(asset => asset.caip2 === adapterCAIP2)
+        if (!asset) throw new Error(`asset not found for: ${chain}`)
 
         let pubkey
         switch (chain) {
@@ -56,11 +54,11 @@ export const useBalances = (): UseBalancesReturnType => {
 
             const accountType = accountTypes[chain]
             const accountParams = utxoAccountParams(asset, accountType, 0)
-            const { bip32Params, scriptType } = accountParams
+            const { bip44Params, scriptType } = accountParams
             const pubkeys = await wallet.getPublicKeys([
               {
                 coin: chain,
-                addressNList: bip32ToAddressNList(toRootDerivationPath(bip32Params)),
+                addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
                 curve: 'secp256k1',
                 scriptType
               }

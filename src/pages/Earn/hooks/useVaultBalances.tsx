@@ -11,9 +11,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { ReduxState } from 'state/reducer'
-import { fetchAsset, selectAssetsById } from 'state/slices/assetsSlice/assetsSlice'
-import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
   SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }
@@ -69,8 +68,8 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   } = useWallet()
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
-  const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const assets = useSelector(selectAssetsById)
+  const marketData = useSelector(selectMarketData)
+  const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
@@ -82,12 +81,6 @@ export function useVaultBalances(): UseVaultBalancesReturn {
       setLoading(true)
       try {
         const yearnVaults = await getYearnVaults(balances, yearn)
-        // get asset and market data for all underlying assets/vault assets
-        Object.values(yearnVaults).forEach(vault => {
-          dispatch(fetchAsset(vault.vaultCaip19))
-          dispatch(fetchAsset(vault.tokenCaip19))
-          dispatch(fetchMarketData(vault.tokenCaip19))
-        })
         setVaults(yearnVaults)
       } catch (error) {
         console.error('error', error)
@@ -101,7 +94,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
     (vault: EarnVault) => {
       const asset = assets[vault.vaultCaip19]
       const pricePerShare = bnOrZero(vault.pricePerShare).div(`1e+${asset?.precision}`)
-      const marketPrice = marketData.byId[vault.tokenCaip19]?.price
+      const marketPrice = marketData[vault.tokenCaip19]?.price
       return bnOrZero(vault.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)

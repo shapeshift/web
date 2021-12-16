@@ -1,30 +1,33 @@
 import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
-import { usePortfolio } from 'context/PortfolioProvider/PortfolioContext'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
+import {
+  selectPortfolioAssetIds,
+  selectPortfolioLoading,
+  selectPortfolioTotalFiatBalance
+} from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AccountList } from './components/AccountList/AccountList'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
-  const { totalBalance, loading: portfolioLoading } = usePortfolio()
-  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
 
-  const assets = useMemo(() => Object.keys(portfolioAssets).filter(Boolean), [portfolioAssets])
+  const assets = useSelector(selectPortfolioAssetIds)
+  const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
+  const loading = useSelector(selectPortfolioLoading)
+  const isLoaded = !loading
+
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
   })
-
-  const loading = portfolioLoading || portfolioAssetsLoading
-  const isLoaded = !loading
 
   return (
     <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>
@@ -65,7 +68,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <AccountList loading={loading} />
+          <AccountList />
         </Card.Body>
       </Card>
     </Stack>

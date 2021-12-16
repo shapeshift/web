@@ -1,10 +1,9 @@
-import { NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { FOX, WETH } from 'jest/constants'
+import { ETH as mockETH, FOX as mockFOX, WETH } from 'jest/constants'
 import { TestProviders } from 'jest/TestProviders'
-import { getAssetService } from 'lib/assetService'
 
 import { useTradeRoutes } from './useTradeRoutes'
 
@@ -16,7 +15,13 @@ jest.mock('react-router-dom', () => ({
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
-jest.mock('lib/assetService')
+jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
+  ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
+  selectAssets: () => ({
+    'eip155:1/slip44:60': mockETH,
+    'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX
+  })
+}))
 
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const getQuote = jest.fn()
@@ -25,17 +30,14 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     getQuote: getQuote,
     getBestSwapper: () => SwapperType.Zrx,
-    getDefaultPair: () => [FOX, WETH]
-  }))
-  ;(getAssetService as unknown as jest.Mock<unknown>).mockImplementation(() => ({
-    byNetwork: (_: NetworkTypes) => [FOX, WETH]
+    getDefaultPair: () => [mockETH.caip19, mockFOX.caip19]
   }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     setValue,
     getValues: jest.fn((search: string) => {
       const data = {
         buyAsset: {
-          currency: FOX,
+          currency: mockFOX,
           amount: buyAmount
         },
         sellAsset: {
@@ -56,8 +58,8 @@ describe('useTradeRoutes', () => {
   it('sets the default assets', async () => {
     const { getQuote, setValue, hook } = await setup({})
     await hook.waitFor(() => expect(getQuote).toHaveBeenCalled())
-    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
-    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', mockETH)
+    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', mockFOX)
     expect(getQuote).toHaveBeenCalled()
   })
   it('handles sell click with no buy amount', async () => {
@@ -76,29 +78,29 @@ describe('useTradeRoutes', () => {
   })
   it('swaps when same asset on sell click', async () => {
     const { hook, setValue, getQuote } = setup({})
-    await hook?.result?.current?.handleSellClick(FOX)
+    await hook?.result?.current?.handleSellClick(mockFOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
-    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', mockFOX)
     expect(getQuote).toHaveBeenCalled()
   })
   it('handles buy click with no sell amount', async () => {
     const { hook, setValue, getQuote } = setup({})
-    await hook?.result?.current?.handleBuyClick(FOX)
-    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', FOX)
+    await hook?.result?.current?.handleBuyClick(mockFOX)
+    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', mockFOX)
     expect(setValue).toHaveBeenCalledWith('action', undefined)
     expect(getQuote).toHaveBeenCalled()
   })
   it('handles buy click with sell amount', async () => {
     const { hook, setValue, getQuote } = setup({ sellAmount: '234' })
-    await hook?.result?.current?.handleBuyClick(FOX)
-    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', FOX)
+    await hook?.result?.current?.handleBuyClick(mockFOX)
+    expect(setValue).toHaveBeenCalledWith('buyAsset.currency', mockFOX)
     expect(setValue).toHaveBeenCalledWith('action', TradeActions.BUY)
     expect(getQuote).toHaveBeenCalled()
   })
   it('swaps when same asset on buy click', async () => {
     const { hook, setValue, getQuote } = setup({})
     await hook?.result?.current?.handleBuyClick(WETH)
-    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', FOX)
+    expect(setValue).toHaveBeenCalledWith('sellAsset.currency', mockFOX)
     expect(setValue).toHaveBeenCalledWith('buyAsset.currency', WETH)
     expect(getQuote).toHaveBeenCalled()
   })

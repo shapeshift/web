@@ -1,10 +1,9 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { NetworkTypes } from '@shapeshiftoss/types'
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { getAssetService } from 'lib/assetService'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 
@@ -18,19 +17,19 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     state: { wallet, walletInfo }
   } = useWallet()
   const chainAdapter = useChainAdapters()
+  const assets = useSelector(selectAssets)
 
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
-      const service = await getAssetService()
-      const assetData = service?.byNetwork(NetworkTypes.MAINNET)
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const chain = adapter.getType()
+        const caip2 = await adapter.getCaip2()
 
-        const asset = assetData.find(asset => asset.chain === chain)
+        const asset = Object.values(assets).find(asset => asset.caip2 === caip2)
         if (!asset) {
           throw new Error(`asset not found for chain ${chain}`)
         }

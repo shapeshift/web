@@ -262,6 +262,7 @@ export const Withdraw = ({
                       return (
                         <NumberFormat
                           customInput={CryptoInput}
+                          isNumericString={true}
                           decimalSeparator={localeParts.decimal}
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}
@@ -288,6 +289,7 @@ export const Withdraw = ({
                       return (
                         <NumberFormat
                           customInput={CryptoInput}
+                          isNumericString={true}
                           decimalSeparator={localeParts.decimal}
                           inputMode='decimal'
                           thousandSeparator={localeParts.group}

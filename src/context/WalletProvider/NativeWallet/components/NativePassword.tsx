@@ -75,6 +75,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                 pr='4.5rem'
                 type={showPw ? 'text' : 'password'}
                 placeholder={translate('modals.shapeShift.password.placeholder')}
+                autoComplete={'password'}
                 id='password'
               />
               <InputRightElement>

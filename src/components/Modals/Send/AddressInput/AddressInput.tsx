@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 
-import { SendFormFields } from '../Form'
+import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
 type AddressInputProps = {
@@ -12,7 +12,7 @@ type AddressInputProps = {
 }
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
-  const { control } = useFormContext()
+  const { control } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 

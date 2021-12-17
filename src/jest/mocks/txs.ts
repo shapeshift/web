@@ -1,4 +1,4 @@
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
@@ -46,6 +46,7 @@ export const EthReceive: Tx = {
 }
 
 export const BtcSend: Tx = {
+  accountType: UtxoAccountType.SegwitNative,
   address: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
   blockHash: 'e12cb64834058bb785b7b8932f079deafc3633f999f722779ee9de351273af65',
   blockHeight: 13468273,

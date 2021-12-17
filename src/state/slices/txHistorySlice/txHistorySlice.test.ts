@@ -64,7 +64,7 @@ describe('txHistorySlice', () => {
       // same btc transaction, different account type (send)
       const BtcSendSegwit = { ...BtcSend, accountType: UtxoAccountType.SegwitNative }
       store.dispatch(txHistory.actions.onMessage({ message: BtcSendSegwit }))
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(4)
+      expect(Object.values(store.getState().txHistory.ids).length).toBe(3)
 
       // btc data exists
       expect(store.getState().txHistory.byId[BtcSend.txid]).toEqual(BtcSend)

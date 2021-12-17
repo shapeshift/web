@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 
 import { MarketService } from '../api'
+import { bnOrZero } from '../utils/bignumber'
 import { CoinGeckoMarketCap } from './coingecko-types'
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
@@ -36,13 +37,19 @@ export class CoinGeckoMarketService implements MarketService {
   baseUrl = 'https://api.coingecko.com/api/v3'
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
-    pages: 10,
-    perPage: 250
+    count: 2500
   }
 
   findAll = async (args?: FindAllMarketArgs) => {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
-    const { pages, perPage } = argsToUse
+    const { count } = argsToUse
+    const perPage = count > 250 ? 250 : count
+    const pages = Math.ceil(
+      bnOrZero(count)
+        .div(perPage)
+        .toNumber()
+    )
+
     const urlAtPage = (page: number) =>
       `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false`
     const pageCount = Array(pages)
@@ -101,7 +108,7 @@ export class CoinGeckoMarketService implements MarketService {
       }
     } catch (e) {
       console.warn(e)
-      throw new Error('MarketService(findByCaip19): error fetching market data')
+      throw new Error('CoinGeckoMarketService(findByCaip19): error fetching market data')
     }
   }
 
@@ -155,7 +162,9 @@ export class CoinGeckoMarketService implements MarketService {
       })
     } catch (e) {
       console.warn(e)
-      throw new Error('MarketService(findPriceHistoryByCaip19): error fetching price history')
+      throw new Error(
+        'CoinGeckoMarketService(findPriceHistoryByCaip19): error fetching price history'
+      )
     }
   }
 }

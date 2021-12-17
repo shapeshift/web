@@ -87,9 +87,7 @@ describe('coincap market service', () => {
 
     it('can use override args', async () => {
       mockedAxios.get.mockResolvedValue({ data: [btc] })
-      const pages = 1
-      const perPage = 10
-      await coinMarketService.findAll({ pages, perPage })
+      await coinMarketService.findAll({ count: 10 })
       expect(mockedAxios.get).toHaveBeenCalledTimes(1)
       const url = 'https://api.coincap.io/v2/assets?limit=10&offset=1'
       expect(mockedAxios.get).toBeCalledWith(url)

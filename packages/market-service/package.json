@@ -21,11 +21,16 @@
     "clean": "rm -rf dist",
     "dev": "tsc --watch",
     "test": "jest test",
-    "type-check": "tsc --project ./tsconfig.json --noEmit"
+    "type-check": "tsc --project ./tsconfig.json --noEmit",
+    "marketcli": "yarn build && node ./dist/marketDataCLI.js"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.5.1",
+    "@yfi/sdk": "^1.0.10",
     "axios": "^0.21.2",
-    "dayjs": "^1.10.6"
+    "bignumber.js": "^9.0.1",
+    "dayjs": "^1.10.6",
+    "ethers": "^5.5.2"
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^1.4.2",

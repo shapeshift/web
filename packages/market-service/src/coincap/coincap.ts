@@ -14,19 +14,25 @@ import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 
 import { MarketService } from '../api'
+import { bnOrZero } from '../utils/bignumber'
 import { CoinCapMarketCap } from './coincap-types'
 
 export class CoinCapMarketService implements MarketService {
   baseUrl = 'https://api.coincap.io/v2'
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
-    pages: 10,
-    perPage: 250
+    count: 2500
   }
 
   findAll = async (args?: FindAllMarketArgs) => {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
-    const { pages, perPage } = argsToUse
+    const { count } = argsToUse
+    const perPage = count > 250 ? 250 : count
+    const pages = Math.ceil(
+      bnOrZero(count)
+        .div(perPage)
+        .toNumber()
+    )
     const urlAtPage = (page: number) => `${this.baseUrl}/assets?limit=${perPage}&offset=${page}`
     const pageCount = Array(pages)
       .fill(0)

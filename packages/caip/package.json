@@ -20,7 +20,8 @@
     "build": "yarn clean && tsc --project tsconfig.build.json",
     "clean": "rm -rf dist",
     "dev": "tsc --watch",
-    "generate": "yarn build && node dist/adapters/coingecko/generate.js",
+    "generate-coingecko": "yarn build && node dist/adapters/coingecko/generate.js",
+    "generate-coincap": "yarn build && node dist/adapters/coincap/generate.js",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },

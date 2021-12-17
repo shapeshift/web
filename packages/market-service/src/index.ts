@@ -8,11 +8,12 @@ import {
 } from '@shapeshiftoss/types'
 import { FindAllMarketArgs } from '@shapeshiftoss/types/src'
 
+import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 
 // Order of this MarketProviders array constitutes the order of provders we will be checking first.
 // More reliable providers should be listed first.
-const MarketProviders = [new CoinGeckoMarketService()]
+const MarketProviders = [new CoinGeckoMarketService(), new CoinCapMarketService()]
 
 export const findAll = async (args?: FindAllMarketArgs): Promise<MarketCapResult> => {
   let result: MarketCapResult | null = null

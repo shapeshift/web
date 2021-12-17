@@ -2,7 +2,7 @@ import toLower from 'lodash/toLower'
 
 import * as adapters from './generated'
 
-export const url = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
+export const coingeckoUrl = 'https://api.coingecko.com/api/v3/coins/list?include_platform=true'
 
 const generatedCAIP19ToCoingeckoMap = Object.values(adapters).reduce((acc, cur) => ({
   ...acc,

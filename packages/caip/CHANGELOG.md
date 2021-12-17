@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.6.1...@shapeshiftoss/caip-v1.7.0) (2021-12-17)
+
+
+### Features
+
+* implement coincap market service (fixes [#281](https://github.com/shapeshift/lib/issues/281)) ([#286](https://github.com/shapeshift/lib/issues/286)) ([2159a00](https://github.com/shapeshift/lib/commit/2159a005754a8234b87abb648796ea63c69452b3))
+
 # [@shapeshiftoss/caip-v1.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.6.0...@shapeshiftoss/caip-v1.6.1) (2021-12-09)
 
 

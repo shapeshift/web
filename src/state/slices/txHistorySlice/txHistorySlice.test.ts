@@ -12,7 +12,7 @@ import { selectLastNTxIds, selectTxHistoryByFilter, Tx, txHistory } from './txHi
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
-    expect(store.getState().txHistory).toEqual({ byId: {}, ids: [] })
+    expect(store.getState().txHistory).toEqual({ byId: {}, byAssetId: {}, ids: [] })
   })
 
   describe('onMessage', () => {

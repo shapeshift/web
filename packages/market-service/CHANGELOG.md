@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.6.0...@shapeshiftoss/market-service-v1.7.0) (2021-12-17)
+
+
+### Features
+
+* implement yearn market service ([#273](https://github.com/shapeshift/lib/issues/273)) ([d999850](https://github.com/shapeshift/lib/commit/d999850a5ab73de64b77626c4c36edd3da9f3117))
+
 # [@shapeshiftoss/market-service-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.5.2...@shapeshiftoss/market-service-v1.6.0) (2021-12-17)
 
 

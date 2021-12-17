@@ -24,7 +24,7 @@ import {
   selectPortfolioBalances
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectTxs, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -289,7 +289,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   } = useWallet()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
-  const txs = useDebounce(useSelector(selectTxs), 500)
+  const txs = useDebounce(useSelector(selectTxValues), 500)
   const { data: priceHistoryData } = usePriceHistory(args)
 
   useEffect(() => {

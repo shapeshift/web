@@ -149,10 +149,14 @@ export const selectTxIdsByAssetIdAccountType = createSelector(
     assetId: CAIP19,
     accountType: UtxoAccountType
   ): string[] => {
+    // this is specifically to support bitcoin, if we don't have accountType
+    // the txsByAssetId is correct
     if (!accountType) return txsByAssetId[assetId] ?? []
     if (isEmpty(txsByAssetId)) return []
     const txIds = txsByAssetId[assetId] ?? []
+    // only deal with bitcoin txs rather than all
     const txs = txIds.map(txid => txsById[txid])
+    // filter ids of bitcoin txs of specific account type
     return txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
   },
   // memoize outgoing txid[]

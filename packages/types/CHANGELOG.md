@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.20.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.19.1...@shapeshiftoss/types-v1.20.0) (2021-12-17)
+
+
+### Features
+
+* implement yearn market service ([#273](https://github.com/shapeshift/lib/issues/273)) ([d999850](https://github.com/shapeshift/lib/commit/d999850a5ab73de64b77626c4c36edd3da9f3117))
+
 # [@shapeshiftoss/types-v1.19.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.19.0...@shapeshiftoss/types-v1.19.1) (2021-12-15)
 
 # [@shapeshiftoss/types-v1.19.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.18.0...@shapeshiftoss/types-v1.19.0) (2021-12-14)

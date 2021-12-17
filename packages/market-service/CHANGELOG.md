@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.5.2...@shapeshiftoss/market-service-v1.6.0) (2021-12-17)
+
+
+### Features
+
+* implement coincap market service (fixes [#281](https://github.com/shapeshift/lib/issues/281)) ([#286](https://github.com/shapeshift/lib/issues/286)) ([2159a00](https://github.com/shapeshift/lib/commit/2159a005754a8234b87abb648796ea63c69452b3))
+
 # [@shapeshiftoss/market-service-v1.5.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.5.1...@shapeshiftoss/market-service-v1.5.2) (2021-12-08)
 
 # [@shapeshiftoss/market-service-v1.5.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.5.0...@shapeshiftoss/market-service-v1.5.1) (2021-12-02)

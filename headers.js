@@ -9,7 +9,7 @@ const cspMeta = Object.entries({
     'https://api.coingecko.com',
     'https://api.yearn.finance',
     'https://test-api.yearn.network/v1/',
-    'https://api.thegraph.com/subgraphs/name/salazarguille/yearn-vaults-v2-subgraph-mainnet/',
+    'https://api.thegraph.com/subgraphs/name/salazarguille/yearn-vaults-v2-subgraph-mainnet',
     'https://raw.githubusercontent.com/yearn/yearn-assets/',
     process.env.REACT_APP_ETHEREUM_NODE_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,

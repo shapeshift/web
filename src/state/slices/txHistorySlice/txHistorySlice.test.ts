@@ -1,5 +1,4 @@
-import { caip2, caip19 } from '@shapeshiftoss/caip'
-import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, UtxoAccountType } from '@shapeshiftoss/types'
 import entries from 'lodash/entries'
 import map from 'lodash/map'
 import orderBy from 'lodash/orderBy'
@@ -8,7 +7,7 @@ import { mockStore } from 'jest/mocks/store'
 import { BtcSend, EthReceive, EthSend, testTxs } from 'jest/mocks/txs'
 import { store } from 'state/store'
 
-import { selectLastNTxIds, selectTxHistoryByFilter, Tx, txHistory } from './txHistorySlice'
+import { selectLastNTxIds, Tx, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -84,120 +83,6 @@ describe('txHistorySlice', () => {
         chainAdapters.TxStatus.Confirmed
       )
     })
-  })
-})
-
-describe('selectTxHistory', () => {
-  const ethChain = ChainTypes.Ethereum
-  const network = NetworkTypes.MAINNET
-  const ethCAIP2 = caip2.toCAIP2({ chain: ethChain, network })
-  const ethCAIP19 = caip19.toCAIP19({ chain: ethChain, network })
-
-  const btcCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network })
-
-  it('should return all txs', () => {
-    const store = {
-      ...mockStore,
-      txHistory: {
-        byId: {
-          [EthSend.txid]: EthSend,
-          [BtcSend.txid]: BtcSend
-        },
-        byAssetId: {},
-        ids: [EthSend.txid, BtcSend.txid]
-      }
-    }
-
-    const result = selectTxHistoryByFilter(store, {})
-
-    expect(result.length).toBe(2)
-  })
-
-  it('should return txs by chain', () => {
-    const store = {
-      ...mockStore,
-      txHistory: {
-        byId: {
-          [EthSend.txid]: EthSend,
-          [BtcSend.txid]: BtcSend
-        },
-        byAssetId: {},
-        ids: [EthSend.txid, BtcSend.txid]
-      }
-    }
-
-    const result = selectTxHistoryByFilter(store, { caip2: ethCAIP2 })
-
-    expect(result.length).toBe(1)
-  })
-
-  it('should filter txs', () => {
-    const FOXCAIP19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-    const EthReceiveFOX = {
-      ...EthReceive,
-      txid: `${EthReceive.txid}z`,
-      transfers: [
-        {
-          caip19: FOXCAIP19,
-          from: EthReceive.transfers[0].from,
-          to: EthReceive.transfers[0].to,
-          value: EthReceive.transfers[0].value,
-          type: EthReceive.transfers[0].type
-        }
-      ]
-    }
-    const BtcSendSegwitP2sh = { ...BtcSend, accountType: UtxoAccountType.SegwitP2sh }
-
-    const BtcSendSegwitNative = { ...BtcSend, accountType: UtxoAccountType.SegwitNative }
-
-    const store = {
-      ...mockStore,
-      txHistory: {
-        byId: {
-          [EthSend.txid]: EthSend,
-          [EthReceive.txid]: EthReceive,
-          [EthReceiveFOX.txid]: EthReceiveFOX,
-          [BtcSendSegwitP2sh.txid]: BtcSendSegwitP2sh,
-          [BtcSendSegwitNative.txid]: BtcSendSegwitNative
-        },
-        byAssetId: {},
-        ids: [
-          EthSend.txid,
-          EthReceive.txid,
-          EthReceiveFOX.txid,
-          BtcSendSegwitP2sh.txid,
-          BtcSendSegwitNative.txid
-        ]
-      }
-    }
-
-    let result = selectTxHistoryByFilter(store, { caip19: ethCAIP19 })
-    expect(result.length).toBe(2)
-
-    result = selectTxHistoryByFilter(store, { caip2: ethCAIP2, caip19: FOXCAIP19 })
-    expect(result.length).toBe(1)
-
-    result = selectTxHistoryByFilter(store, {
-      caip2: ethCAIP2,
-      caip19: ethCAIP19,
-      txid: EthReceiveFOX.txid
-    })
-    expect(result.length).toBe(0)
-
-    result = selectTxHistoryByFilter(store, { caip2: ethCAIP2, txid: EthReceiveFOX.txid })
-    expect(result.length).toBe(1)
-
-    result = selectTxHistoryByFilter(store, {
-      caip2: btcCAIP2,
-      accountType: UtxoAccountType.SegwitNative
-    })
-    expect(result.length).toBe(1)
-
-    result = selectTxHistoryByFilter(store, {
-      caip2: btcCAIP2,
-      accountType: UtxoAccountType.SegwitP2sh
-    })
-    expect(result.length).toBe(1)
   })
 })
 

@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import filter from 'lodash/filter'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import last from 'lodash/last'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
@@ -108,24 +108,6 @@ export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId
 export const selectTxs = (state: ReduxState) => state.txHistory.byId
 export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 
-export const selectTxHistoryByFilter = createSelector(
-  (state: ReduxState) => state.txHistory,
-  (_state: ReduxState, txFilter: TxFilter) => txFilter,
-  (txHistory: TxHistory, txFilter: TxFilter) => {
-    if (!txFilter) return values(txHistory.byId)
-    const { txid, accountType, caip19, caip2 } = txFilter
-    const filterFunc = (tx: Tx) => {
-      let hasItem = true
-      if (caip2) hasItem = tx.caip2 === caip2 && hasItem
-      if (caip19) hasItem = tx.transfers.some(t => t.caip19 === caip19) && hasItem
-      if (txid) hasItem = tx.txid === txid && hasItem
-      if (accountType) hasItem = tx.accountType === accountType && hasItem
-      return hasItem
-    }
-    return filter(txHistory.byId, filterFunc)
-  }
-)
-
 export const selectLastNTxIds = createSelector(
   // ids will always change
   selectTxIds,
@@ -175,4 +157,14 @@ export const selectTxIdsByAssetIdAccountType = createSelector(
   },
   // memoize outgoing txid[]
   { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
+
+// this is only used on trade confirm - new txs will be pushed
+// to the end of this array, so last is guaranteed to be latest
+// this can return undefined as we may be trading into this asset
+// for the first time
+export const selectLastTxStatusByAssetId = createSelector(
+  selectTxIdsByAssetId,
+  selectTxs,
+  (txIdsByAssetId, txs): Tx['status'] | undefined => txs[last(txIdsByAssetId) ?? '']?.status
 )

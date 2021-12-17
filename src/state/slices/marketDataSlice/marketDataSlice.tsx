@@ -90,7 +90,7 @@ export const marketData = createSlice({
   }
 })
 
-type FindPriceHistoryByCaip19Args = { assets: CAIP19[]; timeframe: HistoryTimeframe }
+type FindPriceHistoryByCaip19Args = { caip19: CAIP19; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   reducerPath: 'marketApi',
@@ -126,22 +126,19 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       }
     }),
-    // TODO(0xdef1cafe): make this take a single asset and dispatch multiple actions
     findPriceHistoryByCaip19: build.query<PriceHistoryByTimeframe, FindPriceHistoryByCaip19Args>({
-      queryFn: async ({ assets, timeframe }, { getState }) => {
+      queryFn: async ({ caip19, timeframe }, { getState }) => {
         const data: PriceHistoryByTimeframe = (getState() as ReduxState).marketData.priceHistory
-        const reqs = assets.map(async a => findPriceHistoryByCaip19({ timeframe, caip19: a }))
-        const responses = await Promise.allSettled(reqs)
-
-        responses.forEach((res, idx) => {
-          if (res.status === 'rejected') {
-            console.warn(`findPriceHistoryByCaip19: failed to get price history for ${assets[idx]}`)
-            return
+        try {
+          data[timeframe][caip19] = await findPriceHistoryByCaip19({ timeframe, caip19 })
+          return { data }
+        } catch (e) {
+          const error = {
+            data: `findPriceHistoryByCaip19: error fetching price history for ${caip19}`,
+            status: 400
           }
-          data[timeframe][assets[idx]] = res.value
-        })
-
-        return { data }
+          return { error }
+        }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded

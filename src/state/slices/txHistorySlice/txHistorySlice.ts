@@ -29,11 +29,12 @@ export type TxHistoryById = {
  * tx's come into the store over websockets
  *
  * e.g. an account with a single trade of FOX to USDC will produce the following
+ * three related assets
  *
  * {
- *   foxCAIP19: [txid]
- *   usdcCAIP19: [txid]
- *   ethCAIP19: [txid]
+ *   foxCAIP19: [txid] // sell asset
+ *   usdcCAIP19: [txid] // buy asset
+ *   ethCAIP19: [txid] // fee asset
  * }
  *
  * where txid is the same txid related to all the above assets, as the
@@ -170,9 +171,8 @@ export const selectTxIdsByAssetIdAccountType = createSelector(
     if (isEmpty(txsByAssetId)) return []
     const txIds = txsByAssetId[assetId] ?? []
     const txs = txIds.map(txid => txsById[txid])
-    const result = txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
-    debugger
-    return result
+    return txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
   },
+  // memoize outgoing txid[]
   { memoizeOptions: { resultEqualityCheck: isEqual } }
 )

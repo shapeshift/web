@@ -7,7 +7,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAccountTypeByChain } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectAccountTypesByChain } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxIdsByAssetIdAccountType } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -24,7 +24,7 @@ export const AssetHistory = () => {
   wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-  const accountType = useAppSelector(state => selectAccountTypeByChain(state, asset.chain))
+  const accountType = useAppSelector(state => selectAccountTypesByChain(state, asset.chain))
 
   // TODO(0xdef1cafe): change this to use selectTxIdsByAssetId once we have
   // the account -> address mapping in portfolio locked down

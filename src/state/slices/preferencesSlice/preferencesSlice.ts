@@ -33,7 +33,7 @@ export const preferences = createSlice({
 })
 
 export const selectAccountTypes = (state: ReduxState) => state.preferences.accountTypes
-export const selectAccountTypeByChain = createSelector(
+export const selectAccountTypesByChain = createSelector(
   selectAccountTypes,
   (_state: ReduxState, chain: ChainTypes) => chain,
   (accountTypes, chain) => accountTypes[chain]

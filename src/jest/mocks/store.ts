@@ -37,10 +37,8 @@ export const mockStore: ReduxState = {
     ids: []
   },
   marketData: {
-    marketData: {
-      byId: {},
-      ids: []
-    },
+    byId: {},
+    ids: [],
     priceHistory: {
       [HistoryTimeframe.DAY]: {},
       [HistoryTimeframe.HOUR]: {},
@@ -53,6 +51,7 @@ export const mockStore: ReduxState = {
   },
   txHistory: {
     byId: {},
+    byAssetId: {},
     ids: []
   },
   preferences: {

@@ -47,6 +47,27 @@ export const WETH: Asset = {
   receiveSupport: true,
   symbol: 'WETH'
 }
+
+export const ETH: Asset = {
+  caip2: 'eip155:1',
+  caip19: 'eip155:1/slip44:60',
+  chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.MAINNET,
+  symbol: 'ETH',
+  name: 'Ethereum',
+  precision: 18,
+  slip44: 60,
+  color: '#FFFFFF',
+  secondaryColor: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  sendSupport: true,
+  receiveSupport: true
+}
+
 export const FOX: Asset = {
   caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',

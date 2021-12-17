@@ -1,8 +1,9 @@
-import { Asset, ChainTypes, MarketData } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
+import { useMemo } from 'react'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 type UseAccountBalancesProps = {
   asset: Asset
@@ -10,17 +11,11 @@ type UseAccountBalancesProps = {
   balances: Record<string, Partial<chainAdapters.Account<ChainTypes> & chainAdapters.AssetBalance>>
 }
 
+// TODO(0xdef1cafe): don't pass balances in, don't pass asset in
 export const useAccountBalances = ({ asset, balances }: UseAccountBalancesProps) => {
-  const [marketData, setMarketData] = useState<MarketData | null>(null)
-  const getAssetData = useGetAssetData(asset.caip19)
   const assetBalance = balances[asset.caip19]
 
-  useEffect(() => {
-    ;(async () => {
-      const data = await getAssetData()
-      setMarketData(data)
-    })()
-  }, [asset.caip19]) // eslint-disable-line react-hooks/exhaustive-deps
+  const marketData = useAppSelector(state => selectMarketDataById(state, asset.caip19))
 
   const accountBalances = useMemo(() => {
     const crypto = bnOrZero(assetBalance?.balance).div(`1e${asset.precision}`)

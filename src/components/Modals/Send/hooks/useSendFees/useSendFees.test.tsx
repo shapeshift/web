@@ -1,10 +1,8 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
 import { TestProviders } from 'jest/TestProviders'
 import { ReduxState } from 'state/reducer'
 
@@ -13,10 +11,9 @@ import { useSendFees } from './useSendFees'
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
-jest.mock('hooks/useAsset/useAsset')
 jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
   ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
-  selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => ethAsset
+  selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset
 }))
 
 const fees = {
@@ -43,7 +40,7 @@ const fees = {
   }
 }
 
-const ethAsset = {
+const mockEthAsset = {
   name: 'Ethereum',
   network: 'ethereum',
   price: 3500,
@@ -51,14 +48,10 @@ const ethAsset = {
   precision: 18
 }
 
-const getAssetData = () =>
-  Promise.resolve({
-    name: 'Ethereum',
-    chain: ChainTypes.Ethereum,
-    price: '3500',
-    symbol: 'ETH',
-    precision: 18
-  })
+jest.mock('state/slices/marketDataSlice/marketDataSlice', () => ({
+  ...jest.requireActual('state/slices/marketDataSlice/marketDataSlice'),
+  selectMarketDataById: () => mockEthAsset
+}))
 
 const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
@@ -74,13 +67,12 @@ const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
 describe('useSendFees', () => {
   beforeEach(() => {
     ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({ control: {} }))
-    ;(useGetAssetData as jest.Mock<unknown>).mockImplementation(() => getAssetData)
   })
 
   it('returns the fees with market data', async () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
-        asset: ethAsset,
+        asset: mockEthAsset,
         estimatedFees: fees
       })
       await waitForValueToChange(() => result.current.fees)
@@ -93,7 +85,7 @@ describe('useSendFees', () => {
   it('returns null fees if no wallet is present', async () => {
     return await act(async () => {
       const { result } = setup({
-        asset: ethAsset,
+        asset: mockEthAsset,
         estimatedFees: fees,
         wallet: {}
       })

@@ -15,13 +15,10 @@ type PriceHistoryByTimeframe = {
 
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
-  // TODO(0xdef1cafe): flatten this down now we don't have market cap
-  marketData: {
-    byId: {
-      [k: CAIP19]: MarketData
-    }
-    ids: CAIP19[]
+  byId: {
+    [k: CAIP19]: MarketData
   }
+  ids: CAIP19[]
   priceHistory: PriceHistoryByTimeframe
 }
 
@@ -59,10 +56,8 @@ const initialPriceHistory: PriceHistoryByTimeframe = {
 }
 
 const initialState: MarketDataState = {
-  marketData: {
-    byId: {},
-    ids: []
-  },
+  byId: {},
+  ids: [],
   priceHistory: initialPriceHistory,
   loading: false
 }
@@ -72,9 +67,9 @@ export const marketData = createSlice({
   initialState,
   reducers: {
     setMarketData: (state, { payload }) => {
-      state.marketData.byId = { ...state.marketData.byId, ...payload } // upsert
-      const ids = Array.from(new Set([...state.marketData.ids, ...Object.keys(payload)]))
-      state.marketData.ids = ids // upsert unique
+      state.byId = { ...state.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
+      state.ids = ids // upsert unique
     },
     setPriceHistory: (state, { payload }: { payload: PriceHistoryByTimeframe }) => {
       state.priceHistory = { ...state.priceHistory, ...payload } // upsert
@@ -159,7 +154,7 @@ export const marketApi = createApi({
 
 export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi
 
-export const selectMarketData = (state: ReduxState) => state.marketData.marketData.byId
+export const selectMarketData = (state: ReduxState) => state.marketData.byId
 
 const selectAssetId = (_state: ReduxState, assetId: CAIP19) => assetId
 
@@ -170,7 +165,7 @@ export const selectMarketDataById = createSelector(
 )
 
 // assets we have loaded market data for
-export const selectAvailableMarketDataIds = (state: ReduxState) => state.marketData.marketData.ids
+export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids
 
 // if we don't have it it's loading
 export const selectMarketDataLoadingById = createSelector(
@@ -193,6 +188,6 @@ export const selectMarketAssetPercentChangeById = createSelector(
     const startBn = bnOrZero(start)
     const startAbs = startBn.abs()
     const endBn = bnOrZero(end)
-    return endBn.minus(startBn).div(startAbs).times(100).toNumber()
+    return endBn.minus(startBn).div(startAbs).times(100).decimalPlaces(2).toNumber()
   }
 )

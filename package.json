@@ -4,8 +4,8 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
-    "@chakra-ui/react": "^1.7.2",
-    "@emotion/react": "^11.6.0",
+    "@chakra-ui/react": "^1.7.3",
+    "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@formatjs/intl-getcanonicallocales": "^1.8.0",
     "@formatjs/intl-locale": "^2.4.40",
@@ -24,7 +24,7 @@
     "@shapeshiftoss/hdwallet-native-vault": "^1.18.3",
     "@shapeshiftoss/hdwallet-portis": "^1.18.3",
     "@shapeshiftoss/market-service": "^1.7.0",
-    "@shapeshiftoss/swapper": "^1.14.1",
+    "@shapeshiftoss/swapper": "^1.15.0",
     "@shapeshiftoss/types": "^1.20.0",
     "@shapeshiftoss/unchained-client": "^4.1.0",
     "@shapeshiftoss/unchained-tx-parser": "^4.1.0",
@@ -37,7 +37,7 @@
     "@visx/tooltip": "^2.2.2",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.24.0",
-    "bignumber.js": "^9.0.1",
+    "bignumber.js": "^9.0.2",
     "bip39": "^3.0.4",
     "bs58check": "^2.1.2",
     "chakra-ui-steps": "^1.5.0",
@@ -74,7 +74,7 @@
     "reselect": "^4.1.5",
     "scrypt-js": "^3.0.1",
     "web-vitals": "^2.1.0",
-    "web3": "^1.6.0"
+    "web3": "^1.6.1"
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
@@ -90,6 +90,7 @@
     "clean": "rimraf node_modules",
     "test:dev": "react-app-rewired test --watch",
     "type-check": "tsc --project ./tsconfig.json --noEmit",
+    "type-check-watch": "tsc --watch --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
     "postinstall": "./scripts/postinstall.sh"
@@ -123,8 +124,8 @@
     ]
   },
   "devDependencies": {
-    "@commitlint/cli": "^13.1.0",
-    "@commitlint/config-conventional": "^13.1.0",
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
     "@snek-at/storybook-addon-chakra-ui": "^1.0.0-beta.1",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",

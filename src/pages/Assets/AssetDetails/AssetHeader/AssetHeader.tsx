@@ -19,22 +19,16 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
-import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { PriceChart } from 'components/PriceChart/PriceChart'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { useFetchPriceHistory } from 'hooks/useFetchPriceHistory/useFetchPriceHistory'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useAsset } from 'pages/Assets/Asset'
-import {
-  selectMarketAssetPercentChangeById,
-  selectPriceHistoryByAssetTimeframe,
-  selectPriceHistoryLoadingByAssetTimeframe
-} from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoHumanBalanceById,
   selectPortfolioFiatBalanceById
@@ -46,39 +40,28 @@ import { AssetActions } from './AssetActions'
 import { AssetMarketData } from './AssetMarketData'
 import { SegwitSelectCard } from './SegwitSelectCard'
 
-enum Views {
+enum View {
   Price = 'price',
   Balance = 'balance'
 }
 
 export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
+  const translate = useTranslate()
   const { asset, marketData } = useAsset()
+  const [percentChange, setPercentChange] = useState(0)
+  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
+  const [showDescription, setShowDescription] = useState(false)
+  const [view, setView] = useState(View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const [view, setView] = useState(Views.Price)
   const { name, symbol, description, icon } = asset || {}
   const { price } = marketData || {}
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const assetPrice = toFiat(price) ?? 0
-  const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
-  const translate = useTranslate()
-  const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
-  const assetIds = useMemo(() => [asset.caip19].filter(Boolean), [asset])
-
   const assetId = asset.caip19
-  // fetch price history for this asset
-  useFetchPriceHistory({ assetId, timeframe })
-
-  // data when it's ready
-  const priceHistoryData = useAppSelector(state =>
-    selectPriceHistoryByAssetTimeframe(state, assetId, timeframe)
-  )
-
-  const priceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe)
-  )
+  const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
 
   const {
     state: { wallet }
@@ -86,22 +69,10 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
 
-  const graphPercentChange = useAppSelector(state =>
-    selectMarketAssetPercentChangeById(state, { assetId: asset.caip19, timeframe })
-  )
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceById(state, asset.caip19)
+    selectPortfolioCryptoHumanBalanceById(state, assetId)
   )
-  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
-  // TODO(0xdef1cafe): use the balance chart component here
-  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
-    assetIds,
-    timeframe
-  })
-
-  const graphData = view === Views.Balance ? balanceChartData : priceHistoryData
-  const graphLoading = view === Views.Balance ? balanceChartDataLoading : priceHistoryDataLoading
-  const graphColor = graphPercentChange > 0 ? 'green.500' : 'red.500'
+  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, assetId))
 
   return (
     <Card variant='footer-stub'>
@@ -140,10 +111,10 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                 colorScheme='blue'
                 variant='ghost'
               >
-                <Button isActive={view === Views.Balance} onClick={() => setView(Views.Balance)}>
+                <Button isActive={view === View.Balance} onClick={() => setView(View.Balance)}>
                   <Text translation='assets.assetDetails.assetHeader.balance' />
                 </Button>
-                <Button isActive={view === Views.Price} onClick={() => setView(Views.Price)}>
+                <Button isActive={view === View.Price} onClick={() => setView(View.Price)}>
                   <Text translation='assets.assetDetails.assetHeader.price' />
                 </Button>
               </ButtonGroup>
@@ -158,7 +129,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
             <Card.Heading fontSize='4xl' lineHeight={1} mb={2}>
               <Skeleton isLoaded={isLoaded}>
                 <NumberFormat
-                  value={view === Views.Price ? assetPrice : totalBalance}
+                  value={view === View.Price ? assetPrice : totalBalance}
                   displayType={'text'}
                   thousandSeparator={true}
                   prefix={'$'}
@@ -171,14 +142,14 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                   <StatNumber
                     display='flex'
                     alignItems='center'
-                    color={graphPercentChange > 0 ? 'green.500' : 'red.500'}
+                    color={percentChange > 0 ? 'green.500' : 'red.500'}
                   >
-                    <StatArrow type={graphPercentChange > 0 ? 'increase' : 'decrease'} />
-                    <RawText>{graphPercentChange}%</RawText>
+                    <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                    {isFinite(percentChange) && <RawText>{percentChange}%</RawText>}
                   </StatNumber>
                 </Skeleton>
               </Stat>
-              {view === Views.Balance && (
+              {view === View.Balance && (
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
                     <StatNumber>{`${cryptoBalance}${asset.symbol}`}</StatNumber>
@@ -189,14 +160,21 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
           </Box>
         </Box>
       </Card.Body>
-      <Card.Body px={0} py={0} position='relative' height='300px'>
-        <Graph
-          data={graphData}
-          loading={graphLoading}
-          isLoaded={!graphLoading}
-          color={graphColor}
+      {view === View.Balance ? (
+        <BalanceChart
+          assetIds={assetIds}
+          timeframe={timeframe}
+          percentChange={percentChange}
+          setPercentChange={setPercentChange}
         />
-      </Card.Body>
+      ) : (
+        <PriceChart
+          assetId={assetId}
+          timeframe={timeframe}
+          percentChange={percentChange}
+          setPercentChange={setPercentChange}
+        />
+      )}
       {!isLargerThanMd && (
         <Skeleton isLoaded={isLoaded} textAlign='center'>
           <TimeControls
@@ -216,7 +194,6 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
               {translate('assets.assetDetails.assetHeader.aboutAsset', { asset: name })}
             </Card.Heading>
           </Skeleton>
-
           <Collapse startingHeight={70} in={showDescription}>
             <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
               <SanitizedHtml color='gray.500' dirtyHtml={description} />

@@ -4,7 +4,6 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
 export type PriceHistoryData = {
@@ -151,23 +150,6 @@ export const selectMarketDataLoadingById = createSelector(
 
 export const selectPriceHistory = (state: ReduxState) => state.marketData.priceHistory
 
-export const selectMarketAssetPercentChangeById = createSelector(
-  selectMarketData,
-  selectPriceHistory,
-  (_state: ReduxState, args: { assetId: CAIP19; timeframe: HistoryTimeframe }) => args,
-  (marketData, priceHistory, { assetId, timeframe }): number => {
-    const naivePriceChange = marketData?.[assetId]?.changePercent24Hr
-    const assetPriceHistory = priceHistory[timeframe]?.[assetId]
-    const start = assetPriceHistory?.[0]?.price
-    const end = assetPriceHistory?.[assetPriceHistory.length - 1]?.price
-    if (!(start && end)) return naivePriceChange
-    const startBn = bnOrZero(start)
-    const startAbs = startBn.abs()
-    const endBn = bnOrZero(end)
-    return endBn.minus(startBn).div(startAbs).times(100).decimalPlaces(2).toNumber()
-  }
-)
-
 export const selectPriceHistoryByAssetTimeframe = createSelector(
   selectPriceHistory,
   selectAssetId,
@@ -190,7 +172,7 @@ export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   selectPriceHistory,
-  (_state: ReduxState, assetIds: CAIP19[], timeframe: HistoryTimeframe) => assetIds,
+  (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
   (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (priceHistory, assetIds, timeframe) =>

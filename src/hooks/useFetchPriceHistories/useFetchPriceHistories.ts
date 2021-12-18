@@ -13,14 +13,13 @@ type UseFetchPriceHistories = (args: UseFetchPriceHistoriesArgs) => void
 
 export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timeframe }) => {
   const dispatch = useAppDispatch()
-  useEffect(() => {
-    const results = assetIds.map(assetId =>
-      dispatch(marketApi.endpoints.findPriceHistoryByCaip19.initiate({ assetId, timeframe }))
-    )
-    const cleanup = () => results.forEach(result => result.unsubscribe())
-    // cleanup data in store when it goes out of scope
-    return cleanup
+  useEffect(
+    () =>
+      assetIds.forEach(assetId =>
+        dispatch(marketApi.endpoints.findPriceHistoryByCaip19.initiate({ assetId, timeframe }))
+      ),
     // assetIds ref changes, prevent infinite render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(assetIds), dispatch, timeframe])
+    [JSON.stringify(assetIds), dispatch, timeframe]
+  )
 }

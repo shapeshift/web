@@ -1,9 +1,9 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
-import { useFetchPriceHistory } from 'hooks/useFetchPriceHistory/useFetchPriceHistory'
+import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
   selectPriceHistoryByAssetTimeframe,
@@ -24,8 +24,9 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   percentChange,
   setPercentChange
 }) => {
+  const assetIds = useMemo(() => [assetId], [assetId])
   // fetch price history for this asset
-  useFetchPriceHistory({ assetId, timeframe })
+  useFetchPriceHistories({ assetIds, timeframe })
 
   const data = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe)

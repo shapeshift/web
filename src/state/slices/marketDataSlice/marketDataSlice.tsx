@@ -148,15 +148,21 @@ export const marketApi = createApi({
           return { error }
         }
       },
-      onCacheEntryAdded: async (args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        if (!data) {
-          console.info(`findPriceHistoryByCaip19: no data in onCacheEntryAdded for ${args.assetId}`)
-          return
-        }
+      // onCacheEntryAdded: async (args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+      onQueryStarted: async (args, { dispatch, queryFulfilled, getCacheEntry }) => {
+        // empty data helps selectors know it's loaded, even if it's unavailable
+        const data: HistoryData[] = []
         const payload = { data, args }
-        data && dispatch(marketData.actions.setPriceHistory(payload))
+        try {
+          await queryFulfilled
+          console.info('onCacheEntryAdded args', JSON.stringify(args))
+          const data = getCacheEntry().data
+          payload.data = data ?? []
+        } catch (e) {
+          // swallow
+        } finally {
+          dispatch(marketData.actions.setPriceHistory(payload))
+        }
       }
     })
   })
@@ -220,6 +226,15 @@ export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (priceHistory, assetId, timeframe) => !Boolean(priceHistory[timeframe][assetId])
+)
+
+export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
+  selectPriceHistory,
+  (_state: ReduxState, assetIds: CAIP19[], timeframe: HistoryTimeframe) => assetIds,
+  (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
+  // if we don't have the data it's loading
+  (priceHistory, assetIds, timeframe) =>
+    !assetIds.every(assetId => Boolean(priceHistory[timeframe][assetId]))
 )
 
 export const selectPriceHistoryTimeframe = createSelector(

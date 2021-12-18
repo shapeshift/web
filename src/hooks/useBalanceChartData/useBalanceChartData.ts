@@ -19,6 +19,7 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   PriceHistoryData,
+  selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -300,14 +301,25 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds: assets, timeframe })
   const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
+  const priceHistoryDataLoading = useAppSelector(state =>
+    selectPriceHistoriesLoadingByAssetTimeframe(state, assets, timeframe)
+  )
 
+  // loading state
+  useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
+
+  // calculation
   useEffect(() => {
-    if (isNil(walletInfo?.deviceId)) return
-    if (!assets.length) return
-    if (!txs.length) return
-    if (isEmpty(balances)) return
+    // data prep
+    const noDeviceId = isNil(walletInfo?.deviceId)
+    const noAssetIds = !assets.length
+    const noTxs = !txs.length
+    const noBalances = isEmpty(balances)
+    const noPriceHistory = priceHistoryDataLoading
+    if (noDeviceId || noAssetIds || noTxs || noBalances || noPriceHistory) {
+      return setBalanceChartDataLoading(true)
+    }
 
-    setBalanceChartDataLoading(true)
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({ assets, balances, timeframe })
     // put each tx into a bucket for the chart
@@ -328,6 +340,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     assets,
     accountTypes,
     priceHistoryData,
+    priceHistoryDataLoading,
     txs,
     timeframe,
     balances,

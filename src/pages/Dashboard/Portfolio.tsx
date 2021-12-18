@@ -58,7 +58,11 @@ export const Portfolio = () => {
           </Skeleton>
         </Card.Header>
         <Card.Body p={0} height='350px'>
-          <Graph data={balanceChartData} loading={balanceChartDataLoading} isLoaded={isLoaded} />
+          <Graph
+            data={balanceChartData}
+            loading={balanceChartDataLoading}
+            isLoaded={!balanceChartDataLoading}
+          />
         </Card.Body>
       </Card>
       <Card>

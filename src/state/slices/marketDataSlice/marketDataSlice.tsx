@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
+import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
@@ -23,30 +23,6 @@ export type MarketDataState = {
   ids: CAIP19[]
   priceHistory: PriceHistoryByTimeframe
 }
-
-// TODO(0xdef1cafe): put this in the marketApi, fetch individually, kill usePriceHistory hook!
-export const fetchPriceHistory = createAsyncThunk(
-  'marketData/priceHistory',
-  async ({ assets, timeframe }: { assets: CAIP19[]; timeframe: HistoryTimeframe }) => {
-    const responses = await Promise.allSettled(
-      assets.map(async asset => {
-        return await findPriceHistoryByCaip19({ timeframe, caip19: asset })
-      })
-    )
-
-    const result = responses.reduce<HistoryData[][]>((acc, response) => {
-      if (response.status === 'rejected') return acc
-      const mapped = response.value.map(({ date, price }) => ({
-        date: date.valueOf().toString(), // dates aren't serializable in redux actions or state
-        price
-      }))
-      acc.push(mapped)
-      return acc
-    }, [])
-
-    return result
-  }
-)
 
 const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.HOUR]: {},
@@ -82,19 +58,6 @@ export const marketData = createSlice({
       const { assetId, timeframe } = args
       state.priceHistory[timeframe][assetId] = data
     }
-  },
-  extraReducers: builder => {
-    builder.addCase(fetchPriceHistory.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchPriceHistory.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchPriceHistory.fulfilled, (state, { payload, meta }) => {
-      const { assets, timeframe } = meta.arg
-      payload.forEach((priceData, idx) => (state.priceHistory[timeframe][assets[idx]] = priceData))
-      state.loading = false
-    })
   }
 })
 
@@ -134,7 +97,6 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       }
     }),
-    // change this return type to be the price history for timeframe and assetId
     findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
       queryFn: async ({ assetId, timeframe }) => {
         try {
@@ -148,14 +110,12 @@ export const marketApi = createApi({
           return { error }
         }
       },
-      // onCacheEntryAdded: async (args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
       onQueryStarted: async (args, { dispatch, queryFulfilled, getCacheEntry }) => {
         // empty data helps selectors know it's loaded, even if it's unavailable
         const data: HistoryData[] = []
         const payload = { data, args }
         try {
           await queryFulfilled
-          console.info('onCacheEntryAdded args', JSON.stringify(args))
           const data = getCacheEntry().data
           payload.data = data ?? []
         } catch (e) {

@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
 import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
@@ -205,4 +205,12 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   selectAssetId,
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? []
+)
+
+export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
+  selectPriceHistory,
+  selectAssetId,
+  (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
+  // if we don't have the data it's loading
+  (priceHistory, assetId, timeframe) => !Boolean(priceHistory[timeframe][assetId])
 )

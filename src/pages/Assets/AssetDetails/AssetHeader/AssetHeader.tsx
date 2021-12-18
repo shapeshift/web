@@ -32,7 +32,8 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { useAsset } from 'pages/Assets/Asset'
 import {
   selectMarketAssetPercentChangeById,
-  selectPriceHistoryByAssetTimeframe
+  selectPriceHistoryByAssetTimeframe,
+  selectPriceHistoryLoadingByAssetTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoHumanBalanceById,
@@ -67,10 +68,16 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const assets = useMemo(() => [asset.caip19].filter(Boolean), [asset])
 
   const assetId = asset.caip19
-  const { priceHistoryDataLoading } = useFetchPriceHistory({ assetId, timeframe })
+  // fetch price history for this asset
+  useFetchPriceHistory({ assetId, timeframe })
 
+  // data when it's ready
   const priceHistoryData = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe)
+  )
+
+  const priceHistoryDataLoading = useAppSelector(state =>
+    selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe)
   )
 
   const {
@@ -87,13 +94,13 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   )
   const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
   // TODO(0xdef1cafe): use the balance chart component here
-  const { balanceChartData } = useBalanceChartData({
+  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
   })
 
   const graphData = view === Views.Balance ? balanceChartData : priceHistoryData
-  const graphLoading = view === Views.Balance ? false : priceHistoryDataLoading
+  const graphLoading = view === Views.Balance ? balanceChartDataLoading : priceHistoryDataLoading
   const graphColor = graphPercentChange > 0 ? 'green.500' : 'red.500'
 
   return (

@@ -19,13 +19,13 @@ import { AccountList } from './components/AccountList/AccountList'
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
 
-  const assets = useSelector(selectPortfolioAssetIds)
+  const assetIds = useSelector(selectPortfolioAssetIds)
   const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
 
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
-    assets,
+    assetIds,
     timeframe
   })
 

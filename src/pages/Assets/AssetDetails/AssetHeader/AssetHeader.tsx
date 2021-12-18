@@ -65,7 +65,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const translate = useTranslate()
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
-  const assets = useMemo(() => [asset.caip19].filter(Boolean), [asset])
+  const assetIds = useMemo(() => [asset.caip19].filter(Boolean), [asset])
 
   const assetId = asset.caip19
   // fetch price history for this asset
@@ -95,7 +95,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
   // TODO(0xdef1cafe): use the balance chart component here
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
-    assets,
+    assetIds,
     timeframe
   })
 

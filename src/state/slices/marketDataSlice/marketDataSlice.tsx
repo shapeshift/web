@@ -7,10 +7,12 @@ import isEmpty from 'lodash/isEmpty'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
+export type PriceHistoryData = {
+  [k: CAIP19]: HistoryData[]
+}
+
 type PriceHistoryByTimeframe = {
-  [k in HistoryTimeframe]: {
-    [k: CAIP19]: HistoryData[]
-  }
+  [k in HistoryTimeframe]: PriceHistoryData
 }
 
 export type MarketDataState = {
@@ -207,6 +209,7 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   (priceHistory, assetId, timeframe) =>
     (priceHistory[timeframe][assetId] ?? []).map(({ price, date }) => ({
       price,
+      // TODO(0xdef1cafe): find best primitive to return/store this
       date: new Date(Number(date) * 1000).toISOString()
     }))
 )
@@ -217,4 +220,10 @@ export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (priceHistory, assetId, timeframe) => !Boolean(priceHistory[timeframe][assetId])
+)
+
+export const selectPriceHistoryTimeframe = createSelector(
+  selectPriceHistory,
+  (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
+  (priceHistory, timeframe) => priceHistory[timeframe]
 )

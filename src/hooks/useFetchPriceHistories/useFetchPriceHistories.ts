@@ -1,0 +1,26 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { useEffect } from 'react'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppDispatch } from 'state/store'
+
+type UseFetchPriceHistoriesArgs = {
+  assetIds: CAIP19[]
+  timeframe: HistoryTimeframe
+}
+
+type UseFetchPriceHistories = (args: UseFetchPriceHistoriesArgs) => void
+
+export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timeframe }) => {
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    const results = assetIds.map(assetId =>
+      dispatch(marketApi.endpoints.findPriceHistoryByCaip19.initiate({ assetId, timeframe }))
+    )
+    const cleanup = () => results.forEach(result => result.unsubscribe())
+    // cleanup data in store when it goes out of scope
+    return cleanup
+    // assetIds ref changes, prevent infinite render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(assetIds), dispatch, timeframe])
+}

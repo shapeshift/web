@@ -15,16 +15,21 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
+import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { PortfolioAssets, selectPortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  PriceHistoryData,
+  selectPriceHistoryTimeframe
+} from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  PortfolioAssets,
   PortfolioBalances,
+  selectPortfolioAssets,
   selectPortfolioBalances
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -280,7 +285,6 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  // assets is a caip19[] of requested assets for this balance chart
   const { assets, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
@@ -293,7 +297,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(useSelector(selectTxValues), 500)
-  const { data: priceHistoryData } = usePriceHistory(args)
+  // kick off requests for all the price histories we need
+  useFetchPriceHistories({ assetIds: assets, timeframe })
+  const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
 
   useEffect(() => {
     if (isNil(walletInfo?.deviceId)) return

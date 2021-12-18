@@ -204,7 +204,11 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   selectPriceHistory,
   selectAssetId,
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? []
+  (priceHistory, assetId, timeframe) =>
+    (priceHistory[timeframe][assetId] ?? []).map(({ price, date }) => ({
+      price,
+      date: new Date(Number(date) * 1000).toISOString()
+    }))
 )
 
 export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(

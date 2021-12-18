@@ -16,7 +16,6 @@ import {
   useMediaQuery
 } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { isEmpty } from 'lodash'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -27,11 +26,14 @@ import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
+import { useFetchPriceHistory } from 'hooks/useFetchPriceHistory/useFetchPriceHistory'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useAsset } from 'pages/Assets/Asset'
-import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { selectMarketAssetPercentChangeById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectMarketAssetPercentChangeById,
+  selectPriceHistoryByAssetTimeframe
+} from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoHumanBalanceById,
   selectPortfolioFiatBalanceById
@@ -63,23 +65,19 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
   const assets = useMemo(() => [asset.caip19].filter(Boolean), [asset])
-  const { data: priceHistoryData, loading: priceHistoryDataLoading } = usePriceHistory({
-    assets,
-    timeframe
-  })
+
+  const assetId = asset.caip19
+  const { priceHistoryDataLoading } = useFetchPriceHistory({ assetId, timeframe })
+
+  const priceHistoryData = useAppSelector(state =>
+    selectPriceHistoryByAssetTimeframe(state, assetId, timeframe)
+  )
+
   const {
     state: { wallet }
   } = useWallet()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-
-  const assetPriceHistoryData = useMemo(() => {
-    if (isEmpty(priceHistoryData[asset?.caip19])) return []
-    return priceHistoryData[asset.caip19].map(({ price, date }) => ({
-      price,
-      date: new Date(Number(date)).toISOString()
-    }))
-  }, [priceHistoryData, asset])
 
   const graphPercentChange = useAppSelector(state =>
     selectMarketAssetPercentChangeById(state, { assetId: asset.caip19, timeframe })
@@ -89,13 +87,13 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   )
   const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
   // TODO(0xdef1cafe): use the balance chart component here
-  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
+  const { balanceChartData } = useBalanceChartData({
     assets,
     timeframe
   })
 
-  const graphData = view === Views.Balance ? balanceChartData : assetPriceHistoryData
-  const graphLoading = view === Views.Balance ? balanceChartDataLoading : priceHistoryDataLoading
+  const graphData = view === Views.Balance ? balanceChartData : priceHistoryData
+  const graphLoading = view === Views.Balance ? false : priceHistoryDataLoading
   const graphColor = graphPercentChange > 0 ? 'green.500' : 'red.500'
 
   return (

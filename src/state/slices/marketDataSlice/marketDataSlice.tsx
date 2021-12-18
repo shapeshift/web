@@ -71,8 +71,14 @@ export const marketData = createSlice({
       const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
       state.ids = ids // upsert unique
     },
-    setPriceHistory: (state, { payload }: { payload: PriceHistoryByTimeframe }) => {
-      state.priceHistory = { ...state.priceHistory, ...payload } // upsert
+    setPriceHistory: (
+      state,
+      {
+        payload: { data, args }
+      }: { payload: { data: HistoryData[]; args: FindPriceHistoryByCaip19Args } }
+    ) => {
+      const { assetId, timeframe } = args
+      state.priceHistory[timeframe][assetId] = data
     }
   },
   extraReducers: builder => {
@@ -90,7 +96,7 @@ export const marketData = createSlice({
   }
 })
 
-type FindPriceHistoryByCaip19Args = { caip19: CAIP19; timeframe: HistoryTimeframe }
+type FindPriceHistoryByCaip19Args = { assetId: CAIP19; timeframe: HistoryTimeframe }
 
 export const marketApi = createApi({
   reducerPath: 'marketApi',
@@ -126,24 +132,29 @@ export const marketApi = createApi({
         data && dispatch(marketData.actions.setMarketData(data))
       }
     }),
-    findPriceHistoryByCaip19: build.query<PriceHistoryByTimeframe, FindPriceHistoryByCaip19Args>({
-      queryFn: async ({ caip19, timeframe }, { getState }) => {
-        const data: PriceHistoryByTimeframe = (getState() as ReduxState).marketData.priceHistory
+    // change this return type to be the price history for timeframe and assetId
+    findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({
+      queryFn: async ({ assetId, timeframe }) => {
         try {
-          data[timeframe][caip19] = await findPriceHistoryByCaip19({ timeframe, caip19 })
+          const data = await findPriceHistoryByCaip19({ timeframe, caip19: assetId })
           return { data }
         } catch (e) {
           const error = {
-            data: `findPriceHistoryByCaip19: error fetching price history for ${caip19}`,
+            data: `findPriceHistoryByCaip19: error fetching price history for ${assetId}`,
             status: 400
           }
           return { error }
         }
       },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+      onCacheEntryAdded: async (args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
         const data = getCacheEntry().data
-        data && dispatch(marketData.actions.setPriceHistory(data))
+        if (!data) {
+          console.info(`findPriceHistoryByCaip19: no data in onCacheEntryAdded for ${args.assetId}`)
+          return
+        }
+        const payload = { data, args }
+        data && dispatch(marketData.actions.setPriceHistory(payload))
       }
     })
   })
@@ -153,7 +164,7 @@ export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip1
 
 export const selectMarketData = (state: ReduxState) => state.marketData.byId
 
-const selectAssetId = (_state: ReduxState, assetId: CAIP19) => assetId
+const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => assetId
 
 export const selectMarketDataById = createSelector(
   selectMarketData,
@@ -187,4 +198,11 @@ export const selectMarketAssetPercentChangeById = createSelector(
     const endBn = bnOrZero(end)
     return endBn.minus(startBn).div(startAbs).times(100).decimalPlaces(2).toNumber()
   }
+)
+
+export const selectPriceHistoryByAssetTimeframe = createSelector(
+  selectPriceHistory,
+  selectAssetId,
+  (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
+  (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? []
 )

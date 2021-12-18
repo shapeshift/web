@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { TypedUseSelectorHook, useSelector } from 'react-redux'
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
 import { reducer, ReduxState } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -19,3 +19,7 @@ export const store = configureStore({
 })
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
+
+// https://redux-toolkit.js.org/usage/usage-with-typescript#getting-the-dispatch-type
+export type AppDispatch = typeof store.dispatch
+export const useAppDispatch = () => useDispatch<AppDispatch>()

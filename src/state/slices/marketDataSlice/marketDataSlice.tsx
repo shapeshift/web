@@ -162,14 +162,6 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
     }))
 )
 
-export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
-  selectPriceHistory,
-  selectAssetId,
-  (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
-  // if we don't have the data it's loading
-  (priceHistory, assetId, timeframe) => !Boolean(priceHistory[timeframe][assetId])
-)
-
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   selectPriceHistory,
   (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,

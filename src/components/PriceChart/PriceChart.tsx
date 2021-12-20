@@ -6,8 +6,8 @@ import { Graph } from 'components/Graph/Graph'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
-  selectPriceHistoryByAssetTimeframe,
-  selectPriceHistoryLoadingByAssetTimeframe
+  selectPriceHistoriesLoadingByAssetTimeframe,
+  selectPriceHistoryByAssetTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -35,7 +35,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   useEffect(() => setPercentChange(calculatePercentChange(data)), [data, setPercentChange])
 
   const loading = useAppSelector(state =>
-    selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe)
+    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
   )
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 

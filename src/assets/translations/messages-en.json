@@ -64,7 +64,8 @@
     "menu": {
       "triggerButton": "Connect Wallet",
       "switchWallet": "Switch Wallet Provider",
-      "disconnect": "Disconnect"
+      "disconnect": "Disconnect",
+      "disconnected": "(Disconnected)"
     }
   },
   "earn": {

@@ -13,7 +13,6 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
-      console.info('KeepKey Event', e)
       switch (e[1].message_enum) {
         case MessageType.PASSPHRASEREQUEST:
           if (!keepkeyPassphrase.isOpen) {
@@ -45,34 +44,45 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
           }
           break
         default:
-          // If there wasn't an enum value, then we'll check the message type
-          console.info('KeepKey Unknown Event', e)
+        // Ignore unhandled events
       }
     }
 
-    const handleConnect = (deviceId: string) => {
-      console.info('KeepKey Connected: ', deviceId)
-      if (state.walletInfo?.deviceId === deviceId) {
+    const handleConnect = async (deviceId: string) => {
+      console.info('Device Connected: ', deviceId)
+      /*
+        Understanding KeepKey DeviceID aliases:
+
+        1. There is a hardware SerialNumber and a separate DeviceID written to flash on the device.
+        2. Out of the box, these two values ARE DIFFERENT.
+        3. After a "wipe" command, the DeviceID in flash is updated to match SerialNumber
+        4. Bootloader/firmware upgrades and device initialization do NOT change this value
+        5. Every KeepKey will have an alias DeviceID until a "wipe" is called
+       */
+      const id = keyring.getAlias(deviceId)
+      if (id === state.walletInfo?.deviceId) {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       }
     }
 
-    const handleDisconnect = (deviceId: string) => {
-      console.info('KeepKey Disconnected: ', deviceId)
-      if (state.walletInfo?.deviceId === deviceId) {
+    const handleDisconnect = async (deviceId: string) => {
+      console.info('Device Disconnected: ', deviceId)
+      const id = keyring.getAlias(deviceId)
+      if (id === state.walletInfo?.deviceId) {
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
       }
     }
 
     // Handle all KeepKey events
     keyring.on(['KeepKey', '*', '*'], handleEvent)
-    keyring.on(['KeepKey', '*', Events.CONNECT], handleConnect)
-    keyring.on(['KeepKey', '*', Events.DISCONNECT], handleDisconnect)
+    // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
+    keyring.on(['*', '*', Events.CONNECT], handleConnect)
+    keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
 
     return () => {
       keyring.off(['KeepKey', '*', '*'], handleEvent)
-      keyring.off(['KeepKey', '*', Events.CONNECT], handleConnect)
-      keyring.off(['KeepKey', '*', Events.DISCONNECT], handleDisconnect)
+      keyring.off(['*', '*', Events.CONNECT], handleConnect)
+      keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
     }
   }, [dispatch, keepkeyPassphrase, keepkeyPin, keyring, state.walletInfo?.deviceId])
 }

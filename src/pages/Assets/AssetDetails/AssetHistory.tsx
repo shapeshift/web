@@ -21,7 +21,6 @@ export const AssetHistory = () => {
   const {
     state: { wallet }
   } = useWallet()
-  wallet?.getFeatures()
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
   const accountType = useAppSelector(state => selectAccountTypesByChain(state, asset.chain))

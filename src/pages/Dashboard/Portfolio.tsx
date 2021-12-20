@@ -3,11 +3,10 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
+import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
-import { Graph } from 'components/Graph/Graph'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
-import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -18,16 +17,12 @@ import { AccountList } from './components/AccountList/AccountList'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
+  const [percentChange, setPercentChange] = useState(0)
 
-  const assets = useSelector(selectPortfolioAssetIds)
+  const assetIds = useSelector(selectPortfolioAssetIds)
   const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
-
-  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
-    assets,
-    timeframe
-  })
 
   return (
     <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>
@@ -57,9 +52,12 @@ export const Portfolio = () => {
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
           </Skeleton>
         </Card.Header>
-        <Card.Body p={0} height='350px'>
-          <Graph data={balanceChartData} loading={balanceChartDataLoading} isLoaded={isLoaded} />
-        </Card.Body>
+        <BalanceChart
+          assetIds={assetIds}
+          timeframe={timeframe}
+          percentChange={percentChange}
+          setPercentChange={setPercentChange}
+        />
       </Card>
       <Card>
         <Card.Header>

@@ -6,13 +6,13 @@ import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectAccountTypesByChain } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxIdsByAssetIdAccountType } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { useAsset } from '../Asset'
-import { useInfiniteScroll } from '../hooks/useInfiniteScroll/useInfiniteScroll'
 
 export const AssetHistory = () => {
   const translate = useTranslate()

@@ -204,7 +204,7 @@ type CalculateBucketPricesArgs = {
   priceHistoryData: PriceHistoryData
 }
 
-type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => HistoryData[]
+type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
@@ -259,6 +259,12 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
     buckets[i] = bucket
   }
+  return buckets
+}
+
+type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
+
+export const bucketsToChartData: BucketsToChartData = buckets => {
   return buckets.map(bucket => ({
     price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
     date: bucket.end.toISOString()
@@ -334,7 +340,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       portfolioAssets
     })
 
-    setBalanceChartData(calculatedBuckets)
+    const chartData = bucketsToChartData(calculatedBuckets)
+
+    setBalanceChartData(chartData)
     setBalanceChartDataLoading(false)
   }, [
     assetIds,

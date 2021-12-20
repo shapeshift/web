@@ -2,7 +2,7 @@ import { ChainTypes, HistoryTimeframe, UtxoAccountType } from '@shapeshiftoss/ty
 import { ethereum, fox } from 'jest/mocks/assets'
 import { FOXSend, testTxs } from 'jest/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
-import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
+import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import {
@@ -20,18 +20,18 @@ const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
 describe('makeBuckets', () => {
   it('can make buckets', () => {
-    const assets = [ethCaip19]
+    const assetIds = [ethCaip19]
     const ethBalance = '42069'
     const balances = {
       [ethCaip19]: ethBalance
     }
     ;(Object.values(HistoryTimeframe) as Array<HistoryTimeframe>).forEach(timeframe => {
-      const bucketsAndMeta = makeBuckets({ assets, balances, timeframe })
+      const bucketsAndMeta = makeBuckets({ assetIds, balances, timeframe })
       expect(bucketsAndMeta.buckets.length).toEqual(timeframeMap[timeframe].count)
       bucketsAndMeta.buckets.forEach(bucket => {
         const { balance } = bucket
         expect(balance.fiat.toNumber()).toEqual(0)
-        expect(Object.keys(balance.crypto)).toEqual(assets)
+        expect(Object.keys(balance.crypto)).toEqual(assetIds)
         expect(balance.crypto[ethCaip19]).toEqual(bn(ethBalance))
       })
     })
@@ -53,9 +53,9 @@ describe('bucketTxs', () => {
     const balances = {
       [foxCaip19]: value
     }
-    const assets = [foxCaip19]
+    const assetIds = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
-    const buckets = makeBuckets({ assets, balances, timeframe })
+    const buckets = makeBuckets({ assetIds, balances, timeframe })
 
     const txs = [FOXSend]
 
@@ -90,9 +90,9 @@ describe('calculateBucketPrices', () => {
     const balances = {
       [foxCaip19]: '0'
     }
-    const assets = [foxCaip19]
+    const assetIds = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
-    const emptyBuckets = makeBuckets({ assets, balances, timeframe })
+    const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
 
     const txs = [FOXSend]
 
@@ -111,7 +111,7 @@ describe('calculateBucketPrices', () => {
 
     const calculatedBuckets = calculateBucketPrices({
       accountTypes,
-      assets,
+      assetIds,
       buckets,
       priceHistoryData,
       portfolioAssets
@@ -128,7 +128,7 @@ describe('calculateBucketPrices', () => {
     const balances = {
       [ethCaip19]: '52430152924656054'
     }
-    const assets = [ethCaip19]
+    const assetIds = [ethCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const priceHistoryData: PriceHistoryData = {
       [ethCaip19]: [{ price: 0, date: String() }]
@@ -137,7 +137,7 @@ describe('calculateBucketPrices', () => {
       [ethCaip19]: ethereum
     }
 
-    const emptyBuckets = makeBuckets({ assets, balances, timeframe })
+    const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     const buckets = bucketTxs(txs, emptyBuckets)
 
     const accountTypes = {
@@ -146,7 +146,7 @@ describe('calculateBucketPrices', () => {
 
     const calculatedBuckets = calculateBucketPrices({
       accountTypes,
-      assets,
+      assetIds,
       buckets,
       priceHistoryData,
       portfolioAssets

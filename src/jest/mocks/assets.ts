@@ -7,6 +7,7 @@ import {
 } from '@shapeshiftoss/types'
 
 export const rune: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
   name: 'THORChain  ERC20 ',
   precision: 18,
@@ -28,6 +29,7 @@ export const rune: Asset = {
 }
 
 export const ethereum: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/slip44:60',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,
@@ -47,6 +49,7 @@ export const ethereum: Asset = {
 }
 
 export const aapl: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0x41efc0253ee7ea44400abb5f907fdbfdebc82bec',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,
@@ -68,6 +71,7 @@ export const aapl: Asset = {
 }
 
 export const zero: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,
@@ -89,6 +93,7 @@ export const zero: Asset = {
 }
 
 export const fox: Asset = {
+  caip2: 'eip155:1',
   caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   chain: ChainTypes.Ethereum,
   dataSource: AssetDataSource.CoinGecko,

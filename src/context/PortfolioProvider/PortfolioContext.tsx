@@ -1,54 +1,55 @@
-import React, { useContext, useEffect } from 'react'
+import isEmpty from 'lodash/isEmpty'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Balances, useBalances } from 'hooks/useBalances/useBalances'
-import { usePubkeys } from 'hooks/usePubkeys/usePubkeys'
-import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
-import { assetApi, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
+import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
-  selectPortfolioAssetIds,
-  useGetAccountsQuery
+  marketApi,
+  selectMarketData,
+  useFindAllQuery
+} from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  portfolio,
+  portfolioApi,
+  selectPortfolioAssetIds
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
-type PortfolioContextProps = {
-  totalBalance: number
-  loading: boolean
-  balances: Balances
-}
-
-const PortfolioContext = React.createContext<PortfolioContextProps | null>(null)
-
+// TODO(0xdef1cafe): make this a data provider
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
-  // these get replaced by selectors
-  const { balances, loading } = useBalances()
-  const totalBalance = useTotalBalance(balances)
   const dispatch = useDispatch()
-
-  // we always want to load asset and market cap data for the app to work
+  // immediately load all assets, before the wallet is even connected,
+  // so the app is functional and ready
   useGetAssetsQuery()
+
+  // load top 1000 assets market data
+  // this is needed to sort assets by market cap
+  // and covers most assets users will have
   useFindAllQuery()
+  const accountSpecifiers = useAccountSpecifiers()
 
-  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
-
-  const pubkeys = usePubkeys() // pubkeys change when the wallet changes
-  const { isLoading: isPortfolioLoading } = useGetAccountsQuery(pubkeys)
-
-  // eagerly load asset descriptions
+  // once the wallet is connected, reach out to unchained to fetch
+  // accounts for each chain/account specifier combination
   useEffect(() => {
-    if (isPortfolioLoading) return
+    if (isEmpty(accountSpecifiers)) return
+    // clear the old portfolio, we have different non null data, we're switching wallet
+    dispatch(portfolio.actions.clearPortfolio())
+    // fetch each account
+    accountSpecifiers.forEach(accountSpecifier =>
+      dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier))
+    )
+  }, [dispatch, accountSpecifiers])
+
+  // we only prefetch market data for the top 1000 assets
+  // once the portfolio has loaded, check we have market data
+  // for more obscure assets, if we don't have it, fetch it
+  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
+  const marketData = useSelector(selectMarketData)
+  useEffect(() => {
     if (!portfolioAssetIds.length) return
-    dispatch(assetApi.endpoints.getAssetDescriptions.initiate(portfolioAssetIds))
-  }, [isPortfolioLoading, portfolioAssetIds, dispatch])
+    portfolioAssetIds.forEach(assetId => {
+      if (!marketData[assetId]) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
+    })
+  }, [portfolioAssetIds, marketData, dispatch])
 
-  return (
-    <PortfolioContext.Provider value={{ totalBalance, loading, balances }}>
-      {children}
-    </PortfolioContext.Provider>
-  )
-}
-
-export const usePortfolio = () => {
-  const context = useContext(PortfolioContext)
-  if (!context) throw new Error("usePortfolio can't be used outside of a PortfolioProvider")
-  return context
+  return <>{children}</>
 }

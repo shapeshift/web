@@ -2,13 +2,9 @@ import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
-import {
-  FindAllMarketArgs,
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  MarketData
-} from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import { isEmpty } from 'lodash'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
 type PriceHistoryByTimeframe = {
@@ -19,23 +15,14 @@ type PriceHistoryByTimeframe = {
 
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
-  marketCap?: MarketCapResult // remove this as it's the same as marketData.byId
-  marketData: {
-    byId: {
-      [k: CAIP19]: MarketData
-    }
-    ids: CAIP19[]
+  byId: {
+    [k: CAIP19]: MarketData
   }
+  ids: CAIP19[]
   priceHistory: PriceHistoryByTimeframe
 }
 
-export const fetchMarketData = createAsyncThunk(
-  'marketData/fetchMarketData',
-  async (caip: CAIP19) => {
-    return findByCaip19({ caip19: caip })
-  }
-)
-
+// TODO(0xdef1cafe): put this in the marketApi, fetch individually, kill usePriceHistory hook!
 export const fetchPriceHistory = createAsyncThunk(
   'marketData/priceHistory',
   async ({ assets, timeframe }: { assets: CAIP19[]; timeframe: HistoryTimeframe }) => {
@@ -59,18 +46,7 @@ export const fetchPriceHistory = createAsyncThunk(
   }
 )
 
-export const fetchMarketCaps = createAsyncThunk('marketData/fetchMarketCaps', async () => {
-  try {
-    const args: FindAllMarketArgs = { pages: 1, perPage: 250 }
-    const marketCap = await findAll(args)
-    return { marketCap }
-  } catch (error) {
-    console.error(error)
-    return {}
-  }
-})
-
-const initialPriceHistory = {
+const initialPriceHistory: PriceHistoryByTimeframe = {
   [HistoryTimeframe.HOUR]: {},
   [HistoryTimeframe.DAY]: {},
   [HistoryTimeframe.WEEK]: {},
@@ -80,10 +56,8 @@ const initialPriceHistory = {
 }
 
 const initialState: MarketDataState = {
-  marketData: {
-    byId: {},
-    ids: []
-  },
+  byId: {},
+  ids: [],
   priceHistory: initialPriceHistory,
   loading: false
 }
@@ -93,11 +67,11 @@ export const marketData = createSlice({
   initialState,
   reducers: {
     setMarketData: (state, { payload }) => {
-      state.marketData.byId = { ...state.marketData.byId, ...payload } // upsert
-      const ids = Array.from(new Set([...state.marketData.ids, ...Object.keys(payload)]))
-      state.marketData.ids = ids // upsert unique
+      state.byId = { ...state.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
+      state.ids = ids // upsert unique
     },
-    setPriceHistory: (state, { payload }: { payload: Partial<typeof initialPriceHistory> }) => {
+    setPriceHistory: (state, { payload }: { payload: PriceHistoryByTimeframe }) => {
       state.priceHistory = { ...state.priceHistory, ...payload } // upsert
     }
   },
@@ -111,32 +85,6 @@ export const marketData = createSlice({
     builder.addCase(fetchPriceHistory.fulfilled, (state, { payload, meta }) => {
       const { assets, timeframe } = meta.arg
       payload.forEach((priceData, idx) => (state.priceHistory[timeframe][assets[idx]] = priceData))
-      state.loading = false
-    })
-    builder.addCase(fetchMarketData.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchMarketData.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchMarketData.fulfilled, (state, { payload, meta }) => {
-      const assetCAIP19 = meta.arg
-      if (payload) {
-        state.marketData.byId[assetCAIP19] = payload
-        if (!state.marketData.ids.includes(assetCAIP19)) state.marketData.ids.push(assetCAIP19)
-      }
-      state.loading = false
-    })
-    builder.addCase(fetchMarketCaps.pending, state => {
-      state.loading = true
-    })
-    builder.addCase(fetchMarketCaps.rejected, state => {
-      state.loading = false
-    })
-    builder.addCase(fetchMarketCaps.fulfilled, (state, { payload }) => {
-      const { marketCap } = payload
-      if (!marketCap) return
-      state.marketCap = marketCap
       state.loading = false
     })
   }
@@ -162,9 +110,15 @@ export const marketApi = createApi({
     }),
     findByCaip19: build.query<MarketCapResult, CAIP19>({
       queryFn: async (caip19: CAIP19) => {
-        const marketData = await findByCaip19({ caip19 })
-        const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
-        return marketData ? { data: { [caip19]: marketData } } : { error }
+        try {
+          const marketData = await findByCaip19({ caip19 })
+          if (!marketData) throw new Error()
+          const data = { [caip19]: marketData }
+          return { data }
+        } catch (e) {
+          const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
+          return { error }
+        }
       },
       onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
         await cacheDataLoaded
@@ -200,13 +154,40 @@ export const marketApi = createApi({
 
 export const { useFindAllQuery, useFindByCaip19Query, useFindPriceHistoryByCaip19Query } = marketApi
 
+export const selectMarketData = (state: ReduxState) => state.marketData.byId
+
+const selectAssetId = (_state: ReduxState, assetId: CAIP19) => assetId
+
 export const selectMarketDataById = createSelector(
-  (state: ReduxState) => state.marketData.marketData.byId,
-  (_state: ReduxState, id: CAIP19) => id,
-  (byId, id) => byId[id]
+  selectMarketData,
+  selectAssetId,
+  (marketData, assetId) => marketData[assetId]
 )
 
-export const selectMarketData = (state: ReduxState) => state.marketData.marketData.byId
-
 // assets we have loaded market data for
-export const selectAvailableMarketDataIds = (state: ReduxState) => state.marketData.marketData.ids
+export const selectMarketDataIds = (state: ReduxState) => state.marketData.ids
+
+// if we don't have it it's loading
+export const selectMarketDataLoadingById = createSelector(
+  selectMarketDataById,
+  (assetMarketData): boolean => isEmpty(assetMarketData)
+)
+
+export const selectPriceHistory = (state: ReduxState) => state.marketData.priceHistory
+
+export const selectMarketAssetPercentChangeById = createSelector(
+  selectMarketData,
+  selectPriceHistory,
+  (_state: ReduxState, args: { assetId: CAIP19; timeframe: HistoryTimeframe }) => args,
+  (marketData, priceHistory, { assetId, timeframe }): number => {
+    const naivePriceChange = marketData?.[assetId]?.changePercent24Hr
+    const assetPriceHistory = priceHistory[timeframe]?.[assetId]
+    const start = assetPriceHistory?.[0]?.price
+    const end = assetPriceHistory?.[assetPriceHistory.length - 1]?.price
+    if (!(start && end)) return naivePriceChange
+    const startBn = bnOrZero(start)
+    const startAbs = startBn.abs()
+    const endBn = bnOrZero(end)
+    return endBn.minus(startBn).div(startAbs).times(100).decimalPlaces(2).toNumber()
+  }
+)

@@ -27,14 +27,16 @@ import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { useBalances } from 'hooks/useBalances/useBalances'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { fromBaseUnit } from 'lib/math'
 import { useAsset } from 'pages/Assets/Asset'
-import { usePercentChange } from 'pages/Assets/hooks/usePercentChange/usePercentChange'
 import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { useTotalBalance } from 'pages/Dashboard/hooks/useTotalBalance/useTotalBalance'
+import { selectMarketAssetPercentChangeById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectPortfolioCryptoHumanBalanceById,
+  selectPortfolioFiatBalanceById
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './AssetActions'
@@ -51,8 +53,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [view, setView] = useState(Views.Price)
   const { name, symbol, description, icon } = asset || {}
-  const { changePercent24Hr, price } = marketData || {}
-  const percentChange = changePercent24Hr ?? 0
+  const { price } = marketData || {}
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -75,17 +76,19 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const assetPriceHistoryData = useMemo(() => {
     if (isEmpty(priceHistoryData[asset?.caip19])) return []
     return priceHistoryData[asset.caip19].map(({ price, date }) => ({
-      price, // TODO(0xdef1cafe): update charts to accept price or balance
+      price,
       date: new Date(Number(date)).toISOString()
     }))
   }, [priceHistoryData, asset])
 
-  const graphPercentChange = usePercentChange({
-    data: assetPriceHistoryData,
-    initPercentChange: percentChange
-  })
-  const { balances } = useBalances()
-  const totalBalance = useTotalBalance({ [asset.caip19]: balances[asset.caip19] })
+  const graphPercentChange = useAppSelector(state =>
+    selectMarketAssetPercentChangeById(state, { assetId: asset.caip19, timeframe })
+  )
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceById(state, asset.caip19)
+  )
+  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
+  // TODO(0xdef1cafe): use the balance chart component here
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assets,
     timeframe
@@ -166,18 +169,14 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                     color={graphPercentChange > 0 ? 'green.500' : 'red.500'}
                   >
                     <StatArrow type={graphPercentChange > 0 ? 'increase' : 'decrease'} />
-                    <RawText>{graphPercentChange.toFixed(2)}%</RawText>
+                    <RawText>{graphPercentChange}%</RawText>
                   </StatNumber>
                 </Skeleton>
               </Stat>
               {view === Views.Balance && (
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
-                    <StatNumber>
-                      {`${fromBaseUnit(balances[asset.caip19]?.balance ?? '0', asset.precision)}${
-                        asset.symbol
-                      }`}
-                    </StatNumber>
+                    <StatNumber>{`${cryptoBalance}${asset.symbol}`}</StatNumber>
                   </Skeleton>
                 </Stat>
               )}

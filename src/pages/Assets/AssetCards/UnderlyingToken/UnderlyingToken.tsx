@@ -1,7 +1,6 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { Asset, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import toLower from 'lodash/toLower'
@@ -11,7 +10,6 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useFeature } from 'hooks/useFeature/useFeature'
 
 type UnderlyingTokenProps = {
   asset: Asset
@@ -20,9 +18,7 @@ type UnderlyingTokenProps = {
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
 export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
-  const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
-  const [balance, setBalance] = useState('')
   const { loading, yearn } = useYearn()
 
   // account info
@@ -33,21 +29,13 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
   } = useWallet()
 
   const vault = SUPPORTED_VAULTS.find(_vault => _vault.vaultAddress === asset.tokenId)
-  const shouldHide = !earnFeature || !asset.tokenId || !yearn || !vault
+  const shouldHide = !asset.tokenId || !yearn || !vault
 
   useEffect(() => {
     ;(async () => {
       try {
         if (shouldHide || !wallet) return
-        const [token, userAddress] = await Promise.all([
-          yearn.token({ vaultAddress: asset.tokenId! }),
-          chainAdapter.getAddress({ wallet })
-        ])
-        const _balance = await yearn.balance({
-          vaultAddress: asset.tokenId!,
-          userAddress
-        })
-        setBalance(_balance.toString())
+        const token = await yearn.token({ vaultAddress: asset.tokenId! })
         const chain = asset.chain
         const network = NetworkTypes.MAINNET
         const contractType = ContractTypes.ERC20
@@ -94,7 +82,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
               display={{ base: 'none', lg: 'block' }}
             />
           </Grid>
-          <AccountRow allocationValue={100} balance={balance} CAIP19={underlyingCAIP19} />
+          <AccountRow allocationValue={100} CAIP19={underlyingCAIP19} />
         </Stack>
       </Card.Body>
     </Card>

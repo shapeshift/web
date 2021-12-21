@@ -59,17 +59,41 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
         4. Bootloader/firmware upgrades and device initialization do NOT change this value
         5. Every KeepKey will have an alias DeviceID until a "wipe" is called
        */
-      const id = keyring.getAlias(deviceId)
-      if (id === state.walletInfo?.deviceId) {
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+      try {
+        const id = keyring.getAlias(deviceId)
+        const wallet = keyring.get(id)
+        if (wallet && id === state.walletInfo?.deviceId) {
+          // This gets the firmware version needed for some KeepKey "supportsX" functions
+          await wallet.getFeatures()
+          // Show the label from the wallet instead of a generic name
+          const name = (await wallet.getLabel()) || state.walletInfo.name
+          // The keyring might have a new HDWallet instance for the device.
+          // We'll replace the one we have in state with the new one
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              deviceId: id,
+              icon: state.walletInfo.icon // We're reconnecting the same wallet so we can reuse the walletInfo
+            }
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        }
+      } catch (e) {
+        console.error('Device Connected Error: ', e)
       }
     }
 
     const handleDisconnect = async (deviceId: string) => {
       console.info('Device Disconnected: ', deviceId)
-      const id = keyring.getAlias(deviceId)
-      if (id === state.walletInfo?.deviceId) {
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      try {
+        const id = keyring.getAlias(deviceId)
+        if (id === state.walletInfo?.deviceId) {
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+        }
+      } catch (e) {
+        console.error('Device Disconnect Error:', e)
       }
     }
 
@@ -84,5 +108,5 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
     }
-  }, [dispatch, keepkeyPassphrase, keepkeyPin, keyring, state.walletInfo?.deviceId])
+  }, [dispatch, keepkeyPassphrase, keepkeyPin, keyring, state.walletInfo])
 }

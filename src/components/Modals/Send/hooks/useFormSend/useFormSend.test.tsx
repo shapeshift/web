@@ -6,7 +6,7 @@ import {
   NetworkTypes,
   UtxoAccountType
 } from '@shapeshiftoss/types'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -110,89 +110,83 @@ describe('useFormSend', () => {
   })
 
   it('handles successfully sending a tx', async () => {
-    return await act(async () => {
-      const toaster = jest.fn()
-      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: {
-          wallet: {
-            supportsOfflineSigning: jest.fn().mockReturnValue(true)
-          }
+    const toaster = jest.fn()
+    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: {
+        wallet: {
+          supportsOfflineSigning: jest.fn().mockReturnValue(true)
         }
-      }))
+      }
+    }))
 
-      const sendClose = jest.fn()
-      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-        byChain: () => ({
-          buildSendTransaction: () => Promise.resolve(textTxToSign),
-          signTransaction: () => Promise.resolve(testSignedTx),
-          broadcastTransaction: () => Promise.resolve(expectedTx),
-          getType: () => ChainTypes.Ethereum
-        })
-      }))
+    const sendClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: () => ({
+        buildSendTransaction: () => Promise.resolve(textTxToSign),
+        signTransaction: () => Promise.resolve(testSignedTx),
+        broadcastTransaction: () => Promise.resolve(expectedTx),
+        getType: () => ChainTypes.Ethereum
+      })
+    }))
 
-      const { result } = renderHook(() => useFormSend())
-      await result.current.handleSend(formData)
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-    })
+    const { result } = renderHook(() => useFormSend())
+    await result.current.handleSend(formData)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending a tx without offline signing', async () => {
-    return await act(async () => {
-      const toaster = jest.fn()
-      const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
-      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: {
-          wallet: {
-            supportsOfflineSigning: jest.fn().mockReturnValue(false),
-            supportsBroadcast: jest.fn().mockReturnValue(true)
-          }
+    const toaster = jest.fn()
+    const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
+    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: {
+        wallet: {
+          supportsOfflineSigning: jest.fn().mockReturnValue(false),
+          supportsBroadcast: jest.fn().mockReturnValue(true)
         }
-      }))
+      }
+    }))
 
-      const sendClose = jest.fn()
-      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-        byChain: () => ({
-          buildSendTransaction: () => Promise.resolve(textTxToSign),
-          signAndBroadcastTransaction,
-          getType: () => ChainTypes.Ethereum
-        })
-      }))
+    const sendClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: () => ({
+        buildSendTransaction: () => Promise.resolve(textTxToSign),
+        signAndBroadcastTransaction,
+        getType: () => ChainTypes.Ethereum
+      })
+    }))
 
-      const { result } = renderHook(() => useFormSend())
-      await result.current.handleSend(formData)
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-      expect(signAndBroadcastTransaction).toHaveBeenCalled()
-    })
+    const { result } = renderHook(() => useFormSend())
+    await result.current.handleSend(formData)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
+    expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
   it('handles a failure while sending a tx', async () => {
-    return await act(async () => {
-      const toaster = jest.fn()
-      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: { wallet: {} }
-      }))
+    const toaster = jest.fn()
+    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: { wallet: {} }
+    }))
 
-      const sendClose = jest.fn()
-      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-        byChain: () => ({
-          buildSendTransaction: () => Promise.reject('All these calls failed'),
-          signTransaction: () => Promise.reject('All these calls failed'),
-          broadcastTransaction: () => Promise.reject('All these calls failed')
-        })
-      }))
+    const sendClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: () => ({
+        buildSendTransaction: () => Promise.reject('All these calls failed'),
+        signTransaction: () => Promise.reject('All these calls failed'),
+        broadcastTransaction: () => Promise.reject('All these calls failed')
+      })
+    }))
 
-      const { result } = renderHook(() => useFormSend())
-      await result.current.handleSend(formData)
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
-      expect(sendClose).toHaveBeenCalled()
-    })
+    const { result } = renderHook(() => useFormSend())
+    await result.current.handleSend(formData)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 })

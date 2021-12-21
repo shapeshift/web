@@ -128,104 +128,21 @@ Runs the component documentation.<br /> Open
 
 ### Linking
 
-If you are working with any @shapeshiftoss dependencies use `yarn link`
-These next steps will show you how to link to the `chain-adapters` repo
-From your projects folder:
+The lib repository contains packages used in multiple ShapeShift repositories, and is often needed to run projects locally. 
+To use the latest version of lib when running the web app, it is necessary to use yarn link so that you can use local
+changes to lib in your local web repo.
 
-1. `cd ./lib/chain-adapters && yarn link`
-2. `cd ..../web/ && yarn link @shapeshiftoss/chain-adapters`
+1. Clone lib and unchained repos
+3. Go into lib and run yarn link - you only have to do this the first time to get things setup
+4. Go into unchained, then cd packages/client and yarn link, then do the same in packages/parser - again, this only has to be done the initial time
+5. If you're working in web and need to make changes in lib or unchained, run yarn link-packages in web to use local versions of them
+6. `yarn show-linked-packages` will show what's currently linked
+7. If you're done developing locally `yarn unlink-packages` to use published upstream versions
 
 Now your web's chain-adapters have a symlink to your lib's
 
-You can use `yarn run show-linked-packages` to show what is currently symlinked via yarn
-
 ## Developer Onboarding
-
-1.  Create your own fork of the project.
-2.  (optional) Install [Pull](https://github.com/apps/pull) so that your fork automatically stays up-to-date with changes from the ShapeShift repo.
-3.  Install [Git Credential Manager](https://github.com/GitCredentialManager/git-credential-manager/releases)
-    so that you don't need to authenticate when executing git commands.
-
-        (Note that the Linux packages for versions 2.0.567 and 2.0.605, which are the two latest versions at time of writing, are broken. Until a fixed version is released, you'll want to use [2.0.498](https://github.com/GitCredentialManager/git-credential-manager/releases/tag/v2.0.498).)
-
-        On Debian-based Linux distros, including Ubuntu, Mint, and Pop OS, download the `.deb` package for the version you want to install. Then run:
-
-        ```sh
-        sudo dpkg -i '<path to .deb file>'
-        git-credential-manager-core configure
-        git config --global credential.credentialStore secretservice
-        ```
-
-4.  Check out a copy of your fork on your local machine.
-    ```sh
-    git clone https://github.com/<username>/<fork name>
-    cd <fork name>
-    git remote add upstream https://github.com/shapeshift/web
-    ```
-
-## Developer Workflow
-
-1. Create a new feature branch.
-
-   ```sh
-   git checkout -b <new branch name> # Use -B instead to overwrite an existing branch with the same name
-   ```
-
-2. Make your desired changes.
-3. Run tests with `yarn test` as described in [Commands](#commands)
-4. Push your feature branch up to your fork.
-
-   ```sh
-   git push
-   ```
-
-5. (optional) Sometimes, if other changes have been made in the ShapeShift repo, the changes in your branch may conflict. GitHub will let you know about these conflicts when you create a pull request.
-
-   If this happens, rebase your feature branch. This process takes the changes you've made and tries to make them again, starting with the lastest code from the ShapeShift repo. You'll be asked to resolve any conflicts as they come up.
-
-   ```sh
-   # Fetch the latest changes from the ShapeShift repo
-   git fetch upstream
-   # Re-apply your changes to the latest ShapeShift code (you can leave out the -i flag if you don't care about seeing the preview of what will happen)
-   git rebase -i upstream/develop
-   # Update your fork with the resolutions
-   git push --force-with-lease
-   ```
-
-6. Create a pull request on Github. (You can do this at `https://github.com/<username>/<fork name>/pull/new/<branch name>`.)
-
-   Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
-
-7. Post a link to your new pull request in `#engineering-prs` in the [Discord](https://discord.gg/shapeshift)
-8. (optional) Return to the `develop` branch to get ready to start another task.
-
-   If you use the Pull app to keep your fork up-to-date:
-
-   ```sh
-   # Check out your local copy's develop branch
-   git checkout develop
-   # Update your local copy to match your fork; the Pull app will make sure your fork always matches the ShapeShift repo
-   git pull --ff-only
-   ```
-
-   If you prefer to keep your fork up-to-date manually:
-
-   ```sh
-   # Check out your local copy's develop branch
-   git checkout develop
-   # Fetch changes from the ShapeShift repo
-   git fetch upstream
-   # Reset your local copy to match the ShapeShift repo
-   git reset --hard upstream/develop
-   # Update your fork to match your updated local copy
-   git push --force-with-lease
-   ```
-
-9. (optional) Once your PR is accepted, you may want to tidy up by deleting your local copy's branch and/or your fork's branch.
-
-   ```sh
-   # Delete your local branch
-   git branch -D <branch name>
-   # Delete your fork's branch
-   git push origin -d <branch name>
-   ```
+1. Create a pull request on Github. (You can do this at `https://github.com/<username>/<fork name>/pull/new/<branch name>`.)
+2. Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
+3. Post a link to your new pull request in `#engineering-prs` in the [Discord](https://discord.gg/shapeshift)
+4. (optional) Return to the `develop` branch to get ready to start another task.

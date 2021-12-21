@@ -120,7 +120,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
       (acc: Record<string, MergedEarnVault>, [vaultAddress, vault]) => {
-        const asset = assets[vaultAddress]
+        const asset = assets[vault.vaultCaip19]
         const fiatAmount = makeVaultFiatAmount(vault)
         const yearnVault = yearn?.findByVaultTokenId(vaultAddress)
         acc[vaultAddress] = {

@@ -1,5 +1,5 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Flex, Link, Stack } from '@chakra-ui/react'
+import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
@@ -13,9 +13,11 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
+import { useSelector } from 'react-redux'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -26,7 +28,10 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectPortfolioCryptoBalanceById } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  selectPortfolioCryptoBalanceById,
+  selectPortfolioLoading
+} from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
@@ -73,6 +78,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceById(state, assetCAIP19))
+  const loading = useSelector(selectPortfolioLoading)
 
   // navigation
   const memoryHistory = useHistory()
@@ -412,6 +418,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         throw new Error('Route does not exist')
     }
   }
+
+  if (loading || !asset || !marketData)
+    return (
+      <Center minW='350px' minH='350px'>
+        <CircularProgress />
+      </Center>
+    )
 
   return (
     <Flex

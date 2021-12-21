@@ -63,7 +63,7 @@ On Linux and MacOS it works out of the box following the steps.<br/>
   cp sample.env .env
   ```
 
-### `.env`
+### .env
 
 The `.env` file contains environment variables that the program needs to function properly. Some of these variables are deployment-specific, so they aren't included in the repository.
 

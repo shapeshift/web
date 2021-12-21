@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -7,23 +6,25 @@ import {
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectPortfolioCryptoBalanceById,
+  selectPortfolioCryptoHumanBalanceById,
+  selectPortfolioFiatBalanceById
+} from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
 import { SendRoutes } from '../../Send'
-import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 
@@ -35,43 +36,37 @@ type UseSendDetailsReturnType = {
   handleSendMax(): Promise<void>
   loading: boolean
   toggleCurrency(): void
-  accountBalances: {
-    crypto: BigNumber
-    fiat: BigNumber
-  }
+  cryptoHumanBalance: BigNumber
+  fiatBalance: BigNumber
 }
 
+// TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
+// i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
-  const toast = useToast()
-  const translate = useTranslate()
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
-  const { balances, error: balanceError, loading: balancesLoading } = useBalances()
-  const { assetBalance, accountBalances } = useAccountBalances({ asset, balances })
+
+  const balancesLoading = false
+  const cryptoHumanBalance = bnOrZero(
+    useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, asset.caip19))
+  )
+  const fiatBalance = bnOrZero(
+    useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
+  )
+  const assetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceById(state, asset.caip19)
+  )
   const chainAdapterManager = useChainAdapters()
   const {
     state: { wallet }
   } = useWallet()
 
   const { chain, tokenId } = asset
-
-  useEffect(() => {
-    if (balanceError) {
-      toast({
-        status: 'error',
-        description: translate(`modals.send.getBalanceError`),
-        duration: 4000,
-        isClosable: true,
-        position: 'top-right'
-      })
-      history.push(SendRoutes.Address)
-    }
-  }, [balanceError, toast, history, translate])
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
@@ -163,7 +158,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         case ChainTypes.Ethereum: {
           const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
           const contractAddress = tokenId
-          const value = assetBalance.balance
+          const value = assetBalance
           adapterFees = await ethAdapter.getFeeData({
             to,
             value,
@@ -187,7 +182,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
           const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
-          const value = assetBalance.balance
+          const value = assetBalance
           adapterFees = await btcAdapter.getFeeData({
             to,
             value,
@@ -207,10 +202,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const networkFee = bnOrZero(bn(fastFee).div(`1e${asset.precision}`))
 
       if (asset.tokenId) {
-        setValue(SendFormFields.CryptoAmount, accountBalances.crypto.toPrecision())
-        setValue(SendFormFields.FiatAmount, accountBalances.fiat.toFixed(2))
+        setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
+        setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
       } else {
-        const maxCrypto = accountBalances.crypto.minus(networkFee)
+        const maxCrypto = cryptoHumanBalance.minus(networkFee)
         const maxFiat = maxCrypto.times(price)
         setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
@@ -240,7 +235,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const values = getValues()
 
-      const hasValidBalance = accountBalances.crypto
+      const hasValidBalance = cryptoHumanBalance
         .minus(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
         .gte(values.cryptoAmount)
 
@@ -258,7 +253,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       currentAccountType,
       getValues,
       wallet,
-      accountBalances
+      cryptoHumanBalance,
+      fiatBalance
     ]
   )
 
@@ -273,7 +269,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   return {
     balancesLoading,
     fieldName,
-    accountBalances,
+    cryptoHumanBalance,
+    fiatBalance,
     handleInputChange,
     handleNextClick,
     handleSendMax,

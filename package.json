@@ -39,18 +39,23 @@
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.2",
     "bip39": "^3.0.4",
+    "browserify-zlib": "^0.2.0",
     "bs58check": "^2.1.2",
+    "buffer": "^6.0.3",
     "chakra-ui-steps": "^1.5.0",
+    "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
     "dompurify": "^2.3.2",
     "envalid": "^7.2.1",
     "framer-motion": "^4",
+    "https-browserify": "^1.0.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
     "node-polyglot": "^2.4.0",
     "numeral": "^2.0.6",
+    "process": "^0.11.10",
     "qr-image": "^3.2.0",
     "qs": "^6.10.1",
     "react": "^17.0.2",
@@ -66,13 +71,15 @@
     "react-qr-reader": "^2.2.1",
     "react-redux": "^7.2.6",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
+    "react-scripts": "5.0.0",
     "react-text-mask": "^5.4.3",
     "react-virtualized-auto-sizer": "^1.0.5",
     "react-window": "^1.8.6",
     "redux-persist": "^6.0.0",
     "reselect": "^4.1.5",
     "scrypt-js": "^3.0.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
     "web-vitals": "^2.1.0",
     "web3": "^1.6.1"
   },
@@ -80,7 +87,7 @@
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
     "link-packages": "./scripts/link-packages.sh",
     "unlink-packages": "find node_modules node_modules/@* -depth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node headers.js && ./scripts/sha256sums.sh",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node headers.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
     "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
@@ -160,7 +167,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.3.2",
-    "react-app-rewired": "^2.1.8",
+    "react-app-rewired": "^2.1.9",
     "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",
     "typescript": "^4.5.2",
@@ -170,5 +177,10 @@
   "resolutions": {
     "babel-loader": "8.1.0"
   },
-  "config-overrides-path": "react-app-rewired.config.js"
+  "config-overrides-path": "react-app-rewired.config.js",
+  "fork-ts-checker": {
+    "typescript": {
+      "memoryLimit": 4096
+    }
+  }
 }

@@ -3,7 +3,6 @@ import {
   Alert,
   AlertDescription,
   Box,
-  Center,
   Flex,
   Link,
   Stack,
@@ -30,18 +29,17 @@ import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useBalances } from 'hooks/useBalances/useBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectPortfolioCryptoBalanceById } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
@@ -92,7 +90,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const { balances, loading } = useBalances()
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceById(state, assetCAIP19))
 
   // navigation
   const memoryHistory = useHistory()
@@ -312,8 +310,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleCancel = () => {
     browserHistory.goBack()
   }
-
-  const balance = balances[assetCAIP19]?.balance
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
@@ -603,13 +599,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         throw new Error('Route does not exist')
     }
   }
-
-  if (loading || !asset || !marketData)
-    return (
-      <Center minW='350px' minH='350px'>
-        <CircularProgress />
-      </Center>
-    )
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)

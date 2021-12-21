@@ -14,6 +14,7 @@ import {
   Stack
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import isNil from 'lodash/isNil'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -50,8 +51,18 @@ export const Details = () => {
     toggleCurrency
   } = useSendDetails()
 
-  if (!(asset && asset?.name && cryptoAmount && cryptoSymbol && fiatAmount && fiatSymbol))
+  if (
+    !(
+      asset &&
+      asset?.name &&
+      !isNil(cryptoAmount) &&
+      cryptoSymbol &&
+      !isNil(fiatAmount) &&
+      fiatSymbol
+    )
+  ) {
     return null
+  }
 
   return (
     <SlideTransition loading={balancesLoading}>

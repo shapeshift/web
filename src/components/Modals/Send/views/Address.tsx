@@ -35,7 +35,7 @@ export const Address = () => {
   const chainAdapters = useChainAdapters()
   const { send } = useModal()
 
-  if (!(asset?.chain && asset?.name && address)) return null
+  if (!(asset?.chain && asset?.name)) return null
 
   const adapter = chainAdapters.byChain(asset.chain)
 

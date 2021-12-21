@@ -8,8 +8,8 @@ function setup<T>() {
   const onInit = jest.fn()
   const onDestroy = jest.fn()
 
-  const hook = renderHook(() => useRefCallback<T>({ onInit, onDestroy }))
-  return { ...hook, onInit, onDestroy }
+  const { result, rerender } = renderHook(() => useRefCallback<T>({ onInit, onDestroy }))
+  return { result, rerender, onInit, onDestroy }
 }
 
 describe('useRefCallback', () => {

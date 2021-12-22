@@ -80,7 +80,6 @@ const formData: SendInput = {
   [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
-  [SendFormFields.Transaction]: {},
   [SendFormFields.SendMax]: false
 }
 

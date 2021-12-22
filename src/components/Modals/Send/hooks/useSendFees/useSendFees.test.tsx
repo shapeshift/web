@@ -13,7 +13,8 @@ jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
   ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
-  selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset
+  selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
+  selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset
 }))
 
 const fees = {

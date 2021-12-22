@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -15,16 +15,32 @@ export const useSendFees = () => {
   const { asset, estimatedFees } = useWatch({
     control
   })
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, asset.caip19))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const {
     state: { wallet }
   } = useWallet()
 
-  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
+  const price = bnOrZero(
+    useAppSelector(state => selectMarketDataById(state, feeAsset.caip19)).price
+  )
 
   useEffect(() => {
-    if (wallet && asset && feeAsset) {
-      const txFees = (Object.keys(estimatedFees) as chainAdapters.FeeDataKey[]).reduce(
+    if (wallet && asset && feeAsset && estimatedFees) {
+      const initialFees: FeePrice = {
+        slow: {
+          fiatFee: '',
+          txFee: ''
+        },
+        average: {
+          fiatFee: '',
+          txFee: ''
+        },
+        fast: {
+          fiatFee: '',
+          txFee: ''
+        }
+      }
+      const txFees = (Object.keys(estimatedFees) as chainAdapters.FeeDataKey[]).reduce<FeePrice>(
         (acc: FeePrice, key: chainAdapters.FeeDataKey) => {
           const txFee = bnOrZero(estimatedFees[key].txFee)
             .dividedBy(bn(`1e+${feeAsset.precision}`))
@@ -33,7 +49,7 @@ export const useSendFees = () => {
           acc[key] = { txFee, fiatFee }
           return acc
         },
-        {} as FeePrice
+        initialFees
       )
       setFees(txFees)
     }

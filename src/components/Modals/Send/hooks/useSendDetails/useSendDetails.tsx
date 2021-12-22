@@ -15,6 +15,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
+import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoBalanceById,
@@ -51,6 +52,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
 
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const balancesLoading = false
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, asset.caip19))
@@ -136,6 +138,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleSendMax = async () => {
+    // we can always send the full balance of tokens, no need to make network
+    // calls to estimate fees
+    if (feeAsset.caip19 !== asset.caip19) {
+      setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
+      setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      return
+    }
+
     if (assetBalance && wallet) {
       setValue(SendFormFields.SendMax, true)
       setLoading(true)
@@ -198,18 +208,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       setValue(SendFormFields.EstimatedFees, adapterFees)
-      // TODO: get network precision from network asset, not send asset
-      const networkFee = bnOrZero(bn(fastFee).div(`1e${asset.precision}`))
 
-      if (asset.tokenId) {
-        setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
-        setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
-      } else {
-        const maxCrypto = cryptoHumanBalance.minus(networkFee)
-        const maxFiat = maxCrypto.times(price)
-        setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
-        setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
-      }
+      const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
+
+      const maxCrypto = cryptoHumanBalance.minus(networkFee)
+      const maxFiat = maxCrypto.times(price)
+      setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
+      setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       setLoading(false)
     }
   }
@@ -235,12 +240,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const values = getValues()
 
-      const hasValidBalance = cryptoHumanBalance
-        .minus(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
-        .gte(values.cryptoAmount)
+      let hasValidBalance = false
+      // we only need to deduct fees if we're sending the fee asset
+      if (feeAsset.caip19 === asset.caip19) {
+        hasValidBalance = cryptoHumanBalance
+          .minus(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
+          .gte(values.cryptoAmount)
+      } else {
+        hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+      }
 
-      if (!hasValidBalance) setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-      else setValue(SendFormFields.AmountFieldError, '')
+      setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')
     }, 1000),
     [
       asset.price,

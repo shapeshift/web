@@ -9,15 +9,19 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { Balances, useBalances } from 'hooks/useBalances/useBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  PortfolioBalancesById,
+  selectPortfolioBalances,
+  selectPortfolioLoading
+} from 'state/slices/portfolioSlice/portfolioSlice'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
   SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }
 
-async function getYearnVaults(balances: Balances, yearn: YearnVaultApi | null) {
+async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}
   for (let index = 0; index < SUPPORTED_VAULTS.length; index++) {
     // TODO: caip indentifiers in SUPPORTED_VAULTS
@@ -40,7 +44,7 @@ async function getYearnVaults(balances: Balances, yearn: YearnVaultApi | null) {
       const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
       acc[vault.vaultAddress] = {
         ...vault,
-        ...balance,
+        balance,
         vaultCaip19,
         tokenCaip19,
         pricePerShare: bnOrZero(pricePerShare)
@@ -73,10 +77,11 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
-  const { balances, loading: balancesLoading } = useBalances()
+  const balances = useSelector(selectPortfolioBalances)
+  const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!wallet || yearnLoading || balancesLoading) return
+    if (!wallet || yearnLoading) return
     ;(async () => {
       setLoading(true)
       try {
@@ -115,7 +120,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
       (acc: Record<string, MergedEarnVault>, [vaultAddress, vault]) => {
-        const asset = assets[vaultAddress]
+        const asset = assets[vault.vaultCaip19]
         const fiatAmount = makeVaultFiatAmount(vault)
         const yearnVault = yearn?.findByVaultTokenId(vaultAddress)
         acc[vaultAddress] = {

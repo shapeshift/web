@@ -62,7 +62,7 @@ export const Address = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <FormControl isRequired>
+        <FormControl>
           <FormLabel color='gray.500' w='full'>
             {translate('modals.send.sendForm.sendTo')}
           </FormLabel>

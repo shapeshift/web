@@ -11,7 +11,6 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { AssetMarketData } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -32,7 +31,6 @@ export enum SendFormFields {
   CryptoSymbol = 'cryptoSymbol',
   FiatAmount = 'fiatAmount',
   FiatSymbol = 'fiatSymbol',
-  Transaction = 'transaction',
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax'
 }
@@ -40,20 +38,18 @@ export enum SendFormFields {
 export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.AmountFieldError]: string
-  [SendFormFields.Asset]: AssetMarketData
+  [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
   [SendFormFields.CryptoAmount]: string
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
   [SendFormFields.FiatSymbol]: string
-  // TODO(0xdef1cafe): remove this from form state
-  [SendFormFields.Transaction]: unknown
   [SendFormFields.SendMax]: boolean
 }
 
 type SendFormProps = {
-  asset: AssetMarketData
+  asset: Asset
 }
 
 export const Form = ({ asset: initialAsset }: SendFormProps) => {

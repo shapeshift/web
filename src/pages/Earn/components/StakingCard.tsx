@@ -64,7 +64,7 @@ export const StakingCard = ({
           <Stat>
             <Skeleton isLoaded={isLoaded}>
               <StatLabel>
-                <Text translation='earn.rewardValue' />
+                <Text translation='earn.currentValue' />
               </StatLabel>
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>

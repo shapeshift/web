@@ -1,8 +1,8 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, MarketData, NetworkTypes } from '@shapeshiftoss/types'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
 import { ReduxState } from 'state/reducer'
@@ -22,9 +22,6 @@ const getAssetService = async () => {
 
   return service
 }
-
-// TODO(0xdef1cafe): not sure else to put this for now
-export type AssetMarketData = Asset & MarketData
 
 export type AssetsState = {
   byId: {
@@ -129,5 +126,15 @@ export const selectAssetsByMarketCap = createSelector(
     }, [])
     const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
     return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
+  }
+)
+
+export const selectFeeAssetById = createSelector(
+  selectAssets,
+  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (assetsById, assetId): Asset => {
+    const { chain, network } = caip19.fromCAIP19(assetId)
+    const feeAssetId = caip19.toCAIP19({ chain, network })
+    return assetsById[feeAssetId]
   }
 )

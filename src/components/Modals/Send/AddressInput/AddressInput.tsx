@@ -25,6 +25,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
       <Controller
         render={({ field: { onChange, value } }) => (
           <Input
+            spellCheck={false}
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus
             fontSize='sm'
             onChange={onChange}

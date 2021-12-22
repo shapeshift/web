@@ -43,7 +43,8 @@ export const Details = () => {
   const {
     balancesLoading,
     fieldName,
-    accountBalances,
+    cryptoHumanBalance,
+    fiatBalance,
     handleInputChange,
     handleNextClick,
     handleSendMax,
@@ -88,8 +89,8 @@ export const Details = () => {
           // So we're going to cast it since we already did a runtime check that the object exists
           asset={asset as Asset}
           isLoaded={!balancesLoading}
-          cryptoAmountAvailable={accountBalances.crypto.toString()}
-          fiatAmountAvailable={accountBalances.fiat.toString()}
+          cryptoAmountAvailable={cryptoHumanBalance.toString()}
+          fiatAmountAvailable={fiatBalance.toString()}
           showCrypto={fieldName === SendFormFields.CryptoAmount}
           onClick={() => history.push('/send/select')}
           mb={2}

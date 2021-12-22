@@ -80,7 +80,7 @@
     "farmingBalance": "Farming Balance",
     "liquidityPoolBalance": "Liquidity Pool Balance",
     "poolValue": "Pool Value",
-    "rewardValue": "Reward Value",
+    "currentValue": "Current Value",
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",

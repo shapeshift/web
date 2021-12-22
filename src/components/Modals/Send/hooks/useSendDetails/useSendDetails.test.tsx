@@ -1,3 +1,4 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
@@ -5,48 +6,36 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { Balances, useBalances } from 'hooks/useBalances/useBalances'
+import { ethereum as mockEthereum } from 'jest/mocks/assets'
 import { TestProviders } from 'jest/TestProviders'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
-jest.mock('components/Modals/Send/hooks/useAccountBalances/useAccountBalances')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
-jest.mock('hooks/useBalances/useBalances')
 
-const ethCaip2 = 'eip155:1'
+jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
+  ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
+  selectFeeAssetById: () => mockEthereum,
+  selectPortfolioCryptoBalanceById: (assetId: typeof ethCaip19) => {
+    const fakeBalances = {
+      [ethCaip19]: '5000000000000000000',
+      [runeCaip19]: '21000000000000000000'
+    }
+    return fakeBalances[assetId]
+  }
+}))
+
 const ethCaip19 = 'eip155:1/slip44:60'
 const runeCaip19 = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
 
-const balances: Balances = {
-  [ethCaip19]: {
-    caip2: ethCaip2,
-    caip19: ethCaip19,
-    chain: ChainTypes.Ethereum,
-    pubkey: '0x0000000000000000000000000000000000000000',
-    balance: '5000000000000000000',
-    chainSpecific: {
-      nonce: 0,
-      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
-    }
-  },
-  [runeCaip19]: {
-    caip2: ethCaip2,
-    caip19: runeCaip19,
-    chain: ChainTypes.Ethereum,
-    balance: '21000000000000000000',
-    pubkey: '0x0000000000000000000000000000000000000000',
-    chainSpecific: {
-      nonce: 0,
-      tokens: [{ caip19: runeCaip19, balance: '21000000000000000000' }]
-    }
-  }
+const balances: PortfolioBalancesById = {
+  [ethCaip19]: '5000000000000000000',
+  [runeCaip19]: '21000000000000000000'
 }
 
 const ethAsset = {
@@ -77,24 +66,6 @@ const estimatedFees = {
   }
 }
 
-const getEthAccountBalances = () => {
-  const crypto = bnOrZero(balances[ethCaip19].balance).div('1e18')
-  const fiat = crypto.times(ethAsset.price)
-  return {
-    crypto,
-    fiat
-  }
-}
-
-const getRuneAccountBalances = () => {
-  const crypto = bnOrZero(balances[runeCaip19].balance).div('1e18')
-  const fiat = crypto.times(erc20RuneAsset.price)
-  return {
-    crypto,
-    fiat
-  }
-}
-
 jest.mock('state/slices/marketDataSlice/marketDataSlice', () => ({
   ...jest.requireActual('state/slices/marketDataSlice/marketDataSlice'),
   selectMarketDataById: () => ({
@@ -108,9 +79,7 @@ jest.mock('state/slices/marketDataSlice/marketDataSlice', () => ({
 
 const setup = ({
   asset = ethAsset,
-  assetBalance = {},
-  accountBalances = {},
-  balanceError = null,
+  assetBalance = '',
   formErrors = {},
   setError = jest.fn(),
   setValue = jest.fn()
@@ -118,15 +87,6 @@ const setup = ({
   ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) =>
     name === 'asset' ? asset : '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
   )
-  ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
-    assetBalance,
-    accountBalances
-  }))
-  ;(useBalances as jest.Mock<unknown>).mockImplementation(() => ({
-    balances,
-    error: balanceError,
-    loading: false
-  }))
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     clearErrors: jest.fn(),
     setError,
@@ -168,8 +128,7 @@ describe('useSendDetails', () => {
   it('returns the default useSendDetails state', async () => {
     return await act(async () => {
       const { result } = setup({
-        assetBalance: balances[ethCaip19],
-        accountBalances: getEthAccountBalances()
+        assetBalance: balances[ethCaip19]
       })
       expect(result.current.balancesLoading).toBe(false)
       expect(result.current.fieldName).toBe('fiatAmount')
@@ -180,8 +139,7 @@ describe('useSendDetails', () => {
   it('toggles the input field', async () => {
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances[ethCaip19],
-        accountBalances: getEthAccountBalances()
+        assetBalance: balances[ethCaip19]
       })
       expect(result.current.fieldName).toBe('fiatAmount')
       act(() => {
@@ -197,7 +155,6 @@ describe('useSendDetails', () => {
       let setError = jest.fn()
       const { waitForValueToChange, result } = setup({
         assetBalance: balances[ethCaip19],
-        accountBalances: getEthAccountBalances(),
         formErrors: {
           fiatAmount: { message: 'common.insufficientFunds' }
         },
@@ -219,7 +176,6 @@ describe('useSendDetails', () => {
     await act(async () => {
       const { result } = setup({
         assetBalance: balances[ethCaip19],
-        accountBalances: getEthAccountBalances(),
         setValue
       })
       // Field is set to fiatAmount
@@ -246,7 +202,6 @@ describe('useSendDetails', () => {
     await act(async () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances[ethCaip19],
-        accountBalances: getEthAccountBalances(),
         setValue
       })
       // Field is set to fiatAmount
@@ -269,12 +224,11 @@ describe('useSendDetails', () => {
     })
   })
 
-  it('handles setting up send max for network asset', async () => {
+  fit('handles setting up send max for network asset', async () => {
     const setValue = jest.fn()
     return await act(async () => {
       const { result } = setup({
         assetBalance: balances[ethCaip19],
-        accountBalances: getEthAccountBalances(),
         setValue
       })
       await act(async () => {
@@ -295,7 +249,6 @@ describe('useSendDetails', () => {
       const { result } = setup({
         asset: erc20RuneAsset,
         assetBalance: balances[runeCaip19],
-        accountBalances: getRuneAccountBalances(),
         setValue
       })
       await act(async () => {

@@ -140,6 +140,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     // we can always send the full balance of tokens, no need to make network
     // calls to estimate fees
+    console.info(feeAsset)
+    console.info(asset)
     if (feeAsset.caip19 !== asset.caip19) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
@@ -227,11 +229,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
           : SendFormFields.CryptoAmount
-      const assetPrice = asset.price
       const amount =
         fieldName === SendFormFields.FiatAmount
-          ? bnOrZero(bn(inputValue).div(assetPrice)).toString()
-          : bnOrZero(bn(inputValue).times(assetPrice)).toString()
+          ? bnOrZero(bn(inputValue).div(price)).toString()
+          : bnOrZero(bn(inputValue).times(price)).toString()
 
       setValue(key, amount)
 
@@ -253,7 +254,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')
     }, 1000),
     [
-      asset.price,
+      asset,
       fieldName,
       setValue,
       estimateFormFees,

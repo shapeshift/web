@@ -11,7 +11,6 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { AssetMarketData } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -39,7 +38,7 @@ export enum SendFormFields {
 export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.AmountFieldError]: string
-  [SendFormFields.Asset]: AssetMarketData
+  [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
   [SendFormFields.CryptoAmount]: string
@@ -50,7 +49,7 @@ export type SendInput = {
 }
 
 type SendFormProps = {
-  asset: AssetMarketData
+  asset: Asset
 }
 
 export const Form = ({ asset: initialAsset }: SendFormProps) => {

@@ -32,7 +32,6 @@ export enum SendFormFields {
   CryptoSymbol = 'cryptoSymbol',
   FiatAmount = 'fiatAmount',
   FiatSymbol = 'fiatSymbol',
-  Transaction = 'transaction',
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax'
 }
@@ -47,8 +46,6 @@ export type SendInput = {
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
   [SendFormFields.FiatSymbol]: string
-  // TODO(0xdef1cafe): remove this from form state
-  [SendFormFields.Transaction]: unknown
   [SendFormFields.SendMax]: boolean
 }
 

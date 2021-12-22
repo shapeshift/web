@@ -21,11 +21,13 @@ export type PortfolioAccounts = {
   ids: CAIP10[]
 }
 
+export type PortfolioBalancesById = {
+  // balance in base units of asset - bn doesn't serialize
+  [k: CAIP19]: string
+}
+
 export type PortfolioBalances = {
-  byId: {
-    // balance in base units of asset - bn doesn't serialize
-    [k: CAIP19]: string
-  }
+  byId: PortfolioBalancesById
   // all asset ids in an account
   ids: CAIP19[]
 }

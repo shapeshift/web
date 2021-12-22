@@ -14,6 +14,7 @@ import {
   Stack
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import isNil from 'lodash/isNil'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -42,7 +43,8 @@ export const Details = () => {
   const {
     balancesLoading,
     fieldName,
-    accountBalances,
+    cryptoHumanBalance,
+    fiatBalance,
     handleInputChange,
     handleNextClick,
     handleSendMax,
@@ -50,8 +52,18 @@ export const Details = () => {
     toggleCurrency
   } = useSendDetails()
 
-  if (!(asset && asset?.name && cryptoAmount && cryptoSymbol && fiatAmount && fiatSymbol))
+  if (
+    !(
+      asset &&
+      asset?.name &&
+      !isNil(cryptoAmount) &&
+      cryptoSymbol &&
+      !isNil(fiatAmount) &&
+      fiatSymbol
+    )
+  ) {
     return null
+  }
 
   return (
     <SlideTransition loading={balancesLoading}>
@@ -77,8 +89,8 @@ export const Details = () => {
           // So we're going to cast it since we already did a runtime check that the object exists
           asset={asset as Asset}
           isLoaded={!balancesLoading}
-          cryptoAmountAvailable={accountBalances.crypto.toString()}
-          fiatAmountAvailable={accountBalances.fiat.toString()}
+          cryptoAmountAvailable={cryptoHumanBalance.toString()}
+          fiatAmountAvailable={fiatBalance.toString()}
           showCrypto={fieldName === SendFormFields.CryptoAmount}
           onClick={() => history.push('/send/select')}
           mb={2}

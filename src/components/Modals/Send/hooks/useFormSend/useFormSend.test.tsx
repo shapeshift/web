@@ -31,10 +31,6 @@ const formData: SendInput = {
     caip2: '',
     caip19: '',
     description: '',
-    price: '',
-    marketCap: '',
-    volume: '',
-    changePercent24Hr: 0,
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
@@ -80,7 +76,6 @@ const formData: SendInput = {
   [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
-  [SendFormFields.Transaction]: {},
   [SendFormFields.SendMax]: false
 }
 

@@ -51,6 +51,7 @@ export const mockStore: ReduxState = {
   },
   txHistory: {
     byId: {},
+    byAssetId: {},
     ids: []
   },
   preferences: {

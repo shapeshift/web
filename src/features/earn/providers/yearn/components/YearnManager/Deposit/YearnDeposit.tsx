@@ -27,6 +27,7 @@ import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -37,11 +38,14 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useBalances } from 'hooks/useBalances/useBalances'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectPortfolioCryptoBalanceById,
+  selectPortfolioLoading
+} from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
@@ -92,7 +96,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const { balances, loading } = useBalances()
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceById(state, assetCAIP19))
+  const loading = useSelector(selectPortfolioLoading)
 
   // navigation
   const memoryHistory = useHistory()
@@ -312,8 +317,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleCancel = () => {
     browserHistory.goBack()
   }
-
-  const balance = balances[assetCAIP19]?.balance
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
@@ -604,15 +607,16 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     }
   }
 
-  if (loading || !asset || !marketData)
+  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+
+  if (loading || !asset || !marketData) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
       </Center>
     )
-
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  }
 
   return (
     <Flex

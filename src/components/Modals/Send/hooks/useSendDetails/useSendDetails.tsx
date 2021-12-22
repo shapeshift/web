@@ -140,8 +140,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleSendMax = async () => {
     // we can always send the full balance of tokens, no need to make network
     // calls to estimate fees
-    console.info(feeAsset)
-    console.info(asset)
     if (feeAsset.caip19 !== asset.caip19) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
@@ -253,20 +251,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')
     }, 1000),
-    [
-      asset,
-      fieldName,
-      setValue,
-      estimateFormFees,
-      adapter,
-      asset,
-      chainAdapterManager,
-      currentAccountType,
-      getValues,
-      wallet,
-      cryptoHumanBalance,
-      fiatBalance
-    ]
+    [asset, fieldName, setValue, estimateFormFees, getValues, cryptoHumanBalance, fiatBalance]
   )
 
   const toggleCurrency = () => {

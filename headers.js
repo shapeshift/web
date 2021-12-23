@@ -64,6 +64,7 @@ const cspMeta = Object.entries({
   .join('; ')
 
 const headers = {
+  'Cache-Control': 'no-transform', // This will prevent middleboxes from munging our JS and breaking SRI if we're ever served over HTTP
   'Content-Security-Policy': `${cspMeta}; frame-ancestors 'none'`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
   'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
   'Permissions-Policy': 'document-domain=()',

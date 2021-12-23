@@ -149,6 +149,7 @@ describe('useSendDetails', () => {
   })
 
   it('toggles the input field', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances[ethCaip19]
@@ -163,6 +164,7 @@ describe('useSendDetails', () => {
   })
 
   it('toggles the amount input error to the fiatAmount/cryptoAmount field', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     return await act(async () => {
       let setError = jest.fn()
       const { waitForValueToChange, result } = setup({
@@ -185,32 +187,31 @@ describe('useSendDetails', () => {
 
   it('handles input change on fiatAmount', async () => {
     const setValue = jest.fn()
+    const { result } = setup({
+      assetBalance: balances[ethCaip19],
+      setValue
+    })
+    // Field is set to fiatAmount
+    expect(result.current.fieldName).toBe('fiatAmount')
+
+    // Set fiat amount
     await act(async () => {
-      const { result } = setup({
-        assetBalance: balances[ethCaip19],
-        setValue
-      })
-      // Field is set to fiatAmount
-      expect(result.current.fieldName).toBe('fiatAmount')
+      result.current.handleInputChange('3500')
+      await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
 
-      // Set fiat amount
-      await act(async () => {
-        result.current.handleInputChange('3500')
-        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
+      setValue.mockClear()
 
-        setValue.mockClear()
-
-        result.current.handleInputChange('0')
-        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
-        setValue.mockClear()
-      })
+      result.current.handleInputChange('0')
+      await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
+      setValue.mockClear()
     })
   })
 
   it('handles input change on cryptoAmount', async () => {
     const setValue = jest.fn()
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances[ethCaip19],
@@ -238,36 +239,32 @@ describe('useSendDetails', () => {
 
   it('handles setting up send max for network asset', async () => {
     const setValue = jest.fn()
-    return await act(async () => {
-      const { result } = setup({
-        assetBalance: balances[ethCaip19],
-        setValue
+    const { result } = setup({
+      assetBalance: balances[ethCaip19],
+      setValue
+    })
+    await act(async () => {
+      await result.current.handleSendMax()
+      expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
+      expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
+        fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
       })
-      await act(async () => {
-        await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
-        expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
-          fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
-        })
-        expect(setValue).toHaveBeenNthCalledWith(3, 'cryptoAmount', '5')
-        expect(setValue).toHaveBeenNthCalledWith(4, 'fiatAmount', '17500.00')
-      })
+      expect(setValue).toHaveBeenNthCalledWith(3, 'cryptoAmount', '5')
+      expect(setValue).toHaveBeenNthCalledWith(4, 'fiatAmount', '17500.00')
     })
   })
 
   it('handles setting up send max for erc20', async () => {
     const setValue = jest.fn()
-    return await act(async () => {
-      const { result } = setup({
-        asset: mockRune,
-        assetBalance: balances[runeCaip19],
-        setValue
-      })
-      await act(async () => {
-        await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'cryptoAmount', '21')
-        expect(setValue).toHaveBeenNthCalledWith(2, 'fiatAmount', '14490.00')
-      })
+    const { result } = setup({
+      asset: mockRune,
+      assetBalance: balances[runeCaip19],
+      setValue
+    })
+    await act(async () => {
+      await result.current.handleSendMax()
+      expect(setValue).toHaveBeenNthCalledWith(1, 'cryptoAmount', '21')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'fiatAmount', '14490.00')
     })
   })
 })

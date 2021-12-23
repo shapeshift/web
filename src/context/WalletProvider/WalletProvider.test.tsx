@@ -38,24 +38,24 @@ const setup = async () => {
       <WalletProvider>{children}</WalletProvider>
     </TestProviders>
   )
-  const hookResult = renderHook(() => useWallet(), { wrapper })
+  const { result, waitForValueToChange } = renderHook(() => useWallet(), { wrapper })
   // Since there is a dispatch doing async state changes
   // in a useEffect on mount we must wait for that state
   // to finish updating before doing anything else to avoid errors
-  await hookResult.waitForValueToChange(() => hookResult.result.current.state.adapters)
-  return hookResult
+  await waitForValueToChange(() => result.current.state.adapters)
+  return result
 }
 
 describe('WalletProvider', () => {
   describe('dispatch', () => {
     it('can SET_ADAPTERS on mount', async () => {
-      const { result } = await setup()
+      const result = await setup()
 
       expect(result.current.state.adapters).toBeTruthy()
     })
 
     it('can SET_WALLET sets a wallet in state', async () => {
-      const { result } = await setup()
+      const result = await setup()
 
       act(() => {
         result.current.dispatch({
@@ -69,7 +69,7 @@ describe('WalletProvider', () => {
     })
 
     it('can SET_IS_CONNECTED', async () => {
-      const { result } = await setup()
+      const result = await setup()
 
       expect(result.current.state.isConnected).toBe(false)
       act(() => {
@@ -83,7 +83,7 @@ describe('WalletProvider', () => {
     })
 
     it('can SET_WALLET_MODAL state to open and close', async () => {
-      const { result } = await setup()
+      const result = await setup()
 
       expect(result.current.state.modal).toBe(false)
       act(() => {
@@ -99,7 +99,7 @@ describe('WalletProvider', () => {
 
   describe('connect', () => {
     it('dispatches SET_CONNECTOR_TYPE and SET_INITAL_ROUTE', async () => {
-      const { result } = await setup()
+      const result = await setup()
       const type = KeyManager.Native
       expect(result.current.state.wallet).toBe(null)
       expect(result.current.state.walletInfo).toBe(null)
@@ -117,7 +117,7 @@ describe('WalletProvider', () => {
   describe('disconnect', () => {
     it('disconnects and calls RESET_STATE', async () => {
       const walletDisconnect = jest.fn()
-      const { result } = await setup()
+      const result = await setup()
 
       expect(result.current.state.wallet).toBe(null)
       expect(result.current.state.walletInfo).toBe(null)

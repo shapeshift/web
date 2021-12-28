@@ -36,7 +36,7 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
     type: EarnType.Vault
   },
   {
-    vaultAddress: toLower('0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9'),
+    vaultAddress: toLower('0xa354f35829ae975e850e23e9615b11da1b3dc4de'),
     name: 'USDC',
     symbol: 'yvUSDC',
     tokenAddress: toLower('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),

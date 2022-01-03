@@ -3496,10 +3496,10 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.6.1":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.6.1.tgz#d9a7928543349536f4cdaf4455de0f6966eed0f4"
-  integrity sha512-T7LPjZO9YLuTfVPg2bBbqJH5mSWbcGrcmTJYd41QBRkS1XlAhI63gscENkPo2WeNunrEJFLHITiwk/ddlkme8A==
+"@shapeshiftoss/caip@^1.6.1", "@shapeshiftoss/caip@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.8.0.tgz#56ecff4cf026541ff031d5289cccb563514ecf3e"
+  integrity sha512-hUN5hN6YOtyue36U/tlgwdfjdAs8uhlFjdKnTSbYD3UWj9O0moQzFXseCticS6N1p/LZ9pt57rHBxUJbbvC+wg==
 
 "@shapeshiftoss/chain-adapters@^1.22.1":
   version "1.22.1"
@@ -3659,17 +3659,16 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/market-service@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.7.0.tgz#2095c11ec4392cba50ead4ba5d6fe685b89fa457"
-  integrity sha512-6wH9hLPUOP8OnXf0zoaTiaTuGoWXjoOoX/Vrur4zGxmcH1m67YMkUAM3J0As9K9y40XPtp8XOfw47SwzuE00bw==
+"@shapeshiftoss/market-service@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.8.0.tgz#144c7f8a0c4564fe74fc77f82b163a9d1babd2b2"
+  integrity sha512-tZXHBnM7ezfrMhOJGIoj55dSoK8cwH1BfARtBJZ5+UToVbPOIsIpH3ozR/F7qAISGD1GYx1qCT13K5qK4E6akQ==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.10"
     axios "^0.21.2"
     bignumber.js "^9.0.1"
     dayjs "^1.10.6"
-    ethers "^5.5.2"
 
 "@shapeshiftoss/swapper@^1.15.0":
   version "1.15.0"
@@ -10271,7 +10270,7 @@ ethers@5.4.4:
     "@ethersproject/web" "5.4.0"
     "@ethersproject/wordlists" "5.4.0"
 
-ethers@^5.4.0, ethers@^5.4.7, ethers@^5.5.2:
+ethers@^5.4.0, ethers@^5.4.7:
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.5.2.tgz#cd2e508c7342c44fa70392f722e8de8f2416489f"
   integrity sha512-EF5W+6Wwcu6BqVwpgmyR5U2+L4c1FQzlM/02dkZOugN3KF0cG9bzHZP+TDJglmPm2/IzCEJDT7KBxzayk7SAHw==
@@ -11808,17 +11807,6 @@ html-void-elements@^1.0.0:
   resolved "https://registry.yarnpkg.com/html-void-elements/-/html-void-elements-1.0.5.tgz#ce9159494e86d95e45795b166c2021c2cfca4483"
   integrity sha512-uE/TxKuyNIcx44cIWnjr/rfIATDH7ZaOMmstu0CwhFG1Dunhlp4OC6/NMbhiwoq5BpW0ubi303qnEk/PZj614w==
 
-html-webpack-plugin@5.5.0, html-webpack-plugin@^5.5.0:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/html-webpack-plugin/-/html-webpack-plugin-5.5.0.tgz#c3911936f57681c1f9f4d8b68c158cd9dfe52f50"
-  integrity sha512-sy88PC2cRTVxvETRgUHFrL4No3UxvcH8G1NepGhqaTT+GXN2kTamqasot0inS5hXeg1cMbFDt27zzo9p35lZVw==
-  dependencies:
-    "@types/html-minifier-terser" "^6.0.0"
-    html-minifier-terser "^6.0.2"
-    lodash "^4.17.21"
-    pretty-error "^4.0.0"
-    tapable "^2.0.0"
-
 html-webpack-plugin@^4.0.0:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/html-webpack-plugin/-/html-webpack-plugin-4.5.2.tgz#76fc83fa1a0f12dd5f7da0404a54e2699666bc12"
@@ -11833,6 +11821,17 @@ html-webpack-plugin@^4.0.0:
     pretty-error "^2.1.1"
     tapable "^1.1.3"
     util.promisify "1.0.0"
+
+html-webpack-plugin@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/html-webpack-plugin/-/html-webpack-plugin-5.5.0.tgz#c3911936f57681c1f9f4d8b68c158cd9dfe52f50"
+  integrity sha512-sy88PC2cRTVxvETRgUHFrL4No3UxvcH8G1NepGhqaTT+GXN2kTamqasot0inS5hXeg1cMbFDt27zzo9p35lZVw==
+  dependencies:
+    "@types/html-minifier-terser" "^6.0.0"
+    html-minifier-terser "^6.0.2"
+    lodash "^4.17.21"
+    pretty-error "^4.0.0"
+    tapable "^2.0.0"
 
 htmlparser2@^6.1.0:
   version "6.1.0"

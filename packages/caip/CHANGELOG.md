@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.7.0...@shapeshiftoss/caip-v1.8.0) (2022-01-03)
+
+
+### Features
+
+* short circuit market data calls to providers that don't support that asset ([#292](https://github.com/shapeshift/lib/issues/292)) ([861fc19](https://github.com/shapeshift/lib/commit/861fc19e8bf92a7e84a37a9b61e33a1a10f02d2d))
+
 # [@shapeshiftoss/caip-v1.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.6.1...@shapeshiftoss/caip-v1.7.0) (2021-12-17)
 
 

@@ -29,8 +29,7 @@
     "@yfi/sdk": "^1.0.10",
     "axios": "^0.21.2",
     "bignumber.js": "^9.0.1",
-    "dayjs": "^1.10.6",
-    "ethers": "^5.5.2"
+    "dayjs": "^1.10.6"
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^1.4.2",

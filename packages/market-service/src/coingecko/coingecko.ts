@@ -69,6 +69,7 @@ export class CoinGeckoMarketService implements MarketService {
           const { id } = cur
           try {
             const caip19 = adapters.coingeckoToCAIP19(id)
+            if (!caip19) return acc
             const curWithoutId = omit(cur, 'id') // don't leak this through to clients
             acc[caip19] = {
               price: curWithoutId.current_price.toString(),
@@ -86,8 +87,9 @@ export class CoinGeckoMarketService implements MarketService {
     }
   }
 
-  findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData> => {
+  findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData | null> => {
     try {
+      if (!adapters.CAIP19ToCoingecko(caip19)) return null
       const { tokenId } = fromCAIP19(caip19)
       const isToken = !!tokenId
       const id = isToken ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
@@ -116,35 +118,36 @@ export class CoinGeckoMarketService implements MarketService {
     caip19,
     timeframe
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
-    const { tokenId } = fromCAIP19(caip19)
-    const id = tokenId ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
-
-    const end = dayjs().startOf('minute')
-    let start
-    switch (timeframe) {
-      case HistoryTimeframe.HOUR:
-        start = end.subtract(1, 'hour')
-        break
-      case HistoryTimeframe.DAY:
-        start = end.subtract(1, 'day')
-        break
-      case HistoryTimeframe.WEEK:
-        start = end.subtract(1, 'week')
-        break
-      case HistoryTimeframe.MONTH:
-        start = end.subtract(1, 'month')
-        break
-      case HistoryTimeframe.YEAR:
-        start = end.subtract(1, 'year')
-        break
-      case HistoryTimeframe.ALL:
-        start = end.subtract(20, 'years')
-        break
-      default:
-        start = end
-    }
-
+    if (!adapters.CAIP19ToCoingecko(caip19)) return []
     try {
+      const { tokenId } = fromCAIP19(caip19)
+      const id = tokenId ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
+
+      const end = dayjs().startOf('minute')
+      let start
+      switch (timeframe) {
+        case HistoryTimeframe.HOUR:
+          start = end.subtract(1, 'hour')
+          break
+        case HistoryTimeframe.DAY:
+          start = end.subtract(1, 'day')
+          break
+        case HistoryTimeframe.WEEK:
+          start = end.subtract(1, 'week')
+          break
+        case HistoryTimeframe.MONTH:
+          start = end.subtract(1, 'month')
+          break
+        case HistoryTimeframe.YEAR:
+          start = end.subtract(1, 'year')
+          break
+        case HistoryTimeframe.ALL:
+          start = end.subtract(20, 'years')
+          break
+        default:
+          start = end
+      }
+
       const from = start.valueOf() / 1000
       const to = end.valueOf() / 1000
       const contract = tokenId ? `/contract/${tokenId}` : ''

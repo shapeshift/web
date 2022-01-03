@@ -14,18 +14,8 @@ const invert = <T extends Record<string, string>>(data: T) =>
 
 const generatedCoingeckoToCAIP19Map: Record<string, string> = invert(generatedCAIP19ToCoingeckoMap)
 
-export const coingeckoToCAIP19 = (id: string): string => {
-  const generated = generatedCoingeckoToCAIP19Map[id]
-  if (!generated) {
-    throw new Error(`coingeckoToCAIP19: no caip19 found for id ${id}`)
-  }
-  return generated
-}
+export const coingeckoToCAIP19 = (id: string): string | undefined =>
+  generatedCoingeckoToCAIP19Map[id]
 
-export const CAIP19ToCoingecko = (caip19: string): string => {
-  const generated = generatedCAIP19ToCoingeckoMap[toLower(caip19)]
-  if (!generated) {
-    throw new Error(`CAIP19ToCoingecko: no id found for caip19 ${toLower(caip19)}`)
-  }
-  return generated
-}
+export const CAIP19ToCoingecko = (caip19: string): string | undefined =>
+  generatedCAIP19ToCoingeckoMap[toLower(caip19)]

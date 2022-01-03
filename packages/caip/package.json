@@ -22,6 +22,8 @@
     "dev": "tsc --watch",
     "generate-coingecko": "yarn build && node dist/adapters/coingecko/generate.js",
     "generate-coincap": "yarn build && node dist/adapters/coincap/generate.js",
+    "generate-yearn": "yarn build && node dist/adapters/yearn/generate.js",
+    "generate": "yarn build && node dist/adapters/coingecko/generate.js && node dist/adatpters/coincap/generate.js && node dist/adapters/yearn/generate.js",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },
@@ -31,6 +33,7 @@
   },
   "devDependencies": {
     "@shapeshiftoss/types": "^1.13.1",
+    "@yfi/sdk": "^1.0.12",
     "axios": "^0.24.0"
   }
 }

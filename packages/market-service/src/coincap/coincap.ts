@@ -53,6 +53,7 @@ export class CoinCapMarketService implements MarketService {
           const { id } = cur
           try {
             const caip19 = adapters.coincapToCAIP19(id)
+            if (!caip19) return acc
             const curWithoutId = omit(cur, 'id') // don't leak this through to clients
             acc[caip19] = {
               price: curWithoutId.priceUsd.toString(),
@@ -70,7 +71,8 @@ export class CoinCapMarketService implements MarketService {
     }
   }
 
-  findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData> => {
+  findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData | null> => {
+    if (!adapters.CAIP19ToCoinCap(caip19)) return null
     try {
       const { tokenId } = fromCAIP19(caip19)
       const id = tokenId ? 'ethereum' : adapters.CAIP19ToCoinCap(caip19)
@@ -94,6 +96,7 @@ export class CoinCapMarketService implements MarketService {
     caip19,
     timeframe
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
+    if (!adapters.CAIP19ToCoinCap(caip19)) return []
     const { tokenId } = fromCAIP19(caip19)
     const id = tokenId ? 'ethereum' : adapters.CAIP19ToCoinCap(caip19)
 

@@ -1,4 +1,5 @@
-import { fromCAIP19, toCAIP19 } from '@shapeshiftoss/caip/dist/caip19/caip19'
+import { adapters } from '@shapeshiftoss/caip'
+import { toCAIP19 } from '@shapeshiftoss/caip/dist/caip19/caip19'
 import {
   ChainTypes,
   ContractTypes,
@@ -12,7 +13,6 @@ import {
   PriceHistoryArgs
 } from '@shapeshiftoss/types'
 import { ChainId, Yearn } from '@yfi/sdk'
-import { ethers } from 'ethers'
 import head from 'lodash/head'
 
 import { MarketService } from '../api'
@@ -121,12 +121,10 @@ export class YearnMarketCapService implements MarketService {
   }
 
   findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData | null> => {
+    const id = adapters.CAIP19ToYearn(caip19)
+    if (!id) return null
     try {
-      const { tokenId } = fromCAIP19(caip19)
-      if (!tokenId) return null
-      const checksumAddress = ethers.utils.getAddress(tokenId)
-      if (!checksumAddress) return null
-      const vaults = await this.yearnSdk.vaults.get([checksumAddress])
+      const vaults = await this.yearnSdk.vaults.get([id])
       if (!vaults || !vaults.length) return null
       const vault = head(vaults)
       if (!vault) return null
@@ -199,12 +197,9 @@ export class YearnMarketCapService implements MarketService {
     caip19,
     timeframe
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
+    const id = adapters.CAIP19ToYearn(caip19)
+    if (!id) return []
     try {
-      const { tokenId } = fromCAIP19(caip19)
-      if (!tokenId) return []
-      const checksumAddress = ethers.utils.getAddress(tokenId)
-      if (!checksumAddress) return []
-
       let daysAgo
       switch (timeframe) {
         case HistoryTimeframe.HOUR:
@@ -229,14 +224,14 @@ export class YearnMarketCapService implements MarketService {
           daysAgo = 1
       }
 
-      const vaults = await this.yearnSdk.vaults.get([checksumAddress])
+      const vaults = await this.yearnSdk.vaults.get([id])
       const decimals = vaults[0].decimals
 
       const response: VaultDayDataGQLResponse = (await this.yearnSdk.services.subgraph.fetchQuery(
         ACCOUNT_HISTORIC_EARNINGS,
         {
-          id: checksumAddress,
-          shareToken: checksumAddress,
+          id,
+          shareToken: id,
           fromDate: this.getDate(daysAgo)
             .getTime()
             .toString(),
@@ -258,7 +253,7 @@ export class YearnMarketCapService implements MarketService {
         return {
           date: datum.timestamp,
           price: bnOrZero(datum.tokenPriceUSDC)
-            .div(`1e+6`)
+            .div(`1e+${USDC_PRECISION}`)
             .times(datum.pricePerShare)
             .div(`1e+${decimals}`)
             .dp(6)

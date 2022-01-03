@@ -38,7 +38,7 @@ module.exports = {
     // Initialize top-level arrays just in case they're missing for some reason.
     _.merge(config, {
       plugins: [],
-      ignoreWarnings: [],
+      ignoreWarnings: []
     })
 
     // Webpack 5 no longer bundles polyfills for default Node modules, but we depend on some
@@ -53,38 +53,46 @@ module.exports = {
           http: require.resolve('stream-http'),
           https: require.resolve('https-browserify'),
           stream: require.resolve('stream-browserify'),
-          zlib: require.resolve('browserify-zlib'),
+          zlib: require.resolve('browserify-zlib')
         }
       },
       // Also provide polyfills for some Node globals.
-      plugins: [...config.plugins, new webpack.ProvidePlugin({
-        Buffer: ['buffer/', 'Buffer'],
-        process: ['process/browser.js'],
-      })]
+      plugins: [
+        ...config.plugins,
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer/', 'Buffer'],
+          process: ['process/browser.js']
+        })
+      ]
     })
 
     // Cloudflare Pages has a max asset size of 25 MiB. Without limiting the chunk size,
     // generated chunks or source maps may exceed this limit. 6 MiB seems to keep the max
     // gzipped chunk size ~1MiB and the max source map size ~8MiB, which avoids tripping
     // CRA's "The bundle size is significantly larger than recommended" warning.
-    _.merge(config, isProduction ? {
-      optimization: {
-        splitChunks: {
-          chunks: 'all',
-          name: isDevelopment ? undefined : false, // _.merge() ignores undefined
-          maxSize: 6 * 1024 * 1024,
-        },
-        // This uses numerically-ascending chunk IDs with no gaps, a la Webpack 4. Webpack 5
-        // numbers chunks differently, and it's not obvious that they're deterministic. If
-        // we can determine that chunk ids are deterministic without this option, it can go.
-        chunkIds: 'natural',
-      }
-    } : undefined)
+    _.merge(
+      config,
+      isProduction
+        ? {
+            optimization: {
+              splitChunks: {
+                chunks: 'all',
+                name: isDevelopment ? undefined : false, // _.merge() ignores undefined
+                maxSize: 6 * 1024 * 1024
+              },
+              // This uses numerically-ascending chunk IDs with no gaps, a la Webpack 4. Webpack 5
+              // numbers chunks differently, and it's not obvious that they're deterministic. If
+              // we can determine that chunk ids are deterministic without this option, it can go.
+              chunkIds: 'natural'
+            }
+          }
+        : undefined
+    )
 
     // Webpack uses MD4 by default, but SHA-256 can be verified with standard tooling.
     _.merge(config, {
       output: {
-        hashFunction: 'sha256',
+        hashFunction: 'sha256'
       }
     })
 
@@ -93,14 +101,15 @@ module.exports = {
     //
     // Removable when https://github.com/facebook/create-react-app/pull/11752 is merged upstream.
     _.merge(config, {
-      ignoreWarnings: [...config.ignoreWarnings, 
+      ignoreWarnings: [
+        ...config.ignoreWarnings,
         function ignoreSourceMapLoaderWarnings(warning) {
           return (
             warning.module?.resource?.includes?.('node_modules') &&
             warning.details?.includes?.('source-map-loader')
-          );
+          )
         }
-      ],
+      ]
     })
 
     // Remove synthetic CSP/SRI environment variables from DefinePlugin.
@@ -125,7 +134,7 @@ module.exports = {
     _.merge(config, {
       output: {
         // This is the default, but the SRI spec requires it to be set explicitly.
-        crossOriginLoading: 'anonymous',
+        crossOriginLoading: 'anonymous'
       },
       // SubresourceIntegrityPlugin automatically disables itself in development.
       plugins: [

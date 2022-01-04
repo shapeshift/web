@@ -1,4 +1,5 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import { adapters } from '@shapeshiftoss/caip'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
 import React, {
@@ -9,6 +10,7 @@ import React, {
   useMemo,
   useReducer
 } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
@@ -31,7 +33,7 @@ type GenericAdapter = {
   pairDevice: (...args: any[]) => Promise<HDWallet>
 }
 
-type Adapters = Map<KeyManager, GenericAdapter>
+export type Adapters = Map<KeyManager, GenericAdapter>
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
@@ -123,6 +125,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
+  const history = useHistory();
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -154,14 +157,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.keyring])
 
   const connect = useCallback(async (type: KeyManager) => {
+    // console.info(SUPPORTED_WALLETS[type].routes[0].path);
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    if (SUPPORTED_WALLETS[type]?.routes[0]?.path) {
+    if (type === 'metamask') {
+      SUPPORTED_WALLETS.metamask.pairDevice(state.adapters, dispatch, history);
+    } else if (SUPPORTED_WALLETS[type]?.routes[0]?.path) {
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
         payload: SUPPORTED_WALLETS[type].routes[0].path as string
       })
     }
-  }, [])
+  }, [state.adapters, history])
 
   const disconnect = useCallback(() => {
     state.wallet?.disconnect()

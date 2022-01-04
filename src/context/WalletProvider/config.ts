@@ -24,12 +24,14 @@ import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisSuccess } from './Portis/components/Success'
+import { pairDevice } from './MetaMask/helpers/pairDevice'
 
 export interface SupportedWalletInfo {
   adapter: any
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   routes: RouteProps[]
+  pairDevice?: any
 }
 
 export enum KeyManager {
@@ -68,10 +70,10 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: MetaMaskIcon,
     name: 'MetaMask',
     routes: [
-      { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/success', component: MetaMaskSuccess },
       { path: '/metamask/failure', component: MetaMaskFailure }
-    ]
+    ],
+    pairDevice: pairDevice,
   },
   [KeyManager.Portis]: {
     adapter: PortisAdapter,

@@ -68,7 +68,7 @@ export const StakingVaultRow = ({
     ;(async () => {
       if (!yearn || !wallet || loading) return null
       try {
-        const _vault = yearn.findByDepositTokenId(tokenAddress)
+        const _vault = yearn.findByVaultTokenId(vaultAddress)
         if (_vault) setVault(_vault)
         const userAddress = await chainAdapter.getAddress({ wallet })
         // TODO: currently this is hard coded to yearn vaults only.
@@ -115,7 +115,14 @@ export const StakingVaultRow = ({
           </SkeletonCircle>
         </Flex>
         <Skeleton isLoaded={isLoaded}>
-          <RawText size='lg' fontWeight='bold'>{`${asset.symbol} ${type}`}</RawText>
+          {/* TODO Remove USDC 0.3.0 test and special case when we have a migration path */}
+          {vault.name === 'yvUSDC 0.3.0' ? (
+            <RawText size='lg' fontWeight='bold'>
+              USDC 0.3.0 {`${type}`}
+            </RawText>
+          ) : (
+            <RawText size='lg' fontWeight='bold'>{`${asset.symbol} ${type}`}</RawText>
+          )}
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>

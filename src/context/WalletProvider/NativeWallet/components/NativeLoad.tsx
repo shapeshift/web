@@ -161,18 +161,20 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                     />
                   </Box>
                 </Button>
-                <IconButton
-                  aria-label={translate('common.rename')}
-                  variant='ghost'
-                  icon={<EditIcon />}
-                  onClick={() => handleRename(wallet)}
-                />
-                <IconButton
-                  aria-label={translate('common.forget')}
-                  variant='ghost'
-                  icon={<DeleteIcon />}
-                  onClick={() => handleDelete(wallet)}
-                />
+                <Box>
+                  <IconButton
+                    aria-label={translate('common.rename')}
+                    variant='ghost'
+                    icon={<EditIcon />}
+                    onClick={() => handleRename(wallet)}
+                  />
+                  <IconButton
+                    aria-label={translate('common.forget')}
+                    variant='ghost'
+                    icon={<DeleteIcon />}
+                    onClick={() => handleDelete(wallet)}
+                  />
+                </Box>
               </Row>
             )
           })}

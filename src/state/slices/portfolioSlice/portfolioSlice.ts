@@ -5,7 +5,7 @@ import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { AccountSpecifier } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
+import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
@@ -22,19 +22,44 @@ export type PortfolioAccounts = {
 }
 
 export type PortfolioBalancesById = {
+  // these are aggregated balances across all accounts in a portfolio for the same asset
   // balance in base units of asset - bn doesn't serialize
   [k: CAIP19]: string
 }
 
-export type PortfolioBalances = {
+export type PortfolioAssetBalances = {
   byId: PortfolioBalancesById
   // all asset ids in an account
   ids: CAIP19[]
 }
 
+// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
+// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
+type AccountSpecifier = string
+
+export type PortfolioAccountBalances = {
+  byId: {
+    [k: AccountSpecifier]: {
+      // these are granular balances of this asset for this account
+      [k: CAIP19]: string // balance for asset in base units
+    }
+  }
+  ids: AccountSpecifier[]
+}
+
+export type PortfolioAccountSpecifiers = {
+  byId: {
+    // this maps an account identifier to a list of accounts
+    [k: AccountSpecifier]: CAIP10[]
+  }
+  ids: AccountSpecifier[]
+}
+
 export type Portfolio = {
+  accountSpecifiers: PortfolioAccountSpecifiers
   accounts: PortfolioAccounts
-  balances: PortfolioBalances
+  assetBalances: PortfolioAssetBalances
+  accountBalances: PortfolioAccountBalances
 }
 
 const initialState: Portfolio = {
@@ -59,7 +84,15 @@ const initialState: Portfolio = {
     ids: []
   },
   // TODO(0xdef1cafe): add accountAsset mapping here
-  balances: {
+  assetBalances: {
+    byId: {},
+    ids: []
+  },
+  accountSpecifiers: {
+    byId: {},
+    ids: []
+  },
+  accountBalances: {
     byId: {},
     ids: []
   }
@@ -75,9 +108,11 @@ export const portfolio = createSlice({
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
-      state.balances.byId = { ...state.balances.byId, ...payload.balances.byId }
-      const balanceIds = Array.from(new Set([...state.balances.ids, ...payload.balances.ids]))
-      state.balances.ids = balanceIds
+      state.assetBalances.byId = { ...state.assetBalances.byId, ...payload.assetBalances.byId }
+      const balanceIds = Array.from(
+        new Set([...state.assetBalances.ids, ...payload.assetBalances.ids])
+      )
+      state.assetBalances.ids = balanceIds
     }
   }
 })
@@ -105,13 +140,13 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.byId[CAIP10].push(caip19)
         portfolio.accounts.ids.push(CAIP10)
 
-        portfolio.balances.byId[caip19] = ethAccount.balance
-        portfolio.balances.ids.push(caip19)
+        portfolio.assetBalances.byId[caip19] = ethAccount.balance
+        portfolio.assetBalances.ids.push(caip19)
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           portfolio.accounts.byId[CAIP10].push(token.caip19)
-          portfolio.balances.ids.push(token.caip19)
-          portfolio.balances.byId[token.caip19] = token.balance
+          portfolio.assetBalances.ids.push(token.caip19)
+          portfolio.assetBalances.byId[token.caip19] = token.balance
         })
         break
       }
@@ -119,7 +154,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { caip2, caip19 } = account
         const addresses = btcAccount.chainSpecific.addresses ?? []
-        if (addresses.length) portfolio.balances.ids.push(caip19)
+        if (addresses.length) portfolio.assetBalances.ids.push(caip19)
         addresses.forEach(({ pubkey, balance }) => {
           if (bnOrZero(balance).eq(0)) return
           const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
@@ -129,10 +164,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           portfolio.accounts.byId[CAIP10].push(caip19)
           portfolio.accounts.ids.push(CAIP10)
 
-          portfolio.balances.byId[caip19] = bnOrZero(portfolio.balances.byId[caip19])
+          portfolio.assetBalances.byId[caip19] = bnOrZero(portfolio.assetBalances.byId[caip19])
             .plus(bnOrZero(balance))
             .toString()
-          if (!portfolio.balances.ids.includes(caip19)) portfolio.balances.ids.push(caip19)
+          if (!portfolio.assetBalances.ids.includes(caip19))
+            portfolio.assetBalances.ids.push(caip19)
         })
 
         break
@@ -152,7 +188,7 @@ export const portfolioApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getAccount: build.query<Portfolio, AccountSpecifier>({
+    getAccount: build.query<Portfolio, AccountSpecifierMap>({
       queryFn: async accountSpecifiers => {
         if (isEmpty(accountSpecifiers)) return { data: cloneDeep(initialState) }
         const chainAdapters = getChainAdapters()
@@ -183,17 +219,17 @@ export const portfolioApi = createApi({
   })
 })
 
-export const selectPortfolioAssetIds = (state: ReduxState): PortfolioBalances['ids'] =>
-  state.portfolio.balances.ids
-export const selectPortfolioBalances = (state: ReduxState): PortfolioBalances['byId'] =>
-  state.portfolio.balances.byId
+export const selectPortfolioAssetIds = (state: ReduxState): PortfolioAssetBalances['ids'] =>
+  state.portfolio.assetBalances.ids
+export const selectPortfolioBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
+  state.portfolio.assetBalances.byId
 
 export const selectPortfolioFiatBalances = createSelector(
   selectAssets,
   selectMarketData,
   selectPortfolioBalances,
   (assetsById, marketData, balances) =>
-    Object.entries(balances).reduce<PortfolioBalances['byId']>(
+    Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
       (acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
@@ -264,7 +300,7 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
   (portfolioFiatBalances): { [k: CAIP19]: string } =>
     Object.entries(portfolioFiatBalances)
       .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-      .reduce<PortfolioBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
+      .reduce<PortfolioAssetBalances['byId']>((acc, [assetId, assetFiatBalance]) => {
         acc[assetId] = assetFiatBalance
         return acc
       }, {})

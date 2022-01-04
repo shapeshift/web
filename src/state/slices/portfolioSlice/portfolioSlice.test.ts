@@ -47,7 +47,7 @@ const portfolio: Portfolio = {
     },
     ids: ['eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63']
   },
-  balances: {
+  assetBalances: {
     byId: {
       'eip155:1/slip44:60': '27803816548287370',
       'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': '42729243327349401946',
@@ -60,6 +60,14 @@ const portfolio: Portfolio = {
       'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
       'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
     ]
+  },
+  accountBalances: {
+    byId: {},
+    ids: []
+  },
+  accountSpecifiers: {
+    byId: {},
+    ids: []
   }
 }
 

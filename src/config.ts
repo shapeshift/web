@@ -1,6 +1,8 @@
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
 
+import env from './env'
+
 const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
@@ -26,6 +28,6 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   })
 }
 
-const getConfig = () => cleanEnv(process.env, validators, { reporter })
+const getConfig = () => cleanEnv(env, validators, { reporter })
 
 export { getConfig }

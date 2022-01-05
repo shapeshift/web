@@ -61,7 +61,12 @@ export const useAsset = () => {
   const contractType = ContractTypes.ERC20
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
+
+  // Many, but not all, assets are initialized with market data on app load. This dispatch will
+  // ensure that those assets not initialized on app load will reach over the network and populate
+  // the store with market data once a user visits that asset page.
   dispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))

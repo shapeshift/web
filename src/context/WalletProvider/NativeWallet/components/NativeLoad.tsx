@@ -1,9 +1,11 @@
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
   AlertIcon,
   Box,
   Button,
+  IconButton,
   ModalBody,
   ModalHeader,
   VStack
@@ -13,6 +15,7 @@ import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -26,7 +29,7 @@ type VaultInfo = {
   createdAt: number
 }
 
-export const NativeLoad = () => {
+export const NativeLoad = ({ history }: RouteComponentProps) => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
@@ -104,6 +107,11 @@ export const NativeLoad = () => {
     }
   }
 
+  const handleRename = async (wallet: VaultInfo) => {
+    const vault = wallet
+    history.push('/native/rename', { vault })
+  }
+
   return (
     <>
       <ModalHeader>
@@ -153,15 +161,20 @@ export const NativeLoad = () => {
                     />
                   </Box>
                 </Button>
-                <Button
-                  colorScheme='red'
-                  size='xs'
-                  variant='ghost-filled'
-                  mr={4}
-                  onClick={() => handleDelete(wallet)}
-                >
-                  <Text translation='common.forget' />
-                </Button>
+                <Box>
+                  <IconButton
+                    aria-label={translate('common.rename')}
+                    variant='ghost'
+                    icon={<EditIcon />}
+                    onClick={() => handleRename(wallet)}
+                  />
+                  <IconButton
+                    aria-label={translate('common.forget')}
+                    variant='ghost'
+                    icon={<DeleteIcon />}
+                    onClick={() => handleDelete(wallet)}
+                  />
+                </Box>
               </Row>
             )
           })}

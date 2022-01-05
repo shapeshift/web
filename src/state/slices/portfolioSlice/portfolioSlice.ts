@@ -109,10 +109,18 @@ export const portfolio = createSlice({
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
       state.assetBalances.byId = { ...state.assetBalances.byId, ...payload.assetBalances.byId }
-      const balanceIds = Array.from(
+      state.accountBalances.byId = {
+        ...state.accountBalances.byId,
+        ...payload.accountBalances.byId
+      }
+      const assetBalanceIds = Array.from(
         new Set([...state.assetBalances.ids, ...payload.assetBalances.ids])
       )
-      state.assetBalances.ids = balanceIds
+      const accountBalanceIds = Array.from(
+        new Set([...state.accountBalances.ids, ...payload.accountBalances.ids])
+      )
+      state.assetBalances.ids = assetBalanceIds
+      state.accountBalances.ids = accountBalanceIds
     }
   }
 })
@@ -130,12 +138,14 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
   Object.entries(args).forEach(([_xpubOrAccount, account]) => {
     const { chain, pubkey } = account
-    const accountSpecifier = `${caip2}:${pubkey}`
+    const accountSpecifier = `${account.caip2}:${pubkey}`
+
     switch (chain) {
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { caip2, caip19 } = account
         const CAIP10 = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        portfolio.accountBalances.ids.push(accountSpecifier)
 
         portfolio.accounts.byId[CAIP10] = []
         portfolio.accounts.byId[CAIP10].push(caip19)
@@ -148,6 +158,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           portfolio.accounts.byId[CAIP10].push(token.caip19)
           portfolio.assetBalances.ids.push(token.caip19)
           portfolio.assetBalances.byId[token.caip19] = token.balance
+
+          portfolio.accountBalances.byId[accountSpecifier] = {
+            ...portfolio.accountBalances.byId[accountSpecifier],
+            [token.caip19]: token.balance
+          }
         })
         break
       }

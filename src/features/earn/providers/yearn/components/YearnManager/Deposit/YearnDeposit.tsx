@@ -41,12 +41,12 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { marketApi, selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoBalanceById,
   selectPortfolioLoading
 } from 'state/slices/portfolioSlice/portfolioSlice'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
@@ -76,6 +76,7 @@ export type YearnDepositProps = {
 
 export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
@@ -87,6 +88,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
   const vaultCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
@@ -607,9 +609,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     }
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
-
   if (loading || !asset || !marketData) {
     return (
       <Center minW='350px' minH='350px'>
@@ -617,6 +616,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       </Center>
     )
   }
+
+  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   return (
     <Flex

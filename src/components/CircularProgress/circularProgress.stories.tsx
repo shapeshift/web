@@ -8,8 +8,8 @@ import {
   Container
 } from '@chakra-ui/react'
 import { Story } from '@storybook/react'
-import { TestProviders } from 'jest/TestProviders'
 
+import { TestProviders } from '../../test/TestProviders'
 import { CircularProgress } from './CircularProgress'
 
 export default {

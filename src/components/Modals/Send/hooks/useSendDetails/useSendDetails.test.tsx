@@ -6,8 +6,6 @@ import { useHistory } from 'react-router-dom'
 import { mocked } from 'ts-jest/utils'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ethereum as mockEthereum, rune as mockRune } from 'jest/mocks/assets'
-import { TestProviders } from 'jest/TestProviders'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -18,6 +16,8 @@ import {
   selectPortfolioFiatBalanceById
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
+import { ethereum as mockEthereum, rune as mockRune } from '../../../../../test/mocks/assets'
+import { TestProviders } from '../../../../../test/TestProviders'
 import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')

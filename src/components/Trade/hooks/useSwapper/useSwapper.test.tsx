@@ -4,11 +4,17 @@ import { act, renderHook } from '@testing-library/react-hooks'
 import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } from 'jest/constants'
-import { TestProviders } from 'jest/TestProviders'
 import { fromBaseUnit } from 'lib/math'
 
-import { ETHCHAIN_QUOTE } from '../../../../jest/constants'
+import {
+  ETHCHAIN_QUOTE,
+  ETHCHAIN_QUOTE_FEES,
+  FOX,
+  MIN_MAX,
+  USDC,
+  WETH
+} from '../../../../test/constants'
+import { TestProviders } from '../../../../test/TestProviders'
 import { TradeActions, useSwapper } from './useSwapper'
 
 jest.mock('lib/web3-instance')

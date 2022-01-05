@@ -3,9 +3,9 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { TestProviders } from 'jest/TestProviders'
 import { ReduxState } from 'state/reducer'
 
+import { TestProviders } from '../../../../../test/TestProviders'
 import { useSendFees } from './useSendFees'
 
 jest.mock('@shapeshiftoss/market-service')

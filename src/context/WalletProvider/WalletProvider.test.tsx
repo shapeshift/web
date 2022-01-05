@@ -2,8 +2,8 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { act, renderHook } from '@testing-library/react-hooks'
+import { TestProviders } from 'test/TestProviders'
 
-import { TestProviders } from '../../test/TestProviders'
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useWallet, WalletActions, WalletProvider } from './WalletProvider'
 

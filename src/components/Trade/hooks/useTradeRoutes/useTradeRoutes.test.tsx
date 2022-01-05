@@ -1,10 +1,10 @@
 import { SwapperType } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
+import { TestProviders } from 'test/TestProviders'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
 
-import { ETH as mockETH, FOX as mockFOX, WETH } from '../../../../test/constants'
-import { TestProviders } from '../../../../test/TestProviders'
 import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({

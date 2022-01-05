@@ -1,4 +1,5 @@
-import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from '../../../test/mocks/txs'
+import { BtcSend, EthReceive, EthSend, FOXSend, yearnVaultDeposit } from 'test/mocks/txs'
+
 import { getRelatedAssetIds } from './utils'
 
 describe('getRelatedAssetIds', () => {

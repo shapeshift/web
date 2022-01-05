@@ -3,10 +3,10 @@ import entries from 'lodash/entries'
 import map from 'lodash/map'
 import orderBy from 'lodash/orderBy'
 import shuffle from 'lodash/shuffle'
+import { mockStore } from 'test/mocks/store'
+import { BtcSend, EthReceive, EthSend, testTxs } from 'test/mocks/txs'
 import { store } from 'state/store'
 
-import { mockStore } from '../../../test/mocks/store'
-import { BtcSend, EthReceive, EthSend, testTxs } from '../../../test/mocks/txs'
 import { selectLastNTxIds, Tx, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {

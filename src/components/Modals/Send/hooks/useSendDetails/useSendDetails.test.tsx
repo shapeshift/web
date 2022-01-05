@@ -3,6 +3,8 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
+import { TestProviders } from 'test/TestProviders'
 import { mocked } from 'ts-jest/utils'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -16,8 +18,6 @@ import {
   selectPortfolioFiatBalanceById
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { ethereum as mockEthereum, rune as mockRune } from '../../../../../test/mocks/assets'
-import { TestProviders } from '../../../../../test/TestProviders'
 import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')

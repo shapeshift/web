@@ -2,10 +2,10 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
+import { TestProviders } from 'test/TestProviders'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ReduxState } from 'state/reducer'
 
-import { TestProviders } from '../../../../../test/TestProviders'
 import { useSendFees } from './useSendFees'
 
 jest.mock('@shapeshiftoss/market-service')

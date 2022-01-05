@@ -8,11 +8,14 @@ import {
   StatLabel,
   StatNumber
 } from '@chakra-ui/react'
+import { caip19 } from '@shapeshiftoss/caip'
+import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { useAppSelector } from 'state/store'
 
 import { MergedEarnVault } from '../hooks/useVaultBalances'
 
@@ -30,7 +33,10 @@ export const StakingCard = ({
   cryptoAmount,
   fiatAmount
 }: StakingCardProps) => {
-  const asset = useFetchAsset({ chain, tokenId: tokenAddress })
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
 
   if (!asset) return null
 
@@ -58,7 +64,7 @@ export const StakingCard = ({
           <Stat>
             <Skeleton isLoaded={isLoaded}>
               <StatLabel>
-                <Text translation='earn.rewardValue' />
+                <Text translation='earn.currentValue' />
               </StatLabel>
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>

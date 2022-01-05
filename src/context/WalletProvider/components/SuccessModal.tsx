@@ -1,16 +1,28 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
+import { ReactNode } from 'react'
+import { useEffect } from 'react'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { Text } from '../../../components/Text'
 
-export interface SuccessModalProps {
+export type SuccessModalProps = {
   headerText: string
   bodyText: string
-  children?: any
+  children?: ReactNode
 }
 
-export const SuccessModal = (props: SuccessModalProps) => {
+export const SuccessModal: React.FC<SuccessModalProps> = props => {
   const isSuccessful = true
+  const { dispatch } = useWallet()
+
+  useEffect(() => {
+    // close modal after 2 seconds
+    const timer = setTimeout(() => {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [dispatch])
 
   return (
     <>

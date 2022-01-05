@@ -25,7 +25,7 @@ export const useFormSend = () => {
     if (wallet) {
       try {
         const adapter = chainAdapterManager.byChain(data.asset.chain)
-        const value = bnOrZero(data.crypto.amount)
+        const value = bnOrZero(data.cryptoAmount)
           .times(bnOrZero(10).exponentiatedBy(data.asset.precision))
           .toFixed(0)
 
@@ -55,7 +55,7 @@ export const useFormSend = () => {
             to,
             value,
             wallet,
-            bip32Params: utxoParams.bip32Params,
+            bip44Params: utxoParams.bip44Params,
             chainSpecific: {
               satoshiPerByte: fees.chainSpecific.satoshiPerByte,
               accountType
@@ -91,8 +91,8 @@ export const useFormSend = () => {
         toast({
           title: translate('modals.send.sent', { asset: data.asset.name }),
           description: translate('modals.send.youHaveSent', {
-            amount: data.crypto.amount,
-            symbol: data.crypto.symbol
+            amount: data.cryptoAmount,
+            symbol: data.cryptoSymbol
           }),
           status: 'success',
           duration: 9000,

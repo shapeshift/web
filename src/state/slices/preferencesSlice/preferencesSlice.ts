@@ -1,5 +1,6 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { ReduxState } from 'state/reducer'
 
 export type Preferences = {
   accountTypes: Record<string, any>
@@ -15,6 +16,7 @@ export const supportedAccountTypes = {
 }
 
 const initialState: Preferences = {
+  // TODO(0xdef1cafe): this whole thing needs to be deleted once we have the account -> address abstraction
   accountTypes: {
     [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
   }
@@ -29,3 +31,10 @@ export const preferences = createSlice({
     }
   }
 })
+
+export const selectAccountTypes = (state: ReduxState) => state.preferences.accountTypes
+export const selectAccountTypesByChain = createSelector(
+  selectAccountTypes,
+  (_state: ReduxState, chain: ChainTypes) => chain,
+  (accountTypes, chain) => accountTypes[chain]
+)

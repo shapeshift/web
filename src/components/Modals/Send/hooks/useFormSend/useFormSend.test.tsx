@@ -6,13 +6,13 @@ import {
   NetworkTypes,
   UtxoAccountType
 } from '@shapeshiftoss/types'
-import { act, renderHook } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
-import { SendInput } from '../../Form'
+import { SendFormFields, SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
 
 jest.mock('@chakra-ui/react')
@@ -26,14 +26,11 @@ jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
 
 const formData: SendInput = {
-  address: '0xMyWalletAddres',
-  asset: {
+  [SendFormFields.Address]: '0xMyWalletAddres',
+  [SendFormFields.Asset]: {
+    caip2: '',
     caip19: '',
     description: '',
-    price: '',
-    marketCap: '',
-    volume: '',
-    changePercent24Hr: 0,
     chain: ChainTypes.Ethereum,
     dataSource: AssetDataSource.CoinGecko,
     network: NetworkTypes.MAINNET,
@@ -50,8 +47,9 @@ const formData: SendInput = {
     sendSupport: true,
     receiveSupport: true
   },
-  feeType: chainAdapters.FeeDataKey.Average,
-  estimatedFees: {
+  [SendFormFields.AmountFieldError]: '',
+  [SendFormFields.FeeType]: chainAdapters.FeeDataKey.Average,
+  [SendFormFields.EstimatedFees]: {
     [chainAdapters.FeeDataKey.Slow]: {
       txFee: '3100000000000000',
       chainSpecific: {
@@ -74,16 +72,11 @@ const formData: SendInput = {
       }
     }
   },
-  crypto: {
-    amount: '1',
-    symbol: 'ETH'
-  },
-  fiat: {
-    amount: '3500',
-    symbol: 'USD'
-  },
-  transaction: {},
-  sendMax: false
+  [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.CryptoSymbol]: 'ETH',
+  [SendFormFields.FiatAmount]: '3500',
+  [SendFormFields.FiatSymbol]: 'USD',
+  [SendFormFields.SendMax]: false
 }
 
 const textTxToSign = {
@@ -117,89 +110,83 @@ describe('useFormSend', () => {
   })
 
   it('handles successfully sending a tx', async () => {
-    return await act(async () => {
-      const toaster = jest.fn()
-      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: {
-          wallet: {
-            supportsOfflineSigning: jest.fn().mockReturnValue(true)
-          }
+    const toaster = jest.fn()
+    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: {
+        wallet: {
+          supportsOfflineSigning: jest.fn().mockReturnValue(true)
         }
-      }))
+      }
+    }))
 
-      const sendClose = jest.fn()
-      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-        byChain: () => ({
-          buildSendTransaction: () => Promise.resolve(textTxToSign),
-          signTransaction: () => Promise.resolve(testSignedTx),
-          broadcastTransaction: () => Promise.resolve(expectedTx),
-          getType: () => ChainTypes.Ethereum
-        })
-      }))
+    const sendClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: () => ({
+        buildSendTransaction: () => Promise.resolve(textTxToSign),
+        signTransaction: () => Promise.resolve(testSignedTx),
+        broadcastTransaction: () => Promise.resolve(expectedTx),
+        getType: () => ChainTypes.Ethereum
+      })
+    }))
 
-      const { result } = renderHook(() => useFormSend())
-      await result.current.handleSend(formData)
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-    })
+    const { result } = renderHook(() => useFormSend())
+    await result.current.handleSend(formData)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 
   it('handles successfully sending a tx without offline signing', async () => {
-    return await act(async () => {
-      const toaster = jest.fn()
-      const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
-      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: {
-          wallet: {
-            supportsOfflineSigning: jest.fn().mockReturnValue(false),
-            supportsBroadcast: jest.fn().mockReturnValue(true)
-          }
+    const toaster = jest.fn()
+    const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
+    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: {
+        wallet: {
+          supportsOfflineSigning: jest.fn().mockReturnValue(false),
+          supportsBroadcast: jest.fn().mockReturnValue(true)
         }
-      }))
+      }
+    }))
 
-      const sendClose = jest.fn()
-      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-        byChain: () => ({
-          buildSendTransaction: () => Promise.resolve(textTxToSign),
-          signAndBroadcastTransaction,
-          getType: () => ChainTypes.Ethereum
-        })
-      }))
+    const sendClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: () => ({
+        buildSendTransaction: () => Promise.resolve(textTxToSign),
+        signAndBroadcastTransaction,
+        getType: () => ChainTypes.Ethereum
+      })
+    }))
 
-      const { result } = renderHook(() => useFormSend())
-      await result.current.handleSend(formData)
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
-      expect(sendClose).toHaveBeenCalled()
-      expect(signAndBroadcastTransaction).toHaveBeenCalled()
-    })
+    const { result } = renderHook(() => useFormSend())
+    await result.current.handleSend(formData)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'success' }))
+    expect(sendClose).toHaveBeenCalled()
+    expect(signAndBroadcastTransaction).toHaveBeenCalled()
   })
 
   it('handles a failure while sending a tx', async () => {
-    return await act(async () => {
-      const toaster = jest.fn()
-      ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
-      ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
-        state: { wallet: {} }
-      }))
+    const toaster = jest.fn()
+    ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
+    ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({
+      state: { wallet: {} }
+    }))
 
-      const sendClose = jest.fn()
-      ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
-      ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
-        byChain: () => ({
-          buildSendTransaction: () => Promise.reject('All these calls failed'),
-          signTransaction: () => Promise.reject('All these calls failed'),
-          broadcastTransaction: () => Promise.reject('All these calls failed')
-        })
-      }))
+    const sendClose = jest.fn()
+    ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
+    ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
+      byChain: () => ({
+        buildSendTransaction: () => Promise.reject('All these calls failed'),
+        signTransaction: () => Promise.reject('All these calls failed'),
+        broadcastTransaction: () => Promise.reject('All these calls failed')
+      })
+    }))
 
-      const { result } = renderHook(() => useFormSend())
-      await result.current.handleSend(formData)
-      expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
-      expect(sendClose).toHaveBeenCalled()
-    })
+    const { result } = renderHook(() => useFormSend())
+    await result.current.handleSend(formData)
+    expect(toaster).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
+    expect(sendClose).toHaveBeenCalled()
   })
 })

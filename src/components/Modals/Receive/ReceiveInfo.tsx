@@ -1,4 +1,4 @@
-import { ArrowBackIcon, CheckIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -7,6 +7,7 @@ import {
   HStack,
   IconButton,
   LightMode,
+  Link,
   ModalBody,
   ModalCloseButton,
   ModalFooter,
@@ -220,6 +221,23 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                   />
                 </Button>
               ) : undefined}
+              <Button
+                as={Link}
+                href={`${asset?.explorerAddressLink}${receiveAddress}`}
+                isExternal
+                padding={2}
+                color='gray.500'
+                flexDir='column'
+                role='group'
+                isDisabled={!receiveAddress}
+                variant='link'
+                _hover={{ textDecoration: 'none', color: hoverColor }}
+              >
+                <Circle bg={bg} mb={2} size='40px' _groupHover={{ bg: 'blue.500', color: 'white' }}>
+                  <ExternalLinkIcon />
+                </Circle>
+                <Text translation='modals.receive.blockExplorer' />
+              </Button>
             </HStack>
           </ModalFooter>
         </>

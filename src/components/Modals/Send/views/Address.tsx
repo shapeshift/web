@@ -20,7 +20,7 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { AddressInput } from '../AddressInput/AddressInput'
-import { SendFormFields } from '../Form'
+import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
 export const Address = () => {
@@ -28,11 +28,16 @@ export const Address = () => {
   const translate = useTranslate()
   const {
     formState: { errors }
-  } = useFormContext()
-  const [address, asset] = useWatch({ name: [SendFormFields.Address, SendFormFields.Asset] })
+  } = useFormContext<SendInput>()
+  const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
+
   const chainAdapters = useChainAdapters()
-  const adapter = chainAdapters.byChain(asset.chain)
   const { send } = useModal()
+
+  if (!(asset?.chain && asset?.name)) return null
+
+  const adapter = chainAdapters.byChain(asset.chain)
 
   const handleNext = () => history.push(SendRoutes.Details)
 
@@ -57,7 +62,7 @@ export const Address = () => {
       </ModalHeader>
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
-        <FormControl isRequired>
+        <FormControl>
           <FormLabel color='gray.500' w='full'>
             {translate('modals.send.sendForm.sendTo')}
           </FormLabel>

@@ -41,12 +41,17 @@ export const useHasAppUpdated = () => {
     }
     // can't map/filter/reduce on HTMLCollectionOf
     for (let i = 0; i < scripts.length; i++) {
-      const { src: scriptMainJs } = scripts[i]
+      let { src: scriptMainJs } = scripts[i]
       if (!scriptMainJs) continue
       // this is the main entry point to the app bundle
       // create react app adds a hash to each build
       if (!scriptMainJs.includes(scriptIdentifier)) continue
       // if the asset-manifest.json main.js and current script main.js don't match we're out of date
+      try {
+        scriptMainJs = new URL(scriptMainJs).pathname
+      } catch {
+        // If it's not a absolute path, this will fail and that's OK
+      }
       if (scriptMainJs !== manifestMainJs) {
         console.info(
           `useHasAppUpdated: app updated, manifest: ${manifestMainJs}, script: ${scriptMainJs}`

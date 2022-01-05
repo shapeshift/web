@@ -24,6 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendRoutes } from '../Send'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
@@ -39,16 +40,23 @@ export const Confirm = () => {
   const {
     control,
     formState: { isSubmitting }
-  } = useFormContext()
+  } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { address, asset, crypto, fiat, feeType } = useWatch({ control })
+  const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
+    control
+  })
   const { fees } = useSendFees()
 
   const amountWithFees = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as chainAdapters.FeeDataKey] : { fiatFee: 0 }
-    return bnOrZero(fiat.amount).plus(fiatFee).toString()
-  }, [fiat.amount, fees, feeType])
+    return bnOrZero(fiatAmount).plus(fiatFee).toString()
+  }, [fiatAmount, fees, feeType])
+
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  if (!(address && asset?.name && cryptoSymbol && cryptoAmount && fiatAmount && feeType))
+    return null
 
   return (
     <SlideTransition>
@@ -74,10 +82,10 @@ export const Confirm = () => {
             fontWeight='bold'
             lineHeight='shorter'
             textTransform='uppercase'
-            symbol={crypto.symbol}
-            value={crypto.amount}
+            symbol={cryptoSymbol}
+            value={cryptoAmount}
           />
-          <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiat.amount} />
+          <Amount.Fiat color='gray.500' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
         <Stack spacing={4} mb={4}>
           <Row>
@@ -100,11 +108,7 @@ export const Confirm = () => {
           </FormControl>
         </Stack>
       </ModalBody>
-      <ModalFooter
-        flexDir='column'
-        borderTopWidth={1}
-        borderColor={useColorModeValue('gray.100', 'gray.750')}
-      >
+      <ModalFooter flexDir='column' borderTopWidth={1} borderColor={borderColor}>
         <Row>
           <Box>
             <Row.Label color='inherit' fontWeight='bold'>
@@ -121,8 +125,8 @@ export const Confirm = () => {
               <Amount.Crypto
                 textTransform='uppercase'
                 maximumFractionDigits={6}
-                symbol={crypto.symbol}
-                value={crypto.amount}
+                symbol={cryptoSymbol}
+                value={cryptoAmount}
               />
             </Row.Value>
             <Row.Label>

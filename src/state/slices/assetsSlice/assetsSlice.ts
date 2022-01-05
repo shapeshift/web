@@ -1,76 +1,140 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { getAssetService } from 'lib/assetService'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
+import { AssetService } from '@shapeshiftoss/asset-service'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { Asset, NetworkTypes } from '@shapeshiftoss/types'
+import cloneDeep from 'lodash/cloneDeep'
+import sortBy from 'lodash/sortBy'
 import { ReduxState } from 'state/reducer'
+import { selectMarketDataIds } from 'state/slices/marketDataSlice/marketDataSlice'
 
-export type FullAsset = Asset & { description?: string }
-export type AssetsState = { [key: string]: Asset & { description?: string } }
+let service: AssetService | undefined = undefined
 
-export const fetchAsset = createAsyncThunk(
-  'asset/fetchAsset',
-  async ({
-    tokenId,
-    chain,
-    network
-  }: {
-    tokenId?: string
-    chain: ChainTypes
-    network: NetworkTypes
-  }) => {
-    try {
-      const service = await getAssetService()
-
-      const assetData = service?.byTokenId({ chain, network, tokenId })
-      const description = await service?.description({ asset: assetData })
-      if (!assetData) return {}
-      if (!description) return { [tokenId || chain]: assetData }
-      return { [tokenId || chain]: { ...assetData, description } }
-    } catch (error) {
-      console.error(error)
-      return {}
-    }
+// do not export this, views get data from selectors
+// or directly from the store outside react components
+const getAssetService = async () => {
+  if (!service) {
+    service = new AssetService('')
   }
-)
-
-export const fetchAssets = createAsyncThunk(
-  'asset/fetchAssets',
-  async ({ network }: { network: NetworkTypes }, thunkApi) => {
-    try {
-      const service = await getAssetService()
-      const assets = service?.byNetwork(network)
-      const assetsObj = {} as AssetsState
-      const state = thunkApi.getState() as ReduxState
-
-      assets.forEach((asset: Asset) => {
-        const key = asset.tokenId ?? asset.chain
-        assetsObj[key] = { ...(state?.assets[key] ? state?.assets[key] : {}), ...asset }
-      })
-      return assetsObj
-    } catch (error) {
-      console.error(error)
-      return {}
-    }
+  if (!service?.isInitialized) {
+    await service.initialize()
   }
-)
 
-const initialState = {} as AssetsState
+  return service
+}
+
+export type AssetsState = {
+  byId: {
+    [key: CAIP19]: Asset
+  }
+  ids: CAIP19[]
+}
+
+const initialState: AssetsState = {
+  byId: {},
+  ids: []
+}
 
 export const assets = createSlice({
   name: 'asset',
   initialState,
-  reducers: {},
-  extraReducers: builder => {
-    builder
-      .addCase(fetchAsset.fulfilled, (state, { payload, meta }) => {
-        const tokenId = meta.arg.tokenId ?? meta.arg.chain
-        if (payload[tokenId]) {
-          state[tokenId] = payload[tokenId]
-        }
-      })
-      .addCase(fetchAssets.fulfilled, (state, { payload }) => {
-        Object.keys(payload).forEach(key => {
-          state[key] = payload[key]
-        })
-      })
+  reducers: {
+    setAssets: (state, action: PayloadAction<AssetsState>) => {
+      state.byId = { ...state.byId, ...action.payload.byId } // upsert
+      state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
+    }
   }
 })
+
+export const assetApi = createApi({
+  reducerPath: 'assetApi',
+  // not actually used, only used to satisfy createApi, we use a custom queryFn
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
+  endpoints: build => ({
+    getAssets: build.query<AssetsState, void>({
+      // all assets
+      queryFn: async () => {
+        const service = await getAssetService()
+        const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
+        const data = assetArray.reduce<AssetsState>((acc, cur) => {
+          const { caip19 } = cur
+          acc.byId[caip19] = cur
+          acc.ids.push(caip19)
+          return acc
+        }, cloneDeep(initialState))
+        return { data }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(assets.actions.setAssets(data))
+      }
+    }),
+    getAssetDescription: build.query<AssetsState, CAIP19>({
+      queryFn: async (assetId, { getState }) => {
+        const service = await getAssetService()
+        // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
+        const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
+        const byId = cloneDeep(byIdOriginal)
+        try {
+          byId[assetId].description = await service.description({ asset: byId[assetId] })
+          const data = { byId, ids }
+          return { data }
+        } catch (e) {
+          const data = `getAssetDescription: error fetching description for ${assetId}`
+          const status = 400
+          const error = { data, status }
+          return { error }
+        }
+      },
+      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+        await cacheDataLoaded
+        const data = getCacheEntry().data
+        data && dispatch(assets.actions.setAssets(data))
+      }
+    })
+  })
+})
+
+export const { useGetAssetsQuery } = assetApi
+
+export const selectAssetByCAIP19 = createSelector(
+  (state: ReduxState) => state.assets.byId,
+  (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
+  (byId, CAIP19) => byId[CAIP19]
+)
+
+export const selectAssets = (state: ReduxState) => state.assets.byId
+export const selectAssetIds = (state: ReduxState) => state.assets.ids
+
+export const selectAssetsByMarketCap = createSelector(
+  selectAssets,
+  selectMarketDataIds,
+  (assetsByIdOriginal, marketDataIds) => {
+    const assetById = cloneDeep(assetsByIdOriginal)
+    // we only prefetch market data for some
+    // and want this to be fairly performant so do some mutatey things
+    // market data ids are already sorted by market cap
+    const sortedWithMarketCap = marketDataIds.reduce<Asset[]>((acc, cur) => {
+      const asset = assetById[cur]
+      if (!asset) return acc
+      acc.push(asset)
+      delete assetById[cur]
+      return acc
+    }, [])
+    const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
+    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
+  }
+)
+
+export const selectFeeAssetById = createSelector(
+  selectAssets,
+  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (assetsById, assetId): Asset => {
+    const { chain, network } = caip19.fromCAIP19(assetId)
+    const feeAssetId = caip19.toCAIP19({ chain, network })
+    return assetsById[feeAssetId]
+  }
+)

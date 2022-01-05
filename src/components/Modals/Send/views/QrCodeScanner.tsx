@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
-import { SendFormFields } from '../Form'
+import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
 const QrReader = lazy(() => import('react-qr-reader'))
@@ -14,7 +14,7 @@ const QrReader = lazy(() => import('react-qr-reader'))
 export const QrCodeScanner = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const { setValue } = useFormContext()
+  const { setValue } = useFormContext<SendInput>()
 
   const handleError = () => {
     /** @todo render error to user */

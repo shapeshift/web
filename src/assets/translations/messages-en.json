@@ -64,7 +64,8 @@
     "menu": {
       "triggerButton": "Connect Wallet",
       "switchWallet": "Switch Wallet Provider",
-      "disconnect": "Disconnect"
+      "disconnect": "Disconnect",
+      "disconnected": "(Disconnected)"
     }
   },
   "earn": {
@@ -79,7 +80,7 @@
     "farmingBalance": "Farming Balance",
     "liquidityPoolBalance": "Liquidity Pool Balance",
     "poolValue": "Pool Value",
-    "rewardValue": "Reward Value",
+    "currentValue": "Current Value",
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
@@ -229,7 +230,8 @@
       "setAmount": "Set Amount",
       "verify": "Verify",
       "verified": "Verified",
-      "notVerified": "Address Mismatch"
+      "notVerified": "Address Mismatch",
+      "blockExplorer": "Explorer"
     },
     "deposit": {
       "amountToDeposit": "Amount To Deposit",
@@ -287,6 +289,9 @@
       "continue": "View My Position",
       "viewAsset": "View Asset",
       "close": "Close"
+    },
+    "connect": {
+      "loadingText": "Pairing Wallet"
     }
   },
   "walletProvider": {
@@ -326,7 +331,8 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
         "connectFailure": "Unable to connect MetaMask wallet",
-        "network": "MetaMask isn't set to Ethereum Mainnet"
+        "network": "MetaMask isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
       },
       "connect": {
         "header": "Pair MetaMask",
@@ -336,6 +342,11 @@
       "failure": {
         "header": "Error",
         "body": "Unable to connect MetaMask wallet"
+      },
+      "redirect": {
+        "header": "Open in MetaMask App",
+        "body": "Click to open ShapeShift dashboard in MetaMask",
+        "button": "Open"
       }
     },
     "portis": {

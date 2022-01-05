@@ -80,6 +80,10 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
       try {
         const deviceId = await wallet.getDeviceID()
+        // This gets the firmware version needed for some KeepKey "supportsX" functions
+        await wallet.getFeatures()
+        // Show the label from the wallet instead of a generic name
+        const label = (await wallet.getLabel()) || name
         state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
           if (e[1].message_enum === MessageType.FAILURE) {
             setErrorLoading(translateError(e[1]))
@@ -90,7 +94,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId }
+          payload: { wallet, name: label, icon, deviceId }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         history.push('/keepkey/success')

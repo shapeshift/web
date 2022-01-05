@@ -1,12 +1,5 @@
-import { CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
-import {
-  chainAdapters,
-  ChainTypes,
-  ContractTypes,
-  HistoryData,
-  HistoryTimeframe,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -21,14 +14,23 @@ import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useCAIP19Balances } from 'hooks/useBalances/useCAIP19Balances'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
-import { PortfolioAssets, usePortfolioAssets } from 'hooks/usePortfolioAssets/usePortfolioAssets'
+import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { usePriceHistory } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { PriceHistoryData } from 'pages/Assets/hooks/usePriceHistory/usePriceHistory'
-import { ReduxState } from 'state/reducer'
-import { selectTxs, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import {
+  PriceHistoryData,
+  selectPriceHistoriesLoadingByAssetTimeframe,
+  selectPriceHistoryTimeframe
+} from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  PortfolioAssets,
+  PortfolioBalances,
+  selectPortfolioAssets,
+  selectPortfolioBalances
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
   time: number
@@ -80,8 +82,8 @@ type MakeBucketsReturn = {
 
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
-  assets: CAIP19[]
-  balances: { [k: CAIP19]: chainAdapters.Account<ChainTypes> }
+  assetIds: CAIP19[]
+  balances: PortfolioBalances['byId']
 }
 
 // adjust this to give charts more or less granularity
@@ -97,13 +99,11 @@ export const timeframeMap = {
 type MakeBuckets = (args: MakeBucketsArgs) => MakeBucketsReturn
 
 export const makeBuckets: MakeBuckets = args => {
-  const { assets, balances, timeframe } = args
+  const { assetIds, balances, timeframe } = args
 
   // current asset balances, we iterate over this later and adjust on each tx
-  const assetBalances = assets.reduce<CryptoBalance>((acc, cur) => {
-    const account = balances[cur]
-    if (!account) return acc // we don't have a balance for this asset, e.g. metamask bitcoin
-    acc[cur] = bnOrZero(account.balance)
+  const assetBalances = assetIds.reduce<CryptoBalance>((acc, cur) => {
+    acc[cur] = bnOrZero(balances[cur])
     return acc
   }, {})
 
@@ -127,23 +127,6 @@ export const makeBuckets: MakeBuckets = args => {
   const { count, duration, unit } = meta
   const buckets = reverse(reduce(fill(Array(count), 0), makeReducer(duration, unit), []))
   return { buckets, meta }
-}
-
-export const caip2FromTx = ({ chain, network }: Tx): CAIP2 => caip2.toCAIP2({ chain, network })
-// ideally txs from unchained should include caip19
-export const caip19FromTx = (tx: Tx): CAIP19 => {
-  const { chain, network, asset: tokenId } = tx
-  const ethereumCAIP2 = caip2.toCAIP2({
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET
-  })
-  const assetCAIP2 = caip2FromTx(tx)
-  const contractType =
-    assetCAIP2 === ethereumCAIP2 && tokenId.startsWith('0x') ? ContractTypes.ERC20 : undefined
-
-  const extra = contractType ? { contractType, tokenId: tokenId.toLowerCase() } : undefined
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  return assetCAIP19
 }
 
 export const bucketTxs = (txs: Tx[], bucketsAndMeta: MakeBucketsReturn): Bucket[] => {
@@ -196,6 +179,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[caip19]
+    if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
@@ -214,7 +198,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 
 type CalculateBucketPricesArgs = {
   accountTypes: Record<string, any>
-  assets: CAIP19[]
+  assetIds: CAIP19[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
@@ -223,96 +207,53 @@ type CalculateBucketPricesArgs = {
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
-export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => {
-  const { accountTypes, assets, buckets, portfolioAssets, priceHistoryData } = args
+export const calculateBucketPrices: CalculateBucketPrices = args => {
+  const { accountTypes, assetIds, buckets, portfolioAssets, priceHistoryData } = args
+
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
     const { txs } = bucket
 
     // copy the balance back from the most recent bucket
-    bucket.balance = Object.assign(
-      {},
-      buckets[i + 1]?.balance || buckets[buckets.length - 1].balance
-    )
-
-    // unchained returns 3 tx's in redux for each trade tx; a trade, send, and receive
-    // we need to account for fees, but they appear in both the send and receive
-    // keep a set of seenTxs that we have accounted the fee for, so we don't double count
-    const seenTxs = new Set()
+    const currentBalance = buckets[i + 1]?.balance ?? buckets[buckets.length - 1].balance
+    bucket.balance = Object.assign({}, currentBalance)
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
-      const txAssetCAIP19 = caip19FromTx(tx)
-      const feeAssetCAIP19 = caip19.toCAIP19({ chain: tx.chain, network: tx.network })
-      // we only care about the list of assets being requested
-      // on a fee asset page, e.g. ethereum, we need to consider all erc20 txs
-      // as claiming an airdrop, or a trade, will appear as an erc20 receive,
-      // but we need to consider the gas paid too
-      if (!assets.includes(txAssetCAIP19) && !assets.includes(feeAssetCAIP19)) return
-
       // TODO(0xdef1cafe): type preferencesSlice correctly and remove this chain specific hack
-      if (tx.accountType && tx.chain === ChainTypes.Bitcoin) {
-        const bitcoinAccountType = accountTypes[ChainTypes.Bitcoin]
-        // only consider the selected account type of the portfolio
-        if (tx.accountType !== bitcoinAccountType) return
+      // only consider the selected account type of the portfolio
+      if (tx.accountType && tx.accountType !== accountTypes[tx.chain]) return
+
+      if (tx.fee && assetIds.includes(tx.fee.caip19)) {
+        // balance history being built in descending order, so fee means we had more before
+        bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
+          bnOrZero(tx.fee.value)
+        )
       }
 
-      const feeValue = bnOrZero(tx.fee?.value)
-      const value = bnOrZero(tx.value) // tx value in base units
-      switch (tx.type) {
-        case TxType.Send: {
-          if (bucket.balance.crypto[txAssetCAIP19]) {
+      tx.transfers.forEach(transfer => {
+        const asset = transfer.caip19
+
+        if (!assetIds.includes(asset)) return
+
+        const bucketValue = bnOrZero(bucket.balance.crypto[asset])
+        const transferValue = bnOrZero(transfer.value)
+
+        switch (transfer.type) {
+          case TxType.Send:
             // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].plus(value)
-          }
-
-          // if we're computing a portfolio chart, we have to adjust feeAsset balances
-          // on each token tx, but if we're just on an individual token chart, we
-          // may not have the fee asset in the assets list
-
-          // we've already seen this tx, don't double count the fee
-          if (seenTxs.has(tx.txid)) break
-
-          if (assets.includes(feeAssetCAIP19)) {
-            // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[feeAssetCAIP19] =
-              bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
-          }
-          seenTxs.add(tx.txid)
-          break
-        }
-        case TxType.Receive: {
-          // for some contract interactions, the txAsset may be a token (e.g. erc20)
-          // but we may be on the fee asset (e.g. eth) chart
-          if (bucket.balance.crypto[txAssetCAIP19]) {
+            bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
+            break
+          case TxType.Receive:
             // we're going backwards, so a receive means we had less before
-            bucket.balance.crypto[txAssetCAIP19] = bucket.balance.crypto[txAssetCAIP19].minus(value)
+            bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
+            break
+          default: {
+            console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }
-
-          // we've already seen this tx, don't double count the fee
-          if (seenTxs.has(tx.txid)) break
-
-          // some txs, e.g. claim an airdrop, require gas but are receives of tokens
-          if (bucket.balance.crypto[feeAssetCAIP19]) {
-            // we're going backwards, so a send means we had more before
-            // and even though this is a receive tx of a token, we sent the fee
-            bucket.balance.crypto[feeAssetCAIP19] =
-              bucket.balance.crypto[feeAssetCAIP19].plus(feeValue)
-          }
-          seenTxs.add(tx.txid)
-          break
         }
-        case TxType.Trade: {
-          // we get a corresponding send and receive for trades
-          // so we can safely ignore them
-          break
-        }
-        default: {
-          console.warn(`calculateBucketPrices: unknown tx type ${tx.type}`)
-          break
-        }
-      }
+      })
     })
 
     bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
@@ -321,13 +262,22 @@ export const calculateBucketPrices: CalculateBucketPrices = (args): Bucket[] => 
   return buckets
 }
 
+type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
+
+export const bucketsToChartData: BucketsToChartData = buckets => {
+  return buckets.map(bucket => ({
+    price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
+    date: bucket.end.toISOString()
+  }))
+}
+
 type UseBalanceChartDataReturn = {
   balanceChartData: Array<HistoryData>
   balanceChartDataLoading: boolean
 }
 
 type UseBalanceChartDataArgs = {
-  assets: CAIP19[]
+  assetIds: CAIP19[]
   timeframe: HistoryTimeframe
 }
 
@@ -342,64 +292,67 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  // assets is a caip19[] of requested assets for this balance chart
-  const { assets, timeframe } = args
+  const { assetIds, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  const { balances, loading: caip19BalancesLoading } = useCAIP19Balances()
-  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
+  const balances = useSelector(selectPortfolioBalances)
+  const accountTypes = useSelector(selectAccountTypes)
+  const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo }
   } = useWallet()
-  // portfolioAssets are all assets in a users portfolio
-  const { portfolioAssets, portfolioAssetsLoading } = usePortfolioAssets()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
-  const txs = useDebounce(useSelector(selectTxs), 500)
-  const { data: priceHistoryData, loading: priceHistoryLoading } = usePriceHistory(args)
+  const txs = useDebounce(useSelector(selectTxValues), 500)
+  // kick off requests for all the price histories we need
+  useFetchPriceHistories({ assetIds, timeframe })
+  const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
+  const priceHistoryDataLoading = useAppSelector(state =>
+    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
+  )
 
+  // loading state
+  useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
+
+  // calculation
   useEffect(() => {
-    if (isNil(walletInfo?.deviceId)) return
-    if (priceHistoryLoading) return
-    if (caip19BalancesLoading) return
-    if (portfolioAssetsLoading) return
-    if (!assets.length) return
-    if (!txs.length) return
-    if (isEmpty(balances)) return
-    if (!assets.every(asset => (priceHistoryData[asset] ?? []).length)) return // need price history for all assets
+    // data prep
+    const noDeviceId = isNil(walletInfo?.deviceId)
+    const noAssetIds = !assetIds.length
+    const noTxs = !txs.length
+    const noBalances = isEmpty(balances)
+    const noPriceHistory = priceHistoryDataLoading
+    if (noDeviceId || noAssetIds || noTxs || noBalances || noPriceHistory) {
+      return setBalanceChartDataLoading(true)
+    }
 
-    setBalanceChartDataLoading(true)
     // create empty buckets based on the assets, current balances, and timeframe
-    const emptyBuckets = makeBuckets({ assets, balances, timeframe })
+    const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     // put each tx into a bucket for the chart
     const buckets = bucketTxs(txs, emptyBuckets)
 
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
       accountTypes,
-      assets,
+      assetIds,
       buckets,
       priceHistoryData,
       portfolioAssets
     })
 
-    const balanceChartData: Array<HistoryData> = calculatedBuckets.map(bucket => ({
-      price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
-      date: bucket.end.toISOString()
-    }))
-    setBalanceChartData(balanceChartData)
+    const chartData = bucketsToChartData(calculatedBuckets)
+
+    setBalanceChartData(chartData)
     setBalanceChartDataLoading(false)
   }, [
-    assets,
+    assetIds,
     accountTypes,
     priceHistoryData,
-    priceHistoryLoading,
+    priceHistoryDataLoading,
     txs,
     timeframe,
     balances,
-    caip19BalancesLoading,
     setBalanceChartData,
-    portfolioAssetsLoading,
     portfolioAssets,
     walletInfo?.deviceId
   ])

@@ -12,10 +12,11 @@ import { useParams } from 'react-router-dom'
 import { Page } from 'components/Layout/Page'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
+  marketApi,
   selectMarketDataById,
   selectMarketDataLoadingById
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetDetails } from './AssetDetails/AssetDetails'
 export interface MatchParams {
@@ -53,11 +54,14 @@ export const initMarketData: MarketData = {
 }
 
 export const useAsset = () => {
+  const dispatch = useAppDispatch()
+
   const { chain, tokenId } = useParams<MatchParams>()
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
+  dispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))

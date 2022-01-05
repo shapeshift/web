@@ -129,7 +129,8 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args).forEach(([_xpubOrAccount, account]) => {
-    const { chain } = account
+    const { chain, pubkey } = account
+    const accountSpecifier = `${caip2}:${pubkey}`
     switch (chain) {
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
@@ -154,7 +155,10 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { caip2, caip19 } = account
         const addresses = btcAccount.chainSpecific.addresses ?? []
-        if (addresses.length) portfolio.assetBalances.ids.push(caip19)
+        if (addresses.length) {
+          portfolio.assetBalances.ids.push(caip19)
+          portfolio.accountBalances.ids.push(accountSpecifier)
+        }
         addresses.forEach(({ pubkey, balance }) => {
           if (bnOrZero(balance).eq(0)) return
           const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
@@ -163,6 +167,12 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           }
           portfolio.accounts.byId[CAIP10].push(caip19)
           portfolio.accounts.ids.push(CAIP10)
+
+          portfolio.accountBalances.byId[accountSpecifier] = {
+            [caip19]: bnOrZero(portfolio.accountBalances.byId[accountSpecifier]?.[caip19])
+              .plus(bnOrZero(balance))
+              .toString()
+          }
 
           portfolio.assetBalances.byId[caip19] = bnOrZero(portfolio.assetBalances.byId[caip19])
             .plus(bnOrZero(balance))

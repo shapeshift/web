@@ -106,7 +106,9 @@ const portfolio: Portfolio = {
   accountSpecifiers: {
     byId: {
       [ethAccountSpecifier]: [ethCaip10],
-      [btcAccountSpecifier]: btcAccount.chainSpecific.addresses.map(address => `${btcCaip2}:${address.pubkey}`)
+      [btcAccountSpecifier]: btcAccount.chainSpecific.addresses.map(
+        address => `${btcCaip2}:${address.pubkey}`
+      )
     },
     ids: [ethAccountSpecifier, btcAccountSpecifier]
   }

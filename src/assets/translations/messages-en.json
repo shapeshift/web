@@ -185,7 +185,8 @@
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
-          "length": "Your password must be at least %{length} characters"
+          "length": "Your password must be at least %{length} characters",
+          "maxLength": "Nickname must be %{length} characters maximum"
         }
       }
     },
@@ -418,7 +419,8 @@
         "header": "Rename your wallet",
         "walletName": "New nickname for your wallet",
         "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
-        "button": "Next"
+        "button": "Next",
+        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
       }
     },
     "selectModal": {

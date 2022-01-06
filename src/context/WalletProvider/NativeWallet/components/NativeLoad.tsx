@@ -144,12 +144,11 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                 >
                   <Box textAlign='left'>
                     <RawText
-                      overflow='hidden'
                       fontWeight='medium'
-                      textOverflow='ellipsis'
-                      maxWidth='290px'
+                      maxWidth='260px'
                       lineHeight='1.2'
                       mb={1}
+                      isTruncated
                     >
                       {wallet.name}
                     </RawText>
@@ -161,7 +160,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                     />
                   </Box>
                 </Button>
-                <Box>
+                <Box display='flex'>
                   <IconButton
                     aria-label={translate('common.rename')}
                     variant='ghost'

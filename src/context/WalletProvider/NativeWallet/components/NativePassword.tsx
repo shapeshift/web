@@ -53,14 +53,20 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       <ModalBody>
         <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl mb={6}>
+          <FormControl mb={6} isInvalid={errors.name}>
             <Input
-              {...register('name')}
+              {...register('name', {
+                maxLength: {
+                  value: 64,
+                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 })
+                }
+              })}
               size='lg'
               variant='filled'
               id='name'
               placeholder={translate('modals.shapeShift.password.walletName')}
             />
+            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
           <FormControl mb={6} isInvalid={errors.password}>
             <InputGroup size='lg' variant='filled'>
@@ -90,7 +96,14 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             </InputGroup>
             <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
           </FormControl>
-          <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
+          <Button
+            colorScheme='blue'
+            size='lg'
+            isFullWidth
+            type='submit'
+            isLoading={isSubmitting}
+            isDisabled={errors.name}
+          >
             <Text translation={'walletProvider.shapeShift.password.button'} />
           </Button>
         </form>

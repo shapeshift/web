@@ -108,10 +108,7 @@ const portfolio: Portfolio = {
       [ethAccountSpecifier]: [ethCaip10],
       [btcAccountSpecifier]: [
         // btc caip10s
-        `${btcCaip2}:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l`,
-        `${btcCaip2}:bc1q3fmp9tdacg5edlgmh8ttxz7cvj598dcn7w9xxd`,
-        `${btcCaip2}:bc1qvzuvxskhr5eyaf65w37jxwwvskwyw3rlnqtyzc`,
-        `${btcCaip2}:bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8`
+        ...btcAccount.chainSpecific.addresses.map(address => `${btcCaip2}:${address.pubkey}`)
       ]
     },
     ids: [ethAccountSpecifier, btcAccountSpecifier]

@@ -1,6 +1,7 @@
 import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { checkObjEquality } from 'lib/utils'
 
 import { getConfig } from '../../config'
 
@@ -8,18 +9,23 @@ const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)
+  const [initialManifestMainJs, setManifestMainJs] = useState(null)
+  // asset-manifest tells us the latest minified built files
+  const url = '/asset-manifest.json'
+  const storeMainManifestJs = async () => {
+    // dummy query param bypasses browser cache
+    const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+    setManifestMainJs(data)
+  }
+  useMemo(storeMainManifestJs, [])
   useInterval(async () => {
     // we don't care about updates locally obv
     if (getConfig().isDevelopment) return
-    // this will break if we ever eject from create react app
-    const scriptIdentifier = '/static/js/main.'
-    // asset-manifest tells us the latest minified built files
-    const url = '/asset-manifest.json'
+
     let manifestMainJs
     try {
-      // dummy query param bypasses browser cache
       const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
-      manifestMainJs = data?.files?.['main.js']
+      manifestMainJs = data
     } catch (e) {
       console.error(`useHasAppUpdated: error fetching asset-manifest.json`, e)
     }
@@ -27,38 +33,17 @@ export const useHasAppUpdated = () => {
       console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
       return
     }
-    if (!manifestMainJs.includes(scriptIdentifier)) {
-      console.error(
-        `useHasAppUpdated: manifest main.js doesn't start with identifier ${scriptIdentifier}`,
-        manifestMainJs
+    //deep equality check
+    let areEquals = checkObjEquality(initialManifestMainJs, manifestMainJs)
+    if (!areEquals) {
+      console.info(
+        `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
+          manifestMainJs
+        )}, initial: ${JSON.stringify(initialManifestMainJs)}`
       )
-      return
-    }
-    const scripts = document.getElementsByTagName('script')
-    if (!scripts.length) {
-      console.error(`useHasAppUpdated: can't find scripts in dom`)
-      return
-    }
-    // can't map/filter/reduce on HTMLCollectionOf
-    for (let i = 0; i < scripts.length; i++) {
-      let { src: scriptMainJs } = scripts[i]
-      if (!scriptMainJs) continue
-      // this is the main entry point to the app bundle
-      // create react app adds a hash to each build
-      if (!scriptMainJs.includes(scriptIdentifier)) continue
-      // if the asset-manifest.json main.js and current script main.js don't match we're out of date
-      try {
-        scriptMainJs = new URL(scriptMainJs).pathname
-      } catch {
-        // If it's not a absolute path, this will fail and that's OK
-      }
-      if (scriptMainJs !== manifestMainJs) {
-        console.info(
-          `useHasAppUpdated: app updated, manifest: ${manifestMainJs}, script: ${scriptMainJs}`
-        )
-        setHasUpdated(true)
-      }
+      setHasUpdated(true)
     }
   }, APP_UPDATE_CHECK_INTERVAL)
+
   return hasUpdated
 }

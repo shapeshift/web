@@ -77,10 +77,7 @@ const portfolio: Portfolio = {
       [ethAccountSpecifier]: [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19],
       [btcAccountSpecifier]: [btcCaip19]
     },
-    ids: [
-      ethAccountSpecifier,
-      btcAccountSpecifier
-    ]
+    ids: [ethAccountSpecifier, btcAccountSpecifier]
   },
   assetBalances: {
     byId: {
@@ -104,16 +101,11 @@ const portfolio: Portfolio = {
         [btcCaip19]: '1010'
       }
     },
-    ids: [
-      ethAccountSpecifier,
-      btcAccountSpecifier
-    ]
+    ids: [ethAccountSpecifier, btcAccountSpecifier]
   },
   accountSpecifiers: {
     byId: {
-      [ethAccountSpecifier]: [
-        ethCaip10
-      ],
+      [ethAccountSpecifier]: [ethCaip10],
       [btcAccountSpecifier]: [
         // btc caip10s
         `${btcCaip2}:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l`,
@@ -122,10 +114,7 @@ const portfolio: Portfolio = {
         `${btcCaip2}:bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8`
       ]
     },
-    ids: [
-      ethAccountSpecifier,
-      btcAccountSpecifier
-    ]
+    ids: [ethAccountSpecifier, btcAccountSpecifier]
   }
 }
 

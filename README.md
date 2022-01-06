@@ -128,9 +128,9 @@ Runs the component documentation.<br /> Open
 
 ### Linking
 
-The lib repository contains packages used in multiple ShapeShift repositories, and is often needed to run projects locally. 
-To use the latest version of lib when running the web app, it is necessary to use yarn link so that you can use local
-changes to lib in your local web repo.
+If you're developing locally in this web repository, and need to make changes affecting packages in lib 
+or unchained (backend), use the following steps to link packages locally for developing. 
+If your changes only touch web these steps are not necessary.
 
 1. Clone lib and unchained repos
 3. Go into lib and run yarn link - you only have to do this the first time to get things setup

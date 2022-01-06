@@ -23,8 +23,8 @@ import {
   selectPriceHistoryTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  PortfolioAssets,
   PortfolioAssetBalances,
+  PortfolioAssets,
   selectPortfolioAssets,
   selectPortfolioBalances
 } from 'state/slices/portfolioSlice/portfolioSlice'

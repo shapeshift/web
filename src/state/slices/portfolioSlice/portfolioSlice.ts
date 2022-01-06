@@ -5,6 +5,7 @@ import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import toLower from 'lodash/toLower'
+import uniq from 'lodash/uniq'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -12,7 +13,6 @@ import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import uniq from 'lodash/uniq'
 
 export type PortfolioAccounts = {
   byId: {

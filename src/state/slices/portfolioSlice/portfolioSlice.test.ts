@@ -1,4 +1,4 @@
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 
 import { accountToPortfolio, Portfolio } from './portfolioSlice'
 

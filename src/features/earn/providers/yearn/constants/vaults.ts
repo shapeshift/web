@@ -37,7 +37,16 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
   },
   {
     vaultAddress: toLower('0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9'),
-    name: 'USDC',
+    name: 'USDC 0.3.0',
+    symbol: 'yvUSDC',
+    tokenAddress: toLower('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
+    chain: ChainTypes.Ethereum,
+    provider: EarnProvider.Yearn,
+    type: EarnType.Vault
+  },
+  {
+    vaultAddress: toLower('0xa354f35829ae975e850e23e9615b11da1b3dc4de'),
+    name: 'USDC 0.4.3',
     symbol: 'yvUSDC',
     tokenAddress: toLower('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
     chain: ChainTypes.Ethereum,
@@ -64,7 +73,7 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
   },
   {
     vaultAddress: toLower('0x4B5BfD52124784745c1071dcB244C6688d2533d3'),
-    name: 'USD',
+    name: 'YCURVE',
     symbol: 'yUSD',
     tokenAddress: toLower('0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8'),
     chain: ChainTypes.Ethereum,

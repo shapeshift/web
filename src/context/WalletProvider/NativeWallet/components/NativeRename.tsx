@@ -26,9 +26,18 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = await Vault.open(location.state.vault.id, values.password)
-      vault.meta.set('name', values.name)
-      await vault.save()
-      history.goBack()
+      if (values.name.length === 0) {
+        const result = window.confirm(translate('walletProvider.shapeShift.rename.confirmDelete'))
+        if (result) {
+          vault.meta.delete('name')
+          await vault.save()
+          history.goBack()
+        }
+      } else {
+        vault.meta.set('name', values.name)
+        await vault.save()
+        history.goBack()
+      }
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Rename - Error invalid password', e)
       setError('password', {
@@ -53,14 +62,20 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
       <ModalBody>
         <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.rename.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FormControl mb={6}>
+          <FormControl mb={6} isInvalid={errors.name}>
             <Input
-              {...register('name')}
+              {...register('name', {
+                maxLength: {
+                  value: 64,
+                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 })
+                }
+              })}
               size='lg'
               variant='filled'
               id='name'
               placeholder={translate('walletProvider.shapeShift.rename.walletName')}
             />
+            <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
           <FormControl mb={6} isInvalid={errors.password}>
             <InputGroup size='lg' variant='filled'>
@@ -90,7 +105,14 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
             </InputGroup>
             <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
           </FormControl>
-          <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
+          <Button
+            colorScheme='blue'
+            size='lg'
+            isFullWidth
+            type='submit'
+            isLoading={isSubmitting}
+            isDisabled={errors.name}
+          >
             <Text translation={'walletProvider.shapeShift.rename.button'} />
           </Button>
         </form>

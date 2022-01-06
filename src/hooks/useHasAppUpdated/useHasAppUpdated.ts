@@ -1,7 +1,7 @@
 import { useInterval } from '@chakra-ui/hooks'
 import axios from 'axios'
+import isEqual from 'lodash/isEqual'
 import { useMemo, useState } from 'react'
-import { checkObjEquality } from 'lib/utils'
 
 import { getConfig } from '../../config'
 
@@ -34,8 +34,8 @@ export const useHasAppUpdated = () => {
       return
     }
     //deep equality check
-    let areEquals = checkObjEquality(initialManifestMainJs, manifestMainJs)
-    if (!areEquals) {
+    let isSameAssetManifest = isEqual(initialManifestMainJs, manifestMainJs)
+    if (!isSameAssetManifest) {
       console.info(
         `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
           manifestMainJs

@@ -103,7 +103,7 @@ module.exports = {
     //
     // Removable when https://github.com/facebook/create-react-app/pull/11752 is merged upstream.
     _.merge(config, {
-      ignoreWarnings: [...config.ignoreWarnings, 
+      ignoreWarnings: [...config.ignoreWarnings,
         function ignoreSourceMapLoaderWarnings(warning) {
           return (
             warning.module?.resource?.includes?.('node_modules') &&
@@ -117,7 +117,7 @@ module.exports = {
     _.merge(config, {
       plugins: config.plugins.map(plugin => {
         if (plugin.constructor.name !== 'DefinePlugin') return plugin
-  
+
         const definitions = JSON.parse(JSON.stringify(plugin.definitions))
         const env = definitions['process.env'] || {}
 
@@ -142,6 +142,9 @@ module.exports = {
         hashFuncNames: ['sha256'],
       })],
     })
+
+    //patch for electron
+    config.target = 'electron-renderer'
 
     return config
   },

@@ -20,6 +20,7 @@
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
     "darkMode": "Dark Mode",
+    "rename": "Rename",
     "forget": "Forget?",
     "available": "available",
     "somethingWentWrong": "Something went wrong",
@@ -411,6 +412,12 @@
         "body": "Which of these is the",
         "body2": " word",
         "body3": "in your secret phrase.",
+        "button": "Next"
+      },
+      "rename": {
+        "header": "Rename your wallet",
+        "walletName": "New nickname for your wallet",
+        "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
         "button": "Next"
       }
     },

@@ -100,7 +100,9 @@
     "type-check-watch": "tsc --watch --project ./tsconfig.json --noEmit",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
-    "postinstall": "./scripts/postinstall.sh"
+    "postinstall": "./scripts/postinstall.sh",
+    "create-release": "./scripts/release.sh release",
+    "merge-release": "./scripts/release.sh main"
   },
   "eslintConfig": {
     "extends": "react-app",

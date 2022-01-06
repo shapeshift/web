@@ -67,61 +67,55 @@ const btcAccount = {
     'zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w'
 }
 
+const ethAccountSpecifier = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
+const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+const ethCaip10 = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
+
 const portfolio: Portfolio = {
   accounts: {
     byId: {
-      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63': [
-        'eip155:1/slip44:60',
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
-      ],
-      [`${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`]: [`${btcCaip19}`]
+      [ethAccountSpecifier]: [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19],
+      [btcAccountSpecifier]: [btcCaip19]
     },
     ids: [
-      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63',
-      `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+      ethAccountSpecifier,
+      btcAccountSpecifier
     ]
   },
   assetBalances: {
     byId: {
-      'eip155:1/slip44:60': '27803816548287370',
-      'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': '42729243327349401946',
-      'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '41208456',
-      'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9': '8178352',
+      [ethCaip19]: '27803816548287370',
+      [foxCaip19]: '42729243327349401946',
+      [usdcCaip19]: '41208456',
+      [yvusdcCaip19]: '8178352',
       [`${btcCaip19}`]: '1010'
     },
-    ids: [
-      'eip155:1/slip44:60',
-      'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      `${btcCaip19}`
-    ]
+    ids: [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19, btcCaip19]
   },
   accountBalances: {
     byId: {
-      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63': {
-        'eip155:1/slip44:60': '27803816548287370',
-        'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': '42729243327349401946',
-        'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '41208456',
-        'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9': '8178352'
+      [ethAccountSpecifier]: {
+        [ethCaip19]: '27803816548287370',
+        [foxCaip19]: '42729243327349401946',
+        [usdcCaip19]: '41208456',
+        [yvusdcCaip19]: '8178352'
       },
-      [`${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`]: {
-        [`${btcCaip19}`]: '1010'
+      [btcAccountSpecifier]: {
+        [btcCaip19]: '1010'
       }
     },
     ids: [
-      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63',
-      `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+      ethAccountSpecifier,
+      btcAccountSpecifier
     ]
   },
   accountSpecifiers: {
     byId: {
-      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63': [
-        'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63'
+      [ethAccountSpecifier]: [
+        ethCaip10
       ],
-      [`${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`]: [
+      [btcAccountSpecifier]: [
+        // btc caip10s
         `${btcCaip2}:bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l`,
         `${btcCaip2}:bc1q3fmp9tdacg5edlgmh8ttxz7cvj598dcn7w9xxd`,
         `${btcCaip2}:bc1qvzuvxskhr5eyaf65w37jxwwvskwyw3rlnqtyzc`,
@@ -129,8 +123,8 @@ const portfolio: Portfolio = {
       ]
     },
     ids: [
-      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63',
-      `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+      ethAccountSpecifier,
+      btcAccountSpecifier
     ]
   }
 }

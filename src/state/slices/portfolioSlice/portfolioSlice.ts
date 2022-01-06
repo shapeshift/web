@@ -12,6 +12,7 @@ import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import uniq from 'lodash/uniq'
 
 export type PortfolioAccounts = {
   byId: {
@@ -183,28 +184,33 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       case ChainTypes.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { caip2, caip19 } = account
-        const addresses =
-          btcAccount.chainSpecific.addresses?.filter(addy => bnOrZero(addy.balance).gt(0)) ?? []
+        const addresses = btcAccount.chainSpecific.addresses ?? []
         if (addresses.length) {
           portfolio.assetBalances.ids.push(caip19)
           portfolio.accountBalances.ids.push(accountSpecifier)
           portfolio.accountSpecifiers.ids.push(accountSpecifier)
         }
         addresses.forEach(({ pubkey, balance }) => {
-          if (bnOrZero(balance).eq(0)) return
+          // For tx history, we need to have CAIP10's of addresses that may have 0 balances
+          // for accountSpecifier to CAIP10 mapping
           const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
-          if (!portfolio.accounts.byId[accountSpecifier]?.length) {
-            portfolio.accounts.byId[accountSpecifier] = []
-          }
-          portfolio.accounts.byId[accountSpecifier].push(caip19)
-          portfolio.accounts.ids.push(accountSpecifier)
-
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
             portfolio.accountSpecifiers.byId[accountSpecifier] = []
           }
 
           portfolio.accountSpecifiers.byId[accountSpecifier].push(CAIP10)
 
+          if (bnOrZero(balance).eq(0)) return
+
+          if (!portfolio.accounts.byId[accountSpecifier]?.length) {
+            portfolio.accounts.byId[accountSpecifier] = []
+          }
+          // only add new caip19s to accounts
+          if (!portfolio.accounts.byId[accountSpecifier].find(item => item === caip19)) {
+            portfolio.accounts.byId[accountSpecifier].push(caip19)
+          }
+
+          portfolio.accounts.ids = uniq([...portfolio.accounts.ids, accountSpecifier])
           portfolio.accountBalances.byId[accountSpecifier] = {
             [caip19]: bnOrZero(portfolio.accountBalances.byId[accountSpecifier]?.[caip19])
               .plus(bnOrZero(balance))

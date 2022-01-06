@@ -76,9 +76,12 @@ const portfolio: Portfolio = {
         'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
         'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
       ],
-      [`${btcCaip2}:${btcAccount.pubkey}`]: [`${btcCaip19}`]
+      [`${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`]: [`${btcCaip19}`]
     },
-    ids: ['eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63', `${btcCaip2}:${btcAccount.pubkey}`]
+    ids: [
+      'eip155:1:0x934be745172066edf795ffc5ea9f28f19b440c63',
+      `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+    ]
   },
   assetBalances: {
     byId: {

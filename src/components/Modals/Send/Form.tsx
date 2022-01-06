@@ -11,7 +11,8 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { AssetMarketData, useGetAssetData } from 'hooks/useAsset/useAsset'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useAppSelector } from 'state/store'
 
 import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -26,47 +27,36 @@ export enum SendFormFields {
   Asset = 'asset',
   FeeType = 'feeType',
   EstimatedFees = 'estimatedFees',
-  Crypto = 'crypto',
-  CryptoAmount = 'crypto.amount',
-  CryptoSymbol = 'crypto.symbol',
-  FiatAmount = 'fiat.amount',
-  Fiat = 'fiat',
-  FiatSymbol = 'fiat.symbol',
-  Transaction = 'transaction',
+  CryptoAmount = 'cryptoAmount',
+  CryptoSymbol = 'cryptoSymbol',
+  FiatAmount = 'fiatAmount',
+  FiatSymbol = 'fiatSymbol',
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax'
 }
 
 export type SendInput = {
   [SendFormFields.Address]: string
-  [SendFormFields.Asset]: AssetMarketData
+  [SendFormFields.AmountFieldError]: string
+  [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
-  [SendFormFields.Crypto]: {
-    amount: string
-    symbol: string
-  }
-  [SendFormFields.Fiat]: {
-    amount: string
-    symbol: string
-  }
-  // TODO(0xdef1cafe): remove this from form state
-  [SendFormFields.Transaction]: unknown
+  [SendFormFields.CryptoAmount]: string
+  [SendFormFields.CryptoSymbol]: string
+  [SendFormFields.FiatAmount]: string
+  [SendFormFields.FiatSymbol]: string
   [SendFormFields.SendMax]: boolean
 }
 
 type SendFormProps = {
-  asset: AssetMarketData
+  asset: Asset
 }
 
 export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
-  const getAssetData = useGetAssetData({
-    chain: initialAsset.chain,
-    tokenId: initialAsset.tokenId
-  })
+  const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -74,26 +64,19 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
       address: '',
       asset: initialAsset,
       feeType: chainAdapters.FeeDataKey.Average,
-      crypto: {
-        amount: '',
-        symbol: initialAsset?.symbol
-      },
-      fiat: {
-        amount: '',
-        symbol: 'USD' // TODO: localize currency
-      }
+      cryptoAmount: '',
+      cryptoSymbol: initialAsset?.symbol,
+      fiatAmount: '',
+      fiatSymbol: 'USD' // TODO: use user preferences to get default fiat currency
     }
   })
 
   const handleAssetSelect = async (asset: Asset) => {
-    const assetMarketData = await getAssetData({
-      chain: asset.chain,
-      tokenId: asset.tokenId
-    })
-    if (!assetMarketData) return console.error('Failed to get marketData')
-    methods.setValue(SendFormFields.Asset, { ...asset, ...assetMarketData })
-    methods.setValue(SendFormFields.Crypto, { symbol: asset.symbol, amount: '' })
-    methods.setValue(SendFormFields.Fiat, { symbol: 'USD', amount: '' })
+    methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    methods.setValue(SendFormFields.CryptoAmount, '')
+    methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
+    methods.setValue(SendFormFields.FiatAmount, '')
+    methods.setValue(SendFormFields.FiatSymbol, 'USD')
 
     history.push(SendRoutes.Address)
   }

@@ -1,76 +1,49 @@
-import { getMarketData } from '@shapeshiftoss/market-service'
-import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { findByCaip19 } from '@shapeshiftoss/market-service'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { mocked } from 'ts-jest/utils'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useGetAssetData } from 'hooks/useAsset/useAsset'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
+import { ethereum as mockEthereum, rune as mockRune } from 'jest/mocks/assets'
 import { TestProviders } from 'jest/TestProviders'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  PortfolioBalancesById,
+  selectPortfolioCryptoBalanceById,
+  selectPortfolioCryptoHumanBalanceById,
+  selectPortfolioFiatBalanceById
+} from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { useAccountBalances } from '../useAccountBalances/useAccountBalances'
 import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
-jest.mock('components/Modals/Send/hooks/useAccountBalances/useAccountBalances')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
-jest.mock('hooks/useAsset/useAsset')
-jest.mock('hooks/useBalances/useFlattenedBalances')
 
-const balances: ReturnType<typeof useFlattenedBalances>['balances'] = {
-  [ChainTypes.Ethereum]: {
-    chain: ChainTypes.Ethereum,
-    network: NetworkTypes.MAINNET,
-    symbol: 'ETH',
-    pubkey: '0x0000000000000000000000000000000000000000',
-    balance: '5000000000000000000',
-    chainSpecific: {
-      nonce: 0,
-      tokens: [
-        {
-          contractType: ContractTypes.ERC20,
-          name: 'THORChain ETH.RUNE',
-          contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-          symbol: 'RUNE',
-          precision: 18,
-          balance: '21000000000000000000'
-        }
-      ]
-    }
-  },
-  '0x3155ba85d5f96b2d030a4966af206230e46849cb': {
-    contractType: ContractTypes.ERC20,
-    chain: ChainTypes.Ethereum,
-    name: 'THORChain ETH.RUNE',
-    contract: '0x3155BA85D5F96b2d030a4966AF206230e46849cb',
-    symbol: 'RUNE',
-    precision: 18,
-    balance: '21000000000000000000'
-  }
-}
+jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
+  ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
+  selectFeeAssetById: jest.fn()
+}))
 
-const ethAsset = {
-  chain: ChainTypes.Ethereum,
-  name: 'Ethereum',
-  network: NetworkTypes.MAINNET,
-  price: 3500,
-  symbol: 'eth',
-  precision: 18
-}
+jest.mock('state/slices/portfolioSlice/portfolioSlice', () => ({
+  ...jest.requireActual('state/slices/portfolioSlice/portfolioSlice'),
+  selectPortfolioCryptoBalanceById: jest.fn(),
+  selectPortfolioCryptoHumanBalanceById: jest.fn(),
+  selectPortfolioFiatBalanceById: jest.fn()
+}))
 
-const erc20RuneAsset = {
-  chain: ChainTypes.Ethereum,
-  tokenId: '0x3155ba85d5f96b2d030a4966af206230e46849cb',
-  name: 'THORChain (ERC20)',
-  network: NetworkTypes.MAINNET,
-  price: 10,
-  symbol: 'rune',
-  precision: 18
+const ethCaip19 = 'eip155:1/slip44:60'
+const runeCaip19 = 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
+
+const balances: PortfolioBalancesById = {
+  [ethCaip19]: '5000000000000000000',
+  [runeCaip19]: '21000000000000000000'
 }
 
 const estimatedFees = {
@@ -82,65 +55,57 @@ const estimatedFees = {
   }
 }
 
-const getEthAccountBalances = () => {
-  const crypto = bnOrZero(balances.ethereum.balance).div('1e18')
-  const fiat = crypto.times(ethAsset.price)
-  return {
-    crypto,
-    fiat
-  }
-}
-
-const getRuneAccountBalances = () => {
-  const crypto = bnOrZero(balances['0x3155ba85d5f96b2d030a4966af206230e46849cb'].balance).div(
-    '1e18'
-  )
-  const fiat = crypto.times(erc20RuneAsset.price)
-  return {
-    crypto,
-    fiat
-  }
-}
-
-const getAssetData = () =>
-  Promise.resolve({
-    name: 'Ethereum',
-    chain: ChainTypes.Ethereum,
-    price: '3500',
-    symbol: 'ETH',
-    precision: 18
-  })
+jest.mock('state/slices/marketDataSlice/marketDataSlice', () => ({
+  ...jest.requireActual('state/slices/marketDataSlice/marketDataSlice'),
+  selectMarketDataById: jest.fn()
+}))
 
 const setup = ({
-  asset = ethAsset,
-  assetBalance = {},
-  accountBalances = {},
-  balanceError = null,
+  asset = mockEthereum,
+  assetBalance = '',
   formErrors = {},
   setError = jest.fn(),
   setValue = jest.fn()
 }) => {
-  ;(useGetAssetData as jest.Mock<unknown>).mockReturnValueOnce(getAssetData)
-  ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [
-    asset,
-    '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
-  ])
-  ;(useAccountBalances as jest.Mock<unknown>).mockImplementation(() => ({
-    assetBalance,
-    accountBalances
-  }))
-  ;(useFlattenedBalances as jest.Mock<unknown>).mockImplementation(() => ({
-    balances,
-    error: balanceError,
-    loading: false
-  }))
+  ;(useWatch as jest.Mock<unknown>).mockImplementation(({ name }) =>
+    name === 'asset' ? asset : '0x3155BA85D5F96b2d030a4966AF206230e46849cb'
+  )
+  mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
+    const fakeMarketData = {
+      [mockEthereum.caip19]: {
+        price: '3500',
+        marketCap: 'bigly',
+        volume: 'lots',
+        changePercent24Hr: 420.69
+      },
+      [mockRune.caip19]: {
+        price: '69',
+        marketCap: 'to the',
+        volume: 'moon',
+        changePercent24Hr: 420.69
+      }
+    }
+    return fakeMarketData[assetId]
+  })
+  mocked(selectPortfolioFiatBalanceById).mockImplementation((_state, assetId) => {
+    const fakeFiatBalanceData = {
+      [mockEthereum.caip19]: '17500',
+      [mockRune.caip19]: '14490.00'
+    }
+    return fakeFiatBalanceData[assetId]
+  })
+  mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
+  mocked(selectPortfolioCryptoBalanceById).mockReturnValue(assetBalance)
+  mocked(selectPortfolioCryptoHumanBalanceById).mockReturnValue(
+    bnOrZero(assetBalance).div('1e18').toString()
+  )
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     clearErrors: jest.fn(),
     setError,
     setValue,
     formState: { errors: formErrors },
     getValues: () => ({
-      crypto: { amount: '1' },
+      cryptoAmount: '1',
       asset
     })
   }))
@@ -162,7 +127,7 @@ describe('useSendDetails', () => {
         })
       })
     }))
-    ;(getMarketData as jest.Mock<unknown>).mockImplementation(() => ({
+    ;(findByCaip19 as jest.Mock<unknown>).mockImplementation(() => ({
       price: 3500,
       network: 'ethereum'
     }))
@@ -175,38 +140,37 @@ describe('useSendDetails', () => {
   it('returns the default useSendDetails state', async () => {
     return await act(async () => {
       const { result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances()
+        assetBalance: balances[ethCaip19]
       })
       expect(result.current.balancesLoading).toBe(false)
-      expect(result.current.fieldName).toBe('fiat.amount')
+      expect(result.current.fieldName).toBe('fiatAmount')
       expect(result.current.loading).toBe(false)
     })
   })
 
   it('toggles the input field', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     return await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances()
+        assetBalance: balances[ethCaip19]
       })
-      expect(result.current.fieldName).toBe('fiat.amount')
+      expect(result.current.fieldName).toBe('fiatAmount')
       act(() => {
         result.current.toggleCurrency()
       })
       await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('crypto.amount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
     })
   })
 
-  it('toggles the amount input error to the fiat.amount/crypto.amount field', async () => {
+  it('toggles the amount input error to the fiatAmount/cryptoAmount field', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     return await act(async () => {
       let setError = jest.fn()
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances(),
+        assetBalance: balances[ethCaip19],
         formErrors: {
-          fiat: { amount: { message: 'common.insufficientFunds' } }
+          fiatAmount: { message: 'common.insufficientFunds' }
         },
         setError
       })
@@ -217,60 +181,57 @@ describe('useSendDetails', () => {
 
       await waitForValueToChange(() => result.current.fieldName)
 
-      expect(result.current.fieldName).toBe('crypto.amount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
     })
   })
 
-  it('handles input change on fiat.amount', async () => {
+  it('handles input change on fiatAmount', async () => {
     const setValue = jest.fn()
+    const { result } = setup({
+      assetBalance: balances[ethCaip19],
+      setValue
+    })
+    // Field is set to fiatAmount
+    expect(result.current.fieldName).toBe('fiatAmount')
+
+    // Set fiat amount
     await act(async () => {
-      const { result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances(),
-        setValue
-      })
-      // Field is set to fiat.amount
-      expect(result.current.fieldName).toBe('fiat.amount')
+      result.current.handleInputChange('3500')
+      await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
 
-      // Set fiat amount
-      await act(async () => {
-        result.current.handleInputChange('3500')
-        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('crypto.amount', '1')
+      setValue.mockClear()
 
-        setValue.mockClear()
-
-        await result.current.handleInputChange('0')
-        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('crypto.amount', '0')
-        setValue.mockClear()
-      })
+      result.current.handleInputChange('0')
+      await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
+      setValue.mockClear()
     })
   })
 
-  it('handles input change on crypto.amount', async () => {
+  it('handles input change on cryptoAmount', async () => {
     const setValue = jest.fn()
+    // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
       const { waitForValueToChange, result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances(),
+        assetBalance: balances[ethCaip19],
         setValue
       })
-      // Field is set to fiat.amount
-      expect(result.current.fieldName).toBe('fiat.amount')
+      // Field is set to fiatAmount
+      expect(result.current.fieldName).toBe('fiatAmount')
 
-      // toggle field to crypto.amount
+      // toggle field to cryptoAmount
       act(() => {
         result.current.toggleCurrency()
       })
       await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('crypto.amount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
 
       // Set crypto amount
       await act(async () => {
         result.current.handleInputChange('1')
         await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('fiat.amount', '3500')
+        expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
         setValue.mockClear()
       })
     })
@@ -278,41 +239,32 @@ describe('useSendDetails', () => {
 
   it('handles setting up send max for network asset', async () => {
     const setValue = jest.fn()
-    return await act(async () => {
-      const { result } = setup({
-        assetBalance: balances.ethereum,
-        accountBalances: getEthAccountBalances(),
-        setValue
+    const { result } = setup({
+      assetBalance: balances[ethCaip19],
+      setValue
+    })
+    await act(async () => {
+      await result.current.handleSendMax()
+      expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
+      expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
+        fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
       })
-      await act(async () => {
-        await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
-        expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
-          fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
-        })
-        expect(setValue).toHaveBeenNthCalledWith(3, 'crypto.amount', '5')
-        expect(setValue).toHaveBeenNthCalledWith(4, 'fiat.amount', '17500.00')
-      })
+      expect(setValue).toHaveBeenNthCalledWith(3, 'cryptoAmount', '5')
+      expect(setValue).toHaveBeenNthCalledWith(4, 'fiatAmount', '17500.00')
     })
   })
 
   it('handles setting up send max for erc20', async () => {
     const setValue = jest.fn()
-    return await act(async () => {
-      const { result } = setup({
-        asset: erc20RuneAsset,
-        assetBalance: balances['0x3155ba85d5f96b2d030a4966af206230e46849cb'],
-        accountBalances: getRuneAccountBalances(),
-        setValue
-      })
-      await act(async () => {
-        await result.current.handleSendMax()
-        expect(setValue).toHaveBeenNthCalledWith(1, 'sendMax', true)
-        expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
-          fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
-        })
-        expect(setValue).toHaveBeenNthCalledWith(3, 'crypto.amount', '21')
-      })
+    const { result } = setup({
+      asset: mockRune,
+      assetBalance: balances[runeCaip19],
+      setValue
+    })
+    await act(async () => {
+      await result.current.handleSendMax()
+      expect(setValue).toHaveBeenNthCalledWith(1, 'cryptoAmount', '21')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'fiatAmount', '14490.00')
     })
   })
 })

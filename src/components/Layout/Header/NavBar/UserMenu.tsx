@@ -4,7 +4,8 @@ import {
   CloseIcon,
   HamburgerIcon,
   MoonIcon,
-  RepeatIcon
+  RepeatIcon,
+  WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import {
@@ -20,7 +21,7 @@ import {
 } from '@chakra-ui/react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { breakpoints } from 'theme/theme'
 
@@ -49,13 +50,29 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
-} & Pick<InitialState, 'walletInfo'>
+} & Pick<InitialState, 'walletInfo' | 'isConnected'>
 
-const WalletConnected = ({ walletInfo, onDisconnect, onSwitchProvider }: WalletConnectedProps) => {
+const WalletConnected = ({
+  walletInfo,
+  isConnected,
+  onDisconnect,
+  onSwitchProvider
+}: WalletConnectedProps) => {
   const translate = useTranslate()
   return (
     <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
-      <MenuItem icon={<WalletImage walletInfo={walletInfo} />}>{walletInfo?.name}</MenuItem>
+      <MenuItem icon={<WalletImage walletInfo={walletInfo} />}>
+        <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
+          <RawText>{walletInfo?.name}</RawText>
+          {!isConnected && (
+            <Text
+              translation={'connectWallet.menu.disconnected'}
+              fontSize='sm'
+              color='yellow.500'
+            />
+          )}
+        </Flex>
+      </MenuItem>
       <MenuDivider ml={3} />
       <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
         {translate('connectWallet.menu.switchWallet')}
@@ -73,8 +90,12 @@ type WalletButtonProps = {
 } & Pick<InitialState, 'walletInfo'>
 
 const WalletButton = ({ isConnected, walletInfo, onConnect }: WalletButtonProps) => {
-  return isConnected ? (
-    <Button onClick={onConnect} leftIcon={<WalletImage walletInfo={walletInfo} />}>
+  return Boolean(walletInfo?.deviceId) ? (
+    <Button
+      onClick={onConnect}
+      leftIcon={<WalletImage walletInfo={walletInfo} />}
+      rightIcon={isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+    >
       {walletInfo?.name}
     </Button>
   ) : (
@@ -90,6 +111,7 @@ export const UserMenu = () => {
   const isActive = useColorModeValue(false, true)
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo } = state
+  const hasWallet = Boolean(walletInfo?.deviceId)
 
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -105,8 +127,9 @@ export const UserMenu = () => {
           <HamburgerIcon />
         </MenuButton>
         <MenuList width={{ base: '100vw', md: '300px' }} maxWidth='100%' minWidth={0}>
-          {isConnected ? (
+          {hasWallet ? (
             <WalletConnected
+              isConnected={isConnected}
               walletInfo={walletInfo}
               onDisconnect={disconnect}
               onSwitchProvider={handleConnect}

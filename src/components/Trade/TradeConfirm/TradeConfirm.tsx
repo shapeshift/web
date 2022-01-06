@@ -14,7 +14,6 @@ import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshif
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { RouterProps, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -27,8 +26,8 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import { ReduxState } from 'state/reducer'
-import { selectTxHistoryByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectLastTxStatusByAssetId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
 
 import { AssetToAsset } from './AssetToAsset'
 
@@ -60,11 +59,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const contractType = ContractTypes.ERC20
   const extra = { contractType, tokenId }
   const caip = caip19.toCAIP19({ chain, network, ...(tokenId ? extra : undefined) })
-  const txs = useSelector((state: ReduxState) =>
-    selectTxHistoryByFilter(state, { caip19: caip, txid })
-  )
-  const transaction = txs[0]
-  const status = transaction && transaction?.status
+
+  const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
 
   const onSubmit = async () => {
     if (!wallet) return

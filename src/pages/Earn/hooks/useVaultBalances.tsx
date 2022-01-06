@@ -1,4 +1,5 @@
-import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { YearnVaultApi } from 'features/earn/providers/yearn/api/api'
 import {
@@ -8,29 +9,44 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { ReduxState } from 'state/reducer'
-import { fetchAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { fetchMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  PortfolioBalancesById,
+  selectPortfolioBalances,
+  selectPortfolioLoading
+} from 'state/slices/portfolioSlice/portfolioSlice'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
-  SupportedYearnVault & { pricePerShare: BigNumber }
+  SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }
 
-async function getYearnVaults(
-  balances: Record<string, Partial<chainAdapters.Account<ChainTypes>>>,
-  yearn: YearnVaultApi | null
-) {
+async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}
   for (let index = 0; index < SUPPORTED_VAULTS.length; index++) {
+    // TODO: caip indentifiers in SUPPORTED_VAULTS
     const vault = SUPPORTED_VAULTS[index]
-    const balance = balances[vault.vaultAddress]
+    const vaultCaip19 = caip19.toCAIP19({
+      chain: vault.chain,
+      network: NetworkTypes.MAINNET,
+      contractType: ContractTypes.ERC20,
+      tokenId: vault.vaultAddress
+    })
+    const tokenCaip19 = caip19.toCAIP19({
+      chain: vault.chain,
+      network: NetworkTypes.MAINNET,
+      contractType: ContractTypes.ERC20,
+      tokenId: vault.tokenAddress
+    })
+    const balance = balances[vaultCaip19]
 
     if (balance) {
       const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
       acc[vault.vaultAddress] = {
         ...vault,
-        ...balance,
+        balance,
+        vaultCaip19,
+        tokenCaip19,
         pricePerShare: bnOrZero(pricePerShare)
       }
     }
@@ -56,37 +72,20 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   } = useWallet()
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
-  const marketData = useSelector((state: ReduxState) => state.marketData.marketData)
-  const assets = useSelector((state: ReduxState) => state.assets)
+  const marketData = useSelector(selectMarketData)
+  const assets = useSelector(selectAssets)
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
-  const { balances, loading: balancesLoading } = useFlattenedBalances()
+  const balances = useSelector(selectPortfolioBalances)
+  const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!wallet || yearnLoading || balancesLoading) return
+    if (!wallet || yearnLoading) return
     ;(async () => {
       setLoading(true)
       try {
         const yearnVaults = await getYearnVaults(balances, yearn)
-        // get asset and market data for all underlying assets/vault assets
-        Object.values(yearnVaults).forEach(vault => {
-          dispatch(
-            fetchAsset({
-              chain: vault.chain,
-              network: NetworkTypes.MAINNET,
-              tokenId: vault.vaultAddress
-            })
-          )
-          dispatch(
-            fetchAsset({
-              chain: vault.chain,
-              network: NetworkTypes.MAINNET,
-              tokenId: vault.tokenAddress
-            })
-          )
-          dispatch(fetchMarketData({ chain: vault.chain, tokenId: vault.tokenAddress }))
-        })
         setVaults(yearnVaults)
       } catch (error) {
         console.error('error', error)
@@ -97,11 +96,10 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn])
 
   const makeVaultFiatAmount = useCallback(
-    vault => {
-      const vaultAddress = vault.vaultAddress
-      const asset = assets[vaultAddress]
+    (vault: EarnVault) => {
+      const asset = assets[vault.vaultCaip19]
       const pricePerShare = bnOrZero(vault.pricePerShare).div(`1e+${asset?.precision}`)
-      const marketPrice = marketData[vault.tokenAddress]?.price
+      const marketPrice = marketData[vault.tokenCaip19]?.price
       return bnOrZero(vault.balance)
         .div(`1e+${asset?.precision}`)
         .times(pricePerShare)
@@ -122,7 +120,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const mergedVaults = useMemo(() => {
     return Object.entries(vaults).reduce(
       (acc: Record<string, MergedEarnVault>, [vaultAddress, vault]) => {
-        const asset = assets[vaultAddress]
+        const asset = assets[vault.vaultCaip19]
         const fiatAmount = makeVaultFiatAmount(vault)
         const yearnVault = yearn?.findByVaultTokenId(vaultAddress)
         acc[vaultAddress] = {

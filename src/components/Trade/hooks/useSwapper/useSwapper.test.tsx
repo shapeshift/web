@@ -56,8 +56,8 @@ function setup({
     clearErrors
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
-  const hook = renderHook(() => useSwapper(), { wrapper })
-  return { hook, wallet, setValue, setError, clearErrors, getQuote, getBestSwapper }
+  const { result } = renderHook(() => useSwapper(), { wrapper })
+  return { result, wallet, setValue, setError, clearErrors, getQuote, getBestSwapper }
 }
 
 describe('useSwapper', () => {
@@ -70,35 +70,35 @@ describe('useSwapper', () => {
     }))
   })
   it('approves infinite', async () => {
-    const { hook, wallet } = setup()
-    const txid = await hook.result.current.approveInfinite(wallet)
+    const { result, wallet } = setup()
+    const txid = await result.current.approveInfinite(wallet)
     expect(txid).toBe('0x023423093248420937')
   })
   it('gets approval needed', async () => {
-    const { hook, wallet } = setup()
-    const approvalNeeded = await hook.result.current.checkApprovalNeeded(wallet)
+    const { result, wallet } = setup()
+    const approvalNeeded = await result.current.checkApprovalNeeded(wallet)
     expect(approvalNeeded).toBe(false)
   })
   it('returns true when approval is needed', async () => {
-    const { hook, wallet } = setup({ approvalNeededBoolean: true })
+    const { result, wallet } = setup({ approvalNeededBoolean: true })
 
-    const approvalNeeded = await hook.result.current.checkApprovalNeeded(wallet)
+    const approvalNeeded = await result.current.checkApprovalNeeded(wallet)
     expect(approvalNeeded).toBe(true)
   })
   it('gets default pair', () => {
-    const { hook } = setup()
-    const defaultPair = hook.result.current.getDefaultPair()
+    const { result } = setup()
+    const defaultPair = result.current.getDefaultPair()
     expect(defaultPair).toHaveLength(2)
   })
   it('swappermanager initializes with swapper', () => {
-    const { hook } = setup()
-    const swapperManager = hook.result.current.swapperManager
+    const { result } = setup()
+    const swapperManager = result.current.swapperManager
     expect(swapperManager).not.toBeNull()
   })
   it('getQuote gets quote with sellAmount', async () => {
-    const { hook, setValue } = setup({ action: TradeActions.SELL })
+    const { result, setValue } = setup({ action: TradeActions.SELL })
     await act(async () => {
-      hook.result.current.getQuote({
+      result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
@@ -118,9 +118,9 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(7, 'fiatAmount', '0.00')
   })
   it('getQuote gets quote with buyAmount', async () => {
-    const { hook, setValue } = setup({ action: TradeActions.BUY })
+    const { result, setValue } = setup({ action: TradeActions.BUY })
     await act(async () => {
-      hook.result.current.getQuote({
+      result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
@@ -140,9 +140,9 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(7, 'fiatAmount', '0.00')
   })
   it('getQuote needs buyAsset or sellAsset', async () => {
-    const { hook, getQuote } = setup({ action: TradeActions.FIAT })
+    const { result, getQuote } = setup({ action: TradeActions.FIAT })
     await act(async () => {
-      hook.result.current.getQuote({
+      result.current.getQuote({
         amount: '20',
         //@ts-ignore
         sellAsset: { currency: undefined },
@@ -153,9 +153,9 @@ describe('useSwapper', () => {
     expect(getQuote).not.toHaveBeenCalled()
   })
   it('getQuote gets quote with fiatAmount', async () => {
-    const { hook, setValue } = setup({ action: TradeActions.FIAT })
+    const { result, setValue } = setup({ action: TradeActions.FIAT })
     await act(async () => {
-      hook.result.current.getQuote({
+      result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
@@ -181,9 +181,9 @@ describe('useSwapper', () => {
   it('getQuote sets trade value with minMax if no quote is in state', async () => {
     const minMax = { minimum: '1000', minimumAmount: '1' }
     //@ts-ignore
-    const { hook, setValue } = setup({ quote: null, minMax })
+    const { result, setValue } = setup({ quote: null, minMax })
     await act(async () => {
-      hook.result.current.getQuote({
+      result.current.getQuote({
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
@@ -203,9 +203,9 @@ describe('useSwapper', () => {
     expect(setValue).toHaveBeenNthCalledWith(7, 'fiatAmount', '0.00')
   })
   it('getBestSwapper gets best swapper', async () => {
-    const { hook, getBestSwapper } = setup()
+    const { result, getBestSwapper } = setup()
     await act(async () => {
-      await hook.result.current.getBestSwapper({
+      await result.current.getBestSwapper({
         sellAsset: { currency: WETH },
         buyAsset: { currency: FOX }
       })
@@ -213,8 +213,8 @@ describe('useSwapper', () => {
     expect(getBestSwapper).toHaveBeenCalled()
   })
   it('reset resets', () => {
-    const { hook, setValue } = setup()
-    const reset = hook.result.current.reset
+    const { result, setValue } = setup()
+    const reset = result.current.reset
     reset()
     expect(setValue).toBeCalledWith('buyAsset.amount', '')
     expect(setValue).toBeCalledWith('sellAsset.amount', '')

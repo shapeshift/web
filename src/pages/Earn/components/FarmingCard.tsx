@@ -49,7 +49,7 @@ export const FarmingCard = ({ token0, token1, tokenAmount, fiatAmount, isLoaded 
           <Stat>
             <Skeleton isLoaded={isLoaded}>
               <StatLabel>
-                <Text translation='earn.rewardValue' />
+                <Text translation='earn.currentValue' />
               </StatLabel>
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>

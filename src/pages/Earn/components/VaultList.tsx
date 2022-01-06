@@ -62,7 +62,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
               color='gray.500'
               translation='earn.empty.stakingVaults.body'
             />
-            <Button variant='ghost' colorScheme='blue'>
+            <Button variant='ghost' colorScheme='blue' as={NavLink} to='/earn/staking-vaults'>
               <Text translation='earn.empty.stakingVaults.cta' />
             </Button>
           </Card.Body>

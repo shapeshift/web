@@ -1,15 +1,16 @@
 import { NotAllowedIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
+import { ReactNode } from 'react'
 
 import { Text } from '../../../components/Text'
 
-export interface FailureModalProps {
+export type FailureModalProps = {
   headerText: string
   bodyText: string
-  children?: any
+  children?: ReactNode
 }
 
-export const FailureModal = (props: FailureModalProps) => {
+export const FailureModal: React.FC<FailureModalProps> = props => {
   const isSuccessful = false
 
   return (

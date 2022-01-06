@@ -15,6 +15,7 @@ export type SupportedYearnVault = {
   type: string
 }
 
+// TODO: support caip2/19 and network type
 export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
   {
     vaultAddress: toLower('0xa258C4606Ca8206D8aA700cE2143D7db854D168c'),

@@ -2,15 +2,15 @@ import { getConfig } from 'config'
 import { Redirect, Route, RouteProps } from 'react-router-dom'
 
 type PrivateRouteProps = {
-  isConnected: boolean
+  hasWallet: boolean
 } & RouteProps
 
 const HIDE_SPLASH = getConfig().REACT_APP_HIDE_SPLASH
 
-export const PrivateRoute = ({ isConnected, ...rest }: PrivateRouteProps) => {
+export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
   const { location } = rest
 
-  return isConnected || HIDE_SPLASH ? (
+  return hasWallet || HIDE_SPLASH ? (
     <Route {...rest} />
   ) : (
     <Redirect

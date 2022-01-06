@@ -15,16 +15,16 @@ import { colors } from 'theme/colors'
 
 type NoWalletProps = {
   dispatch: Dispatch<ActionTypes>
-  isConnected: boolean
+  hasWallet: boolean
 }
 
-export const ConnectWallet = ({ dispatch, isConnected }: NoWalletProps) => {
+export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
-    isConnected && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
-  }, [history, isConnected, query.returnUrl])
+    hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
+  }, [history, hasWallet, query.returnUrl])
   return (
     <Page>
       <Flex

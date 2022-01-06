@@ -11,7 +11,8 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { caip19 } from '@shapeshiftoss/caip'
+import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/earn/components/Approve/Approve'
 import { Confirm } from 'features/earn/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/earn/components/Deposit/Deposit'
@@ -26,6 +27,7 @@ import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -36,11 +38,15 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useFlattenedBalances } from 'hooks/useBalances/useFlattenedBalances'
-import { useFetchAsset } from 'hooks/useFetchAsset/useFetchAsset'
-import { useMarketData } from 'hooks/useMarketData/useMarketData'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { marketApi, selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectPortfolioCryptoBalanceById,
+  selectPortfolioLoading
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
@@ -70,23 +76,30 @@ export type YearnDepositProps = {
 
 export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
-  // Asset info
-  const asset = useFetchAsset({ chain, tokenId })
-  const marketData = useMarketData({ chain, tokenId })
-  const feeAsset = useFetchAsset({ chain })
-  const feeMarketData = useMarketData({ chain })
-  const vaultAsset = useFetchAsset({ chain, tokenId: vaultAddress })
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
+  const vaultCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
 
   // user info
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const { balances, loading } = useFlattenedBalances()
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceById(state, assetCAIP19))
+  const loading = useSelector(selectPortfolioLoading)
 
   // navigation
   const memoryHistory = useHistory()
@@ -306,8 +319,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const handleCancel = () => {
     browserHistory.goBack()
   }
-
-  const balance = balances[tokenId ?? chain]?.balance
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
@@ -598,12 +609,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     }
   }
 
-  if (loading || !asset || !marketData)
+  if (loading || !asset || !marketData) {
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
       </Center>
     )
+  }
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)

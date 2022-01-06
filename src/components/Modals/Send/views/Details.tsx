@@ -13,6 +13,8 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
+import isNil from 'lodash/isNil'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -23,36 +25,45 @@ import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
-import { SendFormFields } from '../Form'
+import { SendFormFields, SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendRoutes } from '../Send'
 import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
-  const { control } = useFormContext()
+  const { control } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
-  const [asset, crypto, fiat, amountFieldError] = useWatch({
-    name: [
-      SendFormFields.Asset,
-      SendFormFields.Crypto,
-      SendFormFields.Fiat,
-      SendFormFields.AmountFieldError
-    ]
+  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
+    control
   })
 
   const { send } = useModal()
   const {
     balancesLoading,
     fieldName,
-    accountBalances,
+    cryptoHumanBalance,
+    fiatBalance,
     handleInputChange,
     handleNextClick,
     handleSendMax,
     loading,
     toggleCurrency
   } = useSendDetails()
+
+  if (
+    !(
+      asset &&
+      asset?.name &&
+      !isNil(cryptoAmount) &&
+      cryptoSymbol &&
+      !isNil(fiatAmount) &&
+      fiatSymbol
+    )
+  ) {
+    return null
+  }
 
   return (
     <SlideTransition loading={balancesLoading}>
@@ -74,10 +85,12 @@ export const Details = () => {
       <ModalCloseButton borderRadius='full' />
       <ModalBody>
         <AccountCard
-          asset={asset}
+          // useWatch recursively adds "| undefined" to all fields, which makes the type incompatible
+          // So we're going to cast it since we already did a runtime check that the object exists
+          asset={asset as Asset}
           isLoaded={!balancesLoading}
-          cryptoAmountAvailable={accountBalances.crypto.toString()}
-          fiatAmountAvailable={accountBalances.fiat.toString()}
+          cryptoAmountAvailable={cryptoHumanBalance.toString()}
+          fiatAmountAvailable={fiatBalance.toString()}
           showCrypto={fieldName === SendFormFields.CryptoAmount}
           onClick={() => history.push('/send/select')}
           mb={2}
@@ -97,10 +110,10 @@ export const Details = () => {
               _hover={{ color: 'gray.400', transition: '.2s color ease' }}
             >
               {fieldName === SendFormFields.FiatAmount ? (
-                <Amount.Crypto value={crypto.amount} symbol={crypto.symbol} prefix='≈' />
+                <Amount.Crypto value={cryptoAmount} symbol={cryptoSymbol} prefix='≈' />
               ) : (
                 <Flex>
-                  <Amount.Fiat value={fiat.amount} mr={1} prefix='≈' /> {fiat.symbol}
+                  <Amount.Fiat value={fiatAmount} mr={1} prefix='≈' /> {fiatSymbol}
                 </Flex>
               )}
             </FormHelperText>
@@ -119,7 +132,7 @@ export const Details = () => {
                   onClick={toggleCurrency}
                   width='full'
                 >
-                  {crypto.symbol}
+                  {cryptoSymbol}
                 </Button>
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}
@@ -142,7 +155,7 @@ export const Details = () => {
                   onClick={toggleCurrency}
                   width='full'
                 >
-                  {fiat.symbol}
+                  {fiatSymbol}
                 </Button>
               }
               inputRightElement={<SendMaxButton onClick={handleSendMax} />}

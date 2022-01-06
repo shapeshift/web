@@ -113,14 +113,22 @@ export const portfolio = createSlice({
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId
       }
+      state.accountSpecifiers.byId = {
+        ...state.accountSpecifiers.byId,
+        ...payload.accountSpecifiers.byId
+      }
       const assetBalanceIds = Array.from(
         new Set([...state.assetBalances.ids, ...payload.assetBalances.ids])
       )
       const accountBalanceIds = Array.from(
         new Set([...state.accountBalances.ids, ...payload.accountBalances.ids])
       )
+      const accountSpecifiers = Array.from(
+        new Set([...state.accountSpecifiers.ids, ...payload.accountSpecifiers.ids])
+      )
       state.assetBalances.ids = assetBalanceIds
       state.accountBalances.ids = accountBalanceIds
+      state.accountSpecifiers.ids = accountSpecifiers
     }
   }
 })
@@ -137,8 +145,8 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args).forEach(([_xpubOrAccount, account]) => {
-    const { chain, pubkey } = account
-    const accountSpecifier = `${account.caip2}:${pubkey}`
+    const { chain, pubkey, caip2 } = account
+    const accountSpecifier = `${caip2}:${pubkey}`
 
     switch (chain) {
       case ChainTypes.Ethereum: {
@@ -146,6 +154,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         const { caip2, caip19 } = account
         const CAIP10 = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
+        portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
         portfolio.accounts.byId[CAIP10] = []
         portfolio.accounts.byId[CAIP10].push(caip19)
@@ -153,6 +162,12 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         portfolio.assetBalances.byId[caip19] = ethAccount.balance
         portfolio.assetBalances.ids.push(caip19)
+
+        portfolio.accountBalances.byId[accountSpecifier] = {
+          [caip19]: ethAccount.balance
+        }
+
+        portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           portfolio.accounts.byId[CAIP10].push(token.caip19)
@@ -169,10 +184,12 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       case ChainTypes.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
         const { caip2, caip19 } = account
-        const addresses = btcAccount.chainSpecific.addresses ?? []
+        const addresses =
+          btcAccount.chainSpecific.addresses?.filter(addy => bnOrZero(addy.balance).gt(0)) ?? []
         if (addresses.length) {
           portfolio.assetBalances.ids.push(caip19)
           portfolio.accountBalances.ids.push(accountSpecifier)
+          portfolio.accountSpecifiers.ids.push(accountSpecifier)
         }
         addresses.forEach(({ pubkey, balance }) => {
           if (bnOrZero(balance).eq(0)) return
@@ -182,6 +199,12 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           }
           portfolio.accounts.byId[CAIP10].push(caip19)
           portfolio.accounts.ids.push(CAIP10)
+
+          if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
+            portfolio.accountSpecifiers.byId[accountSpecifier] = []
+          }
+
+          portfolio.accountSpecifiers.byId[accountSpecifier].push(CAIP10)
 
           portfolio.accountBalances.byId[accountSpecifier] = {
             [caip19]: bnOrZero(portfolio.accountBalances.byId[accountSpecifier]?.[caip19])

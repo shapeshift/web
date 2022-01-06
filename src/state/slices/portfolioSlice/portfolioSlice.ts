@@ -63,7 +63,6 @@ export type Portfolio = {
 }
 
 const initialState: Portfolio = {
-  // TODO(0xdef1cafe): add accountSpecifier to account mapping here
   /*
    * we can't retrieve an xpub from an address, but we can derive
    * addresses from xpubs
@@ -83,7 +82,6 @@ const initialState: Portfolio = {
     byId: {},
     ids: []
   },
-  // TODO(0xdef1cafe): add accountAsset mapping here
   assetBalances: {
     byId: {},
     ids: []

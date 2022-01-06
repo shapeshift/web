@@ -205,12 +205,15 @@ export const accountToPortfolio: AccountToPortfolio = args => {
           if (!portfolio.accounts.byId[accountSpecifier]?.length) {
             portfolio.accounts.byId[accountSpecifier] = []
           }
-          // only add new caip19s to accounts
-          if (!portfolio.accounts.byId[accountSpecifier].find(item => item === caip19)) {
-            portfolio.accounts.byId[accountSpecifier].push(caip19)
-          }
 
-          portfolio.accounts.ids = uniq([...portfolio.accounts.ids, accountSpecifier])
+          portfolio.accounts.byId[accountSpecifier] = Array.from(
+            new Set([...portfolio.accounts.byId[accountSpecifier], caip19])
+          )
+
+          portfolio.accounts.ids = Array.from(
+            new Set([...portfolio.accounts.ids, accountSpecifier])
+          )
+
           portfolio.accountBalances.byId[accountSpecifier] = {
             [caip19]: bnOrZero(portfolio.accountBalances.byId[accountSpecifier]?.[caip19])
               .plus(bnOrZero(balance))

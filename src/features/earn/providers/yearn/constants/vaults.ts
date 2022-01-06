@@ -73,7 +73,7 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
   },
   {
     vaultAddress: toLower('0x4B5BfD52124784745c1071dcB244C6688d2533d3'),
-    name: 'USD',
+    name: 'YCURVE',
     symbol: 'yUSD',
     tokenAddress: toLower('0xdf5e0e81dff6faf3a7e52ba697820c5e32d806a8'),
     chain: ChainTypes.Ethereum,

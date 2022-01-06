@@ -26,6 +26,7 @@ export const StakingVaultRow = ({
   tokenAddress,
   chain,
   symbol,
+  name,
   isLoaded
 }: SupportedYearnVault & { isLoaded: boolean }) => {
   const [vault, setVault] = useState<YearnVault | null>(null)
@@ -115,14 +116,7 @@ export const StakingVaultRow = ({
           </SkeletonCircle>
         </Flex>
         <Skeleton isLoaded={isLoaded}>
-          {/* TODO Remove USDC 0.3.0 test and special case when we have a migration path */}
-          {vault.name === 'yvUSDC 0.3.0' ? (
-            <RawText size='lg' fontWeight='bold'>
-              USDC 0.3.0 {`${type}`}
-            </RawText>
-          ) : (
-            <RawText size='lg' fontWeight='bold'>{`${asset.symbol} ${type}`}</RawText>
-          )}
+          <RawText size='lg' fontWeight='bold'>{`${name} ${type}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>

@@ -4,6 +4,7 @@ import { CAIP2, caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
+import toLower from 'lodash/toLower'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -144,7 +145,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
   Object.entries(args).forEach(([_xpubOrAccount, account]) => {
     const { chain, pubkey, caip2 } = account
-    const accountSpecifier = `${caip2}:${pubkey}`
+    const accountSpecifier = `${caip2}:${toLower(pubkey)}`
 
     switch (chain) {
       case ChainTypes.Ethereum: {
@@ -154,9 +155,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
-        portfolio.accounts.byId[CAIP10] = []
-        portfolio.accounts.byId[CAIP10].push(caip19)
-        portfolio.accounts.ids.push(CAIP10)
+        portfolio.accounts.byId[accountSpecifier] = []
+        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.ids.push(accountSpecifier)
 
         portfolio.assetBalances.byId[caip19] = ethAccount.balance
         portfolio.assetBalances.ids.push(caip19)
@@ -192,11 +193,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         addresses.forEach(({ pubkey, balance }) => {
           if (bnOrZero(balance).eq(0)) return
           const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
-          if (!portfolio.accounts.byId[CAIP10]?.length) {
-            portfolio.accounts.byId[CAIP10] = []
+          if (!portfolio.accounts.byId[accountSpecifier]?.length) {
+            portfolio.accounts.byId[accountSpecifier] = []
           }
-          portfolio.accounts.byId[CAIP10].push(caip19)
-          portfolio.accounts.ids.push(CAIP10)
+          portfolio.accounts.byId[accountSpecifier].push(caip19)
+          portfolio.accounts.ids.push(accountSpecifier)
 
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
             portfolio.accountSpecifiers.byId[accountSpecifier] = []

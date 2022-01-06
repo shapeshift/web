@@ -42,4 +42,4 @@ You don't need to split out components just to split them out. If you define a c
 
 ### Views should be dumb
 
-Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the ui and [test](CONTRIBUTING.md#testing) that code in isolation from it's ui.
+Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and [test](testing.md) that code in isolation from it's UI.

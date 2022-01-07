@@ -3,9 +3,11 @@ import { DarkMode } from '@chakra-ui/color-mode'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Badge, Center, Circle, Flex } from '@chakra-ui/layout'
 import { Dispatch, useEffect } from 'react'
+import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import Orbs from 'assets/orbs.svg'
+import OrbsStatic from 'assets/orbs-static.png'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
@@ -56,7 +58,7 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
           top: 0,
           width: '100vw',
           height: '100vh',
-          backgroundImage: `url(${Orbs})`,
+          backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center center'
         }}

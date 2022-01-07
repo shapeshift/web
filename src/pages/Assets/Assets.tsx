@@ -16,6 +16,8 @@ export const Assets = () => {
         role='main'
         flex={1}
         flexDir='column'
+        maxWidth='2xl'
+        mx='auto'
         height={{ base: 'calc(100vh - 128px)', md: 'calc(100vh - 64px)' }}
         px={4}
       >

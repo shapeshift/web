@@ -9,20 +9,22 @@ import values from 'lodash/values'
 import { createSelector } from 'reselect'
 import { upsertArray } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { getRelatedAssetIds } from './utils'
 
+type TxId = string
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType
   caip19?: CAIP19
   caip2?: CAIP2
-  txid?: string
+  txid?: TxId
 }
 
 export type TxHistoryById = {
-  [k: string]: Tx
+  [k: TxId]: Tx
 }
 
 /* this is a one to many relationship of asset id to tx id, built up as
@@ -47,10 +49,15 @@ export type TxIdByAssetId = {
   [k: CAIP19]: string[]
 }
 
+export type TxIdByAccountId = {
+  [k: AccountSpecifier]: TxId[]
+}
+
 export type TxHistory = {
   byId: TxHistoryById
   byAssetId: TxIdByAssetId
-  ids: string[]
+  byAccountId: TxIdByAccountId
+  ids: TxId[]
 }
 
 export type TxMessage = { payload: { message: Tx } }
@@ -59,7 +66,8 @@ export type TxMessage = { payload: { message: Tx } }
 const initialState: TxHistory = {
   byId: {},
   ids: [], // sorted, newest first
-  byAssetId: {}
+  byAssetId: {},
+  byAccountId: {}
 }
 
 /**

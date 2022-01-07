@@ -24,7 +24,7 @@
     "@shapeshiftoss/hdwallet-native-vault": "^1.18.3",
     "@shapeshiftoss/hdwallet-portis": "^1.18.3",
     "@shapeshiftoss/market-service": "^1.8.0",
-    "@shapeshiftoss/swapper": "^1.15.0",
+    "@shapeshiftoss/swapper": "^1.15.1",
     "@shapeshiftoss/types": "^1.20.0",
     "@shapeshiftoss/unchained-client": "^4.1.0",
     "@shapeshiftoss/unchained-tx-parser": "^4.1.0",

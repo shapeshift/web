@@ -146,3 +146,21 @@ Now your web's chain-adapters have a symlink to your lib's
 2. Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
 3. Post a link to your new pull request in `#engineering-prs` in the [Discord](https://discord.gg/shapeshift)
 4. (optional) Return to the `develop` branch to get ready to start another task.
+
+## Releases
+The script `./scripts/release.sh` helps to automate the release process.
+
+### Create a release branch
+`yarn create-release v1.1.1`
+or
+`./scripts/release.sh release v1.1.1`
+
+This creates a `releases/v1.1.1` branch based on `origin/develop` and pushes it to origin
+
+### Merge a release into main
+`yarn merge-release v1.1.1`
+or
+`./scripts/release.sh main v1.1.1`
+
+This does a checkout of `origin/releases/v1.1.1` then merges that to `main`. After a confirmation prompt, it pushes that to `origin/main`.
+

@@ -2,7 +2,7 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import { getConfig } from 'config'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps, useNavigate } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -24,6 +24,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   let provider: any
+  let navigate = useNavigate()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -77,14 +78,14 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           payload: { wallet, name, icon, deviceId }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/metamask/success')
+        navigate('/metamask/success')
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error('MetaMask Connect: There was an error initializing the wallet', e)
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.metaMask.errors.unknown')
-          history.push('/metamask/failure')
+          navigate('/metamask/failure')
         }
       }
     }

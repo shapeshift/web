@@ -17,7 +17,7 @@ import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
@@ -32,7 +32,7 @@ import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
-  const history = useHistory()
+  const navigate = ()
   const translate = useTranslate()
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
@@ -77,7 +77,7 @@ export const Details = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(SendRoutes.Address)}
+        onClick={() => navigate(SendRoutes.Address)}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
@@ -92,7 +92,7 @@ export const Details = () => {
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}
           showCrypto={fieldName === SendFormFields.CryptoAmount}
-          onClick={() => history.push('/send/select')}
+          onClick={() => navigate('/send/select')}
           mb={2}
         />
         <FormControl mt={6}>

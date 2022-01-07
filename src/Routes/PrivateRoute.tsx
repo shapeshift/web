@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import { Redirect, Route, RouteProps } from 'react-router-dom'
+import { Navigate,  Route, RouteProps } from 'react-router-dom'
 
 type PrivateRouteProps = {
   hasWallet: boolean
@@ -13,7 +13,7 @@ export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
   return hasWallet || HIDE_SPLASH ? (
     <Route {...rest} />
   ) : (
-    <Redirect
+    <Navigate
       to={{
         pathname: '/connect-wallet',
         search: `returnUrl=${location?.pathname ?? '/dashboard'}`

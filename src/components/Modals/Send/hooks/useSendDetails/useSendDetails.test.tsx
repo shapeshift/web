@@ -2,7 +2,7 @@ import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { mocked } from 'ts-jest/utils'
@@ -22,7 +22,7 @@ import { useSendDetails } from './useSendDetails'
 
 jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
-jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
+jest.mock('react-router-dom', () => ({ useNavigate: jest.fn() }))
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 
@@ -117,7 +117,7 @@ const setup = ({
 describe('useSendDetails', () => {
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
-    ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
+    ;(useNavigate as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: () => ({
         getAddress: () => '0xMyWalletsAddress',

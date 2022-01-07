@@ -22,7 +22,7 @@ import { Asset } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -43,7 +43,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
-  const history = useHistory()
+  let navigate = useNavigate()
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
@@ -119,7 +119,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(ReceiveRoutes.Select)}
+        onClick={() => navigate(ReceiveRoutes.Select)}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.receive.receiveAsset', { asset: name })}

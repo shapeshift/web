@@ -1,7 +1,7 @@
 import { ListProps } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
-import { useRouteMatch } from 'react-router-dom'
+import { useMatch } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
@@ -22,7 +22,7 @@ type ItemData<T> = {
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {
   type HandleClick = ReturnType<typeof handleClick>
 
-  const match = useRouteMatch<{ address: string }>()
+  const match = useMatch({ address })
   const [tokenListRef, setTokenListRef] = useRefCallback<FixedSizeList<ItemData<HandleClick>>>({
     onInit: node => {
       if (!node) return

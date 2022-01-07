@@ -1,6 +1,6 @@
 {
   "name": "keepkey-client",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "private": true,
   "main": "electron/main.js",
   "repository": {
@@ -104,7 +104,9 @@
     "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node headers.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
     "dev": "ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
+    "build-bundle-electron": "react-app-rewired build",
     "dev-electron": "concurrently \"yarn dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:electron": "yarn build-bundle-electron && cp -R electron/assets build/ && cp electron/icon.png build/icon.png && electron-builder build --publish always",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "minify": "yarn yarn-minify",

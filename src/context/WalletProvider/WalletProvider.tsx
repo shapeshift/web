@@ -184,7 +184,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   //onStart()
   useEffect(() => {
-    console.log('onStartApp: CHECKPOINT')
     ipcRenderer.send('onStartApp', {})
 
     //listen to events on main
@@ -194,15 +193,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       switch (data.event.event) {
         case 'connect':
-          console.log('connect')
-          // playSound('success')
-          // code block
+          playSound('success')
           break
         case 'disconnect':
-          console.log('disconnect')
-          //playSound('fail')
-
-          // code block
+          playSound('fail')
           break
         default:
         //TODO Spammy
@@ -210,20 +204,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('playSound', (event, data) => {
-      console.log('sound: ', data)
-      // playSound(data.sound)
-    })
+    ipcRenderer.on('playSound', (event, data) => {})
 
     ipcRenderer.on('attach', (event, data) => {
-      console.log('attach', data)
-      // playSound('success')
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
       dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
     })
 
     ipcRenderer.on('detach', (event, data) => {
-      console.log('detach', data)
       playSound('fail')
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
       dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
@@ -239,9 +227,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
     })
 
-    ipcRenderer.on('setDevice', (event, data) => {
-      console.log('setDevice', data)
-    })
+    ipcRenderer.on('setDevice', (event, data) => {})
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // we explicitly only want this to happen once
@@ -249,7 +235,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   //onStart()
   const connect = useCallback(
     async (type: KeyManager) => {
-      console.log('WalletProvider Connect: ', type)
       if (type === 'keepkey') {
         const adapter = SUPPORTED_WALLETS['keepkey'].adapter.useKeyring(state.keyring)
         try {

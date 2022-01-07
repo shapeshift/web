@@ -60,7 +60,6 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       return
     }
     if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
-      console.log('Checkpoint attempt pair!')
       const wallet = await state.adapters
         .get(KeyManager.KeepKey)
         ?.pairDevice('http://localhost:1646')

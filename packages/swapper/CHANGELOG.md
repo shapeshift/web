@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v1.15.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.15.0...@shapeshiftoss/swapper-v1.15.1) (2022-01-07)
+
+
+### Bug Fixes
+
+* metamask toggle for erc20 trade ([#294](https://github.com/shapeshift/lib/issues/294)) ([7477423](https://github.com/shapeshift/lib/commit/7477423581423116822f5cc8e84faa14ed2bd14e))
+
 # [@shapeshiftoss/swapper-v1.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.14.1...@shapeshiftoss/swapper-v1.15.0) (2021-12-16)
 
 

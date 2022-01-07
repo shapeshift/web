@@ -36,7 +36,7 @@ export type PortfolioAssetBalances = {
 
 // const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
 // const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
-type AccountSpecifier = string
+export type AccountSpecifier = string
 
 export type PortfolioAccountBalances = {
   byId: {

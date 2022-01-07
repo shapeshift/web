@@ -6,6 +6,9 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import {
+  useAccountSpecifiers,
+} from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -18,6 +21,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
+  const accountSpecifiers = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
@@ -42,7 +46,16 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
-                dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
+                const accountSpecifier = accountSpecifiers.find(
+                  accountSpecifier => accountSpecifier[caip2]
+                )
+                const accountSpecifierString = `${caip2}:${accountSpecifier}`
+                dispatch(
+                  txHistory.actions.onMessage({
+                    message: { ...msg, accountType },
+                    accountSpecifierString
+                  })
+                )
               },
               (err: any) => console.error(err)
             )

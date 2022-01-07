@@ -60,7 +60,7 @@ export type TxHistory = {
   ids: TxId[]
 }
 
-export type TxMessage = { payload: { message: Tx } }
+export type TxMessage = { payload: { message: Tx; accountSpecifierString: string } }
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
@@ -75,7 +75,7 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
+const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifierString: string) => {
   const { txid } = tx
   const isNew = !txHistory.byId[txid]
 
@@ -98,6 +98,8 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
     )
   })
 
+  console.log({ accountSpecifierString })
+
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
   // this looks like it's not doing anything, but changes written to the proxy
   // get applied to state when it goes out of scope
@@ -108,7 +110,8 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    onMessage: (state, { payload }: TxMessage) => updateOrInsert(state, payload.message)
+    onMessage: (txState, { payload }: TxMessage) =>
+      updateOrInsert(txState, payload.message, payload.accountSpecifierString)
   }
 })
 

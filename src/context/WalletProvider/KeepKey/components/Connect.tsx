@@ -60,10 +60,12 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       return
     }
     if (state.adapters && state.adapters?.has(KeyManager.KeepKey)) {
+      console.log('Checkpoint attempt pair!')
       const wallet = await state.adapters
         .get(KeyManager.KeepKey)
-        ?.pairDevice()
+        ?.pairDevice('http://localhost:1646')
         .catch(err => {
+          console.error('conflict err', err)
           if (err.name === 'ConflictingApp') {
             setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
             return
@@ -73,6 +75,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
           return
         })
       if (!wallet) {
+        console.error('wallet not found!')
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
       }

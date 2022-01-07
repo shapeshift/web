@@ -27,7 +27,15 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: []
     },
-    balances: {
+    assetBalances: {
+      byId: {},
+      ids: []
+    },
+    accountBalances: {
+      byId: {},
+      ids: []
+    },
+    accountSpecifiers: {
       byId: {},
       ids: []
     }

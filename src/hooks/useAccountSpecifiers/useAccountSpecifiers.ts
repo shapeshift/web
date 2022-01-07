@@ -53,7 +53,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
           const bitcoin = assetsById[CAIP19]
 
           if (!bitcoin) continue
-          supportedAccountTypes.bitcoin.forEach(async accountType => {
+          for (const accountType of supportedAccountTypes.bitcoin) {
             const accountParams = utxoAccountParams(bitcoin, accountType, 0)
             const { bip44Params, scriptType } = accountParams
             const pubkeys = await wallet.getPublicKeys([
@@ -69,10 +69,10 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
             }
             pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
-            if (!pubkey) return
+            if (!pubkey) continue
             const CAIP2 = caip2.toCAIP2({ chain, network })
             acc.push({ [CAIP2]: pubkey })
-          })
+          }
           break
         }
         default:

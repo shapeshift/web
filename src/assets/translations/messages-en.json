@@ -53,10 +53,12 @@
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
+    "keepkey": "KeepKey",
+    "client": "Client",
     "alpha": "Alpha",
     "exploreThe": "Explore The",
     "defiUniverse": "DeFi Universe",
-    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
+    "body": "A companion app for the KeepKey hardware wallet",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet"
   },
@@ -64,8 +66,7 @@
     "menu": {
       "triggerButton": "Connect Wallet",
       "switchWallet": "Switch Wallet Provider",
-      "disconnect": "Disconnect",
-      "disconnected": "(Disconnected)"
+      "disconnect": "Disconnect"
     }
   },
   "earn": {
@@ -306,9 +307,11 @@
         "pinMismatch": "The two PINs you entered do not match"
       },
       "connect": {
-        "header": "Pair Your KeepKey",
-        "body": "Connect a KeepKey device and click Pair.",
-        "button": "Pair",
+        "pair": "Pair Your KeepKey",
+        "header": "KeepKey Status",
+        "body": "Connect a KeepKey device.",
+        "button": "Connect",
+        "disconnected": "Could not find your KeepKey. please connect",
         "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
       },
       "pin": {
@@ -415,6 +418,8 @@
       }
     },
     "selectModal": {
+      "cta": "dont have a Hardware Wallet?",
+      "demo": "Use a ShapeShift Software wallet to try it out",
       "header": "Connect A Wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
     }

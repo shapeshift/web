@@ -72,10 +72,10 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
     } catch (err) {
       console.error(`TradeConfirm:onSubmit - ${err}`)
-      // TODO: (ryankk) this needs to be revisited post bounty to handle actual errors coming back from unchained.
+      // Since this happens onSubmit, we can optimistically determine this was an user rejection
       toast({
         title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS),
+        description: translate(TRADE_ERRORS.TRANSACTION_REJECTED),
         status: 'error',
         duration: 9000,
         isClosable: true,

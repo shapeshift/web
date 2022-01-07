@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, RouteComponentProps, Routes} from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { ReceiveRouter } from './ReceiveRouter'
@@ -25,12 +25,12 @@ const Receive = ({ asset }: ReceivePropsType) => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
+          <Routes>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => <ReceiveRouter asset={asset} {...props} />}
+              element={(props: RouteComponentProps) => <ReceiveRouter asset={asset} {...props} />}
             />
-          </Switch>
+          </Routes>
         </MemoryRouter>
       </ModalContent>
     </Modal>

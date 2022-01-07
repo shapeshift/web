@@ -8,8 +8,8 @@ import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useS
 import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({
-  useHistory: () => ({
-    push: jest.fn()
+  useNavigate: () => ({
+    navigate: jest.fn()
   })
 }))
 jest.mock('lib/web3-instance')

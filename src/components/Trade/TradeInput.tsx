@@ -14,7 +14,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { RouterProps } from 'react-router-dom'
+import { RouterProps, Navigate } from 'react-router-dom'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -75,7 +75,8 @@ export const TradeInput = ({ history }: RouterProps) => {
 
     try {
       const fiatRate = await getFiatRate({ symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol })
-
+      const navigate = useNavigate()
+      
       if (isERC20) {
         const approvalNeeded = await checkApprovalNeeded(wallet)
         if (approvalNeeded) {
@@ -99,7 +100,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       if (!result?.success && result?.statusReason) {
         handleToast(result.statusReason)
       }
-      result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
+      result?.success && navigate({'/trade/confirm', state: { fiatRate } })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))

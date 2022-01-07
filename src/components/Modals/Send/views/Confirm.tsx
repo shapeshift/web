@@ -16,7 +16,7 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -41,7 +41,7 @@ export const Confirm = () => {
     control,
     formState: { isSubmitting }
   } = useFormContext<SendInput>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
     control
@@ -70,7 +70,7 @@ export const Confirm = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(SendRoutes.Details)}
+        onClick={() => navigate(SendRoutes.Details)}
       />
       <ModalHeader textAlign='center'>
         <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />

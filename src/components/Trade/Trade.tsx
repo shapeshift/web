@@ -1,6 +1,6 @@
 import { Asset, chainAdapters, ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
 
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
@@ -39,9 +39,9 @@ export const Trade = () => {
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={entries}>
-        <Switch>
+        <Routes>
           <Route path='/' component={TradeRoutes} />
-        </Switch>
+        </Routes>
       </MemoryRouter>
     </FormProvider>
   )

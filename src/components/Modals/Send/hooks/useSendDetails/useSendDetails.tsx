@@ -9,7 +9,7 @@ import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -46,7 +46,7 @@ type UseSendDetailsReturnType = {
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
   const [loading, setLoading] = useState<boolean>(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
@@ -129,7 +129,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleNextClick = async () => {
     try {
       setLoading(true)
-      history.push(SendRoutes.Confirm)
+      navigate(SendRoutes.Confirm)
     } catch (error) {
       console.error(error)
     } finally {

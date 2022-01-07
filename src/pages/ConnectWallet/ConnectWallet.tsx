@@ -5,7 +5,7 @@ import { Badge, Center, Circle, Flex } from '@chakra-ui/layout'
 import { Dispatch, useEffect } from 'react'
 import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Orbs from 'assets/orbs.svg'
 import OrbsStatic from 'assets/orbs-static.png'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -21,12 +21,12 @@ type NoWalletProps = {
 }
 
 export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
-    hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
-  }, [history, hasWallet, query.returnUrl])
+    hasWallet && navigate(query?.returnUrl ? query.returnUrl : '/dashboard')
+  }, [navigate, hasWallet, query.returnUrl])
   return (
     <Page>
       <Flex

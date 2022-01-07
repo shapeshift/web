@@ -13,7 +13,7 @@ import {
 import get from 'lodash/get'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -24,7 +24,7 @@ import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
 export const Address = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     formState: { errors }
@@ -39,7 +39,7 @@ export const Address = () => {
 
   const adapter = chainAdapters.byChain(asset.chain)
 
-  const handleNext = () => history.push(SendRoutes.Details)
+  const handleNext = () => navigate(SendRoutes.Details)
 
   const addressError = get(errors, `${SendFormFields.Address}.message`, null)
 

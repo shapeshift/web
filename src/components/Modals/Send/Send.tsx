@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useRef } from 'react'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, RouteComponentProps, Routes } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Form } from './Form'
@@ -36,12 +36,12 @@ export const SendModal = ({ asset }: SendModalProps) => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
+          <Routes>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => <Form asset={asset} {...props} />}
+              element={(props: RouteComponentProps) => <Form asset={asset} {...props} />}
             />
-          </Switch>
+          </Routes>
         </MemoryRouter>
       </ModalContent>
     </Modal>

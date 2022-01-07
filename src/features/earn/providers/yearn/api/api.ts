@@ -9,6 +9,8 @@ import { TransactionReceipt } from 'web3-core/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../constants/erc20-abi'
+import { ssRouterContractAddress } from '../constants/router-contract'
+import * as ssRouterAbi from '../constants/ss-router-abi.json'
 import { SUPPORTED_VAULTS } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
@@ -109,6 +111,7 @@ export class YearnVaultApi {
 
   async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
+    // const depositTokenContract = new this.web3.eth.Contract(yv2VaultAbi, ssRouterContractAddress)
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const estimatedGas = await depositTokenContract.methods
       .approve(spenderAddress, MAX_ALLOWANCE)
@@ -129,9 +132,10 @@ export class YearnVaultApi {
     } = input
     if (!wallet) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.approveEstimatedGas(input)
+    // const depositTokenContract = new this.web3.eth.Contract(yv2VaultAbi, ssRouterContractAddress)
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const data: string = depositTokenContract.methods
-      .approve(spenderAddress, MAX_ALLOWANCE)
+      .approve(ssRouterContractAddress, MAX_ALLOWANCE)
       .encodeABI({
         from: userAddress
       })
@@ -164,8 +168,9 @@ export class YearnVaultApi {
 
   async allowance(input: Allowanceinput): Promise<string> {
     const { userAddress, spenderAddress, tokenContractAddress } = input
+    // const depositTokenContract = new this.web3.eth.Contract(yv2VaultAbi, ssRouterContractAddress)
     const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
-    return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
+    return depositTokenContract.methods.allowance(userAddress, ssRouterContractAddress).call()
   }
 
   async depositEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {

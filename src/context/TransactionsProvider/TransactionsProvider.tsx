@@ -49,7 +49,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 const accountSpecifierObj = accountSpecifiers.reduce((acc, cur) => {
                   if (acc) return acc
                   const [k, v] = Object.entries(cur)[0]
-                  if (k === caip2) return v
+                  if (k === caip2) return v.toLowerCase()
                   return acc
                 }, '')
                 const accountSpecifier = `${caip2}:${accountSpecifierObj}`

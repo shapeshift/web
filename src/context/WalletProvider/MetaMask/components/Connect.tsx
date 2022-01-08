@@ -2,29 +2,23 @@ import detectEthereumProvider from '@metamask/detect-provider'
 import { getConfig } from 'config'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { RouteComponentProps, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
-import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
-export interface MetaMaskSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
+export interface MetaMaskSetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
+export const MetaMaskConnect = () => {
+  const navigate = useNavigate()
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   let provider: any
-  const navigate = useNavigate()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))

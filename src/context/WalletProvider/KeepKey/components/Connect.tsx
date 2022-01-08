@@ -8,21 +8,15 @@ import {
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
-import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
-export interface KeepKeySetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
+export interface KeepKeySetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
@@ -44,6 +38,7 @@ const translateError = (event: Event) => {
 }
 
 export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
+  const navigate = useNavigate()
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

@@ -23,7 +23,6 @@ type ApprovalParams = {
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 export const Approval = () => {
-  const navigate = useNavigate()
   const location = useLocation()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const toast = useToast()
@@ -31,9 +30,7 @@ export const Approval = () => {
   const [approvalTxId, setApprovalTxId] = useState<string>()
   const [fiatRate, setFiatRate] = useState<ApprovalParams | unknown>()
 
-  useEffect(() => {
-    setFiatRate(location.state)
-  }, [location])
+  setFiatRate(typeof location.state === 'string' ? location.state : '')
 
   const {
     getValues,
@@ -50,6 +47,7 @@ export const Approval = () => {
   const { quote, sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
   const symbol = sellAsset.currency?.symbol
+  const navigate = useNavigate()
 
   const approve = async () => {
     if (!wallet) return
@@ -66,10 +64,7 @@ export const Approval = () => {
 
     if (!txId) return
     setApprovalTxId(txId)
-
     const interval = setInterval(async () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const navigate = useNavigate()
       try {
         const approvalNeeded = await checkApprovalNeeded(wallet)
         if (approvalNeeded) return
@@ -194,8 +189,14 @@ export const Approval = () => {
               <Text color='gray.500' translation='trade.estimatedGasFee' />
             </Row.Label>
             <Row.Value textAlign='right'>
-              <RawText>{toFiat(bnOrZero(fee).times(fiatRate).toNumber())}</RawText>
-              <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+              <RawText>
+                {typeof fiatRate === 'string'
+                  ? toFiat(bnOrZero(fee).times(fiatRate).toNumber())
+                  : ' '}
+              </RawText>
+              <RawText color='gray.500'>
+                {typeof fee === 'string' ? toCrypto(Number(fee), 'ETH') : ''}
+              </RawText>
             </Row.Value>
           </Row>
           <Button

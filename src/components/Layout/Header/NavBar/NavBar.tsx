@@ -18,6 +18,7 @@ export const NavBar = (props: StackProps) => {
             to={item.path}
             label={translate(item.label)}
             aria-label={translate(item.label)}
+            children={undefined}
           />
         ))}
     </HStack>

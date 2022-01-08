@@ -11,10 +11,10 @@ import {
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouterProps, useLocation } from 'react-router-dom'
+import { RouterProps, useLocation, useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -38,6 +38,7 @@ type TradeConfirmParams = {
 type SwapError = Error & { message: string }
 
 export const TradeConfirm = ({ history }: RouterProps) => {
+  const navigate = useNavigate()
   const [txid, setTxid] = useState('')
   const {
     getValues,
@@ -50,10 +51,8 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const { executeQuote, reset } = useSwapper()
   const location = useLocation()
   const [fiatRate, setFiatRate] = useState<TradeConfirmParams | unknown>()
-  
-  useEffect(() => {
-    setFiatRate(location.state)
-  }, [location])
+
+  setFiatRate(typeof location.state === 'string' ? location.state : '')
 
   const {
     number: { toFiat }

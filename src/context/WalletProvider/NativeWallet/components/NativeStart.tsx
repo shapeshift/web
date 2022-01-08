@@ -2,11 +2,12 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useEffect } from 'react'
-import { RouteComponentProps } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
-export const NativeStart = ({ history }: RouteComponentProps) => {
+export const NativeStart = () => {
+  const navigate = useNavigate()
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
 
   useEffect(() => {

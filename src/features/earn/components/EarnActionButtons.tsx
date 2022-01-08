@@ -5,20 +5,21 @@ import {
   EarnQueryParams
 } from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
 import { useTranslate } from 'react-polyglot'
-import { matchPath } from 'react-router-dom'
+import { useMatch, useParams } from 'react-router-dom'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 
 export const EarnActionButtons = () => {
+  const params = useParams()
   const translate = useTranslate()
   const { location, history } = useBrowserRouter<EarnQueryParams, EarnParams>()
-  const match = matchPath<EarnParams>(location.pathname, {
+  const match = useMatch<EarnParams>(location.pathname, {
     path: '/earn/:earnType/:provider/:action',
     exact: true
   })
 
   const handleClick = (action: EarnAction) => {
-    if (match?.params) {
-      const { earnType, provider } = match.params
+    if (params) {
+      const { earnType, provider } = params
       history.replace({
         ...location,
         pathname: `/earn/${earnType}/${provider}/${action}`

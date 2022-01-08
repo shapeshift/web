@@ -1,6 +1,6 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { useMatch } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
 
@@ -8,11 +8,11 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
   const asset: Asset = data.items[index]
 
   const { handleClick } = data
-  const match = useMatch({ address, network })
+  const params = useParams()
 
-  let active = match?.params?.address === asset?.tokenId
-  if (!match?.params?.address && !asset?.tokenId) {
-    active = match?.params?.network === asset?.chain
+  let active = params?.address === asset?.tokenId
+  if (!params?.address && !asset?.tokenId) {
+    active = params?.network === asset?.chain
   }
 
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')

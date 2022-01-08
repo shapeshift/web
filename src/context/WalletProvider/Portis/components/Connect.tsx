@@ -40,11 +40,11 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
           payload: { wallet, name, icon, deviceId: 'test' }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/portis/success')
+        navigate('/portis/success')
       } catch (e) {
         console.error('Portis Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.portis.errors.unknown')
-        history.push('/portis/failure')
+        navigate('/portis/failure')
       }
     }
     setLoading(false)

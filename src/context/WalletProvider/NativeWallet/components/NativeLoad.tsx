@@ -109,7 +109,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
   const handleRename = async (wallet: VaultInfo) => {
     const vault = wallet
-    history.push('/native/rename', { vault })
+    navigate('/native/rename', { vault })
   }
 
   return (

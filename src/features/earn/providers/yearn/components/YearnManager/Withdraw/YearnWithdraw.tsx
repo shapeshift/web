@@ -14,7 +14,7 @@ import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -160,7 +160,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         api.getGasPrice()
       ])
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      memoryHistory.push(WithdrawPath.Status)
+      memorynavigate(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -182,7 +182,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleViewPosition = () => {
-    browserHistory.push('/earn')
+    browsernavigate('/earn')
   }
 
   const handleCancel = () => {

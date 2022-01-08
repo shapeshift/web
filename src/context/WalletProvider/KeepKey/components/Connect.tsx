@@ -97,7 +97,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
           payload: { wallet, name: label, icon, deviceId }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/keepkey/success')
+        navigate('/keepkey/success')
       } catch (e) {
         console.error('KeepKey Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')

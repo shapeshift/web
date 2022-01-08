@@ -82,10 +82,10 @@ export const useTradeRoutes = (): {
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push('/trade/input')
+        navigate('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, navigate, setValue, getBestSwapper, getQuote]
   )
 
   return { handleSellClick, handleBuyClick }

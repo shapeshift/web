@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -29,7 +29,11 @@ export const Approval = () => {
   const toast = useToast()
   const translate = useTranslate()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const fiatRate = location.state
+  const [fiatRate, setFiatRate] = useState<ApprovalParams | unknown>()
+
+  useEffect(() => {
+    setFiatRate(location.state)
+  }, [location])
 
   const {
     getValues,
@@ -118,8 +122,8 @@ export const Approval = () => {
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
     const error = errors?.quote?.rate ?? null
-    if (error) history.push('/trade/input')
-  }, [errors, history])
+    if (error) navigate('/trade/input')
+  }, [errors, navigate])
 
   return (
     <SlideTransition>
@@ -204,7 +208,7 @@ export const Approval = () => {
             <Text translation='common.confirm' />
           </Button>
           {!approvalTxId && !isSubmitting && (
-            <Button variant='ghost' mt={2} size='lg' onClick={() => history.goBack()}>
+            <Button variant='ghost' mt={2} size='lg' onClick={() => navigate(-1)}>
               <Text translation='common.reject' />
             </Button>
           )}

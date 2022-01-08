@@ -8,7 +8,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
   const asset: Asset = data.items[index]
 
   const { handleClick } = data
-  const match = useMatch({ address, network})
+  const match = useMatch({ address, network })
 
   let active = match?.params?.address === asset?.tokenId
   if (!match?.params?.address && !asset?.tokenId) {

@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps, useLocation } from 'react-router-dom'
@@ -48,8 +48,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const translate = useTranslate()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote, reset } = useSwapper()
-  const location = useLocation<TradeConfirmParams>()
-  const { fiatRate } = location.state
+  const location = useLocation()
+  const [fiatRate, setFiatRate] = useState<TradeConfirmParams | unknown>()
+  
+  useEffect(() => {
+    setFiatRate(location.state)
+  }, [location])
+
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -100,7 +105,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     if (txid) {
       reset()
     }
-    history.push('/trade/input')
+    navigate('/trade/input')
   }
 
   return (

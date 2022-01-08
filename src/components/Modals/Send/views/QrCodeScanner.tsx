@@ -47,7 +47,7 @@ export const QrCodeScanner = () => {
             variant='ghost'
             size='lg'
             mr={3}
-            onClick={() => history.push(SendRoutes.Address)}
+            onClick={() => navigate(SendRoutes.Address)}
           >
             <Text translation='common.cancel' />
           </Button>

@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Route, RouteComponentProps, Routes, useNavigate, useLocation } from 'react-router-dom'
+import { Route, RouteComponentProps, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { SelectAssets } from 'components/SelectAssets/SelectAssets'
 
 import { ReceiveRoutes } from './Receive'
@@ -22,9 +22,9 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
 
   useEffect(() => {
     if (!selectedAsset && !asset) {
-      history.push(ReceiveRoutes.Select)
+      navigate(ReceiveRoutes.Select)
     }
-  }, [asset, history, selectedAsset])
+  }, [asset, navigate, selectedAsset])
 
   useEffect(() => {
     setSelectedAsset(asset)

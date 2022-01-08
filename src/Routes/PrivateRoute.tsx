@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import { Navigate,  Route, RouteProps } from 'react-router-dom'
+import { Navigate, Route, RouteProps } from 'react-router-dom'
 
 type PrivateRouteProps = {
   hasWallet: boolean

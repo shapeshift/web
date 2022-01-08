@@ -55,7 +55,7 @@ export const Address = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(SendRoutes.Select)}
+        onClick={() => navigate(SendRoutes.Select)}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}

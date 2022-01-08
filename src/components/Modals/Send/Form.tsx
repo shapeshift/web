@@ -8,8 +8,8 @@ import {
   Route,
   RouteComponentProps,
   Routes,
-  useNavigate,
-  useLocation
+  useLocation,
+  useNavigate
 } from 'react-router-dom'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'

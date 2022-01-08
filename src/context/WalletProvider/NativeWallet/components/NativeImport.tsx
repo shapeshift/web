@@ -18,7 +18,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', values.mnemonic)
-      history.push('/native/password', { vault })
+      navigate('/native/password', { vault })
     } catch (e) {
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }

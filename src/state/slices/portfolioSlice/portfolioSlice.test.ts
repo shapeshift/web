@@ -1,6 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { mockStore } from 'test/mocks/store'
 
-import { accountToPortfolio, Portfolio } from './portfolioSlice'
+import { accountToPortfolio, Portfolio, selectPortfolioAssetAccounts } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -119,5 +120,32 @@ describe('accountToPortfolio', () => {
     const accounts = { [ethAccount.pubkey]: ethAccount, [btcAccount.pubkey]: btcAccount }
     const result = accountToPortfolio(accounts)
     expect(result).toEqual(portfolio)
+  })
+})
+
+describe('selectPortfolioAssetAccounts', () => {
+  it('can get accounts containing an asset', () => {
+    const fooAccount = '0xfoo'
+    const barAccount = '0xbar'
+    const bazAccount = '0xbaz'
+
+    const state = {
+      ...mockStore,
+      portfolio: {
+        ...mockStore.portfolio,
+        accounts: {
+          byId: {
+            [fooAccount]: [ethCaip19],
+            [barAccount]: [ethCaip19],
+            [bazAccount]: []
+          },
+          ids: [fooAccount, barAccount, bazAccount]
+        }
+      }
+    }
+
+    const selected = selectPortfolioAssetAccounts(state, ethCaip19)
+    const expected = [fooAccount, barAccount]
+    expect(selected).toEqual(expected)
   })
 })

@@ -158,7 +158,7 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
     (priceHistory[timeframe][assetId] ?? []).map(({ price, date }) => ({
       price,
       // TODO(0xdef1cafe): find best primitive to return/store this
-      date: new Date(Number(date) * 1000).toISOString()
+      date: date
     }))
 )
 

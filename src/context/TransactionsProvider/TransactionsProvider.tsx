@@ -3,12 +3,10 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import {
-  useAccountSpecifiers,
-} from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -25,6 +23,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
   useEffect(() => {
     if (!wallet) return
+    // we can't subscribe without accounts being ready
+    if (!accountSpecifiers?.length) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
@@ -46,14 +46,17 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
-                const accountSpecifier = accountSpecifiers.find(
-                  accountSpecifier => accountSpecifier[caip2]
-                )
-                const accountSpecifierString = `${caip2}:${accountSpecifier}`
+                const accountSpecifierObj = accountSpecifiers.reduce((acc, cur) => {
+                  if (acc) return acc
+                  const [k, v] = Object.entries(cur)[0]
+                  if (k === caip2) return v
+                  return acc
+                }, '')
+                const accountSpecifier = `${caip2}:${accountSpecifierObj}`
                 dispatch(
                   txHistory.actions.onMessage({
                     message: { ...msg, accountType },
-                    accountSpecifierString
+                    accountSpecifier
                   })
                 )
               },
@@ -76,7 +79,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, walletInfo?.deviceId])
+  }, [dispatch, walletInfo?.deviceId, accountSpecifiers])
 
   return <>{children}</>
 }

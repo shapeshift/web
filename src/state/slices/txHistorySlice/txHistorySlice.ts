@@ -60,7 +60,7 @@ export type TxHistory = {
   ids: TxId[]
 }
 
-export type TxMessage = { payload: { message: Tx; accountSpecifierString: string } }
+export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
@@ -75,7 +75,7 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifierString: string) => {
+const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) => {
   const { txid } = tx
   const isNew = !txHistory.byId[txid]
 
@@ -98,7 +98,11 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifierString: st
     )
   })
 
-  console.log({ accountSpecifierString })
+  // index the tx by the account that it belongs to
+  txHistory.byAccountId[accountSpecifier] = upsertArray(
+    txHistory.byAccountId[accountSpecifier] ?? [],
+    tx.txid
+  )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
   // this looks like it's not doing anything, but changes written to the proxy
@@ -111,7 +115,7 @@ export const txHistory = createSlice({
   reducers: {
     clear: () => initialState,
     onMessage: (txState, { payload }: TxMessage) =>
-      updateOrInsert(txState, payload.message, payload.accountSpecifierString)
+      updateOrInsert(txState, payload.message, payload.accountSpecifier)
   }
 })
 

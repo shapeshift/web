@@ -1,8 +1,4 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
-import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
-import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
 import { RouteProps } from 'react-router-dom'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
@@ -27,7 +23,7 @@ import { PortisFailure } from './Portis/components/Failure'
 import { PortisSuccess } from './Portis/components/Success'
 
 export interface SupportedWalletInfo {
-  adapter: any
+  adapter: Promise<any>
   icon: ComponentWithAs<'svg', IconProps>
   name: string
   routes: RouteProps[]
@@ -42,7 +38,7 @@ export enum KeyManager {
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
   [KeyManager.Native]: {
-    adapter: NativeAdapter,
+    adapter: import('@shapeshiftoss/hdwallet-native').then(x => x.NativeAdapter),
     icon: FoxIcon,
     name: 'ShapeShift',
     routes: [
@@ -57,7 +53,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ]
   },
   [KeyManager.KeepKey]: {
-    adapter: WebUSBKeepKeyAdapter,
+    adapter: import('@shapeshiftoss/hdwallet-keepkey-webusb').then(x => x.WebUSBKeepKeyAdapter),
     icon: KeepKeyIcon,
     name: 'KeepKey',
     routes: [
@@ -66,7 +62,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ]
   },
   [KeyManager.MetaMask]: {
-    adapter: MetaMaskAdapter,
+    adapter: import('@shapeshiftoss/hdwallet-metamask').then(x => x.MetaMaskAdapter),
     icon: MetaMaskIcon,
     name: 'MetaMask',
     routes: [
@@ -76,7 +72,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ]
   },
   [KeyManager.Portis]: {
-    adapter: PortisAdapter,
+    adapter: import('@shapeshiftoss/hdwallet-portis').then(x => x.PortisAdapter),
     icon: PortisIcon,
     name: 'Portis',
     routes: [

@@ -156,7 +156,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               wallet === 'portis'
                 ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
                 : undefined
-            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
+            const adapter = (await SUPPORTED_WALLETS[wallet].adapter).useKeyring(
+              state.keyring,
+              options
+            )
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
             await adapter.initialize()
             adapters.set(wallet, adapter)

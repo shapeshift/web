@@ -10,7 +10,7 @@ import {
   Tag,
   Wrap
 } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
+import { Revocable, revocable } from '@shapeshiftoss/hdwallet-core'
 import { range } from 'lodash'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
@@ -18,9 +18,6 @@ import { GENERATE_MNEMONIC, Vault } from 'vault/'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
-
-const Revocable = native.crypto.Isolation.Engines.Default.Revocable
-const revocable = native.crypto.Isolation.Engines.Default.revocable
 
 export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   const [revealed, setRevealed] = useState<boolean>(false)

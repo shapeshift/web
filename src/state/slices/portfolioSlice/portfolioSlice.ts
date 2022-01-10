@@ -16,10 +16,10 @@ import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
-    [k: CAIP10]: CAIP19[]
+    [k: AccountSpecifier]: CAIP19[]
   }
   // a list of accounts in this portfolio
-  ids: CAIP10[]
+  ids: AccountSpecifier[]
 }
 
 export type PortfolioBalancesById = {
@@ -50,7 +50,9 @@ export type PortfolioAccountBalances = {
 
 export type PortfolioAccountSpecifiers = {
   byId: {
-    // this maps an account identifier to a list of accounts
+    // this maps an account identifier to a list of addresses
+    // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
+    // in account based chains, this is a 1:1 mapping, i.e. the account is the address
     [k: AccountSpecifier]: CAIP10[]
   }
   ids: AccountSpecifier[]
@@ -379,4 +381,21 @@ export const selectPortfolioAllocationPercent = createSelector(
 export const selectPortfolioIsEmpty = createSelector(
   selectPortfolioAssetIds,
   (assetIds): boolean => !assetIds.length
+)
+
+export const selectPortfolioAccounts = (state: ReduxState) => state.portfolio.accounts.byId
+
+export const selectPortfolioAssetAccounts = createSelector(
+  selectPortfolioAccounts,
+  (_state: ReduxState, assetId: CAIP19) => assetId,
+  (portfolioAccounts, assetId): AccountSpecifier[] =>
+    Object.keys(portfolioAccounts).filter(accountSpecifier =>
+      portfolioAccounts[accountSpecifier].find(accountAssetId => accountAssetId === assetId)
+    )
+)
+
+export const selectPortfolioAccountById = createSelector(
+  selectPortfolioAccounts,
+  (_state: ReduxState, accountId: AccountSpecifier) => accountId,
+  (portfolioAccounts, accountId) => portfolioAccounts[accountId]
 )

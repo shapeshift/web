@@ -136,7 +136,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.approveEstimatedGas({
-          spenderAddress: vaultAddress,
           tokenContractAddress: tokenId,
           userAddress: state.userAddress
         }),
@@ -159,6 +158,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.depositEstimatedGas({
+          tokenContractAddress: tokenId,
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
@@ -187,7 +187,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
         tokenContractAddress: tokenId!,
-        spenderAddress: vaultAddress,
         userAddress: state.userAddress
       })
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
@@ -226,7 +225,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     try {
       dispatch({ type: YearnDepositActionType.SET_LOADING, payload: true })
       await api.approve({
-        spenderAddress: vaultAddress,
         tokenContractAddress: tokenId,
         userAddress: state.userAddress,
         wallet: walletState.wallet
@@ -235,7 +233,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         fn: () =>
           api.allowance({
             tokenContractAddress: tokenId!,
-            spenderAddress: vaultAddress,
             userAddress: state.userAddress!
           }),
         validate: (result: string) => {

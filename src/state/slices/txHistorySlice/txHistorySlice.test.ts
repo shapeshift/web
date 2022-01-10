@@ -20,6 +20,12 @@ describe('txHistorySlice', () => {
   })
 
   describe('onMessage', () => {
+    const BtcSendSegwit = {
+      ...BtcSend,
+      accountType: UtxoAccountType.SegwitP2sh,
+      txid: '974983662185eaa16f3a4a880f753c9085ef99cd8182d0135c90aa9d7193c6cf'
+    }
+
     it('can sort txs going into store', async () => {
       store.dispatch(txHistory.actions.clear())
 
@@ -92,15 +98,14 @@ describe('txHistorySlice', () => {
       const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
       // const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
 
-      // same btc transaction, different account type (send)
-      const BtcSendSegwit = { ...BtcSend, accountType: UtxoAccountType.SegwitP2sh }
+      // new btc transaction, different account type (send)
       store.dispatch(
         txHistory.actions.onMessage({
           message: BtcSendSegwit,
           accountSpecifier: segwitAccountSpecifier
         })
       )
-      expect(Object.values(store.getState().txHistory.ids).length).toBe(3)
+      expect(Object.values(store.getState().txHistory.ids).length).toBe(4)
 
       // btc data exists
       expect(store.getState().txHistory.byId[BtcSend.txid]).toEqual(BtcSend)
@@ -127,6 +132,51 @@ describe('txHistorySlice', () => {
       expect(store.getState().txHistory.byId[EthReceive.txid].status).toBe(
         chainAdapters.TxStatus.Confirmed
       )
+    })
+
+    it('should add txids by accountSpecifier', async () => {
+      const ethAccountSpecifier = `${EthSend.caip2}:0xdef1cafe`
+      const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
+      const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
+
+      // new eth transaction (send)
+      store.dispatch(
+        txHistory.actions.onMessage({ message: EthSend, accountSpecifier: ethAccountSpecifier })
+      )
+
+      // new eth transaction (receive)
+      store.dispatch(
+        txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier })
+      )
+
+      // new btc transaction (send)
+      store.dispatch(
+        txHistory.actions.onMessage({
+          message: BtcSend,
+          accountSpecifier: segwitNativeAccountSpecifier
+        })
+      )
+
+      // new btc transaction, different account type (send)
+      store.dispatch(
+        txHistory.actions.onMessage({
+          message: BtcSendSegwit,
+          accountSpecifier: segwitAccountSpecifier
+        })
+      )
+
+      expect(store.getState().txHistory.byAccountId[ethAccountSpecifier]).toStrictEqual([
+        EthSend.txid,
+        EthReceive.txid
+      ])
+
+      expect(store.getState().txHistory.byAccountId[segwitNativeAccountSpecifier]).toStrictEqual([
+        BtcSend.txid
+      ])
+
+      expect(store.getState().txHistory.byAccountId[segwitAccountSpecifier]).toStrictEqual([
+        BtcSendSegwit.txid
+      ])
     })
   })
 })

@@ -96,7 +96,6 @@ describe('txHistorySlice', () => {
       expect(Object.values(store.getState().txHistory.ids).length).toBe(3)
 
       const segwitAccountSpecifier = `${BtcSend.caip2}:ypub`
-      // const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
 
       // new btc transaction, different account type (send)
       store.dispatch(

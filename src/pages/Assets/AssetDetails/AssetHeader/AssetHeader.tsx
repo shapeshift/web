@@ -154,7 +154,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
               {view === View.Balance && (
                 <Stat size='sm' color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
-                    <StatNumber>{`${cryptoBalance}${asset.symbol}`}</StatNumber>
+                    <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
                   </Skeleton>
                 </Stat>
               )}

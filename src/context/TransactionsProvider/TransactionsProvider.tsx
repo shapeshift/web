@@ -1,11 +1,10 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import toLower from 'lodash/toLower'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAccountSpecifierByCaip10 } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountIdByAddress } from 'state/slices/portfolioSlice/portfolioSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store } from 'state/store'
@@ -47,11 +46,11 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               msg => {
                 const caip10 = `${msg.caip2}:${msg.address}`
                 const state = store.getState()
-                const accountSpecifier = selectAccountSpecifierByCaip10(state, toLower(caip10))
+                const accountId = selectAccountIdByAddress(state, caip10)
                 dispatch(
                   txHistory.actions.onMessage({
                     message: { ...msg, accountType },
-                    accountSpecifier
+                    accountSpecifier: accountId
                   })
                 )
               },

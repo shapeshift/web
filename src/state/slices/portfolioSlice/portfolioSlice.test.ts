@@ -4,7 +4,7 @@ import { mockStore } from 'test/mocks/store'
 import {
   accountToPortfolio,
   Portfolio,
-  selectAccountSpecifierByCaip10,
+  selectAccountIdByAddress,
   selectPortfolioAssetAccounts
 } from './portfolioSlice'
 
@@ -81,7 +81,7 @@ const btcAccount = {
 }
 
 const ethAccountSpecifier = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
-const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
 const ethCaip10 = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
 
 const portfolio: Portfolio = {
@@ -162,7 +162,7 @@ describe('selectPortfolioAssetAccounts', () => {
   })
 })
 
-describe('selectAccountSpecifierByCaip10', () => {
+describe('selectAccountIdByAddress', () => {
   const state = {
     ...mockStore,
     portfolio: {
@@ -177,15 +177,15 @@ describe('selectAccountSpecifierByCaip10', () => {
     }
   }
 
-  it('can select account specifier by CAIP10', () => {
-    const btcAccSpecifier = selectAccountSpecifierByCaip10(state, btcCaip10s[0])
-    const ethAccSpecifier = selectAccountSpecifierByCaip10(state, ethCaip10s[0])
+  it('can select account id by address (CAIP10)', () => {
+    const btcAccSpecifier = selectAccountIdByAddress(state, btcCaip10s[0])
+    const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0])
 
     expect(btcAccSpecifier).toEqual(btcAccountSpecifier)
     expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
   })
 
-  it('can select account specifier with caip10 in non checksum format', () => {
+  it('can select account id with address in non checksum format', () => {
     const newState = {
       ...state,
       portfolio: {
@@ -201,11 +201,11 @@ describe('selectAccountSpecifierByCaip10', () => {
     }
 
     // caip10s in state in non checksum format
-    const btcAccSpecifier = selectAccountSpecifierByCaip10(newState, btcCaip10s[0])
+    const btcAccSpecifier = selectAccountIdByAddress(newState, btcCaip10s[0])
     expect(btcAccSpecifier).toEqual(btcAccountSpecifier)
 
     // caip10 argument in non checksum format
-    const ethAccSpecifier = selectAccountSpecifierByCaip10(state, ethCaip10s[0].toUpperCase())
+    const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0].toUpperCase())
     expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
   })
 })

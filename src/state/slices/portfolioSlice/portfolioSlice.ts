@@ -13,6 +13,21 @@ import { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
+/*
+ * we can't retrieve an xpub from an address, but we can derive
+ * addresses from xpubs
+ * address have sats balances, but we want to display balances aggregated
+ * by accountType, so we need a mapping from xpub to a list of addresses
+ *
+ * in the case of account based chains, e.g. eth, this will be a 1:1
+ * mapping as the accountSpecifier (0x address) is the same as the address
+ * holding assets with balances
+ *
+ * this satisfies our requirements of being able to aggregate balances
+ * over an entire asset, e.g. show me all the eth i have across all my accounts
+ * and also show me all the bitcoin i have across all different accountTypes
+ * and addresses, and also preempts supporting more than accountIndex 0 in future
+ */
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
@@ -66,21 +81,6 @@ export type Portfolio = {
 }
 
 const initialState: Portfolio = {
-  /*
-   * we can't retrieve an xpub from an address, but we can derive
-   * addresses from xpubs
-   * address have sats balances, but we want to display balances aggregated
-   * by accountType, so we need a mapping from xpub to a list of addresses
-   *
-   * in the case of account based chains, e.g. eth, this will be a 1:1
-   * mapping as the accountSpecifier (0x address) is the same as the address
-   * holding assets with balances
-   *
-   * this satisfies our requirements of being able to aggregate balances
-   * over an entire asset, e.g. show me all the eth i have across all my accounts
-   * and also show me all the bitcoin i have across all different accountTypes
-   * and addresses, and also preempts supporting more than accountIndex 0 in future
-   */
   accounts: {
     byId: {},
     ids: []
@@ -146,13 +146,13 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
   Object.entries(args).forEach(([_xpubOrAccount, account]) => {
-    const { chain, pubkey, caip2 } = account
-    const accountSpecifier = `${caip2}:${toLower(pubkey)}`
+    const { chain } = account
 
     switch (chain) {
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
-        const { caip2, caip19 } = account
+        const { caip2, caip19, pubkey } = account
+        const accountSpecifier = `${caip2}:${toLower(pubkey)}`
         const CAIP10 = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
@@ -184,7 +184,9 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       }
       case ChainTypes.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
-        const { caip2, caip19 } = account
+        const { caip2, caip19, pubkey } = account
+        // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
+        const accountSpecifier = `${caip2}:${pubkey}`
         const addresses = btcAccount.chainSpecific.addresses ?? []
         if (addresses.length) {
           portfolio.assetBalances.ids.push(caip19)
@@ -280,7 +282,7 @@ export const selectPortfolioAssetIds = (state: ReduxState): PortfolioAssetBalanc
   state.portfolio.assetBalances.ids
 export const selectPortfolioBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
-export const selectAccountSpecifiers = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
+export const selectAccountId = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
   state.portfolio.accountSpecifiers.byId
 
 export const selectPortfolioFiatBalances = createSelector(
@@ -403,17 +405,17 @@ export const selectPortfolioAccountById = createSelector(
   (portfolioAccounts, accountId) => portfolioAccounts[accountId]
 )
 
-export const selectAccountSpecifierByCaip10 = createSelector(
-  selectAccountSpecifiers,
+export const selectAccountIdByAddress = createSelector(
+  selectAccountId,
   selectCAIP10Param,
-  (accounts: { [k: AccountSpecifier]: CAIP10[] }, caip10): string => {
+  (portfolioAccounts: { [k: AccountSpecifier]: CAIP10[] }, caip10): string => {
     let accountSpecifier = ''
-    for (const acct in accounts) {
-      const isAccountSpecifier = !!accounts[acct].find(
+    for (const accountId in portfolioAccounts) {
+      const isAccountSpecifier = !!portfolioAccounts[accountId].find(
         acctCaip10 => toLower(acctCaip10) === toLower(caip10)
       )
       if (isAccountSpecifier) {
-        accountSpecifier = acct
+        accountSpecifier = accountId
         break
       }
     }

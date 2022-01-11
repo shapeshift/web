@@ -220,6 +220,10 @@ export class YearnVaultApi {
     } = input
     if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.depositEstimatedGas(input)
+
+    // In order to properly earn affiliate revenue, we must deposit to the vault through the SS
+    // router contract. This is not necessary for withdraws. We can withdraw directly from the vault
+    // without affecting the DAOs affiliate revenue.
     const routerContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     const tokenChecksum = this.web3.utils.toChecksumAddress(tokenContractAddress)
     const userChecksum = this.web3.utils.toChecksumAddress(userAddress)
@@ -257,6 +261,8 @@ export class YearnVaultApi {
     }
   }
 
+  // Withdraws are done through the vault contract itself, there is no need to go through the SS
+  // router contract, so we estimate the gas from the vault itself.
   async withdrawEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
@@ -279,6 +285,11 @@ export class YearnVaultApi {
     } = input
     if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.withdrawEstimatedGas(input)
+
+    // We use the vault directly to withdraw the vault tokens. There is no benefit to the DAO to use
+    // the router to withdraw funds and there is an extra approval required for the user if we
+    // withdrew from the vault using the shapeshift router. Affiliate fees for SS are the same
+    // either way. For this reason, we simply withdraw from the vault directly.
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = vaultContract.methods
       .withdraw(amountDesired.toString(), userAddress)

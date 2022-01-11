@@ -3,7 +3,7 @@
 
 import { Center, Container, Tooltip } from '@chakra-ui/react'
 import { Story } from '@storybook/react'
-import { TestProviders } from 'jest/TestProviders'
+import { TestProviders } from 'test/TestProviders'
 
 import { HelperTooltip, HelperTooltipProps } from './HelperTooltip'
 

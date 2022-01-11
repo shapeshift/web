@@ -1,4 +1,4 @@
 # Web Architecture
 
-![Web Architecture](architecture.jpeg)
+![Web Architecture](architecture.png)
 

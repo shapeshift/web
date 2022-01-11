@@ -23,8 +23,8 @@ import {
   selectPriceHistoryTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  PortfolioAssetBalances,
   PortfolioAssets,
-  PortfolioBalances,
   selectPortfolioAssets,
   selectPortfolioBalances
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -83,7 +83,7 @@ type MakeBucketsReturn = {
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assetIds: CAIP19[]
-  balances: PortfolioBalances['byId']
+  balances: PortfolioAssetBalances['byId']
 }
 
 // adjust this to give charts more or less granularity

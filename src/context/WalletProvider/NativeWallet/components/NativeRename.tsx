@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
@@ -17,23 +18,31 @@ import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
 
-export const NativePassword = ({ history, location }: NativeSetupProps) => {
+export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
 
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
     try {
-      const vault = location.state.vault
-      vault.seal()
-      await vault.setPassword(values.password)
-      vault.meta.set('name', values.name)
-      history.push('/native/success', { vault })
+      const vault = await Vault.open(location.state.vault.id, values.password)
+      if (values.name.length === 0) {
+        const result = window.confirm(translate('walletProvider.shapeShift.rename.confirmDelete'))
+        if (result) {
+          vault.meta.delete('name')
+          await vault.save()
+          history.goBack()
+        }
+      } else {
+        vault.meta.set('name', values.name)
+        await vault.save()
+        history.goBack()
+      }
     } catch (e) {
-      console.error('WalletProvider:NativeWallet:Password - Error setting password', e)
+      console.error('WalletProvider:NativeWallet:Rename - Error invalid password', e)
       setError('password', {
         type: 'manual',
-        message: translate('modal.shapeShift.password.error.invalid')
+        message: translate('modals.shapeShift.password.error.invalid')
       })
     }
   }
@@ -48,10 +57,10 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
   return (
     <>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.password.header'} />
+        <Text translation={'walletProvider.shapeShift.rename.header'} />
       </ModalHeader>
       <ModalBody>
-        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.password.body'} />
+        <Text mb={6} color='gray.500' translation={'walletProvider.shapeShift.rename.body'} />
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormControl mb={6} isInvalid={errors.name}>
             <Input
@@ -64,7 +73,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
               size='lg'
               variant='filled'
               id='name'
-              placeholder={translate('modals.shapeShift.password.walletName')}
+              placeholder={translate('walletProvider.shapeShift.rename.walletName')}
             />
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
@@ -104,7 +113,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             isLoading={isSubmitting}
             isDisabled={errors.name}
           >
-            <Text translation={'walletProvider.shapeShift.password.button'} />
+            <Text translation={'walletProvider.shapeShift.rename.button'} />
           </Button>
         </form>
       </ModalBody>

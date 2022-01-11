@@ -1,5 +1,6 @@
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+
+import { Tx } from '../../state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
   address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',

@@ -1,6 +1,6 @@
 # Globally Shared Code
 
-We should always be writing our code so it is easy to be moved and shared. As a general rule of thumb is to build the components, hooks and helpers local to the code that is using it. Once it is needed in multiple locations pull it out into the proper shared folder.
+We should always be writing our code so it is easy to be moved and shared. A general rule of thumb is to build the components, hooks, and helpers local to the code that is using it. Once it is needed in multiple locations pull it out into the proper shared folder.
 
 ## Aliased file paths
 
@@ -12,13 +12,13 @@ import { MyCustomHook } from 'hooks/MyCustomHook'
 
 ## Components
 
-We want to use [Component Driven User Interface](https://www.componentdriven.org/) strategies to make sure we are creating ui that is reusable and maintainable.
+We want to use [Component Driven User Interface](https://www.componentdriven.org/) strategies to make sure we are creating UI that is reusable and maintainable.
 
 ## Every component needs a story
 
 We use [Storybook](https://storybook.js.org/docs/react/get-started/introduction) for component documentation.
 
-Anytime you create a reusable component you should let everyone know how it works and what it looks like when it is in that state. For example if you had a component called MyClickable that had 2 different states. You would want to create a storybook story for that component showing both states.
+Any time you create a reusable component you should let everyone know how it works and what it looks like when it is in that state. For example if you had a component called `MyClickable` that had 2 different states, you would want to create a Storybook story for that component showing both states.
 
 ```tsx
 // MyClickable.tsx

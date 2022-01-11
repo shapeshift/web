@@ -1,6 +1,6 @@
 import { ChainTypes, HistoryTimeframe, UtxoAccountType } from '@shapeshiftoss/types'
-import { ethereum, fox } from 'jest/mocks/assets'
-import { FOXSend, testTxs } from 'jest/mocks/txs'
+import { ethereum, fox } from 'test/mocks/assets'
+import { FOXSend, testTxs } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'

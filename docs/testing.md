@@ -8,11 +8,11 @@ Bug fixes and features should always come with tests.
   - [jest](https://jestjs.io/docs/getting-started), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library hooks](https://github.com/testing-library/react-hooks-testing-library#example)
 - E2E - to test the full stack completely on critical flows
   - [cypress](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests)
-    - When selecting dom elements use `data-testid` instead of using a class or id.
+    - When selecting DOM elements use `data-testid` instead of using a `class` or `id`.
 
 ### Testing Ui Business Logic
 
-Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the ui and test that code in isolation from it's ui.
+Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and test that code in isolation from it's UI.
 
 # Unit Testing
 
@@ -47,7 +47,7 @@ describe('isLoggedIn', () => {
 
 # Hook Testing
 
-This is an example of how we structure our hook tests
+This is an example of how we structure our hook tests.
 
 ```js
 import { renderHook } from '@testing-library/react-hooks'

@@ -35,6 +35,8 @@ type TradeConfirmParams = {
   fiatRate: string
 }
 
+type SwapError = Error & { message: string }
+
 export const TradeConfirm = ({ history }: RouterProps) => {
   const [txid, setTxid] = useState('')
   const {
@@ -73,9 +75,19 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     } catch (err) {
       console.error(`TradeConfirm:onSubmit - ${err}`)
       // TODO: (ryankk) this needs to be revisited post bounty to handle actual errors coming back from unchained.
+      let errorMessage
+      switch ((err as SwapError)?.message) {
+        case 'ZrxExecuteQuote - signAndBroadcastTransaction error: Error: Error signing & broadcasting tx': {
+          errorMessage = TRADE_ERRORS.TRANSACTION_REJECTED
+          break
+        }
+        default: {
+          errorMessage = TRADE_ERRORS.INSUFFICIENT_FUNDS
+        }
+      }
       toast({
         title: translate('trade.errors.title'),
-        description: translate(TRADE_ERRORS.INSUFFICIENT_FUNDS),
+        description: translate(errorMessage),
         status: 'error',
         duration: 9000,
         isClosable: true,

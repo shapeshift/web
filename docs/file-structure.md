@@ -1,6 +1,6 @@
 # File structure
 
-Few rules for creating maintainable components in react.
+A few rules for creating maintainable components in React.
 
 ## Function Components
 
@@ -10,7 +10,7 @@ We are sticking with the times and using Function Components.
 
 We have decided to only export our components using named exports. That way we don't start importing our components with different names.
 
-```
+```js
 // Bad
 export default MySuperCoolComponent = () => ({})
 import MySuperCoolComponent from 'MySuperCoolComponent'
@@ -22,7 +22,7 @@ import { MySuperCoolComponent } from 'MySuperCoolComponent'
 
 ## Small component files
 
-We should really be striving to have small component files. When files get large and bloated they become harder to maintain, there are more merge conflicts and they are harder to test. Our goal as React developers should be to make our code as reusable as possible. Bloated components never end up be reusable and the reusability potential becomes harder to see because the component is so complex. Here are a few things to help create smaller components.
+We should really be striving to have small component files. When files get large and bloated they become harder to maintain, there are more merge conflicts, and they are harder to test. Our goal as React developers should be to make our code as reusable as possible. Bloated components never end up being reusable and the reusability potential becomes harder to see because the component is so complex. Here are a few things to help create smaller components.
 
 ### File Size
 
@@ -30,7 +30,7 @@ There is no magic number to say how many lines is too much. But if we are writin
 
 ### Try to only define one component/function per file
 
-Another common thing that makes components bloated is defining multiple functions/components in the same file. Here are a few reasons it is a good idea to separate your functions and components into their own files.
+Another common thing that makes components bloated is defining multiple functions/components in the same file. Here are a few reasons why it is a good idea to separate your functions and components into their own files.
 
 1. You can unit test separately from the rest of the code.
 2. If anyone decides that they can reuse that code its a quick and easy move to a shared folder.
@@ -42,4 +42,4 @@ You don't need to split out components just to split them out. If you define a c
 
 ### Views should be dumb
 
-Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the ui and [test](CONTRIBUTING.md#testing) that code in isolation from it's ui.
+Separate the business logic from the view as much as possible. Create hooks, helpers & reducers to utilize this logic from the UI and [test](testing.md) that code in isolation from it's UI.

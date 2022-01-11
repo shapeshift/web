@@ -154,12 +154,7 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   selectPriceHistory,
   selectAssetId,
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, assetId, timeframe) =>
-    (priceHistory[timeframe][assetId] ?? []).map(({ price, date }) => ({
-      price,
-      // TODO(0xdef1cafe): find best primitive to return/store this
-      date: new Date(Number(date) * 1000).toISOString()
-    }))
+  (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? []
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(

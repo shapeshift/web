@@ -48,6 +48,7 @@ export enum TRADE_ERRORS {
   INSUFFICIENT_FUNDS = 'trade.errors.insufficientFunds',
   INSUFFICIENT_FUNDS_FOR_LIMIT = 'trade.errors.insufficientFundsForLimit',
   INSUFFICIENT_FUNDS_FOR_AMOUNT = 'trade.errors.insufficientFundsForAmount',
+  TRANSACTION_REJECTED = 'trade.errors.transactionRejected',
   NO_LIQUIDITY = 'trade.errors.noLiquidityError',
   BALANCE_TO_LOW = 'trade.errors.balanceToLow',
   DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',

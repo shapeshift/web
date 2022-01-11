@@ -1,7 +1,12 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { mockStore } from 'test/mocks/store'
 
-import { accountToPortfolio, Portfolio, selectPortfolioAssetAccounts, selectAccountSpecifierByCaip10 } from './portfolioSlice'
+import {
+  accountToPortfolio,
+  Portfolio,
+  selectAccountSpecifierByCaip10,
+  selectPortfolioAssetAccounts
+} from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'

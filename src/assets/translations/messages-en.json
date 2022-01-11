@@ -249,7 +249,7 @@
       "slippageSettings": "Slippage Settings"
     },
     "approve": {
-      "header": "Allow ShapeShift.io to Spend Your %{asset}",
+      "header": "Allow ShapeShift DAO Router to spend your %{asset}",
       "body": "We need your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be separate gas fee to deposit.",
@@ -267,7 +267,7 @@
         "estimatedReturns": "Estimated Yearly Returns*",
         "preFooter": "Rewards accrue automatically"
       },
-      "withdrawFrom": "Withdraw From",
+      "withdrawFrom": "Withdrawal From",
       "withdrawTo": "Withdraw To",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
@@ -289,7 +289,7 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "gasUsed": "Total Gas Fee",
-      "continue": "View My Position",
+      "continue": "View Transaction",
       "viewAsset": "View Asset",
       "close": "Close"
     },
@@ -381,8 +381,11 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your seed phrase to import an existing wallet",
-        "button": "Next"
+        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
+        "button": "Next",
+        "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
+        "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",
+        "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
       },
       "password": {
         "header": "Enter Your Password",
@@ -390,7 +393,7 @@
         "button": "Next"
       },
       "create": {
-        "header": "Your Backup Seed Phrase",
+        "header": "Your Secret Recovery Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
         "button": "Next",
         "hideWords": "Hide Words",
@@ -398,7 +401,7 @@
       },
       "start": {
         "header": "ShapeShift Wallet",
-        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet.",
+        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a Secret Recovery Phrase, or create a new wallet.",
         "import": "Import a wallet",
         "create": "Create a new wallet",
         "load": "Saved wallets"
@@ -410,7 +413,7 @@
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {
-        "header": "Verify Your Backup Seed Phrase",
+        "header": "Verify Your Secret Recovery Phrase",
         "body": "Which of these is the",
         "body2": " word",
         "body3": "in your secret phrase.",

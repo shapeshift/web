@@ -4,7 +4,6 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAccountSpecifierByCaip10 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -22,12 +21,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
-  const accountSpecifiers = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
-    // we can't subscribe without accounts being ready
-    if (!accountSpecifiers?.length) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
@@ -78,7 +74,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, walletInfo?.deviceId, accountSpecifiers])
+  }, [dispatch, walletInfo?.deviceId])
 
   return <>{children}</>
 }

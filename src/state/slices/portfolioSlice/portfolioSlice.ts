@@ -280,6 +280,8 @@ export const selectPortfolioAssetIds = (state: ReduxState): PortfolioAssetBalanc
   state.portfolio.assetBalances.ids
 export const selectPortfolioBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
+export const selectAccountSpecifiers = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
+  state.portfolio.accountSpecifiers.byId
 
 export const selectPortfolioFiatBalances = createSelector(
   selectAssets,
@@ -308,6 +310,7 @@ export const selectPortfolioTotalFiatBalance = createSelector(
 )
 
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
+const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
 
 export const selectPortfolioFiatBalanceById = createSelector(
   selectPortfolioFiatBalances,
@@ -398,4 +401,22 @@ export const selectPortfolioAccountById = createSelector(
   selectPortfolioAccounts,
   (_state: ReduxState, accountId: AccountSpecifier) => accountId,
   (portfolioAccounts, accountId) => portfolioAccounts[accountId]
+)
+
+export const selectAccountSpecifierByCaip10 = createSelector(
+  selectAccountSpecifiers,
+  selectCAIP10Param,
+  (accounts: { [k: AccountSpecifier]: CAIP10[] }, caip10): string => {
+    let accountSpecifier = ''
+    for (const acct in accounts) {
+      const isAccountSpecifier = !!accounts[acct].find(
+        acctCaip10 => toLower(acctCaip10) === toLower(caip10)
+      )
+      if (isAccountSpecifier) {
+        accountSpecifier = acct
+        break
+      }
+    }
+    return accountSpecifier
+  }
 )

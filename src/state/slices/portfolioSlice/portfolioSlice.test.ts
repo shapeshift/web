@@ -1,7 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { mockStore } from 'test/mocks/store'
 
-import { accountToPortfolio, Portfolio, selectPortfolioAssetAccounts } from './portfolioSlice'
+import { accountToPortfolio, Portfolio, selectPortfolioAssetAccounts, selectAccountSpecifierByCaip10 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -11,6 +11,13 @@ const yvusdcCaip19 = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
 
 const btcCaip2 = 'bip122:000000000019d6689c085ae165831e93'
 const btcCaip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+
+const btcCaip10s = [
+  'bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
+  'bip122:000000000019d6689c085ae165831e93:bc1qx0aaya6e0e8rfukvma9adhncjd77yhas70qukt',
+  'bip122:000000000019d6689c085ae165831e93:bc1qtjxklypn7zhp05ja29c5z8ycscmq0vhhzslm99'
+]
+const ethCaip10s = ['eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1']
 
 const ethAccount = {
   balance: '27803816548287370',
@@ -147,5 +154,53 @@ describe('selectPortfolioAssetAccounts', () => {
     const selected = selectPortfolioAssetAccounts(state, ethCaip19)
     const expected = [fooAccount, barAccount]
     expect(selected).toEqual(expected)
+  })
+})
+
+describe('selectAccountSpecifierByCaip10', () => {
+  const state = {
+    ...mockStore,
+    portfolio: {
+      ...mockStore.portfolio,
+      accountSpecifiers: {
+        byId: {
+          [btcAccountSpecifier]: btcCaip10s,
+          [ethAccountSpecifier]: ethCaip10s
+        },
+        ids: [btcAccountSpecifier, ethAccountSpecifier]
+      }
+    }
+  }
+
+  it('can select account specifier by CAIP10', () => {
+    const btcAccSpecifier = selectAccountSpecifierByCaip10(state, btcCaip10s[0])
+    const ethAccSpecifier = selectAccountSpecifierByCaip10(state, ethCaip10s[0])
+
+    expect(btcAccSpecifier).toEqual(btcAccountSpecifier)
+    expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
+  })
+
+  it('can select account specifier with caip10 in non checksum format', () => {
+    const newState = {
+      ...state,
+      portfolio: {
+        ...state.portfolio,
+        accountSpecifiers: {
+          ...state.portfolio.accountSpecifiers,
+          byId: {
+            ...state.portfolio.accountSpecifiers.byId,
+            [btcAccountSpecifier]: btcCaip10s.map(caip10s => caip10s.toUpperCase())
+          }
+        }
+      }
+    }
+
+    // caip10s in state in non checksum format
+    const btcAccSpecifier = selectAccountSpecifierByCaip10(newState, btcCaip10s[0])
+    expect(btcAccSpecifier).toEqual(btcAccountSpecifier)
+
+    // caip10 argument in non checksum format
+    const ethAccSpecifier = selectAccountSpecifierByCaip10(state, ethCaip10s[0].toUpperCase())
+    expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
   })
 })

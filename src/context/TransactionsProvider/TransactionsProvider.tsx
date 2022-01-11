@@ -1,12 +1,15 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import toLower from 'lodash/toLower'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAccountSpecifierByCaip10 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { store } from 'state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -46,13 +49,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
-                const accountSpecifierObj = accountSpecifiers.reduce((acc, cur) => {
-                  if (acc) return acc
-                  const [k, v] = Object.entries(cur)[0]
-                  if (k === caip2) return v.toLowerCase()
-                  return acc
-                }, '')
-                const accountSpecifier = `${caip2}:${accountSpecifierObj}`
+                const caip10 = `${msg.caip2}:${msg.address}`
+                const state = store.getState()
+                const accountSpecifier = selectAccountSpecifierByCaip10(state, toLower(caip10))
                 dispatch(
                   txHistory.actions.onMessage({
                     message: { ...msg, accountType },

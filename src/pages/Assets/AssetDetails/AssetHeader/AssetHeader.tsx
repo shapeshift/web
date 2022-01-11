@@ -134,7 +134,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
                   value={view === View.Price ? assetPrice : totalBalance}
                   displayType={'text'}
                   thousandSeparator={true}
-                  prefix={'$'}
+                  isNumericString={true}
                 />
               </Skeleton>
             </Card.Heading>

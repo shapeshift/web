@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.23.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.23.0...@shapeshiftoss/chain-adapters-v1.23.1) (2022-01-12)
+
+
+### Bug Fixes
+
+* return unconfirmed balances as part of account balance response ([#297](https://github.com/shapeshift/lib/issues/297)) ([47e22f5](https://github.com/shapeshift/lib/commit/47e22f50dae578650b847f78f07f8dff85e01cf5))
+
 # [@shapeshiftoss/chain-adapters-v1.23.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.22.1...@shapeshiftoss/chain-adapters-v1.23.0) (2022-01-12)
 
 

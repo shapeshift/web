@@ -308,7 +308,6 @@ export const selectPortfolioFiatBalances = createSelector(
 
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
 const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
-const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
 export const selectPortfolioFiatAccountBalances = createSelector(
   selectAssets,
@@ -338,9 +337,6 @@ export const selectPortfolioTotalFiatBalance = createSelector(
       .reduce((acc, assetFiatBalance) => acc.plus(bnOrZero(assetFiatBalance)), bn(0))
       .toFixed(2)
 )
-
-const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
-const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
 
 export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,

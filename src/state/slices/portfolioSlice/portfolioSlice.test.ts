@@ -309,4 +309,23 @@ describe('selectPortfolioFiatAccountBalance', () => {
     const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
     expect(fiatAccountBalance).toEqual(returnValue)
   })
+
+  it('returns 0 when no market data is available', () => {
+    const currentState = {
+      ...state,
+      marketData: {
+        ...mockStore.marketData
+      }
+    }
+
+    const returnValue = {
+      [ethAccountSpecifier]: {
+        [ethCaip19]: '0.00',
+        [foxCaip19]: '0.00'
+      }
+    }
+
+    const fiatAccountBalance = selectPortfolioFiatAccountBalances(currentState)
+    expect(fiatAccountBalance).toEqual(returnValue)
+  })
 })

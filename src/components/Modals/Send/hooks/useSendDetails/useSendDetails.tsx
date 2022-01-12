@@ -19,7 +19,7 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioCryptoHumanBalanceById,
+  selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceById
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
@@ -55,7 +55,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const balancesLoading = false
   const cryptoHumanBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, asset.caip19))
+    useAppSelector(state => selectPortfolioCryptoHumanBalanceByAssetId(state, asset.caip19))
   )
   const fiatBalance = bnOrZero(
     useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))

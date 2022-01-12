@@ -326,7 +326,7 @@ export const selectPortfolioCryptoBalanceByAssetId = createSelector(
   (byId, assetId): string => byId[assetId]
 )
 
-export const selectPortfolioCryptoHumanBalanceById = createSelector(
+export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
   selectAssets,
   selectPortfolioAssetBalances,
   selectAssetIdParam,

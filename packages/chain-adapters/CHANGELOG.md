@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.23.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.22.1...@shapeshiftoss/chain-adapters-v1.23.0) (2022-01-12)
+
+
+### Features
+
+* add EIP-1559 parameters to getFeeData return object ([#288](https://github.com/shapeshift/lib/issues/288)) ([1329396](https://github.com/shapeshift/lib/commit/1329396954dc4cc5dd84578dd396a1383d9f027d))
+
 # [@shapeshiftoss/chain-adapters-v1.22.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.22.0...@shapeshiftoss/chain-adapters-v1.22.1) (2021-12-15)
 
 # [@shapeshiftoss/chain-adapters-v1.22.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.21.1...@shapeshiftoss/chain-adapters-v1.22.0) (2021-12-10)

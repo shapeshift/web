@@ -6,6 +6,7 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -79,7 +80,13 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
           break
       }
     }
-    setAccountSpecifiers(acc)
+
+    /*
+     * we only want to set this object once, i.e. when the wallet connects
+     * do a deep equal comparison here and only set the account specifiers if they're
+     * different
+     */
+    if (!isEqual(acc, accountSpecifiers)) setAccountSpecifiers(acc)
     // this is called by the effect below with the right logic to only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletInfo?.deviceId, assetsById])

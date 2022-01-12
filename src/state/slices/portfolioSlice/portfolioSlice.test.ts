@@ -1,12 +1,15 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { mockStore } from 'test/mocks/store'
+import { ethereum, fox } from 'test/mocks/assets'
 
 import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
   selectPortfolioAssetAccounts,
-  selectPortfolioAssetCryptoBalanceByAssetId
+  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioFiatAccountBalances
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -236,7 +239,7 @@ describe('selectAccountIdByAddress', () => {
   })
 })
 
-describe.skip('selectPortfolioAssetCryptoBalanceByAssetId', () => {
+describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
   it('can select crypto asset balance by asset Id', () => {
     const state = {
       ...mockStore,
@@ -248,7 +251,62 @@ describe.skip('selectPortfolioAssetCryptoBalanceByAssetId', () => {
       }
     }
 
-    const cryptoAssetBalanceByAccount = selectPortfolioAssetCryptoBalanceByAssetId(state, ethCaip19)
+    const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, ethCaip19)
     expect(cryptoAssetBalanceByAccount).toBe(mockStore.portfolio.assetBalances.byId[ethCaip19])
+  })
+})
+
+describe('selectPortfolioFiatAccountBalance', () => {
+  const state = {
+    ...mockStore,
+    assets: {
+      byId: {
+        [ethCaip19]: ethereum,
+        [foxCaip19]: fox
+      },
+      ids: [ethCaip19, foxCaip19]
+    },
+    marketData: {
+      ...mockStore.marketData,
+      byId: {
+        [ethCaip19]: {
+          price: '1000',
+          marketCap: '10000',
+          volume: '100000',
+          changePercent24Hr: 10
+        },
+        [foxCaip19]: {
+          price: '1',
+          marketCap: '10000',
+          volume: '100000',
+          changePercent24Hr: 10
+        }
+      },
+      ids: [ethCaip19]
+    },
+    portfolio: {
+      ...mockStore.portfolio,
+      accountBalances: {
+        byId: {
+          [ethAccountSpecifier]: {
+            [ethCaip19]: '27803816548287370',
+            [foxCaip19]: '42729243327349401946'
+          }
+        },
+        ids: [ethAccountSpecifier]
+      }
+    }
+  }
+
+  it('can select crypto fiat account balance', () => {
+    const returnValue = {
+      [ethAccountSpecifier]: {
+        [ethCaip19]: '27.80',
+        [foxCaip19]: '42.73'
+      }
+    }
+
+    const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+    expect(fiatAccountBalance).toEqual(returnValue)
   })
 })

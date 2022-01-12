@@ -112,6 +112,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.withdrawEstimatedGas({
+          tokenContractAddress: tokenId,
           vaultAddress,
           amountDesired: bnOrZero(withdraw.cryptoAmount)
             .times(`1e+${asset.precision}`)

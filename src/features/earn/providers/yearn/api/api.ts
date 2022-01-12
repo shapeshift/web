@@ -4,11 +4,14 @@ import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
 import { toLower } from 'lodash'
+import isNil from 'lodash/isNil'
 import Web3 from 'web3'
 import { TransactionReceipt } from 'web3-core/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { erc20Abi } from '../constants/erc20-abi'
+import { ssRouterContractAddress } from '../constants/router-contract'
+import { ssRouterAbi } from '../constants/ss-router-abi'
 import { SUPPORTED_VAULTS } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
@@ -64,6 +67,7 @@ export class YearnVaultApi {
   public web3: Web3
   public vaults: YearnVault[]
   public yearnClient: AxiosInstance
+  private ssRouterContract: any
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
     this.adapter = adapter
@@ -72,6 +76,7 @@ export class YearnVaultApi {
     this.yearnClient = axios.create({
       baseURL: 'https://api.yearn.finance/v1'
     })
+    this.ssRouterContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     this.vaults = []
   }
 
@@ -107,11 +112,42 @@ export class YearnVaultApi {
     return await this.web3.eth.getTransactionReceipt(txid)
   }
 
+  checksumAddress(address: string): string {
+    return this.web3.utils.toChecksumAddress(address)
+  }
+
+  // From the token contract address and vault address, we need to get the vault id. The router
+  // contract needs the vault id to know which vault it is dealing with when depositing, since it
+  // takes a token address and a vault id.
+  async getVaultId({
+    tokenContractAddress,
+    vaultAddress
+  }: {
+    tokenContractAddress: string
+    vaultAddress: string
+  }): Promise<number> {
+    const numVaults = await this.ssRouterContract.methods
+      .numVaults(this.checksumAddress(tokenContractAddress))
+      .call()
+    let id: number | null = null
+    for (let i = 0; i <= numVaults && isNil(id); i++) {
+      const result = await this.ssRouterContract.methods
+        .vaults(this.checksumAddress(tokenContractAddress), i)
+        .call()
+      if (result === this.checksumAddress(vaultAddress)) id = i
+    }
+    if (isNil(id))
+      throw new Error(
+        `Could not find vault id for token: ${tokenContractAddress} vault: ${vaultAddress}`
+      )
+    return id
+  }
+
   async approveEstimatedGas(input: ApproveEstimatedGasInput): Promise<BigNumber> {
-    const { userAddress, spenderAddress, tokenContractAddress } = input
+    const { userAddress, tokenContractAddress } = input
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const estimatedGas = await depositTokenContract.methods
-      .approve(spenderAddress, MAX_ALLOWANCE)
+      .approve(ssRouterContractAddress, MAX_ALLOWANCE)
       .estimateGas({
         from: userAddress
       })
@@ -119,19 +155,12 @@ export class YearnVaultApi {
   }
 
   async approve(input: ApproveInput): Promise<string> {
-    const {
-      accountNumber = 0,
-      dryRun = false,
-      spenderAddress,
-      tokenContractAddress,
-      userAddress,
-      wallet
-    } = input
+    const { accountNumber = 0, dryRun = false, tokenContractAddress, userAddress, wallet } = input
     if (!wallet) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.approveEstimatedGas(input)
     const depositTokenContract = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
     const data: string = depositTokenContract.methods
-      .approve(spenderAddress, MAX_ALLOWANCE)
+      .approve(ssRouterContractAddress, MAX_ALLOWANCE)
       .encodeABI({
         from: userAddress
       })
@@ -163,19 +192,22 @@ export class YearnVaultApi {
   }
 
   async allowance(input: Allowanceinput): Promise<string> {
-    const { userAddress, spenderAddress, tokenContractAddress } = input
+    const { userAddress, tokenContractAddress } = input
     const depositTokenContract: any = new this.web3.eth.Contract(erc20Abi, tokenContractAddress)
-    return depositTokenContract.methods.allowance(userAddress, spenderAddress).call()
+    return depositTokenContract.methods.allowance(userAddress, ssRouterContractAddress).call()
   }
 
   async depositEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
-    const { amountDesired, userAddress, vaultAddress } = input
-    const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
-    const estimatedGas = await vaultContract.methods
-      .deposit(amountDesired.toString(), userAddress)
+    const { amountDesired, userAddress, tokenContractAddress, vaultAddress } = input
+
+    const vaultIndex = await this.getVaultId({ tokenContractAddress, vaultAddress })
+    const tokenChecksum = this.web3.utils.toChecksumAddress(tokenContractAddress)
+    const userChecksum = this.web3.utils.toChecksumAddress(userAddress)
+    const estimatedGas = await this.ssRouterContract.methods
+      .deposit(tokenChecksum, userChecksum, amountDesired.toString(), vaultIndex)
       .estimateGas({
         value: 0,
-        from: userAddress
+        from: userChecksum
       })
     return bnOrZero(estimatedGas)
   }
@@ -185,17 +217,25 @@ export class YearnVaultApi {
       amountDesired,
       accountNumber = 0,
       dryRun = false,
+      tokenContractAddress,
       vaultAddress,
       userAddress,
       wallet
     } = input
     if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.depositEstimatedGas(input)
-    const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
-    const data: string = await vaultContract.methods
-      .deposit(amountDesired.toString(), userAddress)
+
+    // In order to properly earn affiliate revenue, we must deposit to the vault through the SS
+    // router contract. This is not necessary for withdraws. We can withdraw directly from the vault
+    // without affecting the DAOs affiliate revenue.
+    const tokenChecksum = this.web3.utils.toChecksumAddress(tokenContractAddress)
+    const userChecksum = this.web3.utils.toChecksumAddress(userAddress)
+    const vaultIndex = await this.getVaultId({ tokenContractAddress, vaultAddress })
+    const data: string = await this.ssRouterContract.methods
+      .deposit(tokenChecksum, userChecksum, amountDesired.toString(), vaultIndex)
       .encodeABI({
-        from: userAddress
+        value: 0,
+        from: userChecksum
       })
     const nonce = await this.web3.eth.getTransactionCount(userAddress)
     const gasPrice = await this.web3.eth.getGasPrice()
@@ -207,7 +247,7 @@ export class YearnVaultApi {
       estimatedGas: estimatedGas.toString(),
       gasPrice,
       nonce: String(nonce),
-      to: vaultAddress,
+      to: ssRouterContractAddress,
       value: '0'
     })
     if (wallet.supportsOfflineSigning()) {
@@ -224,6 +264,8 @@ export class YearnVaultApi {
     }
   }
 
+  // Withdraws are done through the vault contract itself, there is no need to go through the SS
+  // router contract, so we estimate the gas from the vault itself.
   async withdrawEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, vaultAddress } = input
     const vaultContract = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
@@ -246,6 +288,11 @@ export class YearnVaultApi {
     } = input
     if (!wallet || !vaultAddress) throw new Error('Missing inputs')
     const estimatedGas: BigNumber = await this.withdrawEstimatedGas(input)
+
+    // We use the vault directly to withdraw the vault tokens. There is no benefit to the DAO to use
+    // the router to withdraw funds and there is an extra approval required for the user if we
+    // withdrew from the vault using the shapeshift router. Affiliate fees for SS are the same
+    // either way. For this reason, we simply withdraw from the vault directly.
     const vaultContract: any = new this.web3.eth.Contract(yv2VaultAbi, vaultAddress)
     const data: string = vaultContract.methods
       .withdraw(amountDesired.toString(), userAddress)

@@ -73,6 +73,7 @@ export const useAsset = () => {
 
   return {
     asset: asset ?? initAsset,
+    CAIP19: assetCAIP19,
     marketData: marketData ?? initMarketData,
     loading
   }

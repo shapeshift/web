@@ -4,11 +4,12 @@ import { Page } from 'components/Layout/Page'
 import { StakingVaults } from '../../../components/StakingVaults/StakingVaults'
 import { useAsset } from '../Asset'
 import { UnderlyingToken } from '../AssetCards/UnderlyingToken/UnderlyingToken'
+import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetHistory } from './AssetHistory'
 
 export const AssetDetails = () => {
-  const { asset, marketData } = useAsset()
+  const { asset, marketData, CAIP19 } = useAsset()
   const isLoaded = !!marketData
 
   return (
@@ -23,6 +24,7 @@ export const AssetDetails = () => {
         >
           <AssetHeader isLoaded={isLoaded} />
           <StakingVaults tokenId={asset.tokenId} isLoaded={isLoaded} />
+          <AssetAccounts CAIP19={CAIP19} />
           <UnderlyingToken asset={asset} />
           <AssetHistory />
         </Stack>

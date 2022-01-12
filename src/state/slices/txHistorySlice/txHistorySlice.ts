@@ -9,20 +9,22 @@ import values from 'lodash/values'
 import { createSelector } from 'reselect'
 import { upsertArray } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { getRelatedAssetIds } from './utils'
 
+type TxId = string
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType
   caip19?: CAIP19
   caip2?: CAIP2
-  txid?: string
+  txid?: TxId
 }
 
 export type TxHistoryById = {
-  [k: string]: Tx
+  [k: TxId]: Tx
 }
 
 /* this is a one to many relationship of asset id to tx id, built up as
@@ -47,19 +49,25 @@ export type TxIdByAssetId = {
   [k: CAIP19]: string[]
 }
 
+export type TxIdByAccountId = {
+  [k: AccountSpecifier]: TxId[]
+}
+
 export type TxHistory = {
   byId: TxHistoryById
   byAssetId: TxIdByAssetId
-  ids: string[]
+  byAccountId: TxIdByAccountId
+  ids: TxId[]
 }
 
-export type TxMessage = { payload: { message: Tx } }
+export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
   byId: {},
   ids: [], // sorted, newest first
-  byAssetId: {}
+  byAssetId: {},
+  byAccountId: {}
 }
 
 /**
@@ -67,7 +75,7 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
+const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) => {
   const { txid } = tx
   const isNew = !txHistory.byId[txid]
 
@@ -90,6 +98,12 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx) => {
     )
   })
 
+  // index the tx by the account that it belongs to
+  txHistory.byAccountId[accountSpecifier] = upsertArray(
+    txHistory.byAccountId[accountSpecifier] ?? [],
+    tx.txid
+  )
+
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
   // this looks like it's not doing anything, but changes written to the proxy
   // get applied to state when it goes out of scope
@@ -100,7 +114,8 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    onMessage: (state, { payload }: TxMessage) => updateOrInsert(state, payload.message)
+    onMessage: (txState, { payload }: TxMessage) =>
+      updateOrInsert(txState, payload.message, payload.accountSpecifier)
   }
 })
 

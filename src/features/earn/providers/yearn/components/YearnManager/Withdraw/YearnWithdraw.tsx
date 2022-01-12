@@ -46,7 +46,7 @@ enum WithdrawPath {
 }
 
 export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Withdraw Amount' },
+  { step: 0, path: WithdrawPath.Withdraw, label: 'Withdrawal Amount' },
   { step: 1, path: WithdrawPath.Confirm, label: 'Confirm Withdraw' },
   { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
   { step: 2, path: WithdrawPath.Status, label: 'Status' }

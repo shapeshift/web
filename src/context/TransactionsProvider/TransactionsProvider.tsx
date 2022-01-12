@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAccountIdByAddress } from 'state/slices/portfolioSlice/portfolioSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { store } from 'state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -42,7 +44,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
-                dispatch(txHistory.actions.onMessage({ message: { ...msg, accountType } }))
+                const caip10 = `${msg.caip2}:${msg.address}`
+                const state = store.getState()
+                const accountId = selectAccountIdByAddress(state, caip10)
+                dispatch(
+                  txHistory.actions.onMessage({
+                    message: { ...msg, accountType },
+                    accountSpecifier: accountId
+                  })
+                )
               },
               (err: any) => console.error(err)
             )

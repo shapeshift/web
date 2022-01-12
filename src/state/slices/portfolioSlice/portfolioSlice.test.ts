@@ -1,6 +1,12 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { mockStore } from 'test/mocks/store'
 
-import { accountToPortfolio, Portfolio } from './portfolioSlice'
+import {
+  accountToPortfolio,
+  Portfolio,
+  selectAccountIdByAddress,
+  selectPortfolioAssetAccounts
+} from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -10,6 +16,13 @@ const yvusdcCaip19 = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
 
 const btcCaip2 = 'bip122:000000000019d6689c085ae165831e93'
 const btcCaip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+
+const btcCaip10s = [
+  'bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
+  'bip122:000000000019d6689c085ae165831e93:bc1qx0aaya6e0e8rfukvma9adhncjd77yhas70qukt',
+  'bip122:000000000019d6689c085ae165831e93:bc1qtjxklypn7zhp05ja29c5z8ycscmq0vhhzslm99'
+]
+const ethCaip10s = ['eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1']
 
 const ethAccount = {
   balance: '27803816548287370',
@@ -68,7 +81,7 @@ const btcAccount = {
 }
 
 const ethAccountSpecifier = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
-const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey.toLowerCase()}`
+const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
 const ethCaip10 = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
 
 const portfolio: Portfolio = {
@@ -119,5 +132,80 @@ describe('accountToPortfolio', () => {
     const accounts = { [ethAccount.pubkey]: ethAccount, [btcAccount.pubkey]: btcAccount }
     const result = accountToPortfolio(accounts)
     expect(result).toEqual(portfolio)
+  })
+})
+
+describe('selectPortfolioAssetAccounts', () => {
+  it('can get accounts containing an asset', () => {
+    const fooAccount = '0xfoo'
+    const barAccount = '0xbar'
+    const bazAccount = '0xbaz'
+
+    const state = {
+      ...mockStore,
+      portfolio: {
+        ...mockStore.portfolio,
+        accounts: {
+          byId: {
+            [fooAccount]: [ethCaip19],
+            [barAccount]: [ethCaip19],
+            [bazAccount]: []
+          },
+          ids: [fooAccount, barAccount, bazAccount]
+        }
+      }
+    }
+
+    const selected = selectPortfolioAssetAccounts(state, ethCaip19)
+    const expected = [fooAccount, barAccount]
+    expect(selected).toEqual(expected)
+  })
+})
+
+describe('selectAccountIdByAddress', () => {
+  const state = {
+    ...mockStore,
+    portfolio: {
+      ...mockStore.portfolio,
+      accountSpecifiers: {
+        byId: {
+          [btcAccountSpecifier]: btcCaip10s,
+          [ethAccountSpecifier]: ethCaip10s
+        },
+        ids: [btcAccountSpecifier, ethAccountSpecifier]
+      }
+    }
+  }
+
+  it('can select account id by address (CAIP10)', () => {
+    const btcAccSpecifier = selectAccountIdByAddress(state, btcCaip10s[0])
+    const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0])
+
+    expect(btcAccSpecifier).toEqual(btcAccountSpecifier)
+    expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
+  })
+
+  it('can select account id with address in non checksum format', () => {
+    const newState = {
+      ...state,
+      portfolio: {
+        ...state.portfolio,
+        accountSpecifiers: {
+          ...state.portfolio.accountSpecifiers,
+          byId: {
+            ...state.portfolio.accountSpecifiers.byId,
+            [btcAccountSpecifier]: btcCaip10s.map(caip10s => caip10s.toUpperCase())
+          }
+        }
+      }
+    }
+
+    // caip10s in state in non checksum format
+    const btcAccSpecifier = selectAccountIdByAddress(newState, btcCaip10s[0])
+    expect(btcAccSpecifier).toEqual(btcAccountSpecifier)
+
+    // caip10 argument in non checksum format
+    const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0].toUpperCase())
+    expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
   })
 })

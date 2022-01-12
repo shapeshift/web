@@ -15,7 +15,7 @@ import {
   PortfolioBalancesById,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceById
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { useSendDetails } from './useSendDetails'
@@ -35,7 +35,7 @@ jest.mock('state/slices/portfolioSlice/portfolioSlice', () => ({
   ...jest.requireActual('state/slices/portfolioSlice/portfolioSlice'),
   selectPortfolioCryptoBalanceByAssetId: jest.fn(),
   selectPortfolioCryptoHumanBalanceByAssetId: jest.fn(),
-  selectPortfolioFiatBalanceById: jest.fn()
+  selectPortfolioFiatBalanceByAssetId: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -87,7 +87,7 @@ const setup = ({
     }
     return fakeMarketData[assetId]
   })
-  mocked(selectPortfolioFiatBalanceById).mockImplementation((_state, assetId) => {
+  mocked(selectPortfolioFiatBalanceByAssetId).mockImplementation((_state, assetId) => {
     const fakeFiatBalanceData = {
       [mockEthereum.caip19]: '17500',
       [mockRune.caip19]: '14490.00'

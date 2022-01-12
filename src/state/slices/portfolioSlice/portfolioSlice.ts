@@ -314,7 +314,7 @@ export const selectPortfolioTotalFiatBalance = createSelector(
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
 const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
 
-export const selectPortfolioFiatBalanceById = createSelector(
+export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParam,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]

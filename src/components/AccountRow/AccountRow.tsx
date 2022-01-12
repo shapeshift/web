@@ -9,7 +9,7 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceById
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
@@ -33,7 +33,7 @@ export const AccountRow = ({ allocationValue, CAIP19 }: AccountRowArgs) => {
   const asset = useAppSelector(state => selectAssetByCAIP19(state, CAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, CAIP19))
   const cryptoValue = useAppSelector(state => selectPortfolioCryptoHumanBalanceByAssetId(state, CAIP19))
-  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceById(state, CAIP19))
+  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, CAIP19))
 
   if (!asset) return null // users may have assets we don't support
 

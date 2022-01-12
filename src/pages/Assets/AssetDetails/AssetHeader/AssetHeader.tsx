@@ -32,7 +32,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { useAsset } from 'pages/Assets/Asset'
 import {
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceById
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -74,7 +74,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const cryptoBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
   )
-  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, assetId))
+  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
 
   return (
     <Card variant='footer-stub'>

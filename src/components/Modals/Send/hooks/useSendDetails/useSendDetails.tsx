@@ -20,7 +20,7 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSli
 import {
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceById
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
@@ -58,7 +58,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     useAppSelector(state => selectPortfolioCryptoHumanBalanceByAssetId(state, asset.caip19))
   )
   const fiatBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
+    useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, asset.caip19))
   )
   const assetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByAssetId(state, asset.caip19)

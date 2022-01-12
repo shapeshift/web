@@ -280,7 +280,7 @@ export const portfolioApi = createApi({
 
 export const selectPortfolioAssetIds = (state: ReduxState): PortfolioAssetBalances['ids'] =>
   state.portfolio.assetBalances.ids
-export const selectPortfolioBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
+export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
 export const selectAccountId = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
   state.portfolio.accountSpecifiers.byId
@@ -288,7 +288,7 @@ export const selectAccountId = (state: ReduxState): PortfolioAccountSpecifiers['
 export const selectPortfolioFiatBalances = createSelector(
   selectAssets,
   selectMarketData,
-  selectPortfolioBalances,
+  selectPortfolioAssetBalances,
   (assetsById, marketData, balances) =>
     Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
       (acc, [assetId, baseUnitBalance]) => {
@@ -320,15 +320,15 @@ export const selectPortfolioFiatBalanceById = createSelector(
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
-export const selectPortfolioCryptoBalanceById = createSelector(
-  selectPortfolioBalances,
+export const selectPortfolioCryptoBalanceByAssetId = createSelector(
+  selectPortfolioAssetBalances,
   selectAssetIdParam,
   (byId, assetId): string => byId[assetId]
 )
 
 export const selectPortfolioCryptoHumanBalanceById = createSelector(
   selectAssets,
-  selectPortfolioBalances,
+  selectPortfolioAssetBalances,
   selectAssetIdParam,
   (assets, balances, assetId): string =>
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)

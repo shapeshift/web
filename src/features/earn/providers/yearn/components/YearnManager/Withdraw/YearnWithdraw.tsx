@@ -29,7 +29,7 @@ import { poll } from 'lib/poll/poll'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectPortfolioCryptoBalanceById,
+  selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioLoading
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
@@ -77,7 +77,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceById(state, assetCAIP19))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation

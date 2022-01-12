@@ -5,7 +5,8 @@ import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
-  selectPortfolioAssetAccounts
+  selectPortfolioAssetAccounts,
+  selectPortfolioAssetCryptoBalanceByAssetId
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -24,7 +25,7 @@ const btcCaip10s = [
 ]
 const ethCaip10s = ['eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1']
 
-const ethAccount = {
+const ethAccount1 = {
   balance: '27803816548287370',
   caip2: ethCaip2,
   caip19: ethCaip19,
@@ -47,6 +48,31 @@ const ethAccount = {
     ]
   },
   pubkey: '0x934be745172066EDF795ffc5EA9F28f19b440c63'
+}
+
+const ethAccount2 = {
+  balance: '2r803816848287370',
+  caip2: ethCaip2,
+  caip19: ethCaip19,
+  chain: ChainTypes.Ethereum,
+  chainSpecific: {
+    nonce: 5,
+    tokens: [
+      {
+        balance: '729243327349401946',
+        caip19: foxCaip19
+      },
+      {
+        balance: '1141208456',
+        caip19: usdcCaip19
+      },
+      {
+        balance: '38178352',
+        caip19: yvusdcCaip19
+      }
+    ]
+  },
+  pubkey: '0x30eD6B32E6CA40A4C9B959C5CD70CA0Ba72C18Ad'
 }
 
 const btcAccount = {
@@ -80,9 +106,9 @@ const btcAccount = {
     'zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w'
 }
 
-const ethAccountSpecifier = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
+const ethAccountSpecifier = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
-const ethCaip10 = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
+const ethCaip10 = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 
 const portfolio: Portfolio = {
   accounts: {
@@ -129,7 +155,7 @@ const portfolio: Portfolio = {
 
 describe('accountToPortfolio', () => {
   it('can normalize eth and btc accounts to portfolio', () => {
-    const accounts = { [ethAccount.pubkey]: ethAccount, [btcAccount.pubkey]: btcAccount }
+    const accounts = { [ethAccount1.pubkey]: ethAccount1, [btcAccount.pubkey]: btcAccount }
     const result = accountToPortfolio(accounts)
     expect(result).toEqual(portfolio)
   })
@@ -207,5 +233,22 @@ describe('selectAccountIdByAddress', () => {
     // caip10 argument in non checksum format
     const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0].toUpperCase())
     expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
+  })
+})
+
+describe.skip('selectPortfolioAssetCryptoBalanceByAssetId', () => {
+  it('can select crypto asset balance by asset Id', () => {
+    const state = {
+      ...mockStore,
+      portfolio: {
+        ...mockStore.portfolio,
+        accountBalances: {
+          ...mockStore.portfolio.accountBalances
+        }
+      }
+    }
+
+    const cryptoAssetBalanceByAccount = selectPortfolioAssetCryptoBalanceByAssetId(state, ethCaip19)
+    expect(cryptoAssetBalanceByAccount).toBe(mockStore.portfolio.assetBalances.byId[ethCaip19])
   })
 })

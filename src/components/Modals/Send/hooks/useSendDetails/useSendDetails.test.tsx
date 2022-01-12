@@ -13,7 +13,7 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioBalancesById,
-  selectPortfolioCryptoBalanceById,
+  selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceById,
   selectPortfolioFiatBalanceById
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -33,7 +33,7 @@ jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
 
 jest.mock('state/slices/portfolioSlice/portfolioSlice', () => ({
   ...jest.requireActual('state/slices/portfolioSlice/portfolioSlice'),
-  selectPortfolioCryptoBalanceById: jest.fn(),
+  selectPortfolioCryptoBalanceByAssetId: jest.fn(),
   selectPortfolioCryptoHumanBalanceById: jest.fn(),
   selectPortfolioFiatBalanceById: jest.fn()
 }))
@@ -95,7 +95,7 @@ const setup = ({
     return fakeFiatBalanceData[assetId]
   })
   mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  mocked(selectPortfolioCryptoBalanceById).mockReturnValue(assetBalance)
+  mocked(selectPortfolioCryptoBalanceByAssetId).mockReturnValue(assetBalance)
   mocked(selectPortfolioCryptoHumanBalanceById).mockReturnValue(
     bnOrZero(assetBalance).div('1e18').toString()
   )

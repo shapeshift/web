@@ -35,7 +35,7 @@ const main = async () => {
     const chainAdapterManager = new ChainAdapterManager(unchainedUrls)
     const wallet = await getWallet()
 
-    /** BITCOIN CLI */
+    // /** BITCOIN CLI */
     const btcChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
     const btcBip44Params: BIP44Params = {
       purpose: 84,
@@ -98,6 +98,21 @@ const main = async () => {
       (msg) => console.log(msg),
       (err) => console.log(err)
     )
+
+    // estimate gas fees
+    try {
+      const feeData = await ethChainAdapter.getFeeData({
+        to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
+        value: '123',
+        chainSpecific: {
+          from: '0x0000000000000000000000000000000000000000',
+          contractData: '0x'
+        }
+      })
+      console.log('getFeeData', feeData)
+    } catch (err) {
+      console.log('getFeeDataError:', err.message)
+    }
 
     // send eth example
     try {

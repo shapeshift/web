@@ -66,6 +66,7 @@ export class YearnVaultApi {
   public web3: Web3
   public vaults: YearnVault[]
   public yearnClient: AxiosInstance
+  private ssRouterContract: any
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
     this.adapter = adapter
@@ -74,6 +75,7 @@ export class YearnVaultApi {
     this.yearnClient = axios.create({
       baseURL: 'https://api.yearn.finance/v1'
     })
+    this.ssRouterContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     this.vaults = []
   }
 
@@ -120,13 +122,12 @@ export class YearnVaultApi {
     tokenContractAddress: string
     vaultAddress: string
   }): Promise<number> {
-    const routerAddress = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
-    const numVaults = await routerAddress.methods
+    const numVaults = await this.ssRouterContract.methods
       .numVaults(this.checksumAddress(tokenContractAddress))
       .call()
     let id: number = 0
     for (let i = 0; i <= numVaults && !id; i++) {
-      const result = await routerAddress.methods
+      const result = await this.ssRouterContract.methods
         .vaults(this.checksumAddress(tokenContractAddress), i)
         .call()
       if (result === this.checksumAddress(vaultAddress)) id = i
@@ -195,11 +196,10 @@ export class YearnVaultApi {
   async depositEstimatedGas(input: TxEstimatedGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, tokenContractAddress, vaultAddress } = input
 
-    const routerContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     const vaultIndex = await this.getVaultId({ tokenContractAddress, vaultAddress })
     const tokenChecksum = this.web3.utils.toChecksumAddress(tokenContractAddress)
     const userChecksum = this.web3.utils.toChecksumAddress(userAddress)
-    const estimatedGas = await routerContract.methods
+    const estimatedGas = await this.ssRouterContract.methods
       .deposit(tokenChecksum, userChecksum, amountDesired.toString(), vaultIndex)
       .estimateGas({
         value: 0,
@@ -224,11 +224,10 @@ export class YearnVaultApi {
     // In order to properly earn affiliate revenue, we must deposit to the vault through the SS
     // router contract. This is not necessary for withdraws. We can withdraw directly from the vault
     // without affecting the DAOs affiliate revenue.
-    const routerContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     const tokenChecksum = this.web3.utils.toChecksumAddress(tokenContractAddress)
     const userChecksum = this.web3.utils.toChecksumAddress(userAddress)
     const vaultIndex = await this.getVaultId({ tokenContractAddress, vaultAddress })
-    const data: string = await routerContract.methods
+    const data: string = await this.ssRouterContract.methods
       .deposit(tokenChecksum, userChecksum, amountDesired.toString(), vaultIndex)
       .encodeABI({
         value: 0,

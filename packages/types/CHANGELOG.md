@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.21.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.20.0...@shapeshiftoss/types-v1.21.0) (2022-01-12)
+
+
+### Features
+
+* add EIP-1559 parameters to getFeeData return object ([#288](https://github.com/shapeshift/lib/issues/288)) ([1329396](https://github.com/shapeshift/lib/commit/1329396954dc4cc5dd84578dd396a1383d9f027d))
+
 # [@shapeshiftoss/types-v1.20.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.19.1...@shapeshiftoss/types-v1.20.0) (2021-12-17)
 
 

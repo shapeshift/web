@@ -1,8 +1,10 @@
 import { Grid, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useFeature } from 'hooks/useFeature/useFeature'
 
 import { AssetAccountRow } from './AssetAccountRow'
 
@@ -12,6 +14,8 @@ type AssetAccountsProps = {
 
 export const AssetAccounts = ({ CAIP19 }: AssetAccountsProps) => {
   const translate = useTranslate()
+  const assetAccountsFeature = useFeature(FeatureFlagEnum.Accounts)
+  if (!assetAccountsFeature) return null
   return (
     <Card>
       <Card.Header>

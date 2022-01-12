@@ -8,5 +8,6 @@ export type Flag = typeof FeatureFlagEnum[keyof typeof FeatureFlagEnum]
 export const FeatureFlagEnum = {
   Test: FlagValue.On,
   Yearn: FlagValue.On,
-  Osmosis: FlagValue.Off
+  Osmosis: FlagValue.Off,
+  Accounts: FlagValue.Off
 } as const

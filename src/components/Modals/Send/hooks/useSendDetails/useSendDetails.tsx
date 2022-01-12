@@ -4,7 +4,7 @@ import {
   utxoAccountParams
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -19,7 +19,7 @@ import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioCryptoBalanceById,
-  selectPortfolioCryptoHumanBalanceById,
+  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
   selectPortfolioFiatBalanceById
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
@@ -54,9 +54,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const balancesLoading = false
-  const cryptoHumanBalance = bnOrZero(
-    useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, asset.caip19))
+  const accountType: UtxoAccountType | undefined = useSelector(
+    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
+
+  // TODO(0xdef1cafe): this is a janky temporary fix till we implement accounts next week
+  const cryptoHumanBalance = bnOrZero(
+    useAppSelector(state =>
+      selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+    )
+  )
+
   const fiatBalance = bnOrZero(
     useAppSelector(state => selectPortfolioFiatBalanceById(state, asset.caip19))
   )

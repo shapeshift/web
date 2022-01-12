@@ -4,6 +4,7 @@ import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
 import { toLower } from 'lodash'
+import isNil from 'lodash/isNil'
 import Web3 from 'web3'
 import { TransactionReceipt } from 'web3-core/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -115,6 +116,9 @@ export class YearnVaultApi {
     return this.web3.utils.toChecksumAddress(address)
   }
 
+  // From the token contract address and vault address, we need to get the vault id. The router
+  // contract needs the vault id to know which vault it is dealing with when depositing, since it
+  // takes a token address and a vault id.
   async getVaultId({
     tokenContractAddress,
     vaultAddress
@@ -125,14 +129,14 @@ export class YearnVaultApi {
     const numVaults = await this.ssRouterContract.methods
       .numVaults(this.checksumAddress(tokenContractAddress))
       .call()
-    let id: number = 0
-    for (let i = 0; i <= numVaults && !id; i++) {
+    let id: number | null = null
+    for (let i = 0; i <= numVaults && isNil(id); i++) {
       const result = await this.ssRouterContract.methods
         .vaults(this.checksumAddress(tokenContractAddress), i)
         .call()
       if (result === this.checksumAddress(vaultAddress)) id = i
     }
-    if (!id)
+    if (isNil(id))
       throw new Error(
         `Could not find vault id for token: ${tokenContractAddress} vault: ${vaultAddress}`
       )

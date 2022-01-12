@@ -366,6 +366,14 @@ export const selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId = createSe
   }
 )
 
+export const selectPortfolioFiatBalanceByAccountTypeAndAssetId = createSelector(
+  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
+  selectMarketData,
+  selectAssetIdParam,
+  (accountCryptoHumanBalance, marketData, assetId): string =>
+    bnOrZero(accountCryptoHumanBalance).times(bnOrZero(marketData[assetId]?.price)).toFixed(2)
+)
+
 export type PortfolioAssets = {
   [k: CAIP19]: Asset
 }

@@ -191,6 +191,7 @@
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
     "reselect-tools": "^0.0.7",
+    "semantic-release": "^18.0.1",
     "ssri": "^8.0.1",
     "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",
@@ -209,5 +210,21 @@
     "typescript": {
       "memoryLimit": 4096
     }
+  },
+  "release": {
+    "branches": [
+      {
+        "name": "main"
+      },
+      {
+        "name": "develop",
+        "channel": "beta"
+      }
+    ],
+    "plugins": [
+      "@semantic-release/npm",
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator"
+    ]
   }
 }

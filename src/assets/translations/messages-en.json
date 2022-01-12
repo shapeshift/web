@@ -154,13 +154,25 @@
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
       "transactionRejected": "User has rejected the transaction",
+      "broadcastFailed": "An error occured while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
       "dexTradeFailed": "Trade Failed, Tokens Returned",
-      "quoteFailed": "An error occurred getting a quote for your trade."
+      "quoteFailed": "An error occurred getting a quote for your trade.",
+      "failedQuoteExecuted": "Cannot execute a failed quote",
+      "sellAssetRequired": "Cannot execute a quote without an asset to sell",
+      "sellAmountRequired": "Cannot execute a quote without an amount to sell",
+      "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
+      "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
+      "hdwalletInvalidConfig": "An error occured communicating with your hardware wallet",
+      "signing": {
+        "failed": "An error occured signing the transaction",
+        "required": "A signed transaction is required"
+      }
+
     }
   },
   "modals": {

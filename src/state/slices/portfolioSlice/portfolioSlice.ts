@@ -314,19 +314,25 @@ export const selectPortfolioFiatAccountBalances = createSelector(
   selectPortfolioAccountBalances,
   selectMarketData,
   (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce((acc, [accountId, balanceObj]) => {
-      acc[accountId] = Object.entries(balanceObj).reduce((acc, [caip19, cryptoBalance]) => {
-        const precision = assetsById[caip19]?.precision
-        const price = marketData[caip19]?.price
-        const cryptoValue = fromBaseUnit(cryptoBalance, precision)
-        const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-        acc[caip19] = fiatbalance
+    return Object.entries(accounts).reduce(
+      (acc, [accountId, balanceObj]) => {
+        acc[accountId] = Object.entries(balanceObj).reduce(
+          (acc, [caip19, cryptoBalance]) => {
+            const precision = assetsById[caip19]?.precision
+            const price = marketData[caip19]?.price
+            const cryptoValue = fromBaseUnit(cryptoBalance, precision)
+            const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+            acc[caip19] = fiatbalance
+
+            return acc
+          },
+          { ...balanceObj }
+        )
 
         return acc
-      }, { ...balanceObj })
-
-      return acc
-    }, { ...accounts })
+      },
+      { ...accounts }
+    )
   }
 )
 

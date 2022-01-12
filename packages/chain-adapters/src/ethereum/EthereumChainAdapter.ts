@@ -10,7 +10,14 @@ import { numberToHex } from 'web3-utils'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
-import { getContractType, getStatus, getType, toPath, toRootDerivationPath } from '../utils'
+import {
+  bnOrZero,
+  getContractType,
+  getStatus,
+  getType,
+  toPath,
+  toRootDerivationPath
+} from '../utils'
 import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {
@@ -71,8 +78,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
       const { chain, network } = caip2.fromCAIP2(caip)
       const { data } = await this.providers.http.getAccount({ pubkey })
 
+      const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
+
       return {
-        balance: data.balance,
+        balance: balance.toString(),
         caip2: caip,
         caip19: caip19.toCAIP19({ chain, network }),
         chain: ChainTypes.Ethereum,

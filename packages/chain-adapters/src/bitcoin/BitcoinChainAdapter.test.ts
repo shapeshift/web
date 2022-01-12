@@ -9,7 +9,6 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
 
 import * as bitcoin from './BitcoinChainAdapter'
 
@@ -163,18 +162,30 @@ describe('BitcoinChainAdapter', () => {
         getAccount: jest.fn().mockResolvedValue({
           data: {
             pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
-            balance: '0'
+            balance: '100',
+            unconfirmedBalance: '50',
+            addresses: [],
+            nextChangeAddressIndex: 0,
+            nextReceiveAddressIndex: 0
           }
         })
       } as any
 
       const adapter = new bitcoin.ChainAdapter(args)
-      const exampleResponse: unchained.bitcoin.api.BitcoinAccount = {
+      const expected: chainAdapters.Account<ChainTypes.Bitcoin> = {
         pubkey: '1EjpFGTWJ9CGRJUMA3SdQSdigxM31aXAFx',
-        balance: '0'
+        chain: ChainTypes.Bitcoin,
+        balance: '150',
+        caip2: 'bip122:000000000019d6689c085ae165831e93',
+        caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+        chainSpecific: {
+          addresses: [],
+          nextChangeAddressIndex: 0,
+          nextReceiveAddressIndex: 0
+        }
       }
       const data = await adapter.getAccount('SomeFakeAddress')
-      expect(data).toMatchObject(exampleResponse)
+      expect(data).toMatchObject(expected)
       expect(args.providers.http.getAccount).toHaveBeenCalled()
     })
 

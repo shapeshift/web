@@ -3,6 +3,7 @@ import { Status, TransferType } from '@shapeshiftoss/unchained-tx-parser'
 
 export * from './bip44'
 export * from './utxoUtils'
+export * from './bignumber'
 
 export const getContractType = (type?: string): ContractTypes => {
   if (!type) return ContractTypes.NONE

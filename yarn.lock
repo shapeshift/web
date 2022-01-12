@@ -2580,10 +2580,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-5.0.0.tgz#90e6ff789be89f591babffd724da69e5deadd751"
-  integrity sha512-Dk0gbNeaV9Tm/5xQQkEadnALW/bPJcrlXJ28eTCUKvG4SC3WLovCxqqkKAnHsv9GwFz59zZD1iIYMfZmJjxC9g==
+"@shapeshiftoss/blockbook@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-5.1.0.tgz#378ae5a614ae0aadd6192b92d8d0b84b12ce2d30"
+  integrity sha512-9sDYtXOmF3l64YEVLVJkOHzz5BqS8/QXReWLQmA0mbOHers0NBdrzNweDWyww3ge/Re1/dnSUATX2tQSa0h/fg==
   dependencies:
     axios "^0.21.2"
     express "^4.17.1"
@@ -2655,32 +2655,32 @@
     tiny-secp256k1 "^1.1.6"
     web-encoding "^1.1.0"
 
-"@shapeshiftoss/thorchain@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-5.0.0.tgz#cccc562675922ab9033211ff70c15e705ff50774"
-  integrity sha512-shwl9axPIxOi6fDlvq1foWd9t4yiSD8auheiIY/I6UPjqQ2E1DLiKpsRHTgs8OJ+RIJxyCaVhitnNbhpHO1/pg==
+"@shapeshiftoss/thorchain@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-5.1.0.tgz#352ec65d51cfa31dad1f112a0011be0bc8f4b1aa"
+  integrity sha512-u6NwiTXGk1CuQ6JkZYjXfh9Obn5sutZYiMFcwyhghClPGGKa1gfau4E5SJUCVNjFgw1OctA/yegxF2ZRTomdwA==
   dependencies:
     bignumber.js "^9.0.1"
-    ethers "^5.4.0"
+    ethers "^5.5.3"
 
-"@shapeshiftoss/unchained-client@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-5.0.0.tgz#8dcb4f4674c3f9f4749190eb799d7c9741934474"
-  integrity sha512-x/UY/3FcrouID4W00+t8swd7aTadoJDim6LFsq63IERGvM2n44QqLj77hsuMVO4CBCM6y1pZSkVwd9hQci6a3A==
+"@shapeshiftoss/unchained-client@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-5.1.0.tgz#c2fe567286a81370c37aff36d824c690f11d142f"
+  integrity sha512-kUzvbbPxmHMAp9uBMNrVrXM6YvfTVnv6Mxg6dAGWWV+4L4iiVlyMhmgcKwyBYnujpQQRRFQjn1WLmsbhf/XDXQ==
   dependencies:
-    "@shapeshiftoss/blockbook" "^5.0.0"
-    "@shapeshiftoss/unchained-tx-parser" "^5.0.0"
+    "@shapeshiftoss/blockbook" "^5.1.0"
+    "@shapeshiftoss/unchained-tx-parser" "^5.1.0"
     isomorphic-ws "^4.0.1"
     ws "^8.3.0"
 
-"@shapeshiftoss/unchained-tx-parser@^5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-tx-parser/-/unchained-tx-parser-5.0.0.tgz#ba3c3dc14994818a4fa1114ada2ebdb2c1b12077"
-  integrity sha512-77BkxvwEm9RgpHo4BGzh+XCrVJGsABnezXXJHnGwM+QNr09P8xI7rvXRJpUZ4dhWzyAim2TeAdcNedXL8xgBwA==
+"@shapeshiftoss/unchained-tx-parser@^5.1.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-tx-parser/-/unchained-tx-parser-5.1.0.tgz#bf669344d1b24ed58de708761864e6bd350efc51"
+  integrity sha512-Xvi70RLzZUdPfYImBszu3wKqJhxB7CzxOxzkbReyvffuFI84ypKMwq+II44XWmQ1gZgytMAu99y8rYjDWdyYPw==
   dependencies:
-    "@shapeshiftoss/blockbook" "^5.0.0"
+    "@shapeshiftoss/blockbook" "^5.1.0"
     "@shapeshiftoss/caip" "^1.6.1"
-    "@shapeshiftoss/thorchain" "^5.0.0"
+    "@shapeshiftoss/thorchain" "^5.1.0"
     "@shapeshiftoss/types" "^1.17.0"
     bignumber.js "^9.0.1"
 
@@ -5628,7 +5628,7 @@ ethers@5.4.4:
     "@ethersproject/web" "5.4.0"
     "@ethersproject/wordlists" "5.4.0"
 
-ethers@^5.4.0, ethers@^5.4.7:
+ethers@^5.4.7, ethers@^5.5.3:
   version "5.5.3"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.5.3.tgz#1e361516711c0c3244b6210e7e3ecabf0c75fca0"
   integrity sha512-fTT4WT8/hTe/BLwRUtl7I5zlpF3XC3P/Xwqxc5AIP2HGlH15qpmjs0Ou78az93b1rLITzXLFxoNX63B8ZbUd7g==
@@ -11416,6 +11416,7 @@ type-fest@^0.8.1:
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
 
 type-fest@^1.1.1, type-is@~1.6.18:
+  name type-fest
   version "1.6.18"
   resolved "https://registry.yarnpkg.com/type-is/-/type-is-1.6.18.tgz#4e552cd05df09467dcbc4ef739de89f2cf37c131"
   integrity sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==

@@ -26,6 +26,7 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import {
   accountTypeToOutputScriptType,
   accountTypeToScriptType,
+  bnOrZero,
   convertXpubVersion,
   getStatus,
   getType,
@@ -115,8 +116,10 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
       const { chain, network } = caip2.fromCAIP2(caip)
       const { data } = await this.providers.http.getAccount({ pubkey: pubkey })
 
+      const balance = bnOrZero(data.balance).plus(bnOrZero(data.unconfirmedBalance))
+
       return {
-        balance: data.balance,
+        balance: balance.toString(),
         chain: ChainTypes.Bitcoin,
         caip2: caip,
         caip19: caip19.toCAIP19({ chain, network }),

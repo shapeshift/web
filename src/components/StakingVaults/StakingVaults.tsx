@@ -24,6 +24,7 @@ type StakingVaultsProps = {
 export const StakingVaults = ({ caip19 }: StakingVaultsProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
+  //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
   const vaults = useMemo(() => {
     if (asset.tokenId) {
       return SUPPORTED_VAULTS.filter(vault => vault.tokenAddress === asset.tokenId)

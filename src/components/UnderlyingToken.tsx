@@ -1,5 +1,5 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { CAIP19, caip19 as caip19Func } from '@shapeshiftoss/caip'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
@@ -21,12 +21,12 @@ type UnderlyingTokenProps = {
 
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
-export const UnderlyingToken = ({ assetId: caip19, accountId }: UnderlyingTokenProps) => {
+export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) => {
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const { loading, yearn } = useYearn()
 
   // Get asset from caip19
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 
   // account info
   const chainAdapterManager = useChainAdapters()
@@ -47,7 +47,7 @@ export const UnderlyingToken = ({ assetId: caip19, accountId }: UnderlyingTokenP
         const network = NetworkTypes.MAINNET
         const contractType = ContractTypes.ERC20
         const tokenId = toLower(token)
-        setUnderlyingCAIP19(caip19Func.toCAIP19({ chain, network, contractType, tokenId }))
+        setUnderlyingCAIP19(caip19.toCAIP19({ chain, network, contractType, tokenId }))
       } catch (error) {
         console.error(error)
       }

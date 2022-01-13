@@ -31,8 +31,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useAsset } from 'pages/Assets/Asset'
 import {
-  selectPortfolioCryptoHumanBalanceById,
-  selectPortfolioFiatBalanceById
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -72,9 +72,9 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
 
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceById(state, assetId)
+    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
   )
-  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, assetId))
+  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
 
   return (
     <Card variant='footer-stub'>

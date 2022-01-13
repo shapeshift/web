@@ -18,7 +18,7 @@ import { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectPortfolioCryptoBalanceById,
+  selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
   selectPortfolioFiatBalanceByAccountTypeAndAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -71,7 +71,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     )
   )
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceById(state, asset.caip19)
+    selectPortfolioCryptoBalanceByAssetId(state, asset.caip19)
   )
   const chainAdapterManager = useChainAdapters()
   const {

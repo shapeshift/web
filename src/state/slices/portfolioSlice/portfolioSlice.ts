@@ -280,15 +280,18 @@ export const portfolioApi = createApi({
 
 export const selectPortfolioAssetIds = (state: ReduxState): PortfolioAssetBalances['ids'] =>
   state.portfolio.assetBalances.ids
-export const selectPortfolioBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
+export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
-export const selectAccountId = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
+export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
   state.portfolio.accountSpecifiers.byId
+export const selectPortfolioAccountBalances = (
+  state: ReduxState
+): PortfolioAccountBalances['byId'] => state.portfolio.accountBalances.byId
 
 export const selectPortfolioFiatBalances = createSelector(
   selectAssets,
   selectMarketData,
-  selectPortfolioBalances,
+  selectPortfolioAssetBalances,
   (assetsById, marketData, balances) =>
     Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
       (acc, [assetId, baseUnitBalance]) => {
@@ -303,6 +306,46 @@ export const selectPortfolioFiatBalances = createSelector(
     )
 )
 
+type ParamFilter = {
+  assetId?: CAIP19
+  accountId?: AccountSpecifier
+}
+
+const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
+const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter = {}) =>
+  paramFilter.assetId
+const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter = {}) =>
+  paramFilter.accountId
+const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
+const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
+
+export const selectPortfolioFiatAccountBalances = createSelector(
+  selectAssets,
+  selectPortfolioAccountBalances,
+  selectMarketData,
+  (assetsById, accounts, marketData) => {
+    return Object.entries(accounts).reduce(
+      (acc, [accountId, balanceObj]) => {
+        acc[accountId] = Object.entries(balanceObj).reduce(
+          (acc, [caip19, cryptoBalance]) => {
+            const precision = assetsById[caip19]?.precision
+            const price = marketData[caip19]?.price
+            const cryptoValue = fromBaseUnit(cryptoBalance, precision)
+            const fiatbalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+            acc[caip19] = fiatbalance
+
+            return acc
+          },
+          { ...balanceObj }
+        )
+
+        return acc
+      },
+      { ...accounts }
+    )
+  }
+)
+
 export const selectPortfolioTotalFiatBalance = createSelector(
   selectPortfolioFiatBalances,
   (portfolioFiatBalances): string =>
@@ -311,37 +354,53 @@ export const selectPortfolioTotalFiatBalance = createSelector(
       .toFixed(2)
 )
 
-const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
-const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
-
-export const selectPortfolioFiatBalanceById = createSelector(
+export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectPortfolioFiatBalances,
   selectAssetIdParam,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
-export const selectPortfolioCryptoBalanceById = createSelector(
-  selectPortfolioBalances,
+export const selectPortfolioFiatBalancesByFilter = createSelector(
+  selectPortfolioFiatBalances,
+  selectPortfolioFiatAccountBalances,
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId) => {
+    if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
+    if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
+    if (!assetId && accountId) {
+      const accountBalances = portfolioAccountFiatbalances[accountId]
+      const totalAccountBalances = Object.values(accountBalances).reduce(
+        (totalBalance: string, fiatBalance: string) => {
+          return bnOrZero(totalBalance).plus(fiatBalance).toFixed(2)
+        },
+        '0'
+      )
+      return totalAccountBalances
+    }
+    return '0'
+  }
+)
+
+export const selectPortfolioCryptoBalanceByAssetId = createSelector(
+  selectPortfolioAssetBalances,
   selectAssetIdParam,
   (byId, assetId): string => byId[assetId]
 )
 
-export const selectPortfolioCryptoHumanBalanceById = createSelector(
+export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
   selectAssets,
-  selectPortfolioBalances,
+  selectPortfolioAssetBalances,
   selectAssetIdParam,
   (assets, balances, assetId): string =>
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
 )
 
-export const selectPortfolioAccountBalances = (state: ReduxState) =>
-  state.portfolio.accountBalances.byId
-
 // TODO(0xdef1cafe): this selector is a hack and needs to be deleted once the account pages are done
 // do not use it or i'll hurt you
 export const selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId = createSelector(
   selectAssets,
-  selectPortfolioBalances,
+  selectPortfolioAssetBalances,
   selectPortfolioAccountBalances,
   selectAssetIdParam,
   (_state: ReduxState, _assetId: string, accountType: UtxoAccountType | undefined) => accountType,
@@ -450,9 +509,15 @@ export const selectPortfolioAccountById = createSelector(
   (portfolioAccounts, accountId) => portfolioAccounts[accountId]
 )
 
+export const selectPortfolioAssetIdsByAccountId = createSelector(
+  selectPortfolioAccountBalances,
+  selectAccountIdParam,
+  (accounts, accountId) => Object.keys(accounts[accountId])
+)
+
 export const selectAccountIdByAddress = createSelector(
-  selectAccountId,
-  selectCAIP10Param,
+  selectAccountIds,
+  selectAccountAddressParam,
   (portfolioAccounts: { [k: AccountSpecifier]: CAIP10[] }, caip10): string => {
     let accountSpecifier = ''
     for (const accountId in portfolioAccounts) {
@@ -481,3 +546,17 @@ export const selectFeeAssetIdByAccountId = (accountId: AccountSpecifier) => {
 
   return caip2toCaip19[caip2]
 }
+export const selectAccountIdsByAssetId = createSelector(
+  selectPortfolioAccounts,
+  selectAssetIdParam,
+  (portfolioAccounts, assetId): AccountSpecifier[] => {
+    const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
+      (acc, [accountId, accountAssets]) => {
+        if (accountAssets.includes(assetId)) acc.push(accountId)
+        return acc
+      },
+      []
+    )
+    return result
+  }
+)

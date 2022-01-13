@@ -34,8 +34,8 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
-  selectPortfolioCryptoHumanBalanceById,
-  selectPortfolioFiatBalanceById
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -82,9 +82,9 @@ export const AssetHeader = ({
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
 
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceById(state, assetId)
+    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
   )
-  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceById(state, assetId))
+  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
 
   return (
     <Card variant='footer-stub'>

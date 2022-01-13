@@ -8,8 +8,8 @@ import { RawText } from 'components/Text'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectPortfolioCryptoHumanBalanceById,
-  selectPortfolioFiatBalanceById
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
@@ -33,8 +33,10 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const cryptoValue = useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, assetId))
-  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceById(state, assetId))
+  const cryptoValue = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
+  )
+  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
 
   if (!asset) return null // users may have assets we don't support
 

@@ -1,11 +1,16 @@
 import { ChainTypes } from '@shapeshiftoss/types'
+import { ethereum, fox } from 'test/mocks/assets'
 import { mockStore } from 'test/mocks/store'
 
 import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
-  selectPortfolioAssetAccounts
+  selectPortfolioAssetAccounts,
+  selectPortfolioAssetIdsByAccountId,
+  selectPortfolioCryptoBalanceByAssetId,
+  selectPortfolioFiatAccountBalances,
+  selectPortfolioFiatBalancesByFilter
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -24,7 +29,7 @@ const btcCaip10s = [
 ]
 const ethCaip10s = ['eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1']
 
-const ethAccount = {
+const ethAccount1 = {
   balance: '27803816548287370',
   caip2: ethCaip2,
   caip19: ethCaip19,
@@ -80,9 +85,9 @@ const btcAccount = {
     'zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w'
 }
 
-const ethAccountSpecifier = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
+const ethAccountSpecifier = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
-const ethCaip10 = `${ethCaip2}:${ethAccount.pubkey.toLowerCase()}`
+const ethCaip10 = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 
 const portfolio: Portfolio = {
   accounts: {
@@ -127,9 +132,57 @@ const portfolio: Portfolio = {
   }
 }
 
+const state = {
+  ...mockStore,
+  assets: {
+    byId: {
+      [ethCaip19]: ethereum,
+      [foxCaip19]: fox
+    },
+    ids: [ethCaip19, foxCaip19]
+  },
+  marketData: {
+    ...mockStore.marketData,
+    byId: {
+      [ethCaip19]: {
+        price: '1000',
+        marketCap: '10000',
+        volume: '100000',
+        changePercent24Hr: 10
+      },
+      [foxCaip19]: {
+        price: '1',
+        marketCap: '10000',
+        volume: '100000',
+        changePercent24Hr: 10
+      }
+    },
+    ids: [ethCaip19]
+  },
+  portfolio: {
+    ...mockStore.portfolio,
+    assetBalances: {
+      byId: {
+        [ethCaip19]: '27803816548287370',
+        [foxCaip19]: '42729243327349401946'
+      },
+      ids: [ethCaip19, foxCaip19]
+    },
+    accountBalances: {
+      byId: {
+        [ethAccountSpecifier]: {
+          [ethCaip19]: '27803816548287370',
+          [foxCaip19]: '42729243327349401946'
+        }
+      },
+      ids: [ethAccountSpecifier]
+    }
+  }
+}
+
 describe('accountToPortfolio', () => {
   it('can normalize eth and btc accounts to portfolio', () => {
-    const accounts = { [ethAccount.pubkey]: ethAccount, [btcAccount.pubkey]: btcAccount }
+    const accounts = { [ethAccount1.pubkey]: ethAccount1, [btcAccount.pubkey]: btcAccount }
     const result = accountToPortfolio(accounts)
     expect(result).toEqual(portfolio)
   })
@@ -207,5 +260,94 @@ describe('selectAccountIdByAddress', () => {
     // caip10 argument in non checksum format
     const ethAccSpecifier = selectAccountIdByAddress(state, ethCaip10s[0].toUpperCase())
     expect(ethAccSpecifier).toEqual(ethAccountSpecifier)
+  })
+})
+
+describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
+  it('can select crypto asset balance by asset Id', () => {
+    const state = {
+      ...mockStore,
+      portfolio: {
+        ...mockStore.portfolio,
+        accountBalances: {
+          ...mockStore.portfolio.accountBalances
+        }
+      }
+    }
+
+    const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, ethCaip19)
+    expect(cryptoAssetBalanceByAccount).toBe(mockStore.portfolio.assetBalances.byId[ethCaip19])
+  })
+})
+
+describe('Fiat Balance Selectors', () => {
+  describe('selectPortfolioFiatAccountBalance', () => {
+    it('can select crypto fiat account balance', () => {
+      const returnValue = {
+        [ethAccountSpecifier]: {
+          [ethCaip19]: '27.80',
+          [foxCaip19]: '42.73'
+        }
+      }
+
+      const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+      expect(fiatAccountBalance).toEqual(returnValue)
+    })
+
+    it('returns 0 when no market data is available', () => {
+      const currentState = {
+        ...state,
+        marketData: {
+          ...mockStore.marketData
+        }
+      }
+
+      const returnValue = {
+        [ethAccountSpecifier]: {
+          [ethCaip19]: '0.00',
+          [foxCaip19]: '0.00'
+        }
+      }
+
+      const fiatAccountBalance = selectPortfolioFiatAccountBalances(currentState)
+      expect(fiatAccountBalance).toEqual(returnValue)
+    })
+  })
+
+  describe('selectPortfolioFiatBalancesByFilter', () => {
+    it('Should be able to filter by assetId', () => {
+      const expected = '27.80'
+      const result = selectPortfolioFiatBalancesByFilter(state, { assetId: ethCaip19 })
+      expect(result).toEqual(expected)
+    })
+
+    it('Should be able to filter by accountId', () => {
+      const expected = '70.53'
+      const result = selectPortfolioFiatBalancesByFilter(state, { accountId: ethAccountSpecifier })
+      expect(result).toEqual(expected)
+    })
+
+    it('Should be able to filter by accountId and assetId', () => {
+      const expected = '42.73'
+      const result = selectPortfolioFiatBalancesByFilter(state, {
+        accountId: ethAccountSpecifier,
+        assetId: foxCaip19
+      })
+      expect(result).toEqual(expected)
+    })
+
+    it('Should return an empty string when accountId and assetId are not provided', () => {
+      const result = selectPortfolioFiatBalancesByFilter(state)
+      expect(result).toEqual('0')
+    })
+  })
+})
+
+describe('selectPortfolioTokenIdsByAccountId', () => {
+  it('should return an array of assetIds (caip19) by accountId', () => {
+    const expected = [ethCaip19, foxCaip19]
+    const result = selectPortfolioAssetIdsByAccountId(state, ethAccountSpecifier)
+
+    expect(result).toEqual(expected)
   })
 })

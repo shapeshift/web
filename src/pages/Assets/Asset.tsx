@@ -83,9 +83,6 @@ export const useAsset = () => {
 export const Asset = () => {
   const { asset, marketData } = useAsset()
 
-  const accountId = useAppSelector(state => selectPortfolioAssetAccounts(state, asset.caip19))
-  console.info('account', accountId)
-
   return !marketData ? (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>

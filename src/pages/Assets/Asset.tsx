@@ -17,7 +17,6 @@ import {
   selectMarketDataById,
   selectMarketDataLoadingById
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectPortfolioAssetAccounts } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoadingAsset } from './LoadingAsset'

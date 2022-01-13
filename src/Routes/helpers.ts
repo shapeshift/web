@@ -19,7 +19,7 @@ export type Route = {
   leftSidebar?: React.ReactNode
   rightSidebar?: React.ReactNode
   parent?: Route | null
-  routes?: Route[]
+  routes?: Omit<Route, 'routes'>[]
   icon?: JSX.Element
   disable?: boolean
 }

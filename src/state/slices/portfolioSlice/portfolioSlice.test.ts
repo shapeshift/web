@@ -336,7 +336,7 @@ describe('Fiat Balance Selectors', () => {
     })
     it('Should return an empty string when accountId and assetId are not provided', () => {
       const result = selectPortfolioFiatBalancesByFilter(state)
-      expect(result).toEqual('')
+      expect(result).toEqual('0')
     })
   })
 })

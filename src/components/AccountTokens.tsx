@@ -24,19 +24,19 @@ export const AccountTokens = ({
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
-  const accounts = useAppSelector(state => selectPortfolioAccountById(state, accountId))
+  const assets = useAppSelector(state => selectPortfolioAccountById(state, accountId))
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
 
   const featuredAssets = useMemo(() => {
-    return accounts && accounts.length > 5 ? accounts.slice(0, 5) : accounts
-  }, [accounts])
+    return assets && assets.length > 5 ? assets.slice(0, 5) : assets
+  }, [assets])
 
   const moreAssets = useMemo(() => {
-    return accounts && accounts.length > 5 ? accounts.slice(5) : null
-  }, [accounts])
+    return assets && assets.length > 5 ? assets.slice(5) : null
+  }, [assets])
 
   // @TODO: This filters for ETH to not show tokens component on tokens
-  if (asset.tokenId || !accounts) return null
+  if (asset.tokenId || !assets) return null
 
   return (
     <Card>
@@ -49,23 +49,23 @@ export const AccountTokens = ({
         <Stack mx={-4}>
           {featuredAssets &&
             featuredAssets.length > 0 &&
-            featuredAssets.map(account => {
+            featuredAssets.map(asset => {
               const path = generatePath('/accounts/:accountId/:assetId', {
                 accountId,
-                assetId: account
+                assetId: asset
               })
-              return <AccountRow CAIP19={account} allocationValue={10} key={account} to={path} />
+              return <AccountRow CAIP19={asset} allocationValue={10} key={asset} to={path} />
             })}
         </Stack>
         {moreAssets && moreAssets.length > 0 && (
           <Collapse in={isOpen}>
             <Stack mx={-4}>
-              {moreAssets.map(account => {
+              {moreAssets.map(asset => {
                 const path = generatePath('/accounts/:accountId/:assetId', {
                   accountId,
-                  assetId: account
+                  assetId: asset
                 })
-                return <AccountRow CAIP19={account} allocationValue={10} key={account} to={path} />
+                return <AccountRow CAIP19={asset} allocationValue={10} key={asset} to={path} />
               })}
             </Stack>
           </Collapse>

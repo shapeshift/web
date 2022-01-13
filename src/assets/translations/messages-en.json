@@ -484,6 +484,8 @@
         "trade": "Trade"
       },
       "accountTokens": "Account Tokens",
+      "showTokens": "Show More Tokens",
+      "hideTokens": "Hide More Tokens",
       "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",

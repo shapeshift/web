@@ -326,6 +326,7 @@ describe('Fiat Balance Selectors', () => {
       const result = selectPortfolioFiatBalancesByFilter(state, { accountId: ethAccountSpecifier })
       expect(result).toEqual(expected)
     })
+
     it('Should be able to filter by accountId and assetId', () => {
       const expected = '42.73'
       const result = selectPortfolioFiatBalancesByFilter(state, {
@@ -334,6 +335,7 @@ describe('Fiat Balance Selectors', () => {
       })
       expect(result).toEqual(expected)
     })
+
     it('Should return an empty string when accountId and assetId are not provided', () => {
       const result = selectPortfolioFiatBalancesByFilter(state)
       expect(result).toEqual('0')

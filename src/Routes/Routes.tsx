@@ -62,7 +62,7 @@ export const routes: Array<NestedRoute> = [
       },
       {
         path: '/:accountId/:assetId?',
-        label: 'Token Details',
+        label: 'Account Asset',
         main: <AccountToken />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />

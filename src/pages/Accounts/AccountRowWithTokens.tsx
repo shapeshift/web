@@ -2,11 +2,11 @@ import { generatePath } from 'react-router'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import {
   AccountSpecifier,
-  selectFeeAssetByAccountId
+  selectFeeAssetIdByAccountId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 export const AccountRowWithTokens = ({ accountId }: { accountId: AccountSpecifier }) => {
-  const nativeAssetId = selectFeeAssetByAccountId(accountId)
+  const nativeAssetId = selectFeeAssetIdByAccountId(accountId)
   const path = generatePath('/accounts/:accountId', {
     accountId
   })

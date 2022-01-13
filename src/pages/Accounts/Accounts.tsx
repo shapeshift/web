@@ -6,7 +6,7 @@ import { selectPortfolioAccountIds } from 'state/slices/portfolioSlice/portfolio
 import { AccountRowWithTokens } from './AccountRowWithTokens'
 
 export const Accounts = () => {
-  const accounts = useSelector(selectPortfolioAccountIds)
+  const accountIds = useSelector(selectPortfolioAccountIds)
   return (
     <Page style={{ flex: 1 }}>
       <Flex
@@ -19,8 +19,8 @@ export const Accounts = () => {
         px={4}
       >
         <Stack>
-          {accounts.map(account => (
-            <AccountRowWithTokens accountId={account} />
+          {accountIds.map(accountId => (
+            <AccountRowWithTokens accountId={accountId} />
           ))}
         </Stack>
       </Flex>

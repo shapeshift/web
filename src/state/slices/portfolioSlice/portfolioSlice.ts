@@ -468,7 +468,7 @@ export const selectAccountIdByAddress = createSelector(
   }
 )
 
-export const selectFeeAssetByAccountId = (accountId: AccountSpecifier) => {
+export const selectFeeAssetIdByAccountId = (accountId: AccountSpecifier) => {
   // accountId = 'eip155:1:0xdef1...cafe
   const [chain, network] = accountId.split(':')
   const caip2 = `${chain}:${network}`

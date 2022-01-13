@@ -10,11 +10,11 @@ import { StakingVaults } from './StakingVaults/StakingVaults'
 import { UnderlyingToken } from './UnderlyingToken'
 
 type AssetDetailsProps = {
-  caip19: CAIP19
+  assetId: CAIP19
   accountId?: AccountSpecifier
 }
 
-export const AssetAccountDetails = ({ caip19, accountId }: AssetDetailsProps) => {
+export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   return (
     <Page style={{ width: '100%' }}>
       <Flex flexGrow={1} zIndex={2} flexDir={{ base: 'column', lg: 'row' }}>

@@ -106,9 +106,7 @@ export const AssetHeader = ({
             </Skeleton>
           </Box>
         </Flex>
-        {walletSupportsChain ? (
-          <AssetActions isLoaded={isLoaded} asset={asset} marketData={marketData} />
-        ) : null}
+        {walletSupportsChain ? <AssetActions isLoaded={isLoaded} assetId={asset.caip19} /> : null}
       </Card.Header>
       {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>

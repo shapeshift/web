@@ -1,22 +1,28 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, Skeleton } from '@chakra-ui/react'
-import { Asset, MarketData } from '@shapeshiftoss/types'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
-  asset: Asset
-  marketData: MarketData
   isLoaded: boolean
+  assetId: CAIP19
+  accountId?: AccountSpecifier
 }
 
-export const AssetActions = ({ isLoaded, asset, marketData }: AssetActionProps) => {
+export const AssetActions = ({ isLoaded, assetId }: AssetActionProps) => {
   const { send, receive } = useModal()
   const {
     state: { isConnected },
     dispatch
   } = useWallet()
-  const _asset = { asset: { ...asset, ...marketData } }
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const _asset = { asset: asset, marketData }
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   const handleSendClick = () => (isConnected ? send.open(_asset) : handleWalletModalOpen())

@@ -34,6 +34,9 @@ import { NativeConfig } from './NativeWallet/config'
 import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisConfig } from './Portis/config'
+import { XDeFiConnect } from './XDeFi/components/Connect'
+import { XDeFiFailure } from './XDeFi/components/Failure'
+import { XDEFIConfig } from './XDeFi/config'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -93,4 +96,12 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...DemoConfig,
     routes: [],
   },
+  [KeyManager.XDefi]: {
+    ...XDEFIConfig,
+    routes: [
+      { path: '/xdefi/connect', component: XDeFiConnect },
+
+      { path: '/xdefi/failure', component: XDeFiFailure },
+    ],
+  }
 }

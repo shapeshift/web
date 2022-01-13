@@ -26,7 +26,7 @@ import {
   PortfolioAssetBalances,
   PortfolioAssets,
   selectPortfolioAssets,
-  selectPortfolioBalances
+  selectPortfolioAssetBalances
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -295,7 +295,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetIds, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  const balances = useSelector(selectPortfolioBalances)
+  const balances = useSelector(selectPortfolioAssetBalances)
   const accountTypes = useSelector(selectAccountTypes)
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

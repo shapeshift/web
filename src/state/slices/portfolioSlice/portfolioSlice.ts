@@ -360,8 +360,17 @@ export const selectPortfolioFiatBalancesByFilter = createSelector(
   selectAccountIdParam,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, { assetId, accountId }) => {
     if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
-    if (!assetId && accountId) return portfolioAccountFiatbalances[accountId]
     if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
+    if (!assetId && accountId) {
+      const accountBalances = portfolioAccountFiatbalances[accountId]
+      const totalAccountBalances = Object.values(accountBalances).reduce(
+        (totalBalance: string, fiatBalance: string) => {
+          return bnOrZero(totalBalance).plus(fiatBalance).toFixed(2)
+        },
+        '0'
+      )
+      return totalAccountBalances
+    }
     return {}
   }
 )

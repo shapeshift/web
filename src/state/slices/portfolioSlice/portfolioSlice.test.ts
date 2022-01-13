@@ -1,7 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { mockStore } from 'test/mocks/store'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
   accountToPortfolio,
@@ -288,8 +287,11 @@ describe('Fiat Balance Selectors', () => {
     portfolio: {
       ...mockStore.portfolio,
       assetBalances: {
-        [ethCaip19]: '27803816548287370',
-        [foxCaip19]: '42729243327349401946'
+        byId: {
+          [ethCaip19]: '27803816548287370',
+          [foxCaip19]: '42729243327349401946'
+        },
+        ids: [ethCaip19, foxCaip19]
       },
       accountBalances: {
         byId: {
@@ -302,6 +304,7 @@ describe('Fiat Balance Selectors', () => {
       }
     }
   }
+
   describe('selectPortfolioFiatAccountBalance', () => {
     it('can select crypto fiat account balance', () => {
       const returnValue = {

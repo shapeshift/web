@@ -15,6 +15,7 @@ import {
   StatNumber,
   useMediaQuery
 } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
@@ -29,8 +30,10 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useFetchAssetDescription } from 'hooks/useFetchAssetDescription/useFetchAssetDescription'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { useAsset } from 'pages/Assets/Asset'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  AccountSpecifier,
   selectPortfolioCryptoHumanBalanceById,
   selectPortfolioFiatBalanceById
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -46,15 +49,17 @@ enum View {
   Balance = 'balance'
 }
 
-export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
+export const AssetHeader = ({ caip19 }: { caip19: CAIP19; accountId?: AccountSpecifier }) => {
   const translate = useTranslate()
-  const { asset, marketData } = useAsset()
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [showDescription, setShowDescription] = useState(false)
   const [view, setView] = useState(View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const { name, symbol, description, icon, caip19 } = asset || {}
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, caip19))
+  const isLoaded = !!marketData
+  const { name, symbol, description, icon } = asset || {}
   useFetchAssetDescription(caip19)
   const { price } = marketData || {}
   const {
@@ -96,7 +101,9 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
             </Skeleton>
           </Box>
         </Flex>
-        {walletSupportsChain ? <AssetActions isLoaded={isLoaded} /> : null}
+        {walletSupportsChain ? (
+          <AssetActions isLoaded={isLoaded} asset={asset} marketData={marketData} />
+        ) : null}
       </Card.Header>
       {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>
@@ -187,7 +194,7 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
         </Skeleton>
       )}
       <Card.Footer>
-        <AssetMarketData marketData={marketData} isLoaded={isLoaded} />
+        <AssetMarketData marketData={marketData} isLoaded={!!marketData} />
       </Card.Footer>
       {description && (
         <Card.Footer>

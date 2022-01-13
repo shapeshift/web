@@ -1,6 +1,6 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
-import { Asset, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { CAIP19, caip19 as caip19Func } from '@shapeshiftoss/caip'
+import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
 import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
 import toLower from 'lodash/toLower'
@@ -10,16 +10,23 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppSelector } from 'state/store'
 
 type UnderlyingTokenProps = {
-  asset: Asset
+  caip19: CAIP19
+  accountId?: AccountSpecifier
 }
 
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
-export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
+export const UnderlyingToken = ({ caip19, accountId }: UnderlyingTokenProps) => {
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const { loading, yearn } = useYearn()
+
+  // Get asset from caip19
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
 
   // account info
   const chainAdapterManager = useChainAdapters()
@@ -40,7 +47,7 @@ export const UnderlyingToken = ({ asset }: UnderlyingTokenProps) => {
         const network = NetworkTypes.MAINNET
         const contractType = ContractTypes.ERC20
         const tokenId = toLower(token)
-        setUnderlyingCAIP19(caip19.toCAIP19({ chain, network, contractType, tokenId }))
+        setUnderlyingCAIP19(caip19Func.toCAIP19({ chain, network, contractType, tokenId }))
       } catch (error) {
         console.error(error)
       }

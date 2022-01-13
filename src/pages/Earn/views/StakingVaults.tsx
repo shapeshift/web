@@ -1,10 +1,10 @@
 import { Main } from 'components/Layout/Main'
-import { StakingVaults as Vaults } from 'components/StakingVaults/StakingVaults'
+import { AllVaults } from 'components/StakingVaults/AllVaults'
 
 export const StakingVaults = () => {
   return (
     <Main p={0}>
-      <Vaults isLoaded showAll />
+      <AllVaults />
     </Main>
   )
 }

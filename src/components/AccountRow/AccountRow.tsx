@@ -1,7 +1,7 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, LinkProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
@@ -18,9 +18,10 @@ import { Allocations } from './Allocations'
 export type AccountRowArgs = {
   allocationValue: number
   CAIP19: CAIP19
+  to?: LinkProps['to']
 }
 
-export const AccountRow = ({ allocationValue, CAIP19 }: AccountRowArgs) => {
+export const AccountRow = ({ allocationValue, CAIP19, ...rest }: AccountRowArgs) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const url = useMemo(() => {
     if (!CAIP19) return ''
@@ -53,6 +54,7 @@ export const AccountRow = ({ allocationValue, CAIP19 }: AccountRowArgs) => {
       rounded='lg'
       gridGap='1rem'
       alignItems='center'
+      {...rest}
     >
       <Flex alignItems='center'>
         <AssetIcon src={asset.icon} boxSize='30px' mr={2} />

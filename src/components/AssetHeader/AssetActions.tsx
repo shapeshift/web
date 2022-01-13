@@ -1,11 +1,16 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, Skeleton } from '@chakra-ui/react'
+import { Asset, MarketData } from '@shapeshiftoss/types'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { useAsset } from 'pages/Assets/Asset'
 
-export const AssetActions = ({ isLoaded }: { isLoaded: boolean }) => {
-  const { asset, marketData } = useAsset()
+type AssetActionProps = {
+  asset: Asset
+  marketData: MarketData
+  isLoaded: boolean
+}
+
+export const AssetActions = ({ isLoaded, asset, marketData }: AssetActionProps) => {
   const { send, receive } = useModal()
   const {
     state: { isConnected },

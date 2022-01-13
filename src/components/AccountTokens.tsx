@@ -15,7 +15,7 @@ import { useAppSelector } from 'state/store'
 import { AccountRow } from './AccountRow/AccountRow'
 import { Card } from './Card/Card'
 
-export const AccountTokens = ({
+export const AccountAssets = ({
   assetId: caip19,
   accountId
 }: {

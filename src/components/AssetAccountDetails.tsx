@@ -4,7 +4,7 @@ import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { AccountTokens } from './AccountTokens'
+import { AccountAssets } from './AccountTokens'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { StakingVaults } from './StakingVaults/StakingVaults'
 import { UnderlyingToken } from './UnderlyingToken'
@@ -26,7 +26,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
           mx={{ base: 0, lg: 'auto' }}
         >
           <AssetHeader assetId={caip19} accountId={accountId} />
-          {accountId && <AccountTokens assetId={caip19} accountId={accountId} />}
+          {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <StakingVaults assetId={caip19} accountId={accountId} />
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <TxHistory assetId={caip19} accountId={accountId} />

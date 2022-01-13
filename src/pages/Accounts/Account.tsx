@@ -15,7 +15,8 @@ export interface MatchParams {
 
 export const Account = () => {
   const { accountId } = useParams<MatchParams>()
-  const nativeAssetId = selectFeeAssetByAccountId(accountId)
+  const parsedAccountId = decodeURIComponent(accountId)
+  const nativeAssetId = selectFeeAssetByAccountId(parsedAccountId)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, nativeAssetId))
   return !asset ? null : (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>

@@ -14,8 +14,8 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSli
 import {
   PortfolioBalancesById,
   selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceByAssetId
+  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
+  selectPortfolioFiatBalanceByAccountTypeAndAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { useSendDetails } from './useSendDetails'
@@ -34,8 +34,8 @@ jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
 jest.mock('state/slices/portfolioSlice/portfolioSlice', () => ({
   ...jest.requireActual('state/slices/portfolioSlice/portfolioSlice'),
   selectPortfolioCryptoBalanceByAssetId: jest.fn(),
-  selectPortfolioCryptoHumanBalanceByAssetId: jest.fn(),
-  selectPortfolioFiatBalanceByAssetId: jest.fn()
+  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId: jest.fn(),
+  selectPortfolioFiatBalanceByAccountTypeAndAssetId: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -87,16 +87,18 @@ const setup = ({
     }
     return fakeMarketData[assetId]
   })
-  mocked(selectPortfolioFiatBalanceByAssetId).mockImplementation((_state, assetId) => {
-    const fakeFiatBalanceData = {
-      [mockEthereum.caip19]: '17500',
-      [mockRune.caip19]: '14490.00'
+  mocked(selectPortfolioFiatBalanceByAccountTypeAndAssetId).mockImplementation(
+    (_state, assetId) => {
+      const fakeFiatBalanceData = {
+        [mockEthereum.caip19]: '17500',
+        [mockRune.caip19]: '14490.00'
+      }
+      return fakeFiatBalanceData[assetId]
     }
-    return fakeFiatBalanceData[assetId]
-  })
+  )
   mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
   mocked(selectPortfolioCryptoBalanceByAssetId).mockReturnValue(assetBalance)
-  mocked(selectPortfolioCryptoHumanBalanceByAssetId).mockReturnValue(
+  mocked(selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId).mockReturnValue(
     bnOrZero(assetBalance).div('1e18').toString()
   )
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({

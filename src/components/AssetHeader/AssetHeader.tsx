@@ -49,7 +49,12 @@ enum View {
   Balance = 'balance'
 }
 
-export const AssetHeader = ({ caip19 }: { caip19: CAIP19; accountId?: AccountSpecifier }) => {
+export const AssetHeader = ({
+  assetId: caip19
+}: {
+  assetId: CAIP19
+  accountId?: AccountSpecifier
+}) => {
   const translate = useTranslate()
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)

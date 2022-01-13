@@ -25,11 +25,11 @@ export const AssetAccountDetails = ({ caip19, accountId }: AssetDetailsProps) =>
           p={{ base: 0, lg: 4 }}
           mx={{ base: 0, lg: 'auto' }}
         >
-          <AssetHeader caip19={caip19} accountId={accountId} />
-          {accountId && <AccountTokens caip19={caip19} accountId={accountId} />}
-          <StakingVaults caip19={caip19} accountId={accountId} />
-          <UnderlyingToken caip19={caip19} accountId={accountId} />
-          <TxHistory caip19={caip19} accountId={accountId} />
+          <AssetHeader assetId={caip19} accountId={accountId} />
+          {accountId && <AccountTokens assetId={caip19} accountId={accountId} />}
+          <StakingVaults assetId={caip19} accountId={accountId} />
+          <UnderlyingToken assetId={caip19} accountId={accountId} />
+          <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>
       </Flex>
     </Page>

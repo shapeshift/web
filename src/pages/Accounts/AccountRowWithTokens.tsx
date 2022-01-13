@@ -11,5 +11,5 @@ export const AccountRowWithTokens = ({ accountId }: { accountId: AccountSpecifie
     accountId
   })
   // @TODO: Replace this component with one that supports tokens
-  return <AccountRow CAIP19={nativeAssetId} allocationValue={0} to={path} />
+  return <AccountRow assetId={nativeAssetId} allocationValue={0} to={path} />
 }

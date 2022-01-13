@@ -91,7 +91,7 @@ export const Asset = () => {
   ) : (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetAccountDetails caip19={asset.caip19} />
+        <AssetAccountDetails assetId={asset.caip19} />
       </Flex>
     </Page>
   )

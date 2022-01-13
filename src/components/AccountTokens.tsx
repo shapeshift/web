@@ -16,10 +16,10 @@ import { AccountRow } from './AccountRow/AccountRow'
 import { Card } from './Card/Card'
 
 export const AccountTokens = ({
-  caip19,
+  assetId: caip19,
   accountId
 }: {
-  caip19: CAIP19
+  assetId: CAIP19
   accountId: AccountSpecifier
 }) => {
   const { isOpen, onToggle } = useDisclosure()
@@ -54,7 +54,7 @@ export const AccountTokens = ({
                 accountId,
                 assetId: asset
               })
-              return <AccountRow CAIP19={asset} allocationValue={10} key={asset} to={path} />
+              return <AccountRow assetId={asset} allocationValue={10} key={asset} to={path} />
             })}
         </Stack>
         {moreAssets && moreAssets.length > 0 && (
@@ -65,7 +65,7 @@ export const AccountTokens = ({
                   accountId,
                   assetId: asset
                 })
-                return <AccountRow CAIP19={asset} allocationValue={10} key={asset} to={path} />
+                return <AccountRow assetId={asset} allocationValue={10} key={asset} to={path} />
               })}
             </Stack>
           </Collapse>

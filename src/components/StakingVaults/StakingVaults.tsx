@@ -16,12 +16,12 @@ import { StakingVaultRow } from './StakingVaultRow'
 
 type StakingVaultsProps = {
   tokenId?: string
-  caip19: CAIP19
+  assetId: CAIP19
   accountId?: AccountSpecifier
   isLoaded?: boolean
 }
 
-export const StakingVaults = ({ caip19 }: StakingVaultsProps) => {
+export const StakingVaults = ({ assetId: caip19 }: StakingVaultsProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account

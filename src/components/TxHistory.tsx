@@ -15,7 +15,12 @@ import { selectAccountTypesByChain } from 'state/slices/preferencesSlice/prefere
 import { selectTxIdsByAssetIdAccountType } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-export const TxHistory = ({ caip19 }: { caip19: CAIP19; accountId?: AccountSpecifier }) => {
+export const TxHistory = ({
+  assetId: caip19
+}: {
+  assetId: CAIP19
+  accountId?: AccountSpecifier
+}) => {
   const translate = useTranslate()
   const {
     state: { wallet }

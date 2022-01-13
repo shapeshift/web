@@ -15,13 +15,13 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 type UnderlyingTokenProps = {
-  caip19: CAIP19
+  assetId: CAIP19
   accountId?: AccountSpecifier
 }
 
 // TODO: currently this is hard coded to yearn vaults only.
 // In the future we should add a hook to get the provider interface by vault provider
-export const UnderlyingToken = ({ caip19, accountId }: UnderlyingTokenProps) => {
+export const UnderlyingToken = ({ assetId: caip19, accountId }: UnderlyingTokenProps) => {
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const { loading, yearn } = useYearn()
 
@@ -89,7 +89,7 @@ export const UnderlyingToken = ({ caip19, accountId }: UnderlyingTokenProps) => 
               display={{ base: 'none', lg: 'block' }}
             />
           </Grid>
-          <AccountRow allocationValue={100} CAIP19={underlyingCAIP19} />
+          <AccountRow allocationValue={100} assetId={underlyingCAIP19} />
         </Stack>
       </Card.Body>
     </Card>

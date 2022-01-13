@@ -4,7 +4,7 @@ import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { AccountAssets } from './AccountTokens'
+import { AccountAssets } from './AccountAssets'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { StakingVaults } from './StakingVaults/StakingVaults'
 import { UnderlyingToken } from './UnderlyingToken'

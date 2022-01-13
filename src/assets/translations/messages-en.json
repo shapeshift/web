@@ -302,6 +302,7 @@
       "estimatedGas": "Estimated Gas Fee",
       "gasUsed": "Total Gas Fee",
       "continue": "View Transaction",
+      "position": "View Position",
       "viewAsset": "View Asset",
       "close": "Close"
     },

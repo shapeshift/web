@@ -499,7 +499,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             loading={state.loading}
             statusText={statusText}
             statusIcon={statusIcon}
-            continueText='modals.status.continue'
+            continueText='modals.status.position'
             closeText='modals.status.close'
             assets={[
               {

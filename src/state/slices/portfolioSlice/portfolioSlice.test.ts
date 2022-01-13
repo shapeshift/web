@@ -1,7 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { mockStore } from 'test/mocks/store'
 import { ethereum, fox } from 'test/mocks/assets'
+import { mockStore } from 'test/mocks/store'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import {
   accountToPortfolio,
@@ -9,7 +9,8 @@ import {
   selectAccountIdByAddress,
   selectPortfolioAssetAccounts,
   selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioFiatAccountBalances
+  selectPortfolioFiatAccountBalances,
+  selectPortfolioFiatBalancesByFilter
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -256,7 +257,7 @@ describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
   })
 })
 
-describe('selectPortfolioFiatAccountBalance', () => {
+describe('Fiat Balance Selectors', () => {
   const state = {
     ...mockStore,
     assets: {
@@ -286,6 +287,10 @@ describe('selectPortfolioFiatAccountBalance', () => {
     },
     portfolio: {
       ...mockStore.portfolio,
+      assetBalances: {
+        [ethCaip19]: '27803816548287370',
+        [foxCaip19]: '42729243327349401946'
+      },
       accountBalances: {
         byId: {
           [ethAccountSpecifier]: {
@@ -297,35 +302,58 @@ describe('selectPortfolioFiatAccountBalance', () => {
       }
     }
   }
-
-  it('can select crypto fiat account balance', () => {
-    const returnValue = {
-      [ethAccountSpecifier]: {
-        [ethCaip19]: '27.80',
-        [foxCaip19]: '42.73'
+  describe('selectPortfolioFiatAccountBalance', () => {
+    it('can select crypto fiat account balance', () => {
+      const returnValue = {
+        [ethAccountSpecifier]: {
+          [ethCaip19]: '27.80',
+          [foxCaip19]: '42.73'
+        }
       }
-    }
 
-    const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
-    expect(fiatAccountBalance).toEqual(returnValue)
+      const fiatAccountBalance = selectPortfolioFiatAccountBalances(state)
+      expect(fiatAccountBalance).toEqual(returnValue)
+    })
+
+    it('returns 0 when no market data is available', () => {
+      const currentState = {
+        ...state,
+        marketData: {
+          ...mockStore.marketData
+        }
+      }
+
+      const returnValue = {
+        [ethAccountSpecifier]: {
+          [ethCaip19]: '0.00',
+          [foxCaip19]: '0.00'
+        }
+      }
+
+      const fiatAccountBalance = selectPortfolioFiatAccountBalances(currentState)
+      expect(fiatAccountBalance).toEqual(returnValue)
+    })
   })
 
-  it('returns 0 when no market data is available', () => {
-    const currentState = {
-      ...state,
-      marketData: {
-        ...mockStore.marketData
-      }
-    }
+  describe('selectPortfolioFiatBalancesByFilter', () => {
+    it('Should be able to filter by assetId', () => {
+      const expected = '27.80'
+      const result = selectPortfolioFiatBalancesByFilter(state, { assetId: ethCaip19 })
+      expect(result).toEqual(expected)
+    })
 
-    const returnValue = {
-      [ethAccountSpecifier]: {
-        [ethCaip19]: '0.00',
-        [foxCaip19]: '0.00'
-      }
-    }
-
-    const fiatAccountBalance = selectPortfolioFiatAccountBalances(currentState)
-    expect(fiatAccountBalance).toEqual(returnValue)
+    it('Should be able to filter by accountId', () => {
+      const expected = '70.53'
+      const result = selectPortfolioFiatBalancesByFilter(state, { accountId: ethAccountSpecifier })
+      expect(result).toEqual(expected)
+    })
+    it('Should be able to filter by accountId and assetId', () => {
+      const expected = '42.73'
+      const result = selectPortfolioFiatBalancesByFilter(state, {
+        accountId: ethAccountSpecifier,
+        assetId: foxCaip19
+      })
+      expect(result).toEqual(expected)
+    })
   })
 })

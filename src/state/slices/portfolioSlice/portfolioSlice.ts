@@ -349,6 +349,22 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectAssetIdParam,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
+const selectAccountIdParam = (
+  _state: ReduxState,
+  { accountId, assetId }: { accountId?: AccountSpecifier; assetId?: CAIP19 }
+) => ({ assetId, accountId })
+
+export const selectPortfolioFiatBalancesByFilter = createSelector(
+  selectPortfolioFiatBalances,
+  selectPortfolioFiatAccountBalances,
+  selectAccountIdParam,
+  (portfolioAssetFiatBalances, portfolioAccountFiatbalances, { assetId, accountId }) => {
+    if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
+    if (!assetId && accountId) return portfolioAccountFiatbalances[accountId]
+    if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
+    return {}
+  }
+)
 
 export const selectPortfolioCryptoBalanceByAssetId = createSelector(
   selectPortfolioAssetBalances,

@@ -306,7 +306,16 @@ export const selectPortfolioFiatBalances = createSelector(
     )
 )
 
+type ParamFilter = {
+  assetId?: CAIP19
+  accountId?: AccountSpecifier
+}
+
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
+const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter = {}) =>
+  paramFilter.assetId
+const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter = {}) =>
+  paramFilter.accountId
 const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
@@ -350,16 +359,13 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectAssetIdParam,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
-const selectAssetAccountFilterParam = (
-  _state: ReduxState,
-  { accountId, assetId }: { accountId?: AccountSpecifier; assetId?: CAIP19 }
-) => ({ assetId, accountId })
 
 export const selectPortfolioFiatBalancesByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
-  selectAssetAccountFilterParam,
-  (portfolioAssetFiatBalances, portfolioAccountFiatbalances, { assetId, accountId }) => {
+  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilter,
+  (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId) => {
     if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
     if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
     if (!assetId && accountId) {
@@ -372,7 +378,7 @@ export const selectPortfolioFiatBalancesByFilter = createSelector(
       )
       return totalAccountBalances
     }
-    return {}
+    return ''
   }
 )
 

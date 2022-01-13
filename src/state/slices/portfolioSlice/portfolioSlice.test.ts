@@ -10,6 +10,7 @@ import {
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalancesByFilter,
+  selectPortfolioCryptoBalancesByFilter,
   selectPortfolioAssetIdsByAccountId
 } from './portfolioSlice'
 
@@ -306,7 +307,6 @@ describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
 })
 
 describe('Fiat Balance Selectors', () => {
-
   describe('selectPortfolioFiatAccountBalance', () => {
     it('can select crypto fiat account balance', () => {
       const returnValue = {
@@ -359,6 +359,10 @@ describe('Fiat Balance Selectors', () => {
         assetId: foxCaip19
       })
       expect(result).toEqual(expected)
+    })
+    it('Should return an empty string when accountId and assetId are not provided', () => {
+      const result = selectPortfolioFiatBalancesByFilter(state)
+      expect(result).toEqual('')
     })
   })
 })

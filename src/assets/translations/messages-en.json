@@ -483,6 +483,7 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "accountTokens": "Account Tokens",
       "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",

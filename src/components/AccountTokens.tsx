@@ -1,6 +1,7 @@
 import { Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { generatePath } from 'react-router'
+import { Text } from 'components/Text'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
   AccountSpecifier,
@@ -24,7 +25,9 @@ export const AccountTokens = ({
   return (
     <Card>
       <Card.Header>
-        <Card.Heading>Account Tokens</Card.Heading>
+        <Card.Heading>
+          <Text translation='assets.assetCards.accountTokens' />
+        </Card.Heading>
       </Card.Header>
       <Card.Body pt={0}>
         <Stack mx={-4}>

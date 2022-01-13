@@ -2,6 +2,7 @@ import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import toLower from 'lodash/toLower'
@@ -99,6 +100,15 @@ const initialState: Portfolio = {
   }
 }
 
+// for assetBalances, they're aggregated across all accounts, so we need to
+// upsert and sum the balances by id
+// https://lodash.com/docs/4.17.15#mergeWith
+const upsertAndSum = (dest: string, src: string) => {
+  // if we have an existing balance for this asset, add to it
+  if (dest) return bnOrZero(dest).plus(bnOrZero(src)).toString()
+  // returning undefined uses default merge function, i.e. upsert
+}
+
 export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
@@ -109,7 +119,13 @@ export const portfolio = createSlice({
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
-      state.assetBalances.byId = { ...state.assetBalances.byId, ...payload.assetBalances.byId }
+
+      state.assetBalances.byId = mergeWith(
+        state.assetBalances.byId,
+        payload.assetBalances.byId,
+        upsertAndSum
+      )
+
       state.accountBalances.byId = {
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId
@@ -188,11 +204,11 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountSpecifier = `${caip2}:${pubkey}`
         const addresses = btcAccount.chainSpecific.addresses ?? []
-        if (addresses.length) {
-          portfolio.assetBalances.ids.push(caip19)
-          portfolio.accountBalances.ids.push(accountSpecifier)
-          portfolio.accountSpecifiers.ids.push(accountSpecifier)
-        }
+
+        portfolio.assetBalances.ids.push(caip19)
+        portfolio.accountBalances.ids.push(accountSpecifier)
+        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+
         addresses.forEach(({ pubkey, balance }) => {
           // For tx history, we need to have CAIP10's of addresses that may have 0 balances
           // for accountSpecifier to CAIP10 mapping
@@ -546,6 +562,7 @@ export const selectFeeAssetIdByAccountId = (accountId: AccountSpecifier) => {
 
   return caip2toCaip19[caip2]
 }
+
 export const selectAccountIdsByAssetId = createSelector(
   selectPortfolioAccounts,
   selectAssetIdParam,

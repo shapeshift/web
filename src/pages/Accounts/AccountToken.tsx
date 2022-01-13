@@ -13,7 +13,6 @@ export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
   const caip19 = assetId ? decodeURIComponent(assetId) : null
   if (!caip19) return null
-  console.info(caip19)
   return (
     <Page style={{ flex: 1 }} key={assetId}>
       <Flex role='main' flex={1} height='100%'>

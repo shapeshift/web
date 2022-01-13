@@ -1,4 +1,4 @@
-import { Flex, Spinner } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import {
   Asset as A,

@@ -103,6 +103,7 @@
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",
+    "accounts": "Accounts",
     "earn": "Earn",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token"
@@ -172,7 +173,6 @@
         "failed": "An error occured signing the transaction",
         "required": "A signed transaction is required"
       }
-
     }
   },
   "modals": {
@@ -483,6 +483,9 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "accountTokens": "Account Tokens",
+      "showTokens": "Show More Tokens",
+      "hideTokens": "Hide More Tokens",
       "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",

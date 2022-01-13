@@ -96,7 +96,7 @@ export const AccountList = () => {
           .map(([assetId]) => (
             <AccountRow
               allocationValue={portfolioAllocationPercent[assetId]}
-              CAIP19={assetId}
+              assetId={assetId}
               key={assetId}
             />
           ))}

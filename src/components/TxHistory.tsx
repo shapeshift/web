@@ -1,4 +1,5 @@
 import { Center } from '@chakra-ui/layout'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 import { useTranslate } from 'react-polyglot'
@@ -8,19 +9,24 @@ import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypesByChain } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxIdsByAssetIdAccountType } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { useAsset } from '../Asset'
-
-export const AssetHistory = () => {
+export const TxHistory = ({
+  assetId: caip19
+}: {
+  assetId: CAIP19
+  accountId?: AccountSpecifier
+}) => {
   const translate = useTranslate()
-  const { asset } = useAsset()
-
   const {
     state: { wallet }
   } = useWallet()
+
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
   const accountType = useAppSelector(state => selectAccountTypesByChain(state, asset.chain))

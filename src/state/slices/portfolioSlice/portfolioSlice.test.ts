@@ -7,11 +7,10 @@ import {
   Portfolio,
   selectAccountIdByAddress,
   selectPortfolioAssetAccounts,
+  selectPortfolioAssetIdsByAccountId,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioFiatAccountBalances,
-  selectPortfolioFiatBalancesByFilter,
-  selectPortfolioCryptoBalancesByFilter,
-  selectPortfolioAssetIdsByAccountId
+  selectPortfolioFiatBalancesByFilter
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -53,31 +52,6 @@ const ethAccount1 = {
     ]
   },
   pubkey: '0x934be745172066EDF795ffc5EA9F28f19b440c63'
-}
-
-const ethAccount2 = {
-  balance: '2r803816848287370',
-  caip2: ethCaip2,
-  caip19: ethCaip19,
-  chain: ChainTypes.Ethereum,
-  chainSpecific: {
-    nonce: 5,
-    tokens: [
-      {
-        balance: '729243327349401946',
-        caip19: foxCaip19
-      },
-      {
-        balance: '1141208456',
-        caip19: usdcCaip19
-      },
-      {
-        balance: '38178352',
-        caip19: yvusdcCaip19
-      }
-    ]
-  },
-  pubkey: '0x30eD6B32E6CA40A4C9B959C5CD70CA0Ba72C18Ad'
 }
 
 const btcAccount = {

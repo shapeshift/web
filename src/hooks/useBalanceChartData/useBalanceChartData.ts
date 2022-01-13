@@ -25,8 +25,8 @@ import {
 import {
   PortfolioAssetBalances,
   PortfolioAssets,
-  selectPortfolioAssets,
-  selectPortfolioAssetBalances
+  selectPortfolioAssetBalances,
+  selectPortfolioAssets
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'

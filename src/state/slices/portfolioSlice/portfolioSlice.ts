@@ -308,6 +308,7 @@ export const selectPortfolioFiatBalances = createSelector(
 
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
 const selectCAIP10Param = (_state: ReduxState, id: CAIP10) => id
+const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
 export const selectPortfolioFiatAccountBalances = createSelector(
   selectAssets,
@@ -349,7 +350,7 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   selectAssetIdParam,
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
-const selectAccountIdParam = (
+const selectAssetAccountFilterParam = (
   _state: ReduxState,
   { accountId, assetId }: { accountId?: AccountSpecifier; assetId?: CAIP19 }
 ) => ({ assetId, accountId })
@@ -357,7 +358,7 @@ const selectAccountIdParam = (
 export const selectPortfolioFiatBalancesByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
-  selectAccountIdParam,
+  selectAssetAccountFilterParam,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, { assetId, accountId }) => {
     if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
     if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
@@ -458,6 +459,12 @@ export const selectPortfolioAccountById = createSelector(
   selectPortfolioAccounts,
   (_state: ReduxState, accountId: AccountSpecifier) => accountId,
   (portfolioAccounts, accountId) => portfolioAccounts[accountId]
+)
+
+export const selectPortfolioAssetIdsByAccountId = createSelector(
+  selectPortfolioAccountBalances,
+  selectAccountIdParam,
+  (accounts, accountId) => Object.keys(accounts[accountId])
 )
 
 export const selectAccountIdByAddress = createSelector(

@@ -9,7 +9,8 @@ import {
   selectPortfolioAssetAccounts,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioFiatAccountBalances,
-  selectPortfolioFiatBalancesByFilter
+  selectPortfolioFiatBalancesByFilter,
+  selectPortfolioAssetIdsByAccountId
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -156,6 +157,54 @@ const portfolio: Portfolio = {
   }
 }
 
+const state = {
+  ...mockStore,
+  assets: {
+    byId: {
+      [ethCaip19]: ethereum,
+      [foxCaip19]: fox
+    },
+    ids: [ethCaip19, foxCaip19]
+  },
+  marketData: {
+    ...mockStore.marketData,
+    byId: {
+      [ethCaip19]: {
+        price: '1000',
+        marketCap: '10000',
+        volume: '100000',
+        changePercent24Hr: 10
+      },
+      [foxCaip19]: {
+        price: '1',
+        marketCap: '10000',
+        volume: '100000',
+        changePercent24Hr: 10
+      }
+    },
+    ids: [ethCaip19]
+  },
+  portfolio: {
+    ...mockStore.portfolio,
+    assetBalances: {
+      byId: {
+        [ethCaip19]: '27803816548287370',
+        [foxCaip19]: '42729243327349401946'
+      },
+      ids: [ethCaip19, foxCaip19]
+    },
+    accountBalances: {
+      byId: {
+        [ethAccountSpecifier]: {
+          [ethCaip19]: '27803816548287370',
+          [foxCaip19]: '42729243327349401946'
+        }
+      },
+      ids: [ethAccountSpecifier]
+    }
+  }
+}
+
 describe('accountToPortfolio', () => {
   it('can normalize eth and btc accounts to portfolio', () => {
     const accounts = { [ethAccount1.pubkey]: ethAccount1, [btcAccount.pubkey]: btcAccount }
@@ -257,53 +306,6 @@ describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
 })
 
 describe('Fiat Balance Selectors', () => {
-  const state = {
-    ...mockStore,
-    assets: {
-      byId: {
-        [ethCaip19]: ethereum,
-        [foxCaip19]: fox
-      },
-      ids: [ethCaip19, foxCaip19]
-    },
-    marketData: {
-      ...mockStore.marketData,
-      byId: {
-        [ethCaip19]: {
-          price: '1000',
-          marketCap: '10000',
-          volume: '100000',
-          changePercent24Hr: 10
-        },
-        [foxCaip19]: {
-          price: '1',
-          marketCap: '10000',
-          volume: '100000',
-          changePercent24Hr: 10
-        }
-      },
-      ids: [ethCaip19]
-    },
-    portfolio: {
-      ...mockStore.portfolio,
-      assetBalances: {
-        byId: {
-          [ethCaip19]: '27803816548287370',
-          [foxCaip19]: '42729243327349401946'
-        },
-        ids: [ethCaip19, foxCaip19]
-      },
-      accountBalances: {
-        byId: {
-          [ethAccountSpecifier]: {
-            [ethCaip19]: '27803816548287370',
-            [foxCaip19]: '42729243327349401946'
-          }
-        },
-        ids: [ethAccountSpecifier]
-      }
-    }
-  }
 
   describe('selectPortfolioFiatAccountBalance', () => {
     it('can select crypto fiat account balance', () => {
@@ -358,5 +360,14 @@ describe('Fiat Balance Selectors', () => {
       })
       expect(result).toEqual(expected)
     })
+  })
+})
+
+describe('selectPortfolioTokenIdsByAccountId', () => {
+  it('should return an array of assetIds (caip19) by accountId', () => {
+    const expected = [ethCaip19, foxCaip19]
+    const result = selectPortfolioAssetIdsByAccountId(state, ethAccountSpecifier)
+
+    expect(result).toEqual(expected)
   })
 })

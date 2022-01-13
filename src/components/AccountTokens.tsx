@@ -27,11 +27,11 @@ export const AccountTokens = ({
   const assetIds = useAppSelector(state => selectPortfolioAccountById(state, accountId))
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
 
-  const featuredAssets = useMemo(() => {
+  const featuredAssetIds = useMemo(() => {
     return assetIds && assetIds.length > 5 ? assetIds.slice(0, 5) : assetIds
   }, [assetIds])
 
-  const moreAssets = useMemo(() => {
+  const moreAssetIds = useMemo(() => {
     return assetIds && assetIds.length > 5 ? assetIds.slice(5) : null
   }, [assetIds])
 
@@ -47,9 +47,9 @@ export const AccountTokens = ({
       </Card.Header>
       <Card.Body pt={0}>
         <Stack mx={-4}>
-          {featuredAssets &&
-            featuredAssets.length > 0 &&
-            featuredAssets.map(assetId => {
+          {featuredAssetIds &&
+            featuredAssetIds.length > 0 &&
+            featuredAssetIds.map(assetId => {
               const path = generatePath('/accounts/:accountId/:assetId', {
                 accountId,
                 assetId
@@ -57,10 +57,10 @@ export const AccountTokens = ({
               return <AccountRow assetId={assetId} allocationValue={10} key={assetId} to={path} />
             })}
         </Stack>
-        {moreAssets && moreAssets.length > 0 && (
+        {moreAssetIds && moreAssetIds.length > 0 && (
           <Collapse in={isOpen}>
             <Stack mx={-4}>
-              {moreAssets.map(assetId => {
+              {moreAssetIds.map(assetId => {
                 const path = generatePath('/accounts/:accountId/:assetId', {
                   accountId,
                   assetId
@@ -71,7 +71,7 @@ export const AccountTokens = ({
           </Collapse>
         )}
       </Card.Body>
-      {moreAssets && moreAssets.length > 0 && (
+      {moreAssetIds && moreAssetIds.length > 0 && (
         <Card.Footer p={0}>
           <Button
             variant='link'

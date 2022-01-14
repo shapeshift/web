@@ -9,7 +9,7 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 type BalanceChartArgs = {
   assetIds: CAIP19[]
-  accountId?: AccountSpecifier
+  accountIds?: AccountSpecifier[]
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void
@@ -17,14 +17,14 @@ type BalanceChartArgs = {
 
 export const BalanceChart: React.FC<BalanceChartArgs> = ({
   assetIds,
-  accountId,
+  accountIds,
   timeframe,
   percentChange,
   setPercentChange
 }) => {
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assetIds,
-    accountId,
+    accountIds,
     timeframe
   })
 

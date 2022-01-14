@@ -34,6 +34,7 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
+  selectPortfolioAssetAccounts,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -73,6 +74,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const assetPrice = toFiat(price) ?? 0
   const handleToggle = () => setShowDescription(!showDescription)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
+  const accountIds = useAppSelector(state => selectPortfolioAssetAccounts(state, assetId))
 
   const {
     state: { wallet }
@@ -173,7 +175,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       </Card.Body>
       {view === View.Balance ? (
         <BalanceChart
-          accountId={accountId}
+          accountIds={accountIds}
           assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}

@@ -274,7 +274,7 @@ type UseBalanceChartDataReturn = {
 
 type UseBalanceChartDataArgs = {
   assetIds: CAIP19[]
-  accountId?: AccountSpecifier
+  accountIds?: AccountSpecifier[]
   timeframe: HistoryTimeframe
 }
 
@@ -301,6 +301,16 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(useSelector(selectTxValues), 500)
+
+  // the portfolio page is simple - consider all txs and all portfolio asset ids
+  // across all accounts - just don't filter for accounts
+
+  // there are a few different situations for
+  // - top level asset pages - zero or more account ids
+  // - an asset account page, e.g. show me the eth for 0xfoo - a single account id
+  // - an account asset page, e.g. show me the fox for 0xbar - a single account id
+  // this may seem complicated, but we just need txs filtered by account ids
+
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
   const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))

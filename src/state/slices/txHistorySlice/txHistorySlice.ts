@@ -151,6 +151,9 @@ export const selectTxIdsByAssetId = createSelector(
   (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
 )
 
+// TODO(0xdef1cafe): write this
+// export const selectTxIdsByAccountIds = createSelector()
+
 // TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
 // and only specific to bitcoin
 export const selectTxIdsByAssetIdAccountType = createSelector(

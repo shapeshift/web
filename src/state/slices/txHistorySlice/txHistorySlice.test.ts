@@ -1,13 +1,10 @@
 import { chainAdapters, UtxoAccountType } from '@shapeshiftoss/types'
-import entries from 'lodash/entries'
-import map from 'lodash/map'
-import orderBy from 'lodash/orderBy'
-import shuffle from 'lodash/shuffle'
+import { map, reverse } from 'lodash'
 import { mockStore } from 'test/mocks/store'
-import { BtcSend, EthReceive, EthSend, testTxs } from 'test/mocks/txs'
+import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
 import { store } from 'state/store'
 
-import { selectLastNTxIds, Tx, txHistory } from './txHistorySlice'
+import { selectLastNTxIds, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -27,25 +24,28 @@ describe('txHistorySlice', () => {
     }
 
     it('can sort txs going into store', async () => {
+      // testTxs are in ascending order by time
+      const transactions = reverse([...ethereumTransactions])
+      // expected transaction order
+      const expected = map(transactions, 'txid')
+
       store.dispatch(txHistory.actions.clear())
 
       // shuffle txs before inserting them into the store
-      const shuffledTxs = shuffle(testTxs)
+      const shuffledTxs = reverse(transactions) // transactions in the wrong order
       const ethCAIP2 = EthSend.caip2
       const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
       shuffledTxs.forEach(tx =>
         store.dispatch(txHistory.actions.onMessage({ message: tx, accountSpecifier }))
       )
       const history = store.getState().txHistory
-      // these ids should be sorted by the reducer going in
-      const ids = history.ids
 
-      // this is the same sorting logic, by block time descending
-      const txEntriesById = entries(history.byId)
-      const sorted = orderBy(txEntriesById, ([_id, tx]: [string, Tx]) => tx.blockTime, ['desc'])
-      const sortedIds = map(sorted, ([id]) => id)
-
-      expect(ids).toEqual(sortedIds)
+      // The full list of transactions should be sorted by time
+      expect(history.ids).toStrictEqual(expected)
+      // The byAsset list should be sorted by time
+      expect(history.byAssetId['eip155:1/slip44:60']).toStrictEqual(expected)
+      // The byAccount list should be sorted by time
+      expect(history.byAccountId['eip155:1:0xdef1cafe']).toStrictEqual(expected)
     })
 
     it('should add new transactions', async () => {
@@ -178,35 +178,35 @@ describe('txHistorySlice', () => {
       ])
     })
   })
-})
 
-describe('selectLastNTxIds', () => {
-  it('should memoize', () => {
-    const state = {
-      ...mockStore,
-      txHistory: {
-        byId: {},
-        byAssetId: {},
-        byAccountId: {},
-        ids: ['a', 'b']
+  describe('selectLastNTxIds', () => {
+    it('should memoize', () => {
+      const state = {
+        ...mockStore,
+        txHistory: {
+          byId: {},
+          byAssetId: {},
+          byAccountId: {},
+          ids: ['a', 'b']
+        }
       }
-    }
-    const first = selectLastNTxIds(state, 1)
+      const first = selectLastNTxIds(state, 1)
 
-    // redux will replace the array on update
-    const newState = {
-      ...mockStore,
-      txHistory: {
-        byId: {},
-        byAssetId: {},
-        byAccountId: {},
-        // this array will always change on every new tx
-        ids: ['a', 'b', 'c']
+      // redux will replace the array on update
+      const newState = {
+        ...mockStore,
+        txHistory: {
+          byId: {},
+          byAssetId: {},
+          byAccountId: {},
+          // this array will always change on every new tx
+          ids: ['a', 'b', 'c']
+        }
       }
-    }
-    const second = selectLastNTxIds(newState, 1)
+      const second = selectLastNTxIds(newState, 1)
 
-    // toBe uses reference equality, not like isEqual deep equal check
-    expect(first).toBe(second)
+      // toBe uses reference equality, not like isEqual deep equal check
+      expect(first).toBe(second)
+    })
   })
 })

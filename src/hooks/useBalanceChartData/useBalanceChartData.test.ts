@@ -1,6 +1,6 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
-import { FOXSend, testTxs } from 'test/mocks/txs'
+import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -61,10 +61,7 @@ describe('bucketTxs', () => {
 
     const bucketedTxs = bucketTxs(txs, buckets)
 
-    const totalTxs = bucketedTxs.reduce<number>(
-      (acc, bucket: Bucket) => (acc += bucket.txs.length),
-      0
-    )
+    const totalTxs = bucketedTxs.reduce<number>((acc, bucket: Bucket) => acc + bucket.txs.length, 0)
 
     // if this non null assertion is false we fail anyway
     const expectedBucket = bucketedTxs.find(bucket => bucket.txs.length)!
@@ -120,7 +117,7 @@ describe('calculateBucketPrices', () => {
   })
 
   it('has zero balance 1 year back', () => {
-    const txs = testTxs
+    const txs = [...ethereumTransactions]
     const balances = {
       [ethCaip19]: '52430152924656054'
     }

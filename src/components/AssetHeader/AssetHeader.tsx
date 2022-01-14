@@ -173,7 +173,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Box>
       </Card.Body>
-      {view === View.Balance ? (
+      <Box style={{ display: view === View.Balance ? 'block' : 'none' }}>
         <BalanceChart
           accountIds={accountIds}
           assetIds={assetIds}
@@ -181,14 +181,15 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           percentChange={percentChange}
           setPercentChange={setPercentChange}
         />
-      ) : (
+      </Box>
+      <Box style={{ display: view === View.Price ? 'block' : 'none' }}>
         <PriceChart
           assetId={assetId}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}
         />
-      )}
+      </Box>
       {!isLargerThanMd && (
         <Skeleton isLoaded={isLoaded} textAlign='center'>
           <TimeControls

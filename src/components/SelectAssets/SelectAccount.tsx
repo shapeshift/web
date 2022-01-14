@@ -1,9 +1,10 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack, Text } from '@chakra-ui/react'
+import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
+import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { SlideTransition } from 'components/SlideTransition'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -48,9 +49,12 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
       <ModalBody height='600px' px={2} display='flex' flexDir='column'>
         <Stack>
           {accountIds.map(accountId => (
-            <Text key={accountId} onClick={() => onClick(asset, accountId)}>
-              {accountId}
-            </Text>
+            <AssetAccountRow
+              accountId={accountId}
+              assetId={asset.caip19}
+              key={accountId}
+              onClick={() => onClick(asset, accountId)}
+            />
           ))}
         </Stack>
       </ModalBody>

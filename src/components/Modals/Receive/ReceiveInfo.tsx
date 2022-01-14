@@ -22,7 +22,7 @@ import { Asset } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { RouteComponentProps, useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -30,20 +30,22 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ReduxState } from 'state/reducer'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { ReceiveRoutes } from './Receive'
 
 type ReceivePropsType = {
   asset: Asset
-}
+  accountId: AccountSpecifier
+} & RouteComponentProps
 
-export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
-  const { chain, name, symbol } = asset
+export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
   const history = useHistory()
+  const { chain, name, symbol } = asset
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)

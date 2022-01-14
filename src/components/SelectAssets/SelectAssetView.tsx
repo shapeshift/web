@@ -31,11 +31,6 @@ export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewPr
   const accounts = useAppSelector(state => selectPortfolioAccounts(state))
 
   const handleAssetSelect = (asset: Asset) => {
-    //Logic to handle if we need to fire onClick on take to select account route
-    // This might be tricky because we can't fire off a hook conditionally to check if it has multiple accounts
-
-    // if there are multiple account take the user to account selector route
-    // if there is only one account pass that assetID and accountID to the handleAccountSelect function
     const assetAccounts = findAccountsByAssetId(accounts, asset.caip19)
     if (assetAccounts && assetAccounts.length > 1) {
       history.push(SelectAssetRoutes.Account, { assetId: asset.caip19 })
@@ -44,7 +39,6 @@ export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewPr
     }
   }
   const handleAccountSelect = (asset: Asset, accountId: AccountSpecifier) => {
-    //do something with the assetId and accountId
     onClick(asset, accountId)
   }
 

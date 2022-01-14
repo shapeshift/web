@@ -26,7 +26,6 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
   const location = useLocation<SelectAccountLocation>()
   const translate = useTranslate()
   const history = useHistory()
-  console.info('selectAccountID', location)
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, location.state.assetId)
   )

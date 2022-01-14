@@ -11,10 +11,10 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
+import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
-import { SelectAssets } from '../../SelectAssets/SelectAssets'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendRoutes } from './Send'
 import { Address } from './views/Address'
@@ -94,7 +94,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
             <Route
               path={SendRoutes.Select}
               component={(props: RouteComponentProps) => (
-                <SelectAssets onClick={handleAssetSelect} {...props} />
+                <SelectAssetRouter onClick={handleAssetSelect} {...props} />
               )}
             />
             <Route path={SendRoutes.Address} component={Address} />

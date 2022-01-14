@@ -387,7 +387,6 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
-// TODO: fix this
 export const selectPortfolioFiatBalancesByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,

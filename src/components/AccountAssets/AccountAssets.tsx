@@ -10,13 +10,12 @@ import { useAppSelector } from 'state/store'
 import { Card } from '../Card/Card'
 import { AccountAssetsList } from './AccountAssetsList'
 
-export const AccountAssets = ({
-  assetId,
-  accountId
-}: {
+type AccountAssetsProps = {
   assetId: CAIP19
   accountId: AccountSpecifier
-}) => {
+}
+
+export const AccountAssets = ({ assetId, accountId }: AccountAssetsProps) => {
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId)
   )

@@ -1,4 +1,3 @@
-import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import {

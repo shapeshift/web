@@ -406,7 +406,7 @@ export const selectPortfolioCryptoBalanceByAssetId = createSelector(
   (byId, assetId): string => byId[assetId]
 )
 
-export const selectPortfolioCryptoHumanBalancesByFilter = createSelector(
+export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,

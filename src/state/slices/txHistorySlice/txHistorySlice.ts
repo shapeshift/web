@@ -123,6 +123,25 @@ export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId
 export const selectTxs = (state: ReduxState) => state.txHistory.byId
 export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 
+export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
+
+const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
+
+export const selectTxsByAccountIds = createSelector(
+  selectTxs,
+  selectTxIdsByAccountId,
+  selectAccountIdsParam,
+  (txsById, txsByAccountId, accountIds): Tx[] =>
+    Object.entries(txsByAccountId)
+      .reduce<TxId[]>((acc, [accountId, txIds]) => {
+        if (accountIds.includes(accountId)) acc.push(...txIds)
+        return acc
+      }, [])
+      .map(txId => txsById[txId]),
+  // deep equality check on output as we're mapping
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
+
 export const selectLastNTxIds = createSelector(
   // ids will always change
   selectTxIds,

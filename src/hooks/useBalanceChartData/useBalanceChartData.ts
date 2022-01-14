@@ -23,6 +23,7 @@ import {
   selectPriceHistoryTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  AccountSpecifier,
   PortfolioAssetBalances,
   PortfolioAssets,
   selectPortfolioAssetBalances,
@@ -197,7 +198,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
-  accountTypes: Record<string, any>
   assetIds: CAIP19[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
@@ -208,7 +208,7 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { accountTypes, assetIds, buckets, portfolioAssets, priceHistoryData } = args
+  const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -221,10 +221,6 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
-      // TODO(0xdef1cafe): type preferencesSlice correctly and remove this chain specific hack
-      // only consider the selected account type of the portfolio
-      if (tx.accountType && tx.accountType !== accountTypes[tx.chain]) return
-
       if (tx.fee && assetIds.includes(tx.fee.caip19)) {
         // balance history being built in descending order, so fee means we had more before
         bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
@@ -278,6 +274,7 @@ type UseBalanceChartDataReturn = {
 
 type UseBalanceChartDataArgs = {
   assetIds: CAIP19[]
+  accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
 }
 
@@ -333,7 +330,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
-      accountTypes,
       assetIds,
       buckets,
       priceHistoryData,

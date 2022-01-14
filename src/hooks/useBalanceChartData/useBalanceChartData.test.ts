@@ -1,4 +1,4 @@
-import { ChainTypes, HistoryTimeframe, UtxoAccountType } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { FOXSend, testTxs } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
@@ -105,12 +105,8 @@ describe('calculateBucketPrices', () => {
     }
 
     const buckets = bucketTxs(txs, emptyBuckets)
-    const accountTypes = {
-      [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
-    }
 
     const calculatedBuckets = calculateBucketPrices({
-      accountTypes,
       assetIds,
       buckets,
       priceHistoryData,
@@ -140,12 +136,7 @@ describe('calculateBucketPrices', () => {
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     const buckets = bucketTxs(txs, emptyBuckets)
 
-    const accountTypes = {
-      [ChainTypes.Bitcoin]: UtxoAccountType.SegwitNative
-    }
-
     const calculatedBuckets = calculateBucketPrices({
-      accountTypes,
       assetIds,
       buckets,
       priceHistoryData,

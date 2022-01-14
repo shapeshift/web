@@ -49,30 +49,29 @@ enum View {
   Balance = 'balance'
 }
 
-export const AssetHeader = ({
-  assetId: caip19
-}: {
+type AssetHeaderProps = {
   assetId: CAIP19
   accountId?: AccountSpecifier
-}) => {
+}
+
+export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [showDescription, setShowDescription] = useState(false)
   const [view, setView] = useState(View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, caip19))
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const isLoaded = !!marketData
   const { name, symbol, description, icon } = asset || {}
-  useFetchAssetDescription(caip19)
+  useFetchAssetDescription(assetId)
   const { price } = marketData || {}
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const assetPrice = toFiat(price) ?? 0
   const handleToggle = () => setShowDescription(!showDescription)
-  const assetId = asset.caip19
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
 
   const {
@@ -174,6 +173,7 @@ export const AssetHeader = ({
       </Card.Body>
       {view === View.Balance ? (
         <BalanceChart
+          accountId={accountId}
           assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}

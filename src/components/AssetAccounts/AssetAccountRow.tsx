@@ -17,15 +17,13 @@ import { useAppSelector } from 'state/store'
 // src/components/AccountRow
 // Link url should be the account page /Accounts/[account] or whatever the route is
 
-export const AssetAccountRow = ({
-  accountId,
-  assetId,
-  showAllocation
-}: {
+type AssetAccountRowProps = {
   accountId: AccountSpecifier
   assetId: CAIP19
   showAllocation?: boolean
-}) => {
+}
+
+export const AssetAccountRow = ({ accountId, assetId, showAllocation }: AssetAccountRowProps) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const feeAssetId = selectFeeAssetIdByAccountId(accountId)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))

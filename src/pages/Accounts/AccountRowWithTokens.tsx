@@ -9,7 +9,11 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
-export const AccountRowWithTokens = ({ accountId }: { accountId: AccountSpecifier }) => {
+type AccountRowWithTokensProps = {
+  accountId: AccountSpecifier
+}
+
+export const AccountRowWithTokens = ({ accountId }: AccountRowWithTokensProps) => {
   const nativeAssetId = selectFeeAssetIdByAccountId(accountId)
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId)

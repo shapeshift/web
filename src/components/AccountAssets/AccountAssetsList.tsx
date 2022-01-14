@@ -13,15 +13,13 @@ import { AssetAccountRow } from '../AssetAccounts/AssetAccountRow'
  * @param limit If no limit is provided, all assets will be shown. If 0 is provided all assets will go into the more section.
  * @returns returns JSX
  */
-export const AccountAssetsList = ({
-  assetIds,
-  accountId,
-  limit
-}: {
+
+type AccountAssetListProps = {
   assetIds: CAIP19[]
   accountId: AccountSpecifier
   limit?: number
-}) => {
+}
+export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetListProps) => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
 

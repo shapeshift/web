@@ -27,6 +27,23 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountSpecifier): string => {
+  /*
+   * 0xdef1cafe note - this is not purely technically correct as per specs,
+   * i.e. it's entirely possible to use segwit native with an xpub
+   *
+   * however, in our *current* context, this assumption is valid:
+   * the account specifier, e.g. xpub/ypub/zpub/0xaddress we use with unchained
+   * will return legacy/segwit/segwit native addresses and balances respectively
+   *
+   * we absolutely should consider storing more semantically correct account
+   * data in the store - a combination of script type and bip44 params,
+   * with mappings in both directions so information is not lost, e.g.
+   * we can recover script type and bip44 params from an address or xpub,
+   * but this is a bigger discussion to have.
+   *
+   * for now, for all intents and purposes, this is sufficient and works.
+   *
+   */
   const chainId = accountIdToChainId(accountId)
   const specifier = accountIdToSpecifier(accountId)
   switch (chainId) {

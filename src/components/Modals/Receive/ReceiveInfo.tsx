@@ -18,7 +18,8 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
+import last from 'lodash/last'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -50,9 +51,14 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const currentAccountType = useSelector(
+  let currentAccountType = useSelector(
     (state: ReduxState) => state.preferences.accountTypes[asset.chain]
   )
+
+  const pubkey = last(accountId.split(':'))
+  if (pubkey?.startsWith('xpub')) currentAccountType = UtxoAccountType.P2pkh
+  if (pubkey?.startsWith('ypub')) currentAccountType = UtxoAccountType.SegwitP2sh
+  if (pubkey?.startsWith('zpub')) currentAccountType = UtxoAccountType.SegwitNative
 
   useEffect(() => {
     ;(async () => {

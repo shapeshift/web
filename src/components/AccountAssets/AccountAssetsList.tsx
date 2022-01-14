@@ -6,7 +6,13 @@ import { useTranslate } from 'react-polyglot'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AssetAccountRow } from '../AssetAccounts/AssetAccountRow'
-
+/**
+ * This returns the assets inside an account
+ * @param assetIds An array of CAIP19s for the account
+ * @param accountId The AccountSpecifier for the account
+ * @param limit If no limit is provided, all assets will be shown. If 0 is provided all assets will go into the more section.
+ * @returns returns JSX
+ */
 export const AccountAssetsList = ({
   assetIds,
   accountId,
@@ -35,7 +41,6 @@ export const AccountAssetsList = ({
       : null
   }, [assetIds, limit])
 
-  // @TODO: This filters for ETH to not show tokens component on tokens
   if (assetIds.length === 0) return null
 
   return (

@@ -1,3 +1,5 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import {
   Redirect,
@@ -7,27 +9,56 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
+import {
+  AccountSpecifier,
+  findAccountsByAssetId,
+  selectPortfolioAccounts
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppSelector } from 'state/store'
 
 import { SelectAccount } from './SelectAccount'
 import { SelectAssetLocation, SelectAssetRoutes } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
-type SelectAssetViewProps = SelectAssetLocation & RouteComponentProps
+type SelectAssetViewProps = { onClick: (asset: any) => void } & SelectAssetLocation &
+  RouteComponentProps
 
-export const SelectAssetView = ({ toRoute, assetId }: SelectAssetViewProps) => {
+export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewProps) => {
   const location = useLocation<SelectAssetLocation>()
   const history = useHistory()
 
-  const handleAssetSelect = () => {
+  const accounts = useAppSelector(state => selectPortfolioAccounts(state))
+
+  const handleAssetSelect = (asset: Asset) => {
     //Logic to handle if we need to fire onClick on take to select account route
-    history.push(SelectAssetRoutes.Account)
+    // This might be tricky because we can't fire off a hook conditionally to check if it has multiple accounts
+
+    // if there are multiple account take the user to account selector route
+    // if there is only one account pass that assetID and accountID to the handleAccountSelect function
+    const assetAccounts = findAccountsByAssetId(accounts, asset.caip19)
+    if (assetAccounts && assetAccounts.length > 1) {
+      history.push(SelectAssetRoutes.Account, { assetId: asset.caip19 })
+    } else {
+      handleAccountSelect({ assetId, accountId: assetAccounts[0] })
+    }
+  }
+  const handleAccountSelect = ({
+    assetId,
+    accountId
+  }: {
+    assetId: CAIP19
+    accountId: AccountSpecifier
+  }) => {
+    //do something with the assetId and accountId
+    onClick({ assetId, accountId })
   }
 
   useEffect(() => {
     if (toRoute && assetId) {
       history.push(toRoute, { assetId })
     }
-  }, [assetId, history, toRoute])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Switch location={location} key={location.key}>
@@ -40,7 +71,7 @@ export const SelectAssetView = ({ toRoute, assetId }: SelectAssetViewProps) => {
       <Route
         path={SelectAssetRoutes.Account}
         component={(props: RouteComponentProps) => (
-          <SelectAccount onClick={handleAssetSelect} {...props} />
+          <SelectAccount onClick={handleAccountSelect} {...props} />
         )}
       />
       <Redirect from='/' to={SelectAssetRoutes.Search} />

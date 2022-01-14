@@ -560,17 +560,22 @@ export const selectFeeAssetIdByAccountId = (accountId: AccountSpecifier) => {
   return caip2toCaip19[caip2]
 }
 
+export const findAccountsByAssetId = (
+  portfolioAccounts: { [k: string]: string[] },
+  assetId: CAIP19
+): AccountSpecifier[] => {
+  const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
+    (acc, [accountId, accountAssets]) => {
+      if (accountAssets.includes(assetId)) acc.push(accountId)
+      return acc
+    },
+    []
+  )
+  return result
+}
+
 export const selectAccountIdsByAssetId = createSelector(
   selectPortfolioAccounts,
   selectAssetIdParam,
-  (portfolioAccounts, assetId): AccountSpecifier[] => {
-    const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
-      (acc, [accountId, accountAssets]) => {
-        if (accountAssets.includes(assetId)) acc.push(accountId)
-        return acc
-      },
-      []
-    )
-    return result
-  }
+  findAccountsByAssetId
 )

@@ -26,7 +26,9 @@ export const SelectAssetRouter = ({ onClick }: SelectAssetRouterProps) => {
       <Switch>
         <Route
           path='/'
-          component={(props: RouteComponentProps) => <SelectAssetView {...state} {...props} />}
+          component={(props: RouteComponentProps) => (
+            <SelectAssetView onClick={onClick} {...state} {...props} />
+          )}
         />
       </Switch>
     </MemoryRouter>

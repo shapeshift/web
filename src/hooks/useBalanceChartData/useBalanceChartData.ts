@@ -30,7 +30,7 @@ import {
   selectPortfolioAssets
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxsByAccountIds, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
@@ -289,7 +289,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds, timeframe } = args
+  const { assetIds, accountIds, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   const balances = useSelector(selectPortfolioAssetBalances)
@@ -300,7 +300,10 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   } = useWallet()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
-  const txs = useDebounce(useSelector(selectTxValues), 500)
+  const txs = useDebounce(
+    useAppSelector(state => selectTxsByAccountIds(state, accountIds ?? [])),
+    500
+  )
 
   // the portfolio page is simple - consider all txs and all portfolio asset ids
   // across all accounts - just don't filter for accounts

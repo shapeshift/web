@@ -131,13 +131,18 @@ export const selectTxsByAccountIds = createSelector(
   selectTxs,
   selectTxIdsByAccountId,
   selectAccountIdsParam,
-  (txsById, txsByAccountId, accountIds): Tx[] =>
-    Object.entries(txsByAccountId)
-      .reduce<TxId[]>((acc, [accountId, txIds]) => {
-        if (accountIds.includes(accountId)) acc.push(...txIds)
-        return acc
-      }, [])
-      .map(txId => txsById[txId]),
+  (txsById, txsByAccountId, accountIds): Tx[] => {
+    if (!accountIds?.length) {
+      return values(selectTxs)
+    } else {
+      return Object.entries(txsByAccountId)
+        .reduce<TxId[]>((acc, [accountId, txIds]) => {
+          if (accountIds.includes(accountId)) acc.push(...txIds)
+          return acc
+        }, [])
+        .map(txId => txsById[txId])
+    }
+  },
   // deep equality check on output as we're mapping
   { memoizeOptions: { resultEqualityCheck: isEqual } }
 )

@@ -55,7 +55,7 @@ const ethAccount1 = {
 }
 
 const btcAccount = {
-  balance: '27803816548287370',
+  balance: '1010',
   caip2: btcCaip2,
   caip19: btcCaip19,
   chain: ChainTypes.Bitcoin,

@@ -1,6 +1,7 @@
-import { Flex, Stack } from '@chakra-ui/react'
+import { Flex, Heading, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import { Page } from 'components/Layout/Page'
+import { Text } from 'components/Text'
 import { selectPortfolioAccountIds } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AccountRowWithTokens } from './AccountRowWithTokens'
@@ -19,6 +20,9 @@ export const Accounts = () => {
         px={4}
       >
         <Stack>
+          <Heading>
+            <Text translation='accounts.accounts' />
+          </Heading>
           {accountIds.map(accountId => (
             <AccountRowWithTokens accountId={accountId} />
           ))}

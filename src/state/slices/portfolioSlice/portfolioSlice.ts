@@ -13,6 +13,8 @@ import { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
+const feeAssetIds = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
+
 /*
  * we can't retrieve an xpub from an address, but we can derive
  * addresses from xpubs
@@ -513,6 +515,13 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
   selectPortfolioAccountBalances,
   selectAccountIdParam,
   (accounts, accountId) => Object.keys(accounts[accountId])
+)
+
+export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
+  selectAssets,
+  selectPortfolioAssetIdsByAccountId,
+  (assets, assetIds) =>
+    assetIds.filter(assetId => !feeAssetIds.includes(assetId) && assets[assetId])
 )
 
 export const selectAccountIdByAddress = createSelector(

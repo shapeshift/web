@@ -1,16 +1,21 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack, Text } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
-import { selectAccountIdsByAssetId } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  AccountSpecifier,
+  selectAccountIdsByAssetId
+} from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 import { SelectAssetRoutes } from './SelectAssetRouter'
 
 type SelectAccountProps = {
-  onClick: (asset: any) => void
+  onClick: (asset: Asset, accountId: AccountSpecifier) => void
 }
 
 type SelectAccountLocation = {
@@ -25,6 +30,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, location.state.assetId)
   )
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, location.state.assetId))
   return (
     <SlideTransition>
       <ModalHeader textAlign='center' display='grid' gridTemplateColumns='32px 1fr 32px' px={2}>
@@ -43,7 +49,9 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
       <ModalBody height='600px' px={2} display='flex' flexDir='column'>
         <Stack>
           {accountIds.map(accountId => (
-            <Text key={accountId}>{accountId}</Text>
+            <Text key={accountId} onClick={() => onClick(asset, accountId)}>
+              {accountId}
+            </Text>
           ))}
         </Stack>
       </ModalBody>

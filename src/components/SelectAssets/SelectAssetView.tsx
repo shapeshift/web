@@ -20,7 +20,9 @@ import { SelectAccount } from './SelectAccount'
 import { SelectAssetLocation, SelectAssetRoutes } from './SelectAssetRouter'
 import { SelectAssets } from './SelectAssets'
 
-type SelectAssetViewProps = { onClick: (asset: any) => void } & SelectAssetLocation &
+type SelectAssetViewProps = {
+  onClick: (asset: Asset, accountId: AccountSpecifier) => void
+} & SelectAssetLocation &
   RouteComponentProps
 
 export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewProps) => {
@@ -39,18 +41,12 @@ export const SelectAssetView = ({ onClick, toRoute, assetId }: SelectAssetViewPr
     if (assetAccounts && assetAccounts.length > 1) {
       history.push(SelectAssetRoutes.Account, { assetId: asset.caip19 })
     } else {
-      handleAccountSelect({ assetId, accountId: assetAccounts[0] })
+      handleAccountSelect(asset, assetAccounts[0])
     }
   }
-  const handleAccountSelect = ({
-    assetId,
-    accountId
-  }: {
-    assetId: CAIP19
-    accountId: AccountSpecifier
-  }) => {
+  const handleAccountSelect = (asset: Asset, accountId: AccountSpecifier) => {
     //do something with the assetId and accountId
-    onClick({ assetId, accountId })
+    onClick(asset, accountId)
   }
 
   useEffect(() => {

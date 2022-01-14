@@ -1,7 +1,7 @@
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
   Redirect,
@@ -11,8 +11,9 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
+import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -24,6 +25,7 @@ import { QrCodeScanner } from './views/QrCodeScanner'
 
 export enum SendFormFields {
   Address = 'address',
+  AccountId = 'accountId',
   Asset = 'asset',
   FeeType = 'feeType',
   EstimatedFees = 'estimatedFees',
@@ -37,6 +39,7 @@ export enum SendFormFields {
 
 export type SendInput = {
   [SendFormFields.Address]: string
+  [SendFormFields.AccountId]: AccountSpecifier
   [SendFormFields.AmountFieldError]: string
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
@@ -50,9 +53,10 @@ export type SendInput = {
 
 type SendFormProps = {
   asset: Asset
+  accountId?: AccountSpecifier
 }
 
-export const Form = ({ asset: initialAsset }: SendFormProps) => {
+export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
   const { handleSend } = useFormSend()
@@ -61,6 +65,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
+      accountId,
       address: '',
       asset: initialAsset,
       feeType: chainAdapters.FeeDataKey.Average,
@@ -71,12 +76,13 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
     }
   })
 
-  const handleAssetSelect = async (asset: Asset) => {
+  const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
     methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')
     methods.setValue(SendFormFields.FiatSymbol, 'USD')
+    methods.setValue(SendFormFields.AccountId, accountId)
 
     history.push(SendRoutes.Address)
   }
@@ -84,6 +90,15 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') event.preventDefault()
   }
+
+  useEffect(() => {
+    if (!accountId && initialAsset) {
+      history.push(SendRoutes.Select, {
+        toRoute: SelectAssetRoutes.Account,
+        assetId: initialAsset.caip19
+      })
+    }
+  }, [accountId, initialAsset, history])
 
   return (
     <FormProvider {...methods}>

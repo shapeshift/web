@@ -76,7 +76,8 @@ const formData: SendInput = {
   [SendFormFields.CryptoSymbol]: 'ETH',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
-  [SendFormFields.SendMax]: false
+  [SendFormFields.SendMax]: false,
+  [SendFormFields.AccountId]: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb'
 }
 
 const textTxToSign = {

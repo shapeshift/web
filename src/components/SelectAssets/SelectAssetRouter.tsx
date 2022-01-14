@@ -1,5 +1,7 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { SelectAssetView } from './SelectAssetView'
 
@@ -11,7 +13,7 @@ export enum SelectAssetRoutes {
 export const entries = [SelectAssetRoutes.Search, SelectAssetRoutes.Account]
 
 type SelectAssetRouterProps = {
-  onClick: (asset: any) => void
+  onClick: (asset: Asset, accountId: AccountSpecifier) => void
 } & RouteComponentProps
 
 export type SelectAssetLocation = {

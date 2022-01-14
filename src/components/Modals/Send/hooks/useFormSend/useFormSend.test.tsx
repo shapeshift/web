@@ -54,21 +54,24 @@ const formData: SendInput = {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
-        gasPrice: '10000000000'
+        gasPrice: '10000000000',
+        satoshiPerByte: '5'
       }
     },
     [chainAdapters.FeeDataKey.Average]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
-        gasPrice: '10000000000'
+        gasPrice: '10000000000',
+        satoshiPerByte: '5'
       }
     },
     [chainAdapters.FeeDataKey.Fast]: {
       txFee: '3100000000000000',
       chainSpecific: {
         gasLimit: '42000',
-        gasPrice: '10000000000'
+        gasPrice: '10000000000',
+        satoshiPerByte: '5'
       }
     }
   },

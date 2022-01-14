@@ -609,20 +609,6 @@ export const selectAccountIdByAddress = createSelector(
   }
 )
 
-export const selectFeeAssetIdByAccountId = (accountId: AccountSpecifier) => {
-  // accountId = 'eip155:1:0xdef1...cafe
-  const [chain, network] = accountId.split(':')
-  const caip2 = `${chain}:${network}`
-  // we only need to update this function when we support additional chains, which is infrequent
-  // so it's ok to hardcode this map here
-  const caip2toCaip19: Record<string, string> = {
-    'eip155:1': 'eip155:1/slip44:60',
-    'bip122:000000000019d6689c085ae165831e93': 'bip122:000000000019d6689c085ae165831e93/slip44:0'
-  }
-
-  return caip2toCaip19[caip2]
-}
-
 export const findAccountsByAssetId = (
   portfolioAccounts: { [k: string]: string[] },
   assetId: CAIP19

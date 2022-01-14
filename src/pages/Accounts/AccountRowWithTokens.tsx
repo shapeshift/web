@@ -4,9 +4,9 @@ import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
 import {
   AccountSpecifier,
-  selectFeeAssetIdByAccountId,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset
 } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type AccountRowWithTokensProps = {
@@ -14,7 +14,7 @@ type AccountRowWithTokensProps = {
 }
 
 export const AccountRowWithTokens = ({ accountId }: AccountRowWithTokensProps) => {
-  const nativeAssetId = selectFeeAssetIdByAccountId(accountId)
+  const nativeAssetId = accountIdToFeeAssetId(accountId)
   const assetIds = useAppSelector(state =>
     selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, accountId)
   )

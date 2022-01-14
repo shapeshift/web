@@ -165,19 +165,13 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.byId[accountSpecifier].push(caip19)
         portfolio.accounts.ids.push(accountSpecifier)
 
-        // if asset already exist inside assetBalances, add balance to existing balance
-        if (!portfolio.assetBalances.byId[caip19]) {
-          portfolio.assetBalances.byId[caip19] = ethAccount.balance
-        } else {
-          portfolio.assetBalances.byId[caip19] = sumBalance(
-            portfolio.assetBalances.byId[caip19],
-            ethAccount.balance
-          )
-        }
+        portfolio.assetBalances.byId[caip19] = sumBalance(
+          portfolio.assetBalances.byId[caip19] ?? '0',
+          ethAccount.balance
+        )
 
-        if (!portfolio.assetBalances.ids.includes(caip19)) {
-          portfolio.assetBalances.ids.push(caip19)
-        }
+        // add assetId without dupes
+        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
 
         portfolio.accountBalances.byId[accountSpecifier] = {
           [caip19]: ethAccount.balance
@@ -187,19 +181,16 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           portfolio.accounts.byId[CAIP10].push(token.caip19)
-          if (!portfolio.assetBalances.ids.includes(token.caip19)) {
-            portfolio.assetBalances.ids.push(token.caip19)
-          }
+          // add assetId without dupes
+          portfolio.assetBalances.ids = Array.from(
+            new Set([...portfolio.assetBalances.ids, token.caip19])
+          )
 
           // if token already exist inside assetBalances, add balance to existing balance
-          if (!portfolio.assetBalances.byId[token.caip19]) {
-            portfolio.assetBalances.byId[token.caip19] = token.balance
-          } else {
-            portfolio.assetBalances.byId[token.caip19] = sumBalance(
-              portfolio.assetBalances.byId[token.caip19],
-              token.balance
-            )
-          }
+          portfolio.assetBalances.byId[token.caip19] = sumBalance(
+            portfolio.assetBalances.byId[token.caip19] ?? '0',
+            token.balance
+          )
 
           portfolio.accountBalances.byId[accountSpecifier] = {
             ...portfolio.accountBalances.byId[accountSpecifier],

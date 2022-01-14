@@ -8,9 +8,9 @@ import { RawText } from 'components/Text'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
   AccountSpecifier,
-  selectFeeAssetIdByAccountId,
   selectPortfolioFiatBalancesByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 // This can maybe be combined with the other AccountRow component once we know how the data works
@@ -25,7 +25,7 @@ type AssetAccountRowProps = {
 
 export const AssetAccountRow = ({ accountId, assetId, showAllocation }: AssetAccountRowProps) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
-  const feeAssetId = selectFeeAssetIdByAccountId(accountId)
+  const feeAssetId = accountIdToFeeAssetId(accountId)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   const fiatBalance = useAppSelector(state =>

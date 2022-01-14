@@ -440,6 +440,23 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   }
 )
 
+export const selectPortfolioCryptoBalanceByFilter = createSelector(
+  selectAssets,
+  selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (assets, accountBalances, assetBalances, accountId, assetId): string => {
+    if (accountId && assetId) {
+      return fromBaseUnit(
+        bnOrZero(accountBalances[accountId][assetId]),
+        assets[assetId].precision ?? 0
+      )
+    }
+    return assetBalances[assetId] ?? 0
+  }
+)
+
 export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
   selectAssets,
   selectPortfolioAssetBalances,

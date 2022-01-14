@@ -24,19 +24,26 @@ export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetLi
   const translate = useTranslate()
 
   const featuredAssetIds = useMemo(() => {
-    return limit === 0 || limit
-      ? assetIds && assetIds.length > limit
-        ? assetIds.slice(0, limit)
-        : assetIds
-      : assetIds
+    if (typeof limit === 'number') {
+      if (assetIds && assetIds.length > limit) {
+        return assetIds.slice(0, limit)
+      } else {
+        return assetIds
+      }
+    } else {
+      return assetIds
+    }
   }, [assetIds, limit])
 
   const moreAssetIds = useMemo(() => {
-    return limit === 0 || limit
-      ? assetIds && assetIds.length > limit
-        ? assetIds.slice(limit)
-        : null
-      : null
+    if (typeof limit === 'number') {
+      if (assetIds && assetIds.length > limit) {
+        return assetIds.slice(limit)
+      } else {
+        return null
+      }
+    }
+    return null
   }, [assetIds, limit])
 
   if (assetIds.length === 0) return null
@@ -51,30 +58,30 @@ export const AccountAssetsList = ({ assetIds, accountId, limit }: AccountAssetLi
         </Stack>
       )}
       {moreAssetIds && moreAssetIds.length > 0 && (
-        <Collapse in={isOpen}>
-          <Stack mx={-4}>
-            {moreAssetIds.map(assetId => (
-              <AssetAccountRow assetId={assetId} key={assetId} accountId={accountId} />
-            ))}
-          </Stack>
-        </Collapse>
-      )}
-      {moreAssetIds && moreAssetIds.length > 0 && (
-        <Box mx={-6} width='auto' mb={-4}>
-          <Button
-            variant='link'
-            p={4}
-            borderTopRadius='none'
-            colorScheme='blue'
-            onClick={onToggle}
-            isFullWidth
-            rightIcon={isOpen ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
-          >
-            {translate(`assets.assetCards.${isOpen ? 'hideTokens' : 'showTokens'}`, {
-              amount: moreAssetIds.length
-            })}
-          </Button>
-        </Box>
+        <>
+          <Collapse in={isOpen}>
+            <Stack mx={-4}>
+              {moreAssetIds.map(assetId => (
+                <AssetAccountRow assetId={assetId} key={assetId} accountId={accountId} />
+              ))}
+            </Stack>
+          </Collapse>
+          <Box mx={-6} width='auto' mb={-4}>
+            <Button
+              variant='link'
+              p={4}
+              borderTopRadius='none'
+              colorScheme='blue'
+              onClick={onToggle}
+              isFullWidth
+              rightIcon={isOpen ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
+            >
+              {translate(`assets.assetCards.${isOpen ? 'hideTokens' : 'showTokens'}`, {
+                amount: moreAssetIds.length
+              })}
+            </Button>
+          </Box>
+        </>
       )}
     </>
   )

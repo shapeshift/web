@@ -200,7 +200,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
       }
       case ChainTypes.Bitcoin: {
         const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
-        const { caip2, caip19, pubkey } = account
+        const { balance, caip2, caip19, pubkey } = account
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountSpecifier = `${caip2}:${pubkey}`
         const addresses = btcAccount.chainSpecific.addresses ?? []
@@ -209,41 +209,38 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountBalances.ids.push(accountSpecifier)
         portfolio.accountSpecifiers.ids.push(accountSpecifier)
 
-        addresses.forEach(({ pubkey, balance }) => {
-          // For tx history, we need to have CAIP10's of addresses that may have 0 balances
-          // for accountSpecifier to CAIP10 mapping
+        // initialize this
+        portfolio.accountBalances.byId[accountSpecifier] = {}
+
+        // add the balance from the top level of the account
+        portfolio.accountBalances.byId[accountSpecifier][caip19] = balance
+
+        // initialize
+        if (!portfolio.accounts.byId[accountSpecifier]?.length) {
+          portfolio.accounts.byId[accountSpecifier] = []
+        }
+
+        portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountSpecifier]))
+
+        portfolio.accounts.byId[accountSpecifier] = Array.from(
+          new Set([...portfolio.accounts.byId[accountSpecifier], caip19])
+        )
+
+        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
+
+        portfolio.assetBalances.byId[caip19] = bnOrZero(portfolio.assetBalances.byId[caip19])
+          .plus(bnOrZero(balance))
+          .toString()
+
+        // For tx history, we need to have CAIP10's of addresses that may have 0 balances
+        // for accountSpecifier to CAIP10 mapping
+        addresses.forEach(({ pubkey }) => {
           const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
           if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
             portfolio.accountSpecifiers.byId[accountSpecifier] = []
           }
 
           portfolio.accountSpecifiers.byId[accountSpecifier].push(CAIP10)
-
-          if (bnOrZero(balance).eq(0)) return
-
-          if (!portfolio.accounts.byId[accountSpecifier]?.length) {
-            portfolio.accounts.byId[accountSpecifier] = []
-          }
-
-          portfolio.accounts.byId[accountSpecifier] = Array.from(
-            new Set([...portfolio.accounts.byId[accountSpecifier], caip19])
-          )
-
-          portfolio.accounts.ids = Array.from(
-            new Set([...portfolio.accounts.ids, accountSpecifier])
-          )
-
-          portfolio.accountBalances.byId[accountSpecifier] = {
-            [caip19]: bnOrZero(portfolio.accountBalances.byId[accountSpecifier]?.[caip19])
-              .plus(bnOrZero(balance))
-              .toString()
-          }
-
-          portfolio.assetBalances.byId[caip19] = bnOrZero(portfolio.assetBalances.byId[caip19])
-            .plus(bnOrZero(balance))
-            .toString()
-          if (!portfolio.assetBalances.ids.includes(caip19))
-            portfolio.assetBalances.ids.push(caip19)
         })
 
         break

@@ -140,6 +140,10 @@ type AccountToPortfolioArgs = {
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 
+const sumBalance = (totalBalance: string, currentBalance: string) => {
+  return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toString()
+}
+
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
 export const accountToPortfolio: AccountToPortfolio = args => {
@@ -161,8 +165,19 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accounts.byId[accountSpecifier].push(caip19)
         portfolio.accounts.ids.push(accountSpecifier)
 
-        portfolio.assetBalances.byId[caip19] = ethAccount.balance
-        portfolio.assetBalances.ids.push(caip19)
+        // if asset already exist inside assetBalances, add balance to existing balance
+        if (!portfolio.assetBalances.byId[caip19]) {
+          portfolio.assetBalances.byId[caip19] = ethAccount.balance
+        } else {
+          portfolio.assetBalances.byId[caip19] = sumBalance(
+            portfolio.assetBalances.byId[caip19],
+            ethAccount.balance
+          )
+        }
+
+        if (!portfolio.assetBalances.ids.includes(caip19)) {
+          portfolio.assetBalances.ids.push(caip19)
+        }
 
         portfolio.accountBalances.byId[accountSpecifier] = {
           [caip19]: ethAccount.balance
@@ -172,8 +187,19 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           portfolio.accounts.byId[CAIP10].push(token.caip19)
-          portfolio.assetBalances.ids.push(token.caip19)
-          portfolio.assetBalances.byId[token.caip19] = token.balance
+          if (!portfolio.assetBalances.ids.includes(token.caip19)) {
+            portfolio.assetBalances.ids.push(token.caip19)
+          }
+
+          // if token already exist inside assetBalances, add balance to existing balance
+          if (!portfolio.assetBalances.byId[token.caip19]) {
+            portfolio.assetBalances.byId[token.caip19] = token.balance
+          } else {
+            portfolio.assetBalances.byId[token.caip19] = sumBalance(
+              portfolio.assetBalances.byId[token.caip19],
+              token.balance
+            )
+          }
 
           portfolio.accountBalances.byId[accountSpecifier] = {
             ...portfolio.accountBalances.byId[accountSpecifier],
@@ -306,15 +332,16 @@ export const selectPortfolioFiatBalances = createSelector(
     )
 )
 
+// accountId is optional, but we should always pass an assetId when using these params
 type ParamFilter = {
-  assetId?: CAIP19
+  assetId: CAIP19
   accountId?: AccountSpecifier
 }
 
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
-const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter = {}) =>
+const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
   paramFilter.assetId
-const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter = {}) =>
+const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
   paramFilter.accountId
 const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
@@ -360,6 +387,7 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
+// TODO: fix this
 export const selectPortfolioFiatBalancesByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
@@ -386,6 +414,24 @@ export const selectPortfolioCryptoBalanceByAssetId = createSelector(
   selectPortfolioAssetBalances,
   selectAssetIdParam,
   (byId, assetId): string => byId[assetId]
+)
+
+export const selectPortfolioCryptoHumanBalancesByFilter = createSelector(
+  selectAssets,
+  selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (assets, accountBalances, assetBalances, accountId, assetId): string => {
+    if (accountId && assetId) {
+      return fromBaseUnit(
+        bnOrZero(accountBalances[accountId][assetId]),
+        assets[assetId].precision ?? 0
+      )
+    }
+
+    return fromBaseUnit(bnOrZero(assetBalances[assetId]), assets[assetId].precision ?? 0)
+  }
 )
 
 export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(

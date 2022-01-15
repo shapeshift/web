@@ -18,7 +18,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
+import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
@@ -48,12 +48,17 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
-  const accountType = accountIdToAccountType(accountId)
+  let accountType = ''
+  if (chain === ChainTypes.Bitcoin) {
+    accountType = accountIdToAccountType(accountId)
+  }
 
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
-      const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+      const accountParams = accountType
+        ? utxoAccountParams(asset, accountType as UtxoAccountType, 0)
+        : {}
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
@@ -65,13 +70,15 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   }, [setReceiveAddress, accountType, asset, wallet, chainAdapter])
 
   const handleVerify = async () => {
-    const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+    const accountParams = accountType
+      ? utxoAccountParams(asset, accountType as UtxoAccountType, 0)
+      : {}
 
     if (!(wallet && chainAdapter && receiveAddress)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
-      accountType,
+      accountType: accountType as UtxoAccountType,
       ...accountParams
     })
 

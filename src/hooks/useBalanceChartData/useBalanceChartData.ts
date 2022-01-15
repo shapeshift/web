@@ -11,7 +11,7 @@ import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
 import sortedIndexBy from 'lodash/sortedIndexBy'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -29,7 +29,7 @@ import {
   selectPortfolioAssetBalances,
   selectPortfolioAssets
 } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectTxsByAccountIds, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxsByFilter, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
@@ -296,10 +296,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const {
     state: { walletInfo }
   } = useWallet()
+
+  const filter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(
-    useAppSelector(state => selectTxsByAccountIds(state, accountIds ?? [])),
+    useAppSelector(state => selectTxsByFilter(state, filter)),
     500
   )
 

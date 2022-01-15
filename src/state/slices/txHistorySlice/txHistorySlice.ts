@@ -200,6 +200,10 @@ export const selectTxIdsByFilter = createSelector(
   { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 
+export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, (txs, txIds) =>
+  txIds.map(txId => txs[txId])
+)
+
 // this is only used on trade confirm - new txs will be pushed
 // to the end of this array, so last is guaranteed to be latest
 // this can return undefined as we may be trading into this asset

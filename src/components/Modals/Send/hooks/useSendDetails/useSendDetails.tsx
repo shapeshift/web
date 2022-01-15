@@ -162,7 +162,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       const accountParams = currentAccountType
-        ? utxoAccountParams(asset, currentAccountType, 1)
+        ? utxoAccountParams(asset, currentAccountType, 0)
         : {}
       const from = await adapter.getAddress({
         wallet,

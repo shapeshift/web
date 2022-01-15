@@ -53,6 +53,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
               accountId={accountId}
               assetId={asset.caip19}
               key={accountId}
+              isCompact
               onClick={() => onClick(asset, accountId)}
             />
           ))}

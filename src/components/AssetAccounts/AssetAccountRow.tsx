@@ -1,4 +1,13 @@
-import { Box, Flex, SimpleGrid, SimpleGridProps, Tag, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  SimpleGrid,
+  SimpleGridProps,
+  Stack,
+  Tag,
+  useColorModeValue,
+  useMediaQuery
+} from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -14,6 +23,7 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 // This can maybe be combined with the other AccountRow component once we know how the data works
 // src/components/AccountRow
@@ -23,15 +33,18 @@ type AssetAccountRowProps = {
   accountId: AccountSpecifier
   assetId: CAIP19
   showAllocation?: boolean
+  isCompact?: boolean
 } & SimpleGridProps
 
 export const AssetAccountRow = ({
   accountId,
   assetId,
   showAllocation,
+  isCompact,
   ...rest
 }: AssetAccountRowProps) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
@@ -50,7 +63,9 @@ export const AssetAccountRow = ({
       templateColumns={{
         base: 'minmax(0, 2fr) repeat(1, 1fr)',
         md: '1fr repeat(2, 1fr)',
-        lg: showAllocation ? 'minmax(0, 2fr) 150px repeat(2, 1fr)' : 'minmax(0, 2fr) repeat(2, 1fr)'
+        lg: showAllocation
+          ? 'minmax(0, 2fr) 150px repeat(2, 1fr)'
+          : `minmax(0, 2fr) repeat(${isCompact ? '1' : '2'}, 1fr)`
       }}
       py={4}
       pl={4}
@@ -81,11 +96,10 @@ export const AssetAccountRow = ({
               {feeAsset.name}
             </RawText>
           )}
-          <Flex flexDir={'row'} alignContent={'center'}>
+          <Stack direction='row' alignContent='center' alignItems='center' gridGap={1}>
             <RawText
               fontWeight='medium'
               lineHeight='short'
-              mb={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
@@ -94,11 +108,19 @@ export const AssetAccountRow = ({
               {asset?.name}
             </RawText>
             {!asset.tokenId && (
-              <Tag ml={2} whiteSpace={'nowrap'}>
+              <Tag
+                whiteSpace='nowrap'
+                colorScheme='blue'
+                fontSize='x-small'
+                textTransform='uppercase'
+                fontWeight='bold'
+                minHeight='auto'
+                py={1}
+              >
                 {label}
               </Tag>
             )}
-          </Flex>
+          </Stack>
         </Flex>
       </Flex>
       {showAllocation && (
@@ -106,18 +128,18 @@ export const AssetAccountRow = ({
           <Allocations value={10} color={'#000'} />
         </Flex>
       )}
-      <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
-        <Amount.Crypto value={cryptoBalance} symbol={asset?.symbol} />
-      </Flex>
+      {!isCompact && (
+        <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
+          <Amount.Crypto value={cryptoBalance} symbol={asset?.symbol} />
+        </Flex>
+      )}
+
       <Flex justifyContent='flex-end' flexWrap='nowrap' whiteSpace='nowrap'>
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={fiatBalance} />
-          <Amount.Crypto
-            display={{ base: 'block', md: 'none' }}
-            color='gray.500'
-            value={'100'}
-            symbol={asset?.symbol}
-          />
+          {(isCompact || !isLargerThanMd) && (
+            <Amount.Crypto color='gray.500' value={cryptoBalance} symbol={asset?.symbol} />
+          )}
         </Flex>
       </Flex>
     </SimpleGrid>

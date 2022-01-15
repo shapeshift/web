@@ -59,9 +59,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
     }
     case btcChainId: {
       // TODO(0xdef1cafe): translations
-      if (specifier.startsWith('xpub')) return 'Legacy'
-      if (specifier.startsWith('ypub')) return 'Segwit'
-      if (specifier.startsWith('zpub')) return 'Segwit Native'
+      if (specifier.startsWith('xpub')) return 'LEGACY'
+      if (specifier.startsWith('ypub')) return 'SEGWIT'
+      if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
       return ''
     }
     default: {

@@ -27,10 +27,12 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useFetchAssetDescription } from 'hooks/useFetchAssetDescription/useFetchAssetDescription'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  selectAssetByCAIP19,
+  useGetAssetDescriptionQuery
+} from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
@@ -66,7 +68,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const isLoaded = !!marketData
   const { name, symbol, description, icon } = asset || {}
-  useFetchAssetDescription(assetId)
+  useGetAssetDescriptionQuery(assetId)
   const { price } = marketData || {}
   const {
     number: { toFiat }
@@ -108,7 +110,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Flex>
         {walletSupportsChain ? (
-          <AssetActions isLoaded={isLoaded} assetId={asset.caip19} accountId={accountId} />
+          <AssetActions isLoaded={isLoaded} assetId={assetId} accountId={accountId} />
         ) : null}
       </Card.Header>
       {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}

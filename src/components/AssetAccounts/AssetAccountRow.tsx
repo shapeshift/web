@@ -1,4 +1,4 @@
-import { Box, Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, SimpleGrid, SimpleGridProps, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { generatePath, Link } from 'react-router-dom'
 import { Allocations } from 'components/AccountRow/Allocations'
@@ -21,9 +21,14 @@ type AssetAccountRowProps = {
   accountId: AccountSpecifier
   assetId: CAIP19
   showAllocation?: boolean
-}
+} & SimpleGridProps
 
-export const AssetAccountRow = ({ accountId, assetId, showAllocation }: AssetAccountRowProps) => {
+export const AssetAccountRow = ({
+  accountId,
+  assetId,
+  showAllocation,
+  ...rest
+}: AssetAccountRowProps) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -53,6 +58,7 @@ export const AssetAccountRow = ({ accountId, assetId, showAllocation }: AssetAcc
       rounded='lg'
       gridGap='1rem'
       alignItems='center'
+      {...rest}
     >
       <Flex alignItems='center'>
         <Box position='relative'>

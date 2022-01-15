@@ -8,13 +8,11 @@ import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -22,6 +20,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalancesByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToAccountType } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
@@ -82,9 +81,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
-  const currentAccountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
+  const currentAccountType = accountIdToAccountType(accountId)
 
   const estimateFormFees = useCallback(async (): Promise<
     chainAdapters.FeeDataEstimate<ChainTypes>

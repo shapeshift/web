@@ -28,7 +28,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToUtxoparams } from 'state/slices/portfolioSlice/utils'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { ReceiveRoutes } from './Receive'
 
@@ -48,7 +48,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const { utxoParams, accountType } = accountIdToUtxoparams(asset, accountId, 0)
+  const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
 
   useEffect(() => {
     ;(async () => {
@@ -57,7 +57,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
-          accountType: accountType,
+          accountType,
           ...accountParams
         })
       )
@@ -71,7 +71,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
-      accountType: accountType,
+      accountType,
       ...accountParams
     })
 

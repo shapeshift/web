@@ -82,7 +82,7 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   throw new Error('accountIdToAccountType: could not get accountType from accountId')
 }
 
-export const accountIdToUtxoparams = (
+export const accountIdToUtxoParams = (
   asset: Asset,
   accountId: AccountSpecifier,
   accountIndex: number
@@ -97,8 +97,7 @@ export const accountIdToUtxoparams = (
     // For non-utxo coins we want to return an empty object, but accountIdToAccountType will throw
     // so we need to catch.
     return {
-      utxoParams: {},
-      accountType: null
+      utxoParams: {}
     }
   }
 }

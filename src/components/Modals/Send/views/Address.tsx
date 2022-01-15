@@ -76,6 +76,8 @@ export const Address = () => {
                 }
               }
             }}
+            // If we are sending BTC, use a larger input font size because the address is shorter
+            inputFontSize={asset.caip2 === 'bip122:000000000019d6689c085ae165831e93' ? 'md' : 'sm'}
           />
         </FormControl>
       </ModalBody>

@@ -45,21 +45,21 @@ describe('accountIdToLabel', () => {
   })
 
   it('returns "Legacy" for xpubs', () => {
-    const label = 'Legacy'
+    const label = 'LEGACY'
     const accountId = 'bip122:000000000019d6689c085ae165831e93:xpubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)
   })
 
   it('returns "Segwit" for ypubs', () => {
-    const label = 'Segwit'
+    const label = 'SEGWIT'
     const accountId = 'bip122:000000000019d6689c085ae165831e93:ypubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)
   })
 
   it('returns "Segwit Native" for zpubs', () => {
-    const label = 'Segwit Native'
+    const label = 'SEGWIT NATIVE'
     const accountId = 'bip122:000000000019d6689c085ae165831e93:zpubfoobarbaz'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(label)

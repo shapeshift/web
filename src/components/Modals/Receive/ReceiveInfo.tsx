@@ -17,8 +17,7 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
@@ -29,7 +28,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToAccountType } from 'state/slices/portfolioSlice/utils'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { ReceiveRoutes } from './Receive'
 
@@ -48,24 +47,25 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
-  const accountType = accountIdToAccountType(accountId)
+
+  const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
 
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
-      const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+      const accountParams = utxoParams
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
-          accountType: accountType as UtxoAccountType,
+          accountType,
           ...accountParams
         })
       )
     })()
-  }, [setReceiveAddress, accountType, asset, wallet, chainAdapter])
+  }, [setReceiveAddress, accountType, asset, wallet, chainAdapter, utxoParams])
 
   const handleVerify = async () => {
-    const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
+    const accountParams = utxoParams
 
     if (!(wallet && chainAdapter && receiveAddress)) return
     const deviceAddress = await chainAdapter.getAddress({

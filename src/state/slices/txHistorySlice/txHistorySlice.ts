@@ -7,11 +7,10 @@ import last from 'lodash/last'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
-import { upsertArray } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { getRelatedAssetIds } from './utils'
+import { addToIndex, getRelatedAssetIds } from './utils'
 
 type TxId = string
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
@@ -92,15 +91,17 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   // for a given tx, find all the related assetIds, and keep an index of
   // txids related to each asset id
   getRelatedAssetIds(tx).forEach(relatedAssetId => {
-    txHistory.byAssetId[relatedAssetId] = upsertArray(
-      txHistory.byAssetId[relatedAssetId] ?? [],
+    txHistory.byAssetId[relatedAssetId] = addToIndex(
+      txHistory.ids,
+      txHistory.byAssetId[relatedAssetId],
       tx.txid
     )
   })
 
   // index the tx by the account that it belongs to
-  txHistory.byAccountId[accountSpecifier] = upsertArray(
-    txHistory.byAccountId[accountSpecifier] ?? [],
+  txHistory.byAccountId[accountSpecifier] = addToIndex(
+    txHistory.ids,
+    txHistory.byAccountId[accountSpecifier],
     tx.txid
   )
 

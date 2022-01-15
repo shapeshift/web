@@ -3,8 +3,6 @@ import axios from 'axios'
 import isEqual from 'lodash/isEqual'
 import { useMemo, useState } from 'react'
 
-import { getConfig } from '../../config'
-
 const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 export const useHasAppUpdated = () => {
@@ -20,7 +18,7 @@ export const useHasAppUpdated = () => {
   useMemo(storeMainManifestJs, [])
   useInterval(async () => {
     // we don't care about updates locally obv
-    if (getConfig().isDevelopment) return
+    if (window.location.hostname === 'localhost') return
 
     let manifestMainJs
     try {

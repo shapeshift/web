@@ -45,7 +45,6 @@ import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './AssetActions'
 import { AssetMarketData } from './AssetMarketData'
-import { SegwitSelectCard } from './SegwitSelectCard'
 
 enum View {
   Price = 'price',
@@ -113,7 +112,6 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           <AssetActions isLoaded={isLoaded} assetId={assetId} accountId={accountId} />
         ) : null}
       </Card.Header>
-      {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>
         <Box>
           <Flex

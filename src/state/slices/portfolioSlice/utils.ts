@@ -1,5 +1,6 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
-import { UtxoAccountType } from '@shapeshiftoss/types'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
 import last from 'lodash/last'
 
 import { AccountSpecifier } from './portfolioSlice'
@@ -78,5 +79,26 @@ export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccount
   if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
   if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
   if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
-  throw new Error('useSendDetails: could not get accountType from accountId')
+  throw new Error('accountIdToAccountType: could not get accountType from accountId')
+}
+
+export const accountIdToUtxoparams = (
+  asset: Asset,
+  accountId: AccountSpecifier,
+  accountIndex: number
+) => {
+  try {
+    const utxoAccountType = accountIdToAccountType(accountId)
+    return {
+      utxoParams: utxoAccountParams(asset, utxoAccountType, accountIndex),
+      accountType: utxoAccountType
+    }
+  } catch (err) {
+    // For non-utxo coins we want to return an empty object, but accountIdToAccountType will throw
+    // so we need to catch.
+    return {
+      utxoParams: {},
+      accountType: null
+    }
+  }
 }

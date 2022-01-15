@@ -23,7 +23,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         const mnemonic = (await vault.get(
           '#mnemonic'
         )) as native.crypto.Isolation.Core.BIP39.Mnemonic
-        mnemonic.addRevoker?.(() => vault.revoke())
+        mnemonic.addRevoker?.(() => vault.revoke?.())
         await wallet.loadDevice({ mnemonic, deviceId })
         const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
         dispatch({

@@ -1,4 +1,4 @@
-import { Box, Flex, SimpleGrid, SimpleGridProps, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, SimpleGrid, SimpleGridProps, Tag, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { generatePath, Link } from 'react-router-dom'
@@ -12,7 +12,7 @@ import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioFiatBalancesByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 // This can maybe be combined with the other AccountRow component once we know how the data works
@@ -39,6 +39,7 @@ export const AssetAccountRow = ({
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalancesByFilter(state, filter))
   const cryptoBalance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
   const path = generatePath('/accounts/:accountId/:assetId', filter)
+  const label = accountIdToLabel(accountId)
 
   if (!asset) return null
   return (
@@ -80,17 +81,24 @@ export const AssetAccountRow = ({
               {feeAsset.name}
             </RawText>
           )}
-          <RawText
-            fontWeight='medium'
-            lineHeight='short'
-            mb={1}
-            textOverflow='ellipsis'
-            whiteSpace='nowrap'
-            overflow='hidden'
-            display='inline-block'
-          >
-            {asset?.name}
-          </RawText>
+          <Flex flexDir={'row'} alignContent={'center'}>
+            <RawText
+              fontWeight='medium'
+              lineHeight='short'
+              mb={1}
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              overflow='hidden'
+              display='inline-block'
+            >
+              {asset?.name}
+            </RawText>
+            {!asset.tokenId && (
+              <Tag ml={2} whiteSpace={'nowrap'}>
+                {label}
+              </Tag>
+            )}
+          </Flex>
         </Flex>
       </Flex>
       {showAllocation && (

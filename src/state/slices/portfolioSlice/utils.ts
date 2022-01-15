@@ -25,6 +25,9 @@ export const accountIdToSpecifier = (accountId: AccountSpecifier): string => {
   return accountId.split(':')[2] ?? ''
 }
 
+export const firstFourLastFour = (address: string): string =>
+  `${address.slice(0, 6)}...${address.slice(-4)}`
+
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   /*
@@ -49,7 +52,7 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
   switch (chainId) {
     case ethChainId: {
       // this will be the 0x account
-      return specifier
+      return firstFourLastFour(specifier)
     }
     case btcChainId: {
       // TODO(0xdef1cafe): translations

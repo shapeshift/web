@@ -173,6 +173,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Box>
       </Card.Body>
+      {/* If the Child component call a function update state of Parent Compnent in UseEffect,the Child Component should avaiable on DOM */}
       <Box style={{ display: view === View.Balance ? 'block' : 'none' }}>
         <BalanceChart
           accountIds={accountIds}

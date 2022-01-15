@@ -19,7 +19,7 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
   AccountSpecifier,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioFiatBalancesByFilter
+  selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
@@ -49,7 +49,7 @@ export const AssetAccountRow = ({
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const fiatBalance = useAppSelector(state => selectPortfolioFiatBalancesByFilter(state, filter))
+  const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
   const cryptoBalance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
   const path = generatePath('/accounts/:accountId/:assetId', filter)
   const label = accountIdToLabel(accountId)

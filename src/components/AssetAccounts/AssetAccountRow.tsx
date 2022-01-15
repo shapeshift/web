@@ -138,7 +138,7 @@ export const AssetAccountRow = ({
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={fiatBalance} />
           {(isCompact || !isLargerThanMd) && (
-            <Amount.Crypto color='gray.500' value={'100'} symbol={asset?.symbol} />
+            <Amount.Crypto color='gray.500' value={cryptoBalance} symbol={asset?.symbol} />
           )}
         </Flex>
       </Flex>

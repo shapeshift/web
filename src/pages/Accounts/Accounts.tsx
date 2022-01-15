@@ -24,7 +24,7 @@ export const Accounts = () => {
             <Text translation='accounts.accounts' />
           </Heading>
           {accountIds.map(accountId => (
-            <AccountRowWithTokens accountId={accountId} />
+            <AccountRowWithTokens accountId={accountId} key={accountId} />
           ))}
         </Stack>
       </Flex>

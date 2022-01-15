@@ -177,7 +177,8 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Box>
       </Card.Body>
-      {view === View.Balance ? (
+      {/* If the Child component call a function update state of Parent Compnent in UseEffect,the Child Component should avaiable on DOM */}
+      <Box style={{ display: view === View.Balance ? 'block' : 'none' }}>
         <BalanceChart
           accountIds={accountIds}
           assetIds={assetIds}
@@ -185,14 +186,15 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           percentChange={percentChange}
           setPercentChange={setPercentChange}
         />
-      ) : (
+      </Box>
+      <Box style={{ display: view === View.Price ? 'block' : 'none' }}>
         <PriceChart
           assetId={assetId}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}
         />
-      )}
+      </Box>
       {!isLargerThanMd && (
         <Skeleton isLoaded={isLoaded} textAlign='center'>
           <TimeControls

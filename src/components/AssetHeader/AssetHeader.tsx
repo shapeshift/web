@@ -62,7 +62,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [showDescription, setShowDescription] = useState(false)
-  const [view, setView] = useState(View.Price)
+  const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
@@ -87,7 +87,9 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const cryptoBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
   )
-  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
+  const totalBalance = toFiat(
+    useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
+  )
 
   return (
     <Card variant='footer-stub'>

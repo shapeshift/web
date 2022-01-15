@@ -38,7 +38,7 @@ describe('accountIdToSpecifier', () => {
 
 describe('accountIdToLabel', () => {
   it('can get eth address from accountId', () => {
-    const address = '0xdef1cafe'
+    const address = '0xdef1...cafe'
     const accountId = 'eip155:1:0xdef1cafe'
     const result = accountIdToLabel(accountId)
     expect(result).toEqual(address)

@@ -18,7 +18,7 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSli
 import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
-  selectPortfolioFiatBalancesByFilter
+  selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToAccountType } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
@@ -65,7 +65,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const fiatBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioFiatBalancesByFilter(state, { assetId: asset.caip19, accountId })
+      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
 

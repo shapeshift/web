@@ -37,8 +37,8 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSli
 import {
   AccountSpecifier,
   selectPortfolioAssetAccounts,
-  selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceByAssetId
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -83,11 +83,12 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
 
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
   )
   const totalBalance = toFiat(
-    useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
+    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
   )
 
   return (

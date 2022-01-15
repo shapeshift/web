@@ -12,7 +12,7 @@ import {
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
-  selectPortfolioFiatBalancesByFilter
+  selectPortfolioFiatBalanceByFilter
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -384,13 +384,13 @@ describe('Fiat Balance Selectors', () => {
   describe('selectPortfolioFiatBalancesByFilter', () => {
     it('Should be able to filter by assetId', () => {
       const expected = '27.80'
-      const result = selectPortfolioFiatBalancesByFilter(state, { assetId: ethCaip19 })
+      const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethCaip19 })
       expect(result).toEqual(expected)
     })
 
     it('Should be able to filter by accountId and assetId', () => {
       const expected = '42.73'
-      const result = selectPortfolioFiatBalancesByFilter(state, {
+      const result = selectPortfolioFiatBalanceByFilter(state, {
         accountId: ethAccountSpecifier1,
         assetId: foxCaip19
       })

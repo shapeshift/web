@@ -394,12 +394,12 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
   (portfolioFiatBalances, assetId) => portfolioFiatBalances[assetId]
 )
 
-export const selectPortfolioFiatBalancesByFilter = createSelector(
+export const selectPortfolioFiatBalanceByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
-  (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId) => {
+  (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
     if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
     if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
     if (!assetId && accountId) {

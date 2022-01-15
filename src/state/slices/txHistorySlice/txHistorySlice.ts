@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import last from 'lodash/last'
@@ -176,8 +177,29 @@ export const selectTxIdsByAssetId = createSelector(
   (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
 )
 
-// TODO(0xdef1cafe): write this
-// export const selectTxIdsByAccountIds = createSelector()
+type TxHistoryFilter = {
+  assetId: CAIP19
+  accountIds?: AccountSpecifier[]
+}
+
+const selectAssetIdParamFromFilter = (_state: ReduxState, { assetId }: TxHistoryFilter) => assetId
+const selectAccountIdsParamFromFilter = (_state: ReduxState, { accountIds }: TxHistoryFilter) =>
+  accountIds ?? []
+
+export const selectTxIdsByFilter = createSelector(
+  selectTxsByAssetId,
+  selectTxIdsByAccountId,
+  selectAssetIdParamFromFilter,
+  selectAccountIdsParamFromFilter,
+  (txsByAssetId, txsByAccountId, assetId, accountIds): TxId[] => {
+    if (!accountIds.length) return txsByAssetId[assetId] ?? []
+    const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
+    const assetTxIds = txsByAssetId[assetId]
+    const assetAccountsTxIds = intersection(accountsTxIds, assetTxIds)
+    const sorted = assetAccountsTxIds
+    return sorted
+  }
+)
 
 // TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
 // and only specific to bitcoin

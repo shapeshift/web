@@ -194,10 +194,9 @@ export const selectTxIdsByFilter = createSelector(
     if (!accountIds.length) return txsByAssetId[assetId] ?? []
     const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
     const assetTxIds = txsByAssetId[assetId]
-    const assetAccountsTxIds = intersection(accountsTxIds, assetTxIds)
-    const sorted = assetAccountsTxIds
-    return sorted
-  }
+    return intersection(accountsTxIds, assetTxIds)
+  },
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 
 // this is only used on trade confirm - new txs will be pushed

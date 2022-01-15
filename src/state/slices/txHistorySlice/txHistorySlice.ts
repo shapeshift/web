@@ -177,23 +177,24 @@ const selectTxIdsByAssetId = createSelector(
 )
 
 type TxHistoryFilter = {
-  assetId: CAIP19
+  assetIds: CAIP19[]
   accountIds?: AccountSpecifier[]
 }
 
-const selectAssetIdParamFromFilter = (_state: ReduxState, { assetId }: TxHistoryFilter) => assetId
+const selectAssetIdsParamFromFilter = (_state: ReduxState, { assetIds }: TxHistoryFilter) =>
+  assetIds
 const selectAccountIdsParamFromFilter = (_state: ReduxState, { accountIds }: TxHistoryFilter) =>
   accountIds ?? []
 
 export const selectTxIdsByFilter = createSelector(
   selectTxsByAssetId,
   selectTxIdsByAccountId,
-  selectAssetIdParamFromFilter,
+  selectAssetIdsParamFromFilter,
   selectAccountIdsParamFromFilter,
-  (txsByAssetId, txsByAccountId, assetId, accountIds): TxId[] => {
-    if (!accountIds.length) return txsByAssetId[assetId] ?? []
+  (txsByAssetId, txsByAccountId, assetIds, accountIds): TxId[] => {
+    const assetTxIds = assetIds.map(assetId => txsByAssetId[assetId] ?? []).flat()
+    if (!accountIds.length) return assetTxIds
     const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
-    const assetTxIds = txsByAssetId[assetId]
     return intersection(accountsTxIds, assetTxIds)
   },
   { memoizeOptions: { resultEqualityCheck: isEqual } }

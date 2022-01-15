@@ -107,7 +107,9 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             </Skeleton>
           </Box>
         </Flex>
-        {walletSupportsChain ? <AssetActions isLoaded={isLoaded} assetId={asset.caip19} /> : null}
+        {walletSupportsChain ? (
+          <AssetActions isLoaded={isLoaded} assetId={asset.caip19} accountId={accountId} />
+        ) : null}
       </Card.Header>
       {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>

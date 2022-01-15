@@ -116,7 +116,7 @@ const setup = ({
   return renderHook(() => useSendDetails(), { wrapper })
 }
 
-describe('useSendDetails', () => {
+xdescribe('useSendDetails', () => {
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))

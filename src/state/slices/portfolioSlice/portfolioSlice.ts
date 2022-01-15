@@ -440,6 +440,23 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   }
 )
 
+export const selectPortfolioCryptoBalanceByFilter = createSelector(
+  selectAssets,
+  selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (assets, accountBalances, assetBalances, accountId, assetId): string => {
+    if (accountId && assetId) {
+      return fromBaseUnit(
+        bnOrZero(accountBalances[accountId][assetId]),
+        assets[assetId].precision ?? 0
+      )
+    }
+    return assetBalances[assetId] ?? 0
+  }
+)
+
 export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
   selectAssets,
   selectPortfolioAssetBalances,
@@ -592,17 +609,22 @@ export const selectAccountIdByAddress = createSelector(
   }
 )
 
+export const findAccountsByAssetId = (
+  portfolioAccounts: { [k: string]: string[] },
+  assetId: CAIP19
+): AccountSpecifier[] => {
+  const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
+    (acc, [accountId, accountAssets]) => {
+      if (accountAssets.includes(assetId)) acc.push(accountId)
+      return acc
+    },
+    []
+  )
+  return result
+}
+
 export const selectAccountIdsByAssetId = createSelector(
   selectPortfolioAccounts,
   selectAssetIdParam,
-  (portfolioAccounts, assetId): AccountSpecifier[] => {
-    const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
-      (acc, [accountId, accountAssets]) => {
-        if (accountAssets.includes(assetId)) acc.push(accountId)
-        return acc
-      },
-      []
-    )
-    return result
-  }
+  findAccountsByAssetId
 )

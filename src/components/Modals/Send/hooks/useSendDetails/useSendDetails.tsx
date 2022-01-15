@@ -4,7 +4,7 @@ import {
   utxoAccountParams
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -18,9 +18,9 @@ import { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectPortfolioCryptoBalanceByAssetId,
-  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
-  selectPortfolioFiatBalanceByAccountTypeAndAssetId
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalancesByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
@@ -50,28 +50,28 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
+    name: SendFormFields.AccountId
+  })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const balancesLoading = false
-  const accountType: UtxoAccountType | undefined = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
 
-  // TODO(0xdef1cafe): this is a janky temporary fix till we implement accounts next week
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
 
   const fiatBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioFiatBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+      selectPortfolioFiatBalancesByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
+
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByAssetId(state, asset.caip19)
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId })
   )
   const chainAdapterManager = useChainAdapters()
   const {

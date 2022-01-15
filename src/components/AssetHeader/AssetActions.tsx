@@ -14,7 +14,7 @@ type AssetActionProps = {
   accountId?: AccountSpecifier
 }
 
-export const AssetActions = ({ isLoaded, assetId }: AssetActionProps) => {
+export const AssetActions = ({ isLoaded, assetId, accountId }: AssetActionProps) => {
   const { send, receive } = useModal()
   const {
     state: { isConnected },
@@ -25,7 +25,8 @@ export const AssetActions = ({ isLoaded, assetId }: AssetActionProps) => {
   const _asset = { asset: asset, marketData }
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleSendClick = () => (isConnected ? send.open(_asset) : handleWalletModalOpen())
+  const handleSendClick = () =>
+    isConnected ? send.open({ asset: asset, accountId }) : handleWalletModalOpen()
   const handleReceiveClick = () => (isConnected ? receive.open(_asset) : handleWalletModalOpen())
 
   return (

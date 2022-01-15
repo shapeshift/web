@@ -10,7 +10,9 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import get from 'lodash/get'
+import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -18,15 +20,20 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { getEnsInstance } from 'lib/ens-instance'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
+const ens = getEnsInstance()
+
 export const Address = () => {
+  const [isValidatingEnsDomain, setIsValidatingEnsDomain] = useState(false)
   const history = useHistory()
   const translate = useTranslate()
   const {
+    setValue,
     formState: { errors }
   } = useFormContext<SendInput>()
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
@@ -72,6 +79,26 @@ export const Address = () => {
               validate: {
                 validateAddress: async (value: string) => {
                   const validAddress = await adapter.validateAddress(value)
+                  if (asset.chain === ChainTypes.Ethereum) {
+                    const validEnsAddress = await adapter.validateEnsAddress?.(value)
+                    if (validEnsAddress?.valid) {
+                      // Verify that domain is resolvable
+                      setIsValidatingEnsDomain(true)
+                      const address = await ens.name(value).getAddress()
+                      if (address === '0x0000000000000000000000000000000000000000') {
+                        setIsValidatingEnsDomain(false)
+                        return 'common.unresolvableEnsDomain'
+                      }
+                      // and add its resolution to form state as a side effect
+                      setIsValidatingEnsDomain(false)
+                      setValue(SendFormFields.Address, address)
+                      setValue(SendFormFields.EnsDomain, value)
+                      return true
+                    }
+                    // If a reverse lookup exists for 0x address, display ENS address instead
+                    const { name: ensDomain } = await ens.getName(value)
+                    setValue(SendFormFields.EnsDomain, ensDomain)
+                  }
                   return validAddress.valid || 'common.invalidAddress'
                 }
               }
@@ -84,7 +111,8 @@ export const Address = () => {
           <Button
             isFullWidth
             isDisabled={!address || addressError}
-            colorScheme={addressError ? 'red' : 'blue'}
+            isLoading={isValidatingEnsDomain}
+            colorScheme={addressError && !isValidatingEnsDomain ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}
           >

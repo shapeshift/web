@@ -14,11 +14,12 @@ import {
   ModalHeader,
   Skeleton,
   SkeletonText,
+  Tag,
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -29,6 +30,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { getEnsInstance } from 'lib/ens-instance'
 import { ReduxState } from 'state/reducer'
 
 import { ReceiveRoutes } from './Receive'
@@ -41,6 +43,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const { chain, name, symbol } = asset
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
+  const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
   const history = useHistory()
@@ -58,15 +61,20 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
       const accountParams = currentAccountType
         ? utxoAccountParams(asset, currentAccountType, 0)
         : {}
-      setReceiveAddress(
-        await chainAdapter.getAddress({
-          wallet,
-          accountType: currentAccountType,
-          ...accountParams
-        })
-      )
+      const selectedAccountAddress = await chainAdapter.getAddress({
+        wallet,
+        accountType: currentAccountType,
+        ...accountParams
+      })
+      setReceiveAddress(selectedAccountAddress)
+      if (asset.chain === ChainTypes.Ethereum) {
+        const { name: selectedAccountDomain } = await getEnsInstance().getName(
+          selectedAccountAddress
+        )
+        setEnsReceiveAddress(selectedAccountDomain)
+      }
     })()
-  }, [setReceiveAddress, currentAccountType, asset, wallet, chainAdapter])
+  }, [setReceiveAddress, setEnsReceiveAddress, currentAccountType, asset, wallet, chainAdapter])
 
   const handleVerify = async () => {
     const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
@@ -146,6 +154,13 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                 />
               </SkeletonText>
             </Box>
+            <Flex justifyContent='center'>
+              {ensReceiveAddress && (
+                <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
+                  {ensReceiveAddress}
+                </Tag>
+              )}
+            </Flex>
             <Card
               variant='unstyled'
               borderRadius='xl'

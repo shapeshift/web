@@ -24,6 +24,7 @@ import { QrCodeScanner } from './views/QrCodeScanner'
 
 export enum SendFormFields {
   Address = 'address',
+  EnsDomain = 'ensDomain',
   Asset = 'asset',
   FeeType = 'feeType',
   EstimatedFees = 'estimatedFees',
@@ -37,6 +38,7 @@ export enum SendFormFields {
 
 export type SendInput = {
   [SendFormFields.Address]: string
+  [SendFormFields.EnsDomain]?: string
   [SendFormFields.AmountFieldError]: string
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
@@ -62,6 +64,7 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
     mode: 'onChange',
     defaultValues: {
       address: '',
+      ensDomain: '',
       asset: initialAsset,
       feeType: chainAdapters.FeeDataKey.Average,
       cryptoAmount: '',

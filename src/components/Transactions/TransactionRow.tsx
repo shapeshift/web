@@ -4,7 +4,7 @@ import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaExchangeAlt } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
@@ -13,6 +13,7 @@ import { IconCircle } from 'components/IconCircle'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { getEnsInstance } from 'lib/ens-instance'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
@@ -24,6 +25,8 @@ dayjs.extend(localizedFormat)
 export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsset?: Asset }) => {
   const ref = useRef<HTMLHeadingElement>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [ensFrom, setEnsFrom] = useState('')
+  const [ensTo, setEnsTo] = useState('')
   const toggleOpen = () => setIsOpen(!isOpen)
 
   const bg = useColorModeValue('gray.50', 'whiteAlpha.100')
@@ -53,11 +56,22 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
   const sellAsset = useSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, sellTx?.caip19 ?? '')
   )
+
+  const to = standardTx?.to ?? tradeTx?.to ?? ''
+  const from = standardTx?.from ?? tradeTx?.from ?? ''
+
+  useEffect(() => {
+    ;(async () => {
+      const { name: ensFrom } = await getEnsInstance().getName(from)
+      const { name: ensTo } = await getEnsInstance().getName(to)
+      ensFrom && setEnsFrom(ensFrom)
+      ensTo && setEnsTo(ensTo)
+    })()
+  }, [from, to])
+
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
 
   const value = standardTx?.value ?? tradeTx?.value ?? '0'
-  const to = standardTx?.to ?? tradeTx?.to ?? ''
-  const from = standardTx?.from ?? tradeTx?.from ?? ''
   const type = standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
@@ -206,8 +220,14 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
               )}
             </Row.Label>
             <Row.Value>
-              <Link isExternal color='blue.500' href={`${explorerAddressLink}${to ?? from}`}>
-                <MiddleEllipsis maxWidth='180px'>{to ?? from}</MiddleEllipsis>
+              <Link
+                isExternal
+                color='blue.500'
+                href={`${explorerAddressLink}${(ensTo || to) ?? (ensFrom || from)}`}
+              >
+                <MiddleEllipsis maxWidth='180px'>
+                  {(ensTo || to) ?? (ensFrom || from)}
+                </MiddleEllipsis>
               </Link>
             </Row.Value>
           </Row>

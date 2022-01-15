@@ -51,9 +51,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  let currentAccountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
+  let currentAccountType = ''
 
   const pubkey = last(accountId.split(':'))
   if (pubkey?.startsWith('xpub')) currentAccountType = UtxoAccountType.P2pkh
@@ -64,12 +62,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
       const accountParams = currentAccountType
-        ? utxoAccountParams(asset, currentAccountType, 0)
+        ? utxoAccountParams(asset, currentAccountType as UtxoAccountType, 0)
         : {}
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
-          accountType: currentAccountType,
+          accountType: currentAccountType as UtxoAccountType,
           ...accountParams
         })
       )
@@ -77,13 +75,15 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   }, [setReceiveAddress, currentAccountType, asset, wallet, chainAdapter])
 
   const handleVerify = async () => {
-    const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
+    const accountParams = currentAccountType
+      ? utxoAccountParams(asset, currentAccountType as UtxoAccountType, 0)
+      : {}
 
     if (!(wallet && chainAdapter && receiveAddress)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
-      accountType: currentAccountType,
+      accountType: currentAccountType as UtxoAccountType,
       ...accountParams
     })
 

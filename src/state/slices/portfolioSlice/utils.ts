@@ -1,4 +1,6 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
+import { UtxoAccountType } from '@shapeshiftoss/types'
+import last from 'lodash/last'
 
 import { AccountSpecifier } from './portfolioSlice'
 
@@ -70,3 +72,11 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
 // note - this is not really a selector, more of a util
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier) =>
   caip2toCaip19[accountIdToChainId(accountId)]
+
+export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType => {
+  const pubkeyVariant = last(accountId.split(':'))
+  if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
+  if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
+  if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
+  throw new Error('useSendDetails: could not get accountType from accountId')
+}

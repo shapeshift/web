@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import intersection from 'lodash/intersection'
-import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import last from 'lodash/last'
 import orderBy from 'lodash/orderBy'
@@ -171,7 +170,7 @@ export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAsset
 
 const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
 
-export const selectTxIdsByAssetId = createSelector(
+const selectTxIdsByAssetId = createSelector(
   selectTxsByAssetId,
   selectAssetIdParam,
   (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
@@ -199,33 +198,6 @@ export const selectTxIdsByFilter = createSelector(
     const sorted = assetAccountsTxIds
     return sorted
   }
-)
-
-// TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
-// and only specific to bitcoin
-export const selectTxIdsByAssetIdAccountType = createSelector(
-  selectTxs,
-  selectTxsByAssetId,
-  selectAssetIdParam,
-  (_state: ReduxState, _assetId: CAIP19, accountType: UtxoAccountType) => accountType,
-  (
-    txsById: TxHistoryById,
-    txsByAssetId: TxIdByAssetId,
-    assetId: CAIP19,
-    accountType: UtxoAccountType
-  ): string[] => {
-    // this is specifically to support bitcoin, if we don't have accountType
-    // the txsByAssetId is correct
-    if (!accountType) return txsByAssetId[assetId] ?? []
-    if (isEmpty(txsByAssetId)) return []
-    const txIds = txsByAssetId[assetId] ?? []
-    // only deal with bitcoin txs rather than all
-    const txs = txIds.map(txid => txsById[txid])
-    // filter ids of bitcoin txs of specific account type
-    return txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
-  },
-  // memoize outgoing txid[]
-  { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 
 // this is only used on trade confirm - new txs will be pushed

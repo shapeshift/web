@@ -112,7 +112,6 @@ export const AssetAccountRow = ({
                 whiteSpace='nowrap'
                 colorScheme='blue'
                 fontSize='x-small'
-                textTransform='uppercase'
                 fontWeight='bold'
                 minHeight='auto'
                 py={1}

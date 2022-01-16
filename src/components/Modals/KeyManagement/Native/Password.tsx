@@ -13,8 +13,7 @@ import {
   ModalHeader,
   ModalOverlay
 } from '@chakra-ui/react'
-import * as native from '@shapeshiftoss/hdwallet-native'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type * as native from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -30,7 +29,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
   const { nativePassword } = useModal()
   const { close, isOpen } = nativePassword
   const { state, dispatch } = useWallet()
-  const wallet = state.keyring.get<NativeHDWallet>(deviceId)
+  const wallet = state.keyring.get<native.NativeHDWallet>(deviceId)
 
   const [showPw, setShowPw] = useState<boolean>(false)
 

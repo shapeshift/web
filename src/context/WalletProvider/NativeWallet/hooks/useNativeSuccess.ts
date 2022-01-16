@@ -1,5 +1,4 @@
-import * as native from '@shapeshiftoss/hdwallet-native'
-import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type * as native from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
@@ -20,7 +19,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         await Promise.all([navigator.storage?.persist?.(), vault.save()])
 
         const deviceId = vault.id
-        const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
+        const wallet = (await adapter.pairDevice(deviceId)) as native.NativeHDWallet
         const mnemonic = (await vault.get(
           '#mnemonic'
         )) as native.crypto.Isolation.Core.BIP39.Mnemonic

@@ -26,7 +26,7 @@ export const YearnProvider: React.FC = ({ children }) => {
     ;(async () => {
       try {
         setLoading(true)
-        const api = new YearnVaultApi({
+        const api = await YearnVaultApi.create({
           adapter: adapters.byChain(ChainTypes.Ethereum),
           providerUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL
         })

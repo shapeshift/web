@@ -77,8 +77,15 @@ export const useSwapper = () => {
   const adapterManager = useChainAdapters()
   const [swapperManager] = useState<SwapperManager>(() => {
     const manager = new SwapperManager()
-    const web3 = getWeb3Instance()
-    manager.addSwapper(SwapperType.Zrx, new ZrxSwapper({ web3, adapterManager }))
+    manager.addSwapper(
+      SwapperType.Zrx,
+      new ZrxSwapper(
+        (async () => ({
+          web3: await getWeb3Instance(),
+          adapterManager
+        }))()
+      )
+    )
     return manager
   })
   const [bestSwapperType, setBestSwapperType] = useState(SwapperType.Zrx)

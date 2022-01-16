@@ -438,17 +438,12 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   }
 )
 
-export const selectPortfolioCryptoBalancesByFilter = createSelector(
+export const selectPortfolioCryptoBalancesByAccountId = createSelector(
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilter,
-  (accountBalances, assetBalances, accountId): PortfolioBalancesById => {
-    if (accountId) {
-      return accountBalances[accountId]
-    } else {
-      return assetBalances
-    }
-  }
+  (_state: ReduxState, accountId?: string) => accountId,
+  (accountBalances, assetBalances, accountId): PortfolioBalancesById =>
+    accountId ? accountBalances[accountId] : assetBalances
 )
 
 // TODO(0xdef1cafe): i think this should/might be CryptoHumanBalance?

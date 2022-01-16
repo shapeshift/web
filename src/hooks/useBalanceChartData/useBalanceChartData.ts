@@ -27,7 +27,7 @@ import {
   PortfolioAssets,
   PortfolioBalancesById,
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByFilter
+  selectPortfolioCryptoBalancesByAccountId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectTxsByFilter, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -290,9 +290,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   // dummy assetId - we're only filtering on account
-  const balanceFilter = useMemo(() => ({ assetId: '', accountId }), [accountId])
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByFilter(state, balanceFilter)
+    selectPortfolioCryptoBalancesByAccountId(state, accountId)
   )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

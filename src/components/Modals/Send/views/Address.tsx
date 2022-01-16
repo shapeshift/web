@@ -20,13 +20,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { getEnsInstance } from 'lib/ens-instance'
+import { ensInstance } from 'lib/ens-instance'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
-
-const ens = getEnsInstance()
 
 export const Address = () => {
   const [isValidatingEnsDomain, setIsValidatingEnsDomain] = useState(false)
@@ -84,7 +82,7 @@ export const Address = () => {
                     if (validEnsAddress?.valid) {
                       // Verify that domain is resolvable
                       setIsValidatingEnsDomain(true)
-                      const address = await ens.name(value).getAddress()
+                      const address = await ensInstance.name(value).getAddress()
                       if (address === '0x0000000000000000000000000000000000000000') {
                         setIsValidatingEnsDomain(false)
                         return 'common.unresolvableEnsDomain'
@@ -95,7 +93,7 @@ export const Address = () => {
                       return true
                     }
                     // If a reverse lookup exists for 0x address, display ENS address instead
-                    const { name: ensDomain } = await ens.getName(value)
+                    const { name: ensDomain } = await ensInstance.getName(value)
                     setValue(SendFormFields.EnsDomain, ensDomain)
                   }
                   return validAddress.valid || 'common.invalidAddress'

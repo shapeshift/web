@@ -13,7 +13,7 @@ import { IconCircle } from 'components/IconCircle'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { getEnsInstance } from 'lib/ens-instance'
+import { ensInstance } from 'lib/ens-instance'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
@@ -62,8 +62,8 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
 
   useEffect(() => {
     ;(async () => {
-      const { name: ensFrom } = await getEnsInstance().getName(from)
-      const { name: ensTo } = await getEnsInstance().getName(to)
+      const { name: ensFrom } = await ensInstance.getName(from)
+      const { name: ensTo } = await ensInstance.getName(to)
       ensFrom && setEnsFrom(ensFrom)
       ensTo && setEnsTo(ensTo)
     })()

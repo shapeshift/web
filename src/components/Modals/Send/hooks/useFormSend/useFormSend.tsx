@@ -7,7 +7,7 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { getEnsInstance } from 'lib/ens-instance'
+import { ensInstance } from 'lib/ens-instance'
 import { isAddress } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 
@@ -41,7 +41,7 @@ export const useFormSend = () => {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
           const gasLimit = fees.chainSpecific.gasLimit
-          const ens = getEnsInstance()
+          const ens = ensInstance()
           const address = isAddress(to) ? to : await ens.name(to).getAddress()
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to: address,

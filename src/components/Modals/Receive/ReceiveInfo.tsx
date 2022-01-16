@@ -30,7 +30,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { getEnsInstance } from 'lib/ens-instance'
+import { ensInstance } from 'lib/ens-instance'
 import { ReduxState } from 'state/reducer'
 
 import { ReceiveRoutes } from './Receive'
@@ -68,9 +68,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
       })
       setReceiveAddress(selectedAccountAddress)
       if (asset.chain === ChainTypes.Ethereum) {
-        const { name: selectedAccountDomain } = await getEnsInstance().getName(
-          selectedAccountAddress
-        )
+        const { name: selectedAccountDomain } = await ensInstance.getName(selectedAccountAddress)
         setEnsReceiveAddress(selectedAccountDomain)
       }
     })()

@@ -6,17 +6,17 @@ import {
   ModalHeader,
   Textarea
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
+import { Vault } from 'vault/'
 import { Text } from 'components/Text'
 
 export const NativeImport = ({ history }: RouteComponentProps) => {
   const onSubmit = async (values: FieldValues) => {
     try {
-      const vault = await Vault.create()
+      const vault = await (await Vault).create()
       vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', values.mnemonic)
       history.push('/native/password', { vault })

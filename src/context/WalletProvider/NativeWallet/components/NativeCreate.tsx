@@ -11,10 +11,10 @@ import {
   Wrap
 } from '@chakra-ui/react'
 import * as native from '@shapeshiftoss/hdwallet-native'
-import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
+import { GENERATE_MNEMONIC, Vault } from 'vault/'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
@@ -52,9 +52,9 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const vault = await Vault.create(undefined, false)
+        const vault = await (await Vault).create(undefined, false)
         vault.meta.set('createdAt', Date.now())
-        vault.set('#mnemonic', GENERATE_MNEMONIC)
+        vault.set('#mnemonic', await GENERATE_MNEMONIC)
         setVault(vault)
       } catch (e) {
         // @TODO

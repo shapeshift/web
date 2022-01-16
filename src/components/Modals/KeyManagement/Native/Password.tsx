@@ -14,11 +14,11 @@ import {
   ModalOverlay
 } from '@chakra-ui/react'
 import type * as native from '@shapeshiftoss/hdwallet-native'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Vault } from 'vault/'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
@@ -43,7 +43,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
     try {
-      const vault = await Vault.open(deviceId, values.password)
+      const vault = await (await Vault).open(deviceId, values.password)
       const mnemonic = (await vault.get('#mnemonic')) as native.crypto.Isolation.Core.BIP39.Mnemonic
       mnemonic.addRevoker?.(() => vault.revoke())
       await wallet?.loadDevice({

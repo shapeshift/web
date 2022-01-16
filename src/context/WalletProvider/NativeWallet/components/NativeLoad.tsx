@@ -10,12 +10,12 @@ import {
   ModalHeader,
   VStack
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
+import { Vault } from 'vault/'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -39,14 +39,14 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     ;(async () => {
       if (!wallets.length) {
         try {
-          const vaultIds = await Vault.list()
+          const vaultIds = await (await Vault).list()
           if (!vaultIds.length) {
             return setError('walletProvider.shapeShift.load.error.noWallet')
           }
 
           const storedWallets: VaultInfo[] = await Promise.all(
             vaultIds.map(async id => {
-              const meta = await Vault.meta(id)
+              const meta = await (await Vault).meta(id)
               const createdAt = Number(meta?.get('createdAt') ?? null)
               const name = String(meta?.get('name') ?? id)
               return { id, name, createdAt }
@@ -99,7 +99,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     )
     if (result) {
       try {
-        await Vault.delete(wallet.id)
+        await (await Vault).delete(wallet.id)
         setWallets([])
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.delete')

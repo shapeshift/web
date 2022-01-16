@@ -9,11 +9,11 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
-import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { Vault } from 'vault/'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
@@ -25,7 +25,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
     try {
-      const vault = await Vault.open(location.state.vault.id, values.password)
+      const vault = await (await Vault).open(location.state.vault.id, values.password)
       if (values.name.length === 0) {
         const result = window.confirm(translate('walletProvider.shapeShift.rename.confirmDelete'))
         if (result) {

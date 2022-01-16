@@ -1,14 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Divider,
-  IconButton,
-  Link,
-  SimpleGrid,
-  Stack,
-  useToast
-} from '@chakra-ui/react'
+import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
@@ -30,6 +20,7 @@ import { selectLastTxStatusByAssetId } from 'state/slices/txHistorySlice/txHisto
 import { useAppSelector } from 'state/store'
 import { ValueOf } from 'types/object'
 
+import { WithBackButton } from '../WithBackButton'
 import { AssetToAsset } from './AssetToAsset'
 
 type TradeConfirmParams = {
@@ -145,19 +136,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
         <Card variant='unstyled'>
           <Card.Header px={0} pt={0}>
-            <SimpleGrid gridTemplateColumns='25px 1fr 25px' alignItems='center' mx={-2}>
-              <IconButton
-                icon={<ArrowBackIcon />}
-                aria-label='Back'
-                variant='ghost'
-                fontSize='xl'
-                isRound
-                onClick={handleBack}
-              />
+            <WithBackButton handleBack={handleBack}>
               <Card.Heading textAlign='center'>
                 <Text translation={txid ? 'trade.complete' : 'trade.confirmDetails'} />
               </Card.Heading>
-            </SimpleGrid>
+            </WithBackButton>
             <AssetToAsset buyAsset={buyAsset} sellAsset={sellAsset} mt={6} status={status} />
           </Card.Header>
           <Divider />

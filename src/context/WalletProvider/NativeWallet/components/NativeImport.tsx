@@ -18,7 +18,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     try {
       const vault = await (await Vault).create()
       vault.meta.set('createdAt', Date.now())
-      vault.set('#mnemonic', values.mnemonic)
+      await vault.set('#mnemonic', values.mnemonic)
       history.push('/native/password', { vault })
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Import - Failed to set seed', e)

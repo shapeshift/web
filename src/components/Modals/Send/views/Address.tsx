@@ -91,7 +91,6 @@ export const Address = () => {
                       }
                       // and add its resolution to form state as a side effect
                       setIsValidatingEnsDomain(false)
-                      setValue(SendFormFields.Address, address)
                       setValue(SendFormFields.EnsDomain, value)
                       return true
                     }

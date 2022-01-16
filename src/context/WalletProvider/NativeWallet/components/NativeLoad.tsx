@@ -84,6 +84,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         // Always close the modal after trying to pair the wallet
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
+        console.error('WalletProvider:NativeWallet:Load - Cannot pair vault', e)
         setError('walletProvider.shapeShift.load.error.pair')
       }
     } else {

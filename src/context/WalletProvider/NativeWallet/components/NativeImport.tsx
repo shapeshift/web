@@ -21,6 +21,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
       vault.set('#mnemonic', values.mnemonic)
       history.push('/native/password', { vault })
     } catch (e) {
+      console.error('WalletProvider:NativeWallet:Import - Failed to set seed', e)
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }
   }

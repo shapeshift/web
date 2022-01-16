@@ -58,6 +58,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       close()
     } catch (e) {
+      console.error('WalletProvider:NativeWallet:Password - Failed to open vault', e)
       setError(
         'password',
         {

@@ -15,7 +15,7 @@ import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 // We should prob change this once we add more chains
-const feeAssetIds = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
+const FEE_ASSET_IDS = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
 
 /*
  * we can't retrieve an xpub from an address, but we can derive
@@ -32,6 +32,11 @@ const feeAssetIds = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831
  * and also show me all the bitcoin i have across all different accountTypes
  * and addresses, and also preempts supporting more than accountIndex 0 in future
  */
+
+// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
+// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
+export type AccountSpecifier = string
+
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
@@ -52,10 +57,6 @@ export type PortfolioAssetBalances = {
   // all asset ids in an account
   ids: CAIP19[]
 }
-
-// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
-// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
-export type AccountSpecifier = string
 
 export type PortfolioAccountBalances = {
   byId: {
@@ -556,6 +557,48 @@ export const selectPortfolioAllocationPercent = createSelector(
     }, {})
 )
 
+export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
+  selectPortfolioFiatAccountBalances,
+  accountBalances => {
+    return Object.entries(accountBalances).reduce<PortfolioAccountBalances['byId']>(
+      (acc, [accountId, balanceObj]) => {
+        const totalAccountFiatBalance = Object.values(balanceObj).reduce(
+          (totalBalance, currentBalance) => {
+            return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toFixed(2)
+          },
+          '0'
+        )
+
+        acc[accountId] = totalAccountFiatBalance
+        return acc
+      },
+      {}
+    )
+  }
+)
+
+export const selectPortfolioAllocationPercentByAccountId = createSelector(
+  selectPortfolioTotalFiatBalance,
+  selectPortfolioTotalFiatBalanceByAccount,
+  selectAccountIdParam,
+  (totalFiatBalance, totalBalancesByAccount, accountId) => {
+    const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce(
+      (acc, [currentAccountId, accountBalance]) => {
+        const allocation = bnOrZero(accountBalance)
+          .div(bnOrZero(totalFiatBalance))
+          .times(100)
+          .toNumber()
+
+        acc[currentAccountId] = allocation
+        return acc
+      },
+      {}
+    )
+
+    return balanceAllocationById[accountId]
+  }
+)
+
 export const selectPortfolioIsEmpty = createSelector(
   selectPortfolioAssetIds,
   (assetIds): boolean => !assetIds.length
@@ -588,7 +631,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectAssets,
   selectPortfolioAssetIdsByAccountId,
   (assets, assetIds) =>
-    assetIds.filter(assetId => !feeAssetIds.includes(assetId) && assets[assetId])
+    assetIds.filter(assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId])
 )
 
 export const selectAccountIdByAddress = createSelector(

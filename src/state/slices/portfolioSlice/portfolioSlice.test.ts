@@ -12,7 +12,8 @@ import {
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
-  selectPortfolioFiatBalanceByFilter
+  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioAllocationPercentByAccountId
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -214,8 +215,8 @@ const state = {
     ...mockStore.portfolio,
     assetBalances: {
       byId: {
-        [ethCaip19]: '27803816548287370',
-        [foxCaip19]: '42729243327349401946'
+        [ethCaip19]: '115607633096574740',
+        [foxCaip19]: '105458486654698803892'
       },
       ids: [ethCaip19, foxCaip19]
     },
@@ -339,6 +340,15 @@ describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
   })
 })
 
+describe('selectPortfolioAllocationPercentByAccountId', () => {
+  it('can select fiat allocation by accountId', () => {
+    const returnValue = 68.09155471117745
+
+    const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(state, ethAccountSpecifier2)
+    expect(allocationByAccountId).toEqual(returnValue)
+  })
+})
+
 describe('Fiat Balance Selectors', () => {
   describe('selectPortfolioFiatAccountBalance', () => {
     it('can select crypto fiat account balance', () => {
@@ -381,9 +391,9 @@ describe('Fiat Balance Selectors', () => {
     })
   })
 
-  describe('selectPortfolioFiatBalancesByFilter', () => {
+  describe('selectPortfolioFiatBalanceByFilter', () => {
     it('Should be able to filter by assetId', () => {
-      const expected = '27.80'
+      const expected = '115.61'
       const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethCaip19 })
       expect(result).toEqual(expected)
     })
@@ -400,7 +410,7 @@ describe('Fiat Balance Selectors', () => {
 
   describe('selectPortfolioCryptoHumanBalancesByFilter', () => {
     it('Should be able to filter by assetId', () => {
-      const expected = '0.027803'
+      const expected = '0.115607'
       const result = selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: ethCaip19 })
       expect(result).toEqual(expected)
     })

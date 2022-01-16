@@ -41,8 +41,7 @@ export const useFormSend = () => {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
           const gasLimit = fees.chainSpecific.gasLimit
-          const ens = ensInstance()
-          const address = isAddress(to) ? to : await ens.name(to).getAddress()
+          const address = isAddress(to) ? to : await ensInstance.name(to).getAddress()
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to: address,
             value,

@@ -17,13 +17,13 @@ export const TradeRoutes = () => {
       <Switch location={location} key={location.key}>
         <Route
           path='/trade/select/sell'
-          component={(props: RouteComponentProps) => (
+          render={(props: RouteComponentProps) => (
             <SelectAsset onClick={handleSellClick} {...props} />
           )}
         />
         <Route
           path='/trade/select/buy'
-          component={(props: RouteComponentProps) => (
+          render={(props: RouteComponentProps) => (
             <SelectAsset onClick={handleBuyClick} {...props} />
           )}
         />

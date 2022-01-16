@@ -1,11 +1,11 @@
 import { Box } from '@chakra-ui/react'
 import { caip2 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { RouteProps } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
 
-type SelectAssetProps = { onClick: (asset: Asset) => void } & RouteProps
+type SelectAssetProps = { onClick: (asset: Asset) => void } & RouteComponentProps
 
 export const SelectAsset = ({ onClick }: SelectAssetProps) => {
   // Filters the asset search to only show eth/erc20 assets

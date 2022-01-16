@@ -24,10 +24,10 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
-  PortfolioAssetBalances,
   PortfolioAssets,
-  selectPortfolioAssetBalances,
-  selectPortfolioAssets
+  PortfolioBalancesById,
+  selectPortfolioAssets,
+  selectPortfolioCryptoBalancesByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectTxsByFilter, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -83,7 +83,7 @@ type MakeBucketsReturn = {
 type MakeBucketsArgs = {
   timeframe: HistoryTimeframe
   assetIds: CAIP19[]
-  balances: PortfolioAssetBalances['byId']
+  balances: PortfolioBalancesById
 }
 
 // adjust this to give charts more or less granularity
@@ -172,9 +172,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   portfolioAssets
 }) => {
   const { balance, end } = bucket
-  // TODO(0xdef1cafe): this isn't super accurate, we can
-  // a) interpolate for more accuracy (still not much better), or
-  // b) fetch a price at each specific tx time
   const time = end.valueOf()
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
@@ -273,7 +270,7 @@ type UseBalanceChartDataReturn = {
 
 type UseBalanceChartDataArgs = {
   assetIds: CAIP19[]
-  accountIds?: AccountSpecifier[]
+  accountId?: AccountSpecifier
   timeframe: HistoryTimeframe
 }
 
@@ -288,20 +285,25 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds, accountIds, timeframe } = args
+  const { assetIds, accountId, timeframe } = args
+  const accountIds = useMemo(() => (accountId ? [accountId] : []), [accountId])
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  const balances = useSelector(selectPortfolioAssetBalances)
+  // dummy assetId - we're only filtering on account
+  const balanceFilter = useMemo(() => ({ assetId: '', accountId }), [accountId])
+  const balances = useAppSelector(state =>
+    selectPortfolioCryptoBalancesByFilter(state, balanceFilter)
+  )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo }
   } = useWallet()
 
-  const filter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
+  const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(
-    useAppSelector(state => selectTxsByFilter(state, filter)),
+    useAppSelector(state => selectTxsByFilter(state, txFilter)),
     500
   )
 
@@ -355,6 +357,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartDataLoading(false)
   }, [
     assetIds,
+    accountIds,
     priceHistoryData,
     priceHistoryDataLoading,
     txs,

@@ -346,10 +346,8 @@ type ParamFilter = {
 }
 
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
-const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.assetId
-const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
-  paramFilter.accountId
+const selectAssetIdParamFromFilter = (_state: ReduxState, { assetId }: ParamFilter) => assetId
+const selectAccountIdParamFromFilter = (_state: ReduxState, { accountId }: ParamFilter) => accountId
 const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
@@ -440,6 +438,20 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   }
 )
 
+export const selectPortfolioCryptoBalancesByFilter = createSelector(
+  selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
+  selectAccountIdParamFromFilter,
+  (accountBalances, assetBalances, accountId): PortfolioBalancesById => {
+    if (accountId) {
+      return accountBalances[accountId]
+    } else {
+      return assetBalances
+    }
+  }
+)
+
+// TODO(0xdef1cafe): i think this should/might be CryptoHumanBalance?
 export const selectPortfolioCryptoBalanceByFilter = createSelector(
   selectAssets,
   selectPortfolioAccountBalances,

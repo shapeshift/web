@@ -74,6 +74,25 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
+
+/**
+ * now we support accounts, we have a new problem
+ * the same tx id can have multiple representations, depending on the
+ * account's persective, especially utxos.
+ *
+ * i.e. a bitcoin send will have a send component, and a receive component for
+ * the change, to a new address, but the same tx id.
+ * this means we can't uniquely index tx's simply by their id.
+ *
+ * we'll probably need to go back to some composite index that can be built from
+ * the txid and address, or account id, that can be deterministically generated,
+ * from the tx data and the account id - note, not the address.
+ *
+ * the correct solution is to not rely on the parsed representation of the tx
+ * as a "send" or "receive" from chain adapters, just index the tx related to the
+ * asset or account, and parse the tx closer to the view layer.
+ */
+
 const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) => {
   const { txid } = tx
   const isNew = !txHistory.byId[txid]

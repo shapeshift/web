@@ -47,6 +47,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
                 const caip10 = `${msg.caip2}:${msg.address}`
                 const state = store.getState()
                 const accountId = selectAccountIdByAddress(state, caip10)
+                if (msg.txid.startsWith('8d')) {
+                  console.info(msg)
+                }
                 dispatch(
                   txHistory.actions.onMessage({
                     message: { ...msg, accountType },

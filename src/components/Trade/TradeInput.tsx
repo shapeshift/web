@@ -18,20 +18,20 @@ import { useTranslate } from "react-polyglot";
 import { RouterProps } from "react-router-dom";
 import { HelperTooltip } from "components/HelperTooltip/HelperTooltip";
 import { SlideTransition } from "components/SlideTransition";
-import { RawText, Text } from "components/Text";
-import { TokenButton } from "components/TokenRow/TokenButton";
-import { TokenRow } from "components/TokenRow/TokenRow";
+import { RawText, Text } from 'components/Text'
+import { TokenButton } from 'components/TokenRow/TokenButton'
+import { TokenRow } from 'components/TokenRow/TokenRow'
 import {
   TRADE_ERRORS,
   TradeActions,
   useSwapper,
-} from "components/Trade/hooks/useSwapper/useSwapper";
-import { TradeState } from "components/Trade/Trade";
-import { useWallet } from "context/WalletProvider/WalletProvider";
-import { useLocaleFormatter } from "hooks/useLocaleFormatter/useLocaleFormatter";
-import { bn, bnOrZero } from "lib/bignumber/bignumber";
-import { firstNonZeroDecimal } from "lib/math";
-import { lte, values } from "lodash";
+} from 'components/Trade/hooks/useSwapper/useSwapper'
+import { TradeState } from 'components/Trade/Trade'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { firstNonZeroDecimal } from 'lib/math'
+import { lte, values } from 'lodash'
 
 const FiatInput = (props: InputProps) => (
   <Input

@@ -1,3 +1,0 @@
-#tradevalue {
-  font-size: calc(9px + (35 - 9) * ((100vw - 300px) / (1600 - 300)));
-}

@@ -4,12 +4,12 @@ import {
   ChainTypes,
   Quote,
   SwapperType,
-} from "@shapeshiftoss/types";
-import { FormProvider, useForm } from "react-hook-form";
-import { MemoryRouter, Route, Switch } from "react-router-dom";
-import { TradeActions } from "components/Trade/hooks/useSwapper/useSwapper";
+} from '@shapeshiftoss/types'
+import { FormProvider, useForm } from 'react-hook-form'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
 
-import { entries, TradeRoutes } from "./TradeRoutes/TradeRoutes";
+import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 
 export type TradeAsset = {
   currency: Asset;

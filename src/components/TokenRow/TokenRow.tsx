@@ -5,16 +5,16 @@ import {
   InputLeftElement,
   InputProps,
   InputRightElement,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react'
 import {
   Control,
   Controller,
   ControllerProps,
   FieldValues,
   Path,
-} from "react-hook-form";
-import NumberFormat from "react-number-format";
-import { useLocaleFormatter } from "hooks/useLocaleFormatter/useLocaleFormatter";
+} from 'react-hook-form'
+import NumberFormat from 'react-number-format'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 const CryptoInput = (props: InputProps) => (
   <Input

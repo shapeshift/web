@@ -1,12 +1,20 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetService } from '@shapeshiftoss/asset-service'
+import type { AssetService } from '@shapeshiftoss/asset-service'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import sortBy from 'lodash/sortBy'
+import { wrap } from 'workers'
 import { ReduxState } from 'state/reducer'
 import { selectMarketDataIds } from 'state/slices/marketDataSlice/marketDataSlice'
+
+import Worker from './assetsSlice.worker'
+
+export type WorkerType = {
+  create: (...args: ConstructorParameters<typeof AssetService>) => Promise<AssetService>
+}
+const worker = wrap<WorkerType>(new Worker())
 
 let service: AssetService | undefined = undefined
 
@@ -14,9 +22,9 @@ let service: AssetService | undefined = undefined
 // or directly from the store outside react components
 const getAssetService = async () => {
   if (!service) {
-    service = new AssetService('')
+    service = await worker.create('')
   }
-  if (!service?.isInitialized) {
+  if (!(await service?.isInitialized)) {
     await service.initialize()
   }
 
@@ -57,7 +65,7 @@ export const assetApi = createApi({
       // all assets
       queryFn: async () => {
         const service = await getAssetService()
-        const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
+        const assetArray = await service?.byNetwork(NetworkTypes.MAINNET)
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
           const { caip19 } = cur
           acc.byId[caip19] = cur

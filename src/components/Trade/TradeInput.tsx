@@ -47,8 +47,6 @@ const FiatInput = (props: InputProps) => (
   />
 );
 
-// my code
-
 var valueTrade: number | undefined;
 var convertT: number | undefined;
 
@@ -77,12 +75,10 @@ const getFontSizeT = () => {
   return "35px";
 };
 
-// my code
 type TS = TradeState<ChainTypes, SwapperType>;
 
 export const TradeInput = ({ history }: RouterProps) => {
   useEffect(() => {
-    console.log(valueTrade);
     getFontSizeT();
   }, [valueTrade]);
 

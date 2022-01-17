@@ -1,5 +1,5 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -219,9 +219,12 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     txs.forEach(tx => {
       if (tx.fee && assetIds.includes(tx.fee.caip19)) {
         // balance history being built in descending order, so fee means we had more before
-        bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
-          bnOrZero(tx.fee.value)
-        )
+        // TODO(0xdef1cafe): this is awful but gets us out of trouble
+        if (tx.chain === ChainTypes.Ethereum) {
+          bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
+            bnOrZero(tx.fee.value)
+          )
+        }
       }
 
       tx.transfers.forEach(transfer => {

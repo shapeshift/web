@@ -3524,10 +3524,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.8.0.tgz#56ecff4cf026541ff031d5289cccb563514ecf3e"
   integrity sha512-hUN5hN6YOtyue36U/tlgwdfjdAs8uhlFjdKnTSbYD3UWj9O0moQzFXseCticS6N1p/LZ9pt57rHBxUJbbvC+wg==
 
-"@shapeshiftoss/chain-adapters@^1.23.1":
-  version "1.23.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.23.1.tgz#3713feba38f7a25a749e2164801883fa8522a89e"
-  integrity sha512-968Eh2YLmofyhIke0p1wQ7sUK/FrVOAPCiEg6fugZPAHqviZArr5KEUY6RyKvY729uj0BdHdD1xrEB9VW7B7tw==
+"@shapeshiftoss/chain-adapters@^1.24.0":
+  version "1.24.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.24.0.tgz#37457920993ec4bec3a6a5ebe7dcb1226a517659"
+  integrity sha512-Gp198Fo+sPxc9QRykIjg5Cfj1CMQP2c1KLq5Mdr5/EeMFudCmHyHRIIakrlWkM1NYBG/WZBmlPGclLRrDbqEtg==
   dependencies:
     axios "^0.21.2"
     bignumber.js "^9.0.1"

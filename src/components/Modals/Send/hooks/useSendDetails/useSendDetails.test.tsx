@@ -1,5 +1,6 @@
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
+import nock from 'nock'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
@@ -18,7 +19,6 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { useSendDetails } from './useSendDetails'
-import nock from 'nock';
 
 jest.mock('@shapeshiftoss/market-service', () => ({
   findAll: jest.fn,
@@ -26,7 +26,7 @@ jest.mock('@shapeshiftoss/market-service', () => ({
     price: 3500,
     network: 'ethereum'
   }),
-  findPriceHistoryByCaip19: jest.fn,
+  findPriceHistoryByCaip19: jest.fn
 }))
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
@@ -140,7 +140,7 @@ xdescribe('useSendDetails', () => {
   })
 
   afterEach(() => {
-    nock.enableNetConnect();
+    nock.enableNetConnect()
     jest.restoreAllMocks()
   })
 
@@ -205,13 +205,13 @@ xdescribe('useSendDetails', () => {
     // Set fiat amount
     await act(async () => {
       result.current.handleInputChange('3500')
-      jest.advanceTimersByTime(1000); // handleInputChange is now debounced for 1 second
+      jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
 
       setValue.mockClear()
 
       result.current.handleInputChange('0')
-      jest.advanceTimersByTime(1000); // handleInputChange is now debounced for 1 second
+      jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
       setValue.mockClear()
     })
@@ -240,7 +240,7 @@ xdescribe('useSendDetails', () => {
       // Set crypto amount
       await act(async () => {
         result.current.handleInputChange('1')
-        jest.advanceTimersByTime(1000); // handleInputChange is now debounced for 1 second
+        jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
         expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
         setValue.mockClear()
       })

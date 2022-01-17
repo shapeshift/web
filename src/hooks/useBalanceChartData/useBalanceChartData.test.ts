@@ -16,7 +16,7 @@ import {
 jest.mock('@shapeshiftoss/market-service', () => ({
   findAll: jest.fn,
   findByCaip19: jest.fn,
-  findPriceHistoryByCaip19: jest.fn,
+  findPriceHistoryByCaip19: jest.fn
 }))
 
 const mockedDate = '2021-11-20T00:00:00Z'

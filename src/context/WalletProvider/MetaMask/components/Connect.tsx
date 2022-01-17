@@ -1,5 +1,4 @@
 import detectEthereumProvider from '@metamask/detect-provider'
-import { getConfig } from 'config'
 import React, { useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
@@ -91,13 +90,20 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }
 
+  // This constructs the MetaMask deep-linking target from the currently-loaded
+  // window.location. The port will be blank if not specified, in which case it
+  // should be omitted.
+  const mmDeeplinkTarget = [window.location.hostname, window.location.port]
+    .filter(x => !!x)
+    .join(':')
+
   return isMobile ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}
       buttonText={'walletProvider.metaMask.redirect.button'}
       onClickAction={(): any => {
-        window.location.assign(getConfig().REACT_APP_METAMASK_DEEPLINK_URL)
+        window.location.assign(`https://metamask.app.link/dapp/${mmDeeplinkTarget}`)
       }}
       loading={loading}
       error={error}

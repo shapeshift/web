@@ -1,17 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import isEmpty from 'lodash/isEmpty'
+import intersection from 'lodash/intersection'
 import isEqual from 'lodash/isEqual'
 import last from 'lodash/last'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
-import { upsertArray } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { getRelatedAssetIds } from './utils'
+import { addToIndex, getRelatedAssetIds } from './utils'
 
 type TxId = string
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
@@ -92,15 +91,17 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   // for a given tx, find all the related assetIds, and keep an index of
   // txids related to each asset id
   getRelatedAssetIds(tx).forEach(relatedAssetId => {
-    txHistory.byAssetId[relatedAssetId] = upsertArray(
-      txHistory.byAssetId[relatedAssetId] ?? [],
+    txHistory.byAssetId[relatedAssetId] = addToIndex(
+      txHistory.ids,
+      txHistory.byAssetId[relatedAssetId],
       tx.txid
     )
   })
 
   // index the tx by the account that it belongs to
-  txHistory.byAccountId[accountSpecifier] = upsertArray(
-    txHistory.byAccountId[accountSpecifier] ?? [],
+  txHistory.byAccountId[accountSpecifier] = addToIndex(
+    txHistory.ids,
+    txHistory.byAccountId[accountSpecifier],
     tx.txid
   )
 
@@ -122,6 +123,30 @@ export const txHistory = createSlice({
 export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId)
 export const selectTxs = (state: ReduxState) => state.txHistory.byId
 export const selectTxIds = (state: ReduxState) => state.txHistory.ids
+
+export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
+
+const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
+
+export const selectTxsByAccountIds = createSelector(
+  selectTxs,
+  selectTxIdsByAccountId,
+  selectAccountIdsParam,
+  (txsById, txsByAccountId, accountIds): Tx[] => {
+    if (!accountIds?.length) {
+      return values(selectTxs)
+    } else {
+      return Object.entries(txsByAccountId)
+        .reduce<TxId[]>((acc, [accountId, txIds]) => {
+          if (accountIds.includes(accountId)) acc.push(...txIds)
+          return acc
+        }, [])
+        .map(txId => txsById[txId])
+    }
+  },
+  // deep equality check on output as we're mapping
+  { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
 
 export const selectLastNTxIds = createSelector(
   // ids will always change
@@ -145,36 +170,32 @@ export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAsset
 
 const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
 
-export const selectTxIdsByAssetId = createSelector(
+const selectTxIdsByAssetId = createSelector(
   selectTxsByAssetId,
   selectAssetIdParam,
   (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
 )
 
-// TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
-// and only specific to bitcoin
-export const selectTxIdsByAssetIdAccountType = createSelector(
-  selectTxs,
+type TxHistoryFilter = {
+  assetId: CAIP19
+  accountIds?: AccountSpecifier[]
+}
+
+const selectAssetIdParamFromFilter = (_state: ReduxState, { assetId }: TxHistoryFilter) => assetId
+const selectAccountIdsParamFromFilter = (_state: ReduxState, { accountIds }: TxHistoryFilter) =>
+  accountIds ?? []
+
+export const selectTxIdsByFilter = createSelector(
   selectTxsByAssetId,
-  selectAssetIdParam,
-  (_state: ReduxState, _assetId: CAIP19, accountType: UtxoAccountType) => accountType,
-  (
-    txsById: TxHistoryById,
-    txsByAssetId: TxIdByAssetId,
-    assetId: CAIP19,
-    accountType: UtxoAccountType
-  ): string[] => {
-    // this is specifically to support bitcoin, if we don't have accountType
-    // the txsByAssetId is correct
-    if (!accountType) return txsByAssetId[assetId] ?? []
-    if (isEmpty(txsByAssetId)) return []
-    const txIds = txsByAssetId[assetId] ?? []
-    // only deal with bitcoin txs rather than all
-    const txs = txIds.map(txid => txsById[txid])
-    // filter ids of bitcoin txs of specific account type
-    return txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
+  selectTxIdsByAccountId,
+  selectAssetIdParamFromFilter,
+  selectAccountIdsParamFromFilter,
+  (txsByAssetId, txsByAccountId, assetId, accountIds): TxId[] => {
+    if (!accountIds.length) return txsByAssetId[assetId] ?? []
+    const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
+    const assetTxIds = txsByAssetId[assetId]
+    return intersection(accountsTxIds, assetTxIds)
   },
-  // memoize outgoing txid[]
   { memoizeOptions: { resultEqualityCheck: isEqual } }
 )
 

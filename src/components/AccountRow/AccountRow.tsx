@@ -1,15 +1,15 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, LinkProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectPortfolioCryptoHumanBalanceById,
-  selectPortfolioFiatBalanceById
+  selectPortfolioCryptoHumanBalanceByAssetId,
+  selectPortfolioFiatBalanceByAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
@@ -17,23 +17,26 @@ import { Allocations } from './Allocations'
 
 export type AccountRowArgs = {
   allocationValue: number
-  CAIP19: CAIP19
+  assetId: CAIP19
+  to?: LinkProps['to']
 }
 
-export const AccountRow = ({ allocationValue, CAIP19 }: AccountRowArgs) => {
+export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const url = useMemo(() => {
-    if (!CAIP19) return ''
-    const { chain, tokenId } = caip19.fromCAIP19(CAIP19)
+    if (!assetId) return ''
+    const { chain, tokenId } = caip19.fromCAIP19(assetId)
     let baseUrl = `/assets/${chain}`
     if (tokenId) baseUrl = baseUrl + `/${tokenId}`
     return baseUrl
-  }, [CAIP19])
+  }, [assetId])
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, CAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, CAIP19))
-  const cryptoValue = useAppSelector(state => selectPortfolioCryptoHumanBalanceById(state, CAIP19))
-  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceById(state, CAIP19))
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const cryptoValue = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
+  )
+  const fiatValue = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
 
   if (!asset) return null // users may have assets we don't support
 
@@ -53,6 +56,7 @@ export const AccountRow = ({ allocationValue, CAIP19 }: AccountRowArgs) => {
       rounded='lg'
       gridGap='1rem'
       alignItems='center'
+      {...rest}
     >
       <Flex alignItems='center'>
         <AssetIcon src={asset.icon} boxSize='30px' mr={2} />

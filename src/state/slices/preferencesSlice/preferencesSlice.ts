@@ -1,4 +1,4 @@
-import { createSelector, createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { ReduxState } from 'state/reducer'
 
@@ -33,8 +33,3 @@ export const preferences = createSlice({
 })
 
 export const selectAccountTypes = (state: ReduxState) => state.preferences.accountTypes
-export const selectAccountTypesByChain = createSelector(
-  selectAccountTypes,
-  (_state: ReduxState, chain: ChainTypes) => chain,
-  (accountTypes, chain) => accountTypes[chain]
-)

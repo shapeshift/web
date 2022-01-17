@@ -14,7 +14,7 @@ import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioBalancesById,
-  selectPortfolioBalances,
+  selectPortfolioAssetBalances,
   selectPortfolioLoading
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
@@ -77,7 +77,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const dispatch = useDispatch()
 
   const { yearn, loading: yearnLoading } = useYearn()
-  const balances = useSelector(selectPortfolioBalances)
+  const balances = useSelector(selectPortfolioAssetBalances)
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {

@@ -23,13 +23,14 @@ import {
   selectPriceHistoryTimeframe
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  AccountSpecifier,
   PortfolioAssetBalances,
   PortfolioAssets,
-  selectPortfolioAssets,
-  selectPortfolioBalances
+  selectPortfolioAssetBalances,
+  selectPortfolioAssets
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectTxValues, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxsByAccountIds, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
@@ -197,7 +198,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
 }
 
 type CalculateBucketPricesArgs = {
-  accountTypes: Record<string, any>
   assetIds: CAIP19[]
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
@@ -208,7 +208,7 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { accountTypes, assetIds, buckets, portfolioAssets, priceHistoryData } = args
+  const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -221,10 +221,6 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
     txs.forEach(tx => {
-      // TODO(0xdef1cafe): type preferencesSlice correctly and remove this chain specific hack
-      // only consider the selected account type of the portfolio
-      if (tx.accountType && tx.accountType !== accountTypes[tx.chain]) return
-
       if (tx.fee && assetIds.includes(tx.fee.caip19)) {
         // balance history being built in descending order, so fee means we had more before
         bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
@@ -278,6 +274,7 @@ type UseBalanceChartDataReturn = {
 
 type UseBalanceChartDataArgs = {
   assetIds: CAIP19[]
+  accountIds?: AccountSpecifier[]
   timeframe: HistoryTimeframe
 }
 
@@ -292,10 +289,10 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
   especially if txs occur during periods of volatility
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetIds, timeframe } = args
+  const { assetIds, accountIds, timeframe } = args
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
-  const balances = useSelector(selectPortfolioBalances)
+  const balances = useSelector(selectPortfolioAssetBalances)
   const accountTypes = useSelector(selectAccountTypes)
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
@@ -303,7 +300,20 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   } = useWallet()
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
-  const txs = useDebounce(useSelector(selectTxValues), 500)
+  const txs = useDebounce(
+    useAppSelector(state => selectTxsByAccountIds(state, accountIds ?? [])),
+    500
+  )
+
+  // the portfolio page is simple - consider all txs and all portfolio asset ids
+  // across all accounts - just don't filter for accounts
+
+  // there are a few different situations for
+  // - top level asset pages - zero or more account ids
+  // - an asset account page, e.g. show me the eth for 0xfoo - a single account id
+  // - an account asset page, e.g. show me the fox for 0xbar - a single account id
+  // this may seem complicated, but we just need txs filtered by account ids
+
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
   const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
@@ -333,7 +343,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
 
     // iterate each bucket, updating crypto balances and fiat prices per bucket
     const calculatedBuckets = calculateBucketPrices({
-      accountTypes,
       assetIds,
       buckets,
       priceHistoryData,

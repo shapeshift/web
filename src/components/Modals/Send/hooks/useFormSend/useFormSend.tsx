@@ -1,13 +1,12 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainAdapter, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { ReduxState } from 'state/reducer'
+import { accountIdToAccountType } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
 
@@ -19,7 +18,6 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
-  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -34,7 +32,6 @@ export const useFormSend = () => {
         let result
 
         const { estimatedFees, feeType, address: to } = data
-        const accountType = accountTypes[data.asset.chain]
         if (adapterType === ChainTypes.Ethereum) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
@@ -49,6 +46,7 @@ export const useFormSend = () => {
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
 
+          const accountType = accountIdToAccountType(data.accountId)
           const utxoParams = utxoAccountParams(data.asset, accountType, 0)
 
           result = await (adapter as ChainAdapter<ChainTypes.Bitcoin>).buildSendTransaction({
@@ -58,7 +56,7 @@ export const useFormSend = () => {
             bip44Params: utxoParams.bip44Params,
             chainSpecific: {
               satoshiPerByte: fees.chainSpecific.satoshiPerByte,
-              accountType
+              accountType: accountType as UtxoAccountType
             },
             sendMax: data.sendMax
           })

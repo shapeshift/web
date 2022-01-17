@@ -5,9 +5,11 @@ import { Card } from 'components/Card/Card'
 import { Graph } from 'components/Graph/Graph'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 type BalanceChartArgs = {
   assetIds: CAIP19[]
+  accountIds?: AccountSpecifier[]
   timeframe: HistoryTimeframe
   percentChange: number
   setPercentChange: (percentChange: number) => void
@@ -15,12 +17,14 @@ type BalanceChartArgs = {
 
 export const BalanceChart: React.FC<BalanceChartArgs> = ({
   assetIds,
+  accountIds,
   timeframe,
   percentChange,
   setPercentChange
 }) => {
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
     assetIds,
+    accountIds,
     timeframe
   })
 

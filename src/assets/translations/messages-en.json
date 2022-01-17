@@ -103,6 +103,7 @@
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",
+    "accounts": "Accounts",
     "earn": "Earn",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token"
@@ -172,7 +173,6 @@
         "failed": "An error occured signing the transaction",
         "required": "A signed transaction is required"
       }
-
     }
   },
   "modals": {
@@ -302,6 +302,7 @@
       "estimatedGas": "Estimated Gas Fee",
       "gasUsed": "Total Gas Fee",
       "continue": "View Transaction",
+      "position": "View Position",
       "viewAsset": "View Asset",
       "close": "Close"
     },
@@ -475,6 +476,13 @@
       },
       "assetHistory": {
         "transactionHistory": "Transaction History"
+      },
+      "assetAccounts": {
+        "account": "Account",
+        "assetAllocation": "Asset Allocation",
+        "allocation": "Allocation",
+        "amount": "Amount",
+        "value": "Value"
       }
     },
     "assetCards": {
@@ -483,6 +491,9 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "accountTokens": "Account Tokens",
+      "showTokens": "Show Tokens (%{amount})",
+      "hideTokens": "Hide Tokens (%{amount})",
       "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",
@@ -497,6 +508,9 @@
       "stakingBody": "Earn passive income by staking or depositing your assets into a vault.",
       "pools": "Pools"
     }
+  },
+  "accounts": {
+    "accounts": "Accounts"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
 }

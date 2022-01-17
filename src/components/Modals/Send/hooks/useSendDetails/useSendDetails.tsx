@@ -4,24 +4,23 @@ import {
   utxoAccountParams
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectPortfolioCryptoBalanceById,
-  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
-  selectPortfolioFiatBalanceByAccountTypeAndAssetId
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToAccountType } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
@@ -50,28 +49,28 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
+    name: SendFormFields.AccountId
+  })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const balancesLoading = false
-  const accountType: UtxoAccountType | undefined = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
 
-  // TODO(0xdef1cafe): this is a janky temporary fix till we implement accounts next week
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
 
   const fiatBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioFiatBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
+
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceById(state, asset.caip19)
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId })
   )
   const chainAdapterManager = useChainAdapters()
   const {
@@ -82,9 +81,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
-  const currentAccountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
+  const currentAccountType = accountIdToAccountType(accountId)
 
   const estimateFormFees = useCallback(async (): Promise<
     chainAdapters.FeeDataEstimate<ChainTypes>

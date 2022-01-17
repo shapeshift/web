@@ -1,13 +1,12 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
+import { accountIdToUtxoParams, UtxoParamsAndAccountType } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
 
@@ -51,10 +50,7 @@ export const useFormSend = () => {
             data.asset,
             data.accountId,
             0
-          ) as {
-            utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
-            accountType: UtxoAccountType
-          }
+          ) as UtxoParamsAndAccountType
 
           result = await (adapter as ChainAdapter<ChainTypes.Bitcoin>).buildSendTransaction({
             to,

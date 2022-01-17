@@ -1,6 +1,6 @@
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -16,7 +16,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
+import { accountIdToUtxoParams, UtxoParamsAndAccountType } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
@@ -102,10 +102,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
       }
       case ChainTypes.Bitcoin: {
-        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0) as {
-          utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
-          accountType: UtxoAccountType
-        }
+        const { utxoParams, accountType } = accountIdToUtxoParams(
+          asset,
+          accountId,
+          0
+        ) as UtxoParamsAndAccountType
         const { bip44Params, scriptType } = utxoParams
         if (!bip44Params) throw new Error('No bip44Params')
         if (!scriptType) throw new Error('No scriptType')
@@ -159,7 +160,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setLoading(true)
       const to = address
 
-      const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+      const { utxoParams, accountType } = accountIdToUtxoParams(
+        asset,
+        accountId,
+        0
+      ) as UtxoParamsAndAccountType
       const from = await adapter.getAddress({
         wallet,
         accountType,
@@ -185,10 +190,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           break
         }
         case ChainTypes.Bitcoin: {
-          const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0) as {
-            utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
-            accountType: UtxoAccountType
-          }
           const { bip44Params, scriptType } = utxoParams
           if (!bip44Params) throw new Error('No bip44Params')
           if (!scriptType) throw new Error('No scriptType')

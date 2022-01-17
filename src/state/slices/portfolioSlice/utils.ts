@@ -1,9 +1,15 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { Asset, BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import last from 'lodash/last'
 
 import { AccountSpecifier } from './portfolioSlice'
+
+export type UtxoParamsAndAccountType = {
+  utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
+  accountType: UtxoAccountType
+}
 
 // TODO(0xdef1cafe): these should be exported from caip2
 export const ethChainId = 'eip155:1'

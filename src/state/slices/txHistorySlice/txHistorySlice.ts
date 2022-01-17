@@ -215,6 +215,8 @@ export const selectTxIdsByFilter = createSelector(
   selectAccountIdsParamFromFilter,
   (txsByAssetId, txsByAccountId, assetIds, accountIds): TxId[] => {
     const assetTxIds = assetIds.map(assetId => txsByAssetId[assetId] ?? []).flat()
+    // because the same tx can be related to multiple assets, e.g.
+    // a FOX airdrop claim has an eth fee, after we combine the ids we need to dedupe them
     if (!accountIds.length) return Array.from(new Set([...assetTxIds]))
     const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
     return intersection(accountsTxIds, assetTxIds)

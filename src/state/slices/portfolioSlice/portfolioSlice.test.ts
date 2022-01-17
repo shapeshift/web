@@ -7,13 +7,13 @@ import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
+  selectPortfolioAllocationPercentByAccountId,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
-  selectPortfolioFiatBalanceByFilter,
-  selectPortfolioAllocationPercentByAccountId
+  selectPortfolioFiatBalanceByFilter
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -344,7 +344,10 @@ describe('selectPortfolioAllocationPercentByAccountId', () => {
   it('can select fiat allocation by accountId', () => {
     const returnValue = 68.09155471117745
 
-    const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(state, ethAccountSpecifier2)
+    const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(
+      state,
+      ethAccountSpecifier2
+    )
     expect(allocationByAccountId).toEqual(returnValue)
   })
 })

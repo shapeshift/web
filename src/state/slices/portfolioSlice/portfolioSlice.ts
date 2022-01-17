@@ -560,7 +560,7 @@ export const selectPortfolioAllocationPercent = createSelector(
 export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
   selectPortfolioFiatAccountBalances,
   accountBalances => {
-    return Object.entries(accountBalances).reduce<PortfolioAccountBalances['byId']>(
+    return Object.entries(accountBalances).reduce<{ [k: AccountSpecifier]: string }>(
       (acc, [accountId, balanceObj]) => {
         const totalAccountFiatBalance = Object.values(balanceObj).reduce(
           (totalBalance, currentBalance) => {
@@ -582,18 +582,17 @@ export const selectPortfolioAllocationPercentByAccountId = createSelector(
   selectPortfolioTotalFiatBalanceByAccount,
   selectAccountIdParam,
   (totalFiatBalance, totalBalancesByAccount, accountId) => {
-    const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce(
-      (acc, [currentAccountId, accountBalance]) => {
-        const allocation = bnOrZero(accountBalance)
-          .div(bnOrZero(totalFiatBalance))
-          .times(100)
-          .toNumber()
+    const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce<{
+      [k: AccountSpecifier]: number
+    }>((acc, [currentAccountId, accountBalance]) => {
+      const allocation = bnOrZero(accountBalance)
+        .div(bnOrZero(totalFiatBalance))
+        .times(100)
+        .toNumber()
 
-        acc[currentAccountId] = allocation
-        return acc
-      },
-      {}
-    )
+      acc[currentAccountId] = allocation
+      return acc
+    }, {})
 
     return balanceAllocationById[accountId]
   }

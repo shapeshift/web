@@ -53,7 +53,7 @@ export const AssetAccountRow = ({
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
   const cryptoBalance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
   const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByAccountId(state, accountId)
+    selectPortfolioAllocationPercentByAccountId(state, { accountId, assetId })
   )
   const path = generatePath('/accounts/:accountId/:assetId', filter)
   const label = accountIdToLabel(accountId)

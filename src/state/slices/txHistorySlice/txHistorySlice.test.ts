@@ -72,8 +72,12 @@ describe('txHistorySlice', () => {
       expect(Object.values(store.getState().txHistory.ids).length).toBe(2)
 
       // eth data exists
-      expect(store.getState().txHistory.byId[EthSend.txid]).toEqual(EthSend)
-      expect(store.getState().txHistory.byId[EthReceive.txid]).toEqual(EthReceive)
+      expect(store.getState().txHistory.byId[makeUniqueTxId(EthSend, ethAccountSpecifier)]).toEqual(
+        EthSend
+      )
+      expect(
+        store.getState().txHistory.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)]
+      ).toEqual(EthReceive)
 
       const segwitNativeAccountSpecifier = `${BtcSend.caip2}:zpub`
 
@@ -107,8 +111,12 @@ describe('txHistorySlice', () => {
       expect(Object.values(store.getState().txHistory.ids).length).toBe(4)
 
       // btc data exists
-      expect(store.getState().txHistory.byId[BtcSend.txid]).toEqual(BtcSend)
-      expect(store.getState().txHistory.byId[BtcSendSegwit.txid]).toEqual(BtcSendSegwit)
+      expect(
+        store.getState().txHistory.byId[makeUniqueTxId(BtcSend, segwitNativeAccountSpecifier)]
+      ).toEqual(BtcSend)
+      expect(
+        store.getState().txHistory.byId[makeUniqueTxId(BtcSendSegwit, segwitAccountSpecifier)]
+      ).toEqual(BtcSendSegwit)
     })
 
     it('should update existing transactions', async () => {

@@ -18,6 +18,7 @@ import { RawText } from 'components/Text'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
   AccountSpecifier,
+  selectPortfolioAllocationPercentByAccountId,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -51,6 +52,9 @@ export const AssetAccountRow = ({
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
   const cryptoBalance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const allocation = useAppSelector(state =>
+    selectPortfolioAllocationPercentByAccountId(state, { accountId, assetId })
+  )
   const path = generatePath('/accounts/:accountId/:assetId', filter)
   const label = accountIdToLabel(accountId)
 
@@ -124,7 +128,7 @@ export const AssetAccountRow = ({
       </Flex>
       {showAllocation && (
         <Flex display={{ base: 'none', lg: 'flex' }} alignItems='center' justifyContent='flex-end'>
-          <Allocations value={10} color={'#000'} />
+          <Allocations value={allocation} color={'#000'} />
         </Flex>
       )}
       {!isCompact && (

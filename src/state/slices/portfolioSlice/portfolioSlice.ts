@@ -341,14 +341,27 @@ export const selectPortfolioFiatBalances = createSelector(
 )
 
 // accountId is optional, but we should always pass an assetId when using these params
-type ParamFilter = {
+type OptionalParamFilter = {
   assetId: CAIP19
   accountId?: AccountSpecifier
 }
 
+type ParamFilter = {
+  assetId: CAIP19
+  accountId: AccountSpecifier
+}
+
 const selectAssetIdParam = (_state: ReduxState, id: CAIP19) => id
-const selectAssetIdParamFromFilter = (_state: ReduxState, { assetId }: ParamFilter) => assetId
-const selectAccountIdParamFromFilter = (_state: ReduxState, { accountId }: ParamFilter) => accountId
+const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
+  paramFilter.assetId
+const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
+  paramFilter.accountId
+
+const selectAssetIdParamFromFilterOptional = (_state: ReduxState, paramFilter: OptionalParamFilter) =>
+  paramFilter.assetId
+const selectAccountIdParamFromFilterOptional = (_state: ReduxState, paramFilter: OptionalParamFilter) =>
+  paramFilter.accountId
+
 const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
 
@@ -396,8 +409,8 @@ export const selectPortfolioFiatBalanceByAssetId = createSelector(
 export const selectPortfolioFiatBalanceByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioFiatAccountBalances,
-  selectAssetIdParamFromFilter,
-  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilterOptional,
+  selectAccountIdParamFromFilterOptional,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
     if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
     if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
@@ -425,8 +438,8 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilterOptional,
+  selectAssetIdParamFromFilterOptional,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
       return fromBaseUnit(
@@ -452,8 +465,8 @@ export const selectPortfolioCryptoBalanceByFilter = createSelector(
   selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
+  selectAccountIdParamFromFilterOptional,
+  selectAssetIdParamFromFilterOptional,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
       return fromBaseUnit(
@@ -542,11 +555,39 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
   }
 )
 
+export const selectPortfolioTotalFiatBalancesForFeeAssetOnly = createSelector(
+  selectPortfolioFiatAccountBalances,
+  (accountBalances => {
+    return Object.entries(accountBalances).reduce<{ [k: AccountSpecifier]: string }>(
+      (acc, [accountId, balanceObj]) => {
+        const totalAccountFiatBalance = Object.entries(balanceObj).reduce(
+          (totalBalance, [assetId, assetBalance]) => {
+
+            // If the asset is NOT a fee asset, skip it
+            if (!FEE_ASSET_IDS.includes(assetId)) {
+              return totalBalance
+            }
+
+            return bnOrZero(bn(totalBalance).plus(bn(assetBalance))).toFixed(2)
+          },
+          '0'
+        )
+
+        acc[accountId] = totalAccountFiatBalance
+        return acc
+      },
+      {}
+    )
+  })
+)
+
 export const selectPortfolioAllocationPercentByAccountId = createSelector(
-  selectPortfolioTotalFiatBalance,
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectAccountIdParam,
-  (totalFiatBalance, totalBalancesByAccount, accountId) => {
+  selectPortfolioFiatBalances,
+  selectPortfolioTotalFiatBalancesForFeeAssetOnly,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (totalFiatBalances, totalBalancesByAccount, accountId, assetId) => {
+    const totalFiatBalance = totalFiatBalances[assetId]
     const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce<{
       [k: AccountSpecifier]: number
     }>((acc, [currentAccountId, accountBalance]) => {

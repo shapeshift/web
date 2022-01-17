@@ -74,8 +74,30 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) => {
-  const { txid } = tx
+
+/**
+ * now we support accounts, we have a new problem
+ * the same tx id can have multiple representations, depending on the
+ * account's persective, especially utxos.
+ *
+ * i.e. a bitcoin send will have a send component, and a receive component for
+ * the change, to a new address, but the same tx id.
+ * this means we can't uniquely index tx's simply by their id.
+ *
+ * we'll probably need to go back to some composite index that can be built from
+ * the txid and address, or account id, that can be deterministically generated,
+ * from the tx data and the account id - note, not the address.
+ *
+ * the correct solution is to not rely on the parsed representation of the tx
+ * as a "send" or "receive" from chain adapters, just index the tx related to the
+ * asset or account, and parse the tx closer to the view layer.
+ */
+export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
+  `${accountId}-${tx.txid}-${tx.address}`
+
+const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
+  const txid = makeUniqueTxId(tx, accountSpecifier)
+
   const isNew = !txHistory.byId[txid]
 
   // update or insert tx
@@ -84,7 +106,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(tx => tx.txid === txid)
+    const index = orderedTxs.findIndex(tx => makeUniqueTxId(tx, accountSpecifier) === txid)
     txHistory.ids.splice(index, 0, txid)
   }
 
@@ -94,7 +116,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
     txHistory.byAssetId[relatedAssetId] = addToIndex(
       txHistory.ids,
       txHistory.byAssetId[relatedAssetId],
-      tx.txid
+      makeUniqueTxId(tx, accountSpecifier)
     )
   })
 
@@ -102,7 +124,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   txHistory.byAccountId[accountSpecifier] = addToIndex(
     txHistory.ids,
     txHistory.byAccountId[accountSpecifier],
-    tx.txid
+    makeUniqueTxId(tx, accountSpecifier)
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
@@ -177,26 +199,31 @@ const selectTxIdsByAssetId = createSelector(
 )
 
 type TxHistoryFilter = {
-  assetId: CAIP19
+  assetIds: CAIP19[]
   accountIds?: AccountSpecifier[]
 }
 
-const selectAssetIdParamFromFilter = (_state: ReduxState, { assetId }: TxHistoryFilter) => assetId
+const selectAssetIdsParamFromFilter = (_state: ReduxState, { assetIds }: TxHistoryFilter) =>
+  assetIds
 const selectAccountIdsParamFromFilter = (_state: ReduxState, { accountIds }: TxHistoryFilter) =>
   accountIds ?? []
 
 export const selectTxIdsByFilter = createSelector(
   selectTxsByAssetId,
   selectTxIdsByAccountId,
-  selectAssetIdParamFromFilter,
+  selectAssetIdsParamFromFilter,
   selectAccountIdsParamFromFilter,
-  (txsByAssetId, txsByAccountId, assetId, accountIds): TxId[] => {
-    if (!accountIds.length) return txsByAssetId[assetId] ?? []
+  (txsByAssetId, txsByAccountId, assetIds, accountIds): TxId[] => {
+    const assetTxIds = assetIds.map(assetId => txsByAssetId[assetId] ?? []).flat()
+    if (!accountIds.length) return assetTxIds
     const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
-    const assetTxIds = txsByAssetId[assetId]
     return intersection(accountsTxIds, assetTxIds)
   },
   { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
+
+export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, (txs, txIds) =>
+  txIds.map(txId => txs[txId])
 )
 
 // this is only used on trade confirm - new txs will be pushed

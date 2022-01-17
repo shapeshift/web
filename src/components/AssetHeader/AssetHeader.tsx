@@ -36,7 +36,6 @@ import {
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
-  selectPortfolioAssetAccounts,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -75,7 +74,6 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const assetPrice = toFiat(price) ?? 0
   const handleToggle = () => setShowDescription(!showDescription)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const accountIds = useAppSelector(state => selectPortfolioAssetAccounts(state, assetId))
 
   const {
     state: { wallet }
@@ -181,7 +179,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       {/* If the Child component call a function update state of Parent Compnent in UseEffect,the Child Component should avaiable on DOM */}
       <Box style={{ display: view === View.Balance ? 'block' : 'none' }}>
         <BalanceChart
-          accountIds={accountIds}
+          accountId={accountId}
           assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}

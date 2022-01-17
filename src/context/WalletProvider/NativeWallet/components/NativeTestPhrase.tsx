@@ -1,5 +1,5 @@
 import { Button, ModalBody, ModalHeader, Tag, Wrap } from '@chakra-ui/react'
-import { Revocable, revocable } from '@shapeshiftoss/hdwallet-core'
+import { mustBeDefined, Revocable, revocable } from '@shapeshiftoss/hdwallet-core'
 import * as bip39 from 'bip39'
 import range from 'lodash/range'
 import shuffle from 'lodash/shuffle'
@@ -35,7 +35,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const shuffleMnemonic = useCallback(async () => {
     if (testCount >= TEST_COUNT_REQUIRED) return
     try {
-      const mnemonic = await vault.unwrap().get('#mnemonic')
+      const mnemonic: string = mustBeDefined(await (await vault.unwrap()).get<string>('#mnemonic'))
       const words = mnemonic.split(' ')
       let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
 

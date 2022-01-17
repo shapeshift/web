@@ -1,5 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { fromAsyncIterable } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useEffect } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { Vault } from 'vault/'
@@ -12,7 +13,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        const localWallets = await (await Vault).list()
+        const localWallets = await fromAsyncIterable(await (await Vault).list())
         setHasLocalWallet(localWallets.length > 0)
       } catch (e) {
         console.error('WalletProvider:NativeWallet:Start - Cannnot enumerate Vault', e)

@@ -1,13 +1,17 @@
 import type { ISealableVaultFactory, IVault } from '@shapeshiftoss/hdwallet-native-vault'
+import { wrap } from 'workers'
 
-const nativeVault = import('@shapeshiftoss/hdwallet-native-vault')
+import Worker from './vault.worker'
 
-export const GENERATE_MNEMONIC: Promise<string> = (async () => {
-  return (await nativeVault).GENERATE_MNEMONIC
-})()
+export type WorkerType = {
+  GENERATE_MNEMONIC: string
+  Vault: ISealableVaultFactory<IVault>
+}
 
-export const Vault: Promise<ISealableVaultFactory<IVault>> = (async () => {
-  return (await nativeVault).Vault
-})()
+const worker = wrap<WorkerType>(new Worker())
+
+export const GENERATE_MNEMONIC: Promise<string> = worker.GENERATE_MNEMONIC
+export const Vault: Promise<ISealableVaultFactory<IVault>> = worker.Vault
+
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export type Vault = IVault

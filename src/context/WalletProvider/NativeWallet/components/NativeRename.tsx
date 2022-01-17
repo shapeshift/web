@@ -25,16 +25,16 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
     try {
-      const vault = await (await Vault).open(location.state.vault.id, values.password)
+      const vault = await (await Vault).open(await location.state.vault.id, values.password)
       if (values.name.length === 0) {
         const result = window.confirm(translate('walletProvider.shapeShift.rename.confirmDelete'))
         if (result) {
-          vault.meta.delete('name')
+          await (await vault.meta).delete('name')
           await vault.save()
           history.goBack()
         }
       } else {
-        vault.meta.set('name', values.name)
+        await (await vault.meta).set('name', values.name)
         await vault.save()
         history.goBack()
       }

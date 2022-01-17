@@ -10,6 +10,7 @@ import {
   ModalHeader,
   VStack
 } from '@chakra-ui/react'
+import { fromAsyncIterable } from '@shapeshiftoss/hdwallet-native-vault'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
@@ -39,7 +40,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     ;(async () => {
       if (!wallets.length) {
         try {
-          const vaultIds = await (await Vault).list()
+          const vaultIds = await fromAsyncIterable<string>(await (await Vault).list())
           if (!vaultIds.length) {
             return setError('walletProvider.shapeShift.load.error.noWallet')
           }
@@ -47,8 +48,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           const storedWallets: VaultInfo[] = await Promise.all(
             vaultIds.map(async id => {
               const meta = await (await Vault).meta(id)
-              const createdAt = Number(meta?.get('createdAt') ?? null)
-              const name = String(meta?.get('name') ?? id)
+              const createdAt = Number((await meta?.get('createdAt')) ?? null)
+              const name = String((await meta?.get('name')) ?? id)
               return { id, name, createdAt }
             })
           )

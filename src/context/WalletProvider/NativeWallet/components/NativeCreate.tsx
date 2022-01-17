@@ -10,9 +10,9 @@ import {
   Tag,
   Wrap
 } from '@chakra-ui/react'
-import { Revocable, revocable } from '@shapeshiftoss/hdwallet-core'
+import { mustBeDefined, Revocable, revocable } from '@shapeshiftoss/hdwallet-core'
 import { range } from 'lodash'
-import { Component, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { GENERATE_MNEMONIC, Vault } from 'vault/'
 import { Text } from 'components/Text'
@@ -27,7 +27,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
     setRevealed(!revealed)
   }
   const [vault, setVault] = useState<Vault | null>(null)
-  const [words, setWords] = useState<Component[] | null>(null)
+  const [words, setWords] = useState<JSX.Element[] | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())
 
   const placeholders = useMemo(() => {
@@ -50,9 +50,14 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
     ;(async () => {
       try {
         const vault = await (await Vault).create(undefined, false)
-        vault.meta.set('createdAt', Date.now())
+        await (await vault.meta).set('createdAt', Date.now())
         await vault.set('#mnemonic', await GENERATE_MNEMONIC)
-        setVault(vault)
+        // Comlink is clever and tries to make objects it returns look
+        // like all things to all people, but React will treat `vault`
+        // as a functor if it can be executed. Wrapping it in a function
+        // ensures that React won't try to call it and end up using a
+        // rejected comlink promise as the new state.
+        setVault(() => vault)
       } catch (e) {
         // @TODO
         console.error(e)
@@ -65,22 +70,24 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
     ;(async () => {
       try {
         setWords(
-          (await vault.unwrap().get('#mnemonic')).split(' ').map((word: string, index: number) =>
-            revocable(
-              <Tag
-                p={2}
-                flexBasis='31%'
-                justifyContent='flex-start'
-                fontSize='md'
-                key={word}
-                colorScheme='blue'
-              >
-                <Code mr={2}>{index + 1}</Code>
-                {word}
-              </Tag>,
-              revoker.addRevoker.bind(revocable)
+          mustBeDefined(await (await vault.unwrap()).get<string>('#mnemonic'))
+            .split(' ')
+            .map((word: string, index: number) =>
+              revocable(
+                <Tag
+                  p={2}
+                  flexBasis='31%'
+                  justifyContent='flex-start'
+                  fontSize='md'
+                  key={word}
+                  colorScheme='blue'
+                >
+                  <Code mr={2}>{index + 1}</Code>
+                  {word}
+                </Tag>,
+                revoker.addRevoker.bind(revocable)
+              )
             )
-          )
         )
       } catch (e) {
         console.error('failed to get Secret Recovery Phrase:', e)

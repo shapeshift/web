@@ -27,7 +27,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       const vault = location.state.vault
       vault.seal()
       await vault.setPassword(values.password)
-      vault.meta.set('name', values.name)
+      await (await vault.meta).set('name', values.name)
       history.push('/native/success', { vault })
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Password - Error setting password', e)

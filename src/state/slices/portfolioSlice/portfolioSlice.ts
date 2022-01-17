@@ -584,7 +584,7 @@ export const selectPortfolioTotalFiatBalancesForFeeAssetOnly = createSelector(
   }
 )
 
-export const selectPortfolioAllocationPercentByAccountId = createSelector(
+export const selectPortfolioAllocationPercentByFilter = createSelector(
   selectPortfolioFiatBalances,
   selectPortfolioTotalFiatBalancesForFeeAssetOnly,
   selectAccountIdParamFromFilter,

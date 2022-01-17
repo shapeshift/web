@@ -7,7 +7,7 @@ import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
-  selectPortfolioAllocationPercentByAccountId,
+  selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
   selectPortfolioCryptoBalanceByAssetId,
@@ -346,7 +346,7 @@ describe('selectPortfolioAllocationPercentByAccountId', () => {
   it('can select fiat allocation by accountId', () => {
     const returnValue = 75.94498745783237
 
-    const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(state, {
+    const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
       accountId: ethAccountSpecifier2,
       assetId: ethCaip19
     })

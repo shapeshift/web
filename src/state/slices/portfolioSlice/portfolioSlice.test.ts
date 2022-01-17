@@ -13,7 +13,8 @@ import {
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
-  selectPortfolioFiatBalanceByFilter
+  selectPortfolioFiatBalanceByFilter,
+  selectPortfolioTotalFiatBalanceByAccount
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -395,13 +396,13 @@ describe('Fiat Balance Selectors', () => {
   })
 
   describe('selectPortfolioFiatBalanceByFilter', () => {
-    it('Should be able to filter by assetId', () => {
+    it('should be able to filter by assetId', () => {
       const expected = '115.61'
       const result = selectPortfolioFiatBalanceByFilter(state, { assetId: ethCaip19 })
       expect(result).toEqual(expected)
     })
 
-    it('Should be able to filter by accountId and assetId', () => {
+    it('should be able to filter by accountId and assetId', () => {
       const expected = '42.73'
       const result = selectPortfolioFiatBalanceByFilter(state, {
         accountId: ethAccountSpecifier1,
@@ -412,18 +413,30 @@ describe('Fiat Balance Selectors', () => {
   })
 
   describe('selectPortfolioCryptoHumanBalancesByFilter', () => {
-    it('Should be able to filter by assetId', () => {
+    it('should be able to filter by assetId', () => {
       const expected = '0.115607'
       const result = selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: ethCaip19 })
       expect(result).toEqual(expected)
     })
 
-    it('Should be able to filter by accountId and assetId', () => {
+    it('should be able to filter by accountId and assetId', () => {
       const expected = '42.729243'
       const result = selectPortfolioCryptoHumanBalanceByFilter(state, {
         accountId: ethAccountSpecifier1,
         assetId: foxCaip19
       })
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('selectPortfolioTotalFiatBalanceByAccount', () => {
+    it('should return total fiat balance by accountId', () => {
+      const expected = {
+        [ethAccountSpecifier1]: '70.53',
+        [ethAccountSpecifier2]: '150.53'
+      }
+
+      const result = selectPortfolioTotalFiatBalanceByAccount(state)
       expect(result).toEqual(expected)
     })
   })

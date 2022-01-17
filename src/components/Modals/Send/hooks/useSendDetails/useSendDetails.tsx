@@ -16,7 +16,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToUtxoParams, UtxoParamsAndAccountType } from 'state/slices/portfolioSlice/utils'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
@@ -102,15 +102,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
       }
       case ChainTypes.Bitcoin: {
-        const { utxoParams, accountType } = accountIdToUtxoParams(
-          asset,
-          accountId,
-          0
-        ) as UtxoParamsAndAccountType
+        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+        if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
+        if (!accountType) {
+          throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
+        }
         const { bip44Params, scriptType } = utxoParams
-        if (!bip44Params) throw new Error('No bip44Params')
-        if (!scriptType) throw new Error('No scriptType')
-        if (!accountType) throw new Error('No Account Type')
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getType(),
@@ -160,11 +157,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setLoading(true)
       const to = address
 
-      const { utxoParams, accountType } = accountIdToUtxoParams(
-        asset,
-        accountId,
-        0
-      ) as UtxoParamsAndAccountType
+      const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
       const from = await adapter.getAddress({
         wallet,
         accountType,
@@ -190,10 +183,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           break
         }
         case ChainTypes.Bitcoin: {
+          if (!accountType)
+            throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
+          if (!utxoParams) {
+            throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
+          }
           const { bip44Params, scriptType } = utxoParams
-          if (!bip44Params) throw new Error('No bip44Params')
-          if (!scriptType) throw new Error('No scriptType')
-          if (!accountType) throw new Error('No AccountType')
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),

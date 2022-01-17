@@ -129,16 +129,17 @@ describe('txHistorySlice', () => {
         })
       )
 
-      expect(store.getState().txHistory.byId[EthReceivePending.txid].status).toBe(
-        chainAdapters.TxStatus.Pending
-      )
+      expect(
+        store.getState().txHistory.byId[makeUniqueTxId(EthReceivePending, ethAccountSpecifier)]
+          .status
+      ).toBe(chainAdapters.TxStatus.Pending)
 
       store.dispatch(
         txHistory.actions.onMessage({ message: EthReceive, accountSpecifier: ethAccountSpecifier })
       )
-      expect(store.getState().txHistory.byId[EthReceive.txid].status).toBe(
-        chainAdapters.TxStatus.Confirmed
-      )
+      expect(
+        store.getState().txHistory.byId[makeUniqueTxId(EthReceive, ethAccountSpecifier)].status
+      ).toBe(chainAdapters.TxStatus.Confirmed)
     })
 
     it('should add txids by accountSpecifier', async () => {

@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux'
 import { Page } from 'components/Layout/Page'
 import { Text } from 'components/Text'
 import {
-  selectPortfolioAccountBalancesSortedFiat,
+  selectPortfolioAccountIdsSortedFiat,
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AccountRowWithTokens } from './AccountRowWithTokens'
 
 export const Accounts = () => {
-  const sortedAccountIds = useSelector(selectPortfolioAccountBalancesSortedFiat)
+  const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
   return (
     <Page style={{ flex: 1 }}>
       <Flex

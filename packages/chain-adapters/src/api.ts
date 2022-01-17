@@ -41,6 +41,9 @@ export interface ChainAdapter<T extends ChainTypes> {
   broadcastTransaction(hex: string): Promise<string>
 
   validateAddress(address: string): Promise<chainAdapters.ValidAddressResult>
+  validateEnsAddress?: T extends ChainTypes.Ethereum
+    ? (address: string) => Promise<chainAdapters.ValidAddressResult>
+    : never
 
   subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,

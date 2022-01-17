@@ -341,6 +341,13 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
   }
 
+  async validateEnsAddress(address: string): Promise<chainAdapters.ValidAddressResult> {
+    const isValidEnsAddress = /^([0-9A-Z]([-0-9A-Z]*[0-9A-Z])?\.)+eth$/i.test(address)
+    if (isValidEnsAddress)
+      return { valid: true, result: chainAdapters.ValidAddressResultType.Valid }
+    return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
+  }
+
   async subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
     onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Ethereum>) => void,

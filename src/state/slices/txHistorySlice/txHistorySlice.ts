@@ -92,9 +92,12 @@ const initialState: TxHistory = {
  * as a "send" or "receive" from chain adapters, just index the tx related to the
  * asset or account, and parse the tx closer to the view layer.
  */
+export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
+  `${accountId}-${tx.txid}-${tx.address}`
 
-const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) => {
-  const { txid } = tx
+const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
+  const txid = makeUniqueTxId(tx, accountSpecifier)
+
   const isNew = !txHistory.byId[txid]
 
   // update or insert tx
@@ -103,7 +106,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(tx => tx.txid === txid)
+    const index = orderedTxs.findIndex(tx => makeUniqueTxId(tx, accountSpecifier) === txid)
     txHistory.ids.splice(index, 0, txid)
   }
 
@@ -113,7 +116,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
     txHistory.byAssetId[relatedAssetId] = addToIndex(
       txHistory.ids,
       txHistory.byAssetId[relatedAssetId],
-      tx.txid
+      makeUniqueTxId(tx, accountSpecifier)
     )
   })
 
@@ -121,7 +124,7 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   txHistory.byAccountId[accountSpecifier] = addToIndex(
     txHistory.ids,
     txHistory.byAccountId[accountSpecifier],
-    tx.txid
+    makeUniqueTxId(tx, accountSpecifier)
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood

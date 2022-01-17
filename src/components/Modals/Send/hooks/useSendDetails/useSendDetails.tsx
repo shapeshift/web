@@ -1,10 +1,6 @@
-import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams
-} from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
+import { bip32ToAddressNList, BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -20,7 +16,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToAccountType } from 'state/slices/portfolioSlice/utils'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
@@ -81,8 +77,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const adapter = chainAdapterManager.byChain(asset.chain)
 
-  const currentAccountType = accountIdToAccountType(accountId)
-
   const estimateFormFees = useCallback(async (): Promise<
     chainAdapters.FeeDataEstimate<ChainTypes>
   > => {
@@ -108,18 +102,25 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         })
       }
       case ChainTypes.Bitcoin: {
-        const accountParams = utxoAccountParams(asset, currentAccountType, 0)
+        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0) as {
+          utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
+          accountType: UtxoAccountType
+        }
+        const { bip44Params, scriptType } = utxoParams
+        if (!bip44Params) throw new Error('No bip44Params')
+        if (!scriptType) throw new Error('No scriptType')
+        if (!accountType) throw new Error('No Account Type')
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getType(),
-            addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip44Params)),
+            addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
             curve: 'secp256k1',
-            scriptType: accountParams.scriptType
+            scriptType
           }
         ])
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-        const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
+        const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
@@ -131,7 +132,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       default:
         throw new Error('unsupported chain type')
     }
-  }, [adapter, asset, chainAdapterManager, currentAccountType, getValues, wallet])
+  }, [accountId, adapter, asset, chainAdapterManager, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
@@ -158,13 +159,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setLoading(true)
       const to = address
 
-      const accountParams = currentAccountType
-        ? utxoAccountParams(asset, currentAccountType, 0)
-        : {}
+      const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
       const from = await adapter.getAddress({
         wallet,
-        accountType: currentAccountType,
-        ...accountParams
+        accountType,
+        ...utxoParams
       })
 
       // Assume fast fee for send max
@@ -186,18 +185,25 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           break
         }
         case ChainTypes.Bitcoin: {
-          const accountParams = utxoAccountParams(asset, currentAccountType, 0)
+          const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0) as {
+            utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
+            accountType: UtxoAccountType
+          }
+          const { bip44Params, scriptType } = utxoParams
+          if (!bip44Params) throw new Error('No bip44Params')
+          if (!scriptType) throw new Error('No scriptType')
+          if (!accountType) throw new Error('No AccountType')
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip44Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
               curve: 'secp256k1',
-              scriptType: accountParams.scriptType
+              scriptType
             }
           ])
 
           if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-          const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
+          const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance
           adapterFees = await btcAdapter.getFeeData({

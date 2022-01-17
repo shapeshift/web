@@ -1,4 +1,4 @@
-// This is used instead of index.js when building a webpack bundle. See
+// This is used instead of index.ts when building a webpack bundle. See
 // react-app-rewired.config.js for details. (Note that because webpack treats
 // env.json as a resource, require() will return its URL rather than its
 // contents.)

@@ -10,15 +10,15 @@
 # and reproducable.
 
 # Find all files named [chunkId].[hash].[ext], but not their .map or .LICENSE.txt versions
-find ./build/static -type f -regextype posix-extended -regex '.*\.[0-9a-f]{8}\.[^.]+' | {
+find ./build/static -type f | grep -E '^.*\.[0-9a-f]{8}(\.chunk)?\.[^.]+$' | {
   GOOD=0
   BAD=0
   while read -r FILE; do
     NAME="$(basename "$FILE")"
     # Take the filename ([chunkId].)([hash])(.[ext]) and get the middle group
-    HASH="$(printf '%s' "$NAME" | sed -r 's/^(.*\.)([0-9a-f]{8})(\.[^.]+)$/\2/')"
+    HASH="$(printf '%s' "$NAME" | sed -r 's/^(.*\.)([0-9a-f]{8})(\.chunk)?(\.[^.]+)$/\2/')"
     # Take the filename ([chunkId].)([hash])(.[ext]) and get the concatenation of the first and last groups
-    STRIPPEDNAME="$(printf '%s' "$NAME" | sed -r 's/^(.*\.)([0-9a-f]{8})(\.[^.]+)$/\1\3/')"
+    STRIPPEDNAME="$(printf '%s' "$NAME" | sed -r 's/^(.*\.)([0-9a-f]{8})(\.chunk)?(\.[^.]+)$/\1\3\4/')"
     # Take the stripped filename and build a sed s///g command, escaping all instances of '.' to '\.'
     REPLACER="$(printf 's/%s/%s/g' "$NAME" "$STRIPPEDNAME" | sed -r 's/\./\./g')"
     # On the first and last lines of the file, run the replacer command to swap NAME with STRIPPEDNAME

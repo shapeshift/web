@@ -3,6 +3,7 @@
  */
 const stableStringify = require('fast-json-stable-stringify')
 const fs = require('fs')
+const glob = require('glob')
 const _ = require('lodash')
 const path = require('path')
 const ssri = require('ssri')
@@ -250,29 +251,39 @@ module.exports = {
                 }
               ]
             },
-            // We can't use `fetch()` to load `env.json` when running tests because Jest doesn't do top-level await.
-            // We can't manually mock out the fetch because we'd either have to turn on automock, which mocks *everything*
-            // and breaks a lot of stuff, or call `jest.mock()`, which doesn't exist in the browser. It can't be called
-            // conditionally because that breaks Jest's magic hoisting BS, and we can't polyfill it because the existence
-            // of a global `jest` object causes various things to think they're being tested and complain that their
-            // "test harnesses" aren't set up correctly.
-            //
-            // Instead, we leave the jest-friendly behavior as the "default", and use this alias to swap in the behavior
-            // we want to happen in the browser during the build of the webpack bundle.
-            resolve: {
-              alias: {
-                [path.join(__dirname, 'src/env/index.ts')]: path.join(
-                  __dirname,
-                  'src/env/webpack.ts'
-                )
-              }
-            },
             experiments: {
               topLevelAwait: true
             }
           }
         : {}
     )
+
+    // Update webpack config to use custom loader for worker files
+    // Note: It's important that the "worker-loader" gets defined BEFORE the TypeScript loader!
+    config.module.rules.unshift({
+      test: /\.worker\.ts$/,
+      use: {
+        loader: 'worker-loader',
+        options: {
+          // Use directory structure & typical names of chunks produces by "react-scripts"
+          filename: 'static/js/[name].[contenthash:8].js'
+        }
+      }
+    })
+
+    for (const webpackExclusiveFile of glob.sync(
+      path.join(__dirname, 'src/**/*.webpack.+([^.])')
+    )) {
+      _.merge(config, {
+        resolve: {
+          alias: {
+            [webpackExclusiveFile.replace(/.webpack(.[^.]+)$/, '$1')]: webpackExclusiveFile
+          }
+        }
+      })
+    }
+
+    delete config.resolve.alias[path.join(__dirname, 'src/env/index.ts')]
 
     return config
   },

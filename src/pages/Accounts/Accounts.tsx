@@ -2,12 +2,14 @@ import { Flex, Heading, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import { Page } from 'components/Layout/Page'
 import { Text } from 'components/Text'
-import { selectPortfolioAccountIds } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  selectPortfolioAccountIdsSortedFiat,
+} from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AccountRowWithTokens } from './AccountRowWithTokens'
 
 export const Accounts = () => {
-  const accountIds = useSelector(selectPortfolioAccountIds)
+  const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
   return (
     <Page style={{ flex: 1 }}>
       <Flex
@@ -23,7 +25,7 @@ export const Accounts = () => {
           <Heading>
             <Text translation='accounts.accounts' />
           </Heading>
-          {accountIds.map(accountId => (
+          {sortedAccountIds.map(accountId => (
             <AccountRowWithTokens accountId={accountId} key={accountId} />
           ))}
         </Stack>

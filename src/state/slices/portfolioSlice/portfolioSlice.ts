@@ -504,7 +504,7 @@ export const selectPortfolioAssets = createSelector(
     }, {})
 )
 
-export const selectPortfolioAccountIds = (state: ReduxState): CAIP19[] =>
+export const selectPortfolioAccountIds = (state: ReduxState): AccountSpecifier[] =>
   state.portfolio.accounts.ids
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
@@ -579,6 +579,15 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
     }, {})
 
     return balanceAllocationById[accountId]
+  }
+)
+
+export const selectPortfolioAccountIdsSortedFiat = createSelector(
+  selectPortfolioTotalFiatBalanceByAccount,
+  totalAccountBalances => {
+    return Object.entries(totalAccountBalances)
+      .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
+      .map(([acctId, _]) => acctId)
   }
 )
 

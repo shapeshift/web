@@ -25,6 +25,12 @@ jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
 
+jest.mock('@shapeshiftoss/market-service', () => ({
+  findAll: jest.fn,
+  findByCaip19: jest.fn,
+  findPriceHistoryByCaip19: jest.fn,
+}))
+
 const formData: SendInput = {
   [SendFormFields.Address]: '0xMyWalletAddres',
   [SendFormFields.Asset]: {

@@ -23,6 +23,12 @@ jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
   })
 }))
 
+jest.mock('@shapeshiftoss/market-service', () => ({
+  findAll: jest.fn,
+  findByCaip19: jest.fn,
+  findPriceHistoryByCaip19: jest.fn,
+}))
+
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const getQuote = jest.fn()
   const setValue = jest.fn()

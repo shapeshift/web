@@ -1,4 +1,3 @@
-import { findByCaip19 } from '@shapeshiftoss/market-service'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -19,8 +18,16 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { useSendDetails } from './useSendDetails'
+import nock from 'nock';
 
-jest.mock('@shapeshiftoss/market-service')
+jest.mock('@shapeshiftoss/market-service', () => ({
+  findAll: jest.fn,
+  findByCaip19: () => ({
+    price: 3500,
+    network: 'ethereum'
+  }),
+  findPriceHistoryByCaip19: jest.fn,
+}))
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('context/WalletProvider/WalletProvider')
@@ -118,6 +125,7 @@ const setup = ({
 
 describe('useSendDetails', () => {
   beforeEach(() => {
+    nock.disableNetConnect()
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
@@ -129,13 +137,10 @@ describe('useSendDetails', () => {
         })
       })
     }))
-    ;(findByCaip19 as jest.Mock<unknown>).mockImplementation(() => ({
-      price: 3500,
-      network: 'ethereum'
-    }))
   })
 
   afterEach(() => {
+    nock.enableNetConnect();
     jest.restoreAllMocks()
   })
 
@@ -188,6 +193,7 @@ describe('useSendDetails', () => {
   })
 
   it('handles input change on fiatAmount', async () => {
+    jest.useFakeTimers()
     const setValue = jest.fn()
     const { result } = setup({
       assetBalance: balances[ethCaip19],
@@ -199,19 +205,21 @@ describe('useSendDetails', () => {
     // Set fiat amount
     await act(async () => {
       result.current.handleInputChange('3500')
-      await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+      jest.advanceTimersByTime(1000); // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
 
       setValue.mockClear()
 
       result.current.handleInputChange('0')
-      await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+      jest.advanceTimersByTime(1000); // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
       setValue.mockClear()
     })
+    jest.useRealTimers()
   })
 
   it('handles input change on cryptoAmount', async () => {
+    jest.useFakeTimers()
     const setValue = jest.fn()
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {
@@ -232,11 +240,12 @@ describe('useSendDetails', () => {
       // Set crypto amount
       await act(async () => {
         result.current.handleInputChange('1')
-        await new Promise(r => setTimeout(r, 1500)) // hack to wait because handleInputChange is now debounced for 1 second
+        jest.advanceTimersByTime(1000); // handleInputChange is now debounced for 1 second
         expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
         setValue.mockClear()
       })
     })
+    jest.useRealTimers()
   })
 
   it('handles setting up send max for network asset', async () => {

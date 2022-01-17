@@ -8,6 +8,12 @@ import {
   selectPortfolioAssetAccounts
 } from './portfolioSlice'
 
+jest.mock('@shapeshiftoss/market-service', () => ({
+  findAll: jest.fn,
+  findByCaip19: jest.fn,
+  findPriceHistoryByCaip19: jest.fn,
+}))
+
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'
 const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'

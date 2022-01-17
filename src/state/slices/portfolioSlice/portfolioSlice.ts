@@ -357,10 +357,14 @@ const selectAssetIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilt
 const selectAccountIdParamFromFilter = (_state: ReduxState, paramFilter: ParamFilter) =>
   paramFilter.accountId
 
-const selectAssetIdParamFromFilterOptional = (_state: ReduxState, paramFilter: OptionalParamFilter) =>
-  paramFilter.assetId
-const selectAccountIdParamFromFilterOptional = (_state: ReduxState, paramFilter: OptionalParamFilter) =>
-  paramFilter.accountId
+const selectAssetIdParamFromFilterOptional = (
+  _state: ReduxState,
+  paramFilter: OptionalParamFilter
+) => paramFilter.assetId
+const selectAccountIdParamFromFilterOptional = (
+  _state: ReduxState,
+  paramFilter: OptionalParamFilter
+) => paramFilter.accountId
 
 const selectAccountAddressParam = (_state: ReduxState, id: CAIP10) => id
 const selectAccountIdParam = (_state: ReduxState, id: AccountSpecifier) => id
@@ -557,12 +561,11 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
 
 export const selectPortfolioTotalFiatBalancesForFeeAssetOnly = createSelector(
   selectPortfolioFiatAccountBalances,
-  (accountBalances => {
+  accountBalances => {
     return Object.entries(accountBalances).reduce<{ [k: AccountSpecifier]: string }>(
       (acc, [accountId, balanceObj]) => {
         const totalAccountFiatBalance = Object.entries(balanceObj).reduce(
           (totalBalance, [assetId, assetBalance]) => {
-
             // If the asset is NOT a fee asset, skip it
             if (!FEE_ASSET_IDS.includes(assetId)) {
               return totalBalance
@@ -578,7 +581,7 @@ export const selectPortfolioTotalFiatBalancesForFeeAssetOnly = createSelector(
       },
       {}
     )
-  })
+  }
 )
 
 export const selectPortfolioAllocationPercentByAccountId = createSelector(

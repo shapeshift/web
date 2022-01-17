@@ -15,7 +15,7 @@ import {
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
   selectPortfolioTotalFiatBalanceByAccount,
-  selectPortfolioAccountBalancesSortedFiat
+  selectPortfolioAccountIdsSortedFiat
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -452,10 +452,10 @@ describe('selectPortfolioTokenIdsByAccountId', () => {
   })
 })
 
-describe('selectPortfolioAccountBalancesSortedFiat', () => {
+describe('selectPortfolioAccountIdsSortedFiat', () => {
   it('should return an array of account IDs sorted by fiat balance', () => {
     const expected = [ethAccountSpecifier2, ethAccountSpecifier1]
-    const result = selectPortfolioAccountBalancesSortedFiat(state)
+    const result = selectPortfolioAccountIdsSortedFiat(state)
 
     expect(result).toEqual(expected)
   })

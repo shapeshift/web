@@ -582,7 +582,7 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
   }
 )
 
-export const selectPortfolioAccountBalancesSortedFiat = createSelector(
+export const selectPortfolioAccountIdsSortedFiat = createSelector(
   selectPortfolioTotalFiatBalanceByAccount,
   totalAccountBalances => {
     return Object.entries(totalAccountBalances)

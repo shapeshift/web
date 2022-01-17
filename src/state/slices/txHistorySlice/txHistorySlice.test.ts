@@ -174,16 +174,16 @@ describe('txHistorySlice', () => {
       )
 
       expect(store.getState().txHistory.byAccountId[ethAccountSpecifier]).toStrictEqual([
-        EthSend.txid,
-        EthReceive.txid
+        makeUniqueTxId(EthSend, ethAccountSpecifier),
+        makeUniqueTxId(EthReceive, ethAccountSpecifier)
       ])
 
       expect(store.getState().txHistory.byAccountId[segwitNativeAccountSpecifier]).toStrictEqual([
-        BtcSend.txid
+        makeUniqueTxId(BtcSend, segwitNativeAccountSpecifier)
       ])
 
       expect(store.getState().txHistory.byAccountId[segwitAccountSpecifier]).toStrictEqual([
-        BtcSendSegwit.txid
+        makeUniqueTxId(BtcSendSegwit, segwitAccountSpecifier)
       ])
     })
   })

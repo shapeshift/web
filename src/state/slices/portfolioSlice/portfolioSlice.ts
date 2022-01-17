@@ -524,37 +524,10 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
       }, {})
 )
 
-export const selectPortfolioAccountBalancesSortedFiat = createSelector(
-  selectPortfolioFiatAccountBalances,
-  portfolioAccountFiatBalances => {
-    const result = Object.entries(portfolioAccountFiatBalances).map(([id, obj]) => {
-      const sum = Object.values(obj).reduce((acc, value) => {
-        console.log({ obj, acc, value })
-        return bnOrZero(acc).plus(value).toString()
-      }, bnOrZero(0).toString())
-      return {
-        [id]: sum
-      }
-    })
-    const result1 = result.sort(({aId, aVal}, {bId, bVal}) => {
-      return bnOrZero(aVal).gte(bnOrZero(bVal)) ? -1 : 1
-    })
-    console.log({ result })
-    return []
-    //   const result = Object.entries(portfolioFiatBalances)
-    //     .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-    //     .reduce((acc, [accountId, accountFiatBalance]) => {
-
-    //     }, [])
-    //   return []
-  }
-)
-
 export const selectPortfolioAssetIdsSortedFiat = createSelector(
   selectPortfolioAssetBalancesSortedFiat,
   (sortedBalances): CAIP19[] => Object.keys(sortedBalances)
 )
-
 
 export const selectPortfolioAllocationPercent = createSelector(
   selectPortfolioTotalFiatBalance,
@@ -606,6 +579,15 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
     }, {})
 
     return balanceAllocationById[accountId]
+  }
+)
+
+export const selectPortfolioAccountBalancesSortedFiat = createSelector(
+  selectPortfolioTotalFiatBalanceByAccount,
+  totalAccountBalances => {
+    return Object.entries(totalAccountBalances)
+      .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
+      .map(([acctId, _]) => acctId)
   }
 )
 

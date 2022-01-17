@@ -559,43 +559,18 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
   }
 )
 
-export const selectPortfolioTotalFiatBalancesForFeeAssetOnly = createSelector(
-  selectPortfolioFiatAccountBalances,
-  accountBalances => {
-    return Object.entries(accountBalances).reduce<{ [k: AccountSpecifier]: string }>(
-      (acc, [accountId, balanceObj]) => {
-        const totalAccountFiatBalance = Object.entries(balanceObj).reduce(
-          (totalBalance, [assetId, assetBalance]) => {
-            // If the asset is NOT a fee asset, skip it
-            if (!FEE_ASSET_IDS.includes(assetId)) {
-              return totalBalance
-            }
-
-            return bnOrZero(bn(totalBalance).plus(bn(assetBalance))).toFixed(2)
-          },
-          '0'
-        )
-
-        acc[accountId] = totalAccountFiatBalance
-        return acc
-      },
-      {}
-    )
-  }
-)
-
 export const selectPortfolioAllocationPercentByFilter = createSelector(
   selectPortfolioFiatBalances,
-  selectPortfolioTotalFiatBalancesForFeeAssetOnly,
+  selectPortfolioFiatAccountBalances,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  (totalFiatBalances, totalBalancesByAccount, accountId, assetId) => {
-    const totalFiatBalance = totalFiatBalances[assetId]
-    const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce<{
+  (assetFiatBalances, assetFiatBalancesByAccount, accountId, assetId) => {
+    const totalAssetFiatBalance = assetFiatBalances[assetId]
+    const balanceAllocationById = Object.entries(assetFiatBalancesByAccount).reduce<{
       [k: AccountSpecifier]: number
-    }>((acc, [currentAccountId, accountBalance]) => {
-      const allocation = bnOrZero(accountBalance)
-        .div(bnOrZero(totalFiatBalance))
+    }>((acc, [currentAccountId, assetAccountFiatBalance]) => {
+      const allocation = bnOrZero(assetAccountFiatBalance[assetId])
+        .div(bnOrZero(totalAssetFiatBalance))
         .times(100)
         .toNumber()
 

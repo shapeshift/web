@@ -14,8 +14,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectPortfolioTotalFiatBalancesForFeeAssetOnly
+  selectPortfolioTotalFiatBalanceByAccount
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -439,18 +438,6 @@ describe('Fiat Balance Selectors', () => {
 
       const result = selectPortfolioTotalFiatBalanceByAccount(state)
       expect(result).toEqual(expected)
-    })
-  })
-
-  describe('selectPortfolioTotalFiatBalancesForFeeAssetOnly', () => {
-    it('should return the total balances by account for fee asssets only - ie Bitcoin/Ethereum', () => {
-      const expected = {
-        [ethAccountSpecifier1]: '27.80',
-        [ethAccountSpecifier2]: '87.80'
-      }
-
-      const result = selectPortfolioTotalFiatBalancesForFeeAssetOnly(state)
-      expect(expected).toEqual(result)
     })
   })
 })

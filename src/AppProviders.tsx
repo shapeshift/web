@@ -7,6 +7,7 @@ import React from 'react'
 import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import { ScrollToTop } from 'Routes/ScrollToTop'
 import { translations } from 'assets/translations'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -45,6 +46,7 @@ export function AppProviders({ children }: ProvidersProps) {
       <ChakraProvider theme={theme}>
         <ColorModeScript />
         <BrowserRouter>
+          <ScrollToTop />
           <BrowserRouterProvider>
             <I18n locale={locale} messages={messages}>
               <WalletProvider>

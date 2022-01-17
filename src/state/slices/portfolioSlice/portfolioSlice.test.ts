@@ -7,15 +7,14 @@ import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
-  selectPortfolioAllocationPercentByAccountId,
+  selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectPortfolioTotalFiatBalancesForFeeAssetOnly
+  selectPortfolioTotalFiatBalanceByAccount
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -346,7 +345,7 @@ describe('selectPortfolioAllocationPercentByAccountId', () => {
   it('can select fiat allocation by accountId', () => {
     const returnValue = 75.94498745783237
 
-    const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(state, {
+    const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
       accountId: ethAccountSpecifier2,
       assetId: ethCaip19
     })
@@ -439,18 +438,6 @@ describe('Fiat Balance Selectors', () => {
 
       const result = selectPortfolioTotalFiatBalanceByAccount(state)
       expect(result).toEqual(expected)
-    })
-  })
-
-  describe('selectPortfolioTotalFiatBalancesForFeeAssetOnly', () => {
-    it('should return the total balances by account for fee asssets only - ie Bitcoin/Ethereum', () => {
-      const expected = {
-        [ethAccountSpecifier1]: '27.80',
-        [ethAccountSpecifier2]: '87.80'
-      }
-
-      const result = selectPortfolioTotalFiatBalancesForFeeAssetOnly(state)
-      expect(expected).toEqual(result)
     })
   })
 })

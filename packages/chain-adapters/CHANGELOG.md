@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.24.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.23.1...@shapeshiftoss/chain-adapters-v1.24.0) (2022-01-17)
+
+
+### Features
+
+* add ENS validation ([#296](https://github.com/shapeshift/lib/issues/296)) ([7b92c24](https://github.com/shapeshift/lib/commit/7b92c246905f59d62a96e9071e391ee8369c2133))
+
 # [@shapeshiftoss/chain-adapters-v1.23.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.23.0...@shapeshiftoss/chain-adapters-v1.23.1) (2022-01-12)
 
 

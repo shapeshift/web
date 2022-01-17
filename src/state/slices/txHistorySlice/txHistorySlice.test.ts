@@ -4,7 +4,7 @@ import { mockStore } from 'test/mocks/store'
 import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
 import { store } from 'state/store'
 
-import { selectLastNTxIds, txHistory } from './txHistorySlice'
+import { makeUniqueTxId, selectLastNTxIds, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   it('returns empty object for initialState', async () => {
@@ -26,15 +26,15 @@ describe('txHistorySlice', () => {
     it('can sort txs going into store', async () => {
       // testTxs are in ascending order by time
       const transactions = reverse([...ethereumTransactions])
+      const ethCAIP2 = EthSend.caip2
+      const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
       // expected transaction order
-      const expected = map(transactions, 'txid')
+      const expected = map(transactions, tx => makeUniqueTxId(tx, accountSpecifier))
 
       store.dispatch(txHistory.actions.clear())
 
       // shuffle txs before inserting them into the store
       const shuffledTxs = reverse(transactions) // transactions in the wrong order
-      const ethCAIP2 = EthSend.caip2
-      const accountSpecifier = `${ethCAIP2}:0xdef1cafe`
       shuffledTxs.forEach(tx =>
         store.dispatch(txHistory.actions.onMessage({ message: tx, accountSpecifier }))
       )

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAccountIdByAddress } from 'state/slices/portfolioSlice/portfolioSlice'
 import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -29,9 +30,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const chain = adapter.getType()
-        const caip2 = await adapter.getCaip2()
+        const chainId = await adapter.getCaip2()
+        if (!walletSupportChain({ chainId, wallet })) continue
 
-        const asset = Object.values(assets).find(asset => asset.caip2 === caip2)
+        const asset = Object.values(assets).find(asset => asset.caip2 === chainId)
         if (!asset) {
           throw new Error(`asset not found for chain ${chain}`)
         }

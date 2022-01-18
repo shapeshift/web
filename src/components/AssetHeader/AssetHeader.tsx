@@ -63,6 +63,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const chainId = asset.caip2
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const isLoaded = !!marketData
   const { name, symbol, description, icon } = asset || {}
@@ -79,7 +80,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
     state: { wallet }
   } = useWallet()
 
-  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance = useAppSelector(state =>

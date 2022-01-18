@@ -1,4 +1,4 @@
-import { DepositValues } from 'features/earn/components/Deposit/Deposit'
+import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
 import { YearnVault } from '../../../api/api'
 
@@ -6,23 +6,23 @@ type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type YearnDepositValues = DepositValues &
+type YearnWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
   }
 
-type YearnDepositState = {
+type YearnWithdrawState = {
   vault: YearnVault
   userAddress: string | null
   approve: EstimatedGas
-  deposit: YearnDepositValues
+  withdraw: YearnWithdrawValues
   loading: boolean
   pricePerShare: string
   txid: string | null
 }
 
-export const initialState: YearnDepositState = {
+export const initialState: YearnWithdrawState = {
   txid: null,
   vault: {
     inception: 0,
@@ -57,7 +57,7 @@ export const initialState: YearnDepositState = {
   loading: false,
   approve: {},
   pricePerShare: '',
-  deposit: {
+  withdraw: {
     fiatAmount: '',
     cryptoAmount: '',
     slippage: '',
@@ -66,11 +66,10 @@ export const initialState: YearnDepositState = {
   }
 }
 
-export enum YearnDepositActionType {
+export enum YearnWithdrawActionType {
   SET_VAULT = 'SET_VAULT',
-  SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
-  SET_DEPOSIT = 'SET_DEPOSIT',
+  SET_WITHDRAW = 'SET_WITHDRAW',
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
@@ -78,64 +77,56 @@ export enum YearnDepositActionType {
 }
 
 type SetVaultAction = {
-  type: YearnDepositActionType.SET_VAULT
+  type: YearnWithdrawActionType.SET_VAULT
   payload: YearnVault | null
 }
 
-type SetApprove = {
-  type: YearnDepositActionType.SET_APPROVE
-  payload: EstimatedGas
-}
-
-type SetDeposit = {
-  type: YearnDepositActionType.SET_DEPOSIT
-  payload: Partial<YearnDepositValues>
+type SetWithdraw = {
+  type: YearnWithdrawActionType.SET_WITHDRAW
+  payload: Partial<YearnWithdrawValues>
 }
 
 type SetUserAddress = {
-  type: YearnDepositActionType.SET_USER_ADDRESS
+  type: YearnWithdrawActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: YearnDepositActionType.SET_LOADING
+  type: YearnWithdrawActionType.SET_LOADING
   payload: boolean
 }
 
 type SetPricePerShare = {
-  type: YearnDepositActionType.SET_PRICE_PER_SHARE
+  type: YearnWithdrawActionType.SET_PRICE_PER_SHARE
   payload: string
 }
 
 type SetTxid = {
-  type: YearnDepositActionType.SET_TXID
+  type: YearnWithdrawActionType.SET_TXID
   payload: string
 }
 
-type YearnDepositActions =
+type YearnWithdrawActions =
   | SetVaultAction
-  | SetApprove
-  | SetDeposit
+  | SetWithdraw
   | SetUserAddress
   | SetLoading
   | SetPricePerShare
   | SetTxid
 
-export const reducer = (state: YearnDepositState, action: YearnDepositActions) => {
+export const reducer = (state: YearnWithdrawState, action: YearnWithdrawActions) => {
   switch (action.type) {
-    case YearnDepositActionType.SET_VAULT:
+    case YearnWithdrawActionType.SET_VAULT:
       return { ...state, vault: { ...state.vault, ...action.payload } }
-    case YearnDepositActionType.SET_APPROVE:
-      return { ...state, approve: action.payload }
-    case YearnDepositActionType.SET_DEPOSIT:
-      return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case YearnDepositActionType.SET_USER_ADDRESS:
+    case YearnWithdrawActionType.SET_WITHDRAW:
+      return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
+    case YearnWithdrawActionType.SET_USER_ADDRESS:
       return { ...state, userAddress: action.payload }
-    case YearnDepositActionType.SET_LOADING:
+    case YearnWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case YearnDepositActionType.SET_PRICE_PER_SHARE:
+    case YearnWithdrawActionType.SET_PRICE_PER_SHARE:
       return { ...state, pricePerShare: action.payload }
-    case YearnDepositActionType.SET_TXID:
+    case YearnWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:
       return state

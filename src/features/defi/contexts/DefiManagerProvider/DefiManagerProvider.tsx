@@ -1,80 +1,80 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { YearnProvider } from 'features/earn/contexts/YearnProvider/YearnProvider'
+import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
-import { EarnModal } from '../../components/EarnModal/EarnModal'
+import { DefiModal } from '../../components/DefiModal/DefiModal'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 
-export enum EarnType {
+export enum DefiType {
   Pool = 'pool',
   Vault = 'vault',
   Staking = 'staking',
   Farming = 'farming'
 }
 
-export enum EarnProvider {
+export enum DefiProvider {
   Yearn = 'yearn'
 }
 
-export enum EarnAction {
+export enum DefiAction {
   Deposit = 'deposit',
   Withdraw = 'withdraw'
 }
 
-export type EarnParams = {
-  provider: EarnProvider
-  earnType: EarnType
-  action: EarnAction
+export type DefiParams = {
+  provider: DefiProvider
+  earnType: DefiType
+  action: DefiAction
 }
 
-export type EarnQueryParams = {
+export type DefiQueryParams = {
   chain: ChainTypes
   contractAddress: string
   tokenId?: string
 }
 
-type EarnManagerProviderProps = {
+type DefiManagerProviderProps = {
   children: React.ReactNode
 }
 
-type EarnManagerContextProps = {
+type DefiManagerContextProps = {
   open(): void
   close(): void
 }
 
-const EarnManagerContext = React.createContext<EarnManagerContextProps | null>(null)
+const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
-const EarnModules = {
-  [EarnProvider.Yearn]: YearnManager
+const DefiModules = {
+  [DefiProvider.Yearn]: YearnManager
 }
 
-export function EarnManagerProvider({ children }: EarnManagerProviderProps) {
+export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   const location = useLocation<{ background: any }>()
   const background = location.state && location.state.background
 
   return (
-    <EarnManagerContext.Provider value={null}>
+    <DefiManagerContext.Provider value={null}>
       <YearnProvider>
         {children}
         {background && (
           <Route
-            path='/earn/:earnType/:provider/:action'
+            path='/defi/:earnType/:provider/:action'
             render={({ match: { params } }) => {
               const { provider } = params
-              const Module = EarnModules[provider as EarnProvider]
-              return <EarnModal>{Module ? <Module /> : <NotFound />}</EarnModal>
+              const Module = DefiModules[provider as DefiProvider]
+              return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
             }}
           />
         )}
       </YearnProvider>
-    </EarnManagerContext.Provider>
+    </DefiManagerContext.Provider>
   )
 }
 
 export function useEarnManager() {
-  const context = useContext(EarnManagerContext)
+  const context = useContext(DefiManagerContext)
   if (!context) throw new Error("useEarnManager can't be used outside of EarnManagerProvider")
   return context
 }

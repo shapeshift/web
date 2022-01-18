@@ -1,11 +1,11 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
-import { YearnVaultApi } from 'features/earn/providers/yearn/api/api'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { YearnVaultApi } from 'features/defi/providers/yearn/api/api'
 import {
   SUPPORTED_VAULTS,
   SupportedYearnVault
-} from 'features/earn/providers/yearn/constants/vaults'
+} from 'features/defi/providers/yearn/constants/vaults'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'

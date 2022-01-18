@@ -1,8 +1,8 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, Stack } from '@chakra-ui/react'
+import { Box, Button, HStack, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
-import { SUPPORTED_VAULTS } from 'features/earn/providers/yearn/constants/vaults'
+import { SUPPORTED_VAULTS } from 'features/defi/providers/yearn/constants/vaults'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -12,16 +12,16 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 
-import { StakingVaultRow } from './StakingVaultRow'
+import { EarnOpportunityRow } from './EarnOpportunityRow'
 
-type StakingVaultsProps = {
+type EarnOpportunitiesProps = {
   tokenId?: string
   assetId: CAIP19
   accountId?: AccountSpecifier
   isLoaded?: boolean
 }
 
-export const StakingVaults = ({ assetId: caip19 }: StakingVaultsProps) => {
+export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
@@ -38,27 +38,23 @@ export const StakingVaults = ({ assetId: caip19 }: StakingVaultsProps) => {
   return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
-        <Box>
-          <Card.Heading>
-            <Text translation='assets.assetCards.stakingVaults' />
-          </Card.Heading>
-          <Text color='gray.500' translation='assets.assetCards.stakingBody' />
-        </Box>
-        <Button
-          size='sm'
-          ml='auto'
-          variant='link'
-          colorScheme='blue'
-          as={NavLink}
-          to='/earn/staking-vaults'
-        >
-          <Text translation='common.seeAll' /> <ArrowForwardIcon />
-        </Button>
+        <HStack gap={6}>
+          <Box>
+            <Card.Heading>
+              <Text translation='defi.earn' />
+            </Card.Heading>
+            <Text color='gray.500' translation='defi.earnBody' />
+          </Box>
+
+          <Button size='sm' variant='link' colorScheme='blue' as={NavLink} to='/defi/earn'>
+            <Text translation='common.seeAll' /> <ArrowForwardIcon />
+          </Button>
+        </HStack>
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           {vaults.map(vault => (
-            <StakingVaultRow {...vault} key={vault.tokenAddress} isLoaded={!!vault} />
+            <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
           ))}
         </Stack>
       </Card.Body>

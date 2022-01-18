@@ -13,15 +13,15 @@ import {
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { Approve } from 'features/earn/components/Approve/Approve'
-import { Confirm } from 'features/earn/components/Confirm/Confirm'
-import { Deposit, DepositValues } from 'features/earn/components/Deposit/Deposit'
-import { EarnActionButtons } from 'features/earn/components/EarnActionButtons'
-import { TxStatus } from 'features/earn/components/TxStatus/TxStatus'
+import { Approve } from 'features/defi/components/Approve/Approve'
+import { Confirm } from 'features/defi/components/Confirm/Confirm'
+import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
+import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import {
-  EarnParams,
-  EarnQueryParams
-} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
+  DefiParams,
+  DefiQueryParams
+} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
@@ -78,7 +78,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
+  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
@@ -310,7 +310,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const handleViewPosition = () => {
-    browserHistory.push('/earn')
+    browserHistory.push('/defi')
   }
 
   const handleCancel = () => {
@@ -630,7 +630,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         minWidth={{ base: 'auto', lg: '450px' }}
         maxWidth={{ base: 'auto', lg: '450px' }}
       >
-        {depositRoute && <EarnActionButtons />}
+        {depositRoute && <DefiActionButtons />}
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>

@@ -3,9 +3,9 @@ import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
-import { YearnVault } from 'features/earn/providers/yearn/api/api'
-import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { YearnVault } from 'features/defi/providers/yearn/api/api'
+import { SupportedYearnVault } from 'features/defi/providers/yearn/constants/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -19,7 +19,7 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
-export const StakingVaultRow = ({
+export const EarnOpportunityRow = ({
   type,
   provider,
   vaultAddress,
@@ -54,7 +54,7 @@ export const StakingVaultRow = ({
   const handleClick = () => {
     isConnected
       ? history.push({
-          pathname: `/earn/${type}/${provider}/deposit`,
+          pathname: `/defi/${type}/${provider}/deposit`,
           search: qs.stringify({
             chain,
             contractAddress: vaultAddress,

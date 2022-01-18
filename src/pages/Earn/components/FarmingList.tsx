@@ -37,7 +37,7 @@ export const FarmingList = () => {
             <FaTractor />
           </IconCircle>
           <Heading fontSize='lg' ml={3}>
-            <Text translation='earn.farming' />
+            <Text translation='defi.farming' />
           </Heading>
         </Flex>
         <Button
@@ -45,7 +45,7 @@ export const FarmingList = () => {
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}
           as={NavLink}
-          to='/earn/farming'
+          to='/defi/farming'
         >
           <Text translation='common.seeAll' />
         </Button>
@@ -71,10 +71,10 @@ export const FarmingList = () => {
               fontSize='lg'
               mb={2}
               color='gray.500'
-              translation='earn.empty.farming.body'
+              translation='defi.empty.farming.body'
             />
             <Button variant='ghost' colorScheme='blue'>
-              <Text translation='earn.empty.farming.cta' />
+              <Text translation='defi.empty.farming.cta' />
             </Button>
           </Card.Body>
         </Card>

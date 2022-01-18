@@ -51,7 +51,7 @@ export const PoolList = () => {
             <FaWater />
           </IconCircle>
           <Heading fontSize='lg' ml={3}>
-            <Text translation='earn.liquidityPools' />
+            <Text translation='defi.liquidityPools' />
           </Heading>
         </Flex>
         <Button
@@ -59,7 +59,7 @@ export const PoolList = () => {
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}
           as={NavLink}
-          to='/earn/liquidity-pools'
+          to='/defi/liquidity-pools'
         >
           <Text translation='common.seeAll' />
         </Button>
@@ -85,10 +85,10 @@ export const PoolList = () => {
               fontSize='lg'
               mb={2}
               color='gray.500'
-              translation='earn.empty.pools.body'
+              translation='defi.empty.pools.body'
             />
             <Button variant='ghost' colorScheme='blue'>
-              <Text translation='earn.empty.pools.cta' />
+              <Text translation='defi.empty.pools.cta' />
             </Button>
           </Card.Body>
         </Card>

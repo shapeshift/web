@@ -9,7 +9,7 @@ type EarnModalProps = {
 /**
  * Earn modal is linked to the router. When closed we return to the previous/background route
  */
-export const EarnModal = ({ children }: EarnModalProps) => {
+export const DefiModal = ({ children }: EarnModalProps) => {
   const history = useHistory()
   return (
     <Modal isOpen onClose={history.goBack} variant='fluid-footer'>

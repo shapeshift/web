@@ -1,9 +1,9 @@
 import { Center } from '@chakra-ui/layout'
 import {
-  EarnAction,
-  EarnParams
-} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
-import { useYearn } from 'features/earn/contexts/YearnProvider/YearnProvider'
+  DefiAction,
+  DefiParams
+} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { MemoryRouter, useParams } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
@@ -11,7 +11,7 @@ import { routes as deposit, YearnDeposit } from './Deposit/YearnDeposit'
 import { routes as withdraw, YearnWithdraw } from './Withdraw/YearnWithdraw'
 
 export const YearnManager = () => {
-  const params = useParams<EarnParams>()
+  const params = useParams<DefiParams>()
   const { yearn } = useYearn()
 
   if (!yearn)
@@ -21,7 +21,7 @@ export const YearnManager = () => {
       </Center>
     )
 
-  return params.action === EarnAction.Deposit ? (
+  return params.action === DefiAction.Deposit ? (
     <MemoryRouter key='deposit' initialIndex={0} initialEntries={deposit.map(route => route.path)}>
       <YearnDeposit api={yearn} />
     </MemoryRouter>

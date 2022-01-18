@@ -2,14 +2,14 @@ import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { Confirm } from 'features/earn/components/Confirm/Confirm'
-import { EarnActionButtons } from 'features/earn/components/EarnActionButtons'
-import { TxStatus } from 'features/earn/components/TxStatus/TxStatus'
-import { Withdraw, WithdrawValues } from 'features/earn/components/Withdraw/Withdraw'
+import { Confirm } from 'features/defi/components/Confirm/Confirm'
+import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
+import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import {
-  EarnParams,
-  EarnQueryParams
-} from 'features/earn/contexts/EarnManagerProvider/EarnManagerProvider'
+  DefiParams,
+  DefiQueryParams
+} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
@@ -58,7 +58,7 @@ type YearnWithdrawProps = {
 
 export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
+  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
@@ -183,7 +183,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleViewPosition = () => {
-    browserHistory.push('/earn')
+    browserHistory.push('/defi')
   }
 
   const handleCancel = () => {
@@ -283,7 +283,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawFrom' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <Text translation='earn.yearn' />
+                  <Text translation='defi.yearn' />
                 </Row.Value>
               </Row>
               <Row>
@@ -435,7 +435,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     >
       <YearnRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {withdrawRoute && <EarnActionButtons />}
+        {withdrawRoute && <DefiActionButtons />}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

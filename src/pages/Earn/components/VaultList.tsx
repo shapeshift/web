@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Flex, Heading, SimpleGrid } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
-import { FaLock } from 'react-icons/fa'
+import { FaPiggyBank } from 'react-icons/fa'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
@@ -20,13 +20,13 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
 
   return (
     <Box mb={6}>
-      <Flex alignItems='center' mb={6} justifyContent='space-between'>
+      <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, lg: 0 }}>
         <Flex alignItems='center' color='gray.500'>
           <IconCircle>
-            <FaLock />
+            <FaPiggyBank />
           </IconCircle>
           <Heading fontSize='lg' ml={3}>
-            <Text translation='earn.stakingVaults' />
+            <Text translation='defi.earn' />
           </Heading>
         </Flex>
         <Button
@@ -34,7 +34,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}
           as={NavLink}
-          to='/earn/staking-vaults'
+          to='/defi/earn'
         >
           <Text translation='common.seeAll' />
         </Button>
@@ -52,7 +52,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>
               <IconCircle fontSize='2xl' boxSize='16'>
-                <FaLock />
+                <FaPiggyBank />
               </IconCircle>
             </Flex>
             <Text
@@ -60,10 +60,10 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
               fontSize='lg'
               mb={2}
               color='gray.500'
-              translation='earn.empty.stakingVaults.body'
+              translation='defi.earnBody'
             />
-            <Button variant='ghost' colorScheme='blue' as={NavLink} to='/earn/staking-vaults'>
-              <Text translation='earn.empty.stakingVaults.cta' />
+            <Button variant='ghost' colorScheme='blue' as={NavLink} to='/defi/earn'>
+              <Text translation='defi.empty.stakingVaults.cta' />
             </Button>
           </Card.Body>
         </Card>

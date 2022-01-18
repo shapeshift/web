@@ -6,7 +6,7 @@ export const LiquidityPools = () => {
   return (
     <Page>
       <Box width='full'>
-        <Text translation='earn.liquidityPools' />
+        <Text translation='defi.liquidityPools' />
       </Box>
     </Page>
   )

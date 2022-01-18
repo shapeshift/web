@@ -1,6 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { YearnVaultApi } from 'features/earn/providers/yearn/api/api'
+import { YearnVaultApi } from 'features/defi/providers/yearn/api/api'
 import React, { useContext, useEffect, useState } from 'react'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 

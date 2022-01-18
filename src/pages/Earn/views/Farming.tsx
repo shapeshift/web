@@ -6,7 +6,7 @@ export const Farming = () => {
   return (
     <Page>
       <Box width='full'>
-        <Text translation='earn.farming' />
+        <Text translation='defi.farming' />
       </Box>
     </Page>
   )

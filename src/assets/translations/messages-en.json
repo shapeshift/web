@@ -71,6 +71,11 @@
   },
   "earn": {
     "earn": "Earn",
+    "defi": "DeFi",
+    "defiBody": "Explore a growing universe of DeFi opportunities.",
+    "netWorth": "Net Worth",
+    "walletBalance": "Wallet Balance",
+    "earnBalance": "Earn Balance",
     "earnBody": "Earn interest on your crypto assets.",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
@@ -505,7 +510,7 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking or depositing your assets into a vault.",
+      "stakingBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
       "pools": "Pools"
     }
   },

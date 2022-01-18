@@ -2,6 +2,7 @@ import { Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
@@ -23,25 +24,35 @@ function EarnStat({ label, value }: EarnStatProps) {
   )
 }
 
-export const OverviewHeader = ({ balances }: { balances: UseEarnBalancesReturn }) => {
-  if (balances.vaults.loading) return null
+export const OverviewHeader = ({
+  earnBalance,
+  walletBalance
+}: {
+  earnBalance: UseEarnBalancesReturn
+  walletBalance: string
+}) => {
+  if (earnBalance.vaults.loading) return null
+
+  const netWorth = bn(earnBalance.totalEarningBalance).plus(bn(walletBalance)).toString()
+
   return (
-    <Card variant='unstyled'>
+    <Card variant='unstyled' textAlign='center'>
       <Card.Header px={0}>
         <StatGroup>
           <Stat>
             <StatLabel>
-              <Text translation='earn.totalEarningBalance' />
+              <Text translation='earn.netWorth' />
             </StatLabel>
             <StatNumber fontSize={48}>
-              <Amount.Fiat value={balances.totalEarningBalance} />
+              <Amount.Fiat value={netWorth} />
             </StatNumber>
           </Stat>
         </StatGroup>
       </Card.Header>
       <Card.Body px={0}>
-        <StatGroup>
-          <EarnStat label='earn.stakingBalance' value={balances.vaults.totalBalance} />
+        <StatGroup borderWidth={1} borderColor='gray.700' borderRadius='lg' py={6}>
+          <EarnStat label='earn.walletBalance' value={walletBalance} />
+          <EarnStat label='earn.earnBalance' value={earnBalance.totalEarningBalance} />
         </StatGroup>
       </Card.Body>
     </Card>

@@ -14,8 +14,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ensInstance } from 'lib/ens-instance'
-import {isAddress} from 'lib/utils'
 import { fromBaseUnit } from 'lib/math'
+import { isAddress } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -105,6 +105,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           wallet
         })
         const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+        const ensAddress = await ensInstance.name(value).getAddress()
         const to = isAddress(values.address) ? values.address : ensAddress
         return ethereumChainAdapter.getFeeData({
           to,

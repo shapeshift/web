@@ -1,7 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
@@ -15,7 +15,7 @@ import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 // We should prob change this once we add more chains
-const feeAssetIds = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
+const FEE_ASSET_IDS = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
 
 /*
  * we can't retrieve an xpub from an address, but we can derive
@@ -32,6 +32,11 @@ const feeAssetIds = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831
  * and also show me all the bitcoin i have across all different accountTypes
  * and addresses, and also preempts supporting more than accountIndex 0 in future
  */
+
+// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
+// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
+export type AccountSpecifier = string
+
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
@@ -52,10 +57,6 @@ export type PortfolioAssetBalances = {
   // all asset ids in an account
   ids: CAIP19[]
 }
-
-// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
-// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
-export type AccountSpecifier = string
 
 export type PortfolioAccountBalances = {
   byId: {
@@ -465,48 +466,6 @@ export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
 )
 
-// TODO(0xdef1cafe): this selector is a hack and needs to be deleted once the account pages are done
-// do not use it or i'll hurt you
-export const selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId = createSelector(
-  selectAssets,
-  selectPortfolioAssetBalances,
-  selectPortfolioAccountBalances,
-  selectAssetIdParam,
-  (_state: ReduxState, _assetId: string, accountType: UtxoAccountType | undefined) => accountType,
-  (assets, balances, accountBalances, assetId, accountType): string => {
-    if (!accountType) {
-      // in the case of eth, this was working ok, and we only support a single account at the moment,
-      // so we can use the portfolio balance
-      // TODO(0xdef1cafe): we need to fix this to use the accountId and the assetId when we're implementing
-      // account pages - this will break once we support more than accountIndex 0 for account based chains
-      return fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
-    } else {
-      const accountTypeToPubMap = {
-        [UtxoAccountType.P2pkh]: 'xpub', // legacy
-        [UtxoAccountType.SegwitP2sh]: 'ypub', // segwit
-        [UtxoAccountType.SegwitNative]: 'zpub' // segwit native
-      }
-      const searchString = accountTypeToPubMap[accountType]
-      const accountId = Object.keys(accountBalances).find(key => {
-        // only find bitcoin accounts
-        return key.startsWith(assets[assetId].caip2) && key.includes(`:${searchString}`)
-      })!
-      return fromBaseUnit(
-        bnOrZero(accountBalances[accountId]?.[assetId]),
-        assets[assetId]?.precision ?? 0
-      )
-    }
-  }
-)
-
-export const selectPortfolioFiatBalanceByAccountTypeAndAssetId = createSelector(
-  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
-  selectMarketData,
-  selectAssetIdParam,
-  (accountCryptoHumanBalance, marketData, assetId): string =>
-    bnOrZero(accountCryptoHumanBalance).times(bnOrZero(marketData[assetId]?.price)).toFixed(2)
-)
-
 export type PortfolioAssets = {
   [k: CAIP19]: Asset
 }
@@ -556,6 +515,47 @@ export const selectPortfolioAllocationPercent = createSelector(
     }, {})
 )
 
+export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
+  selectPortfolioFiatAccountBalances,
+  accountBalances => {
+    return Object.entries(accountBalances).reduce<{ [k: AccountSpecifier]: string }>(
+      (acc, [accountId, balanceObj]) => {
+        const totalAccountFiatBalance = Object.values(balanceObj).reduce(
+          (totalBalance, currentBalance) => {
+            return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toFixed(2)
+          },
+          '0'
+        )
+
+        acc[accountId] = totalAccountFiatBalance
+        return acc
+      },
+      {}
+    )
+  }
+)
+
+export const selectPortfolioAllocationPercentByAccountId = createSelector(
+  selectPortfolioTotalFiatBalance,
+  selectPortfolioTotalFiatBalanceByAccount,
+  selectAccountIdParam,
+  (totalFiatBalance, totalBalancesByAccount, accountId) => {
+    const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce<{
+      [k: AccountSpecifier]: number
+    }>((acc, [currentAccountId, accountBalance]) => {
+      const allocation = bnOrZero(accountBalance)
+        .div(bnOrZero(totalFiatBalance))
+        .times(100)
+        .toNumber()
+
+      acc[currentAccountId] = allocation
+      return acc
+    }, {})
+
+    return balanceAllocationById[accountId]
+  }
+)
+
 export const selectPortfolioIsEmpty = createSelector(
   selectPortfolioAssetIds,
   (assetIds): boolean => !assetIds.length
@@ -588,7 +588,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectAssets,
   selectPortfolioAssetIdsByAccountId,
   (assets, assetIds) =>
-    assetIds.filter(assetId => !feeAssetIds.includes(assetId) && assets[assetId])
+    assetIds.filter(assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId])
 )
 
 export const selectAccountIdByAddress = createSelector(

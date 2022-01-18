@@ -11,6 +11,7 @@ import {
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
+  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
@@ -456,6 +457,17 @@ describe('selectPortfolioAccountIdsSortedFiat', () => {
   it('should return an array of account IDs sorted by fiat balance', () => {
     const expected = [ethAccountSpecifier2, ethAccountSpecifier1]
     const result = selectPortfolioAccountIdsSortedFiat(state)
+
+    expect(result).toEqual(expected)
+  })
+})
+
+describe('selectPortfolioAssetIdsByAccountIdExcludeFeeAsset', () => {
+  it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
+    // TODO(ryankk): refactor test state to make it easier to add new assets. This is a pretty pointless test with only two
+    // assets in state (one of them being a fee asset), but want to keep it here for reference.
+    const expected = [foxCaip19]
+    const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, ethAccountSpecifier1)
 
     expect(result).toEqual(expected)
   })

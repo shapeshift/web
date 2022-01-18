@@ -475,7 +475,7 @@ export const selectPortfolioCryptoBalanceByFilter = createSelector(
     if (accountId && assetId) {
       return fromBaseUnit(
         bnOrZero(accountBalances[accountId][assetId]),
-        assets[assetId].precision ?? 0
+        assets[assetId]?.precision ?? 0
       )
     }
     return assetBalances[assetId] ?? 0
@@ -522,6 +522,25 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
         acc[assetId] = assetFiatBalance
         return acc
       }, {})
+)
+
+export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
+  selectPortfolioFiatAccountBalances,
+  (portfolioFiatAccountBalances): { [k: AccountSpecifier]: { [k: CAIP19]: string } } => {
+    return Object.entries(portfolioFiatAccountBalances).reduce<{
+      [k: AccountSpecifier]: { [k: CAIP19]: string }
+    }>((acc, [accountId, assetBalanceObj]) => {
+      const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
+        .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
+        .reduce<{ [k: CAIP19]: string }>((acc, [assetId, assetFiatBalance]) => {
+          acc[assetId] = assetFiatBalance
+          return acc
+        }, {})
+
+      acc[accountId] = sortedAssetsByFiatBalances
+      return acc
+    }, {})
+  }
 )
 
 export const selectPortfolioAssetIdsSortedFiat = createSelector(
@@ -620,10 +639,14 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
 )
 
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
-  selectAssets,
-  selectPortfolioAssetIdsByAccountId,
-  (assets, assetIds) =>
-    assetIds.filter(assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId])
+  selectPortfolioAssetAccountBalancesSortedFiat,
+  selectAccountIdParam,
+  (accountAssets, accountId) => {
+    const assetsByAccountIds = accountAssets[accountId]
+    return Object.entries(assetsByAccountIds)
+      .map(([assetId, _]) => assetId)
+      .filter(assetId => !FEE_ASSET_IDS.includes(assetId))
+  }
 )
 
 export const selectAccountIdByAddress = createSelector(

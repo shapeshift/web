@@ -473,12 +473,9 @@ export const selectPortfolioCryptoBalanceByFilter = createSelector(
   selectAssetIdParamFromFilterOptional,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
-      return fromBaseUnit(
-        bnOrZero(accountBalances[accountId][assetId]),
-        assets[assetId]?.precision ?? 0
-      )
+      return accountBalances[accountId][assetId] ?? '0'
     }
-    return assetBalances[assetId] ?? 0
+    return assetBalances[assetId] ?? '0'
   }
 )
 

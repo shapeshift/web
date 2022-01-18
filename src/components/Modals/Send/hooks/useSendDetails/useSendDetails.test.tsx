@@ -188,13 +188,13 @@ xdescribe('useSendDetails', () => {
     // Set fiat amount
     await act(async () => {
       result.current.handleInputChange('3500')
-      jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
+      jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
 
       setValue.mockClear()
 
       result.current.handleInputChange('0')
-      jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
+      jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
       expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
       setValue.mockClear()
     })

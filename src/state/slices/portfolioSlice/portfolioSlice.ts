@@ -638,15 +638,16 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
   (accounts, accountId) => Object.keys(accounts[accountId])
 )
 
+// @TODO: remove this assets check once we filter the portfolio on the way in
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAccountIdParam,
   selectAssets,
   (accountAssets, accountId, assets) => {
     const assetsByAccountIds = accountAssets[accountId]
-    return Object.entries(assetsByAccountIds)
-      .map(([assetId, _]) => assetId)
-      .filter(assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId])
+    return Object.keys(assetsByAccountIds).filter(
+      assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId]
+    )
   }
 )
 

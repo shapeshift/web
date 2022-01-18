@@ -1,5 +1,6 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+// import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import * as keepkeyTcp from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
 import { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
@@ -34,13 +35,22 @@ export interface SupportedWalletInfo {
 }
 
 export enum KeyManager {
-  Native = 'native',
   KeepKey = 'keepkey',
+  Native = 'native',
   MetaMask = 'metamask',
   Portis = 'portis'
 }
 
 export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
+  [KeyManager.KeepKey]: {
+    adapter: keepkeyTcp.TCPKeepKeyAdapter,
+    icon: KeepKeyIcon,
+    name: 'KeepKey',
+    routes: [
+      { path: '/keepkey/connect', component: KeepKeyConnect },
+      { path: '/keepkey/success', component: KeepKeySuccess }
+    ]
+  },
   [KeyManager.Native]: {
     adapter: NativeAdapter,
     icon: FoxIcon,
@@ -54,15 +64,6 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/create', component: NativeCreate },
       { path: '/native/create-test', component: NativeTestPhrase },
       { path: '/native/success', component: NativeSuccess }
-    ]
-  },
-  [KeyManager.KeepKey]: {
-    adapter: WebUSBKeepKeyAdapter,
-    icon: KeepKeyIcon,
-    name: 'KeepKey',
-    routes: [
-      { path: '/keepkey/connect', component: KeepKeyConnect },
-      { path: '/keepkey/success', component: KeepKeySuccess }
     ]
   },
   [KeyManager.MetaMask]: {

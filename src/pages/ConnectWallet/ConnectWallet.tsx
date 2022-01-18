@@ -3,12 +3,9 @@ import { DarkMode } from '@chakra-ui/color-mode'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Badge, Center, Circle, Flex } from '@chakra-ui/layout'
 import { Dispatch, useEffect } from 'react'
-import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import Orbs from 'assets/orbs.svg'
-import OrbsStatic from 'assets/orbs-static.png'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/WalletProvider'
@@ -40,7 +37,7 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
         justifyContent='center'
       >
         <DarkMode>
-          <Text color='white' fontWeight='bold' translation='connectWalletPage.shapeshift' />
+          <Text color='white' fontWeight='bold' translation='connectWalletPage.keepkey' />
           <Badge colorScheme='blue' ml={2}>
             {translate('connectWalletPage.alpha')}
           </Badge>
@@ -58,19 +55,18 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
           top: 0,
           width: '100vw',
           height: '100vh',
-          backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center center'
         }}
       >
         <Circle size='100px' mb={6}>
-          <FoxIcon boxSize='100%' color='white' />
+          <KeepKeyIcon boxSize='100%' color='white' />
         </Circle>
         <Flex flexDir='row' textAlign='center' fontSize={{ base: '6xl', lg: '8xl' }} mb={6}>
           <RawText color='white' fontWeight='medium' lineHeight='1'>
-            {translate('connectWalletPage.exploreThe')}{' '}
+            {translate('connectWalletPage.keepkey')}
             <RawText color='blue.500' fontWeight='bold' as='span'>
-              {translate('connectWalletPage.defiUniverse')}
+              {translate('connectWalletPage.client')}
             </RawText>
           </RawText>
         </Flex>

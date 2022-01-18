@@ -1,7 +1,11 @@
 {
-  "name": "web",
-  "version": "0.1.0",
+  "name": "keepkey-client",
+  "version": "0.1.15",
   "private": true,
+  "main": "electron/main.js",
+  "repository": {
+    "url": "https://github.com/keepkey/keepkey-client"
+  },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
     "@chakra-ui/react": "^1.7.3",
@@ -18,6 +22,8 @@
     "@shapeshiftoss/chain-adapters": "^1.22.1",
     "@shapeshiftoss/hdwallet-core": "^1.18.3",
     "@shapeshiftoss/hdwallet-keepkey": "^1.18.3",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.18.3",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.18.3",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.18.3",
     "@shapeshiftoss/hdwallet-metamask": "^1.18.4",
     "@shapeshiftoss/hdwallet-native": "^1.18.3",
@@ -36,18 +42,25 @@
     "@visx/shape": "^2.4.0",
     "@visx/tooltip": "^2.2.2",
     "allsettled-polyfill": "^1.0.4",
+    "auto-launch": "^5.0.5",
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.2",
     "bip39": "^3.0.4",
+    "body-parser": "^1.19.0",
     "browserify-zlib": "^0.2.0",
     "bs58check": "^2.1.2",
     "buffer": "^6.0.3",
     "chakra-ui-steps": "^1.5.0",
+    "cors": "^2.8.5",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
     "dompurify": "^2.3.2",
+    "electron-is": "^3.0.0",
+    "electron-log": "^4.4.1",
+    "electron-notarize": "^1.1.1",
     "envalid": "^7.2.1",
+    "express": "^4.17.1",
     "framer-motion": "^4",
     "https-browserify": "^1.0.0",
     "localforage": "^1.10.0",
@@ -82,15 +95,19 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "web-vitals": "^2.1.0",
-    "web3": "^1.6.1"
+    "web3": "^1.6.1",
+    "webusb": "^2.2.0"
   },
   "scripts": {
     "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
     "link-packages": "./scripts/link-packages.sh",
     "unlink-packages": "find node_modules node_modules/@* -depth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node headers.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
-    "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false react-app-rewired start",
+    "dev": "ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
+    "build-bundle-electron": "react-app-rewired build",
+    "dev-electron": "concurrently \"yarn dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:electron": "yarn build-bundle-electron && cp -R electron/assets build/ && cp electron/icon.png build/icon.png && electron-builder build --publish always",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "minify": "yarn yarn-minify",
@@ -120,6 +137,34 @@
   },
   "jest": {
     "collectCoverageFrom": []
+  },
+  "homepage": "./",
+  "build": {
+    "appId": "com.keepkey.client",
+    "productName": "KeepKey Client",
+    "afterSign": "scripts/afterSignHook.js",
+    "files": [
+      "assets",
+      "assets/*",
+      "assets/**/*",
+      "build/**/*",
+      "electron/entitlements.mac.plist",
+      "electron/assets/*",
+      "electron/assets/status/*",
+      "electron/assets/light/*",
+      "electron/assets/dark/*",
+      "electron/icon.png",
+      "electron/main.js",
+      "package.json"
+    ],
+    "extends": null,
+    "mac": {
+      "type": "distribution",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "electron/entitlements.mac.plist",
+      "entitlementsInherit": "electron/entitlements.mac.plist"
+    }
   },
   "browserslist": {
     "production": [
@@ -167,7 +212,9 @@
     "@types/react-router-dom": "^5.3.2",
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@types/react-window": "^1.8.5",
+    "concurrently": "^6.4.0",
     "cypress": "^8.1.0",
+    "electron": "^16.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
@@ -178,6 +225,7 @@
     "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",
     "typescript": "^4.5.2",
+    "wait-on": "^6.0.0",
     "val-loader": "^4.0.0",
     "web3-utils": "^1.5.2",
     "webpack": "5.65.0",

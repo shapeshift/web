@@ -11,12 +11,12 @@ import {
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
+  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset
+  selectPortfolioTotalFiatBalanceByAccount
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'
@@ -465,7 +465,7 @@ describe('selectPortfolioAccountIdsSortedFiat', () => {
 describe('selectPortfolioAssetIdsByAccountIdExcludeFeeAsset', () => {
   it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
     // TODO(ryankk): refactor test state to make it easier to add new assets. This is a pretty pointless test with only two
-    // assets (one of them being a fee asset), so this needs to be refactored
+    // assets in state (one of them being a fee asset), but want to keep it here for reference.
     const expected = [foxCaip19]
     const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, ethAccountSpecifier1)
 

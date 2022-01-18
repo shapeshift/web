@@ -641,11 +641,12 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAccountIdParam,
-  (accountAssets, accountId) => {
+  selectAssets,
+  (accountAssets, accountId, assets) => {
     const assetsByAccountIds = accountAssets[accountId]
     return Object.entries(assetsByAccountIds)
       .map(([assetId, _]) => assetId)
-      .filter(assetId => !FEE_ASSET_IDS.includes(assetId))
+      .filter(assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId])
   }
 )
 

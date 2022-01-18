@@ -36,6 +36,7 @@ import {
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
+  selectAccountIdsByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -65,6 +66,8 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const chainId = asset.caip2
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
   const isLoaded = !!marketData
   const { name, symbol, description, icon } = asset || {}
   useGetAssetDescriptionQuery(assetId)
@@ -111,7 +114,11 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Flex>
         {walletSupportsChain ? (
-          <AssetActions isLoaded={isLoaded} assetId={assetId} accountId={accountId} />
+          <AssetActions
+            isLoaded={isLoaded}
+            assetId={assetId}
+            accountId={accountId ? accountId : singleAccount}
+          />
         ) : null}
       </Card.Header>
       <Card.Body>

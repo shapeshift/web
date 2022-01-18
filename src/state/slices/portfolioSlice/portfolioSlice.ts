@@ -526,13 +526,16 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
 
 export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
   selectPortfolioFiatAccountBalances,
-  (portfolioFiatAccountBalances): { [k: AccountSpecifier]: [string, string][] } => {
+  (portfolioFiatAccountBalances): { [k: AccountSpecifier]: { [k: CAIP19]: string } } => {
     return Object.entries(portfolioFiatAccountBalances).reduce<{
-      [k: AccountSpecifier]: [string, string][]
+      [k: AccountSpecifier]: { [k: CAIP19]: string }
     }>((acc, [accountId, assetBalanceObj]) => {
-      const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj).sort(([_, a], [__, b]) =>
-        bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1
-      )
+      const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
+        .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
+        .reduce<{ [k: CAIP19]: string }>((acc, [assetId, assetFiatBalance]) => {
+          acc[assetId] = assetFiatBalance
+          return acc
+        }, {})
 
       acc[accountId] = sortedAssetsByFiatBalances
       return acc
@@ -640,7 +643,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectAccountIdParam,
   (accountAssets, accountId) => {
     const assetsByAccountIds = accountAssets[accountId]
-    return assetsByAccountIds
+    return Object.entries(assetsByAccountIds)
       .map(([assetId, _]) => assetId)
       .filter(assetId => !FEE_ASSET_IDS.includes(assetId))
   }

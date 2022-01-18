@@ -7,6 +7,7 @@ import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
+  selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
@@ -14,8 +15,7 @@ import {
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
-  selectPortfolioTotalFiatBalanceByAccount,
-  selectPortfolioAccountIdsSortedFiat
+  selectPortfolioTotalFiatBalanceByAccount
 } from './portfolioSlice'
 
 const ethCaip2 = 'eip155:1'

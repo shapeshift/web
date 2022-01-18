@@ -19,7 +19,7 @@ import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
   AccountSpecifier,
   selectPortfolioAllocationPercentByFilter,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -51,7 +51,9 @@ export const AssetAccountRow = ({
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
-  const cryptoBalance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const cryptoHumanBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
+  )
   const allocation = useAppSelector(state =>
     selectPortfolioAllocationPercentByFilter(state, { accountId, assetId })
   )
@@ -133,7 +135,7 @@ export const AssetAccountRow = ({
       )}
       {!isCompact && (
         <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
-          <Amount.Crypto value={cryptoBalance} symbol={asset?.symbol} />
+          <Amount.Crypto value={cryptoHumanBalance} symbol={asset?.symbol} />
         </Flex>
       )}
 
@@ -141,7 +143,7 @@ export const AssetAccountRow = ({
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={fiatBalance} />
           {(isCompact || !isLargerThanMd) && (
-            <Amount.Crypto color='gray.500' value={cryptoBalance} symbol={asset?.symbol} />
+            <Amount.Crypto color='gray.500' value={cryptoHumanBalance} symbol={asset?.symbol} />
           )}
         </Flex>
       </Flex>

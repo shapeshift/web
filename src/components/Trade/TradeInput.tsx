@@ -44,14 +44,11 @@ const FiatInput = (props: InputProps) => (
     {...props}
   />
 )
-
 var valueTrade: number | undefined
-
 const getFontSizeT = () => {
   if (valueTrade === undefined || valueTrade === 1 || valueTrade === null) return '35px'
   if (valueTrade !== undefined) {
     const length = valueTrade
-
     if (length >= 31) return '9px'
     if (length >= 29) return '11px'
     if (length >= 27) return '12px'
@@ -95,17 +92,12 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
-
   const onSubmit = async () => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
     const isERC20 = sellAsset.currency.contractType === ContractTypes.ERC20
-
     try {
-      const fiatRate = await getFiatRate({
-        symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol
-      })
-
+      const fiatRate = await getFiatRate({  symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol  })
       if (isERC20) {
         const approvalNeeded = await checkApprovalNeeded(wallet)
         if (approvalNeeded) {
@@ -118,7 +110,6 @@ export const TradeInput = ({ history }: RouterProps) => {
           return
         }
       }
-
       const result = await buildQuoteTx({
         wallet,
         sellAsset: quote?.sellAsset,
@@ -135,22 +126,15 @@ export const TradeInput = ({ history }: RouterProps) => {
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
     }
   }
-
   const onSwapMax = async () => {
     if (!wallet) return
     try {
       setIsSendMaxLoading(true)
-      const maxSendAmount = await getSendMaxAmount({
-        wallet,
-        sellAsset,
-        buyAsset
-      })
+      const maxSendAmount = await getSendMaxAmount({  wallet,  sellAsset, buyAsset  }) 
       const action = TradeActions.SELL
       const currentSellAsset = getValues('sellAsset')
       const currentBuyAsset = getValues('buyAsset')
-
       if (!maxSendAmount) return
-
       await getQuote({
         sellAsset: currentSellAsset,
         buyAsset: currentBuyAsset,
@@ -191,10 +175,8 @@ export const TradeInput = ({ history }: RouterProps) => {
       action
     })
   }
-
   // TODO:(ryankk) fix error handling
   const error = errors?.quote?.value?.message ?? null
-
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
@@ -214,12 +196,9 @@ export const TradeInput = ({ history }: RouterProps) => {
                   onChange(e.value)
                   if (e.value !== value) {
                     const action = !!e.value ? TradeActions.FIAT : undefined
-
                     valueTrade = value?.length
-
-                    if (action) {
-                      setValue('action', action)
-                    } else reset()
+                    if (action) {  setValue('action', action) }                  
+                     else reset()
                     getQuote({ amount: e.value, sellAsset, buyAsset, action })
                   }
                 }}
@@ -244,9 +223,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             onInputChange={(amount: string) => {
               if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
                 const action = amount ? TradeActions.SELL : undefined
-
                 action ? setValue('action', action) : reset()
-
                 getQuote({ amount, sellAsset, buyAsset, action })
               }
             }}
@@ -312,8 +289,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             disabled={isSendMaxLoading}
             rules={{ required: true }}
             onInputChange={(amount: string) => {
-              const action = amount ? TradeActions.BUY : undefined
-
+              const action = amount ? TradeActions.BUY : undefined   
               action ? setValue('action', action) : reset()
               getQuote({ amount, sellAsset, buyAsset, action })
             }}
@@ -333,11 +309,7 @@ export const TradeInput = ({ history }: RouterProps) => {
           colorScheme={error ? 'red' : 'blue'}
           isLoading={isSubmitting || isSendMaxLoading || !!action}
           isDisabled={!isDirty || !isValid || !!action || !wallet}
-          style={{
-            whiteSpace: 'normal',
-            wordWrap: 'break-word'
-          }}
-        >
+          style={{  whiteSpace: 'normal', wordWrap: 'break-word'  }}>
           <Text translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'} />
         </Button>
       </Box>

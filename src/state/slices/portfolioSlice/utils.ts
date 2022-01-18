@@ -1,9 +1,15 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { Asset, UtxoAccountType } from '@shapeshiftoss/types'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import { Asset, BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
 import last from 'lodash/last'
 
 import { AccountSpecifier } from './portfolioSlice'
+
+export type UtxoParamsAndAccountType = {
+  utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
+  accountType: UtxoAccountType
+}
 
 // TODO(0xdef1cafe): these should be exported from caip2
 export const ethChainId = 'eip155:1'
@@ -74,12 +80,12 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
 export const accountIdToFeeAssetId = (accountId: AccountSpecifier) =>
   caip2toCaip19[accountIdToChainId(accountId)]
 
-export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType => {
+export const accountIdToAccountType = (accountId: AccountSpecifier): UtxoAccountType | null => {
   const pubkeyVariant = last(accountId.split(':'))
   if (pubkeyVariant?.startsWith('xpub')) return UtxoAccountType.P2pkh
   if (pubkeyVariant?.startsWith('ypub')) return UtxoAccountType.SegwitP2sh
   if (pubkeyVariant?.startsWith('zpub')) return UtxoAccountType.SegwitNative
-  throw new Error('accountIdToAccountType: could not get accountType from accountId')
+  return null
 }
 
 export const accountIdToUtxoParams = (
@@ -87,17 +93,9 @@ export const accountIdToUtxoParams = (
   accountId: AccountSpecifier,
   accountIndex: number
 ) => {
-  try {
-    const utxoAccountType = accountIdToAccountType(accountId)
-    return {
-      utxoParams: utxoAccountParams(asset, utxoAccountType, accountIndex),
-      accountType: utxoAccountType
-    }
-  } catch (err) {
-    // For non-utxo coins we want to return an empty object, but accountIdToAccountType will throw
-    // so we need to catch.
-    return {
-      utxoParams: {}
-    }
-  }
+  const accountType = accountIdToAccountType(accountId)
+  // for eth, we don't return a UtxoAccountType or utxoParams
+  if (!accountType) return {}
+  const utxoParams = utxoAccountParams(asset, accountType, accountIndex)
+  return { utxoParams, accountType }
 }

@@ -3666,7 +3666,12 @@
     bignumber.js "^9.0.1"
     ethers "^5.5.3"
 
-"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0":
+"@shapeshiftoss/types@1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.20.0.tgz#be5d23162a8e6acc8c5056fc877d303dadac0b05"
+  integrity sha512-IXMYQtAOMb8LPw3HvV1mW/obA0dh0nlYXydH62OUytgXdMu4hJwp8zyu0dc6inDBO+Q+0aa/WgZIrKhczTCoMw==
+
+"@shapeshiftoss/types@^1.17.0":
   version "1.21.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.21.0.tgz#e9f74edecea8df89345a0f011b0f26924a6e487b"
   integrity sha512-0vrBbS8PK/5TfdAspmk6J+N7C+k0hVMYG9NBVfDRMtXT5KyDHX0Jkb+hvPGp8XKQO+AUEhdFVs2qRaEaV/z+DQ==

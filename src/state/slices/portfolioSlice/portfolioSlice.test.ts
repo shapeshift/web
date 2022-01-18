@@ -22,6 +22,10 @@ const ethCaip19 = 'eip155:1/slip44:60'
 const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const usdcCaip19 = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 const yvusdcCaip19 = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
+const zeroCaip19 = 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574';
+const unknown1Caip19 = 'eip155:1/erc20:0x85c2ea30a20e5e96e1de337fe4cd8829be86f844'
+const unknown2Caip19 = 'eip155:1/erc20:0x9cda935e34bcdfd1add4d2e8161d0f28fc354795'
+const unknown3Caip19 = 'eip155:1/erc20:0xecd18dbba2987608c094ed552fef3924edb91e'
 
 const btcCaip2 = 'bip122:000000000019d6689c085ae165831e93'
 const btcCaip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
@@ -90,6 +94,47 @@ const ethAccount2 = {
   pubkey: '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
 }
 
+const ethAccount3 = {
+  balance: '23803816548287371',
+  caip2: ethCaip2,
+  caip19: ethCaip19,
+  chain: ChainTypes.Ethereum,
+  chainSpecific: {
+    nonce: 5,
+    tokens: [
+      {
+        balance: '4516123',
+        caip19: unknown1Caip19
+      },
+      {
+        balance: '8178312',
+        caip19: yvusdcCaip19
+      },
+      {
+        balance: '4516123',
+        caip19: unknown2Caip19
+      },
+      {
+        balance: '41208442',
+        caip19: usdcCaip19
+      },
+      {
+        balance: '4516123',
+        caip19: unknown3Caip19
+      },
+      {
+        balance: '40729243327349401958',
+        caip19: foxCaip19
+      },
+      {
+        balance: '4516123',
+        caip19: zeroCaip19
+      }
+    ]
+  },
+  pubkey: '0x6c8a778ef52e121b7dff1154c553662306a970e9'
+}
+
 const btcAccount = {
   balance: '1010',
   caip2: btcCaip2,
@@ -123,11 +168,13 @@ const btcAccount = {
 
 const ethAccountSpecifier1 = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 const ethAccountSpecifier2 = `${ethCaip2}:${ethAccount2.pubkey.toLowerCase()}`
+const ethAccountSpecifier3 = `${ethCaip2}:${ethAccount3.pubkey.toLowerCase()}`
 const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
 const eth1Caip10 = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 const eth2Caip10 = `${ethCaip2}:${ethAccount2.pubkey.toLowerCase()}`
+const eth3Caip10 = `${ethCaip2}:${ethAccount3.pubkey.toLowerCase()}`
 
-const portfolio: Portfolio = {
+const portfolio1: Portfolio = {
   accounts: {
     byId: {
       [ethAccountSpecifier1]: [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19],
@@ -182,6 +229,51 @@ const portfolio: Portfolio = {
       )
     },
     ids: [ethAccountSpecifier1, ethAccountSpecifier2, btcAccountSpecifier]
+  }
+}
+
+const portfolio2: Portfolio = {
+  accounts: {
+    byId: {
+      [ethAccountSpecifier3]: [ethCaip19, yvusdcCaip19, usdcCaip19, foxCaip19, zeroCaip19],
+      [btcAccountSpecifier]: [btcCaip19]
+    },
+    ids: [ethAccountSpecifier3, btcAccountSpecifier]
+  },
+  assetBalances: {
+    byId: {
+      [ethCaip19]: ethAccount3.balance.toString(),
+      [foxCaip19]: tokenBalance(ethAccount3, foxCaip19).toString(),
+      [usdcCaip19]: tokenBalance(ethAccount3, usdcCaip19).toString(),
+      [yvusdcCaip19]: tokenBalance(ethAccount3, yvusdcCaip19).toString(),
+      [zeroCaip19]: tokenBalance(ethAccount3, zeroCaip19).toString(),
+      [btcCaip19]: '1010'
+    },
+    ids: [ethCaip19, yvusdcCaip19, usdcCaip19, foxCaip19, zeroCaip19, btcCaip19]
+  },
+  accountBalances: {
+    byId: {
+      [ethAccountSpecifier3]: {
+        [ethCaip19]: '23803816548287371',
+        [foxCaip19]: '40729243327349401958',
+        [usdcCaip19]: '41208442',
+        [yvusdcCaip19]: '8178312',
+        [zeroCaip19]: '4516123'
+      },
+      [btcAccountSpecifier]: {
+        [btcCaip19]: '1010'
+      }
+    },
+    ids: [ethAccountSpecifier3, btcAccountSpecifier]
+  },
+  accountSpecifiers: {
+    byId: {
+      [ethAccountSpecifier3]: [eth3Caip10],
+      [btcAccountSpecifier]: btcAccount.chainSpecific.addresses.map(
+        address => `${btcCaip2}:${address.pubkey}`
+      )
+    },
+    ids: [ethAccountSpecifier3, btcAccountSpecifier]
   }
 }
 
@@ -245,7 +337,16 @@ describe('accountToPortfolio', () => {
       [btcAccount.pubkey]: btcAccount
     }
     const result = accountToPortfolio(accounts)
-    expect(result).toEqual(portfolio)
+    expect(result).toEqual(portfolio1)
+  })
+
+  it('can create portfolio and exclude unknown asset ids', () => {
+    const accounts = {
+      [ethAccount3.pubkey]: ethAccount3,
+      [btcAccount.pubkey]: btcAccount
+    }
+    const result = accountToPortfolio(accounts)
+    expect(result).toEqual(portfolio2)
   })
 })
 

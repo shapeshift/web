@@ -53,12 +53,12 @@ export const OverviewHeader = ({
           </Stat>
         </StatGroup>
       </Card.Header>
-      <Card.Body px={0}>
+      <Card.Footer px={0}>
         <SimpleGrid gridTemplateColumns='repeat(auto-fit,minmax(200px,1fr))' gridGap={6}>
           <EarnStat label='defi.walletBalance' value={walletBalance} />
           <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
         </SimpleGrid>
-      </Card.Body>
+      </Card.Footer>
     </Card>
   )
 }

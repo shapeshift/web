@@ -36,7 +36,7 @@ import {
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
-  selectPortfolioAssetAccounts,
+  selectAccountIdsByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -64,7 +64,10 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const chainId = asset.caip2
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
   const isLoaded = !!marketData
   const { name, symbol, description, icon } = asset || {}
   useGetAssetDescriptionQuery(assetId)
@@ -75,13 +78,12 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const assetPrice = toFiat(price) ?? 0
   const handleToggle = () => setShowDescription(!showDescription)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const accountIds = useAppSelector(state => selectPortfolioAssetAccounts(state, assetId))
 
   const {
     state: { wallet }
   } = useWallet()
 
-  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance = useAppSelector(state =>
@@ -112,7 +114,11 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Flex>
         {walletSupportsChain ? (
-          <AssetActions isLoaded={isLoaded} assetId={assetId} accountId={accountId} />
+          <AssetActions
+            isLoaded={isLoaded}
+            assetId={assetId}
+            accountId={accountId ? accountId : singleAccount}
+          />
         ) : null}
       </Card.Header>
       <Card.Body>
@@ -181,7 +187,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
       {/* If the Child component call a function update state of Parent Compnent in UseEffect,the Child Component should avaiable on DOM */}
       <Box style={{ display: view === View.Balance ? 'block' : 'none' }}>
         <BalanceChart
-          accountIds={accountIds}
+          accountId={accountId}
           assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}

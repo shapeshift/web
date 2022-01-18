@@ -28,6 +28,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { selectLastTxStatusByAssetId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
+import { ValueOf } from 'types/object'
 
 import { AssetToAsset } from './AssetToAsset'
 
@@ -35,7 +36,7 @@ type TradeConfirmParams = {
   fiatRate: string
 }
 
-type SwapError = Error & { message: string }
+type ZrxError = Error & { message: string }
 
 export const TradeConfirm = ({ history }: RouterProps) => {
   const [txid, setTxid] = useState('')
@@ -64,6 +65,27 @@ export const TradeConfirm = ({ history }: RouterProps) => {
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
 
+  // Parametrized errors cannot simply be matched with === since their param(s) might vary
+  const PARAMETRIZED_ERRORS_TO_TRADE_ERRORS = {
+    'ZrxExecuteQuote - signAndBroadcastTransaction error': TRADE_ERRORS.TRANSACTION_REJECTED,
+    'ZrxExecuteQuote - Signed transaction is required': TRADE_ERRORS.SIGNING_REQUIRED,
+    'ZrxExecuteQuote - broadcastTransaction error': TRADE_ERRORS.BROADCAST_FAILED,
+    'ZrxExecuteQuote - invalid HDWallet config': TRADE_ERRORS.HDWALLET_INVALID_CONFIG,
+    'ZrxExecuteQuote - signTransaction error': TRADE_ERRORS.SIGNING_FAILED
+  } as const
+
+  const getParametrizedErrorMessageOrDefault = (
+    errorMessage: string
+  ): ValueOf<typeof PARAMETRIZED_ERRORS_TO_TRADE_ERRORS> | TRADE_ERRORS.INSUFFICIENT_FUNDS => {
+    // If no other error pattern is found, we assume the tx was rejected because of insufficient funds
+    const defaultTradeError = TRADE_ERRORS.INSUFFICIENT_FUNDS
+    return (
+      Object.entries(PARAMETRIZED_ERRORS_TO_TRADE_ERRORS).find(([error]) =>
+        errorMessage.includes(error)
+      )?.[1] || defaultTradeError
+    )
+  }
+
   const onSubmit = async () => {
     if (!wallet) return
     try {
@@ -74,15 +96,30 @@ export const TradeConfirm = ({ history }: RouterProps) => {
       }
     } catch (err) {
       console.error(`TradeConfirm:onSubmit - ${err}`)
-      // TODO: (ryankk) this needs to be revisited post bounty to handle actual errors coming back from unchained.
       let errorMessage
-      switch ((err as SwapError)?.message) {
-        case 'ZrxExecuteQuote - signAndBroadcastTransaction error: Error: Error signing & broadcasting tx': {
-          errorMessage = TRADE_ERRORS.TRANSACTION_REJECTED
+      switch ((err as ZrxError).message) {
+        case 'ZrxSwapper:ZrxExecuteQuote Cannot execute a failed quote': {
+          errorMessage = TRADE_ERRORS.FAILED_QUOTE_EXECUTED
+          break
+        }
+        case 'ZrxSwapper:ZrxExecuteQuote sellAssetAccountId is required': {
+          errorMessage = TRADE_ERRORS.SELL_ASSET_REQUIRED
+          break
+        }
+        case 'ZrxSwapper:ZrxExecuteQuote sellAmount is required': {
+          errorMessage = TRADE_ERRORS.SELL_AMOUNT_REQUIRED
+          break
+        }
+        case 'ZrxSwapper:ZrxExecuteQuote depositAddress is required': {
+          errorMessage = TRADE_ERRORS.DEPOSIT_ADDRESS_REQUIRED
+          break
+        }
+        case 'ZrxSwapper:ZrxExecuteQuote sellAssetNetwork and sellAssetSymbol are required': {
+          errorMessage = TRADE_ERRORS.SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED
           break
         }
         default: {
-          errorMessage = TRADE_ERRORS.INSUFFICIENT_FUNDS
+          errorMessage = getParametrizedErrorMessageOrDefault((err as ZrxError).message)
         }
       }
       toast({

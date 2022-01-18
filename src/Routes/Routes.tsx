@@ -1,9 +1,12 @@
-import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { Account } from 'pages/Accounts/Account'
+import { Accounts } from 'pages/Accounts/Accounts'
+import { AccountToken } from 'pages/Accounts/AccountToken'
 import { Asset } from 'pages/Assets/Asset'
 import { AssetRightSidebar } from 'pages/Assets/AssetRightSidebar'
 import { Assets } from 'pages/Assets/Assets'
@@ -39,6 +42,28 @@ export const routes: Array<NestedRoute> = [
         path: '/:chain/:tokenId?',
         label: 'Asset Details',
         main: <Asset />,
+        leftSidebar: <AssetSidebar />,
+        rightSidebar: <AssetRightSidebar />
+      }
+    ]
+  },
+  {
+    path: '/accounts',
+    label: 'navBar.accounts',
+    main: <Accounts />,
+    icon: <FaWallet color='inherit' />,
+    routes: [
+      {
+        path: '/:accountId',
+        label: 'Account Details',
+        main: <Account />,
+        leftSidebar: <AssetSidebar />,
+        rightSidebar: <AssetRightSidebar />
+      },
+      {
+        path: '/:accountId/:assetId?',
+        label: 'Account Asset',
+        main: <AccountToken />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
       }

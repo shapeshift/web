@@ -98,7 +98,7 @@ export const assetApi = createApi({
   })
 })
 
-export const { useGetAssetsQuery } = assetApi
+export const { useGetAssetsQuery, useGetAssetDescriptionQuery } = assetApi
 
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,

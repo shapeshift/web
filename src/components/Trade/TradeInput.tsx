@@ -133,7 +133,6 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const handleToast = (description: string) => {
     toast({
-      title: translate('trade.errors.title'),
       description,
       status: 'error',
       duration: 9000,

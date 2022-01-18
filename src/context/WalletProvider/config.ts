@@ -19,6 +19,7 @@ import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativeLoad } from './NativeWallet/components/NativeLoad'
 import { NativePassword } from './NativeWallet/components/NativePassword'
+import { NativeRename } from './NativeWallet/components/NativeRename'
 import { NativeStart } from './NativeWallet/components/NativeStart'
 import { NativeSuccess } from './NativeWallet/components/NativeSuccess'
 import { NativeTestPhrase } from './NativeWallet/components/NativeTestPhrase'
@@ -58,6 +59,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/start', component: NativeStart },
       { path: '/native/load', component: NativeLoad },
       { path: '/native/password', component: NativePassword },
+      { path: '/native/rename', component: NativeRename },
       { path: '/native/import', component: NativeImport },
       { path: '/native/create', component: NativeCreate },
       { path: '/native/create-test', component: NativeTestPhrase },

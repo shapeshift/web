@@ -1,7 +1,8 @@
 import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
-import { translations } from 'assets/translations'
-import { store } from 'state/store'
+
+import { translations } from '../assets/translations'
+import { store } from '../state/store'
 
 const locale: string = navigator?.language?.split('-')[0] ?? 'en'
 const messages = translations['en']

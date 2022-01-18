@@ -26,6 +26,7 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useFetchAssetDescription } from 'hooks/useFetchAssetDescription/useFetchAssetDescription'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useAsset } from 'pages/Assets/Asset'
@@ -53,7 +54,8 @@ export const AssetHeader = ({ isLoaded }: { isLoaded: boolean }) => {
   const [showDescription, setShowDescription] = useState(false)
   const [view, setView] = useState(View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const { name, symbol, description, icon } = asset || {}
+  const { name, symbol, description, icon, caip19 } = asset || {}
+  useFetchAssetDescription(caip19)
   const { price } = marketData || {}
   const {
     number: { toFiat }

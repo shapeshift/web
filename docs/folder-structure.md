@@ -1,6 +1,6 @@
 # Folder structure
 
-In order to have consistent, easy to navigate react projects we follow a certain folder structure.
+In order to have consistent, easy to navigate React projects we follow a certain folder structure.
 
 ```
 src/
@@ -58,9 +58,9 @@ pages/
 		One.tsx
 ```
 
-In the above example you will see that the One component has a child component that is only rendered with in the One component. You can also see that the Two component has a child called Three that is only rendered inside of the Two so the Three is nested within the Two's component folder.
+In the above example you will see that the One component has a child component that is only rendered within the One component. You can also see that the Two component has a child called Three that is only rendered inside of the Two so the Three is nested within the Two's component folder.
 
-Having the components nested in this way allows us to easily move or delete code knowing that all of its dependencies are packaged together. For example...
+Having the components nested in this way allows us to easily move or delete code knowing that all of its dependencies are packaged together. For example
 
 - If we decide that the Two component needs to be a globally shared component. We can easily move that component to the correct shared folder and we know that its child Three is going to go with it.
 - Similarly if we decided that the One component did not need a Two component anymore we could delete the Two component and we would not accidentally leave the Three component lying around, taking up space and not being used for anything.

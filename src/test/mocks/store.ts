@@ -1,5 +1,6 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { ReduxState } from 'state/reducer'
+
+import { ReduxState } from '../../state/reducer'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -27,7 +28,15 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: []
     },
-    balances: {
+    assetBalances: {
+      byId: {},
+      ids: []
+    },
+    accountBalances: {
+      byId: {},
+      ids: []
+    },
+    accountSpecifiers: {
       byId: {},
       ids: []
     }

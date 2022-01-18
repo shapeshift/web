@@ -3,19 +3,19 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
+import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
+import { TestProviders } from 'test/TestProviders'
 import { mocked } from 'ts-jest/utils'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ethereum as mockEthereum, rune as mockRune } from 'jest/mocks/assets'
-import { TestProviders } from 'jest/TestProviders'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioBalancesById,
   selectPortfolioCryptoBalanceById,
-  selectPortfolioCryptoHumanBalanceById,
-  selectPortfolioFiatBalanceById
+  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
+  selectPortfolioFiatBalanceByAccountTypeAndAssetId
 } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { useSendDetails } from './useSendDetails'
@@ -34,8 +34,8 @@ jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
 jest.mock('state/slices/portfolioSlice/portfolioSlice', () => ({
   ...jest.requireActual('state/slices/portfolioSlice/portfolioSlice'),
   selectPortfolioCryptoBalanceById: jest.fn(),
-  selectPortfolioCryptoHumanBalanceById: jest.fn(),
-  selectPortfolioFiatBalanceById: jest.fn()
+  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId: jest.fn(),
+  selectPortfolioFiatBalanceByAccountTypeAndAssetId: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -87,16 +87,18 @@ const setup = ({
     }
     return fakeMarketData[assetId]
   })
-  mocked(selectPortfolioFiatBalanceById).mockImplementation((_state, assetId) => {
-    const fakeFiatBalanceData = {
-      [mockEthereum.caip19]: '17500',
-      [mockRune.caip19]: '14490.00'
+  mocked(selectPortfolioFiatBalanceByAccountTypeAndAssetId).mockImplementation(
+    (_state, assetId) => {
+      const fakeFiatBalanceData = {
+        [mockEthereum.caip19]: '17500',
+        [mockRune.caip19]: '14490.00'
+      }
+      return fakeFiatBalanceData[assetId]
     }
-    return fakeFiatBalanceData[assetId]
-  })
+  )
   mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
   mocked(selectPortfolioCryptoBalanceById).mockReturnValue(assetBalance)
-  mocked(selectPortfolioCryptoHumanBalanceById).mockReturnValue(
+  mocked(selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId).mockReturnValue(
     bnOrZero(assetBalance).div('1e18').toString()
   )
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({

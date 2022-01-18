@@ -149,6 +149,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     if (feeAsset.caip19 !== asset.caip19) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      const estimatedFees = await estimateFormFees()
+      setValue(SendFormFields.EstimatedFees, estimatedFees)
       return
     }
 

@@ -41,7 +41,7 @@ export const OverviewHeader = ({
 
   return (
     <Card variant='unstyled' textAlign='center'>
-      <Card.Header px={0}>
+      <Card.Header px={0} textAlign='left'>
         <StatGroup>
           <Stat>
             <StatLabel>

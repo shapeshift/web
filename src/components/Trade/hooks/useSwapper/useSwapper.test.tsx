@@ -15,11 +15,6 @@ jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
-jest.mock('@shapeshiftoss/market-service', () => ({
-  findAll: jest.fn,
-  findByCaip19: () => jest.fn,
-  findPriceHistoryByCaip19: jest.fn
-}))
 
 function setup({
   action = TradeActions.SELL,

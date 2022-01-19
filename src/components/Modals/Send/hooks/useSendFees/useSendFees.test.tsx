@@ -8,11 +8,6 @@ import { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
-jest.mock('@shapeshiftoss/market-service', () => ({
-  findAll: jest.fn,
-  findByCaip19: jest.fn,
-  findPriceHistoryByCaip19: jest.fn
-}))
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('state/slices/assetsSlice/assetsSlice', () => ({

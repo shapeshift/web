@@ -19,12 +19,6 @@ jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
   }
 }))
 
-jest.mock('@shapeshiftoss/market-service', () => ({
-  findAll: jest.fn,
-  findByCaip19: jest.fn,
-  findPriceHistoryByCaip19: jest.fn
-}))
-
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,

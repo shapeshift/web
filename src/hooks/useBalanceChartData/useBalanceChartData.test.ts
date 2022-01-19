@@ -13,12 +13,6 @@ import {
   timeframeMap
 } from './useBalanceChartData'
 
-jest.mock('@shapeshiftoss/market-service', () => ({
-  findAll: jest.fn,
-  findByCaip19: jest.fn,
-  findPriceHistoryByCaip19: jest.fn
-}))
-
 const mockedDate = '2021-11-20T00:00:00Z'
 
 const ethCaip19 = 'eip155:1/slip44:60'

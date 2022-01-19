@@ -21,7 +21,7 @@ export const DefiActionButtons = () => {
       const { earnType, provider } = match.params
       history.replace({
         ...location,
-        pathname: `/earn/${earnType}/${provider}/${action}`
+        pathname: `/defi/${earnType}/${provider}/${action}`
       })
     }
   }

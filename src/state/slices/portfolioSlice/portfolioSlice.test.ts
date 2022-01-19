@@ -6,6 +6,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import {
   accountToPortfolio,
   Portfolio,
+  PortfolioAccountBalances,
   selectAccountIdByAddress,
   selectPortfolioAllocationPercentByAccountId,
   selectPortfolioAssetAccounts,
@@ -35,10 +36,6 @@ const ethCaip10s = [
   'eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1',
   'eip155:1:0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
 ]
-
-const tokenBalance = (ethAccount: any, caip19: any) => {
-  return ethAccount.chainSpecific.tokens.find((token: any) => token.caip19 === caip19).balance
-}
 
 const ethAccount1 = {
   balance: '27803816548287370',
@@ -127,6 +124,48 @@ const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
 const eth1Caip10 = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 const eth2Caip10 = `${ethCaip2}:${ethAccount2.pubkey.toLowerCase()}`
 
+const calculatePortfolioAssetBalances = (assets): { [k: CAIP19]: string } => {
+  return assets.reduce((acc, asset) => {
+    switch (asset.caip2) {
+      case ethCaip2:
+        if (!acc[asset.caip19]) {
+          acc[asset.caip19] = asset.balance
+        } else {
+          acc[asset.caip19] = bn(acc[asset.caip19]).plus(asset.balance).toString()
+        }
+
+        const tokens = asset.chainSpecific.tokens
+
+        for (const token of tokens) {
+          if (acc[token.caip19]) {
+            acc[token.caip19] = bn(acc[token.caip19]).plus(token.balance).toString()
+          } else {
+            acc[token.caip19] = token.balance
+          }
+        }
+
+        break
+      case btcCaip2:
+        if (!acc[asset.caip19]) {
+          acc[asset.caip19] = asset.balance
+        } else {
+          acc[asset.caip19] = bn(acc[asset.caip19]).plus(asset.balance).toString()
+        }
+
+        break
+      default:
+    }
+
+    return acc
+  }, {})
+}
+
+console.log({
+  portfolioAssetBalances: calculatePortfolioAssetBalances([ethAccount1, ethAccount2, btcAccount])
+})
+
+const ACCOUNTS = [ethAccount1, ethAccount2, btcAccount]
+
 const portfolio: Portfolio = {
   accounts: {
     byId: {
@@ -136,20 +175,9 @@ const portfolio: Portfolio = {
     },
     ids: [ethAccountSpecifier1, ethAccountSpecifier2, btcAccountSpecifier]
   },
-  //TODO: make this more programmatic
   assetBalances: {
     byId: {
-      [ethCaip19]: bn(ethAccount1.balance).plus(ethAccount2.balance).toString(),
-      [foxCaip19]: bn(tokenBalance(ethAccount1, foxCaip19))
-        .plus(tokenBalance(ethAccount2, foxCaip19))
-        .toString(),
-      [usdcCaip19]: bn(tokenBalance(ethAccount1, usdcCaip19))
-        .plus(tokenBalance(ethAccount2, usdcCaip19))
-        .toString(),
-      [yvusdcCaip19]: bn(tokenBalance(ethAccount1, yvusdcCaip19))
-        .plus(tokenBalance(ethAccount2, yvusdcCaip19))
-        .toString(),
-      [btcCaip19]: '1010'
+      ...calculatePortfolioAssetBalances(ACCOUNTS)
     },
     ids: [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19, btcCaip19]
   },
@@ -182,6 +210,59 @@ const portfolio: Portfolio = {
       )
     },
     ids: [ethAccountSpecifier1, ethAccountSpecifier2, btcAccountSpecifier]
+  }
+}
+
+const calculateAssetBalances = (accountBalances: PortfolioAccountBalances['byId']) => {
+  return Object.entries(accountBalances).reduce<{ [k: string]: string }>((acc, [_, assetObj]) => {
+    return Object.entries(assetObj).reduce<{ [k: string]: string }>(
+      (_, [assetId, assetBalance]) => {
+        if (!acc[assetId]) {
+          acc[assetId] = assetBalance
+          return acc
+        }
+
+        acc[assetId] = bn(acc[assetId]).plus(assetBalance).toString()
+        return acc
+      },
+      {}
+    )
+  }, {})
+}
+
+const createState = ({
+  assets = {},
+  marketData = {},
+  portfolio = {},
+  accountBalances = {}
+}: {
+  assets: any
+  marketData: any
+  portfolio: any
+  accountBalances: any
+}) => {
+  return {
+    ...mockStore,
+    assets: {
+      ...mockStore.assets,
+      ...assets
+    },
+    marketData: {
+      ...mockStore.marketData,
+      ...marketData
+    },
+    portfolio: {
+      ...mockStore.portfolio,
+      ...portfolio,
+      assetBalances: {
+        ...mockStore.portfolio.assetBalances,
+        ...calculateAssetBalances(accountBalances)
+      },
+      accountBalances: {
+        ...mockStore.portfolio.accountBalances,
+        ...accountBalances
+      }
+    }
   }
 }
 
@@ -237,6 +318,10 @@ const state = {
   }
 }
 
+const assetBalances = calculateAssetBalances(state.portfolio.accountBalances.byId)
+
+console.log({ assetBalances })
+
 describe('accountToPortfolio', () => {
   it('can normalize eth and btc accounts to portfolio', () => {
     const accounts = {
@@ -255,10 +340,7 @@ describe('selectPortfolioAssetAccounts', () => {
     const barAccount = '0xbar'
     const bazAccount = '0xbaz'
 
-    const state = {
-      ...mockStore,
-      portfolio: {
-        ...mockStore.portfolio,
+    const portfolio = {
         accounts: {
           byId: {
             [fooAccount]: [ethCaip19],
@@ -267,8 +349,9 @@ describe('selectPortfolioAssetAccounts', () => {
           },
           ids: [fooAccount, barAccount, bazAccount]
         }
-      }
     }
+
+    const state = createState({ portfolio })
 
     const selected = selectPortfolioAssetAccounts(state, ethCaip19)
     const expected = [fooAccount, barAccount]
@@ -277,19 +360,17 @@ describe('selectPortfolioAssetAccounts', () => {
 })
 
 describe('selectAccountIdByAddress', () => {
-  const state = {
-    ...mockStore,
-    portfolio: {
-      ...mockStore.portfolio,
-      accountSpecifiers: {
-        byId: {
-          [btcAccountSpecifier]: btcCaip10s,
-          [ethAccountSpecifier1]: ethCaip10s
-        },
-        ids: [btcAccountSpecifier, ethAccountSpecifier1]
-      }
+  const portfolio = {
+    accountSpecifiers: {
+      byId: {
+        [btcAccountSpecifier]: btcCaip10s,
+        [ethAccountSpecifier1]: ethCaip10s
+      },
+      ids: [btcAccountSpecifier, ethAccountSpecifier1]
     }
   }
+
+  const state = createState({ portfolio })
 
   it('can select account id by address (CAIP10)', () => {
     const btcAccSpecifier = selectAccountIdByAddress(state, btcCaip10s[0])
@@ -300,19 +381,16 @@ describe('selectAccountIdByAddress', () => {
   })
 
   it('can select account id with address in non checksum format', () => {
-    const newState = {
-      ...state,
-      portfolio: {
-        ...state.portfolio,
+    const portfolio = {
         accountSpecifiers: {
-          ...state.portfolio.accountSpecifiers,
           byId: {
             ...state.portfolio.accountSpecifiers.byId,
             [btcAccountSpecifier]: btcCaip10s.map(caip10s => caip10s.toUpperCase())
           }
         }
-      }
     }
+
+    const newState = createState({ portfolio })
 
     // caip10s in state in non checksum format
     const btcAccSpecifier = selectAccountIdByAddress(newState, btcCaip10s[0])
@@ -326,15 +404,13 @@ describe('selectAccountIdByAddress', () => {
 
 describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
   it('can select crypto asset balance by asset Id', () => {
-    const state = {
-      ...mockStore,
-      portfolio: {
-        ...mockStore.portfolio,
-        accountBalances: {
-          ...mockStore.portfolio.accountBalances
-        }
+    const portfolio = {
+      accountBalances: {
+        ...mockStore.portfolio.accountBalances
       }
     }
+
+    const state = createState({ portfolio })
 
     const cryptoAssetBalanceByAccount = selectPortfolioCryptoBalanceByAssetId(state, ethCaip19)
     expect(cryptoAssetBalanceByAccount).toBe(mockStore.portfolio.assetBalances.byId[ethCaip19])

@@ -33,6 +33,9 @@ export const Header = ({ route }: { route: Route }) => {
         left='0'
         right='0'
         width='full'
+        maxWidth={{ base: 'auto', '2xl': '1464px' }}
+        mx='auto'
+        paddingRight={{ base: 'none', lg: '8px' }}
       >
         <HeaderContent route={route} />
       </chakra.header>

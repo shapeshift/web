@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { selectAssetIds, selectAssets } from 'state/slices/assetsSlice/assetsSlice'
-import { supportedAccountTypes } from 'state/slices/preferencesSlice/preferencesSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 
 // the value is an xpub/ypub/zpub, or eth account, used to query unchained
 export type AccountSpecifierMap = { [k: CAIP2]: string }

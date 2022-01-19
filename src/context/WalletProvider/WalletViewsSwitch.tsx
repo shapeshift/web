@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
-import { Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate, useLocation, useMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 
 import { SUPPORTED_WALLETS } from './config'
@@ -17,7 +17,7 @@ import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
 
 export const WalletViewsSwitch = () => {
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const location = useLocation()
   const match = useMatch('/')
   const { state, dispatch } = useWallet()

@@ -8,7 +8,11 @@ import { YearnVault } from 'features/earn/providers/yearn/api/api'
 import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
+<<<<<<< HEAD
 import { useLocation, useNavigate } from 'react-router-dom'
+=======
+import { useNavigate, useLocation } from 'react-router-dom'
+>>>>>>> develop
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'

@@ -28,7 +28,7 @@ import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -102,7 +102,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const location = useLocation()
   const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
 

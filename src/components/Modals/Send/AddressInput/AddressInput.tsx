@@ -13,7 +13,7 @@ type AddressInputProps = {
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
   const { control } = useFormContext<SendInput>()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const translate = useTranslate()
 
   const handleQrClick = () => {

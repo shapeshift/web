@@ -13,7 +13,7 @@ type ReceiveRouterProps = {
 export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>()
   const location = useLocation()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
 
   const handleAssetSelect = async (asset: Asset) => {
     setSelectedAsset(asset)

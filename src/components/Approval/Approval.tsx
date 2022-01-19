@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -23,7 +23,8 @@ type ApprovalParams = {
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 export const Approval = () => {
-  const location = useLocation()
+  let navigate = useNavigate()
+  const location = useLocation<ApprovalParams>()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const toast = useToast()
   const translate = useTranslate()

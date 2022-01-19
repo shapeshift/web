@@ -1,5 +1,5 @@
 import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'

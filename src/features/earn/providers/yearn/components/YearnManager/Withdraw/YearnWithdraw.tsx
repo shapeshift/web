@@ -14,7 +14,7 @@ import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -81,7 +81,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const location = useLocation()
   const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
 

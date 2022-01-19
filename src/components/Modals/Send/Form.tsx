@@ -3,7 +3,14 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import {
+  Navigate,
+  Route,
+  RouteComponentProps,
+  Routes,
+  useNavigate,
+  useLocation
+} from 'react-router-dom'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppSelector } from 'state/store'
 
@@ -86,7 +93,9 @@ export const Form = ({ asset: initialAsset }: SendFormProps) => {
           <Routes location={location} key={location.key}>
             <Route
               path={SendRoutes.Select}
-              element={() => <SelectAssets onClick={handleAssetSelect} />}
+              element={(props: RouteComponentProps) => (
+                <SelectAssets onClick={handleAssetSelect} {...props} />
+              )}
             />
             <Route path={SendRoutes.Address} element={Address} />
             <Route path={SendRoutes.Details} element={Details} />

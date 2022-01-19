@@ -43,7 +43,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)

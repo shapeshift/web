@@ -22,6 +22,7 @@ type NoWalletProps = {
 
 export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
   const navigate = useNavigate()
+  let navigate = useNavigate()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {

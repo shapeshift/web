@@ -10,7 +10,7 @@ type EarnModalProps = {
  * Earn modal is linked to the router. When closed we return to the previous/background route
  */
 export const EarnModal = ({ children }: EarnModalProps) => {
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   return (
     <Modal isOpen onClose={() => navigate(-1)} variant='fluid-footer'>
       <ModalOverlay />

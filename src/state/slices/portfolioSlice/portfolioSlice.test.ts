@@ -124,17 +124,18 @@ const btcAccountSpecifier = `${btcCaip2}:${btcAccount.pubkey}`
 const eth1Caip10 = `${ethCaip2}:${ethAccount1.pubkey.toLowerCase()}`
 const eth2Caip10 = `${ethCaip2}:${ethAccount2.pubkey.toLowerCase()}`
 
-const calculatePortfolioAssetBalances = (assets): { [k: CAIP19]: string } => {
-  return assets.reduce((acc, asset) => {
-    switch (asset.caip2) {
+const calculatePortfolioAssetBalances = (accounts): { [k: CAIP19]: string } => {
+  return accounts.reduce((acc, account) => {
+    switch (account.caip2) {
+      // Accumulate ETH balances for all accounts
       case ethCaip2:
-        if (!acc[asset.caip19]) {
-          acc[asset.caip19] = asset.balance
+        if (!acc[account.caip19]) {
+          acc[account.caip19] = account.balance
         } else {
-          acc[asset.caip19] = bn(acc[asset.caip19]).plus(asset.balance).toString()
+          acc[account.caip19] = bn(acc[account.caip19]).plus(account.balance).toString()
         }
 
-        const tokens = asset.chainSpecific.tokens
+        const tokens = account.chainSpecific.tokens
 
         for (const token of tokens) {
           if (acc[token.caip19]) {
@@ -145,11 +146,12 @@ const calculatePortfolioAssetBalances = (assets): { [k: CAIP19]: string } => {
         }
 
         break
+      // Accumulate BTC balances for all accounts
       case btcCaip2:
-        if (!acc[asset.caip19]) {
-          acc[asset.caip19] = asset.balance
+        if (!acc[account.caip19]) {
+          acc[account.caip19] = account.balance
         } else {
-          acc[asset.caip19] = bn(acc[asset.caip19]).plus(asset.balance).toString()
+          acc[account.caip19] = bn(acc[account.caip19]).plus(account.balance).toString()
         }
 
         break
@@ -160,11 +162,34 @@ const calculatePortfolioAssetBalances = (assets): { [k: CAIP19]: string } => {
   }, {})
 }
 
-console.log({
-  portfolioAssetBalances: calculatePortfolioAssetBalances([ethAccount1, ethAccount2, btcAccount])
-})
+const calculatePortfolioAccountBalances = (accounts) => {
+  return accounts.reduce((acc, account) => {
+    switch (account.caip2) {
+      // Accumulate ETH balances by account
+      case ethCaip2:
+        // add token balances
+        acc[account.pubkey] = account.chainSpecific.tokens.reduce((acc, token) => {
+          acc[token.caip19] = token.balance
+          return acc
+        }, {})
+
+        // add eth asset balance
+        acc[account.pubkey][account.caip19] = account.balance
+        break
+      // Accumulate BTC balances by account
+      case btcCaip2:
+        acc[account.pubkey] = account.balance
+        break
+      default:
+    }
+
+    return acc
+  }, {})
+}
 
 const ACCOUNTS = [ethAccount1, ethAccount2, btcAccount]
+
+console.log({ accountBalances: calculatePortfolioAccountBalances(ACCOUNTS) })
 
 const portfolio: Portfolio = {
   accounts: {

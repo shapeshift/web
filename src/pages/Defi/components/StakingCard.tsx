@@ -1,19 +1,24 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import {
+  Link,
   Skeleton,
   SkeletonCircle,
   SkeletonText,
   Stat,
   StatGroup,
   StatLabel,
-  StatNumber
+  StatNumber,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import qs from 'qs'
+import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { useAppSelector } from 'state/store'
 
@@ -27,21 +32,45 @@ export const StakingCard = ({
   type,
   symbol,
   tokenAddress,
+  vaultAddress,
+  provider,
   chain,
   isLoaded,
   apy,
   cryptoAmount,
   fiatAmount
 }: StakingCardProps) => {
+  const history = useHistory()
+  const location = useLocation()
+  const bgHover = useColorModeValue('gray.100', 'gray.700')
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
 
+  const {
+    state: { isConnected },
+    dispatch
+  } = useWallet()
+
+  const handleClick = () => {
+    isConnected
+      ? history.push({
+          pathname: `/defi/${type}/${provider}/deposit`,
+          search: qs.stringify({
+            chain,
+            contractAddress: vaultAddress,
+            tokenId: tokenAddress
+          }),
+          state: { background: location }
+        })
+      : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
   if (!asset) return null
 
   return (
-    <Card>
+    <Card onClick={handleClick} as={Link} _hover={{ textDecoration: 'none', bg: bgHover }}>
       <Card.Body>
         <Flex alignItems='center'>
           <Flex>

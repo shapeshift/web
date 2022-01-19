@@ -40,7 +40,7 @@ const unchainedUrls: UnchainedUrls = {
 
 export function AppProviders({ children }: ProvidersProps) {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
-  const EarnProvider = earnFeature ? DefiManagerProvider : React.Fragment
+  const DefiProvider = earnFeature ? DefiManagerProvider : React.Fragment
   return (
     <ReduxProvider store={store}>
       <ChakraProvider theme={theme}>
@@ -55,7 +55,7 @@ export function AppProviders({ children }: ProvidersProps) {
                     <MarketDataProvider>
                       <TransactionsProvider>
                         <ModalProvider>
-                          <EarnProvider>{children}</EarnProvider>
+                          <DefiProvider>{children}</DefiProvider>
                         </ModalProvider>
                       </TransactionsProvider>
                     </MarketDataProvider>

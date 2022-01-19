@@ -155,7 +155,8 @@ export const portfolio = createSlice({
 })
 
 type AccountToPortfolioArgs = {
-  [k: CAIP10]: chainAdapters.Account<ChainTypes>
+  /** @var k {string} public key / account address */
+  [k: string]: chainAdapters.Account<ChainTypes>
 }
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio

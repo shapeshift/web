@@ -1,0 +1,282 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`portfolioSlice reducers upsertPortfolio ethereum should update state 1`] = `
+Object {
+  "accountBalances": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+        "eip155:1/slip44:60": "1000",
+      },
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+    ],
+  },
+  "accountSpecifiers": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+    ],
+  },
+  "accounts": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+    ],
+  },
+  "assetBalances": Object {
+    "byId": Object {
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+      "eip155:1/slip44:60": "1000",
+    },
+    "ids": Array [
+      "eip155:1/slip44:60",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+    ],
+  },
+}
+`;
+
+exports[`portfolioSlice reducers upsertPortfolio ethereum should update state with multiple accounts 1`] = `
+Object {
+  "accountBalances": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+        "eip155:1/slip44:60": "1000",
+      },
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
+        "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "2",
+        "eip155:1/slip44:60": "10",
+      },
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "accountSpecifiers": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      ],
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
+        "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "accounts": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      ],
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "assetBalances": Object {
+    "byId": Object {
+      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "2",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+      "eip155:1/slip44:60": "1010",
+    },
+    "ids": Array [
+      "eip155:1/slip44:60",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    ],
+  },
+}
+`;
+
+exports[`portfolioSlice reducers upsertPortfolio should update state 1`] = `
+Object {
+  "accountBalances": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+        "eip155:1/slip44:60": "1000",
+      },
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+    ],
+  },
+  "accountSpecifiers": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+    ],
+  },
+  "accounts": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+    ],
+  },
+  "assetBalances": Object {
+    "byId": Object {
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+      "eip155:1/slip44:60": "1000",
+    },
+    "ids": Array [
+      "eip155:1/slip44:60",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+    ],
+  },
+}
+`;
+
+exports[`portfolioSlice reducers upsertPortfolio should update state with multiple accounts 1`] = `
+Object {
+  "accountBalances": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+        "eip155:1/slip44:60": "1000",
+      },
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
+        "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "2",
+        "eip155:1/slip44:60": "10",
+      },
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "accountSpecifiers": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      ],
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
+        "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "accounts": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      ],
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "assetBalances": Object {
+    "byId": Object {
+      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": "2",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+      "eip155:1/slip44:60": "1010",
+    },
+    "ids": Array [
+      "eip155:1/slip44:60",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    ],
+  },
+}
+`;
+
+exports[`portfolioSlice reducers upsertPortfolio should update state with multiple accounts with the same token 1`] = `
+Object {
+  "accountBalances": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Object {
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "1",
+        "eip155:1/slip44:60": "1000",
+      },
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Object {
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "2",
+        "eip155:1/slip44:60": "10",
+      },
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "accountSpecifiers": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      ],
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
+        "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "accounts": Object {
+    "byId": Object {
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      ],
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": Array [
+        "eip155:1/slip44:60",
+        "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+      ],
+    },
+    "ids": Array [
+      "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1",
+      "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8",
+    ],
+  },
+  "assetBalances": Object {
+    "byId": Object {
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d": "3",
+      "eip155:1/slip44:60": "1010",
+    },
+    "ids": Array [
+      "eip155:1/slip44:60",
+      "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
+    ],
+  },
+}
+`;

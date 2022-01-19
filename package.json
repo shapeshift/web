@@ -173,6 +173,7 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.36.5",
+    "msw-storybook-addon": "^1.6.0",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
     "ssri": "^8.0.1",

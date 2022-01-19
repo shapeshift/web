@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
+import { LanguageDropdown } from './NavBar/LanguageDropdown'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
@@ -48,6 +49,7 @@ export const HeaderContent = ({ route }: { route: Route }) => {
         </RouterLink>
         <NavBar display={{ base: 'none', md: 'flex' }} />
         <Flex alignItems='center' justifyContent='flex-end' flex={2}>
+          <LanguageDropdown />
           <UserMenu />
         </Flex>
       </Flex>

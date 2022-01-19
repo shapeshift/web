@@ -133,7 +133,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
-    "confirmTrade": "Confirm Trade",
+    "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",

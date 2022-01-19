@@ -7,9 +7,11 @@ import {
   accountToPortfolio,
   Portfolio,
   selectAccountIdByAddress,
-  selectPortfolioAllocationPercentByAccountId,
+  selectPortfolioAccountIdsSortedFiat,
+  selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
+  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
@@ -343,12 +345,12 @@ describe('selectPortfolioAssetCryptoBalanceByAssetId', () => {
 
 describe('selectPortfolioAllocationPercentByAccountId', () => {
   it('can select fiat allocation by accountId', () => {
-    const returnValue = 68.09155471117745
+    const returnValue = 75.94498745783237
 
-    const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(
-      state,
-      ethAccountSpecifier2
-    )
+    const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
+      accountId: ethAccountSpecifier2,
+      assetId: ethCaip19
+    })
     expect(allocationByAccountId).toEqual(returnValue)
   })
 })
@@ -446,6 +448,26 @@ describe('selectPortfolioTokenIdsByAccountId', () => {
   it('should return an array of assetIds (caip19) by accountId', () => {
     const expected = [ethCaip19, foxCaip19]
     const result = selectPortfolioAssetIdsByAccountId(state, ethAccountSpecifier1)
+
+    expect(result).toEqual(expected)
+  })
+})
+
+describe('selectPortfolioAccountIdsSortedFiat', () => {
+  it('should return an array of account IDs sorted by fiat balance', () => {
+    const expected = [ethAccountSpecifier2, ethAccountSpecifier1]
+    const result = selectPortfolioAccountIdsSortedFiat(state)
+
+    expect(result).toEqual(expected)
+  })
+})
+
+describe('selectPortfolioAssetIdsByAccountIdExcludeFeeAsset', () => {
+  it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
+    // TODO(ryankk): refactor test state to make it easier to add new assets. This is a pretty pointless test with only two
+    // assets in state (one of them being a fee asset), but want to keep it here for reference.
+    const expected = [foxCaip19]
+    const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, ethAccountSpecifier1)
 
     expect(result).toEqual(expected)
   })

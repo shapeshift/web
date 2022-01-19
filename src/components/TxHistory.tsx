@@ -29,15 +29,16 @@ export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
   } = useWallet()
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const chainId = asset.caip2
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
   const filter = useMemo(
     // if we are passed an accountId, we're on an asset accoutn page, use that specifically.
     // otherwise, we're on an asset page, use all accountIds related to this asset
-    () => ({ assetId, accountIds: accountId ? [accountId] : accountIds }),
+    () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
     [assetId, accountId, accountIds]
   )
 
-  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 

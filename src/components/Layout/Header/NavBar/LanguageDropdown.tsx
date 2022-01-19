@@ -10,15 +10,19 @@ export const LanguageDropdown = () => {
 
   // TO-DO: Create function to iterate through list of activated locales
   return (
-    <Menu>
+    <Menu colorScheme='blue' variant='ghost-filled'>
       <MenuButton as={IconButton} display={'inline-grid'} marginRight={4}>
         <FaGlobe />
       </MenuButton>
       <MenuList width={'auto'} maxWidth='100%' minWidth={8}>
-        <MenuItem onClick={e => setLocale('en')}>
+        <MenuItem
+        // onClick={e => setLocale('en')}
+        >
           <Text translation='navBar.locale.en' />
         </MenuItem>
-        <MenuItem onClick={e => setLocale('es')}>
+        <MenuItem
+        // onClick={e => setLocale('en')}
+        >
           <Text translation='navBar.locale.es' />
         </MenuItem>
       </MenuList>

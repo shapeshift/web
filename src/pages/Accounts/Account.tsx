@@ -3,10 +3,8 @@ import { useParams } from 'react-router-dom'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  AccountSpecifier,
-  selectFeeAssetIdByAccountId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 export type MatchParams = {
@@ -17,7 +15,7 @@ export type MatchParams = {
 export const Account = () => {
   const { accountId } = useParams<MatchParams>()
   const parsedAccountId = decodeURIComponent(accountId)
-  const feeAssetId = selectFeeAssetIdByAccountId(parsedAccountId)
+  const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   return !feeAsset ? null : (
     <Page style={{ flex: 1 }} key={feeAsset?.tokenId}>

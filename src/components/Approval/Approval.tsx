@@ -5,6 +5,7 @@ import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router-dom'
+import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -121,93 +122,102 @@ export const Approval = () => {
 
   return (
     <SlideTransition>
-      <Flex
-        justifyContent='center'
-        alignItems='center'
-        flexDirection='column'
-        width='full'
-        as='form'
-        onSubmit={handleSubmit(approve)}
-      >
-        <CountdownCircleTimer
-          isPlaying={!!approvalTxId || !!isSubmitting}
-          size={90}
-          strokeWidth={6}
-          trailColor={theme.colors.whiteAlpha[500]}
-          duration={60}
-          colors={[
-            [theme.colors.blue[500], 0.4],
-            [theme.colors.blue[500], 0.4]
-          ]}
-          onComplete={() => {
-            return [true, 0]
-          }}
-        >
-          <Image
-            src={sellAsset.currency?.icon}
-            boxSize='60px'
-            fallback={<SkeletonCircle boxSize='60px' />}
-          />
-        </CountdownCircleTimer>
-        <Text
-          my={2}
-          fontSize='lg'
-          fontWeight='bold'
-          textAlign='center'
-          translation={['trade.approveAsset', { symbol }]}
-        />
-        <Text
-          color='gray.500'
-          textAlign='center'
-          translation={['trade.needPermission', { symbol }]}
-        />
-        <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
-          <Text color='blue.500' translation='trade.whyNeedThis' />
-        </Link>
-        <Divider my={4} />
-        <Flex flexDirection='column' width='full'>
-          {approvalTxId && sellAsset.currency?.explorerTxLink && (
-            <Row>
-              <Row.Label>
-                <Text translation={['trade.approvingAsset', { symbol }]} />
-              </Row.Label>
-              <Row.Value>
-                <Link
-                  isExternal
-                  color='blue.500'
-                  // TODO:(ryankk) create explorer links given a link template and a value
-                  href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
-                >
-                  <MiddleEllipsis maxWidth='130px'>{approvalTxId}</MiddleEllipsis>
-                </Link>
-              </Row.Value>
-            </Row>
-          )}
-          <Row>
-            <Row.Label>
-              <Text color='gray.500' translation='trade.estimatedGasFee' />
-            </Row.Label>
-            <Row.Value textAlign='right'>
-              <RawText>{toFiat(bnOrZero(fee).times(fiatRate).toNumber())}</RawText>
-              <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
-            </Row.Value>
-          </Row>
-          <Button
-            type='submit'
-            size='lg'
-            isLoading={isSubmitting || !!approvalTxId}
-            colorScheme='blue'
-            mt={2}
+      <Card variant='unstyled'>
+        <Card.Header textAlign='center' px={0} pt={0}>
+          <Card.Heading>
+            <Text translation='assets.assetCards.assetActions.trade' />
+          </Card.Heading>
+        </Card.Header>
+        <Card.Body pb={0} px={0}>
+          <Flex
+            justifyContent='center'
+            alignItems='center'
+            flexDirection='column'
+            width='full'
+            as='form'
+            onSubmit={handleSubmit(approve)}
           >
-            <Text translation='common.confirm' />
-          </Button>
-          {!approvalTxId && !isSubmitting && (
-            <Button variant='ghost' mt={2} size='lg' onClick={() => history.goBack()}>
-              <Text translation='common.reject' />
-            </Button>
-          )}
-        </Flex>
-      </Flex>
+            <CountdownCircleTimer
+              isPlaying={!!approvalTxId || !!isSubmitting}
+              size={90}
+              strokeWidth={6}
+              trailColor={theme.colors.whiteAlpha[500]}
+              duration={60}
+              colors={[
+                [theme.colors.blue[500], 0.4],
+                [theme.colors.blue[500], 0.4]
+              ]}
+              onComplete={() => {
+                return [true, 0]
+              }}
+            >
+              <Image
+                src={sellAsset.currency?.icon}
+                boxSize='60px'
+                fallback={<SkeletonCircle boxSize='60px' />}
+              />
+            </CountdownCircleTimer>
+            <Text
+              my={2}
+              fontSize='lg'
+              fontWeight='bold'
+              textAlign='center'
+              translation={['trade.approveAsset', { symbol }]}
+            />
+            <Text
+              color='gray.500'
+              textAlign='center'
+              translation={['trade.needPermission', { symbol }]}
+            />
+            <Link isExternal color='blue.500' href={APPROVAL_PERMISSION_URL}>
+              <Text color='blue.500' translation='trade.whyNeedThis' />
+            </Link>
+            <Divider my={4} />
+            <Flex flexDirection='column' width='full'>
+              {approvalTxId && sellAsset.currency?.explorerTxLink && (
+                <Row>
+                  <Row.Label>
+                    <Text translation={['trade.approvingAsset', { symbol }]} />
+                  </Row.Label>
+                  <Row.Value>
+                    <Link
+                      isExternal
+                      color='blue.500'
+                      // TODO:(ryankk) create explorer links given a link template and a value
+                      href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
+                    >
+                      <MiddleEllipsis maxWidth='130px'>{approvalTxId}</MiddleEllipsis>
+                    </Link>
+                  </Row.Value>
+                </Row>
+              )}
+              <Row>
+                <Row.Label>
+                  <Text color='gray.500' translation='trade.estimatedGasFee' />
+                </Row.Label>
+                <Row.Value textAlign='right'>
+                  <RawText>{toFiat(bnOrZero(fee).times(fiatRate).toNumber())}</RawText>
+                  <RawText color='gray.500'>{toCrypto(Number(fee), 'ETH')}</RawText>
+                </Row.Value>
+              </Row>
+              <Button
+                type='submit'
+                size='lg'
+                isLoading={isSubmitting || !!approvalTxId}
+                colorScheme='blue'
+                mt={2}
+              >
+                <Text translation='common.confirm' />
+              </Button>
+              {!approvalTxId && !isSubmitting && (
+                <Button variant='ghost' mt={2} size='lg' onClick={() => history.goBack()}>
+                  <Text translation='common.reject' />
+                </Button>
+              )}
+            </Flex>
+          </Flex>
+        </Card.Body>
+      </Card>
     </SlideTransition>
   )
 }

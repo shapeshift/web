@@ -1,17 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import isEmpty from 'lodash/isEmpty'
+import intersection from 'lodash/intersection'
 import isEqual from 'lodash/isEqual'
 import last from 'lodash/last'
 import orderBy from 'lodash/orderBy'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
-import { upsertArray } from 'lib/utils'
 import { ReduxState } from 'state/reducer'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { getRelatedAssetIds } from './utils'
+import { addToIndex, getRelatedAssetIds } from './utils'
 
 type TxId = string
 export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
@@ -75,8 +74,30 @@ const initialState: TxHistory = {
  *
  * If transaction already exists, update the value, otherwise add the new transaction
  */
-const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) => {
-  const { txid } = tx
+
+/**
+ * now we support accounts, we have a new problem
+ * the same tx id can have multiple representations, depending on the
+ * account's persective, especially utxos.
+ *
+ * i.e. a bitcoin send will have a send component, and a receive component for
+ * the change, to a new address, but the same tx id.
+ * this means we can't uniquely index tx's simply by their id.
+ *
+ * we'll probably need to go back to some composite index that can be built from
+ * the txid and address, or account id, that can be deterministically generated,
+ * from the tx data and the account id - note, not the address.
+ *
+ * the correct solution is to not rely on the parsed representation of the tx
+ * as a "send" or "receive" from chain adapters, just index the tx related to the
+ * asset or account, and parse the tx closer to the view layer.
+ */
+export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
+  `${accountId}-${tx.txid}-${tx.address}`
+
+const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
+  const txid = makeUniqueTxId(tx, accountSpecifier)
+
   const isNew = !txHistory.byId[txid]
 
   // update or insert tx
@@ -85,23 +106,25 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: string) 
   // add id to ordered set for new tx
   if (isNew) {
     const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(tx => tx.txid === txid)
+    const index = orderedTxs.findIndex(tx => makeUniqueTxId(tx, accountSpecifier) === txid)
     txHistory.ids.splice(index, 0, txid)
   }
 
   // for a given tx, find all the related assetIds, and keep an index of
   // txids related to each asset id
   getRelatedAssetIds(tx).forEach(relatedAssetId => {
-    txHistory.byAssetId[relatedAssetId] = upsertArray(
-      txHistory.byAssetId[relatedAssetId] ?? [],
-      tx.txid
+    txHistory.byAssetId[relatedAssetId] = addToIndex(
+      txHistory.ids,
+      txHistory.byAssetId[relatedAssetId],
+      makeUniqueTxId(tx, accountSpecifier)
     )
   })
 
   // index the tx by the account that it belongs to
-  txHistory.byAccountId[accountSpecifier] = upsertArray(
-    txHistory.byAccountId[accountSpecifier] ?? [],
-    tx.txid
+  txHistory.byAccountId[accountSpecifier] = addToIndex(
+    txHistory.ids,
+    txHistory.byAccountId[accountSpecifier],
+    makeUniqueTxId(tx, accountSpecifier)
   )
 
   // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
@@ -169,40 +192,40 @@ export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAsset
 
 const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
 
-export const selectTxIdsByAssetId = createSelector(
+const selectTxIdsByAssetId = createSelector(
   selectTxsByAssetId,
   selectAssetIdParam,
   (txsByAssetId: TxIdByAssetId, assetId): string[] => txsByAssetId[assetId] ?? []
 )
 
-// TODO(0xdef1cafe): write this
-// export const selectTxIdsByAccountIds = createSelector()
+type TxHistoryFilter = {
+  assetIds: CAIP19[]
+  accountIds?: AccountSpecifier[]
+}
 
-// TODO(0xdef1cafe): temporary, until we have an account -> address abstraction in portfolio
-// and only specific to bitcoin
-export const selectTxIdsByAssetIdAccountType = createSelector(
-  selectTxs,
+const selectAssetIdsParamFromFilter = (_state: ReduxState, { assetIds }: TxHistoryFilter) =>
+  assetIds
+const selectAccountIdsParamFromFilter = (_state: ReduxState, { accountIds }: TxHistoryFilter) =>
+  accountIds ?? []
+
+export const selectTxIdsByFilter = createSelector(
   selectTxsByAssetId,
-  selectAssetIdParam,
-  (_state: ReduxState, _assetId: CAIP19, accountType: UtxoAccountType) => accountType,
-  (
-    txsById: TxHistoryById,
-    txsByAssetId: TxIdByAssetId,
-    assetId: CAIP19,
-    accountType: UtxoAccountType
-  ): string[] => {
-    // this is specifically to support bitcoin, if we don't have accountType
-    // the txsByAssetId is correct
-    if (!accountType) return txsByAssetId[assetId] ?? []
-    if (isEmpty(txsByAssetId)) return []
-    const txIds = txsByAssetId[assetId] ?? []
-    // only deal with bitcoin txs rather than all
-    const txs = txIds.map(txid => txsById[txid])
-    // filter ids of bitcoin txs of specific account type
-    return txs.filter(tx => tx.accountType === accountType).map(tx => tx.txid)
+  selectTxIdsByAccountId,
+  selectAssetIdsParamFromFilter,
+  selectAccountIdsParamFromFilter,
+  (txsByAssetId, txsByAccountId, assetIds, accountIds): TxId[] => {
+    const assetTxIds = assetIds.map(assetId => txsByAssetId[assetId] ?? []).flat()
+    // because the same tx can be related to multiple assets, e.g.
+    // a FOX airdrop claim has an eth fee, after we combine the ids we need to dedupe them
+    if (!accountIds.length) return Array.from(new Set([...assetTxIds]))
+    const accountsTxIds = accountIds.map(accountId => txsByAccountId[accountId]).flat()
+    return intersection(accountsTxIds, assetTxIds)
   },
-  // memoize outgoing txid[]
   { memoizeOptions: { resultEqualityCheck: isEqual } }
+)
+
+export const selectTxsByFilter = createSelector(selectTxs, selectTxIdsByFilter, (txs, txIds) =>
+  txIds.map(txId => txs[txId])
 )
 
 // this is only used on trade confirm - new txs will be pushed

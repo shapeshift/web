@@ -1,0 +1,75 @@
+import { Grid, Stack } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { useTranslate } from 'react-polyglot'
+import { Card } from 'components/Card/Card'
+import { Text } from 'components/Text'
+import {
+  AccountSpecifier,
+  selectAccountIdsByAssetId
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppSelector } from 'state/store'
+
+import { AssetAccountRow } from './AssetAccountRow'
+
+type AssetAccountsProps = {
+  assetId: CAIP19
+  accountId?: AccountSpecifier
+}
+
+export const AssetAccounts = ({ assetId, accountId }: AssetAccountsProps) => {
+  const translate = useTranslate()
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  if ((accountIds && accountIds.length === 0) || accountId) return null
+  return (
+    <Card>
+      <Card.Header>
+        <Card.Heading>
+          {translate('assets.assetDetails.assetAccounts.assetAllocation')}
+        </Card.Heading>
+      </Card.Header>
+      <Card.Body pt={0}>
+        <Stack spacing={2} mt={2} mx={-4}>
+          <Grid
+            templateColumns={{
+              base: '1fr 1fr',
+              md: '1fr 1fr 1fr',
+              lg: '2fr 150px repeat(2, 1fr)'
+            }}
+            gap='1rem'
+            pl={4}
+            pr={4}
+            fontSize='sm'
+            lineHeight='shorter'
+          >
+            <Text translation='assets.assetDetails.assetAccounts.account' color='gray.500' />
+            <Text
+              translation='assets.assetDetails.assetAccounts.allocation'
+              color='gray.500'
+              textAlign='right'
+              display={{ base: 'none', lg: 'block' }}
+            />
+            <Text
+              translation='assets.assetDetails.assetAccounts.amount'
+              display={{ base: 'none', md: 'block', lg: 'block' }}
+              color='gray.500'
+              textAlign='right'
+            />
+            <Text
+              translation='assets.assetDetails.assetAccounts.value'
+              textAlign='right'
+              color='gray.500'
+            />
+          </Grid>
+          {accountIds.map(accountId => (
+            <AssetAccountRow
+              accountId={accountId}
+              assetId={assetId}
+              key={accountId}
+              showAllocation
+            />
+          ))}
+        </Stack>
+      </Card.Body>
+    </Card>
+  )
+}

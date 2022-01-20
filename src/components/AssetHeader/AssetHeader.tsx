@@ -27,23 +27,24 @@ import { PriceChart } from 'components/PriceChart/PriceChart'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useFetchAssetDescription } from 'hooks/useFetchAssetDescription/useFetchAssetDescription'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  selectAssetByCAIP19,
+  useGetAssetDescriptionQuery
+} from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
-  selectPortfolioAssetAccounts,
-  selectPortfolioCryptoHumanBalanceByAssetId,
-  selectPortfolioFiatBalanceByAssetId
+  selectAccountIdsByAssetId,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './AssetActions'
 import { AssetMarketData } from './AssetMarketData'
-import { SegwitSelectCard } from './SegwitSelectCard'
 
 enum View {
   Price = 'price',
@@ -60,13 +61,16 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [showDescription, setShowDescription] = useState(false)
-  const [view, setView] = useState(View.Price)
+  const [view, setView] = useState(accountId ? View.Balance : View.Price)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const chainId = asset.caip2
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const singleAccount = accountIds && accountIds.length === 1 ? accountIds[0] : undefined
   const isLoaded = !!marketData
   const { name, symbol, description, icon } = asset || {}
-  useFetchAssetDescription(assetId)
+  useGetAssetDescriptionQuery(assetId)
   const { price } = marketData || {}
   const {
     number: { toFiat }
@@ -74,18 +78,20 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const assetPrice = toFiat(price) ?? 0
   const handleToggle = () => setShowDescription(!showDescription)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])
-  const accountIds = useAppSelector(state => selectPortfolioAssetAccounts(state, assetId))
 
   const {
     state: { wallet }
   } = useWallet()
 
-  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
 
+  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, assetId)
+    selectPortfolioCryptoHumanBalanceByFilter(state, filter)
   )
-  const totalBalance = useAppSelector(state => selectPortfolioFiatBalanceByAssetId(state, assetId))
+  const totalBalance = toFiat(
+    useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
+  )
 
   return (
     <Card variant='footer-stub'>
@@ -107,9 +113,14 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             </Skeleton>
           </Box>
         </Flex>
-        {walletSupportsChain ? <AssetActions isLoaded={isLoaded} assetId={asset.caip19} /> : null}
+        {walletSupportsChain ? (
+          <AssetActions
+            isLoaded={isLoaded}
+            assetId={assetId}
+            accountId={accountId ? accountId : singleAccount}
+          />
+        ) : null}
       </Card.Header>
-      {walletSupportsChain ? <SegwitSelectCard chain={asset.chain} /> : null}
       <Card.Body>
         <Box>
           <Flex
@@ -173,22 +184,24 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Box>
         </Box>
       </Card.Body>
-      {view === View.Balance ? (
+      {/* If the Child component call a function update state of Parent Compnent in UseEffect,the Child Component should avaiable on DOM */}
+      <Box style={{ display: view === View.Balance ? 'block' : 'none' }}>
         <BalanceChart
-          accountIds={accountIds}
+          accountId={accountId}
           assetIds={assetIds}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}
         />
-      ) : (
+      </Box>
+      <Box style={{ display: view === View.Price ? 'block' : 'none' }}>
         <PriceChart
           assetId={assetId}
           timeframe={timeframe}
           percentChange={percentChange}
           setPercentChange={setPercentChange}
         />
-      )}
+      </Box>
       {!isLargerThanMd && (
         <Skeleton isLoaded={isLoaded} textAlign='center'>
           <TimeControls

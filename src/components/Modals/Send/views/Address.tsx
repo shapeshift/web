@@ -17,6 +17,7 @@ import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -64,7 +65,12 @@ export const Address = () => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(SendRoutes.Select)}
+        onClick={() =>
+          history.push(SendRoutes.Select, {
+            toRoute: SelectAssetRoutes.Account,
+            assetId: asset.caip19
+          })
+        }
       />
       <ModalHeader textAlign='center'>
         {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}

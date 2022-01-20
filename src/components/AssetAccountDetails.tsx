@@ -4,9 +4,10 @@ import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import { AccountAssets } from './AccountAssets'
+import { AccountAssets } from './AccountAssets/AccountAssets'
+import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetHeader } from './AssetHeader/AssetHeader'
-import { StakingVaults } from './StakingVaults/StakingVaults'
+import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
 
 type AssetDetailsProps = {
@@ -27,7 +28,8 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
         >
           <AssetHeader assetId={caip19} accountId={accountId} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
-          <StakingVaults assetId={caip19} accountId={accountId} />
+          <AssetAccounts assetId={caip19} accountId={accountId} />
+          <EarnOpportunities assetId={caip19} accountId={accountId} />
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>

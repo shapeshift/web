@@ -1,15 +1,14 @@
 import { useToast } from '@chakra-ui/react'
-import { ChainAdapter, utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ensInstance } from 'lib/ens-instance'
 import { isAddress } from 'lib/utils'
-import { ReduxState } from 'state/reducer'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
 
@@ -21,7 +20,6 @@ export const useFormSend = () => {
   const {
     state: { wallet }
   } = useWallet()
-  const accountTypes = useSelector((state: ReduxState) => state.preferences.accountTypes)
 
   const handleSend = async (data: SendInput) => {
     if (wallet) {
@@ -36,7 +34,6 @@ export const useFormSend = () => {
         let result
 
         const { estimatedFees, feeType, address: to } = data
-        const accountType = accountTypes[data.asset.chain]
         if (adapterType === ChainTypes.Ethereum) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
@@ -52,7 +49,19 @@ export const useFormSend = () => {
         } else if (adapterType === ChainTypes.Bitcoin) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Bitcoin>
 
-          const utxoParams = utxoAccountParams(data.asset, accountType, 0)
+          const { accountType, utxoParams } = accountIdToUtxoParams(data.asset, data.accountId, 0)
+
+          if (!accountType) {
+            throw new Error(
+              `useFormSend: could not get accountType from accountId: ${data.accountId}`
+            )
+          }
+
+          if (!utxoParams) {
+            throw new Error(
+              `useFormSend: could not get utxoParams from accountId: ${data.accountId}`
+            )
+          }
 
           result = await (adapter as ChainAdapter<ChainTypes.Bitcoin>).buildSendTransaction({
             to,

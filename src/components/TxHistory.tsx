@@ -10,32 +10,37 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAccountTypesByChain } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectTxIdsByAssetIdAccountType } from 'state/slices/txHistorySlice/txHistorySlice'
+import {
+  AccountSpecifier,
+  selectAccountIdsByAssetId
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectTxIdsByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-export const TxHistory = ({
-  assetId: caip19
-}: {
+type TxHistoryProps = {
   assetId: CAIP19
   accountId?: AccountSpecifier
-}) => {
+}
+
+export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
   const {
     state: { wallet }
   } = useWallet()
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
-
-  const walletSupportsChain = useWalletSupportsChain({ asset, wallet })
-  const accountType = useAppSelector(state => selectAccountTypesByChain(state, asset.chain))
-
-  // TODO(0xdef1cafe): change this to use selectTxIdsByAssetId once we have
-  // the account -> address mapping in portfolio locked down
-  const txIds = useAppSelector(state =>
-    selectTxIdsByAssetIdAccountType(state, asset.caip19, accountType)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const chainId = asset.caip2
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const filter = useMemo(
+    // if we are passed an accountId, we're on an asset accoutn page, use that specifically.
+    // otherwise, we're on an asset page, use all accountIds related to this asset
+    () => ({ assetIds: [assetId], accountIds: accountId ? [accountId] : accountIds }),
+    [assetId, accountId, accountIds]
   )
+
+  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet })
+
+  const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
   const { next, data, hasMore } = useInfiniteScroll(txIds)
 

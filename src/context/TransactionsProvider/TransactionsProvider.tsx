@@ -5,10 +5,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  selectAccountIdByAddress,
-  supportedAccountTypes
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountIdByAddress } from 'state/slices/portfolioSlice/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store } from 'state/store'
 

@@ -10,10 +10,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  PortfolioBalancesById,
-  selectPortfolioCryptoBalanceByAssetId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectPortfolioCryptoBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
 
 import { useSendDetails } from './useSendDetails'
 

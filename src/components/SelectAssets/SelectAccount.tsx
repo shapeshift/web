@@ -7,10 +7,8 @@ import { useHistory, useLocation } from 'react-router'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { SlideTransition } from 'components/SlideTransition'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  AccountSpecifier,
-  selectAccountIdsByAssetId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountIdsByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SelectAssetRoutes } from './SelectAssetRouter'

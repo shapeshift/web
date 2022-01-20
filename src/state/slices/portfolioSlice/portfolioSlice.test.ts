@@ -3,9 +3,8 @@ import { ethereum, fox } from 'test/mocks/assets'
 import { mockStore } from 'test/mocks/store'
 import { bn } from 'lib/bignumber/bignumber'
 
+import { Portfolio } from './portfolioSlice'
 import {
-  accountToPortfolio,
-  Portfolio,
   selectAccountIdByAddress,
   selectPortfolioAccountIdsSortedFiat,
   selectPortfolioAllocationPercentByFilter,
@@ -17,7 +16,8 @@ import {
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
   selectPortfolioTotalFiatBalanceByAccount
-} from './portfolioSlice'
+} from './selectors'
+import { accountToPortfolio } from './utils'
 
 const ethCaip2 = 'eip155:1'
 const ethCaip19 = 'eip155:1/slip44:60'

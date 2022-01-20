@@ -98,6 +98,7 @@ export const AccountList = () => {
               allocationValue={portfolioAllocationPercent[assetId]}
               assetId={assetId}
               key={assetId}
+              data-test='dashboard-account-row'
             />
           ))}
       </>

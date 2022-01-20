@@ -32,6 +32,7 @@ export const SelectModal = () => {
                   py={8}
                   justifyContent='space-between'
                   onClick={() => connect(key)}
+                  data-test={`wallet-${key}-button`}
                 >
                   <Flex alignItems='center'>
                     <RawText fontWeight='semibold'>{option.name}</RawText>

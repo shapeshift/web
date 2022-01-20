@@ -1,13 +1,13 @@
 import { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
-import { isAddress } from 'lib/utils'
+import { isEthAddress } from 'lib/utils'
 
 export const filterAssetsBySearchTerm = (search: string, assets: Asset[]) => {
   if (!assets) return []
 
   const searchLower = search.toLowerCase()
 
-  if (isAddress(search)) {
+  if (isEthAddress(search)) {
     return assets.filter(asset => asset?.tokenId?.toLowerCase() === searchLower)
   }
 

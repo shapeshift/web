@@ -7,7 +7,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ensLookup } from 'lib/ens'
-import { isAddress } from 'lib/utils'
+import { isEthAddress } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
@@ -38,7 +38,7 @@ export const useFormSend = () => {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
           const gasLimit = fees.chainSpecific.gasLimit
-          const address = isAddress(to) ? to : (await ensLookup(to)).address
+          const address = isEthAddress(to) ? to : (await ensLookup(to)).address
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to: address,
             value,

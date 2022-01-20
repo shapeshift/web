@@ -96,8 +96,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           wallet
         })
         const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
-        const { address: addressFromEnsName } = await ensLookup(value)
-        const to = isAddress(values.address) ? values.address : addressFromEnsName
+        const to = isAddress(values.address)
+          ? values.address
+          : (await ensLookup(values.address)).address
         return ethereumChainAdapter.getFeeData({
           to,
           value,

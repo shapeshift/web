@@ -9,6 +9,7 @@ const web3Provider = getWeb3Provider()
 
 const getEnsInstance = (): ENS => {
   if (!maybeEns) {
+    // getEnsAddress takes a magic number as string, networkId. 1 stands for mainnet
     maybeEns = new ENS({ provider: web3Provider, ensAddress: getEnsAddress('1') })
     return maybeEns!
   } else {

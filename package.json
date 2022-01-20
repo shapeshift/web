@@ -119,7 +119,10 @@
     ]
   },
   "jest": {
-    "collectCoverageFrom": []
+    "collectCoverageFrom": [],
+    "setupFiles": [
+      "./src/test/setupGlobalMocks.ts"
+    ]
   },
   "browserslist": {
     "production": [

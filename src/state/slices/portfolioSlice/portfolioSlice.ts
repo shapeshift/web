@@ -1,7 +1,7 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
@@ -16,6 +16,16 @@ import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
+
+// TODO(0xdef1cafe): this needs a better home, probably in chain adapters
+export const supportedAccountTypes = {
+  [ChainTypes.Bitcoin]: [
+    UtxoAccountType.SegwitNative,
+    UtxoAccountType.SegwitP2sh,
+    UtxoAccountType.P2pkh
+  ],
+  [ChainTypes.Ethereum]: undefined
+}
 
 /*
  * we can't retrieve an xpub from an address, but we can derive

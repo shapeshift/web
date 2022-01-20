@@ -1,5 +1,10 @@
 import { theme } from "../src/theme/theme";
 import { themes } from "@storybook/theming";
+import { initialize, mswDecorator } from 'msw-storybook-addon';
+
+initialize({
+  onUnhandledRequest: 'error'
+});
 
 const darkTheme = {
   ...themes.dark,
@@ -30,3 +35,5 @@ export const parameters = {
     theme: theme,
   },
 };
+
+export const decorators = [mswDecorator];

@@ -36,7 +36,7 @@ export const FarmingList = () => {
           <IconCircle>
             <FaTractor />
           </IconCircle>
-          <Heading fontSize='lg' ml={3}>
+          <Heading fontSize="large" ml={3}>
             <Text translation='earn.farming' />
           </Heading>
         </Flex>
@@ -68,7 +68,7 @@ export const FarmingList = () => {
             </Flex>
             <Text
               fontWeight='medium'
-              fontSize='lg'
+              fontSize="large"
               mb={2}
               color='gray.500'
               translation='earn.empty.farming.body'

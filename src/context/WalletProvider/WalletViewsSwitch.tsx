@@ -61,7 +61,7 @@ export const WalletViewsSwitch = () => {
                 aria-label='Back'
                 variant='ghost'
                 fontSize='xl'
-                size='sm'
+                size="small"
                 isRound
                 onClick={handleBack}
               />
@@ -73,13 +73,12 @@ export const WalletViewsSwitch = () => {
               <Routes key={location.pathname} location={location}>
                 {state.type &&
                   SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
-                    const Component = route.component
+                    const Component = route.element
                     return !Component ? null : (
                       <Route
-                        exact
                         key={index}
                         path={route.path}
-                        render={routeProps => <Component {...routeProps} />}
+                        render={(routeProps: JSX.IntrinsicAttributes) => <Component {...routeProps} />}
                       />
                     )
                   })}

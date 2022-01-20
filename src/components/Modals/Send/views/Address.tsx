@@ -24,7 +24,7 @@ import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
 export const Address = () => {
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const translate = useTranslate()
   const {
     formState: { errors }
@@ -53,7 +53,7 @@ export const Address = () => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
         onClick={() => navigate(SendRoutes.Select)}
       />
@@ -85,12 +85,12 @@ export const Address = () => {
             isFullWidth
             isDisabled={!address || addressError}
             colorScheme={addressError ? 'red' : 'blue'}
-            size='lg'
+            size="large"
             onClick={handleNext}
           >
             <Text translation={addressError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button isFullWidth variant='ghost' size="large" mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

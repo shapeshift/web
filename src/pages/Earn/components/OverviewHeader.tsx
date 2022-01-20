@@ -26,7 +26,7 @@ function EarnStat({ label, value }: EarnStatProps) {
 export const OverviewHeader = ({ balances }: { balances: UseEarnBalancesReturn }) => {
   if (balances.vaults.loading) return null
   return (
-    <Card variant='unstyled'>
+    <Card >
       <Card.Header px={0}>
         <StatGroup>
           <Stat>

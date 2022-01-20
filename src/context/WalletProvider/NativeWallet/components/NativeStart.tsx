@@ -7,7 +7,7 @@ import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
 export const NativeStart = () => {
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
 
   useEffect(() => {

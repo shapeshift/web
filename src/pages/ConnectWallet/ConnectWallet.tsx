@@ -21,7 +21,6 @@ type NoWalletProps = {
 }
 
 export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
-  const navigate = useNavigate()
   let navigate = useNavigate()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
@@ -77,13 +76,13 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
         </Flex>
         <Text
           color='gray.500'
-          fontSize='lg'
+          fontSize="large"
           mb={12}
           textAlign='center'
           translation='connectWalletPage.body'
         />
         <Button
-          size='lg'
+          size="large"
           zIndex={1}
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}

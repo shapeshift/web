@@ -11,7 +11,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
   const params = useParams()
 
   let active = params?.address === asset?.tokenId
-  if (!params?.address && !asset?.tokenId) {
+  if (!active) {
     active = params?.network === asset?.chain
   }
 
@@ -33,7 +33,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       <AssetIcon src={asset?.icon} boxSize='24px' mr={4} />
       <Box textAlign='left'>
         <Text lineHeight={1}>{asset.name}</Text>
-        <Text fontWeight='normal' fontSize='sm' color={color}>
+        <Text fontWeight='normal' fontSize="small" color={color}>
           {asset.symbol}
         </Text>
       </Box>

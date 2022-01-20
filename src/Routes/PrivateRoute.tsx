@@ -8,8 +8,6 @@ type PrivateRouteProps = {
 const HIDE_SPLASH = getConfig().REACT_APP_HIDE_SPLASH
 
 export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
-  const { location } = rest
-
   return hasWallet || HIDE_SPLASH ? (
     <Route {...rest} />
   ) : (

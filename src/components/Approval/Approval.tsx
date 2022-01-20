@@ -23,8 +23,8 @@ type ApprovalParams = {
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 export const Approval = () => {
-  let navigate = useNavigate()
-  const location = useLocation<ApprovalParams>()
+  // const location = useLocation<ApprovalParams>()
+  const location = useLocation()
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const toast = useToast()
   const translate = useTranslate()
@@ -48,7 +48,7 @@ export const Approval = () => {
   const { quote, sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
   const symbol = sellAsset.currency?.symbol
-  const navigate = useNavigate()
+  let navigate = useNavigate()
 
   const approve = async () => {
     if (!wallet) return
@@ -153,7 +153,7 @@ export const Approval = () => {
         </CountdownCircleTimer>
         <Text
           my={2}
-          fontSize='lg'
+          fontSize="large"
           fontWeight='bold'
           textAlign='center'
           translation={['trade.approveAsset', { symbol }]}
@@ -202,7 +202,7 @@ export const Approval = () => {
           </Row>
           <Button
             type='submit'
-            size='lg'
+            size="large"
             isLoading={isSubmitting || !!approvalTxId}
             colorScheme='blue'
             mt={2}
@@ -210,7 +210,7 @@ export const Approval = () => {
             <Text translation='common.confirm' />
           </Button>
           {!approvalTxId && !isSubmitting && (
-            <Button variant='ghost' mt={2} size='lg' onClick={() => navigate(-1)}>
+            <Button variant='ghost' mt={2} size="large" onClick={() => navigate(-1)}>
               <Text translation='common.reject' />
             </Button>
           )}

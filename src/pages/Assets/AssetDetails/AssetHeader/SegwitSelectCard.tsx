@@ -25,7 +25,7 @@ export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
   return (
     <Card.Body hidden={!accountTypes}>
       <Menu>
-        <MenuButton as={Button} variant='ghost-filled' colorScheme='blue' size='sm'>
+        <MenuButton as={Button} variant='ghost-filled' colorScheme='blue' size="small">
           {translate('assets.assetDetails.assetHeader.btcFormat')}
         </MenuButton>
         <MenuList color='gray.500'>
@@ -42,11 +42,11 @@ export const SegwitSelectCard = ({ chain }: { chain: ChainTypes }) => {
             }
           >
             {accountTypes?.map(accountType => (
-              <MenuItemOption value={accountType} key={accountType} fontSize='sm'>
+              <MenuItemOption value={accountType} key={accountType} fontSize="small">
                 {accountType === UtxoAccountType.SegwitNative ? (
                   <Tooltip
                     label={translate('assets.assetDetails.assetHeader.SegwitNativeTooltip')}
-                    fontSize='sm'
+                    fontSize="small"
                   >
                     {translate(`assets.assetDetails.assetHeader.${accountType}`)}
                   </Tooltip>

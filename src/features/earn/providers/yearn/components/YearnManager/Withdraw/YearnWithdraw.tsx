@@ -83,7 +83,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   // navigation
   let navigate = useNavigate()
   const location = useLocation()
-  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
+  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw })
 
   useEffect(() => {
     ;(async () => {
@@ -160,7 +160,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         api.getGasPrice()
       ])
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      memorynavigate(WithdrawPath.Status)
+      navigate(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -182,7 +182,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleViewPosition = () => {
-    browsernavigate('/earn')
+    navigate('/earn')
   }
 
   const handleCancel = () => {
@@ -439,7 +439,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
           <Routes location={location} key={location.key}>
             {routes.map(route => {
               return (
-                <Route exact key={route.path} render={() => renderRoute(route)} path={route.path} />
+                <Route key={route.path} render={() => renderRoute(route)} path={route.path} />
               )
             })}
           </Routes>

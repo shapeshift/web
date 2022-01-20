@@ -75,14 +75,14 @@ export const Approve = ({
           <Button
             onClick={onConfirm}
             width='full'
-            size='lg'
+            size="large"
             colorScheme='blue'
             isLoading={loading}
             loadingText={loadingText}
           >
             {translate('modals.approve.confirm')}
           </Button>
-          <Button onClick={onCancel} width='full' size='lg' variant='ghost'>
+          <Button onClick={onCancel} width='full' size="large" variant='ghost'>
             {translate('modals.approve.reject')}
           </Button>
         </Stack>

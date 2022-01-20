@@ -28,7 +28,7 @@ export const SelectModal = () => {
                 <Button
                   key={key}
                   w='full'
-                  size='lg'
+                  size="large"
                   py={8}
                   justifyContent='space-between'
                   onClick={() => connect(key)}

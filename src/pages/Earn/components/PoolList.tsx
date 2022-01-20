@@ -50,7 +50,7 @@ export const PoolList = () => {
           <IconCircle>
             <FaWater />
           </IconCircle>
-          <Heading fontSize='lg' ml={3}>
+          <Heading fontSize="large" ml={3}>
             <Text translation='earn.liquidityPools' />
           </Heading>
         </Flex>
@@ -82,7 +82,7 @@ export const PoolList = () => {
             </Flex>
             <Text
               fontWeight='medium'
-              fontSize='lg'
+              fontSize="large"
               mb={2}
               color='gray.500'
               translation='earn.empty.pools.body'

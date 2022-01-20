@@ -37,8 +37,8 @@ const translateError = (event: Event) => {
   return `walletProvider.keepKey.errors.${t}`
 }
 
-export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
-  const navigate = useNavigate()
+export const KeepKeyConnect = ({  }: KeepKeySetupProps) => {
+  let navigate = useNavigate()
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

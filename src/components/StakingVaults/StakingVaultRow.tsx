@@ -8,11 +8,7 @@ import { YearnVault } from 'features/earn/providers/yearn/api/api'
 import { SupportedYearnVault } from 'features/earn/providers/yearn/constants/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-<<<<<<< HEAD
-import { useLocation, useNavigate } from 'react-router-dom'
-=======
 import { useNavigate, useLocation } from 'react-router-dom'
->>>>>>> develop
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
@@ -37,7 +33,7 @@ export const StakingVaultRow = ({
   const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
   const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
   const { yearn, loading } = useYearn()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const location = useLocation()
 
   const network = NetworkTypes.MAINNET
@@ -120,7 +116,7 @@ export const StakingVaultRow = ({
           </SkeletonCircle>
         </Flex>
         <Skeleton isLoaded={isLoaded}>
-          <RawText size='lg' fontWeight='bold'>{`${name} ${type}`}</RawText>
+          <RawText size="large" fontWeight='bold'>{`${name} ${type}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>
@@ -136,7 +132,7 @@ export const StakingVaultRow = ({
               <Amount.Crypto value={cryptoAmount.toString()} symbol={symbol} prefix='≈' />
             </HStack>
           ) : (
-            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
+            <Button as='span' colorScheme='blue' variant='ghost-filled' size="small">
               <Text translation='common.getStarted' />
             </Button>
           )}

@@ -46,7 +46,7 @@ type UseSendDetailsReturnType = {
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
   const [loading, setLoading] = useState<boolean>(false)
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })

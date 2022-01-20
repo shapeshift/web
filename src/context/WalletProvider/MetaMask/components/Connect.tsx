@@ -14,7 +14,6 @@ export interface MetaMaskSetupProps {
 }
 
 export const MetaMaskConnect = () => {
-  const navigate = useNavigate()
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

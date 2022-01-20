@@ -40,7 +40,7 @@ export const Trade = () => {
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={entries}>
         <Routes>
-          <Route path='/' component={TradeRoutes} />
+          <Route path='/' element={TradeRoutes} />
         </Routes>
       </MemoryRouter>
     </FormProvider>

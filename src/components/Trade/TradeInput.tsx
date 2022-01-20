@@ -33,7 +33,7 @@ import { firstNonZeroDecimal } from 'lib/math'
 
 const FiatInput = (props: InputProps) => (
   <Input
-    variant='unstyled'
+    
     size='xl'
     textAlign='center'
     fontSize='5xl'
@@ -45,7 +45,7 @@ const FiatInput = (props: InputProps) => (
 
 type TS = TradeState<ChainTypes, SwapperType>
 
-export const TradeInput = ({ history }: RouterProps) => {
+export const TradeInput = ({}:RouterProps) => {
   const {
     control,
     handleSubmit,
@@ -68,7 +68,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     state: { wallet }
   } = useWallet()
 
-  const navigate = useNavigate()
+  let navigate = useNavigate()
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -222,7 +222,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             inputRightElement={
               <Button
                 h='1.75rem'
-                size='sm'
+                size="small"
                 variant='ghost'
                 colorScheme='blue'
                 isDisabled={isSendMaxLoading || !!action}
@@ -250,7 +250,7 @@ export const TradeInput = ({ history }: RouterProps) => {
             isLoading={!quote || action || error ? true : false}
             _loading={{ color: 'blue.500' }}
           />
-          <Box display='flex' alignItems='center' color='gray.500' fontSize='sm' spacing='24px'>
+          <Box display='flex' alignItems='center' color='gray.500' fontSize="small" spacing='24px'>
             {!quote || action || error ? (
               <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
             ) : (
@@ -289,7 +289,7 @@ export const TradeInput = ({ history }: RouterProps) => {
         </FormControl>
         <Button
           type='submit'
-          size='lg'
+          size="large"
           width='full'
           colorScheme={error ? 'red' : 'blue'}
           isLoading={isSubmitting || isSendMaxLoading || !!action}

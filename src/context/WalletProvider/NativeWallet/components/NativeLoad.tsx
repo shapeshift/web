@@ -30,7 +30,7 @@ type VaultInfo = {
 }
 
 export const NativeLoad = () => {
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
@@ -110,7 +110,7 @@ export const NativeLoad = () => {
 
   const handleRename = async (wallet: VaultInfo) => {
     const vault = wallet
-    navigate('/native/rename', { vault })
+    navigate('/native/rename', {state: { vault }})
   }
 
   return (
@@ -133,7 +133,7 @@ export const NativeLoad = () => {
               >
                 <Button
                   px={4}
-                  variant='unstyled'
+                  
                   display='flex'
                   pl={4}
                   leftIcon={

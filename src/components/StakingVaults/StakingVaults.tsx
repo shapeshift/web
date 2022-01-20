@@ -42,7 +42,7 @@ export const StakingVaults = ({ isLoaded, tokenId, showAll = false }: StakingVau
         </Box>
         {!showAll && (
           <Button
-            size='sm'
+            size="small"
             ml='auto'
             variant='link'
             colorScheme='blue'

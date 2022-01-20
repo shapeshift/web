@@ -25,7 +25,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
           <IconCircle>
             <FaLock />
           </IconCircle>
-          <Heading fontSize='lg' ml={3}>
+          <Heading fontSize="large" ml={3}>
             <Text translation='earn.stakingVaults' />
           </Heading>
         </Flex>
@@ -57,7 +57,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
             </Flex>
             <Text
               fontWeight='medium'
-              fontSize='lg'
+              fontSize="large"
               mb={2}
               color='gray.500'
               translation='earn.empty.stakingVaults.body'

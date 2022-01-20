@@ -16,7 +16,7 @@ export const KeepKeySuccess = () => {
       <ModalBody textAlign='center' pb={8}>
         <CheckCircleIcon color='green.500' boxSize={20} mb={6} />
         <Text
-          fontSize='lg'
+          fontSize="large"
           fontWeight='bold'
           translation={'walletProvider.shapeShift.success.success'}
         />

@@ -20,8 +20,8 @@ const MenuLink = ({ index, path, icon, label }: MenuLinkProps) => {
       leftIcon={<IconCircle>{params.icon}</IconCircle>}
       justifyContent='flex-start'
       variant='ghost'
-      isActive={params}
-      size='lg'
+      isActive={params ? true : false}
+      size="large"
       px={4}
       fontWeight='medium'
     >

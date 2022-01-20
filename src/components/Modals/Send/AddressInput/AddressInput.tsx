@@ -21,16 +21,16 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
   }
 
   return (
-    <InputGroup size='lg'>
+    <InputGroup size="large">
       <Controller
         render={({ field: { onChange, value } }) => (
           <Input
             spellCheck={false}
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-            fontSize='sm'
+            fontSize="small"
             onChange={onChange}
             placeholder={translate('modals.send.tokenAddress')}
-            size='lg'
+            size="large"
             value={value}
             variant='filled'
           />
@@ -44,7 +44,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
           aria-label={translate('modals.send.scanQrCode')}
           icon={<QRCodeIcon />}
           onClick={handleQrClick}
-          size='sm'
+          size="small"
           variant='ghost'
         />
       </InputRightElement>

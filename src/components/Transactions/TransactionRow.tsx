@@ -104,7 +104,7 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
                 mb={2}
                 translation={[`transactionRow.${type.toLowerCase()}`, { symbol: '' }]}
               />
-              <RawText color='gray.500' fontSize='sm' lineHeight='1'>
+              <RawText color='gray.500' fontSize="small" lineHeight='1'>
                 {dayjs(tx.blockTime * 1000).fromNow()}
               </RawText>
             </Box>
@@ -179,19 +179,19 @@ export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsse
             </Row.Label>
             <Row.Value textAlign='left'>
               {tx.status === chainAdapters.TxStatus.Confirmed && (
-                <Tag colorScheme='green' size='lg'>
+                <Tag colorScheme='green' size="large">
                   <CheckCircleIcon mr={2} />
                   <Text translation='transactionRow.confirmed' />
                 </Tag>
               )}
               {tx.status === chainAdapters.TxStatus.Pending && (
-                <Tag colorScheme='blue' size='lg'>
+                <Tag colorScheme='blue' size="large">
                   <CircularProgress mr={2} size='5' />
                   <Text translation='transactionRow.pending' />
                 </Tag>
               )}
               {tx.status === chainAdapters.TxStatus.Failed && (
-                <Tag colorScheme='red' size='lg'>
+                <Tag colorScheme='red' size="large">
                   <WarningTwoIcon mr={2} />
                   <Text translation='transactionRow.failed' />
                 </Tag>

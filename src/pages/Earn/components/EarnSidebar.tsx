@@ -5,9 +5,9 @@ import { Text } from 'components/Text'
 
 export const EarnSidebar = ({ route }: LeftSidebarChildProps) => {
   return (
-    <Card variant='unstyled'>
+    <Card>
       <Card.Header>
-        <Card.Heading fontSize='lg'>
+        <Card.Heading fontSize="large">
           <Text translation='earn.earn' />
         </Card.Heading>
         <Text color='gray.500' translation='earn.earnBody' />

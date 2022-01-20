@@ -78,7 +78,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<EarnQueryParams, EarnParams>()
+  const { query } = useBrowserRouter<EarnQueryParams, EarnParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
@@ -104,7 +104,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   // navigation
   let navigate = useNavigate()
   const location = useLocation()
-  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
+  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit})
 
   // notify
   const toast = useToast()
@@ -313,11 +313,11 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const handleViewPosition = () => {
-    browsernavigate('/earn')
+    navigate('/earn')
   }
 
   const handleCancel = () => {
-    browserHistory.goBack()
+    navigate(-1)
   }
 
   const validateCryptoAmount = (value: string) => {

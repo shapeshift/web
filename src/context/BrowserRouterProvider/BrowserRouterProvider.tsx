@@ -24,7 +24,7 @@ type BrowserRouterProviderProps = {
 
 export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) {
   const location = useLocation()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const params = useParams()
   const query = useQuery()
 

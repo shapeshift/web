@@ -32,7 +32,7 @@ import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const translate = useTranslate()
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
@@ -75,7 +75,7 @@ export const Details = () => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
         onClick={() => navigate(SendRoutes.Address)}
       />
@@ -126,7 +126,7 @@ export const Details = () => {
               inputLeftElement={
                 <Button
                   ml={1}
-                  size='sm'
+                  size="small"
                   variant='ghost'
                   textTransform='uppercase'
                   onClick={toggleCurrency}
@@ -149,7 +149,7 @@ export const Details = () => {
               inputLeftElement={
                 <Button
                   ml={1}
-                  size='sm'
+                  size="small"
                   variant='ghost'
                   textTransform='uppercase'
                   onClick={toggleCurrency}
@@ -172,13 +172,13 @@ export const Details = () => {
             isFullWidth
             isDisabled={!!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
-            size='lg'
+            size="large"
             onClick={handleNextClick}
             isLoading={loading}
           >
             <Text translation={amountFieldError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button isFullWidth variant='ghost' size="large" mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

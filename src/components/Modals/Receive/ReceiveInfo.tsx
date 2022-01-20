@@ -117,7 +117,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
         onClick={() => navigate(ReceiveRoutes.Select)}
       />
@@ -147,7 +147,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
               </SkeletonText>
             </Box>
             <Card
-              variant='unstyled'
+              
               borderRadius='xl'
               display='inline-block'
               p={0}
@@ -166,7 +166,7 @@ export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
                       color='gray.500'
                       alignItems='center'
                       justifyContent='center'
-                      fontSize='sm'
+                      fontSize="small"
                       onClick={copyHandler}
                       _hover={{ color: 'blue.500' }}
                       _active={{ color: 'blue.800' }}

@@ -9,8 +9,8 @@ export interface PortisSetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export const PortisConnect = ({ history }: PortisSetupProps) => {
-  const navigate = useNavigate()
+export const PortisConnect = ({  }: PortisSetupProps) => {
+  let navigate = useNavigate()
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

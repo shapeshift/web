@@ -46,14 +46,14 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: FoxIcon,
     name: 'ShapeShift',
     routes: [
-      { path: '/native/start', component: NativeStart },
-      { path: '/native/load', component: NativeLoad },
-      { path: '/native/password', component: NativePassword },
-      { path: '/native/rename', component: NativeRename },
-      { path: '/native/import', component: NativeImport },
-      { path: '/native/create', component: NativeCreate },
-      { path: '/native/create-test', component: NativeTestPhrase },
-      { path: '/native/success', component: NativeSuccess }
+      { path: '/native/start', element: NativeStart },
+      { path: '/native/load', element: NativeLoad },
+      { path: '/native/password', element: NativePassword },
+      { path: '/native/rename', element: NativeRename },
+      { path: '/native/import', element: NativeImport },
+      { path: '/native/create', element: NativeCreate },
+      { path: '/native/create-test', element: NativeTestPhrase },
+      { path: '/native/success', element: NativeSuccess }
     ]
   },
   [KeyManager.KeepKey]: {
@@ -61,8 +61,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: KeepKeyIcon,
     name: 'KeepKey',
     routes: [
-      { path: '/keepkey/connect', component: KeepKeyConnect },
-      { path: '/keepkey/success', component: KeepKeySuccess }
+      { path: '/keepkey/connect', element: KeepKeyConnect },
+      { path: '/keepkey/success', element: KeepKeySuccess }
     ]
   },
   [KeyManager.MetaMask]: {
@@ -70,9 +70,9 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: MetaMaskIcon,
     name: 'MetaMask',
     routes: [
-      { path: '/metamask/connect', component: MetaMaskConnect },
-      { path: '/metamask/success', component: MetaMaskSuccess },
-      { path: '/metamask/failure', component: MetaMaskFailure }
+      { path: '/metamask/connect', element: MetaMaskConnect },
+      { path: '/metamask/success', element: MetaMaskSuccess },
+      { path: '/metamask/failure', element: MetaMaskFailure }
     ]
   },
   [KeyManager.Portis]: {
@@ -80,9 +80,9 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: PortisIcon,
     name: 'Portis',
     routes: [
-      { path: '/portis/connect', component: PortisConnect },
-      { path: '/portis/success', component: PortisSuccess },
-      { path: '/portis/failure', component: PortisFailure }
+      { path: '/portis/connect', element: PortisConnect },
+      { path: '/portis/success', element: PortisSuccess },
+      { path: '/portis/failure', element: PortisFailure }
     ]
   }
 }

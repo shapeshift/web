@@ -54,7 +54,7 @@ type SendFormProps = {
 
 export const Form = ({ asset: initialAsset }: SendFormProps) => {
   const location = useLocation()
-  const navigate = useNavigate()
+  let navigate = useNavigate()
   const { handleSend } = useFormSend()
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
 

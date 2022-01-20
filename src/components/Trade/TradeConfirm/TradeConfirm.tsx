@@ -37,8 +37,8 @@ type TradeConfirmParams = {
 
 type SwapError = Error & { message: string }
 
-export const TradeConfirm = ({ history }: RouterProps) => {
-  const navigate = useNavigate()
+export const TradeConfirm = ({  }: RouterProps) => {
+  let navigate = useNavigate()
   const [txid, setTxid] = useState('')
   const {
     getValues,
@@ -110,7 +110,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Card variant='unstyled'>
+        <Card >
           <Card.Header px={0} pt={0}>
             <SimpleGrid gridTemplateColumns='25px 1fr 25px' alignItems='center' mx={-2}>
               <IconButton
@@ -185,7 +185,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               <Button
                 isLoading={isSubmitting}
                 colorScheme='blue'
-                size='lg'
+                size="large"
                 width='full'
                 mt={6}
                 type='submit'

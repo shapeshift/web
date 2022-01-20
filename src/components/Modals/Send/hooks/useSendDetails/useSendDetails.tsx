@@ -8,7 +8,9 @@ import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { ensLookup } from 'lib/ens'
 import { fromBaseUnit } from 'lib/math'
+import { isAddress } from 'lib/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -94,8 +96,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           wallet
         })
         const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+        const to = isAddress(values.address)
+          ? values.address
+          : (await ensLookup(values.address)).address
         return ethereumChainAdapter.getFeeData({
-          to: values.address,
+          to,
           value,
           chainSpecific: { from, contractAddress: values.asset.tokenId },
           sendMax: values.sendMax

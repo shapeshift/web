@@ -166,9 +166,13 @@ export const TransactionReceive = ({
               <Link
                 isExternal
                 color='blue.500'
-                href={`${txDetails.explorerAddressLink}${txDetails.to ?? txDetails.from}`}
+                href={`${txDetails.explorerAddressLink}${
+                  (txDetails.ensTo || txDetails.to) ?? (txDetails.ensFrom || txDetails.from)
+                }`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.to ?? txDetails.from}</MiddleEllipsis>
+                <MiddleEllipsis maxWidth='180px'>
+                  {(txDetails.ensTo || txDetails.to) ?? (txDetails.ensFrom || txDetails.from)}
+                </MiddleEllipsis>
               </Link>
             </Row.Value>
           </Row>

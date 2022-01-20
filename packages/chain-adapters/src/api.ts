@@ -1,7 +1,13 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 
-export interface ChainAdapter<T extends ChainTypes> {
+type ChainSpecificAdapterProps<
+  T extends ChainTypes,
+  U extends ChainTypes,
+  V extends Record<PropertyKey, unknown>
+> = T extends U ? V : Partial<Record<keyof V, never>>
+
+export type ChainAdapter<T extends ChainTypes> = {
   /**
    * Get type of adapter
    */
@@ -41,9 +47,6 @@ export interface ChainAdapter<T extends ChainTypes> {
   broadcastTransaction(hex: string): Promise<string>
 
   validateAddress(address: string): Promise<chainAdapters.ValidAddressResult>
-  validateEnsAddress?: T extends ChainTypes.Ethereum
-    ? (address: string) => Promise<chainAdapters.ValidAddressResult>
-    : never
 
   subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
@@ -54,4 +57,10 @@ export interface ChainAdapter<T extends ChainTypes> {
   unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void
 
   closeTxs(): void
-}
+} & ChainSpecificAdapterProps<
+  T,
+  ChainTypes.Ethereum,
+  {
+    validateEnsAddress(x: string): Promise<chainAdapters.ValidAddressResult>
+  }
+>

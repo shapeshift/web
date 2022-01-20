@@ -28,7 +28,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ensInstance } from 'lib/ens-instance'
+import { ensReverseLookup } from 'lib/ens'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
@@ -64,8 +64,8 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       })
       setReceiveAddress(selectedAccountAddress)
       if (asset.chain === ChainTypes.Ethereum) {
-        const { name: selectedAccountDomain } = await ensInstance.getName(selectedAccountAddress)
-        setEnsReceiveAddress(selectedAccountDomain)
+        const { error, name: selectedAccountDomain } = await ensReverseLookup(selectedAccountAddress)
+        !error && setEnsReceiveAddress(selectedAccountDomain)
       }
     })()
   }, [

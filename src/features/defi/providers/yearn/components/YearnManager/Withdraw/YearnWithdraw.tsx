@@ -31,7 +31,7 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSli
 import {
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioLoading
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { YearnVaultApi } from '../../../api/api'

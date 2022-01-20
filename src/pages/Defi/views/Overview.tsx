@@ -1,7 +1,7 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import { Main } from 'components/Layout/Main'
-import { selectPortfolioTotalFiatBalance } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectPortfolioTotalFiatBalance } from 'state/slices/portfolioSlice/selectors'
 
 import { OverviewHeader } from '../components/OverviewHeader'
 import { VaultList } from '../components/VaultList'

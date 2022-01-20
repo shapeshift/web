@@ -25,10 +25,12 @@ import {
 import {
   AccountSpecifier,
   PortfolioAssets,
-  PortfolioBalancesById,
+  PortfolioBalancesById
+} from 'state/slices/portfolioSlice/portfolioSlice'
+import {
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 import { selectTxsByFilter, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

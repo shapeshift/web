@@ -64,7 +64,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       })
       setReceiveAddress(selectedAccountAddress)
       if (asset.chain === ChainTypes.Ethereum) {
-        const { error, name: selectedAccountDomain } = await ensReverseLookup(selectedAccountAddress)
+        const { error, name: selectedAccountDomain } = await ensReverseLookup(
+          selectedAccountAddress
+        )
         !error && setEnsReceiveAddress(selectedAccountDomain)
       }
     })()

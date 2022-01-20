@@ -1,7 +1,7 @@
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useState, useEffect } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'

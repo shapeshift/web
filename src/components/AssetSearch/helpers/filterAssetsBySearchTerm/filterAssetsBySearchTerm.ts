@@ -1,6 +1,6 @@
 import { Asset } from '@shapeshiftoss/types'
-import {isAddress} from 'lib/utils'
 import { matchSorter } from 'match-sorter'
+import { isAddress } from 'lib/utils'
 
 export const filterAssetsBySearchTerm = (search: string, assets: Asset[]) => {
   if (!assets) return []

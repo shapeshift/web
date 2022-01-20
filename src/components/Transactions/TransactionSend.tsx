@@ -163,7 +163,7 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
                 color='blue.500'
                 href={`${txDetails.explorerAddressLink}${txDetails.to}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.ensTo || txDetails.to}</MiddleEllipsis>
+                <MiddleEllipsis width='180px'>{txDetails.ensTo || txDetails.to}</MiddleEllipsis>
               </Link>
             </Row.Value>
           </Row>

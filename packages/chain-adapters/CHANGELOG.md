@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.25.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.24.0...@shapeshiftoss/chain-adapters-v1.25.0) (2022-01-20)
+
+
+### Features
+
+* improve ChainAdapter typings ([#315](https://github.com/shapeshift/lib/issues/315)) ([dd8fb0c](https://github.com/shapeshift/lib/commit/dd8fb0cc386d0412013ccb641b244273484fd510))
+
 # [@shapeshiftoss/chain-adapters-v1.24.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.23.1...@shapeshiftoss/chain-adapters-v1.24.0) (2022-01-17)
 
 

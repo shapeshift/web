@@ -1,6 +1,5 @@
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
-import nock from 'nock'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
@@ -108,7 +107,6 @@ const setup = ({
 
 xdescribe('useSendDetails', () => {
   beforeEach(() => {
-    nock.disableNetConnect()
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
@@ -123,7 +121,6 @@ xdescribe('useSendDetails', () => {
   })
 
   afterEach(() => {
-    nock.enableNetConnect()
     jest.restoreAllMocks()
   })
 

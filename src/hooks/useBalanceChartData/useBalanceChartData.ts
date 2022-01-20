@@ -5,7 +5,6 @@ import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
 import head from 'lodash/head'
-import isEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
@@ -335,10 +334,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const noDeviceId = isNil(walletInfo?.deviceId)
     const noAssetIds = !assetIds.length
-    const noTxs = !txs.length
-    const noBalances = isEmpty(balances)
     const noPriceHistory = priceHistoryDataLoading
-    if (noDeviceId || noAssetIds || noTxs || noBalances || noPriceHistory) {
+    if (noDeviceId || noAssetIds || noPriceHistory) {
       return setBalanceChartDataLoading(true)
     }
 

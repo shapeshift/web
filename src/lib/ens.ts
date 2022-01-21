@@ -10,25 +10,25 @@ const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
 })
 
 export const ensLookup = memoize(
-  async (ensName: string): Promise<{ address: string; error: boolean }> => {
+  async (ensName: string): Promise<{ address: string } | { address: null; error: true }> => {
     makeEns()
     const ensInstance = await ens
     const lookupAddress = await ensInstance.name(ensName).getAddress()
     if (lookupAddress === '0x0000000000000000000000000000000000000000') {
-      return { address: '', error: true }
+      return { address: null, error: true }
     }
-    return { address: lookupAddress, error: false }
+    return { address: lookupAddress }
   }
 )
 
 export const ensReverseLookup = memoize(
-  async (address: string): Promise<{ name: string; error: boolean }> => {
+  async (address: string): Promise<{ name: string } | { name: null; error: true }> => {
     makeEns()
     const ensInstance = await ens
     const lookupName = await ensInstance.getName(address)
     if (!lookupName.name) {
-      return { name: '', error: true }
+      return { name: null, error: true }
     }
-    return { name: lookupName.name, error: false }
+    return { name: lookupName.name }
   }
 )

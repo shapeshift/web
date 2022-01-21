@@ -1,12 +1,27 @@
 // @ts-ignore TODO: add type declarations for ensjs module
 import ENS, { getEnsAddress } from '@ensdomains/ensjs'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import memoize from 'lodash/memoize'
 import { getWeb3Provider } from 'lib/web3-provider'
 
 let makeEns: () => void
 // getEnsAddress takes a magic number as string, networkId. 1 stands for mainnet
 const ens = new Promise<void>(resolve => (makeEns = resolve)).then(async () => {
-  return new ENS({ provider: await getWeb3Provider(), ensAddress: getEnsAddress('1') })
+  const unchainedUrls = {
+    ethereum: {
+      httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+      wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+    }
+  }
+
+  const ethereumChainAdapter = new ChainAdapterManager(unchainedUrls).byChain(ChainTypes.Ethereum)
+  const caip2 = await ethereumChainAdapter.getCaip2()
+  const caip2Reference = caip2.match(
+    /^(?<caip2Namespace>[-a-z0-9]{3,8}):(?<caip2Reference>[-a-zA-Z0-9]{1,32})$/
+  )?.groups?.caip2Reference
+  return new ENS({ provider: await getWeb3Provider(), ensAddress: getEnsAddress(caip2Reference) })
 })
 
 export const ensLookup = memoize(

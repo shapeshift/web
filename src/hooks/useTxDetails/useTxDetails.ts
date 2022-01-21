@@ -62,8 +62,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const to = standardTx?.to ?? tradeTx?.to ?? ''
   const from = standardTx?.from ?? tradeTx?.from ?? ''
 
-  const [ensFrom, setEnsFrom] = useState('')
-  const [ensTo, setEnsTo] = useState('')
+  const [ensFrom, setEnsFrom] = useState<string>()
+  const [ensTo, setEnsTo] = useState<string>()
 
   useEffect(() => {
     ;(async () => {

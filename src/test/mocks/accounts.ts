@@ -26,6 +26,20 @@ export const ethPubKeys = Object.freeze([
   '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
 ])
 
+export const btcPubKeys = Object.freeze([
+  'zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w',
+  'xpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w',
+  'ypub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w'
+])
+
+export const btcAddresses = Object.freeze([
+  'bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
+  'bc1qr9y9lxpynxm8nkswez555xnv2plwwluxrpa55l',
+  'bc1q3fmp9tdacg5edlgmh8ttxz7cvj598dcn7w9xxd',
+  'bc1qvzuvxskhr5eyaf65w37jxwwvskwyw3rlnqtyzc',
+  'bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8'
+])
+
 export const mockEthToken = (obj?: { balance?: string; caip19?: string }) => ({
   balance: '100',
   caip19: foxCaip19,
@@ -47,3 +61,85 @@ export const mockEthAccount = (obj?: Record<string, any>) =>
     },
     obj
   )
+
+export const mockBtcAddress = (obj?: { balance?: string; pubkey?: string }) => ({
+  balance: '100',
+  pubkey: btcAddresses[0],
+  ...obj
+})
+
+export const mockBtcAccount = (obj?: Record<string, any>) =>
+  merge(
+    {},
+    {
+      balance: '100',
+      caip2: btcCaip2,
+      caip19: btcCaip19,
+      chain: ChainTypes.Bitcoin,
+      chainSpecific: {
+        addresses: [],
+        nextChangeAddressIndex: 3,
+        nextReceiveAddressIndex: 3,
+      },
+      pubkey: btcPubKeys[0]
+    },
+    obj
+  )
+
+export const mockETHandBTCAccounts = ({
+  ethAccountObj,
+  ethAccount2Obj,
+  btcAccountObj,
+  btcAccount2Obj
+}: {
+  ethAccountObj?: Record<string, any>
+  ethAccount2Obj?: Record<string, any>
+  btcAccountObj?: Record<string, any>
+  btcAccount2Obj?: Record<string, any>
+} = {}) => {
+  const ethAccount = merge(
+    mockEthAccount({
+      chainSpecific: {
+        tokens: [
+          mockEthToken({ balance: '3000000000000000000', caip19: foxCaip19 }),
+          mockEthToken({ balance: '1000000000000000000', caip19: usdcCaip19 })
+        ]
+      }
+    }),
+    ethAccountObj
+  )
+
+  const ethAccount2 = merge(
+    mockEthAccount({
+      balance: '10',
+      pubkey: ethPubKeys[1],
+      chainSpecific: {
+        tokens: [mockEthToken({ balance: '2000000000000000000', caip19: foxCaip19 })]
+      }
+    }),
+    ethAccount2Obj
+  )
+
+  const btcAccount = merge(
+    mockBtcAccount({
+      balance: '10',
+      chainSpecific: {
+        addresses: [mockBtcAddress({ balance: '3' })]
+      }
+    }),
+    btcAccountObj
+  )
+
+  const btcAccount2 = merge(
+    mockBtcAccount({
+      balance: '10',
+      pubkey: btcPubKeys[1],
+      chainSpecific: {
+        addresses: [mockBtcAddress({ balance: '3', pubkey: btcAddresses[1] })]
+      }
+    }),
+    btcAccount2Obj
+  )
+
+  return { ethAccount, ethAccount2, btcAccount, btcAccount2 }
+}

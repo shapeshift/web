@@ -327,8 +327,8 @@ export const selectPortfolioFiatBalances = createSelector(
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
-  (assetsById, marketData, balances) =>
-    Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
+  (assetsById, marketData, balances) => {
+    return Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
       (acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
@@ -339,6 +339,8 @@ export const selectPortfolioFiatBalances = createSelector(
       },
       {}
     )
+
+  }
 )
 
 // accountId is optional, but we should always pass an assetId when using these params
@@ -541,13 +543,13 @@ export const selectPortfolioAllocationPercentByAccountId = createSelector(
   selectPortfolioTotalFiatBalanceByAccount,
   selectAccountIdParam,
   (totalFiatBalance, totalBalancesByAccount, accountId) => {
+    // console.dir({ totalFiatBalance, totalBalancesByAccount, accountId })
     const balanceAllocationById = Object.entries(totalBalancesByAccount).reduce<{
       [k: AccountSpecifier]: number
     }>((acc, [currentAccountId, accountBalance]) => {
-      const allocation = bnOrZero(accountBalance)
-        .div(bnOrZero(totalFiatBalance))
-        .times(100)
-        .toNumber()
+      const allocation = bnOrZero(
+        bn(accountBalance).div(bnOrZero(totalFiatBalance)).times(100)
+      ).toNumber()
 
       acc[currentAccountId] = allocation
       return acc

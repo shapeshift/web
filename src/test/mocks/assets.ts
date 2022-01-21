@@ -113,3 +113,12 @@ export const fox: Asset = {
   symbol: 'FOX',
   tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 }
+
+export const mockAssetState = (obj?: Record<string, any>) => ({
+  byId: {
+    [ethereum.caip19]: ethereum,
+    [fox.caip19]: fox
+  },
+  ids: [ethereum.caip19, fox.caip19],
+  ...obj
+})

@@ -8,11 +8,8 @@ import {
   selectMarketData,
   useFindAllQuery
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  portfolio,
-  portfolioApi,
-  selectPortfolioAssetIds
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/selectors'
 
 // TODO(0xdef1cafe): make this a data provider
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {

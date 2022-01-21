@@ -2,7 +2,7 @@ import { Flex, Heading, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
 import { Page } from 'components/Layout/Page'
 import { Text } from 'components/Text'
-import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/portfolioSlice/selectors'
 
 import { AccountRowWithTokens } from './AccountRowWithTokens'
 

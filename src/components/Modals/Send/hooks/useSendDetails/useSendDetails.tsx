@@ -15,7 +15,7 @@ import {
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 

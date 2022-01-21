@@ -2,10 +2,8 @@ import { Box } from '@chakra-ui/react'
 import { AccountAssetsList } from 'components/AccountAssets/AccountAssetsList'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
-import {
-  AccountSpecifier,
-  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/portfolioSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 

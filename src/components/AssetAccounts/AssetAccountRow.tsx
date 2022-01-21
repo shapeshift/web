@@ -16,12 +16,12 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  AccountSpecifier,
   selectPortfolioAllocationPercentByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'

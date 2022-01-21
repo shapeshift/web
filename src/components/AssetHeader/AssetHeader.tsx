@@ -34,12 +34,12 @@ import {
   useGetAssetDescriptionQuery
 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  AccountSpecifier,
   selectAccountIdsByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

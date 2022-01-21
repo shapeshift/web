@@ -17,9 +17,9 @@ export interface TxDetails {
   sellAsset: Asset
   value: string
   to: string
-  ensTo: string
+  ensTo?: string
   from: string
-  ensFrom: string
+  ensFrom?: string
   type: TradeType | TxType | ''
   symbol: string
   precision: number
@@ -67,10 +67,10 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
 
   useEffect(() => {
     ;(async () => {
-      const { error: ensFromError, name: ensFrom } = await ensReverseLookup(from)
-      const { error: ensToError, name: ensTo } = await ensReverseLookup(to)
-      !ensFromError && setEnsFrom(ensFrom)
-      !ensToError && setEnsTo(ensTo)
+      const reverseFromLookup = await ensReverseLookup(from)
+      const reverseToLookup = await ensReverseLookup(to)
+      !reverseFromLookup.error && setEnsFrom(reverseFromLookup.name)
+      !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
   }, [from, to])
   const type = standardTx?.type ?? tx.tradeDetails?.type ?? ''

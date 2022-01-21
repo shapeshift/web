@@ -98,7 +98,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
         const to = isEthAddress(values.address)
           ? values.address
-          : (await ensLookup(values.address)).address
+          : ((await ensLookup(values.address)).address as string)
         return ethereumChainAdapter.getFeeData({
           to,
           value,

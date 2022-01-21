@@ -103,8 +103,9 @@ export const Address = () => {
                       return true
                     }
                     // If a lookup exists for a 0x address, display ENS name instead
-                    const { name: ensName, error } = await ensReverseLookup(value)
-                    !error && setValue(SendFormFields.EnsName, ensName)
+                    const reverseValueLookup = await ensReverseLookup(value)
+                    !reverseValueLookup.error &&
+                      setValue(SendFormFields.EnsName, reverseValueLookup.name)
                   }
                   return validAddress.valid || 'common.invalidAddress'
                 }

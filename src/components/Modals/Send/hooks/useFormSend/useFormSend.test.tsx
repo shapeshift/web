@@ -11,6 +11,7 @@ import * as reactRedux from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { isEthAddress } from 'lib/utils'
 
 import { SendFormFields, SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
@@ -24,6 +25,8 @@ jest.mock('react-polyglot', () => ({
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
+
+jest.mock('lib/utils')
 
 const formData: SendInput = {
   [SendFormFields.Address]: '0xMyWalletAddres',
@@ -125,6 +128,7 @@ describe('useFormSend', () => {
     }))
 
     const sendClose = jest.fn()
+    ;(isEthAddress as jest.Mock<unknown>).mockImplementation(() => true)
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: () => ({
@@ -155,6 +159,7 @@ describe('useFormSend', () => {
     }))
 
     const sendClose = jest.fn()
+    ;(isEthAddress as jest.Mock<unknown>).mockImplementation(() => true)
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: () => ({

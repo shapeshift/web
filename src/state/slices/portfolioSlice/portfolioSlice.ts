@@ -154,8 +154,13 @@ export const portfolio = createSlice({
   }
 })
 
-type AccountToPortfolioArgs = {
+type Accounts = {
   [k: CAIP10]: chainAdapters.Account<ChainTypes>
+}
+
+type AccountToPortfolioArgs = {
+  accounts: Accounts
+  assetIds: string[]
 }
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
@@ -169,7 +174,7 @@ const sumBalance = (totalBalance: string, currentBalance: string) => {
 export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
-  Object.entries(args).forEach(([_xpubOrAccount, account]) => {
+  Object.entries(args.accounts).forEach(([_xpubOrAccount, account]) => {
     const { chain } = account
 
     switch (chain) {
@@ -200,6 +205,10 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
+          if (!args.assetIds.includes(token.caip19)) {
+            return
+          }
+
           portfolio.accounts.byId[CAIP10].push(token.caip19)
           // add assetId without dupes
           portfolio.assetBalances.ids = Array.from(
@@ -274,6 +283,8 @@ export const accountToPortfolio: AccountToPortfolio = args => {
   return portfolio
 }
 
+type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap; assetIds: string[] }
+
 export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
@@ -281,19 +292,19 @@ export const portfolioApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getAccount: build.query<Portfolio, AccountSpecifierMap>({
-      queryFn: async accountSpecifiers => {
-        if (isEmpty(accountSpecifiers)) return { data: cloneDeep(initialState) }
+    getAccount: build.query<Portfolio, GetAccountArgs>({
+      queryFn: async ({ accountSpecifierMap, assetIds }) => {
+        if (isEmpty(accountSpecifierMap)) return { data: cloneDeep(initialState) }
         const chainAdapters = getChainAdapters()
-        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifiers)[0] as [CAIP2, string]
+        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
         // TODO(0xdef1cafe): chainAdapters.byCAIP2()
         const { chain } = caip2.fromCAIP2(CAIP2)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)
             .getAccount(accountSpecifier)
-          const account = { [accountSpecifier]: chainAdaptersAccount }
-          const data = accountToPortfolio(account)
+          const accounts = { [accountSpecifier]: chainAdaptersAccount }
+          const data = accountToPortfolio({ accounts, assetIds })
           return { data }
         } catch (e) {
           const status = 400

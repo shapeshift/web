@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetIds, useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
   selectMarketData,
@@ -26,6 +26,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // and covers most assets users will have
   useFindAllQuery()
   const accountSpecifiers = useAccountSpecifiers()
+  const assetIds = useSelector(selectAssetIds)
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination
@@ -34,10 +35,10 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // clear the old portfolio, we have different non null data, we're switching wallet
     dispatch(portfolio.actions.clearPortfolio())
     // fetch each account
-    accountSpecifiers.forEach(accountSpecifier =>
-      dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier))
+    accountSpecifiers.forEach(accountSpecifierMap =>
+      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap, assetIds }))
     )
-  }, [dispatch, accountSpecifiers])
+  }, [dispatch, accountSpecifiers, assetIds])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

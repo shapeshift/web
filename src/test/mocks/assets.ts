@@ -141,7 +141,8 @@ export const mockAssetState = (obj?: Record<string, any>) =>
       byId: {
         [ethereum.caip19]: ethereum,
         [fox.caip19]: fox,
-        [usdc.caip19]: usdc
+        [usdc.caip19]: usdc,
+        [zero.caip19]: zero
       },
       ids: [ethereum.caip19, fox.caip19, usdc.caip19]
     },

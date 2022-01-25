@@ -288,10 +288,9 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
     const balanceAllocationById = Object.entries(assetFiatBalancesByAccount).reduce<{
       [k: AccountSpecifier]: number
     }>((acc, [currentAccountId, assetAccountFiatBalance]) => {
-      const allocation = bnOrZero(assetAccountFiatBalance[assetId])
-        .div(bnOrZero(totalAssetFiatBalance))
-        .times(100)
-        .toNumber()
+      const allocation = bnOrZero(
+        bn(assetAccountFiatBalance[assetId]).div(bnOrZero(totalAssetFiatBalance)).times(100)
+      ).toNumber()
 
       acc[currentAccountId] = allocation
       return acc

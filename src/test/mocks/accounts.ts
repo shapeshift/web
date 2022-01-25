@@ -6,6 +6,7 @@ export const ethCaip19 = 'eip155:1/slip44:60'
 export const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const usdcCaip19 = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const yvusdcCaip19 = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
+export const zeroCaip19 = 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574'
 
 export const btcCaip2 = 'bip122:000000000019d6689c085ae165831e93'
 export const btcCaip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0'

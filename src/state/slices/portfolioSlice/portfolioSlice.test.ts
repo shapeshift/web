@@ -38,11 +38,13 @@ import {
 } from './selectors'
 import { accountToPortfolio } from './utils'
 
-const mockUpsertPortfolio = (accounts: chainAdapters.Account<ChainTypes.Ethereum>[]) => {
+const mockUpsertPortfolio = (
+  accounts: chainAdapters.Account<ChainTypes.Ethereum | ChainTypes.Bitcoin>[]
+) => {
   const portfolioAccounts = accounts.reduce(
     (
-      acc: { [k: string]: chainAdapters.Account<ChainTypes.Ethereum> },
-      account: chainAdapters.Account<ChainTypes.Ethereum>
+      acc: { [k: string]: chainAdapters.Account<ChainTypes.Ethereum | ChainTypes.Bitcoin> },
+      account: chainAdapters.Account<ChainTypes.Ethereum | ChainTypes.Bitcoin>
     ) => {
       acc[account.pubkey] = account
       return acc

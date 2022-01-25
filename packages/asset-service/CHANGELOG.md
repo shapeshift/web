@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.10.0...@shapeshiftoss/asset-service-v1.11.0) (2022-01-25)
+
+
+### Features
+
+* yearn underlying assets ([#323](https://github.com/shapeshift/lib/issues/323)) ([e4366c1](https://github.com/shapeshift/lib/commit/e4366c1b4a19f1f6c515f337887edd3af04cda4e))
+
 # [@shapeshiftoss/asset-service-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.9.0...@shapeshiftoss/asset-service-v1.10.0) (2021-12-17)
 
 

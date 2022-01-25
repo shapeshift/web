@@ -27,7 +27,9 @@
     "somethingWentWrongBody": "Something went wrong",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
-    "submitFeedback": "Submit Feedback"
+    "submitFeedback": "Submit Feedback",
+    "send": "Send",
+    "receive": "Receive"
   },
   "updateToast": {
     "body": "A new version of the app is available",

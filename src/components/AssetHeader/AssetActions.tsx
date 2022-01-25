@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Button, ButtonGroup, Skeleton } from '@chakra-ui/react'
+import { ButtonGroup, IconButton, Skeleton, Tooltip } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { useTranslate } from 'react-polyglot'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
@@ -15,6 +16,7 @@ type AssetActionProps = {
 
 export const AssetActions = ({ isLoaded, assetId, accountId }: AssetActionProps) => {
   const { send, receive } = useModal()
+  const translate = useTranslate()
   const {
     state: { isConnected },
     dispatch
@@ -35,14 +37,26 @@ export const AssetActions = ({ isLoaded, assetId, accountId }: AssetActionProps)
       width={{ base: 'full', lg: 'auto' }}
     >
       <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Button onClick={handleSendClick} isFullWidth leftIcon={<ArrowUpIcon />}>
-          Send
-        </Button>
+        <Tooltip label={translate('common.send')} fontSize='md' px={4} hasArrow>
+          <IconButton
+            onClick={handleSendClick}
+            isRound
+            width='full'
+            icon={<ArrowUpIcon />}
+            aria-label={translate('common.send')}
+          />
+        </Tooltip>
       </Skeleton>
       <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Button onClick={handleReceiveClick} isFullWidth leftIcon={<ArrowDownIcon />}>
-          Receive
-        </Button>
+        <Tooltip label={translate('common.receive')} fontSize='md' px={4} hasArrow>
+          <IconButton
+            onClick={handleReceiveClick}
+            isRound
+            width='full'
+            icon={<ArrowDownIcon />}
+            aria-label={translate('common.receive')}
+          />
+        </Tooltip>
       </Skeleton>
     </ButtonGroup>
   )

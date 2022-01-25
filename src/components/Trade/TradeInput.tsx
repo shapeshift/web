@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  IconButton,
-  Input,
-  InputProps,
-  useToast
-} from '@chakra-ui/react'
+import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -16,6 +7,7 @@ import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
+import { FiatInput } from 'components/FiatInput/FiatInput'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -31,18 +23,6 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-
-const FiatInput = (props: InputProps) => (
-  <Input
-    variant='unstyled'
-    size='xl'
-    textAlign='center'
-    fontSize='5xl'
-    mb={6}
-    placeholder='$0.00'
-    {...props}
-  />
-)
 
 type TS = TradeState<ChainTypes, SwapperType>
 

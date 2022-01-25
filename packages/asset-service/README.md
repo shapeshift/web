@@ -6,6 +6,7 @@ It does not provide asset market data (price, volume, etc) or wallet balance inf
 
 ## Usage
 
-1.  Run `yarn generate` to build the `generatedAssetData.json` used by the the service to provide asset data.
-2.  Commit and push changes to `generatedAssetData.json` to github
-3.  Use assetService to lookup assets as needed (not yet built)
+1. Run `cp sample.env .env` to create an env file. Feel free to edit values to services of your choosing.
+2. Run `yarn generate` to build the `generatedAssetData.json` used by the the service to provide asset data.
+3. Commit and push changes to `generatedAssetData.json` to github
+4. Use assetService to lookup assets as needed.

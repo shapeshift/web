@@ -1,21 +1,44 @@
+import 'dotenv/config'
+
 import { BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import fs from 'fs'
+import uniqBy from 'lodash/uniqBy'
 
 import { baseAssets } from './baseAssets'
 import { getTokens } from './ethTokens'
-import { extendErc20 } from './ethTokens/extendErc20'
+import {
+  getIronBankTokens,
+  getUnderlyingVaultTokens,
+  getYearnVaults,
+  getZapperTokens
+} from './ethTokens/extendErc20'
 
 const generateAssetData = async () => {
   const generatedAssetData = await Promise.all(
     baseAssets.map(async (baseAsset) => {
       if (baseAsset.chain === ChainTypes.Ethereum && baseAsset.network === NetworkTypes.MAINNET) {
-        const [ethTokens, extendedERC20Tokens] = await Promise.all([
+        const [
+          ethTokens,
+          yearnVaults,
+          ironBankTokens,
+          zapperTokens,
+          underlyingTokens
+        ] = await Promise.all([
           await getTokens(),
-          await extendErc20()
+          await getYearnVaults(),
+          await getIronBankTokens(),
+          await getZapperTokens(),
+          await getUnderlyingVaultTokens()
         ])
+        const tokens = ethTokens
+          .concat(yearnVaults)
+          .concat(ironBankTokens)
+          .concat(zapperTokens)
+          .concat(underlyingTokens)
+        const uniqueTokens = uniqBy(tokens, 'caip19') // Remove dups
         const baseAssetWithTokens: BaseAsset = {
           ...baseAsset,
-          tokens: ethTokens.concat(extendedERC20Tokens)
+          tokens: uniqueTokens
         }
         return baseAssetWithTokens
       } else {

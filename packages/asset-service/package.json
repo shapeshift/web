@@ -33,8 +33,11 @@
     "@shapeshiftoss/types": "^1.13.1"
   },
   "devDependencies": {
+    "@ethersproject/providers": "^5.5.2",
     "@shapeshiftoss/caip": "^1.4.2",
     "@shapeshiftoss/types": "^1.13.1",
-    "@types/lodash": "^4.14.172"
+    "@types/lodash": "^4.14.172",
+    "@yfi/sdk": "^1.0.25",
+    "dotenv": "^14.3.0"
   }
 }

@@ -22,19 +22,21 @@ import { createStore } from 'state/store'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
+import { portfolio as portfolioSlice } from './portfolioSlice'
 import {
-  accountToPortfolio,
-  portfolio as portfolioSlice,
   selectAccountIdByAddress,
-  selectPortfolioAllocationPercentByAccountId,
+  selectPortfolioAccountIdsSortedFiat,
+  selectPortfolioAllocationPercentByFilter,
   selectPortfolioAssetAccounts,
   selectPortfolioAssetIdsByAccountId,
+  selectPortfolioAssetIdsByAccountIdExcludeFeeAsset,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatAccountBalances,
   selectPortfolioFiatBalanceByFilter,
   selectPortfolioTotalFiatBalanceByAccount
-} from './portfolioSlice'
+} from './selectors'
+import { accountToPortfolio } from './utils'
 
 const mockUpsertPortfolio = (accounts: Account) => {
   const portfolioAccounts = accounts.reduce((acc: { [k: string]: string }, account: Account) => {
@@ -241,7 +243,7 @@ describe('portfolioSlice', () => {
     })
   })
 
-  describe('selectPortfolioAllocationPercentByAccountId', () => {
+  describe('selectPortfolioAllocationPercentByFilter', () => {
     it('can select fiat allocation by accountId', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, btcAccount } = mockETHandBTCAccounts()
@@ -275,7 +277,10 @@ describe('portfolioSlice', () => {
 
       const returnValue = 60
 
-      const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(state, ethAccountId)
+      const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
+        accountId: ethAccountId,
+        assetId: foxCaip19
+      })
       expect(allocationByAccountId).toEqual(returnValue)
     })
 
@@ -313,13 +318,15 @@ describe('portfolioSlice', () => {
       const ethAccountId = `${ethAccount.caip2}:${toLower(ethAccount.pubkey)}`
       const state = store.getState()
 
-      const allocationByAccountId = selectPortfolioAllocationPercentByAccountId(state, ethAccountId)
+      const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
+        accountId: ethAccountId,
+        assetId: foxCaip19
+      })
 
       expect(allocationByAccountId).toEqual(0)
     })
   })
 
-  // START HERE
   describe('Fiat Balance Selectors', () => {
     describe('selectPortfolioFiatAccountBalance', () => {
       const store = createStore()
@@ -645,5 +652,25 @@ describe('portfolioSlice', () => {
 
       expect(result).toEqual(expected)
     })
+  })
+})
+
+describe('selectPortfolioAccountIdsSortedFiat', () => {
+  it('should return an array of account IDs sorted by fiat balance', () => {
+    const expected = [ethAccountSpecifier2, ethAccountSpecifier1]
+    const result = selectPortfolioAccountIdsSortedFiat(state)
+
+    expect(result).toEqual(expected)
+  })
+})
+
+describe('selectPortfolioAssetIdsByAccountIdExcludeFeeAsset', () => {
+  it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
+    // TODO(ryankk): refactor test state to make it easier to add new assets. This is a pretty pointless test with only two
+    // assets in state (one of them being a fee asset), but want to keep it here for reference.
+    const expected = [foxCaip19]
+    const result = selectPortfolioAssetIdsByAccountIdExcludeFeeAsset(state, ethAccountSpecifier1)
+
+    expect(result).toEqual(expected)
   })
 })

@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
+import { registerSelectors } from 'reselect-tools'
 
 import { reducer, ReduxState } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
+import * as portfolioSelectors from './slices/portfolioSlice/selectors'
+
+registerSelectors(portfolioSelectors)
 
 const apiMiddleware = [portfolioApi.middleware, marketApi.middleware, assetApi.middleware]
 

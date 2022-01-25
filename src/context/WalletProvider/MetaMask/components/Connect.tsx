@@ -1,5 +1,5 @@
 import detectEthereumProvider from '@metamask/detect-provider'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
@@ -22,18 +22,26 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  let provider: any
+  const [provider, setProvider] = useState<any>()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        setProvider(await detectEthereumProvider())
+      } catch (e) {
+        if (!isMobile) console.error(e)
+      }
+    })()
+  }, [setProvider])
 
   const pairDevice = async () => {
     setError(null)
     setLoading(true)
 
-    try {
-      provider = await detectEthereumProvider()
-    } catch (error) {
+    if (!provider) {
       throw new Error('walletProvider.metaMask.errors.connectFailure')
     }
 
@@ -97,7 +105,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     .filter(x => !!x)
     .join(':')
 
-  return isMobile ? (
+  // The MM mobile app itself injects a provider, so we'll use pairDevice once
+  // we've reopened ourselves in that environment.
+  return !provider && isMobile ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}

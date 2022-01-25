@@ -69,9 +69,14 @@
       "disconnected": "(Disconnected)"
     }
   },
-  "earn": {
+  "defi": {
     "earn": "Earn",
-    "earnBody": "Earn interest on your crypto assets.",
+    "defi": "DeFi",
+    "defiBody": "Explore a growing universe of DeFi opportunities.",
+    "netWorth": "Net Worth",
+    "walletBalance": "Wallet Balance",
+    "earnBalance": "Earn Balance",
+    "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -105,6 +110,7 @@
     "assets": "Assets",
     "accounts": "Accounts",
     "earn": "Earn",
+    "defi": "DeFi",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token"
   },
@@ -133,7 +139,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
-    "confirmTrade": "Confirm Trade",
+    "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
@@ -505,7 +511,7 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking or depositing your assets into a vault.",
+      "stakingBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
       "pools": "Pools"
     }
   },

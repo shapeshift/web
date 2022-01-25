@@ -43,6 +43,7 @@ export const marketData = createSlice({
   name: 'marketData',
   initialState,
   reducers: {
+    clear: () => initialState,
     setMarketData: (state, { payload }) => {
       state.byId = { ...state.byId, ...payload } // upsert
       const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))

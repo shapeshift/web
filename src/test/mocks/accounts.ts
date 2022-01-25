@@ -79,7 +79,7 @@ export const mockBtcAccount = (obj?: Record<string, any>) =>
       chainSpecific: {
         addresses: [],
         nextChangeAddressIndex: 3,
-        nextReceiveAddressIndex: 3,
+        nextReceiveAddressIndex: 3
       },
       pubkey: btcPubKeys[0]
     },
@@ -102,7 +102,7 @@ export const mockETHandBTCAccounts = ({
       chainSpecific: {
         tokens: [
           mockEthToken({ balance: '3000000000000000000', caip19: foxCaip19 }),
-          mockEthToken({ balance: '1000000000000000000', caip19: usdcCaip19 })
+          mockEthToken({ balance: '10000000', caip19: usdcCaip19 })
         ]
       }
     }),

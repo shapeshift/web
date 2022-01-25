@@ -31,23 +31,24 @@ export const XDeFiConnect = ({ history }: XDeFiSetupProps) => {
     setLoading(true)
 
     try {
-      provider = (window as any).xfi && (window as any).xfi.ethereum
+      provider = (globalThis as any).xfi && (globalThis as any).xfi.ethereum
     } catch (error) {
       throw new Error('walletProvider.xdefi.errors.connectFailure')
     }
 
     if (state.adapters && state.adapters?.has(KeyManager.XDefi)) {
-      const wallet = await state.adapters.get(KeyManager.XDefi)?.pairDevice()
-      if (!wallet) {
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        throw new Error('Call to hdwallet-xdefi::pairDevice returned null or undefined')
-      }
-
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
       try {
+        const wallet = await state.adapters.get(KeyManager.XDefi)?.pairDevice()
+        if (!wallet) {
+          setErrorLoading('walletProvider.errors.walletNotFound')
+          throw new Error('Call to hdwallet-xdefi::pairDevice returned null or undefined')
+        }
+
+        const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
+
         const deviceId = await wallet.getDeviceID()
 
-        if (provider !== (window as any).xfi.ethereum) {
+        if (provider !== (globalThis as any).xfi.ethereum) {
           throw new Error('walletProvider.xdefi.errors.multipleWallets')
         }
 
@@ -83,6 +84,9 @@ export const XDeFiConnect = ({ history }: XDeFiSetupProps) => {
         } else {
           setErrorLoading('walletProvider.xdefi.errors.unknown')
           history.push('/xdefi/failure')
+          // Safely navigate user to https://xdefi.io
+          const newWindow = window.open('https://xdefi.io', '_blank', 'noopener noreferrer')
+          if (newWindow) newWindow.opener = null
         }
       }
     }

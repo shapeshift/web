@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.26.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.25.0...@shapeshiftoss/chain-adapters-v1.26.0) (2022-01-26)
+
+
+### Features
+
+* **EthereumChainAdapter:** address methods tests ([#316](https://github.com/shapeshift/lib/issues/316)) ([a18a3fc](https://github.com/shapeshift/lib/commit/a18a3fc41adf39644c2663387477ee2c4576b069))
+
 # [@shapeshiftoss/chain-adapters-v1.25.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.24.0...@shapeshiftoss/chain-adapters-v1.25.0) (2022-01-20)
 
 

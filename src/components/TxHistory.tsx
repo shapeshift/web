@@ -10,10 +10,8 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  AccountSpecifier,
-  selectAccountIdsByAssetId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountIdsByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { selectTxIdsByFilter } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

@@ -8,7 +8,6 @@ import { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
-jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('state/slices/assetsSlice/assetsSlice', () => ({

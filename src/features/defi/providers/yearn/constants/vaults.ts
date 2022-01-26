@@ -97,32 +97,5 @@ export const SUPPORTED_VAULTS: SupportedYearnVault[] = [
     chain: ChainTypes.Ethereum,
     provider: DefiProvider.Yearn,
     type: DefiType.Vault
-  },
-  {
-    vaultAddress: toLower('0xb8c3b7a2a618c552c23b1e4701109a9e756bab67'),
-    name: '1INCH',
-    symbol: 'yv1INCH',
-    tokenAddress: toLower('0x111111111117dc0aa78b770fa6a738034120c302'),
-    chain: ChainTypes.Ethereum,
-    provider: DefiProvider.Yearn,
-    type: DefiType.Vault
-  },
-  {
-    vaultAddress: toLower('0xFBEB78a723b8087fD2ea7Ef1afEc93d35E8Bed42'),
-    name: 'UNI',
-    symbol: 'yvUNI',
-    tokenAddress: toLower('0x1f9840a85d5af5bf1d1762f925bdaddc4201f984'),
-    chain: ChainTypes.Ethereum,
-    provider: DefiProvider.Yearn,
-    type: DefiType.Vault
-  },
-  {
-    vaultAddress: toLower('0x4A3FE75762017DB0eD73a71C9A06db7768DB5e66'),
-    name: 'COMP',
-    symbol: 'yvCOMP',
-    tokenAddress: toLower('0xc00e94cb662c3520282e6f5717214004a7f26888'),
-    chain: ChainTypes.Ethereum,
-    provider: DefiProvider.Yearn,
-    type: DefiType.Vault
   }
 ]

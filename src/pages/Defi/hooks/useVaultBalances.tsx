@@ -12,11 +12,11 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  PortfolioBalancesById,
   selectPortfolioAssetBalances,
   selectPortfolioLoading
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
   SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }

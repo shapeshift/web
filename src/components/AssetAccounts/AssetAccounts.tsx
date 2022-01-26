@@ -3,10 +3,8 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import {
-  AccountSpecifier,
-  selectAccountIdsByAssetId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountIdsByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetAccountRow } from './AssetAccountRow'

@@ -1,10 +1,19 @@
-import { CAIP2 } from '@shapeshiftoss/caip'
+import { CAIP2, CAIP10, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
-import { Asset, BIP44Params, UtxoAccountType } from '@shapeshiftoss/types'
+import {
+  Asset,
+  BIP44Params,
+  chainAdapters,
+  ChainTypes,
+  UtxoAccountType
+} from '@shapeshiftoss/types'
+import cloneDeep from 'lodash/cloneDeep'
 import last from 'lodash/last'
+import toLower from 'lodash/toLower'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { AccountSpecifier } from './portfolioSlice'
+import { AccountSpecifier, initialState, Portfolio } from './portfolioSlice'
 
 export type UtxoParamsAndAccountType = {
   utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }
@@ -98,4 +107,138 @@ export const accountIdToUtxoParams = (
   if (!accountType) return {}
   const utxoParams = utxoAccountParams(asset, accountType, accountIndex)
   return { utxoParams, accountType }
+}
+
+export const findAccountsByAssetId = (
+  portfolioAccounts: { [k: string]: string[] },
+  assetId: CAIP19
+): AccountSpecifier[] => {
+  const result = Object.entries(portfolioAccounts).reduce<AccountSpecifier[]>(
+    (acc, [accountId, accountAssets]) => {
+      if (accountAssets.includes(assetId)) acc.push(accountId)
+      return acc
+    },
+    []
+  )
+  return result
+}
+
+type AccountToPortfolioArgs = {
+  [k: CAIP10]: chainAdapters.Account<ChainTypes>
+}
+
+type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
+
+const sumBalance = (totalBalance: string, currentBalance: string) => {
+  return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toString()
+}
+
+// this should live in chain adapters but is here for backwards compatibility
+// until we can kill all the other places in web fetching this data
+export const accountToPortfolio: AccountToPortfolio = args => {
+  const portfolio: Portfolio = cloneDeep(initialState)
+
+  Object.entries(args).forEach(([_xpubOrAccount, account]) => {
+    const { chain } = account
+
+    switch (chain) {
+      case ChainTypes.Ethereum: {
+        const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
+        const { caip2, caip19, pubkey } = account
+        const accountSpecifier = `${caip2}:${toLower(pubkey)}`
+        const CAIP10 = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        portfolio.accountBalances.ids.push(accountSpecifier)
+        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+
+        portfolio.accounts.byId[accountSpecifier] = []
+        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.ids.push(accountSpecifier)
+
+        portfolio.assetBalances.byId[caip19] = sumBalance(
+          portfolio.assetBalances.byId[caip19] ?? '0',
+          ethAccount.balance
+        )
+
+        // add assetId without dupes
+        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
+
+        portfolio.accountBalances.byId[accountSpecifier] = {
+          [caip19]: ethAccount.balance
+        }
+
+        portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
+
+        ethAccount.chainSpecific.tokens?.forEach(token => {
+          portfolio.accounts.byId[CAIP10].push(token.caip19)
+          // add assetId without dupes
+          portfolio.assetBalances.ids = Array.from(
+            new Set([...portfolio.assetBalances.ids, token.caip19])
+          )
+
+          // if token already exist inside assetBalances, add balance to existing balance
+          portfolio.assetBalances.byId[token.caip19] = sumBalance(
+            portfolio.assetBalances.byId[token.caip19] ?? '0',
+            token.balance
+          )
+
+          portfolio.accountBalances.byId[accountSpecifier] = {
+            ...portfolio.accountBalances.byId[accountSpecifier],
+            [token.caip19]: token.balance
+          }
+        })
+        break
+      }
+      case ChainTypes.Bitcoin: {
+        const btcAccount = account as chainAdapters.Account<ChainTypes.Bitcoin>
+        const { balance, caip2, caip19, pubkey } = account
+        // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
+        const accountSpecifier = `${caip2}:${pubkey}`
+        const addresses = btcAccount.chainSpecific.addresses ?? []
+
+        portfolio.assetBalances.ids.push(caip19)
+        portfolio.accountBalances.ids.push(accountSpecifier)
+        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+
+        // initialize this
+        portfolio.accountBalances.byId[accountSpecifier] = {}
+
+        // add the balance from the top level of the account
+        portfolio.accountBalances.byId[accountSpecifier][caip19] = balance
+
+        // initialize
+        if (!portfolio.accounts.byId[accountSpecifier]?.length) {
+          portfolio.accounts.byId[accountSpecifier] = []
+        }
+
+        portfolio.accounts.ids = Array.from(new Set([...portfolio.accounts.ids, accountSpecifier]))
+
+        portfolio.accounts.byId[accountSpecifier] = Array.from(
+          new Set([...portfolio.accounts.byId[accountSpecifier], caip19])
+        )
+
+        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
+
+        portfolio.assetBalances.byId[caip19] = bnOrZero(portfolio.assetBalances.byId[caip19])
+          .plus(bnOrZero(balance))
+          .toString()
+
+        // For tx history, we need to have CAIP10's of addresses that may have 0 balances
+        // for accountSpecifier to CAIP10 mapping
+        addresses.forEach(({ pubkey }) => {
+          const CAIP10 = caip10.toCAIP10({ caip2, account: pubkey })
+          if (!portfolio.accountSpecifiers.byId[accountSpecifier]) {
+            portfolio.accountSpecifiers.byId[accountSpecifier] = []
+          }
+
+          portfolio.accountSpecifiers.byId[accountSpecifier].push(CAIP10)
+        })
+
+        break
+      }
+      default:
+        break
+    }
+  })
+
+  return portfolio
 }

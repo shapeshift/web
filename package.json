@@ -91,6 +91,7 @@
     "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node headers.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
     "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
+    "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "minify": "yarn yarn-minify",
@@ -119,7 +120,10 @@
     ]
   },
   "jest": {
-    "collectCoverageFrom": []
+    "collectCoverageFrom": [],
+    "setupFiles": [
+      "./src/test/setupGlobalMocks.ts"
+    ]
   },
   "browserslist": {
     "production": [
@@ -172,8 +176,11 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
+    "msw": "^0.36.5",
+    "msw-storybook-addon": "^1.6.0",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
+    "reselect-tools": "^0.0.7",
     "ssri": "^8.0.1",
     "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",

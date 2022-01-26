@@ -10,7 +10,7 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSli
 import {
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Allocations } from './Allocations'

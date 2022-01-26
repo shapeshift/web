@@ -29,7 +29,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     if (isEmpty(accountSpecifiers)) return
     // clear the old portfolio, we have different non null data, we're switching wallet
-    dispatch(portfolio.actions.clearPortfolio())
+    dispatch(portfolio.actions.clear())
     // fetch each account
     accountSpecifiers.forEach(accountSpecifier =>
       dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier))

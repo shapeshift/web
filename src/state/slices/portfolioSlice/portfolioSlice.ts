@@ -125,7 +125,7 @@ export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
   reducers: {
-    clearPortfolio: () => initialState,
+    clear: () => initialState,
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }

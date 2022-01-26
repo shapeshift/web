@@ -6,9 +6,15 @@
  */
 import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { ethereum as unchainedEthereum } from '@shapeshiftoss/unchained-client'
+import { numberToHex } from 'web3-utils'
 
+import { bn } from '../utils/bignumber'
 import * as ethereum from './EthereumChainAdapter'
+
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+const EOA_ADDRESS = '0x05a1ff0a32bc24265bcb39499d0c5d9a6cb2011c'
 
 const getGasFeesMockedResponse = {
   data: {
@@ -55,11 +61,29 @@ jest.mock('axios', () => ({
 describe('EthereumChainAdapter', () => {
   let args: ethereum.ChainAdapterArgs = {} as any
 
+  const gasPrice = '42'
+  const gasLimit = '42000'
+  const erc20ContractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+  const value = 400
+
+  const chainSpecificWithoutErc20ContractAddress = {
+    gasPrice,
+    gasLimit
+  }
+
+  const chainSpecificWithErc20ContractAddress = {
+    ...chainSpecificWithoutErc20ContractAddress,
+    erc20ContractAddress
+  }
+  const getInfoMockResponse = {
+    data: { network: 'mainnet' }
+  }
+
   beforeEach(() => {
     args = {
       providers: {
-        http: {} as any,
-        ws: {} as any
+        http: {} as unchainedEthereum.api.V1Api,
+        ws: {} as unchainedEthereum.ws.Client
       }
     }
   })
@@ -71,10 +95,10 @@ describe('EthereumChainAdapter', () => {
 
   describe('getFeeData', () => {
     it('should return current ETH network fees', async () => {
-      args.providers.http = {
+      args.providers.http = ({
         estimateGas: jest.fn().mockResolvedValue(estimateGasMockedResponse),
         getGasFees: jest.fn().mockResolvedValue(getGasFeesMockedResponse)
-      } as any
+      } as unknown) as unchainedEthereum.api.V1Api
 
       const adapter = new ethereum.ChainAdapter(args)
 
@@ -82,7 +106,7 @@ describe('EthereumChainAdapter', () => {
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
-          from: '0x0000000000000000000000000000000000000000',
+          from: ZERO_ADDRESS,
           contractData: '0x'
         }
       })
@@ -207,6 +231,302 @@ describe('EthereumChainAdapter', () => {
       const expectedReturnValue = invalidAddressTuple
       const res = await adapter.validateEnsAddress(referenceAddress)
       expect(res).toMatchObject(expectedReturnValue)
+    })
+  })
+
+  describe('broadcastTransaction', () => {
+    it('should correctly call sendTx and return its response', async () => {
+      const expectedResult = 'success'
+
+      args.providers.http = ({
+        sendTx: jest.fn().mockResolvedValue({ data: expectedResult })
+      } as unknown) as unchainedEthereum.api.V1Api
+      const adapter = new ethereum.ChainAdapter(args)
+      const mockTx = '0x123'
+      const result = await adapter.broadcastTransaction(mockTx)
+
+      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
+      expect(result).toEqual(expectedResult)
+    })
+  })
+
+  describe('buildSendTransaction', () => {
+    it('should throw if passed tx has no "to" property', async () => {
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        value,
+        chainSpecific: chainSpecificWithErc20ContractAddress
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+        'EthereumChainAdapter: to is required'
+      )
+    })
+
+    it('should throw if passed tx has no "value" property', async () => {
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: EOA_ADDRESS,
+        chainSpecific: chainSpecificWithoutErc20ContractAddress
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+        'EthereumChainAdapter: value is required'
+      )
+    })
+
+    it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance: '0',
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: EOA_ADDRESS,
+        value,
+        chainSpecific: chainSpecificWithoutErc20ContractAddress
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          chainId: 1,
+          data: '',
+          gasLimit: numberToHex(gasLimit),
+          gasPrice: numberToHex(gasPrice),
+          nonce: '0x2',
+          to: EOA_ADDRESS,
+          value: numberToHex(value)
+        }
+      })
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getInfo).toHaveBeenCalledTimes(1)
+    })
+    it('sendmax: true without chainSpecific.erc20ContractAddress should throw if ETH balance is 0', async () => {
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance: '0',
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: EOA_ADDRESS,
+        value,
+        chainSpecific: chainSpecificWithoutErc20ContractAddress,
+        sendMax: true
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getInfo).toHaveBeenCalledTimes(2)
+    })
+    it('sendMax: true without chainSpecific.erc20ContractAddress - should build a tx with full account balance - gas fee', async () => {
+      const balance = '2500000'
+      const expectedValue = numberToHex(
+        bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any
+      )
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance,
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: EOA_ADDRESS,
+        value,
+        chainSpecific: chainSpecificWithoutErc20ContractAddress,
+        sendMax: true
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          chainId: 1,
+          data: '',
+          gasLimit: numberToHex(gasLimit),
+          gasPrice: numberToHex(gasPrice),
+          nonce: '0x2',
+          to: EOA_ADDRESS,
+          value: expectedValue
+        }
+      })
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getInfo).toHaveBeenCalledTimes(2)
+    })
+    it("should build a tx with value: '0' for ERC20 txs without sendMax", async () => {
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance: '2500000',
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: ZERO_ADDRESS,
+        value,
+        chainSpecific: chainSpecificWithErc20ContractAddress
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          chainId: 1,
+          data:
+            '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
+          gasLimit: numberToHex(gasLimit),
+          gasPrice: numberToHex(gasPrice),
+          nonce: '0x2',
+          to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          value: '0x0'
+        }
+      })
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
+      expect(args.providers.http.getInfo).toHaveBeenCalledTimes(1)
+    })
+    it('sendmax: true with chainSpecific.erc20ContractAddress should build a tx with full account balance - gas fee', async () => {
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance: '2500000',
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: EOA_ADDRESS,
+        value,
+        chainSpecific: chainSpecificWithErc20ContractAddress,
+        sendMax: true
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+
+      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          chainId: 1,
+          data:
+            '0xa9059cbb00000000000000000000000005a1ff0a32bc24265bcb39499d0c5d9a6cb2011c0000000000000000000000000000000000000000000000000000000000067932',
+          gasLimit: numberToHex(gasLimit),
+          gasPrice: numberToHex(gasPrice),
+          nonce: '0x2',
+          to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          value: '0x0'
+        }
+      })
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getInfo).toHaveBeenCalledTimes(2)
+    })
+
+    it('sendmax: true with chainSpecific.erc20ContractAddress should throw if token balance is 0', async () => {
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance: '2500000',
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: undefined,
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        to: EOA_ADDRESS,
+        value,
+        chainSpecific: chainSpecificWithErc20ContractAddress,
+        sendMax: true
+      } as unknown) as chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
+
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
+
+      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(2)
+      expect(args.providers.http.getInfo).toHaveBeenCalledTimes(2)
     })
   })
 })

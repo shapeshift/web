@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.27.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.26.0...@shapeshiftoss/chain-adapters-v1.27.0) (2022-01-26)
+
+
+### Features
+
+* **buildSendTransaction:** throw on sendMax with 0 balance ([#319](https://github.com/shapeshift/lib/issues/319)) ([c6754d4](https://github.com/shapeshift/lib/commit/c6754d4958e9f549b1dbefca6f37602deb6f6622))
+
 # [@shapeshiftoss/chain-adapters-v1.26.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.25.0...@shapeshiftoss/chain-adapters-v1.26.0) (2022-01-26)
 
 

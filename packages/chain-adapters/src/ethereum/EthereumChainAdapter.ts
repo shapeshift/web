@@ -169,6 +169,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
           if (!erc20Balance) throw new Error('no balance')
           tx.value = erc20Balance
         } else {
+          if (new BigNumber(account.balance).isZero()) throw new Error('no balance')
+
           const fee = new BigNumber(gasPrice).times(gasLimit)
           tx.value = new BigNumber(account.balance).minus(fee).toString()
         }

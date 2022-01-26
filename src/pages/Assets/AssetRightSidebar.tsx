@@ -1,11 +1,10 @@
 import { Stack } from '@chakra-ui/react'
-
-import { CardActions } from './AssetCards/CardActions'
+import { TradeCard } from 'pages/Dashboard/TradeCard'
 
 export const AssetRightSidebar = () => {
   return (
     <Stack flex={1} spacing={4}>
-      <CardActions />
+      <TradeCard />
     </Stack>
   )
 }

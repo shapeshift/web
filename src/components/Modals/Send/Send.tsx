@@ -3,6 +3,7 @@ import { Asset } from '@shapeshiftoss/types'
 import { useRef } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { Form } from './Form'
 
@@ -24,9 +25,10 @@ export const entries = [
 
 type SendModalProps = {
   asset: Asset
+  accountId?: AccountSpecifier
 }
 
-export const SendModal = ({ asset }: SendModalProps) => {
+export const SendModal = ({ asset, accountId }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { send } = useModal()
   const { close, isOpen } = send
@@ -36,9 +38,14 @@ export const SendModal = ({ asset }: SendModalProps) => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Routes>
-            <Route path='/' element={() => <Form asset={asset} />} />
-          </Routes>
+          <Switch>
+            <Route
+              path='/'
+              element={(props: RouteComponentProps) => (
+                <Form asset={asset} accountId={accountId} {...props} />
+              )}
+            />
+          </Switch>
         </MemoryRouter>
       </ModalContent>
     </Modal>

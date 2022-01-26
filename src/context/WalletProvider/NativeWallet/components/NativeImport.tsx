@@ -9,7 +9,8 @@ import {
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import { FieldValues, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useTranslate } from 'react-polyglot'
+import { RouteComponentProps, useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 export const NativeImport = () => {
@@ -32,6 +33,8 @@ export const NativeImport = () => {
     formState: { errors, isSubmitting }
   } = useForm()
 
+  const translate = useTranslate()
+
   return (
     <>
       <ModalHeader>
@@ -47,10 +50,19 @@ export const NativeImport = () => {
               autoComplete='off'
               autoCorrect='off'
               {...register('mnemonic', {
-                required: 'Seed phrase is required',
-                minLength: { value: 47, message: 'Seed phrase is too short' },
+                required: translate(
+                  'walletProvider.shapeShift.import.secretRecoveryPhraseRequired'
+                ),
+                minLength: {
+                  value: 47,
+                  message: translate(
+                    'walletProvider.shapeShift.import.secretRecoveryPhraseTooShort'
+                  )
+                },
                 validate: {
-                  validMnemonic: value => bip39.validateMnemonic(value) || 'Invalid seed phrase'
+                  validMnemonic: value =>
+                    bip39.validateMnemonic(value) ||
+                    translate('walletProvider.shapeShift.import.secretRecoveryPhraseError')
                 }
               })}
             />

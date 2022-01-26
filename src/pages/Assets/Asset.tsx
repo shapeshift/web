@@ -9,6 +9,7 @@ import {
   NetworkTypes
 } from '@shapeshiftoss/types'
 import { useParams } from 'react-router-dom'
+import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -18,7 +19,7 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { AssetDetails } from './AssetDetails/AssetDetails'
+import { LoadingAsset } from './LoadingAsset'
 export interface MatchParams {
   chain: ChainTypes
   tokenId: string
@@ -61,14 +62,14 @@ export const useAsset = () => {
   const contractType = ContractTypes.ERC20
   const extra = tokenId ? { contractType, tokenId } : undefined
   const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
 
   // Many, but not all, assets are initialized with market data on app load. This dispatch will
   // ensure that those assets not initialized on app load will reach over the network and populate
   // the store with market data once a user visits that asset page.
-  dispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  if (!marketData) dispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))
 
   return {
@@ -79,12 +80,18 @@ export const useAsset = () => {
 }
 
 export const Asset = () => {
-  const { asset } = useAsset()
+  const { asset, marketData } = useAsset()
 
-  return (
+  return !marketData ? (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetDetails />
+        <LoadingAsset />
+      </Flex>
+    </Page>
+  ) : (
+    <Page style={{ flex: 1 }} key={asset?.tokenId}>
+      <Flex role='main' flex={1} height='100%'>
+        <AssetAccountDetails assetId={asset.caip19} />
       </Flex>
     </Page>
   )

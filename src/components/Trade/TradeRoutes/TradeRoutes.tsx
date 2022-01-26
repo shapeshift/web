@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { Navigate, Route, RouteProps, Routes, useLocation } from 'react-router-dom'
+import { Redirect, Route, RouteComponentProps, Switch, useLocation,  Navigate } from 'react-router-dom'
 import { Approval } from 'components/Approval/Approval'
 
 import { useTradeRoutes } from '../hooks/useTradeRoutes/useTradeRoutes'
@@ -14,20 +14,24 @@ export const TradeRoutes = () => {
   const { handleBuyClick, handleSellClick } = useTradeRoutes()
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Routes location={location} key={location.key}>
+      <Switch location={location} key={location.key}>
         <Route
           path='/trade/select/sell'
-          element={(props: RouteProps) => <SelectAsset onClick={handleSellClick} {...props} />}
+          element={(props: RouteComponentProps) => (
+            <SelectAsset onClick={handleSellClick} {...props} />
+          )}
         />
         <Route
           path='/trade/select/buy'
-          element={(props: RouteProps) => <SelectAsset onClick={handleBuyClick} {...props} />}
+          element={(props: RouteComponentProps) => (
+            <SelectAsset onClick={handleBuyClick} {...props} />
+          )}
         />
         <Route path='/trade/input' element={TradeInput} />
         <Route path='/trade/confirm' element={TradeConfirm} />
         <Route path='/trade/approval' element={Approval} />
         <Navigate to='/trade/input' />
-      </Routes>
+      </Switch>
     </AnimatePresence>
   )
 }

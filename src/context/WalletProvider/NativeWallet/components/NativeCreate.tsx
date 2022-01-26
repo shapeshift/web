@@ -86,7 +86,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
           )
         )
       } catch (e) {
-        console.error('failed to get seed:', e)
+        console.error('failed to get Secret Recovery Phrase:', e)
         setWords(null)
       }
     })()

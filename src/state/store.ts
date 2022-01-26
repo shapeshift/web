@@ -12,6 +12,7 @@ registerSelectors(portfolioSelectors)
 
 const apiMiddleware = [portfolioApi.middleware, marketApi.middleware, assetApi.middleware]
 
+/// This allows us to create an empty store for tests
 export const createStore = () =>
   configureStore({
     reducer,

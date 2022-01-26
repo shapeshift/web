@@ -1,5 +1,6 @@
-import { ChainTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { merge } from 'lodash'
+import toLower from 'lodash/toLower'
 
 export const ethCaip2 = 'eip155:1'
 export const ethCaip19 = 'eip155:1/slip44:60'
@@ -47,7 +48,7 @@ export const mockEthToken = (obj?: { balance?: string; caip19?: string }) => ({
   ...obj
 })
 
-export const mockEthAccount = (obj?: Record<string, any>) =>
+export const mockEthAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Ethereum>>) =>
   merge(
     {},
     {
@@ -69,7 +70,7 @@ export const mockBtcAddress = (obj?: { balance?: string; pubkey?: string }) => (
   ...obj
 })
 
-export const mockBtcAccount = (obj?: Record<string, any>) =>
+export const mockBtcAccount = (obj?: Partial<chainAdapters.Account<ChainTypes.Bitcoin>>) =>
   merge(
     {},
     {
@@ -101,6 +102,7 @@ export const mockETHandBTCAccounts = ({
   const ethAccount = merge(
     mockEthAccount({
       chainSpecific: {
+        nonce: 1,
         tokens: [
           mockEthToken({ balance: '3000000000000000000', caip19: foxCaip19 }),
           mockEthToken({ balance: '10000000', caip19: usdcCaip19 })
@@ -115,6 +117,7 @@ export const mockETHandBTCAccounts = ({
       balance: '10',
       pubkey: ethPubKeys[1],
       chainSpecific: {
+        nonce: 1,
         tokens: [mockEthToken({ balance: '2000000000000000000', caip19: foxCaip19 })]
       }
     }),
@@ -142,5 +145,19 @@ export const mockETHandBTCAccounts = ({
     btcAccount2Obj
   )
 
-  return { ethAccount, ethAccount2, btcAccount, btcAccount2 }
+  const ethAccountId = `${ethAccount.caip2}:${toLower(ethAccount.pubkey)}`
+  const ethAccount2Id = `${ethAccount2.caip2}:${toLower(ethAccount2.pubkey)}`
+  const btcAccountId = `${btcAccount.caip2}:${btcAccount.pubkey}`
+  const btcAccount2Id = `${btcAccount2.caip2}:${btcAccount2.pubkey}`
+
+  return {
+    ethAccount,
+    ethAccount2,
+    btcAccount,
+    btcAccount2,
+    ethAccountId,
+    ethAccount2Id,
+    btcAccountId,
+    btcAccount2Id
+  }
 }

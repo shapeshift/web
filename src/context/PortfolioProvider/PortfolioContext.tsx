@@ -32,6 +32,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     dispatch(portfolio.actions.clear())
     // fetch each account
     accountSpecifiers.forEach(accountSpecifier =>
+      // forceRefetch is enabled here to make sure that we always have the latest wallet information
+      // it also forces queryFn to run and that's needed for the wallet info to be dispatched
       dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier, { forceRefetch: true }))
     )
   }, [dispatch, accountSpecifiers])

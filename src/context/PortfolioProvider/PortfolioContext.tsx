@@ -32,7 +32,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     dispatch(portfolio.actions.clear())
     // fetch each account
     accountSpecifiers.forEach(accountSpecifier =>
-      dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier))
+      dispatch(portfolioApi.endpoints.getAccount.initiate(accountSpecifier, { forceRefetch: true }))
     )
   }, [dispatch, accountSpecifiers])
 

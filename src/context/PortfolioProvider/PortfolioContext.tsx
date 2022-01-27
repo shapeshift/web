@@ -1,5 +1,5 @@
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -43,11 +43,29 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // for more obscure assets, if we don't have it, fetch it
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const marketData = useSelector(selectMarketData)
+
+  // creating a variable to store the intervals in
+  const [marketDataIntervalId, setMarketDataIntervalId] = useState<NodeJS.Timer | undefined>()
+
   useEffect(() => {
     if (!portfolioAssetIds.length) return
-    portfolioAssetIds.forEach(assetId => {
-      if (!marketData[assetId]) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-    })
+    // checking if marketDataIntervalId is set, if yes we clear the previous interval
+    if (marketDataIntervalId) {
+      clearInterval(marketDataIntervalId)
+      setMarketDataIntervalId(undefined)
+    }
+    // set the new interval, we set a new interval as the user's assets can change depending on their wallet portfolio
+    setMarketDataIntervalId(
+      setInterval(() => {
+        portfolioAssetIds.forEach(assetId => {
+          dispatch(marketApi.endpoints.findByCaip19.initiate(assetId, { forceRefetch: true }))
+        })
+        // update assets every two minutes
+      }, 120000)
+    )
+    // we need to disable this rule as we dont want this hook to run everytime marketDataIntervalId is updated
+    // this will end up causing an infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioAssetIds, marketData, dispatch])
 
   return <>{children}</>

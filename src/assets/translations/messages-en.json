@@ -431,7 +431,7 @@
       "success": {
         "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
-        "success": "Your wallet has been connected",
+        "success": "You can now close this window or it will auto-close shortly",
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {

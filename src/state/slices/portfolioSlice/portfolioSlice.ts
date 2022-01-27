@@ -182,6 +182,8 @@ export const portfolioApi = createApi({
             .getAccount(accountSpecifier)
           const account = { [accountSpecifier]: chainAdaptersAccount }
           const data = accountToPortfolio(account)
+          // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
+          // to prevent edge cases like #820
           baseQuery.dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
@@ -191,13 +193,6 @@ export const portfolioApi = createApi({
           return { error }
         }
       }
-      // NOTE (amitojsingh366): Not sure if we need this now since I moved the dispatch in the query itself, this fixed #820
-      // onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-      //   await cacheDataLoaded
-      //   const port = getCacheEntry().data
-      //   if (!port) return
-      //   dispatch(portfolio.actions.upsertPortfolio(port))
-      // }
     })
   })
 })

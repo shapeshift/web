@@ -170,7 +170,7 @@ export const portfolioApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getAccount: build.query<Portfolio, AccountSpecifierMap>({
-      queryFn: async accountSpecifiers => {
+      queryFn: async (accountSpecifiers, baseQuery) => {
         if (isEmpty(accountSpecifiers)) return { data: cloneDeep(initialState) }
         const chainAdapters = getChainAdapters()
         const [CAIP2, accountSpecifier] = Object.entries(accountSpecifiers)[0] as [CAIP2, string]
@@ -182,6 +182,7 @@ export const portfolioApi = createApi({
             .getAccount(accountSpecifier)
           const account = { [accountSpecifier]: chainAdaptersAccount }
           const data = accountToPortfolio(account)
+          baseQuery.dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           const status = 400
@@ -189,13 +190,14 @@ export const portfolioApi = createApi({
           const error = { status, data }
           return { error }
         }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const port = getCacheEntry().data
-        if (!port) return
-        dispatch(portfolio.actions.upsertPortfolio(port))
       }
+      // NOTE (amitojsingh366): Not sure if we need this now since I moved the dispatch in the query itself, this fixed #820
+      // onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
+      //   await cacheDataLoaded
+      //   const port = getCacheEntry().data
+      //   if (!port) return
+      //   dispatch(portfolio.actions.upsertPortfolio(port))
+      // }
     })
   })
 })

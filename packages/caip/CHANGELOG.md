@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.8.0...@shapeshiftoss/caip-v1.9.0) (2022-01-27)
+
+
+### Features
+
+* extend market service for pricing data on new tokens ([#327](https://github.com/shapeshift/lib/issues/327)) ([d506d99](https://github.com/shapeshift/lib/commit/d506d99c8e35f92c111bccc09a4a73e12430acb5))
+
 # [@shapeshiftoss/caip-v1.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.7.0...@shapeshiftoss/caip-v1.8.0) (2022-01-03)
 
 

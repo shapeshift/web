@@ -4,12 +4,12 @@ import ReactMiddleEllipsis from 'react-middle-ellipsis'
 
 type MiddleEllipsisProps = {
   children: React.ReactNode
-  maxWidth: string
-} & BoxProps
+} & ({ maxWidth: string } | { width: string }) &
+  BoxProps
 
-export const MiddleEllipsis = ({ children, maxWidth, ...rest }: MiddleEllipsisProps) => {
+export const MiddleEllipsis = ({ children, maxWidth, width, ...rest }: MiddleEllipsisProps) => {
   return (
-    <Box whiteSpace='nowrap' maxWidth={maxWidth} {...rest}>
+    <Box whiteSpace='nowrap' maxWidth={maxWidth} width={width} {...rest}>
       <ReactMiddleEllipsis>
         <span>{children}</span>
       </ReactMiddleEllipsis>

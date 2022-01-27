@@ -12,6 +12,7 @@
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
+    "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "getStarted": "Get Started",

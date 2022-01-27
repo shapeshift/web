@@ -1,4 +1,6 @@
-export const mockYearnRestData = [
+import { Token, Vault } from '@yfi/sdk'
+
+export const mockYearnVaultRestData: Vault[] = [
   {
     address: '0xcB550A6D4C8e3517A939BC79d0c7093eb7cF56B5',
     typeId: 'VAULT_V2',
@@ -13,6 +15,7 @@ export const mockYearnRestData = [
       controller: '0x0000000000000000000000000000000000000000',
       totalAssets: '0',
       totalSupply: '0',
+      symbol: 'yvWBTC',
       pricePerShare: '100298599',
       migrationAvailable: true,
       latestVaultAddress: '0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E',
@@ -125,6 +128,7 @@ export const mockYearnRestData = [
       totalAssets: '0',
       totalSupply: '0',
       pricePerShare: '1084750123794815921',
+      symbol: 'yvDAI',
       migrationAvailable: true,
       latestVaultAddress: '0xdA816459F1AB5631232FE5e97a05BBBb94970c95',
       depositLimit: '0',
@@ -296,5 +300,24 @@ export const mockYearnPriceHistoryData = [
   {
     price: '656789',
     timestamp: 323456
+  }
+]
+
+export const mockYearnTokenRestData: Token[] = [
+  {
+    address: '0xcB550A6D4C8e3517A939BC79d0c7093eb7cF56B5',
+    name: 'WBTC yVault',
+    symbol: 'yvWBTC',
+    decimals: '8',
+    priceUsdc: '50000000000',
+    supported: {}
+  },
+  {
+    address: '0x19D3364A399d251E894aC732651be8B0E4e85001',
+    name: 'DAI yVault',
+    symbol: 'yvDAI',
+    decimals: '18',
+    priceUsdc: '990000',
+    supported: {}
   }
 ]

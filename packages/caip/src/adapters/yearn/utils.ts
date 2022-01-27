@@ -1,13 +1,14 @@
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { Vault, Yearn } from '@yfi/sdk'
+import { Token, Vault, Yearn } from '@yfi/sdk'
 import fs from 'fs'
 import toLower from 'lodash/toLower'
+import uniqBy from 'lodash/uniqBy'
 
 import { toCAIP2 } from '../../caip2/caip2'
 import { toCAIP19 } from './../../caip19/caip19'
 
-// YearnMarketCapService deps
+// YearnVaultMarketCapService deps
 const provider = new JsonRpcProvider(process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL)
 const yearnSdk = new Yearn(1, { provider })
 
@@ -21,10 +22,18 @@ export const writeFiles = async (data: Record<string, Record<string, string>>) =
 }
 
 export const fetchData = async () => {
-  return yearnSdk.vaults.get()
+  const [vaults, ironBankTokens, zapperTokens, underlyingVaultTokens] = await Promise.all([
+    yearnSdk.vaults.get(),
+    yearnSdk.ironBank.tokens(),
+    yearnSdk.tokens.supported(),
+    yearnSdk.vaults.tokens()
+  ])
+  const tokens = [...vaults, ...ironBankTokens, ...zapperTokens, ...underlyingVaultTokens]
+  const uniqueTokens = uniqBy(tokens, 'address')
+  return uniqueTokens
 }
 
-export const parseEthData = (data: Vault[]) => {
+export const parseEthData = (data: (Token | Vault)[]) => {
   const chain = ChainTypes.Ethereum
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
@@ -41,7 +50,7 @@ export const parseEthData = (data: Vault[]) => {
   return result
 }
 
-export const parseData = (d: Vault[]) => {
+export const parseData = (d: (Token | Vault)[]) => {
   const ethMainnet = toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
   return { [ethMainnet]: parseEthData(d) }
 }

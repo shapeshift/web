@@ -33,8 +33,18 @@ jest.mock('./coincap/coincap', () => ({
   })
 }))
 
-jest.mock('./yearn/yearn', () => ({
-  YearnMarketCapService: jest.fn().mockImplementation(() => {
+jest.mock('./yearn/yearn-vaults', () => ({
+  YearnVaultMarketCapService: jest.fn().mockImplementation(() => {
+    return {
+      findAll: jest.fn(() => mockYearnServiceFindAllData),
+      findByCaip19: jest.fn(() => mockYearnFindByCaip19Data),
+      findPriceHistoryByCaip19: jest.fn(() => mockYearnPriceHistoryData)
+    }
+  })
+}))
+
+jest.mock('./yearn/yearn-tokens', () => ({
+  YearnTokenMarketCapService: jest.fn().mockImplementation(() => {
     return {
       findAll: jest.fn(() => mockYearnServiceFindAllData),
       findByCaip19: jest.fn(() => mockYearnFindByCaip19Data),
@@ -52,7 +62,7 @@ describe('coingecko market service', () => {
       expect(MarketProviders[0].findAll).toHaveBeenCalledTimes(1)
       expect(MarketProviders[1].findAll).toHaveBeenCalledTimes(0)
     })
-    it('can call yearn if coingecko fails', async () => {
+    it('can call coincap if coingecko fails', async () => {
       // @ts-ignore
       MarketProviders[0].findAll.mockRejectedValueOnce({ error: 'error' })
       await findAll()
@@ -65,6 +75,8 @@ describe('coingecko market service', () => {
       MarketProviders[1].findAll.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
       MarketProviders[2].findAll.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[3].findAll.mockRejectedValueOnce({ error: 'error' })
       await expect(findAll()).rejects.toEqual(
         new Error('Cannot find market service provider for market data.')
       )
@@ -102,6 +114,8 @@ describe('coingecko market service', () => {
       MarketProviders[1].findByCaip19.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
       MarketProviders[2].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[3].findByCaip19.mockRejectedValueOnce({ error: 'error' })
       const result = await findByCaip19(args)
       expect(result).toBeNull()
     })
@@ -129,6 +143,8 @@ describe('coingecko market service', () => {
       MarketProviders[1].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
       MarketProviders[2].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[3].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
       const result = await findPriceHistoryByCaip19(args)
       expect(result).toEqual([])
     })

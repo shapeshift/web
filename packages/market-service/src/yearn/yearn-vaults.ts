@@ -20,13 +20,13 @@ import { bn, bnOrZero } from '../utils/bignumber'
 import { ACCOUNT_HISTORIC_EARNINGS } from './gql-queries'
 import { VaultDayDataGQLResponse } from './yearn-types'
 
-type YearnMarketCapServiceArgs = {
+type YearnVaultMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>
 }
 
 const USDC_PRECISION = 6
 
-export class YearnMarketCapService implements MarketService {
+export class YearnVaultMarketCapService implements MarketService {
   baseUrl = 'https://api.yearn.finance'
   yearnSdk: Yearn<ChainId>
 
@@ -34,7 +34,7 @@ export class YearnMarketCapService implements MarketService {
     count: 2500
   }
 
-  constructor(args: YearnMarketCapServiceArgs) {
+  constructor(args: YearnVaultMarketCapServiceArgs) {
     this.yearnSdk = args.yearnSdk
   }
 
@@ -78,7 +78,7 @@ export class YearnMarketCapService implements MarketService {
             .times(`1e+${yearnItem.decimals}`)
             .times(yearnItem.metadata.pricePerShare)
             .div(`1e+${yearnItem.decimals}`)
-            .toFixed(2)
+            .toString()
 
           const marketCap = bnOrZero(yearnItem.underlyingTokenBalance.amountUsdc)
             .div('1e+6')
@@ -147,7 +147,7 @@ export class YearnMarketCapService implements MarketService {
         .times(`1e+${vault.decimals}`)
         .times(vault.metadata.pricePerShare)
         .div(`1e+${vault.decimals}`)
-        .toFixed(2)
+        .toString()
 
       const marketCap = bnOrZero(vault.underlyingTokenBalance.amountUsdc)
         .div('1e+6')
@@ -225,6 +225,7 @@ export class YearnMarketCapService implements MarketService {
       }
 
       const vaults = await this.yearnSdk.vaults.get([id])
+      if (!vaults || !vaults.length) return []
       const decimals = vaults[0].decimals
 
       const response: VaultDayDataGQLResponse = (await this.yearnSdk.services.subgraph.fetchQuery(

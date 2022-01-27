@@ -30,11 +30,13 @@ const generateAssetData = async () => {
           await getZapperTokens(),
           await getUnderlyingVaultTokens()
         ])
-        const tokens = ethTokens
-          .concat(yearnVaults)
-          .concat(ironBankTokens)
-          .concat(zapperTokens)
-          .concat(underlyingTokens)
+        const tokens = [
+          ...ethTokens,
+          ...yearnVaults,
+          ...ironBankTokens,
+          ...zapperTokens,
+          ...underlyingTokens
+        ]
         const uniqueTokens = uniqBy(tokens, 'caip19') // Remove dups
         const baseAssetWithTokens: BaseAsset = {
           ...baseAsset,

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.11.0...@shapeshiftoss/asset-service-v1.12.0) (2022-01-27)
+
+
+### Features
+
+* extend market service for pricing data on new tokens ([#327](https://github.com/shapeshift/lib/issues/327)) ([d506d99](https://github.com/shapeshift/lib/commit/d506d99c8e35f92c111bccc09a4a73e12430acb5))
+
 # [@shapeshiftoss/asset-service-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.10.0...@shapeshiftoss/asset-service-v1.11.0) (2022-01-25)
 
 

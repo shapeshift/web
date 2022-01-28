@@ -315,6 +315,40 @@ describe('EthereumChainAdapter', () => {
     })
   })
 
+  describe('signAndBroadcastTransaction', () => {
+    it('should throw if no hash is returned by wallet.ethSendTx', async () => {
+      const adapter = new ethereum.ChainAdapter(args)
+      const wallet = await getWallet()
+      wallet.ethSendTx = async () => null
+
+      const tx = ({
+        wallet,
+        txToSign: {}
+      } as unknown) as chainAdapters.SignTxInput<ETHSignTx>
+
+      await expect(adapter.signAndBroadcastTransaction(tx)).rejects.toThrow(
+        /Error signing & broadcasting tx/
+      )
+    })
+
+    it('should return the hash returned by wallet.ethSendTx', async () => {
+      const adapter = new ethereum.ChainAdapter(args)
+      const wallet = await getWallet()
+      wallet.ethSendTx = async () => ({
+        hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+      })
+
+      const tx = ({
+        wallet,
+        txToSign: {}
+      } as unknown) as chainAdapters.SignTxInput<ETHSignTx>
+
+      await expect(adapter.signAndBroadcastTransaction(tx)).resolves.toEqual(
+        '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331'
+      )
+    })
+  })
+
   describe('broadcastTransaction', () => {
     it('should correctly call sendTx and return its response', async () => {
       const expectedResult = 'success'

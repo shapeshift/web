@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.29.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.28.0...@shapeshiftoss/chain-adapters-v1.29.0) (2022-01-28)
+
+
+### Features
+
+* **EthereumChainAdapter:** add signTransaction tests ([#328](https://github.com/shapeshift/lib/issues/328)) ([e11d589](https://github.com/shapeshift/lib/commit/e11d58908fcc55680048e015ea21af0a3dce943b))
+
 # [@shapeshiftoss/chain-adapters-v1.28.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.27.0...@shapeshiftoss/chain-adapters-v1.28.0) (2022-01-26)
 
 

@@ -21,7 +21,7 @@ import {
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps, useHistory } from 'react-router-dom'
+import { RouteComponentProps, useNavigate} from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -45,7 +45,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
-  const history = useHistory()
+  let navigate = useNavigate()
   const { chain, name, symbol } = asset
 
   const { wallet } = state
@@ -128,9 +128,9 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
-        onClick={() => history.push(ReceiveRoutes.Select)}
+        onClick={() => navigate(ReceiveRoutes.Select)}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.receive.receiveAsset', { asset: name })}
@@ -165,7 +165,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               )}
             </Flex>
             <Card
-              variant='unstyled'
+              
               borderRadius='xl'
               display='inline-block'
               p={0}
@@ -184,7 +184,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       color='gray.500'
                       alignItems='center'
                       justifyContent='center'
-                      fontSize='sm'
+                      fontSize="small"
                       onClick={copyHandler}
                       _hover={{ color: 'blue.500' }}
                       _active={{ color: 'blue.800' }}

@@ -4,7 +4,7 @@ import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshif
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouterProps, useLocation } from 'react-router-dom'
+import { RouterProps, useLocation, useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -29,7 +29,8 @@ type TradeConfirmParams = {
 
 type ZrxError = Error & { message: string }
 
-export const TradeConfirm = ({ history }: RouterProps) => {
+export const TradeConfirm = ({  }: RouterProps) => {
+  let navigate = useNavigate()
   const [txid, setTxid] = useState('')
   const {
     getValues,
@@ -40,8 +41,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   const translate = useTranslate()
   const { sellAsset, buyAsset, quote, fees, trade } = getValues()
   const { executeQuote, reset } = useSwapper()
-  const location = useLocation<TradeConfirmParams>()
-  const { fiatRate } = location.state
+  const location = useLocation()
+  const [fiatRate, setFiatRate] = useState<TradeConfirmParams | unknown>()
+
+  setFiatRate(typeof location.state === 'string' ? location.state : '')
+
   const {
     number: { toFiat }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -128,13 +132,13 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     if (txid) {
       reset()
     }
-    history.push('/trade/input')
+    navigate('/trade/input')
   }
 
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Card variant='unstyled'>
+        <Card >
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>
               <Card.Heading textAlign='center'>
@@ -201,7 +205,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
               <Button
                 isLoading={isSubmitting}
                 colorScheme='blue'
-                size='lg'
+                size="large"
                 width='full'
                 mt={6}
                 type='submit'

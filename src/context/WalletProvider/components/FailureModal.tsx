@@ -17,7 +17,7 @@ export const FailureModal: React.FC<FailureModalProps> = props => {
     <>
       <ModalBody textAlign='center' pb={8}>
         <NotAllowedIcon color='red.500' boxSize={20} mb={6} />
-        <Text fontSize='lg' fontWeight='bold' translation={props.headerText} />
+        <Text fontSize="large" fontWeight='bold' translation={props.headerText} />
         {isSuccessful && <Text color='gray.500' translation={props.bodyText} />}
       </ModalBody>
     </>

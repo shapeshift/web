@@ -1,7 +1,7 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { Controller, ControllerProps, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 
 import { SendFormFields, SendInput } from '../Form'
@@ -13,15 +13,15 @@ type AddressInputProps = {
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
   const { control } = useFormContext<SendInput>()
-  const history = useHistory()
+  let navigate = useNavigate()
   const translate = useTranslate()
 
   const handleQrClick = () => {
-    history.push(SendRoutes.Scan)
+    navigate(SendRoutes.Scan)
   }
 
   return (
-    <InputGroup size='lg'>
+    <InputGroup size="large">
       <Controller
         render={({ field: { onChange, value } }) => (
           <Input
@@ -30,7 +30,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             fontSize='sm'
             onChange={e => onChange(e.target.value.trim())}
             placeholder={translate('modals.send.tokenAddress')}
-            size='lg'
+            size="large"
             value={value}
             variant='filled'
           />
@@ -44,7 +44,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
           aria-label={translate('modals.send.scanQrCode')}
           icon={<QRCodeIcon />}
           onClick={handleQrClick}
-          size='sm'
+          size="small"
           variant='ghost'
         />
       </InputRightElement>

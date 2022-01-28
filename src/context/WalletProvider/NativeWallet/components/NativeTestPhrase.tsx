@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { RawText, Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
+import { useLocation, useNavigate  } from 'react-router-dom'
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable
@@ -25,7 +26,9 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
+export const NativeTestPhrase = ({ }: NativeSetupProps) => {
+  let navigate = useNavigate()
+  let location = useLocation()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
@@ -33,7 +36,8 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
 
-  const { vault } = location.state
+  const { state } = useLocation()
+  const { vault } = state.vault ? state.vault : ''
 
   const shuffleMnemonic = useCallback(async () => {
     if (testCount >= TEST_COUNT_REQUIRED) return
@@ -74,7 +78,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
     // If we've passed the required number of tests, then we can proceed
     if (testCount >= TEST_COUNT_REQUIRED) {
       vault.seal()
-      history.replace('/native/password', { vault })
+      navigate('/native/password', { vault })
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)

@@ -101,20 +101,20 @@ export const Spacing = () => (
   </>
 )
 
-export const FontSizes = () => (
+export const fontSizes = () => (
   <>
-    <Text fontSize='xs'>(xs) FontSize</Text>
-    <Text fontSize='sm'>(sm) FontSize</Text>
-    <Text fontSize='md'>(md) FontSize this is the default size</Text>
-    <Text fontSize='lg'>(lg) FontSize</Text>
-    <Text fontSize='xl'>(xl) FontSize</Text>
-    <Text fontSize='2xl'>(2xl) FontSize</Text>
-    <Text fontSize='3xl'>(3xl) FontSize</Text>
-    <Text fontSize='4xl'>(4xl) FontSize</Text>
-    <Text fontSize='5xl'>(5xl) FontSize</Text>
-    <Text fontSize='6xl'>(6xl) FontSize</Text>
-    <Text fontSize='7xl'>(7xl) FontSize</Text>
-    <Text fontSize='8xl'>(8xl) FontSize</Text>
-    <Text fontSize='9xl'>(9xl) FontSize</Text>
+    <Text fontSize='xs'>(xs) fontSize</Text>
+    <Text fontSize="small">(sm) fontSize</Text>
+    <Text fontSize='md'>(md) fontSize this is the default size</Text>
+    <Text fontSize="large">(lg) fontSize</Text>
+    <Text fontSize='xl'>(xl) fontSize</Text>
+    <Text fontSize='2xl'>(2xl) fontSize</Text>
+    <Text fontSize='3xl'>(3xl) fontSize</Text>
+    <Text fontSize='4xl'>(4xl) fontSize</Text>
+    <Text fontSize='5xl'>(5xl) fontSize</Text>
+    <Text fontSize='6xl'>(6xl) fontSize</Text>
+    <Text fontSize='7xl'>(7xl) fontSize</Text>
+    <Text fontSize='8xl'>(8xl) fontSize</Text>
+    <Text fontSize='9xl'>(9xl) fontSize</Text>
   </>
 )

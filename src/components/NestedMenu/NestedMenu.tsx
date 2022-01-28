@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/button'
 import { Stack } from '@chakra-ui/layout'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
 import { IconCircle } from 'components/IconCircle'
 
@@ -10,23 +10,22 @@ type MenuLinkProps = {
 } & Route
 
 const MenuLink = ({ index, path, icon, label }: MenuLinkProps) => {
-  const location = useLocation()
   const translate = useTranslate()
-  const match = matchPath(location.pathname, { path, exact: true }) != null
+  const params = useParams()
   return (
     <Button
-      key={index}
-      to={path}
+      key={params.index}
+      to={params.path}
       as={NavLink}
-      leftIcon={<IconCircle>{icon}</IconCircle>}
+      leftIcon={<IconCircle>{params.icon}</IconCircle>}
       justifyContent='flex-start'
       variant='ghost'
-      isActive={match}
-      size='lg'
+      isActive={params ? true : false}
+      size="large"
       px={4}
       fontWeight='medium'
     >
-      {translate(label)}
+      {translate(params.label)}
     </Button>
   )
 }

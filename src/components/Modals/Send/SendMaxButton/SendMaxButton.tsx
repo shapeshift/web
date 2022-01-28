@@ -11,7 +11,7 @@ export const SendMaxButton = ({ onClick }: SendMaxButtonProps) => {
       colorScheme='blue'
       h='1.75rem'
       onClick={onClick}
-      size='sm'
+      size="small"
       type='button'
       variant='ghost'
     >

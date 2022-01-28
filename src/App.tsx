@@ -4,7 +4,7 @@ import { ToastId, useToast } from '@chakra-ui/toast'
 import { useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Routes } from 'Routes/Routes'
+import { ShiftRoutes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 
@@ -27,7 +27,7 @@ export const App = () => {
               <Button
                 variant='solid'
                 colorScheme='blue'
-                size='sm'
+                size="small"
                 onClick={() => window.location.reload()}
                 ml={4}
               >
@@ -45,5 +45,5 @@ export const App = () => {
       toastIdRef.current = toastId
     }
   }, [shouldUpdate, toast, translate])
-  return <Routes />
+  return <ShiftRoutes />
 }

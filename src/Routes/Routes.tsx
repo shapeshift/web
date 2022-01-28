@@ -1,5 +1,10 @@
+<<<<<<< HEAD
+import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { Navigate, Routes, Route, useLocation, useParams } from 'react-router-dom'
+=======
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+>>>>>>> upstream/develop
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
@@ -24,7 +29,7 @@ import { NotFound } from 'pages/NotFound/NotFound'
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
-export const routes: Array<NestedRoute> = [
+export const routesShift: Array<NestedRoute> = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',
@@ -116,32 +121,34 @@ export const routes: Array<NestedRoute> = [
   } */
 ]
 
-const appRoutes = generateAppRoutes(routes)
+const appRoutes = generateAppRoutes(routesShift)
 
 function useLocationBackground() {
-  const location = useLocation<{ background: any }>()
-  const background = location.state && location.state.background
+  let location = useLocation()
+  let params = useParams()
+  const background = location.state && params.background
   return { background, location }
 }
 
-export const Routes = () => {
+export const ShiftRoutes = () => {
   const { background, location } = useLocationBackground()
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   return (
-    <Switch location={background || location}>
+    <Routes location={location}>
       {appRoutes.map((route, index) => {
         return (
-          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
+          <PrivateRoute key={index} path={route.path} hasWallet={hasWallet}>
             <Layout route={route} />
           </PrivateRoute>
         )
       })}
-      <Route path='/connect-wallet'>
-        <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
-      </Route>
-      <Redirect from='/' to='/dashboard' />
-      <Route component={NotFound} />
-    </Switch>
+      <Route
+        path='/connect-wallet'
+        element={<ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />}
+      />
+      <Navigate to='/dashboard' />
+      <Route element={NotFound} />
+    </Routes>
   )
 }

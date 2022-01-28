@@ -5,7 +5,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { RouterProps } from 'react-router-dom'
+import { RouterProps, useNavigate  } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { FiatInput } from 'components/FiatInput/FiatInput'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -26,7 +26,7 @@ import { firstNonZeroDecimal } from 'lib/math'
 
 type TS = TradeState<ChainTypes, SwapperType>
 
-export const TradeInput = ({ history }: RouterProps) => {
+export const TradeInput = ({}:RouterProps) => {
   const {
     control,
     handleSubmit,
@@ -49,6 +49,8 @@ export const TradeInput = ({ history }: RouterProps) => {
     state: { wallet }
   } = useWallet()
 
+  let navigate = useNavigate()
+
   const onSubmit = async () => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
@@ -60,8 +62,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       if (isERC20) {
         const approvalNeeded = await checkApprovalNeeded(wallet)
         if (approvalNeeded) {
-          history.push({
-            pathname: '/trade/approval',
+          navigate('/trade/approval', {
             state: {
               fiatRate
             }
@@ -80,7 +81,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       if (!result?.success && result?.statusReason) {
         handleToast(result.statusReason)
       }
-      result?.success && history.push({ pathname: '/trade/confirm', state: { fiatRate } })
+      result?.success && navigate('/trade/confirm', { state: fiatRate })
     } catch (err) {
       console.error(`TradeInput:onSubmit - ${err}`)
       handleToast(translate(TRADE_ERRORS.QUOTE_FAILED))
@@ -200,7 +201,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }}
                 inputLeftElement={
                   <TokenButton
-                    onClick={() => history.push('/trade/select/sell')}
+                    onClick={() => navigate('/trade/select/sell')}
                     logo={sellAsset?.currency?.icon}
                     symbol={sellAsset?.currency?.symbol}
                   />
@@ -266,7 +267,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }}
                 inputLeftElement={
                   <TokenButton
-                    onClick={() => history.push('/trade/select/buy')}
+                    onClick={() => navigate('/trade/select/buy')}
                     logo={buyAsset?.currency?.icon}
                     symbol={buyAsset?.currency?.symbol}
                   />

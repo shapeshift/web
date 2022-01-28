@@ -28,7 +28,7 @@ import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -102,9 +102,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
-  const memoryHistory = useHistory()
+  let navigate = useNavigate()
   const location = useLocation()
-  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
+  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit})
 
   // notify
   const toast = useToast()
@@ -199,7 +199,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto }
         })
-        memoryHistory.push(DepositPath.Confirm)
+        navigate(DepositPath.Confirm)
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -207,7 +207,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto }
         })
-        memoryHistory.push(DepositPath.Approve)
+        navigate(DepositPath.Approve)
       }
     } catch (error) {
       console.error('YearnDeposit:handleContinue error:', error)
@@ -250,7 +250,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         payload: { estimatedGasCrypto }
       })
 
-      memoryHistory.push(DepositPath.Confirm)
+      navigate(DepositPath.Confirm)
     } catch (error) {
       console.error('YearnDeposit:handleApprove error:', error)
       toast({
@@ -281,7 +281,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         api.getGasPrice()
       ])
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
-      memoryHistory.push(DepositPath.Status)
+      navigate(DepositPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -310,11 +310,11 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const handleViewPosition = () => {
-    browserHistory.push('/defi')
+    navigate('/defi')
   }
 
   const handleCancel = () => {
-    browserHistory.goBack()
+    navigate(-1)
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -633,7 +633,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         {depositRoute && <DefiActionButtons />}
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
-            <Switch location={location} key={location.key}>
+            <Routes location={location} key={location.key}>
               {routes.map(route => {
                 return (
                   <Route
@@ -644,7 +644,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   />
                 )
               })}
-            </Switch>
+            </Routes>
           </AnimatePresence>
         </Flex>
       </Flex>

@@ -130,7 +130,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             <Skeleton isLoaded={isLoaded} textAlign='center'>
               <ButtonGroup
                 hidden={!walletSupportsChain}
-                size='sm'
+                size="small"
                 colorScheme='blue'
                 variant='ghost'
               >
@@ -160,7 +160,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
               </Skeleton>
             </Card.Heading>
             <StatGroup>
-              <Stat size='sm' display='flex' flex='initial' mr={2}>
+              <Stat size="small" display='flex' flex='initial' mr={2}>
                 <Skeleton isLoaded={isLoaded}>
                   <StatNumber
                     display='flex'
@@ -173,7 +173,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
                 </Skeleton>
               </Stat>
               {view === View.Balance && (
-                <Stat size='sm' color='gray.500'>
+                <Stat size="small" color='gray.500'>
                   <Skeleton isLoaded={isLoaded}>
                     <StatNumber>{`${cryptoBalance} ${asset.symbol}`}</StatNumber>
                   </Skeleton>
@@ -225,7 +225,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
               <SanitizedHtml color='gray.500' dirtyHtml={description} />
             </SkeletonText>
           </Collapse>
-          <Button size='sm' onClick={handleToggle} mt='1rem'>
+          <Button size="small" onClick={handleToggle} mt='1rem'>
             {showDescription
               ? translate('assets.assetDetails.assetDescription.showLess')
               : translate('assets.assetDetails.assetDescription.showMore')}

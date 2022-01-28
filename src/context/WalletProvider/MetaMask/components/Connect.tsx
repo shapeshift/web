@@ -1,28 +1,23 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps, useNavigate } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
-import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
-export interface MetaMaskSetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
+export interface MetaMaskSetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
+export const MetaMaskConnect = () => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [provider, setProvider] = useState<any>()
+  let navigate = useNavigate()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -84,14 +79,14 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           payload: { wallet, name, icon, deviceId }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/metamask/success')
+        navigate('/metamask/success')
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
           console.error('MetaMask Connect: There was an error initializing the wallet', e)
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.metaMask.errors.unknown')
-          history.push('/metamask/failure')
+          navigate('/metamask/failure')
         }
       }
     }

@@ -99,7 +99,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             onClick={() => field.onChange(key)}
             isActive={activeFee === key}
           >
-            <Box fontSize='sm' mb={2} display='flex' alignItems='center'>
+            <Box fontSize="small" mb={2} display='flex' alignItems='center'>
               <Radio
                 colorScheme={color}
                 id={key}
@@ -110,7 +110,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
               <Text translation={translation} />
             </Box>
             <Amount.Crypto
-              fontSize='sm'
+              fontSize="small"
               fontWeight='normal'
               maximumFractionDigits={6}
               symbol={asset.tokenId ? 'ETH' : asset.symbol}
@@ -118,7 +118,7 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             />
             <Amount.Fiat
               color='gray.500'
-              fontSize='sm'
+              fontSize="small"
               fontWeight='normal'
               value={current.fiatFee}
             />

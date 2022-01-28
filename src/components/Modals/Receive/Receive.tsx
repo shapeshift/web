@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
@@ -30,7 +30,7 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
           <Switch>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => (
+              element={(props: RouteComponentProps) => (
                 <ReceiveRouter asset={asset} accountId={accountId} {...props} />
               )}
             />

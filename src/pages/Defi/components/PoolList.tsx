@@ -82,7 +82,7 @@ export const PoolList = () => {
             </Flex>
             <Text
               fontWeight='medium'
-              fontSize='lg'
+              fontSize="large"
               mb={2}
               color='gray.500'
               translation='defi.empty.pools.body'

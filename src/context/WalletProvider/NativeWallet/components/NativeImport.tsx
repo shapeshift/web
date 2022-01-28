@@ -10,16 +10,17 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps, useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-export const NativeImport = ({ history }: RouteComponentProps) => {
+export const NativeImport = () => {
+  let navigate = useNavigate()
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = await Vault.create()
       vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', values.mnemonic)
-      history.push('/native/password', { vault })
+      navigate('/native/password', {state: { vault }})
     } catch (e) {
       setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
     }
@@ -45,7 +46,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
           <FormControl isInvalid={errors.mnemonic} mb={6} mt={6}>
             <Textarea
               variant='filled'
-              size='lg'
+              size="large"
               autoComplete='off'
               autoCorrect='off'
               {...register('mnemonic', {
@@ -67,7 +68,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
             />
             <FormErrorMessage>{errors.mnemonic?.message}</FormErrorMessage>
           </FormControl>
-          <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
+          <Button colorScheme='blue' isFullWidth size="large" type='submit' isLoading={isSubmitting}>
             <Text translation={'walletProvider.shapeShift.import.button'} />
           </Button>
         </form>

@@ -8,7 +8,7 @@ import { YearnVault } from 'features/defi/providers/yearn/api/api'
 import { SupportedYearnVault } from 'features/defi/providers/yearn/constants/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
@@ -33,7 +33,7 @@ export const EarnOpportunityRow = ({
   const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
   const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
   const { yearn, loading } = useYearn()
-  const history = useHistory()
+  let navigate = useNavigate()
   const location = useLocation()
 
   const network = NetworkTypes.MAINNET
@@ -53,15 +53,14 @@ export const EarnOpportunityRow = ({
 
   const handleClick = () => {
     isConnected
-      ? history.push({
-          pathname: `/defi/${type}/${provider}/deposit`,
+      ? navigate(`/defi/${type}/${provider}/deposit`, { state: {
           search: qs.stringify({
             chain,
             contractAddress: vaultAddress,
             tokenId: tokenAddress
           }),
           state: { background: location }
-        })
+        }})
       : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
@@ -116,7 +115,7 @@ export const EarnOpportunityRow = ({
           </SkeletonCircle>
         </Flex>
         <Skeleton isLoaded={isLoaded}>
-          <RawText size='lg' fontWeight='bold'>{`${name} ${type}`}</RawText>
+          <RawText size="large" fontWeight='bold'>{`${name} ${type}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>
@@ -132,7 +131,7 @@ export const EarnOpportunityRow = ({
               <Amount.Crypto value={cryptoAmount.toString()} symbol={symbol} prefix='≈' />
             </HStack>
           ) : (
-            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
+            <Button as='span' colorScheme='blue' variant='ghost-filled' size="small">
               <Text translation='common.getStarted' />
             </Button>
           )}

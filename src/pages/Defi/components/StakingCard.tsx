@@ -74,13 +74,13 @@ export const StakingCard = ({
       <Card.Body>
         <Flex alignItems='center'>
           <Flex>
-            <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
+            <SkeletonCircle boxSize="10" isLoaded={isLoaded}>
               <AssetIcon src={asset.icon} boxSize='10' zIndex={2} />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
-              <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
+              <RawText size="lg" fontWeight="bold" textTransform='uppercase' lineHeight={1} mb={1}>
                 {`${asset.symbol} ${type}`}
               </RawText>
               <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={symbol} lineHeight={1} />

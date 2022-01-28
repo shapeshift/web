@@ -57,7 +57,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
             </Flex>
             <Text
               fontWeight='medium'
-              fontSize='lg'
+              fontSize="large"
               mb={2}
               color='gray.500'
               translation='defi.earnBody'

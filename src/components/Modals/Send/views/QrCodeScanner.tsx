@@ -2,7 +2,7 @@ import { Button, ModalBody, ModalCloseButton, ModalFooter, ModalHeader } from '@
 import { lazy, Suspense } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
@@ -12,19 +12,19 @@ import { SendRoutes } from '../Send'
 const QrReader = lazy(() => import('react-qr-reader'))
 
 export const QrCodeScanner = () => {
-  const history = useHistory()
+  let navigate = useNavigate()
   const translate = useTranslate()
   const { setValue } = useFormContext<SendInput>()
 
   const handleError = () => {
     /** @todo render error to user */
-    history.push(SendRoutes.Details)
+    navigate(SendRoutes.Details)
   }
 
   const handleScan = (value: string | null) => {
     if (value) {
       setValue(SendFormFields.Address, value)
-      history.push(SendRoutes.Address)
+      navigate(SendRoutes.Address)
     }
   }
 
@@ -45,9 +45,9 @@ export const QrCodeScanner = () => {
           <Button
             isFullWidth
             variant='ghost'
-            size='lg'
+            size="large"
             mr={3}
-            onClick={() => history.push(SendRoutes.Address)}
+            onClick={() => navigate(SendRoutes.Address)}
           >
             <Text translation='common.cancel' />
           </Button>

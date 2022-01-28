@@ -16,7 +16,7 @@ import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -29,8 +29,7 @@ import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
 export const Address = () => {
-  const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
-  const history = useHistory()
+  let navigate = useNavigate()
   const translate = useTranslate()
   const {
     setValue,
@@ -49,7 +48,7 @@ export const Address = () => {
     adapter: ChainAdapter<ChainTypes>
   ): adapter is ChainAdapter<ChainTypes.Ethereum> => adapter.getType() === ChainTypes.Ethereum
 
-  const handleNext = () => history.push(SendRoutes.Details)
+  const handleNext = () => navigate(SendRoutes.Details)
 
   const addressError = get(errors, `${SendFormFields.Address}.message`, null)
 
@@ -63,13 +62,13 @@ export const Address = () => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
         onClick={() =>
-          history.push(SendRoutes.Select, {
+          navigate(SendRoutes.Select, {state: {
             toRoute: SelectAssetRoutes.Account,
             assetId: asset.caip19
-          })
+          }})
         }
       />
       <ModalHeader textAlign='center'>
@@ -119,14 +118,19 @@ export const Address = () => {
           <Button
             isFullWidth
             isDisabled={!address || addressError}
+<<<<<<< HEAD
             isLoading={isValidatingEnsName}
             colorScheme={addressError && !isValidatingEnsName ? 'red' : 'blue'}
             size='lg'
+=======
+            colorScheme={addressError ? 'red' : 'blue'}
+            size="large"
+>>>>>>> feature/react-router-upgrade
             onClick={handleNext}
           >
             <Text translation={addressError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button isFullWidth variant='ghost' size="large" mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

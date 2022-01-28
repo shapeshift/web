@@ -11,14 +11,17 @@ import {
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useState } from 'react'
-import { FieldValues, useForm } from 'react-hook-form'
+import { FieldValues, useForm,  } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
+import { useNavigate,  useLocation } from 'react-router-dom'
 
-export const NativeRename = ({ history, location }: NativeSetupProps) => {
+export const NativeRename = () => {
+  let location = useLocation()
+  let navigate = useNavigate()
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -31,12 +34,12 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
         if (result) {
           vault.meta.delete('name')
           await vault.save()
-          history.goBack()
+          navigate(-1)
         }
       } else {
         vault.meta.set('name', values.name)
         await vault.save()
-        history.goBack()
+        navigate(-1)
       }
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Rename - Error invalid password', e)
@@ -70,7 +73,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
                   message: translate('modals.shapeShift.password.error.maxLength', { length: 64 })
                 }
               })}
-              size='lg'
+              size="large"
               variant='filled'
               id='name'
               placeholder={translate('walletProvider.shapeShift.rename.walletName')}
@@ -78,7 +81,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
           <FormControl mb={6} isInvalid={errors.password}>
-            <InputGroup size='lg' variant='filled'>
+            <InputGroup size="large" variant='filled'>
               <Input
                 {...register('password', {
                   required: translate('modals.shapeShift.password.error.required'),
@@ -97,7 +100,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
                 <IconButton
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
-                  size='sm'
+                  size="small"
                   onClick={handleShowClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
@@ -107,7 +110,7 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
           </FormControl>
           <Button
             colorScheme='blue'
-            size='lg'
+            size="large"
             isFullWidth
             type='submit'
             isLoading={isSubmitting}

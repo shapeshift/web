@@ -59,18 +59,18 @@ export const Translations = () => <Text fontSize='6xl' translation='t.prop.takes
 
 export const Sizes: Story = () => (
   <>
-    <Text fontSize='xs' translation='(xs) FontSize' />
-    <Text fontSize='sm' translation='(sm) FontSize' />
-    <Text fontSize='md' translation='(md) FontSize: this is the default size' />
-    <Text fontSize='lg' translation='(lg) FontSize' />
-    <Text fontSize='xl' translation='(xl) FontSize' />
-    <Text fontSize='2xl' translation='(2xl) FontSize' />
-    <Text fontSize='3xl' translation='(3xl) FontSize' />
-    <Text fontSize='4xl' translation='(4xl) FontSize' />
-    <Text fontSize='5xl' translation='(5xl) FontSize' />
-    <Text fontSize='6xl' translation='(6xl) FontSize' />
-    <Text fontSize='7xl' translation='(7xl) FontSize' />
-    <Text fontSize='8xl' translation='(8xl) FontSize' />
-    <Text fontSize='9xl' translation='(9xl) FontSize' />
+    <Text fontSize='xs' translation='(xs) fontSize' />
+    <Text fontSize="small" translation='(sm) fontSize' />
+    <Text fontSize='md' translation='(md) fontSize: this is the default size' />
+    <Text fontSize="large" translation='(lg) fontSize' />
+    <Text fontSize='xl' translation='(xl) fontSize' />
+    <Text fontSize='2xl' translation='(2xl) fontSize' />
+    <Text fontSize='3xl' translation='(3xl) fontSize' />
+    <Text fontSize='4xl' translation='(4xl) fontSize' />
+    <Text fontSize='5xl' translation='(5xl) fontSize' />
+    <Text fontSize='6xl' translation='(6xl) fontSize' />
+    <Text fontSize='7xl' translation='(7xl) fontSize' />
+    <Text fontSize='8xl' translation='(8xl) fontSize' />
+    <Text fontSize='9xl' translation='(9xl) fontSize' />
   </>
 )

@@ -16,7 +16,7 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -41,7 +41,7 @@ export const Confirm = () => {
     control,
     formState: { isSubmitting }
   } = useFormContext<SendInput>()
-  const history = useHistory()
+  let navigate = useNavigate()
   const translate = useTranslate()
   const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
     control
@@ -68,9 +68,9 @@ export const Confirm = () => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
-        onClick={() => history.push(SendRoutes.Details)}
+        onClick={() => navigate(SendRoutes.Details)}
       />
       <ModalHeader textAlign='center'>
         <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />
@@ -139,7 +139,7 @@ export const Confirm = () => {
           disabled={!fees || isSubmitting}
           isLoading={isSubmitting}
           loadingText={translate('modals.send.broadcastingTransaction')}
-          size='lg'
+          size="large"
           mt={6}
           type='submit'
           width='full'

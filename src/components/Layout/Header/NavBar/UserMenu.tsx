@@ -67,7 +67,7 @@ const WalletConnected = ({
           {!isConnected && (
             <Text
               translation={'connectWallet.menu.disconnected'}
-              fontSize='sm'
+              fontSize="small"
               color='yellow.500'
             />
           )}

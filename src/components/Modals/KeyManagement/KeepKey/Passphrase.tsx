@@ -62,7 +62,7 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
           <Input
             type='password'
             ref={inputRef}
-            size='lg'
+            size="large"
             variant='filled'
             mt={3}
             mb={6}
@@ -78,7 +78,7 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
           )}
           <Button
             isFullWidth
-            size='lg'
+            size="large"
             colorScheme='blue'
             onClick={handleSubmit}
             disabled={loading}

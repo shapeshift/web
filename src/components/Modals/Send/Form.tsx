@@ -4,11 +4,11 @@ import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
-  Redirect,
+  Navigate,
   Route,
   RouteComponentProps,
-  Switch,
-  useHistory,
+  Routes,
+  useNavigate,
   useLocation
 } from 'react-router-dom'
 import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
@@ -60,7 +60,7 @@ type SendFormProps = {
 
 export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const location = useLocation()
-  const history = useHistory()
+  let navigate = useNavigate()
   const { handleSend } = useFormSend()
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
 
@@ -87,7 +87,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     methods.setValue(SendFormFields.FiatSymbol, 'USD')
     methods.setValue(SendFormFields.AccountId, accountId)
 
-    history.push(SendRoutes.Address)
+    navigate(SendRoutes.Address)
   }
 
   const checkKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -96,10 +96,10 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
 
   useEffect(() => {
     if (!accountId && initialAsset) {
-      history.push(SendRoutes.Select, {
-        toRoute: SelectAssetRoutes.Account,
-        assetId: initialAsset.caip19
-      })
+      navigate(SendRoutes.Select,{ state: {
+          toRoute: SelectAssetRoutes.Account,
+          assetId: initialAsset.caip19
+        }})
     }
   }, [accountId, initialAsset, history])
 
@@ -108,19 +108,19 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form onSubmit={methods.handleSubmit(handleSend)} onKeyDown={checkKeyDown}>
         <AnimatePresence exitBeforeEnter initial={false}>
-          <Switch location={location} key={location.key}>
+          <Routes location={location} key={location.key}>
             <Route
               path={SendRoutes.Select}
-              component={(props: RouteComponentProps) => (
+              element={(props: RouteComponentProps) => (
                 <SelectAssetRouter onClick={handleAssetSelect} {...props} />
               )}
             />
-            <Route path={SendRoutes.Address} component={Address} />
-            <Route path={SendRoutes.Details} component={Details} />
-            <Route path={SendRoutes.Scan} component={QrCodeScanner} />
-            <Route path={SendRoutes.Confirm} component={Confirm} />
-            <Redirect exact from='/' to={SendRoutes.Select} />
-          </Switch>
+            <Route path={SendRoutes.Address} element={Address} />
+            <Route path={SendRoutes.Details} element={Details} />
+            <Route path={SendRoutes.Scan} element={QrCodeScanner} />
+            <Route path={SendRoutes.Confirm} element={Confirm} />
+            <Navigate to={SendRoutes.Select} />
+          </Routes>
         </AnimatePresence>
       </form>
     </FormProvider>

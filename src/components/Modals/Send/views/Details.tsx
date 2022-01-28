@@ -17,7 +17,7 @@ import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
@@ -32,7 +32,7 @@ import { SendMaxButton } from '../SendMaxButton/SendMaxButton'
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
-  const history = useHistory()
+  let navigate = useNavigate()
   const translate = useTranslate()
 
   const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
@@ -75,9 +75,9 @@ export const Details = () => {
         top={2}
         left={3}
         fontSize='xl'
-        size='sm'
+        size="small"
         isRound
-        onClick={() => history.push(SendRoutes.Address)}
+        onClick={() => navigate(SendRoutes.Address)}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
@@ -92,7 +92,7 @@ export const Details = () => {
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}
           showCrypto={fieldName === SendFormFields.CryptoAmount}
-          onClick={() => history.push('/send/select')}
+          onClick={() => navigate('/send/select')}
           mb={2}
         />
         <FormControl mt={6}>
@@ -126,7 +126,7 @@ export const Details = () => {
               inputLeftElement={
                 <Button
                   ml={1}
-                  size='sm'
+                  size="small"
                   variant='ghost'
                   textTransform='uppercase'
                   onClick={toggleCurrency}
@@ -149,7 +149,7 @@ export const Details = () => {
               inputLeftElement={
                 <Button
                   ml={1}
-                  size='sm'
+                  size="small"
                   variant='ghost'
                   textTransform='uppercase'
                   onClick={toggleCurrency}
@@ -172,13 +172,13 @@ export const Details = () => {
             isFullWidth
             isDisabled={!!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
-            size='lg'
+            size="large"
             onClick={handleNextClick}
             isLoading={loading}
           >
             <Text translation={amountFieldError || 'common.next'} />
           </Button>
-          <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
+          <Button isFullWidth variant='ghost' size="large" mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />
           </Button>
         </Stack>

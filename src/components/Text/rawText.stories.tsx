@@ -54,18 +54,18 @@ Basic.args = {
 
 export const Sizes: Story = () => (
   <>
-    <RawText fontSize='xs'>(xs) FontSize</RawText>
-    <RawText fontSize='sm'>(sm) FontSize</RawText>
-    <RawText fontSize='md'>(md) FontSize this is the default size</RawText>
-    <RawText fontSize='lg'>(lg) FontSize</RawText>
-    <RawText fontSize='xl'>(xl) FontSize</RawText>
-    <RawText fontSize='2xl'>(2xl) FontSize</RawText>
-    <RawText fontSize='3xl'>(3xl) FontSize</RawText>
-    <RawText fontSize='4xl'>(4xl) FontSize</RawText>
-    <RawText fontSize='5xl'>(5xl) FontSize</RawText>
-    <RawText fontSize='6xl'>(6xl) FontSize</RawText>
-    <RawText fontSize='7xl'>(7xl) FontSize</RawText>
-    <RawText fontSize='8xl'>(8xl) FontSize</RawText>
-    <RawText fontSize='9xl'>(9xl) FontSize</RawText>
+    <RawText fontSize='xs'>(xs) fontSize</RawText>
+    <RawText fontSize="small">(sm) fontSize</RawText>
+    <RawText fontSize='md'>(md) fontSize this is the default size</RawText>
+    <RawText fontSize="large">(lg) fontSize</RawText>
+    <RawText fontSize='xl'>(xl) fontSize</RawText>
+    <RawText fontSize='2xl'>(2xl) fontSize</RawText>
+    <RawText fontSize='3xl'>(3xl) fontSize</RawText>
+    <RawText fontSize='4xl'>(4xl) fontSize</RawText>
+    <RawText fontSize='5xl'>(5xl) fontSize</RawText>
+    <RawText fontSize='6xl'>(6xl) fontSize</RawText>
+    <RawText fontSize='7xl'>(7xl) fontSize</RawText>
+    <RawText fontSize='8xl'>(8xl) fontSize</RawText>
+    <RawText fontSize='9xl'>(9xl) fontSize</RawText>
   </>
 )

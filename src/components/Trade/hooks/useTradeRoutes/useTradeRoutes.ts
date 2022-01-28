@@ -2,7 +2,7 @@ import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 
 import { TradeState } from '../../Trade'
@@ -12,7 +12,7 @@ export const useTradeRoutes = (): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
-  const history = useHistory()
+  let navigate = useNavigate()
   const { getValues, setValue } = useFormContext<TradeState<ChainTypes, SwapperType>>()
   const { getQuote, getBestSwapper, getDefaultPair } = useSwapper()
   const buyAsset = getValues('buyAsset')
@@ -61,10 +61,10 @@ export const useTradeRoutes = (): {
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push('/trade/input')
+        navigate('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, navigate, setValue, getBestSwapper, getQuote]
   )
 
   const handleBuyClick = useCallback(
@@ -82,10 +82,10 @@ export const useTradeRoutes = (): {
       } catch (e) {
         console.warn(e)
       } finally {
-        history.push('/trade/input')
+        navigate('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, navigate, setValue, getBestSwapper, getQuote]
   )
 
   return { handleSellClick, handleBuyClick }

@@ -125,7 +125,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           ...vault,
           cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
-          apy: yearnVault?.apy.net_apy
+          apy: yearnVault?.metadata?.apy?.net_apy
         }
         return acc
       },

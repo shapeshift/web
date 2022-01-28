@@ -97,6 +97,8 @@ export const EarnOpportunityRow = ({
     yearn
   ])
 
+  console.log({ asset, vault, yearn, loading })
+
   if (!asset || !vault || !yearn || loading) return null
 
   return (
@@ -120,7 +122,7 @@ export const EarnOpportunityRow = ({
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>
-            <Amount.Percent value={bnOrZero(vault?.apy.net_apy).toString()} />
+            <Amount.Percent value={bnOrZero(vault?.metadata?.apy?.net_apy).toString()} />
           </Tag>
         </Skeleton>
       </Flex>

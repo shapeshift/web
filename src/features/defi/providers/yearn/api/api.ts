@@ -1,5 +1,7 @@
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { Yearn, Vault } from '@yfi/sdk'
 import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
@@ -14,7 +16,8 @@ import { ssRouterContractAddress } from '../constants/router-contract'
 import { ssRouterAbi } from '../constants/ss-router-abi'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
-import { SUPPORTED_VAULTS } from './vaults'
+// import { getSupportedVaults } from './vaults'
+import { yearnSdk } from './yearn-sdk'
 import {
   Allowanceinput,
   ApproveEstimatedGasInput,
@@ -31,51 +34,27 @@ export type ConstructorArgs = {
   providerUrl: string
 }
 
-export type YearnVault = {
-  inception: number
-  address: string
-  symbol: string
-  name: string
-  display_name: string
-  icon: string
-  token: {
-    name: string
-    symbol: string
-    address: string
-    decimals: number
-    display_name: string
-    icon: string
-  }
-  tvl: {
-    total_assets: number
-    price: number
-    tvl: number
-  }
-  apy: {
-    net_apy: number
-  }
-  endorsed: boolean
-  version: string
-  decimals: number
-  type: string
-  emergency_shutdown: boolean
-}
+export type YearnVault = Vault
 
 export class YearnVaultApi {
   public adapter: ChainAdapter<ChainTypes.Ethereum>
   public provider: any
+  public jsonRpcProvider: any
   public web3: Web3
-  public vaults: YearnVault[]
+  public vaults: Vault[]
   public yearnClient: AxiosInstance
+  private yearnSdk: any
   private ssRouterContract: any
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
     this.adapter = adapter
     this.provider = new Web3.providers.HttpProvider(providerUrl)
+    this.jsonRpcProvider = new JsonRpcProvider(providerUrl)
     this.web3 = new Web3(this.provider)
     this.yearnClient = axios.create({
       baseURL: 'https://api.yearn.finance/v1'
     })
+    this.yearnSdk = new Yearn(1, { provider: this.jsonRpcProvider, disableAllowlist: true })
     this.ssRouterContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     this.vaults = []
   }
@@ -85,14 +64,12 @@ export class YearnVaultApi {
   }
 
   async findAll() {
-    const response = await this.yearnClient.get(`/chains/1/vaults/all`)
-    return response.data.filter((vault: YearnVault) =>
-      SUPPORTED_VAULTS.find(supported => toLower(supported.vaultAddress) === toLower(vault.address))
-    )
+    const response: Vault[] = await this.yearnSdk.vaults.get()
+    return response
   }
 
   findByDepositTokenId(tokenId: string) {
-    const vault = this.vaults.find(item => toLower(item.token.address) === toLower(tokenId))
+    const vault = this.vaults.find(item => toLower(item.tokenId) === toLower(tokenId))
     if (!vault) return null
     return vault
   }

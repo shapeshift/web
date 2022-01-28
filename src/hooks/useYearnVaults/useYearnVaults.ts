@@ -13,7 +13,7 @@ export const useYearnVaults: UseYearnVaults = () => {
 
   useEffect(() => {
     getVaults()
-  })
+  }, [getVaults])
 
   return vaults
 }

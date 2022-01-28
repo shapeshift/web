@@ -1,4 +1,4 @@
-import { Input, InputProps } from '@chakra-ui/react'
+import { Box, Input, InputProps } from '@chakra-ui/react'
 import * as CSS from 'csstype'
 import type { FC } from 'react'
 import { useEffect, useRef, useState } from 'react'
@@ -62,13 +62,13 @@ export const FlexibleInputContainer: FC<InputProps> = props => {
   useEffect(updateScale, [props.value])
 
   return (
-    <div style={{ fontSize: props.fontSize as string, ...wrapperStyles }}>
-      <div ref={scaledContainer} style={{ transform, ...scaledStyles }}>
+    <Box fontSize={props.fontSize} style={wrapperStyles}>
+      <Box ref={scaledContainer} style={{ transform, ...scaledStyles }}>
         <Input style={{ width, ...inputStyles }} {...props} />
-      </div>
-      <div ref={referenceContainer} style={referenceStyles}>
-        {props.value}
-      </div>
-    </div>
+        <Box ref={referenceContainer} style={referenceStyles}>
+          {props.value}
+        </Box>
+      </Box>
+    </Box>
   )
 }

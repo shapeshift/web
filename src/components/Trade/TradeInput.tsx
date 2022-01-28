@@ -166,7 +166,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     textAlign='center'
                     placeholder='$0.00'
                     mb={6}
-                    fontSize='3rem'
+                    fontSize='5xl'
                     isNumericString={true}
                     onValueChange={e => {
                       onChange(e.value)

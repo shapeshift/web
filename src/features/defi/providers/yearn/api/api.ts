@@ -12,9 +12,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { erc20Abi } from '../constants/erc20-abi'
 import { ssRouterContractAddress } from '../constants/router-contract'
 import { ssRouterAbi } from '../constants/ss-router-abi'
-import { SUPPORTED_VAULTS } from '../constants/vaults'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
+import { SUPPORTED_VAULTS } from './vaults'
 import {
   Allowanceinput,
   ApproveEstimatedGasInput,

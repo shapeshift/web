@@ -1,4 +1,4 @@
-import { Box, Spinner, Stack } from '@chakra-ui/react'
+import { Box, Stack } from '@chakra-ui/react'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -11,7 +11,7 @@ export const AllEarnOpportunities = () => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const vaults = useYearnVaults()
 
-  if (!earnFeature || !vaults?.length) return <Spinner />
+  if (!earnFeature) return null
 
   return (
     <Card>

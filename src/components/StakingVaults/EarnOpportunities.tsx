@@ -55,7 +55,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           {vaults.map((vault, index) => (
-            <EarnOpportunityRow {...vault} key={`${index}${vault.vaultAddress}`} isLoaded={!!vault} />
+            <EarnOpportunityRow {...vault} key={`${vault.vaultAddress}`} isLoaded={!!vault} />
           ))}
         </Stack>
       </Card.Body>

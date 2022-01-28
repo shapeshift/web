@@ -1,7 +1,7 @@
+import { JsonRpcProvider } from '@ethersproject/providers'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { Yearn, Vault } from '@yfi/sdk'
+import { Vault, Yearn } from '@yfi/sdk'
 import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
@@ -16,8 +16,6 @@ import { ssRouterContractAddress } from '../constants/router-contract'
 import { ssRouterAbi } from '../constants/ss-router-abi'
 import { yv2VaultAbi } from '../constants/yv2Vaults-abi'
 import { buildTxToSign } from '../helpers/buildTxToSign'
-// import { getSupportedVaults } from './vaults'
-import { yearnSdk } from './yearn-sdk'
 import {
   Allowanceinput,
   ApproveEstimatedGasInput,

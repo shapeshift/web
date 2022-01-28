@@ -2,7 +2,6 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { Vault, Yearn } from '@yfi/sdk'
-import axios, { AxiosInstance } from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { MAX_ALLOWANCE } from 'constants/allowance'
 import { toLower } from 'lodash'
@@ -40,7 +39,6 @@ export class YearnVaultApi {
   public jsonRpcProvider: any
   public web3: Web3
   public vaults: Vault[]
-  public yearnClient: AxiosInstance
   private yearnSdk: any
   private ssRouterContract: any
 
@@ -49,21 +47,25 @@ export class YearnVaultApi {
     this.provider = new Web3.providers.HttpProvider(providerUrl)
     this.jsonRpcProvider = new JsonRpcProvider(providerUrl)
     this.web3 = new Web3(this.provider)
-    this.yearnClient = axios.create({
-      baseURL: 'https://api.yearn.finance/v1'
-    })
     this.yearnSdk = new Yearn(1, { provider: this.jsonRpcProvider, disableAllowlist: true })
     this.ssRouterContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     this.vaults = []
   }
 
   async initialize() {
-    this.vaults = await this.findAll()
+    // Due to a race condition within the sdk and this function running on app and sdk load,
+    // the first call was rejecting, the second call within the catch had enough time for the sdk to
+    // initialize and set this.vaults.
+    try {
+      this.vaults = await this.findAll()
+    } catch (err) {
+      // swallow first error, throw if errors again.
+      this.vaults = await this.findAll()
+    }
   }
 
   async findAll() {
-    const response: Vault[] = await this.yearnSdk.vaults.get()
-    return response
+    return this.yearnSdk.vaults.get()
   }
 
   findByDepositTokenId(tokenId: string) {
@@ -328,12 +330,11 @@ export class YearnVaultApi {
   }
 
   async apy(input: APYInput): Promise<string> {
-    const response = await this.yearnClient.get(`/chains/1/vaults/all`)
-    const vaultsData = response?.data
-    const vaultData = vaultsData.find((vault: any) => vault.address === input.vaultAddress)
-    if (!vaultData?.apy?.net_apy) {
+    const vaults = await this.findAll()
+    const vaultData = vaults.find((vault: any) => vault.address === input.vaultAddress)
+    if (!vaultData?.metadata?.apy?.net_apy) {
       throw new Error('Not Found')
     }
-    return String(vaultData.apy.net_apy)
+    return String(vaultData?.metadata?.apy?.net_apy)
   }
 }

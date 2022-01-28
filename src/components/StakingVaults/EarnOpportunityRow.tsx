@@ -97,8 +97,6 @@ export const EarnOpportunityRow = ({
     yearn
   ])
 
-  console.log({ asset, vault, yearn, loading })
-
   if (!asset || !vault || !yearn || loading) return null
 
   return (

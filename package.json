@@ -36,6 +36,7 @@
     "@visx/responsive": "^2.4.1",
     "@visx/shape": "^2.4.0",
     "@visx/tooltip": "^2.2.2",
+    "@yfi/sdk": "^1.0.27",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.2",

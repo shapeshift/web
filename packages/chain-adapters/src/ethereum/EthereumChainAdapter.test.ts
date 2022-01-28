@@ -4,7 +4,7 @@
  * Test EthereumChainAdapter
  * @group unit
  */
-import { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import { ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { ethereum as unchainedEthereum } from '@shapeshiftoss/unchained-client'
@@ -14,7 +14,7 @@ import { bn } from '../utils/bignumber'
 import * as ethereum from './EthereumChainAdapter'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
-const EOA_ADDRESS = '0x05a1ff0a32bc24265bcb39499d0c5d9a6cb2011c'
+const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 
 const getGasFeesMockedResponse = {
   data: {
@@ -231,6 +231,87 @@ describe('EthereumChainAdapter', () => {
       const expectedReturnValue = invalidAddressTuple
       const res = await adapter.validateEnsAddress(referenceAddress)
       expect(res).toMatchObject(expectedReturnValue)
+    })
+  })
+
+  describe('signTransaction', () => {
+    it('should sign a properly formatted txToSign object', async () => {
+      const balance = '2500000'
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance,
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          value: '0x0',
+          to: EOA_ADDRESS,
+          chainId: 1,
+          data: '0x0000000000000000',
+          nonce: '0x0',
+          gasPrice: '0x29d41057e0',
+          gasLimit: '0xc9df'
+        }
+      } as unknown) as chainAdapters.SignTxInput<ETHSignTx>
+
+      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+        '0xf86c808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa960458088000000000000000025a04db6f6d27b6e7de2a627d7a7a213915db14d0d811e97357f1b4e3b3b25584dfaa07e4e329f23f33e1b21b3f443a80fad3255b2c968820d02b57752b4c91a9345c5'
+      )
+    })
+    it('should throw on txToSign with invalid data', async () => {
+      const balance = '2500000'
+      args.providers.http = ({
+        getInfo: jest.fn().mockResolvedValue(getInfoMockResponse),
+        getAccount: jest.fn<any, any>().mockResolvedValue({
+          data: {
+            balance,
+            unconfirmedBalance: '0',
+            nonce: 2,
+            tokens: [
+              {
+                caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+                balance: '424242',
+                type: 'ERC20',
+                contract: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
+              }
+            ]
+          }
+        })
+      } as unknown) as unchainedEthereum.api.V1Api
+      const adapter = new ethereum.ChainAdapter(args)
+
+      const tx = ({
+        wallet: await getWallet(),
+        txToSign: {
+          addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
+          value: '0x0',
+          to: EOA_ADDRESS,
+          chainId: 1,
+          data: 'notHexString',
+          nonce: '0x0',
+          gasPrice: '0x29d41057e0',
+          gasLimit: '0xc9df'
+        }
+      } as unknown) as chainAdapters.SignTxInput<ETHSignTx>
+
+      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
     })
   })
 
@@ -481,7 +562,7 @@ describe('EthereumChainAdapter', () => {
           addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
           chainId: 1,
           data:
-            '0xa9059cbb00000000000000000000000005a1ff0a32bc24265bcb39499d0c5d9a6cb2011c0000000000000000000000000000000000000000000000000000000000067932',
+            '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
           gasLimit: numberToHex(gasLimit),
           gasPrice: numberToHex(gasPrice),
           nonce: '0x2',

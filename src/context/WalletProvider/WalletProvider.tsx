@@ -32,13 +32,21 @@ type GenericAdapter = {
 }
 
 type Adapters = Map<KeyManager, GenericAdapter>
+
+export type WalletInfo = {
+  name: string
+  icon: ComponentWithAs<'svg', IconProps>
+  deviceId: string
+  meta?: { label?: string; address?: string }
+}
+
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
   type: KeyManager | null
   initialRoute: string | null
-  walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps>; deviceId: string } | null
+  walletInfo: WalletInfo | null
   isConnected: boolean
   modal: boolean
 }
@@ -70,6 +78,7 @@ export type ActionTypes =
         name: string
         icon: ComponentWithAs<'svg', IconProps>
         deviceId: string
+        meta?: { label: string }
       }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
@@ -83,15 +92,26 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      return {
+      const stateData = {
         ...state,
         wallet: action.payload.wallet,
         walletInfo: {
           name: action?.payload?.name,
           icon: action?.payload?.icon,
-          deviceId: action?.payload?.deviceId
+          deviceId: action?.payload?.deviceId,
+          meta: { label: '', address: '' }
         }
       }
+
+      if (action.payload.meta && action.payload.meta.label)
+        stateData.walletInfo.meta.label = action.payload.meta.label
+      // @ts-ignore
+      if (action.payload.wallet.ethAddress)
+        // @ts-ignore
+        stateData.walletInfo.meta.address = action.payload.wallet.ethAddress
+      // eslint-disable-next-line no-console
+      console.log('WALLET INFO: ', stateData.walletInfo)
+      return stateData
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:

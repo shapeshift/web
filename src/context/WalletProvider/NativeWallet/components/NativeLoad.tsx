@@ -63,6 +63,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: VaultInfo) => {
+    // eslint-disable-next-line no-console
+    console.log(item.name)
     const adapter = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
     if (adapter) {
@@ -77,7 +79,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId }
+            payload: { wallet, name, icon, deviceId, meta: { label: item.name } }
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }

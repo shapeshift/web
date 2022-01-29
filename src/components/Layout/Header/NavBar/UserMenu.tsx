@@ -19,8 +19,11 @@ import {
   useColorModeValue,
   useMediaQuery
 } from '@chakra-ui/react'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { breakpoints } from 'theme/theme'
@@ -89,14 +92,38 @@ type WalletButtonProps = {
   onConnect: () => void
 } & Pick<InitialState, 'walletInfo'>
 
-const WalletButton = ({ isConnected, walletInfo, onConnect }: WalletButtonProps) => {
+const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnect }) => {
+  const [walletLabel, setWalletLabel] = useState('')
+  const bgColor = useColorModeValue('gray.300', 'gray.800')
+
+  useEffect(() => {
+    setWalletLabel('')
+    if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
+    if (walletInfo.meta.address) return setWalletLabel(walletInfo.meta.address)
+    if (walletInfo.meta.label) return setWalletLabel(walletInfo.meta.label)
+  }, [walletInfo])
+
   return Boolean(walletInfo?.deviceId) ? (
     <Button
       onClick={onConnect}
       leftIcon={<WalletImage walletInfo={walletInfo} />}
       rightIcon={isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
     >
-      {walletInfo?.name}
+      {walletLabel !== '' ? (
+        <MiddleEllipsis
+          rounded='lg'
+          fontSize='sm'
+          p='1'
+          pl='2'
+          pr='2'
+          bgColor={bgColor}
+          maxWidth='150px'
+        >
+          {walletLabel}
+        </MiddleEllipsis>
+      ) : (
+        <RawText>{walletInfo?.name}</RawText>
+      )}
     </Button>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>

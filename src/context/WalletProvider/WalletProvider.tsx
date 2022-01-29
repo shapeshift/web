@@ -109,8 +109,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       if (action.payload.wallet.ethAddress)
         // @ts-ignore
         stateData.walletInfo.meta.address = action.payload.wallet.ethAddress
-      // eslint-disable-next-line no-console
-      console.log('WALLET INFO: ', stateData.walletInfo)
+
       return stateData
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }

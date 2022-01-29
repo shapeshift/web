@@ -63,8 +63,6 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   }, [wallets])
 
   const handleWalletSelect = async (item: VaultInfo) => {
-    // eslint-disable-next-line no-console
-    console.log(item.name)
     const adapter = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
     if (adapter) {

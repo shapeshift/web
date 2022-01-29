@@ -126,6 +126,8 @@ export const Details = () => {
               inputLeftElement={
                 <Button
                   ml={1}
+                  mt={1}
+                  mb={1}
                   size='sm'
                   variant='ghost'
                   textTransform='uppercase'
@@ -149,6 +151,8 @@ export const Details = () => {
               inputLeftElement={
                 <Button
                   ml={1}
+                  mt={1}
+                  mb={1}
                   size='sm'
                   variant='ghost'
                   textTransform='uppercase'

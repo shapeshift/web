@@ -1,23 +1,19 @@
-import {
-  Input,
-  InputGroup,
-  InputGroupProps,
-  InputLeftElement,
-  InputProps,
-  InputRightElement
-} from '@chakra-ui/react'
+import { Box, Flex, InputGroupProps, InputProps, useStyleConfig } from '@chakra-ui/react'
 import { Control, Controller, ControllerProps, FieldValues, Path } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
+import { FlexibleInputContainer } from 'components/FlexibleInputContainer/FlexibleInputContainer'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 const CryptoInput = (props: InputProps) => (
-  <Input
-    pr='4.5rem'
-    pl='7.5rem'
+  <FlexibleInputContainer
     size='lg'
     type='number'
-    variant='filled'
+    textAlign='right'
     placeholder='Enter amount'
+    variant='unstyled'
+    pr={2}
+    borderRadius='0'
+    flexGrow={1}
     {...props}
   />
 )
@@ -46,13 +42,14 @@ export function TokenRow<C extends FieldValues>({
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
 
+  /** Duplicating chakra <Input variant='filled' /> border and background styles */
+  const styles = useStyleConfig('Input', { variant: 'filled', size: 'lg' })
+  const { bg, border, borderColor, borderRadius, _focus } = (styles as any).field
+  const filledCss = { bg, border, borderColor, borderRadius, _focusWithin: _focus }
+
   return (
-    <InputGroup size='lg' {...rest}>
-      {inputLeftElement && (
-        <InputLeftElement ml={1} width='auto'>
-          {inputLeftElement}
-        </InputLeftElement>
-      )}
+    <Flex size='lg' align='center' {...rest} sx={filledCss}>
+      {inputLeftElement && <Box m='2px'>{inputLeftElement}</Box>}
       <Controller
         render={({ field: { onChange, value } }) => {
           return (
@@ -75,9 +72,7 @@ export function TokenRow<C extends FieldValues>({
         control={control}
         rules={rules}
       />
-      {inputRightElement && (
-        <InputRightElement width='4.5rem'>{inputRightElement}</InputRightElement>
-      )}
-    </InputGroup>
+      {inputRightElement && <Box mr='8px'>{inputRightElement}</Box>}
+    </Flex>
   )
 }

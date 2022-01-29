@@ -1,7 +1,7 @@
 import { Box, Input, InputProps } from '@chakra-ui/react'
 import * as CSS from 'csstype'
 import type { FC } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const wrapperStyles: CSS.Properties = {
   position: 'relative',
@@ -15,8 +15,6 @@ const scaledStyles: CSS.Properties = {
 }
 
 const inputStyles: CSS.Properties = {
-  fontSize: 'inherit',
-  fontFamily: 'inherit',
   minWidth: '100%'
 }
 
@@ -38,16 +36,38 @@ export const FlexibleInputContainer: FC<InputProps> = props => {
   const referenceContainer = useRef<HTMLDivElement>(null)
   const scaledContainer = useRef<HTMLDivElement>(null)
 
-  const updateScale = (): void => {
+  const updateScale = useCallback((): void => {
     if (referenceContainer.current && scaledContainer.current) {
       const scale = getScale(
         referenceContainer.current.clientWidth,
         scaledContainer.current.clientWidth
       )
       setTransform(`scale(${scale})`)
-      setWidth(`${referenceContainer.current.clientWidth}px`)
+      setWidth(scale > 0.99 ? '100%' : `${referenceContainer.current.clientWidth}px`)
     }
-  }
+  }, [])
+
+  useEffect((): void => {
+    if (scaledContainer.current == null || referenceContainer.current == null) {
+      return
+    }
+    const input = scaledContainer.current.querySelector('input')
+    const styles = getComputedStyle(input as Element)
+    const properties = [
+      'border-left',
+      'border-right',
+      'padding-left',
+      'padding-right',
+      'padding-inline-start',
+      'padding-inline-end',
+      'padding-inline-end',
+      'font-size',
+      'font-family'
+    ]
+    properties.forEach(property => {
+      referenceContainer.current!.style.setProperty(property, styles.getPropertyValue(property))
+    })
+  }, [scaledContainer])
 
   useEffect(() => {
     if (typeof ResizeObserver !== 'undefined' && ResizeObserver && scaledContainer.current) {
@@ -57,12 +77,12 @@ export const FlexibleInputContainer: FC<InputProps> = props => {
 
       return () => resizeObserver.unobserve(scaledContainerRef)
     }
-  }, [scaledContainer])
+  }, [scaledContainer, updateScale])
 
-  useEffect(updateScale, [props.value])
+  useEffect(updateScale, [props.value, updateScale])
 
   return (
-    <Box fontSize={props.fontSize} style={wrapperStyles}>
+    <Box style={wrapperStyles} flexGrow={props.flexGrow}>
       <Box ref={scaledContainer} style={{ transform, ...scaledStyles }}>
         <Input style={{ width, ...inputStyles }} {...props} />
         <Box ref={referenceContainer} style={referenceStyles}>

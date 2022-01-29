@@ -158,6 +158,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     inputMode='decimal'
                     thousandSeparator={localeParts.group}
                     decimalSeparator={localeParts.decimal}
+                    decimalScale={2}
                     prefix={localeParts.prefix}
                     suffix={localeParts.postfix}
                     value={value}

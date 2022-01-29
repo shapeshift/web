@@ -19,7 +19,6 @@ import {
   useColorModeValue,
   useMediaQuery
 } from '@chakra-ui/react'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'

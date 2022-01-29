@@ -39,7 +39,7 @@ export class YearnVaultApi {
   public jsonRpcProvider: any
   public web3: Web3
   public vaults: Vault[]
-  private yearnSdk: any
+  private yearnSdk: Yearn<1>
   private ssRouterContract: any
 
   constructor({ adapter, providerUrl }: ConstructorArgs) {
@@ -53,15 +53,8 @@ export class YearnVaultApi {
   }
 
   async initialize() {
-    // Due to a race condition within the sdk and this function running on app and sdk load,
-    // the first call was rejecting, the second call within the catch had enough time for the sdk to
-    // initialize and set this.vaults.
-    try {
-      this.vaults = await this.findAll()
-    } catch (err) {
-      // swallow first error, throw if errors again.
-      this.vaults = await this.findAll()
-    }
+    await this.yearnSdk.ready
+    this.vaults = await this.findAll()
   }
 
   async findAll() {

@@ -70,6 +70,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const assetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId })
   )
+
+  const nativeAssetBalance = bnOrZero(
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.caip19, accountId })
+    )
+  )
   const chainAdapterManager = useChainAdapters()
   const {
     state: { wallet }
@@ -149,13 +155,20 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleSendMax = async () => {
-    // we can always send the full balance of tokens, no need to make network
-    // calls to estimate fees
     if (feeAsset.caip19 !== asset.caip19) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      setLoading(true)
+
       const estimatedFees = await estimateFormFees()
-      setValue(SendFormFields.EstimatedFees, estimatedFees)
+
+      if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+      } else {
+        setValue(SendFormFields.EstimatedFees, estimatedFees)
+      }
+
+      setLoading(false)
       return
     }
 
@@ -262,7 +275,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           .minus(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
           .gte(values.cryptoAmount)
       } else {
-        hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+        hasValidBalance =
+          nativeAssetBalance.minus(estimatedFees.fast.txFee).isPositive() &&
+          cryptoHumanBalance.gte(values.cryptoAmount)
       }
 
       setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')

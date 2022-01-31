@@ -1,5 +1,7 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import React, {
   createContext,
@@ -99,19 +101,12 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           name: action?.payload?.name,
           icon: action?.payload?.icon,
           deviceId: action?.payload?.deviceId,
-          meta: { label: '', address: '' }
+          meta: {
+            label: action.payload.meta?.label ?? '',
+            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? ''
+          }
         }
       }
-
-      if (action.payload.meta && action.payload.meta.label)
-        stateData.walletInfo.meta.label = action.payload.meta.label
-
-      // ignoring the error here as this prop does not exist on HDWallet but it does
-      // still exist and it also gets populated
-      // @ts-ignore
-      if (action.payload.wallet.ethAddress)
-        // @ts-ignore
-        stateData.walletInfo.meta.address = action.payload.wallet.ethAddress
 
       return stateData
     case WalletActions.SET_IS_CONNECTED:

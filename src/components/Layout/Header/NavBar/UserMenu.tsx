@@ -115,7 +115,7 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
       leftIcon={<WalletImage walletInfo={walletInfo} />}
       rightIcon={isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
     >
-      {walletLabel !== '' ? (
+      {walletLabel ? (
         <MiddleEllipsis
           rounded='lg'
           fontSize='sm'

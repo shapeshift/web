@@ -279,13 +279,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         setValue(key, amount)
 
-        const estimatedFees = await estimateFormFees().catch(e => {
+        let estimatedFees
+
+        try {
+          estimatedFees = await estimateFormFees()
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
+        } catch (e) {
           setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
           setLoading(false)
 
           throw e
-        })
-        setValue(SendFormFields.EstimatedFees, estimatedFees)
+        }
 
         const values = getValues()
 

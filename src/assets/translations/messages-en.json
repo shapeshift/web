@@ -221,6 +221,9 @@
       "sent": "%{asset} sent",
       "errorTitle": "Something went wrong",
       "errorDescription": "Your send of %{asset} failed.",
+      "errors": {
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas."
+      },
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",

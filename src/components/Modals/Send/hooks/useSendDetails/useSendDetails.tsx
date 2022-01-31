@@ -163,7 +163,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const estimatedFees = await estimateFormFees()
 
       if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
-        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
       } else {
         setValue(SendFormFields.EstimatedFees, estimatedFees)
       }
@@ -242,6 +245,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const maxCrypto = cryptoHumanBalance.minus(networkFee)
       const maxFiat = maxCrypto.times(price)
+
+      const hasEnoughNativeTokenForGas = nativeAssetBalance
+        .minus(adapterFees.fast.txFee)
+        .isPositive()
+
+      if (!hasEnoughNativeTokenForGas) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      }
+
       setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       setLoading(false)
@@ -268,19 +283,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const values = getValues()
 
-      let hasValidBalance = false
-      // we only need to deduct fees if we're sending the fee asset
-      if (feeAsset.caip19 === asset.caip19) {
-        hasValidBalance = cryptoHumanBalance
-          .minus(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-          .gte(values.cryptoAmount)
-      } else {
-        hasValidBalance =
-          nativeAssetBalance.minus(estimatedFees.fast.txFee).isPositive() &&
-          cryptoHumanBalance.gte(values.cryptoAmount)
-      }
+      const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+      const hasEnoughNativeTokenForGas = nativeAssetBalance
+        .minus(estimatedFees.fast.txFee)
+        .isPositive()
 
-      setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')
+      if (!hasValidBalance) {
+        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+      } else if (!hasEnoughNativeTokenForGas) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      }
     }, 1000),
     [asset, fieldName, setValue, estimateFormFees, getValues, cryptoHumanBalance, fiatBalance]
   )

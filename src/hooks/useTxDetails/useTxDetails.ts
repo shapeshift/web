@@ -1,6 +1,8 @@
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectTxById, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -15,7 +17,9 @@ export interface TxDetails {
   sellAsset: Asset
   value: string
   to: string
+  ensTo?: string
   from: string
+  ensFrom?: string
   type: TradeType | TxType | ''
   symbol: string
   precision: number
@@ -57,6 +61,18 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const value = standardTx?.value ?? tradeTx?.value ?? '0'
   const to = standardTx?.to ?? tradeTx?.to ?? ''
   const from = standardTx?.from ?? tradeTx?.from ?? ''
+
+  const [ensFrom, setEnsFrom] = useState<string>()
+  const [ensTo, setEnsTo] = useState<string>()
+
+  useEffect(() => {
+    ;(async () => {
+      const reverseFromLookup = await ensReverseLookup(from)
+      const reverseToLookup = await ensReverseLookup(to)
+      !reverseFromLookup.error && setEnsFrom(reverseFromLookup.name)
+      !reverseToLookup.error && setEnsTo(reverseToLookup.name)
+    })()
+  }, [from, to])
   const type = standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
@@ -74,7 +90,9 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     sellAsset,
     value,
     to,
+    ensTo,
     from,
+    ensFrom,
     type,
     symbol,
     precision,

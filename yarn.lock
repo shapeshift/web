@@ -3550,9 +3550,9 @@
   integrity sha512-0NSRame3XZx/a1DskmX9IkuqclOnKrPm4BiyaEZQJ1Z4FOl+bktwUGRTqP4OAw2ugrL2oFuc5wH4I7F/6huL2w==
 
 "@shapeshiftoss/chain-adapters@^1.25.0":
-  version "1.30.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.30.0.tgz#3e61497984e5e7c3b6cf2482f1521b45ce8a82bd"
-  integrity sha512-iA1QVkaZSgIa/cFAeaHSvNJSj4K7ko0tiKcj4T6/m4zMnpayYEojW7JXLNWvUifnitQf7grf7cqo0w8YdKWhkw==
+  version "1.25.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.25.0.tgz#d16d90c13a166419ced8330efb41714f30275698"
+  integrity sha512-ueUw6r12KWHGO9MvV+11N/Ui4Q3FUGmtXh9g2Dhh0InjDTX8nLkPuenPxAUtmCEiYx1M/Na70FXLpjRillG+kg==
   dependencies:
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -15405,9 +15405,9 @@ nano-json-stream-parser@^0.1.2:
   integrity sha1-DMj20OK2IrR5xA1JnEbWS3Vcb18=
 
 nanoid@^3.1.23, nanoid@^3.1.30:
-  version "3.1.30"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
-  integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.2.0.tgz#62667522da6673971cca916a6d3eff3f415ff80c"
+  integrity sha512-fmsZYa9lpn69Ad5eDn7FMcnnSR+8R34W9qJEijxYhTbfOWzr22n1QxCMzXLK+ODyW2973V3Fux959iQoUxzUIA==
 
 nanomatch@^1.2.9:
   version "1.2.13"

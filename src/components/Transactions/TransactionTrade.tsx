@@ -167,7 +167,7 @@ export const TransactionTrade = ({
                 color='blue.500'
                 href={`${txDetails.explorerAddressLink}${txDetails.to ?? txDetails.from}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.to ?? txDetails.from}</MiddleEllipsis>
+                <MiddleEllipsis width='180px'>{txDetails.ensTo ?? txDetails.to}</MiddleEllipsis>
               </Link>
             </Row.Value>
           </Row>

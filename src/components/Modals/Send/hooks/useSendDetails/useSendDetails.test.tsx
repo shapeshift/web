@@ -257,8 +257,8 @@ describe('useSendDetails', () => {
       expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
         fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
       })
-      expect(setValue).toHaveBeenNthCalledWith(3, 'cryptoAmount', '5')
-      expect(setValue).toHaveBeenNthCalledWith(4, 'fiatAmount', '17500.00')
+      expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '17500.00')
+      expect(setValue).toHaveBeenNthCalledWith(4, 'cryptoAmount', '5')
     })
   })
 

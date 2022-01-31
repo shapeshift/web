@@ -25,6 +25,7 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { ensReverseLookup } from 'lib/ens'
 import { breakpoints } from 'theme/theme'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
@@ -96,9 +97,15 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
   useEffect(() => {
-    setWalletLabel('')
     if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
-    if (walletInfo.meta.address) return setWalletLabel(walletInfo.meta.address)
+    if (walletInfo.meta.address) {
+      ensReverseLookup(walletInfo.meta.address).then(ens => {
+        if (!ens.error) return setWalletLabel(ens.name)
+        // added this check here again to satisfy typescript
+        if (walletInfo.meta && walletInfo.meta.address) setWalletLabel(walletInfo.meta.address)
+      })
+      return
+    }
     if (walletInfo.meta.label) return setWalletLabel(walletInfo.meta.label)
   }, [walletInfo])
 

@@ -105,6 +105,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 
       if (action.payload.meta && action.payload.meta.label)
         stateData.walletInfo.meta.label = action.payload.meta.label
+
+      // ignoring the error here as this prop does not exist on HDWallet but it does
+      // still exist and it also gets populated
       // @ts-ignore
       if (action.payload.wallet.ethAddress)
         // @ts-ignore

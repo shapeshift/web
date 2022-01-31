@@ -161,9 +161,9 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
               <Link
                 isExternal
                 color='blue.500'
-                href={`${txDetails.explorerAddressLink}${txDetails.to ?? txDetails.from}`}
+                href={`${txDetails.explorerAddressLink}${txDetails.ensTo ?? txDetails.to}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.to ?? txDetails.from}</MiddleEllipsis>
+                <MiddleEllipsis width='180px'>{txDetails.ensTo ?? txDetails.to}</MiddleEllipsis>
               </Link>
             </Row.Value>
           </Row>

@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const cspMeta = Object.entries({
   'default-src': ["'self'"],
+  'child-src': ["'self'",  "blob:", "'report-sample'"],
   'connect-src': [
     "'self'",
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4

@@ -12,15 +12,19 @@ registerSelectors(portfolioSelectors)
 
 const apiMiddleware = [portfolioApi.middleware, marketApi.middleware, assetApi.middleware]
 
-export const store = configureStore({
-  reducer,
-  middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({
-      immutableCheck: { warnAfter: 128 },
-      serializableCheck: { warnAfter: 128 }
-    }).concat(apiMiddleware),
-  devTools: true
-})
+/// This allows us to create an empty store for tests
+export const createStore = () =>
+  configureStore({
+    reducer,
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware({
+        immutableCheck: { warnAfter: 128 },
+        serializableCheck: { warnAfter: 128 }
+      }).concat(apiMiddleware),
+    devTools: true
+  })
+
+export const store = createStore()
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 

@@ -14,8 +14,8 @@ export const MiddleEllipsis = ({ address, ...rest }: MiddleEllipsisProps) => {
 }
 
 export function shortenAddress(address: string, chars = 4): string {
-  if (!address.length < 10) {
+  if (address.length < 10) {
     return address
   }
-  return `${address.substring(0, chars + 2)}...${address.substring(42 - chars)}`
+  return `${address.substring(0, chars + 2)}...${address.slice(-4)}`
 }

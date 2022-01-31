@@ -222,7 +222,7 @@
       "errorTitle": "Something went wrong",
       "errorDescription": "Your send of %{asset} failed.",
       "errors": {
-        "notEnoughNativeToken": "Not enough %{asset} to cover gas."
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas"
       },
       "confirm": {
         "sendAsset": "Send %{asset}",

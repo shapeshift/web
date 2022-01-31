@@ -1,21 +1,18 @@
 import { Box, BoxProps } from '@chakra-ui/react'
-import React from 'react'
 
 type MiddleEllipsisProps = {
   address: string
+  shouldShorten?: boolean
 } & BoxProps
 
-export const MiddleEllipsis = ({ address, ...rest }: MiddleEllipsisProps) => {
+export const MiddleEllipsis = ({ address, shouldShorten = true, ...rest }: MiddleEllipsisProps) => {
   return (
     <Box whiteSpace='nowrap' {...rest}>
-      <span>{shortenAddress(address)}</span>
+      <span>{shouldShorten ? shortenAddress(address) : address}</span>
     </Box>
   )
 }
 
-export function shortenAddress(address: string, chars = 4): string {
-  if (address.length <= 40) {
-    return address
-  }
-  return `${address.substring(0, chars + 2)}...${address.slice(-4)}`
+export function shortenAddress(address: string): string {
+  return `${address.substring(0, 6)}...${address.slice(-4)}`
 }

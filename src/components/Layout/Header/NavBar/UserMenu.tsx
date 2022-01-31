@@ -94,19 +94,26 @@ type WalletButtonProps = {
 
 const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnect }) => {
   const [walletLabel, setWalletLabel] = useState('')
+  const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
   useEffect(() => {
+    setShouldShorten(true)
     if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
     if (walletInfo.meta.address) {
       ensReverseLookup(walletInfo.meta.address).then(ens => {
-        if (!ens.error) return setWalletLabel(ens.name)
-        // added this check here again to satisfy typescript
+        if (!ens.error) {
+          setShouldShorten(false)
+          return setWalletLabel(ens.name)
+        }
         setWalletLabel(walletInfo?.meta?.address ?? '')
       })
       return
     }
-    if (walletInfo.meta.label) return setWalletLabel(walletInfo.meta.label)
+    if (walletInfo.meta.label) {
+      setShouldShorten(false)
+      return setWalletLabel(walletInfo.meta.label)
+    }
   }, [walletInfo])
 
   return Boolean(walletInfo?.deviceId) ? (
@@ -122,6 +129,7 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
           p='1'
           pl='2'
           pr='2'
+          shouldShorten={shouldShorten}
           bgColor={bgColor}
           address={walletLabel}
         />

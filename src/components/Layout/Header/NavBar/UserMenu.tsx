@@ -102,7 +102,7 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
       ensReverseLookup(walletInfo.meta.address).then(ens => {
         if (!ens.error) return setWalletLabel(ens.name)
         // added this check here again to satisfy typescript
-        if (walletInfo.meta && walletInfo.meta.address) setWalletLabel(walletInfo.meta.address)
+        setWalletLabel(walletInfo?.meta?.address ?? '')
       })
       return
     }

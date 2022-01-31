@@ -15,7 +15,7 @@ const main = async (): Promise<void> => {
   const caip19 = 'eip155:1/erc20:0x3f1b0278a9ee595635b61817630cc19de792f506' // Zapper Token
   // const caip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0' // BTC
   const provider = new JsonRpcProvider('https://dev-api.ethereum.shapeshift.com')
-  const yearnSdk = new Yearn(1, { provider })
+  const yearnSdk = new Yearn(1, { provider, disableAllowlist: true })
   const yearnMarketService = new YearnTokenMarketCapService({ yearnSdk })
   // const cgMarkteService = new CoinGeckoMarketService()
   // const data = await yearnMarketService.findAll()

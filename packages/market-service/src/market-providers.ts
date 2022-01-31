@@ -8,7 +8,7 @@ import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 // YearnVaultMarketCapService deps
 const network = 1 // 1 for mainnet
 const provider = new JsonRpcProvider(process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL)
-const yearnSdk = new Yearn(network, { provider })
+const yearnSdk = new Yearn(network, { provider, disableAllowlist: true })
 
 // Order of this MarketProviders array constitutes the order of provders we will be checking first.
 // More reliable providers should be listed first.

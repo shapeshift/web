@@ -8,9 +8,9 @@ import uniqBy from 'lodash/uniqBy'
 import { toCAIP2 } from '../../caip2/caip2'
 import { toCAIP19 } from './../../caip19/caip19'
 
-// YearnVaultMarketCapService deps
+const network = 1 // 1 for mainnet
 const provider = new JsonRpcProvider(process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL)
-const yearnSdk = new Yearn(1, { provider })
+const yearnSdk = new Yearn(network, { provider, disableAllowlist: true })
 
 export const writeFiles = async (data: Record<string, Record<string, string>>) => {
   const path = './src/adapters/yearn/generated/'
@@ -35,14 +35,13 @@ export const fetchData = async () => {
 
 export const parseEthData = (data: (Token | Vault)[]) => {
   const chain = ChainTypes.Ethereum
-  const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
 
   const result = data.reduce((acc, datum) => {
     const { address } = datum
     const id = address
     const tokenId = toLower(address)
-    const caip19 = toCAIP19({ chain, network, contractType, tokenId })
+    const caip19 = toCAIP19({ chain, network: NetworkTypes.MAINNET, contractType, tokenId })
     acc[caip19] = id
     return acc
   }, {} as Record<string, string>)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.31.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.30.0...@shapeshiftoss/chain-adapters-v1.31.0) (2022-01-31)
+
+
+### Features
+
+* **EthereumChainAdapter:** test throw on passed ENS 'to' ([#322](https://github.com/shapeshift/lib/issues/322)) ([1838e40](https://github.com/shapeshift/lib/commit/1838e40eae6974e63f0f5e1d987a9f5a43840d9b))
+
 # [@shapeshiftoss/chain-adapters-v1.30.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.29.1...@shapeshiftoss/chain-adapters-v1.30.0) (2022-01-28)
 
 

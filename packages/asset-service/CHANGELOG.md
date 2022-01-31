@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.12.0...@shapeshiftoss/asset-service-v1.13.0) (2022-01-31)
+
+
+### Features
+
+* 821 extend yearn vaults ([#335](https://github.com/shapeshift/lib/issues/335)) ([ef7f591](https://github.com/shapeshift/lib/commit/ef7f5919f27a9e5db1b2c064fda741f6566c672d))
+
 # [@shapeshiftoss/asset-service-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.11.0...@shapeshiftoss/asset-service-v1.12.0) (2022-01-27)
 
 

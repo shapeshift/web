@@ -9,7 +9,6 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ensLookup } from 'lib/ens'
-import { fromBaseUnit } from 'lib/math'
 import { isEthAddress } from 'lib/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -69,6 +68,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const assetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId })
+  )
+
+  const nativeAssetBalance = bnOrZero(
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.caip19, accountId })
+    )
   )
   const chainAdapterManager = useChainAdapters()
   const {
@@ -149,13 +154,23 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleSendMax = async () => {
-    // we can always send the full balance of tokens, no need to make network
-    // calls to estimate fees
     if (feeAsset.caip19 !== asset.caip19) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      setLoading(true)
+
       const estimatedFees = await estimateFormFees()
-      setValue(SendFormFields.EstimatedFees, estimatedFees)
+
+      if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      } else {
+        setValue(SendFormFields.EstimatedFees, estimatedFees)
+      }
+
+      setLoading(false)
       return
     }
 
@@ -229,6 +244,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const maxCrypto = cryptoHumanBalance.minus(networkFee)
       const maxFiat = maxCrypto.times(price)
+
+      const hasEnoughNativeTokenForGas = nativeAssetBalance
+        .minus(adapterFees.fast.txFee)
+        .isPositive()
+
+      if (!hasEnoughNativeTokenForGas) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      }
+
       setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       setLoading(false)
@@ -255,17 +282,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const values = getValues()
 
-      let hasValidBalance = false
-      // we only need to deduct fees if we're sending the fee asset
-      if (feeAsset.caip19 === asset.caip19) {
-        hasValidBalance = cryptoHumanBalance
-          .minus(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-          .gte(values.cryptoAmount)
-      } else {
-        hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
-      }
+      const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+      const hasEnoughNativeTokenForGas = nativeAssetBalance
+        .minus(estimatedFees.fast.txFee)
+        .isPositive()
 
-      setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')
+      if (!hasValidBalance) {
+        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+      } else if (!hasEnoughNativeTokenForGas) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      }
     }, 1000),
     [asset, fieldName, setValue, estimateFormFees, getValues, cryptoHumanBalance, fiatBalance]
   )

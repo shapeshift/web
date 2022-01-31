@@ -97,7 +97,10 @@ export const EarnOpportunityRow = ({
     yearn
   ])
 
-  if (!asset || !vault || !yearn || loading) return null
+  const hasZeroBalanceAndApy =
+    bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
+
+  if (!asset || !vault || hasZeroBalanceAndApy || !yearn || loading) return null
 
   return (
     <Button

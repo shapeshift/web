@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.9.0...@shapeshiftoss/market-service-v1.10.0) (2022-01-31)
+
+
+### Features
+
+* 821 extend yearn vaults ([#335](https://github.com/shapeshift/lib/issues/335)) ([ef7f591](https://github.com/shapeshift/lib/commit/ef7f5919f27a9e5db1b2c064fda741f6566c672d))
+
 # [@shapeshiftoss/market-service-v1.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.8.0...@shapeshiftoss/market-service-v1.9.0) (2022-01-27)
 
 

@@ -38,8 +38,9 @@ export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) =>
   } = useWallet()
 
   const vault = useMemo(() => {
-    return vaults.find(__vault => __vault.vaultAddress === asset.tokenId)
+    return vaults.find(_vault => _vault.vaultAddress === asset.tokenId)
   }, [vaults, asset.tokenId])
+
   const shouldHide = !asset.tokenId || !yearn || !vault
 
   useEffect(() => {

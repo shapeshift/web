@@ -1,6 +1,5 @@
 import { Box, BoxProps } from '@chakra-ui/react'
 import React from 'react'
-import { isAddress } from 'web3-utils'
 
 type MiddleEllipsisProps = {
   address: string
@@ -15,8 +14,7 @@ export const MiddleEllipsis = ({ address, ...rest }: MiddleEllipsisProps) => {
 }
 
 export function shortenAddress(address: string, chars = 4): string {
-  const parsed = isAddress(address)
-  if (!parsed) {
+  if (!address.length < 10) {
     return address
   }
   return `${address.substring(0, chars + 2)}...${address.substring(42 - chars)}`

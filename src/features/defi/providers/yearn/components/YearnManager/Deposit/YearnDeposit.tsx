@@ -431,7 +431,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   <Text translation='modals.confirm.withdrawFrom' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -528,7 +528,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>

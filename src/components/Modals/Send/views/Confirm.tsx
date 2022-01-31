@@ -93,7 +93,7 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis maxWidth='260px'>{ensName || address}</MiddleEllipsis>
+              <MiddleEllipsis address={ensName || address} />
             </Row.Value>
           </Row>
           <FormControl mt={4}>

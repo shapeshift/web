@@ -123,10 +123,8 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
           pl='2'
           pr='2'
           bgColor={bgColor}
-          maxWidth='150px'
-        >
-          {walletLabel}
-        </MiddleEllipsis>
+          address={walletLabel}
+        />
       ) : (
         <RawText>{walletInfo?.name}</RawText>
       )}

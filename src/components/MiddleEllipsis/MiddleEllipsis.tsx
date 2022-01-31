@@ -1,18 +1,23 @@
 import { Box, BoxProps } from '@chakra-ui/react'
 import React from 'react'
-import ReactMiddleEllipsis from 'react-middle-ellipsis'
+import { isAddress } from 'web3-utils'
 
 type MiddleEllipsisProps = {
-  children: React.ReactNode
-} & ({ maxWidth: string } | { width: string }) &
-  BoxProps
+  address: string
+} & BoxProps
 
-export const MiddleEllipsis = ({ children, maxWidth, width, ...rest }: MiddleEllipsisProps) => {
+export const MiddleEllipsis = ({ address, ...rest }: MiddleEllipsisProps) => {
   return (
-    <Box whiteSpace='nowrap' maxWidth={maxWidth} width={width} {...rest}>
-      <ReactMiddleEllipsis>
-        <span>{children}</span>
-      </ReactMiddleEllipsis>
+    <Box whiteSpace='nowrap' {...rest}>
+      <span>{shortenAddress(address)}</span>
     </Box>
   )
+}
+
+export function shortenAddress(address: string, chars = 4): string {
+  const parsed = isAddress(address)
+  if (!parsed) {
+    throw Error(`Invalid 'address' parameter '${address}'.`)
+  }
+  return `${address.substring(0, chars + 2)}...${address.substring(42 - chars)}`
 }

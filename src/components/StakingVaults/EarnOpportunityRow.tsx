@@ -5,7 +5,7 @@ import { caip19 } from '@shapeshiftoss/caip'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { YearnVault } from 'features/defi/providers/yearn/api/api'
-import { SupportedYearnVault } from 'features/defi/providers/yearn/constants/vaults'
+import { SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -97,7 +97,10 @@ export const EarnOpportunityRow = ({
     yearn
   ])
 
-  if (!asset || !vault || !yearn || loading) return null
+  const hasZeroBalanceAndApy =
+    bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
+
+  if (!asset || !vault || hasZeroBalanceAndApy || !yearn || loading) return null
 
   return (
     <Button
@@ -120,7 +123,7 @@ export const EarnOpportunityRow = ({
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>
-            <Amount.Percent value={bnOrZero(vault?.apy.net_apy).toString()} />
+            <Amount.Percent value={bnOrZero(vault?.metadata?.apy?.net_apy).toString()} />
           </Tag>
         </Skeleton>
       </Flex>

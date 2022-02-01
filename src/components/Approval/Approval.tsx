@@ -186,7 +186,7 @@ export const Approval = () => {
                       // TODO:(ryankk) create explorer links given a link template and a value
                       href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
                     >
-                      <MiddleEllipsis maxWidth='130px'>{approvalTxId}</MiddleEllipsis>
+                      <MiddleEllipsis address={approvalTxId} />
                     </Link>
                   </Row.Value>
                 </Row>

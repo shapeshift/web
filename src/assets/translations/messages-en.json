@@ -219,8 +219,11 @@
       "tokenAddress": "Token Address",
       "scanQrCode": "Scan QR Code",
       "sent": "%{asset} sent",
-      "errorTitle": "Something went wrong",
-      "errorDescription": "Your send of %{asset} failed.",
+      "errorTitle": "Your send of %{asset} failed",
+      "errors": {
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas",
+        "transactionRejected": "User has rejected the transaction"
+      },
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",

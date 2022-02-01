@@ -25,33 +25,33 @@ type YearnDepositState = {
 export const initialState: YearnDepositState = {
   txid: null,
   vault: {
-    inception: 0,
     address: '',
-    symbol: '',
+    typeId: 'VAULT_V2',
+    token: '',
     name: '',
-    display_name: '',
-    icon: '',
-    token: {
-      name: '',
-      symbol: '',
-      address: '',
-      decimals: 0,
-      display_name: '',
-      icon: ''
-    },
-    tvl: {
-      total_assets: 0,
-      price: 0,
-      tvl: 0
-    },
-    apy: {
-      net_apy: 0
-    },
-    endorsed: false,
     version: '',
-    decimals: 0,
-    type: '',
-    emergency_shutdown: false
+    symbol: '',
+    decimals: '',
+    tokenId: '',
+    underlyingTokenBalance: {
+      amount: '0',
+      amountUsdc: '0'
+    },
+    metadata: {
+      symbol: '',
+      pricePerShare: '',
+      migrationAvailable: false,
+      latestVaultAddress: '',
+      depositLimit: '',
+      emergencyShutdown: false,
+      controller: '',
+      totalAssets: '',
+      totalSupply: '',
+      displayName: '',
+      displayIcon: '',
+      defaultDisplayToken: '',
+      hideIfNoDeposits: false
+    }
   },
   userAddress: null,
   loading: false,

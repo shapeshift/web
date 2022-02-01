@@ -170,7 +170,7 @@ export const Details = () => {
         <Stack flex={1}>
           <Button
             isFullWidth
-            isDisabled={!!amountFieldError || loading}
+            isDisabled={!(cryptoAmount ?? fiatAmount) || !!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}

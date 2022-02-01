@@ -7,7 +7,7 @@ import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
-import { FiatInput } from 'components/FiatInput/FiatInput'
+import { FlexibleInputContainer } from 'components/FlexibleInputContainer/FlexibleInputContainer'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -161,7 +161,12 @@ export const TradeInput = ({ history }: RouterProps) => {
                     prefix={localeParts.prefix}
                     suffix={localeParts.postfix}
                     value={value}
-                    customInput={FiatInput}
+                    customInput={FlexibleInputContainer}
+                    variant='unstyled'
+                    textAlign='center'
+                    placeholder='$0.00'
+                    mb={6}
+                    fontSize='5xl'
                     isNumericString={true}
                     onValueChange={e => {
                       onChange(e.value)

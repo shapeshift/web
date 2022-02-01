@@ -291,7 +291,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -357,7 +357,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>
@@ -372,7 +372,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>

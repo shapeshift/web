@@ -181,8 +181,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const price = priceAtBlockTime({ assetPriceHistoryData, time })
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
-      console.warn(`fiatBalanceAtBucket: no portfolioAsset for ${caip19}`)
-      console.warn('portfolioAssets', portfolioAssets)
       return acc
     }
     const { precision } = portfolioAsset

@@ -23,6 +23,8 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 type TS = TradeState<ChainTypes, SwapperType>
 
@@ -48,6 +50,12 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
+
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19)
+  )
+  const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
+  const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -138,6 +146,18 @@ export const TradeInput = ({ history }: RouterProps) => {
     })
   }
 
+  const getTranslationKey = () => {
+    if (!wallet) {
+      return 'common.connectWallet'
+    }
+
+    if (isValid && !hasValidTradeBalance) {
+      return 'common.insufficientFunds'
+    }
+
+    return error ?? 'trade.previewTrade'
+  }
+
   // TODO:(ryankk) fix error handling
   const error = errors?.quote?.value?.message ?? null
 
@@ -216,7 +236,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                     size='sm'
                     variant='ghost'
                     colorScheme='blue'
-                    isDisabled={isSendMaxLoading || !!action}
+                    isDisabled={isSendMaxLoading || !!action || !hasValidBalance}
                     onClick={onSwapMax}
                   >
                     Max
@@ -282,17 +302,15 @@ export const TradeInput = ({ history }: RouterProps) => {
               type='submit'
               size='lg'
               width='full'
-              colorScheme={error ? 'red' : 'blue'}
+              colorScheme={error || (isValid && !hasValidTradeBalance && !action) ? 'red' : 'blue'}
               isLoading={isSubmitting || isSendMaxLoading || !!action}
-              isDisabled={!isDirty || !isValid || !!action || !wallet}
+              isDisabled={!isDirty || !isValid || !!action || !wallet || !hasValidTradeBalance}
               style={{
                 whiteSpace: 'normal',
                 wordWrap: 'break-word'
               }}
             >
-              <Text
-                translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'}
-              />
+              <Text translation={getTranslationKey()} />
             </Button>
           </Card.Body>
         </Card>

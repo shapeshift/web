@@ -19,7 +19,7 @@
     "@reduxjs/toolkit": "^1.7.0",
     "@shapeshiftoss/asset-service": "^1.10.0",
     "@shapeshiftoss/caip": "^1.8.0",
-    "@shapeshiftoss/chain-adapters": "^1.22.1",
+    "@shapeshiftoss/chain-adapters": "^1.23.1",
     "@shapeshiftoss/hdwallet-core": "^1.18.3",
     "@shapeshiftoss/hdwallet-keepkey": "^1.18.3",
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.18.3",
@@ -31,9 +31,9 @@
     "@shapeshiftoss/hdwallet-portis": "^1.18.3",
     "@shapeshiftoss/market-service": "^1.8.0",
     "@shapeshiftoss/swapper": "^1.15.1",
-    "@shapeshiftoss/types": "^1.20.0",
-    "@shapeshiftoss/unchained-client": "^4.1.0",
-    "@shapeshiftoss/unchained-tx-parser": "^4.1.0",
+    "@shapeshiftoss/types": "^1.21.0",
+    "@shapeshiftoss/unchained-client": "^5.1.0",
+    "@shapeshiftoss/unchained-tx-parser": "^5.1.0",
     "@types/history": "^4.7.9",
     "@visx/axis": "^2.4.0",
     "@visx/brush": "^2.5.0",
@@ -99,9 +99,9 @@
     "webusb": "^2.2.0"
   },
   "scripts": {
-    "show-linked-packages": "find node_modules node_modules/@* -depth 1 -type l -print",
+    "show-linked-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print",
     "link-packages": "./scripts/link-packages.sh",
-    "unlink-packages": "find node_modules node_modules/@* -depth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
+    "unlink-packages": "find node_modules node_modules/@* -maxdepth 1 -type l -print | awk -F/ '{ printf \"%s/%s\\n\",$2,$3; }' | xargs yarn unlink && yarn install --force",
     "build": "NODE_OPTIONS=--max-old-space-size=4096 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired build && node headers.js && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh",
     "dev": "ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
@@ -136,7 +136,10 @@
     ]
   },
   "jest": {
-    "collectCoverageFrom": []
+    "collectCoverageFrom": [],
+    "setupFiles": [
+      "./src/test/setupGlobalMocks.ts"
+    ]
   },
   "homepage": "./",
   "build": {
@@ -219,8 +222,11 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "fast-json-stable-stringify": "^2.1.0",
+    "msw": "^0.36.5",
+    "msw-storybook-addon": "^1.6.0",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
+    "reselect-tools": "^0.0.7",
     "ssri": "^8.0.1",
     "storybook-dark-mode": "^1.0.8",
     "ts-jest": "^27.0.4",

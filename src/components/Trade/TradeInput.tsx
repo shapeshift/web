@@ -15,6 +15,7 @@ import { FaArrowsAltV } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { RouterProps } from 'react-router-dom'
+import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -133,7 +134,6 @@ export const TradeInput = ({ history }: RouterProps) => {
 
   const handleToast = (description: string) => {
     toast({
-      title: translate('trade.errors.title'),
       description,
       status: 'error',
       duration: 9000,
@@ -164,142 +164,153 @@ export const TradeInput = ({ history }: RouterProps) => {
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)} mb={2}>
-        <FormControl isInvalid={!!errors.fiatAmount}>
-          <Controller
-            render={({ field: { onChange, value } }) => (
-              <NumberFormat
-                inputMode='decimal'
-                thousandSeparator={localeParts.group}
-                decimalSeparator={localeParts.decimal}
-                prefix={localeParts.prefix}
-                suffix={localeParts.postfix}
-                value={value}
-                customInput={FiatInput}
-                isNumericString={true}
-                onValueChange={e => {
-                  onChange(e.value)
-                  if (e.value !== value) {
-                    const action = !!e.value ? TradeActions.FIAT : undefined
-                    if (action) {
-                      setValue('action', action)
-                    } else reset()
-                    getQuote({ amount: e.value, sellAsset, buyAsset, action })
+        <Card variant='unstyled'>
+          <Card.Header textAlign='center' px={0} pt={0}>
+            <Card.Heading>
+              <Text translation='assets.assetCards.assetActions.trade' />
+            </Card.Heading>
+          </Card.Header>
+          <Card.Body pb={0} px={0}>
+            <FormControl isInvalid={!!errors.fiatAmount}>
+              <Controller
+                render={({ field: { onChange, value } }) => (
+                  <NumberFormat
+                    inputMode='decimal'
+                    thousandSeparator={localeParts.group}
+                    decimalSeparator={localeParts.decimal}
+                    prefix={localeParts.prefix}
+                    suffix={localeParts.postfix}
+                    value={value}
+                    customInput={FiatInput}
+                    isNumericString={true}
+                    onValueChange={e => {
+                      onChange(e.value)
+                      if (e.value !== value) {
+                        const action = !!e.value ? TradeActions.FIAT : undefined
+                        if (action) {
+                          setValue('action', action)
+                        } else reset()
+                        getQuote({ amount: e.value, sellAsset, buyAsset, action })
+                      }
+                    }}
+                  />
+                )}
+                name='fiatAmount'
+                control={control}
+                rules={{
+                  validate: {
+                    validNumber: value => !isNaN(Number(value)) || 'Amount must be a number'
                   }
                 }}
               />
-            )}
-            name='fiatAmount'
-            control={control}
-            rules={{
-              validate: {
-                validNumber: value => !isNaN(Number(value)) || 'Amount must be a number'
-              }
-            }}
-          />
-          <FormErrorMessage>{errors.fiatAmount && errors.fiatAmount.message}</FormErrorMessage>
-        </FormControl>
-        <FormControl>
-          <TokenRow<TradeState<ChainTypes, SwapperType>>
-            control={control}
-            fieldName='sellAsset.amount'
-            disabled={isSendMaxLoading}
-            rules={{ required: true }}
-            onInputChange={(amount: string) => {
-              if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
-                const action = amount ? TradeActions.SELL : undefined
-                action ? setValue('action', action) : reset()
-                getQuote({ amount, sellAsset, buyAsset, action })
-              }
-            }}
-            inputLeftElement={
-              <TokenButton
-                onClick={() => history.push('/trade/select/sell')}
-                logo={sellAsset?.currency?.icon}
-                symbol={sellAsset?.currency?.symbol}
+              <FormErrorMessage>{errors.fiatAmount && errors.fiatAmount.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl>
+              <TokenRow<TradeState<ChainTypes, SwapperType>>
+                control={control}
+                fieldName='sellAsset.amount'
+                disabled={isSendMaxLoading}
+                rules={{ required: true }}
+                onInputChange={(amount: string) => {
+                  if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
+                    const action = amount ? TradeActions.SELL : undefined
+                    action ? setValue('action', action) : reset()
+                    getQuote({ amount, sellAsset, buyAsset, action })
+                  }
+                }}
+                inputLeftElement={
+                  <TokenButton
+                    onClick={() => history.push('/trade/select/sell')}
+                    logo={sellAsset?.currency?.icon}
+                    symbol={sellAsset?.currency?.symbol}
+                  />
+                }
+                inputRightElement={
+                  <Button
+                    h='1.75rem'
+                    size='sm'
+                    variant='ghost'
+                    colorScheme='blue'
+                    isDisabled={isSendMaxLoading || !!action}
+                    onClick={onSwapMax}
+                  >
+                    Max
+                  </Button>
+                }
               />
-            }
-            inputRightElement={
-              <Button
-                h='1.75rem'
-                size='sm'
-                variant='ghost'
-                colorScheme='blue'
-                isDisabled={isSendMaxLoading || !!action}
-                onClick={onSwapMax}
-              >
-                Max
-              </Button>
-            }
-          />
-        </FormControl>
-        <FormControl
-          rounded=''
-          my={6}
-          pl={6}
-          pr={2}
-          display='flex'
-          alignItems='center'
-          justifyContent='space-between'
-        >
-          <IconButton
-            onClick={switchAssets}
-            aria-label='Switch'
-            isRound
-            icon={<FaArrowsAltV />}
-            isLoading={!quote || action || error ? true : false}
-            _loading={{ color: 'blue.500' }}
-          />
-          <Box display='flex' alignItems='center' color='gray.500' fontSize='sm' spacing='24px'>
-            {!quote || action || error ? (
-              <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
-            ) : (
-              <>
-                <RawText whiteSpace={'pre'}>{`1 ${sellAsset.currency?.symbol} = `}</RawText>
-                <NumberFormat
-                  value={firstNonZeroDecimal(bnOrZero(quote?.rate))}
-                  displayType={'text'}
-                  thousandSeparator={true}
-                />
-                <RawText whiteSpace={'pre'}>{` ${buyAsset?.currency?.symbol}`}</RawText>
-                <HelperTooltip label={translate('trade.tooltip.rate')} />
-              </>
-            )}
-          </Box>
-        </FormControl>
-        <FormControl mb={6}>
-          <TokenRow<TradeState<ChainTypes, SwapperType>>
-            control={control}
-            fieldName='buyAsset.amount'
-            disabled={isSendMaxLoading}
-            rules={{ required: true }}
-            onInputChange={(amount: string) => {
-              const action = amount ? TradeActions.BUY : undefined
-              action ? setValue('action', action) : reset()
-              getQuote({ amount, sellAsset, buyAsset, action })
-            }}
-            inputLeftElement={
-              <TokenButton
-                onClick={() => history.push('/trade/select/buy')}
-                logo={buyAsset?.currency?.icon}
-                symbol={buyAsset?.currency?.symbol}
+            </FormControl>
+            <FormControl
+              rounded=''
+              my={6}
+              pl={6}
+              pr={2}
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+            >
+              <IconButton
+                onClick={switchAssets}
+                aria-label='Switch'
+                isRound
+                icon={<FaArrowsAltV />}
+                isLoading={!quote || action || error ? true : false}
+                _loading={{ color: 'blue.500' }}
               />
-            }
-          />
-        </FormControl>
-        <Button
-          type='submit'
-          size='lg'
-          width='full'
-          colorScheme={error ? 'red' : 'blue'}
-          isLoading={isSubmitting || isSendMaxLoading || !!action}
-          isDisabled={!isDirty || !isValid || !!action || !wallet}
-          style={{
-            whiteSpace: 'normal',
-            wordWrap: 'break-word'
-          }}
-        >
-          <Text translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'} />
-        </Button>
+              <Box display='flex' alignItems='center' color='gray.500' fontSize='sm' spacing='24px'>
+                {!quote || action || error ? (
+                  <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
+                ) : (
+                  <>
+                    <RawText whiteSpace={'pre'}>{`1 ${sellAsset.currency?.symbol} = `}</RawText>
+                    <NumberFormat
+                      value={firstNonZeroDecimal(bnOrZero(quote?.rate))}
+                      displayType={'text'}
+                      thousandSeparator={true}
+                    />
+                    <RawText whiteSpace={'pre'}>{` ${buyAsset?.currency?.symbol}`}</RawText>
+                    <HelperTooltip label={translate('trade.tooltip.rate')} />
+                  </>
+                )}
+              </Box>
+            </FormControl>
+            <FormControl mb={6}>
+              <TokenRow<TradeState<ChainTypes, SwapperType>>
+                control={control}
+                fieldName='buyAsset.amount'
+                disabled={isSendMaxLoading}
+                rules={{ required: true }}
+                onInputChange={(amount: string) => {
+                  const action = amount ? TradeActions.BUY : undefined
+                  action ? setValue('action', action) : reset()
+                  getQuote({ amount, sellAsset, buyAsset, action })
+                }}
+                inputLeftElement={
+                  <TokenButton
+                    onClick={() => history.push('/trade/select/buy')}
+                    logo={buyAsset?.currency?.icon}
+                    symbol={buyAsset?.currency?.symbol}
+                  />
+                }
+              />
+            </FormControl>
+            <Button
+              type='submit'
+              size='lg'
+              width='full'
+              colorScheme={error ? 'red' : 'blue'}
+              isLoading={isSubmitting || isSendMaxLoading || !!action}
+              isDisabled={!isDirty || !isValid || !!action || !wallet}
+              style={{
+                whiteSpace: 'normal',
+                wordWrap: 'break-word'
+              }}
+            >
+              <Text
+                translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'}
+              />
+            </Button>
+          </Card.Body>
+        </Card>
       </Box>
     </SlideTransition>
   )

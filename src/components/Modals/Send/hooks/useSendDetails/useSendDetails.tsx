@@ -264,38 +264,53 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleInputChange = useCallback(
-    debounce(async (inputValue: string) => {
-      setValue(SendFormFields.SendMax, false)
-      const key =
-        fieldName !== SendFormFields.FiatAmount
-          ? SendFormFields.FiatAmount
-          : SendFormFields.CryptoAmount
-      const amount =
-        fieldName === SendFormFields.FiatAmount
-          ? bnOrZero(bn(inputValue).div(price)).toString()
-          : bnOrZero(bn(inputValue).times(price)).toString()
+    debounce(
+      async (inputValue: string) => {
+        setLoading(true)
+        setValue(SendFormFields.SendMax, false)
+        const key =
+          fieldName !== SendFormFields.FiatAmount
+            ? SendFormFields.FiatAmount
+            : SendFormFields.CryptoAmount
+        const amount =
+          fieldName === SendFormFields.FiatAmount
+            ? bnOrZero(bn(inputValue).div(price)).toString()
+            : bnOrZero(bn(inputValue).times(price)).toString()
 
-      setValue(key, amount)
+        setValue(key, amount)
 
-      const estimatedFees = await estimateFormFees()
-      setValue(SendFormFields.EstimatedFees, estimatedFees)
+        let estimatedFees
 
-      const values = getValues()
+        try {
+          estimatedFees = await estimateFormFees()
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
+        } catch (e) {
+          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+          setLoading(false)
 
-      const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
-      const hasEnoughNativeTokenForGas = nativeAssetBalance
-        .minus(estimatedFees.fast.txFee)
-        .isPositive()
+          throw e
+        }
 
-      if (!hasValidBalance) {
-        setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
-      } else if (!hasEnoughNativeTokenForGas) {
-        setValue(SendFormFields.AmountFieldError, [
-          'modals.send.errors.notEnoughNativeToken',
-          { asset: feeAsset.symbol }
-        ])
-      }
-    }, 1000),
+        const values = getValues()
+
+        const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+        const hasEnoughNativeTokenForGas = nativeAssetBalance
+          .minus(estimatedFees.fast.txFee)
+          .isPositive()
+
+        if (!hasValidBalance) {
+          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        } else if (!hasEnoughNativeTokenForGas) {
+          setValue(SendFormFields.AmountFieldError, [
+            'modals.send.errors.notEnoughNativeToken',
+            { asset: feeAsset.symbol }
+          ])
+        }
+        setLoading(false)
+      },
+      1000,
+      { leading: true }
+    ),
     [asset, fieldName, setValue, estimateFormFees, getValues, cryptoHumanBalance, fiatBalance]
   )
 

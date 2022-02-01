@@ -146,6 +146,18 @@ export const TradeInput = ({ history }: RouterProps) => {
     })
   }
 
+  const getTranslationKey = () => {
+    if (!wallet) {
+      return 'common.connectWallet'
+    }
+
+    if (isValid && !hasValidTradeBalance) {
+      return 'common.insufficientFunds'
+    }
+
+    return error ?? 'trade.previewTrade'
+  }
+
   // TODO:(ryankk) fix error handling
   const error = errors?.quote?.value?.message ?? null
 
@@ -298,15 +310,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 wordWrap: 'break-word'
               }}
             >
-              <Text
-                translation={
-                  !wallet
-                    ? 'common.connectWallet'
-                    : isValid && !hasValidTradeBalance
-                    ? 'common.insufficientFunds'
-                    : error ?? 'trade.previewTrade'
-                }
-              />
+              <Text translation={getTranslationKey()} />
             </Button>
           </Card.Body>
         </Card>

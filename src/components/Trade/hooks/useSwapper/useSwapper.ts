@@ -49,11 +49,20 @@ export enum TRADE_ERRORS {
   INSUFFICIENT_FUNDS_FOR_LIMIT = 'trade.errors.insufficientFundsForLimit',
   INSUFFICIENT_FUNDS_FOR_AMOUNT = 'trade.errors.insufficientFundsForAmount',
   TRANSACTION_REJECTED = 'trade.errors.transactionRejected',
+  BROADCAST_FAILED = 'trade.errors.broadcastFailed',
   NO_LIQUIDITY = 'trade.errors.noLiquidityError',
   BALANCE_TO_LOW = 'trade.errors.balanceToLow',
   DEX_TRADE_FAILED = 'trade.errors.dexTradeFailed',
   QUOTE_FAILED = 'trade.errors.quoteFailed',
-  OVER_SLIP_SCORE = 'trade.errors.overSlipScore'
+  OVER_SLIP_SCORE = 'trade.errors.overSlipScore',
+  FAILED_QUOTE_EXECUTED = 'trade.errors.failedQuoteExecuted',
+  SELL_ASSET_REQUIRED = 'trade.errors.sellAssetRequired',
+  SELL_AMOUNT_REQUIRED = 'trade.errors.sellAmountRequired',
+  DEPOSIT_ADDRESS_REQUIRED = 'trade.errors.depositAddressRequired',
+  SELL_ASSET_NETWORK_AND_SYMBOL_REQUIRED = 'trade.errors.sellAssetNetworkAndSymbolRequired',
+  SIGNING_FAILED = 'trade.errors.signing.failed',
+  SIGNING_REQUIRED = 'trade.errors.signing.required',
+  HDWALLET_INVALID_CONFIG = 'trade.errors.hdwalletInvalidConfig'
 }
 
 // TODO: (ryankk) revisit the logic inside useSwapper post bounty to see

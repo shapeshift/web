@@ -70,9 +70,14 @@
       "disconnect": "Disconnect"
     }
   },
-  "earn": {
+  "defi": {
     "earn": "Earn",
-    "earnBody": "Earn interest on your crypto assets.",
+    "defi": "DeFi",
+    "defiBody": "Explore a growing universe of DeFi opportunities.",
+    "netWorth": "Net Worth",
+    "walletBalance": "Wallet Balance",
+    "earnBalance": "Earn Balance",
+    "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "overview": "Overview",
     "liquidityPools": "Liquidity Pools",
     "stakingVaults": "Staking & Vaults",
@@ -104,7 +109,9 @@
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",
+    "accounts": "Accounts",
     "earn": "Earn",
+    "defi": "DeFi",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token"
   },
@@ -133,7 +140,7 @@
     "rate": "Rate",
     "minerFee": "Miner Fee",
     "shapeshiftFee": "ShapeShift Fee",
-    "confirmTrade": "Confirm Trade",
+    "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
@@ -155,13 +162,24 @@
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
       "transactionRejected": "User has rejected the transaction",
+      "broadcastFailed": "An error occured while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
       "noLiquidityError": "Not enough liquidity available",
       "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
       "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
       "dexTradeFailed": "Trade Failed, Tokens Returned",
-      "quoteFailed": "An error occurred getting a quote for your trade."
+      "quoteFailed": "An error occurred getting a quote for your trade.",
+      "failedQuoteExecuted": "Cannot execute a failed quote",
+      "sellAssetRequired": "Cannot execute a quote without an asset to sell",
+      "sellAmountRequired": "Cannot execute a quote without an amount to sell",
+      "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
+      "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
+      "hdwalletInvalidConfig": "An error occured communicating with your hardware wallet",
+      "signing": {
+        "failed": "An error occured signing the transaction",
+        "required": "A signed transaction is required"
+      }
     }
   },
   "modals": {
@@ -250,7 +268,7 @@
       "slippageSettings": "Slippage Settings"
     },
     "approve": {
-      "header": "Allow ShapeShift.io to Spend Your %{asset}",
+      "header": "Allow ShapeShift DAO Router to spend your %{asset}",
       "body": "We need your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be separate gas fee to deposit.",
@@ -268,7 +286,7 @@
         "estimatedReturns": "Estimated Yearly Returns*",
         "preFooter": "Rewards accrue automatically"
       },
-      "withdrawFrom": "Withdraw From",
+      "withdrawFrom": "Withdrawal From",
       "withdrawTo": "Withdraw To",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
@@ -290,7 +308,8 @@
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "gasUsed": "Total Gas Fee",
-      "continue": "View My Position",
+      "continue": "View Transaction",
+      "position": "View Position",
       "viewAsset": "View Asset",
       "close": "Close"
     },
@@ -384,8 +403,11 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your seed phrase to import an existing wallet",
-        "button": "Next"
+        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
+        "button": "Next",
+        "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
+        "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",
+        "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
       },
       "password": {
         "header": "Enter Your Password",
@@ -393,7 +415,7 @@
         "button": "Next"
       },
       "create": {
-        "header": "Your Backup Seed Phrase",
+        "header": "Your Secret Recovery Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
         "button": "Next",
         "hideWords": "Hide Words",
@@ -401,7 +423,7 @@
       },
       "start": {
         "header": "ShapeShift Wallet",
-        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet.",
+        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a Secret Recovery Phrase, or create a new wallet.",
         "import": "Import a wallet",
         "create": "Create a new wallet",
         "load": "Saved wallets"
@@ -413,7 +435,7 @@
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {
-        "header": "Verify Your Backup Seed Phrase",
+        "header": "Verify Your Secret Recovery Phrase",
         "body": "Which of these is the",
         "body2": " word",
         "body3": "in your secret phrase.",
@@ -465,6 +487,13 @@
       },
       "assetHistory": {
         "transactionHistory": "Transaction History"
+      },
+      "assetAccounts": {
+        "account": "Account",
+        "assetAllocation": "Asset Allocation",
+        "allocation": "Allocation",
+        "amount": "Amount",
+        "value": "Value"
       }
     },
     "assetCards": {
@@ -473,6 +502,9 @@
         "sell": "Sell",
         "trade": "Trade"
       },
+      "accountTokens": "Account Tokens",
+      "showTokens": "Show Tokens (%{amount})",
+      "hideTokens": "Hide Tokens (%{amount})",
       "underlyingAssets": "Underlying Assets",
       "rewards": {
         "farmingRewards": "Farming Rewards",
@@ -484,9 +516,12 @@
       },
       "accounts": "Accounts",
       "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking or depositing your assets into a vault.",
+      "stakingBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
       "pools": "Pools"
     }
+  },
+  "accounts": {
+    "accounts": "Accounts"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
 }

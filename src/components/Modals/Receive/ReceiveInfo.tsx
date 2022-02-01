@@ -17,65 +17,61 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { Asset } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { RouteComponentProps, useHistory } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ReduxState } from 'state/reducer'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { ReceiveRoutes } from './Receive'
 
 type ReceivePropsType = {
   asset: Asset
-}
+  accountId: AccountSpecifier
+} & RouteComponentProps
 
-export const ReceiveInfo = ({ asset }: ReceivePropsType) => {
-  const { chain, name, symbol } = asset
+export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
   const history = useHistory()
+  const { chain, name, symbol } = asset
 
   const { wallet } = state
   const chainAdapter = chainAdapterManager.byChain(chain)
 
-  const currentAccountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
+  const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
 
   useEffect(() => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
-      const accountParams = currentAccountType
-        ? utxoAccountParams(asset, currentAccountType, 0)
-        : {}
+      const accountParams = utxoParams
       setReceiveAddress(
         await chainAdapter.getAddress({
           wallet,
-          accountType: currentAccountType,
+          accountType,
           ...accountParams
         })
       )
     })()
-  }, [setReceiveAddress, currentAccountType, asset, wallet, chainAdapter])
+  }, [setReceiveAddress, accountType, asset, wallet, chainAdapter, utxoParams])
 
   const handleVerify = async () => {
-    const accountParams = currentAccountType ? utxoAccountParams(asset, currentAccountType, 0) : {}
+    const accountParams = utxoParams
 
     if (!(wallet && chainAdapter && receiveAddress)) return
     const deviceAddress = await chainAdapter.getAddress({
       wallet,
       showOnDevice: true,
-      accountType: currentAccountType,
+      accountType,
       ...accountParams
     })
 

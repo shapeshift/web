@@ -415,7 +415,7 @@ ipcMain.on('onStartBridge', async event => {
 ipcMain.on('onStartApp', async event => {
   const tag = TAG + ' | onStartApp | '
   try {
-    log.info(tag, 'event: onStartApp: ', event)
+    log.info(tag, 'event: onStartApp: ')
     try {
       createTray(event)
     } catch (e) {

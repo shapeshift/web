@@ -1,4 +1,5 @@
 import { Box, BoxProps } from '@chakra-ui/react'
+import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
 
 type MiddleEllipsisProps = {
   address: string
@@ -8,11 +9,7 @@ type MiddleEllipsisProps = {
 export const MiddleEllipsis = ({ address, shouldShorten = true, ...rest }: MiddleEllipsisProps) => {
   return (
     <Box whiteSpace='nowrap' {...rest}>
-      <span>{shouldShorten ? shortenAddress(address) : address}</span>
+      <span>{shouldShorten ? firstFourLastFour(address) : address}</span>
     </Box>
   )
-}
-
-export function shortenAddress(address: string): string {
-  return `${address.substring(0, 6)}...${address.slice(-4)}`
 }

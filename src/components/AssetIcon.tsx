@@ -10,10 +10,11 @@ type AssetIconProps = {
 
 // The icon here is as the placeholder while the icon loads, or if it fails to load.
 
-export const AssetIcon = ({ symbol, ...rest }: AssetIconProps) => {
+export const AssetIcon = ({ symbol, src, ...rest }: AssetIconProps) => {
+  const imgSrc = src ? src : `https://static.coincap.io/assets/icons/256/${symbol}.png`
   return (
     <Avatar
-      src={`https://static.coincap.io/assets/icons/256/${symbol}.png`}
+      src={imgSrc}
       bg={useColorModeValue('gray.200', 'gray.700')}
       icon={<FoxIcon boxSize='16px' color={useColorModeValue('gray.500', 'gray.500')} />}
       {...rest}

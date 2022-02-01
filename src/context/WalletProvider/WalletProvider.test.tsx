@@ -22,7 +22,8 @@ jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,
-  deviceId: ''
+  deviceId: '',
+  meta: { label: '', address: '' }
 }
 const setup = async () => {
   // @ts-ignore

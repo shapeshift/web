@@ -113,8 +113,10 @@ export const useFormSend = () => {
         })
       } catch (error) {
         toast({
-          title: translate('modals.send.sent'),
-          description: translate('modals.send.errorTitle'),
+          title: translate('modals.send.errorTitle', {
+            asset: data.asset.name
+          }),
+          description: translate('modals.send.errors.transactionRejected'),
           status: 'error',
           duration: 9000,
           isClosable: true,

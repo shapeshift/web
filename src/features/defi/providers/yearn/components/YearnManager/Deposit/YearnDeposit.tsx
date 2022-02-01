@@ -335,8 +335,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.vault.apy?.net_apy
-    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(apy)
+    const apy = state.vault.metadata?.apy?.net_apy
+    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -431,7 +431,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   <Text translation='modals.confirm.withdrawFrom' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -528,7 +528,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>

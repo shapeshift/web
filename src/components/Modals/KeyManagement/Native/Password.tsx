@@ -52,7 +52,10 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         deviceId
       })
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-      dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon, deviceId } })
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: { wallet, name, icon, deviceId, meta: { label: vault.meta.get('name') as string } }
+      })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       close()
     } catch (e) {

@@ -31,7 +31,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
     isConnected ? send.open({ asset: asset, accountId }) : handleWalletModalOpen()
   const handleReceiveClick = () =>
     isConnected ? receive.open({ asset: asset, accountId }) : handleWalletModalOpen()
-  const notEnoughCryptoToSell = (): boolean => bnOrZero(cryptoBalance).eq(0)
+  const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   return (
     <ButtonGroup
@@ -42,9 +42,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
       <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
         <Tooltip
           label={
-            notEnoughCryptoToSell()
-              ? translate('common.insufficientFunds')
-              : translate('common.send')
+            !hasValidBalance ? translate('common.insufficientFunds') : translate('common.send')
           }
           fontSize='md'
           px={4}
@@ -57,7 +55,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
               width='full'
               icon={<ArrowUpIcon />}
               aria-label={translate('common.send')}
-              isDisabled={notEnoughCryptoToSell()}
+              isDisabled={!hasValidBalance}
             />
           </div>
         </Tooltip>

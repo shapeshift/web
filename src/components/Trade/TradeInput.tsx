@@ -59,11 +59,10 @@ export const TradeInput = ({ history }: RouterProps) => {
     state: { wallet }
   } = useWallet()
 
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoHumanBalanceByAssetId(state, buyAsset?.currency?.caip19)
+  const sellAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, sellAsset?.currency?.caip19)
   )
-  const enoughCryptoToSell = (): boolean =>
-    bnOrZero(cryptoBalance).isGreaterThan(buyAsset?.amount || 0)
+  const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -300,7 +299,7 @@ export const TradeInput = ({ history }: RouterProps) => {
               px={4}
               hasArrow
               isDisabled={
-                !isValid || isSubmitting || isSendMaxLoading || !!action || enoughCryptoToSell()
+                !isValid || isSubmitting || isSendMaxLoading || !!action || hasValidBalance
               }
             >
               <div>
@@ -310,7 +309,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   width='full'
                   colorScheme={error ? 'red' : 'blue'}
                   isLoading={isSubmitting || isSendMaxLoading || !!action}
-                  isDisabled={!isDirty || !isValid || !!action || !wallet || !enoughCryptoToSell()}
+                  isDisabled={!isDirty || !isValid || !!action || !wallet || !hasValidBalance}
                   style={{
                     whiteSpace: 'normal',
                     wordWrap: 'break-word'

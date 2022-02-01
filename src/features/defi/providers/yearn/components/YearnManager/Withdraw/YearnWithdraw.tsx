@@ -88,10 +88,10 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !tokenId) return
+        if (!walletState.wallet || !vaultAddress) return
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId),
+          api.findByDepositVaultAddress(vaultAddress),
           api.pricePerShare({ vaultAddress })
         ])
         dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
@@ -105,7 +105,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!state.userAddress || !tokenId) return

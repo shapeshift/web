@@ -1,4 +1,12 @@
-import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  FormControl,
+  FormErrorMessage,
+  IconButton,
+  Tooltip,
+  useToast
+} from '@chakra-ui/react'
 import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -23,6 +31,8 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 type TS = TradeState<ChainTypes, SwapperType>
 
@@ -48,6 +58,12 @@ export const TradeInput = ({ history }: RouterProps) => {
   const {
     state: { wallet }
   } = useWallet()
+
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoHumanBalanceByAssetId(state, buyAsset?.currency?.caip19)
+  )
+  const enoughCryptoToSell = (): boolean =>
+    bnOrZero(cryptoBalance).isGreaterThan(buyAsset?.amount || 0)
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -278,22 +294,34 @@ export const TradeInput = ({ history }: RouterProps) => {
                 }
               />
             </FormControl>
-            <Button
-              type='submit'
-              size='lg'
-              width='full'
-              colorScheme={error ? 'red' : 'blue'}
-              isLoading={isSubmitting || isSendMaxLoading || !!action}
-              isDisabled={!isDirty || !isValid || !!action || !wallet}
-              style={{
-                whiteSpace: 'normal',
-                wordWrap: 'break-word'
-              }}
+            <Tooltip
+              label={translate('common.insufficientFunds')}
+              fontSize='md'
+              px={4}
+              hasArrow
+              isDisabled={
+                !isValid || isSubmitting || isSendMaxLoading || !!action || enoughCryptoToSell()
+              }
             >
-              <Text
-                translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'}
-              />
-            </Button>
+              <div>
+                <Button
+                  type='submit'
+                  size='lg'
+                  width='full'
+                  colorScheme={error ? 'red' : 'blue'}
+                  isLoading={isSubmitting || isSendMaxLoading || !!action}
+                  isDisabled={!isDirty || !isValid || !!action || !wallet || !enoughCryptoToSell()}
+                  style={{
+                    whiteSpace: 'normal',
+                    wordWrap: 'break-word'
+                  }}
+                >
+                  <Text
+                    translation={!wallet ? 'common.connectWallet' : error ?? 'trade.previewTrade'}
+                  />
+                </Button>
+              </div>
+            </Tooltip>
           </Card.Body>
         </Card>
       </Box>

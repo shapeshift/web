@@ -31,6 +31,10 @@ const caip2toCaip19: Record<string, string> = {
   [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 }
 
+export const assetIdtoChainId = (caip19: CAIP19): string => {
+  return caip19.split('/')[0]
+}
+
 export const accountIdToChainId = (accountId: AccountSpecifier): CAIP2 => {
   // accountId = 'eip155:1:0xdef1...cafe
   const [chain, network] = accountId.split(':')
@@ -120,6 +124,14 @@ export const findAccountsByAssetId = (
     },
     []
   )
+
+  // If we don't find an account that has the given asset,
+  // return the account(s) for that given assets chain
+  if (result.length === 0) {
+    return Object.keys(portfolioAccounts).filter(
+      accountId => assetIdtoChainId(assetId) === accountIdToChainId(accountId)
+    )
+  }
   return result
 }
 

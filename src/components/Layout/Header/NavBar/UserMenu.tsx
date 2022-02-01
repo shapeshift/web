@@ -19,10 +19,13 @@ import {
   useColorModeValue,
   useMediaQuery
 } from '@chakra-ui/react'
+import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { ensReverseLookup } from 'lib/ens'
 import { breakpoints } from 'theme/theme'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
@@ -89,14 +92,50 @@ type WalletButtonProps = {
   onConnect: () => void
 } & Pick<InitialState, 'walletInfo'>
 
-const WalletButton = ({ isConnected, walletInfo, onConnect }: WalletButtonProps) => {
+const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnect }) => {
+  const [walletLabel, setWalletLabel] = useState('')
+  const [shouldShorten, setShouldShorten] = useState(true)
+  const bgColor = useColorModeValue('gray.300', 'gray.800')
+
+  useEffect(() => {
+    setShouldShorten(true)
+    if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
+    if (walletInfo.meta.address) {
+      ensReverseLookup(walletInfo.meta.address).then(ens => {
+        if (!ens.error) {
+          setShouldShorten(false)
+          return setWalletLabel(ens.name)
+        }
+        setWalletLabel(walletInfo?.meta?.address ?? '')
+      })
+      return
+    }
+    if (walletInfo.meta.label) {
+      setShouldShorten(false)
+      return setWalletLabel(walletInfo.meta.label)
+    }
+  }, [walletInfo])
+
   return Boolean(walletInfo?.deviceId) ? (
     <Button
       onClick={onConnect}
       leftIcon={<WalletImage walletInfo={walletInfo} />}
       rightIcon={isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
     >
-      {walletInfo?.name}
+      {walletLabel ? (
+        <MiddleEllipsis
+          rounded='lg'
+          fontSize='sm'
+          p='1'
+          pl='2'
+          pr='2'
+          shouldShorten={shouldShorten}
+          bgColor={bgColor}
+          address={walletLabel}
+        />
+      ) : (
+        <RawText>{walletInfo?.name}</RawText>
+      )}
     </Button>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>

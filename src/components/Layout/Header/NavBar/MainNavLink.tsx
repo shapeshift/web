@@ -15,7 +15,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
   const location = useLocation()
   const active = location?.pathname.includes(href ?? '')
   return (
-    <Tooltip label={label} fontSize='md' px={4}>
+    <Tooltip label={label} fontSize='md' px={4} hasArrow>
       <IconButton
         icon={icon}
         as={ReactRouterLink}

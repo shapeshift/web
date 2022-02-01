@@ -112,10 +112,10 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !tokenId) return
+        if (!walletState.wallet || !vaultAddress) return
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId),
+          api.findByDepositVaultAddress(vaultAddress),
           api.pricePerShare({ vaultAddress })
         ])
         dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
@@ -129,7 +129,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getApproveGasEstimate = async () => {
     if (!state.userAddress || !tokenId) return

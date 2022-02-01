@@ -61,8 +61,8 @@ export class YearnVaultApi {
     return this.yearnSdk.vaults.get()
   }
 
-  findByDepositTokenId(tokenId: string) {
-    const vault = this.vaults.find(item => toLower(item.tokenId) === toLower(tokenId))
+  findByDepositVaultAddress(vaultAddress: string) {
+    const vault = this.vaults.find(item => toLower(item.address) === toLower(vaultAddress))
     if (!vault) return null
     return vault
   }

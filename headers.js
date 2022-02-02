@@ -33,7 +33,9 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
     process.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-    process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
+    process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL,
+    'https://api.gem.co/institutions/coinify/supported_currencies',
+    'https://api.gem.co/institutions/wyre/supported_currencies'
   ],
   'frame-src': [
     'https://fwd.metamask.io/',
@@ -47,7 +49,8 @@ const cspMeta = Object.entries({
     'https://assets.coincap.io/assets/icons/',
     'https://static.coincap.io/assets/icons/',
     'https://assets.coingecko.com/coins/images/',
-    'https://rawcdn.githack.com/yearn/yearn-assets/'
+    'https://rawcdn.githack.com/yearn/yearn-assets/',
+    'https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/'
   ],
   'script-src': [
     "'self'",

@@ -11,6 +11,8 @@ import { Asset } from 'pages/Assets/Asset'
 import { AssetRightSidebar } from 'pages/Assets/AssetRightSidebar'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetSidebar } from 'pages/Assets/AssetSidebar'
+import BuySell from 'pages/BuySell/BuySell'
+import GemBuySell from 'pages/BuySell/GemBuySell'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
@@ -31,6 +33,20 @@ export const routes: Array<NestedRoute> = [
     icon: <DashboardIcon />,
     main: <Dashboard />,
     rightSidebar: <DashboardSidebar />
+  },
+  {
+    path: '/buysell',
+    label: 'buysell',
+    icon: <DashboardIcon />,
+    main: <BuySell />,
+    routes: [
+      {
+        path: '/gem',
+        label: 'Gem on Ramp',
+        icon: <DashboardIcon />,
+        main: <GemBuySell />
+      }
+    ]
   },
   {
     path: '/assets',

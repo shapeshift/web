@@ -6,7 +6,6 @@ import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useFeature } from 'hooks/useFeature/useFeature'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -22,7 +21,7 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
-  const earnFeature = useFeature(FeatureFlagEnum.Yearn)
+  const earnFeature = FeatureFlagEnum.Yearn
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   const yearnVaults = useYearnVaults()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account

@@ -2,13 +2,12 @@ import { Box, Stack } from '@chakra-ui/react'
 import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useFeature } from 'hooks/useFeature/useFeature'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
 
 export const AllEarnOpportunities = () => {
-  const earnFeature = useFeature(FeatureFlagEnum.Yearn)
+  const earnFeature = FeatureFlagEnum.Yearn
   const vaults = useYearnVaults()
 
   if (!earnFeature) return null

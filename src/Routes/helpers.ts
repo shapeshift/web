@@ -14,6 +14,7 @@ import React from 'react'
 
 export type Route = {
   path: string
+  requiresWallet?: boolean
   label: string
   main: React.ReactNode
   leftSidebar?: React.ReactNode

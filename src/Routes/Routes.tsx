@@ -49,6 +49,7 @@ export const routes: Array<NestedRoute> = [
   },
   {
     path: '/accounts',
+    requiresWallet: true,
     label: 'navBar.accounts',
     main: <Accounts />,
     icon: <FaWallet color='inherit' />,
@@ -131,16 +132,26 @@ export const Routes = () => {
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
-        return (
-          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
-            <Layout route={route} />
-          </PrivateRoute>
-        )
+        if (route.requiresWallet) {
+          return (
+            <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
+              <Layout route={route} />
+            </PrivateRoute>
+          )
+        } else {
+          return (
+            <Route key={index} path={route.path} exact >
+              <Layout route={route} />
+            </Route>
+          )
+        }
       })}
       <Route path='/connect-wallet'>
         <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
       </Route>
-      <Redirect from='/' to='/dashboard' />
+
+      !state.isConnected && <Redirect from='/' to='/connect-wallet' />
+      state.isConnected && <Redirect from='/' to='/dashboard' /> :
       <Route component={NotFound} />
     </Switch>
   )

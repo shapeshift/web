@@ -7,9 +7,9 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetHeader } from './AssetHeader/AssetHeader'
+import { StakingOpportunities } from './Delegate/StakingOpportunities'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
-import { StakingOpportunities } from './Delegate/StakingOpportunities'
 
 type AssetDetailsProps = {
   assetId: CAIP19

@@ -7,6 +7,7 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { Text } from 'components/Text'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
@@ -16,6 +17,9 @@ import {
 import { AccountList } from './components/AccountList/AccountList'
 
 export const Portfolio = () => {
+  const {
+    state: { isConnected }
+  } = useWallet()
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [percentChange, setPercentChange] = useState(0)
 
@@ -35,22 +39,26 @@ export const Portfolio = () => {
           width='full'
           flexDir={{ base: 'column', md: 'row' }}
         >
-          <Box mb={{ base: 6, md: 0 }}>
-            <Card.Heading as='div' color='gray.500'>
-              <Skeleton isLoaded={isLoaded}>
-                <Text translation='dashboard.portfolio.portfolioBalance' />
-              </Skeleton>
-            </Card.Heading>
+          {isConnected && (
+            <>
+              <Box mb={{ base: 6, md: 0 }}>
+                <Card.Heading as='div' color='gray.500'>
+                  <Skeleton isLoaded={isLoaded}>
+                    <Text translation='dashboard.portfolio.portfolioBalance' />
+                  </Skeleton>
+                </Card.Heading>
 
-            <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
+                <Card.Heading as='h2' fontSize='4xl' lineHeight='1' mt={2}>
+                  <Skeleton isLoaded={isLoaded}>
+                    <Amount.Fiat value={totalBalance} />
+                  </Skeleton>
+                </Card.Heading>
+              </Box>
               <Skeleton isLoaded={isLoaded}>
-                <Amount.Fiat value={totalBalance} />
+                <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
               </Skeleton>
-            </Card.Heading>
-          </Box>
-          <Skeleton isLoaded={isLoaded}>
-            <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
-          </Skeleton>
+            </>
+          )}
         </Card.Header>
         <BalanceChart
           assetIds={assetIds}
@@ -59,16 +67,18 @@ export const Portfolio = () => {
           setPercentChange={setPercentChange}
         />
       </Card>
-      <Card>
-        <Card.Header>
-          <Card.Heading>
-            <Text translation='dashboard.portfolio.yourAssets' />
-          </Card.Heading>
-        </Card.Header>
-        <Card.Body px={2} pt={0}>
-          <AccountList />
-        </Card.Body>
-      </Card>
+      {isConnected && (
+        <Card>
+          <Card.Header>
+            <Card.Heading>
+              <Text translation='dashboard.portfolio.yourAssets' />
+            </Card.Heading>
+          </Card.Header>
+          <Card.Body px={2} pt={0}>
+            <AccountList />
+          </Card.Body>
+        </Card>
+      )}
     </Stack>
   )
 }

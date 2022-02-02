@@ -109,6 +109,11 @@ export const selectAssetByCAIP19 = createSelector(
 export const selectAssets = (state: ReduxState) => state.assets.byId
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 
+export const selectAssetsLoading = createSelector(
+  selectAssetIds,
+  (ids): boolean => !Boolean(ids.length)
+)
+
 export const selectAssetsByMarketCap = createSelector(
   selectAssets,
   selectMarketDataIds,

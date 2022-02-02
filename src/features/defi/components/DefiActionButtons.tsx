@@ -7,6 +7,7 @@ import {
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const DefiActionButtons = () => {
   const translate = useTranslate()
@@ -26,6 +27,10 @@ export const DefiActionButtons = () => {
     }
   }
 
+  const {
+    state: { isConnected }
+  } = useWallet()
+
   return (
     <ButtonGroup variant='ghost' colorScheme='blue' px={6} pt={6}>
       <Button
@@ -37,6 +42,7 @@ export const DefiActionButtons = () => {
       <Button
         isActive={match?.params?.action === DefiAction.Withdraw}
         onClick={() => handleClick(DefiAction.Withdraw)}
+        isDisabled={!isConnected}
       >
         {translate('common.withdraw')}
       </Button>

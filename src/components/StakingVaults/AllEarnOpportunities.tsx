@@ -11,7 +11,7 @@ export const AllEarnOpportunities = () => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
   const vaults = useYearnVaults()
 
-  if (!earnFeature) return null
+  if (!earnFeature || !vaults) return null
 
   return (
     <Card>

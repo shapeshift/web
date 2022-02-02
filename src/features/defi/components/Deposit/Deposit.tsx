@@ -267,6 +267,7 @@ export const Deposit = ({
                     size='sm'
                     variant='ghost'
                     textTransform='uppercase'
+                    isDisabled={!isConnected}
                     onClick={handleInputToggle}
                     width='full'
                   >
@@ -278,6 +279,7 @@ export const Deposit = ({
                     render={({ field: { onChange, value } }) => {
                       return (
                         <NumberFormat
+                          isDisabled={!isConnected}
                           customInput={CryptoInput}
                           isNumericString={true}
                           decimalSeparator={localeParts.decimal}
@@ -305,6 +307,7 @@ export const Deposit = ({
                     render={({ field: { onChange, value } }) => {
                       return (
                         <NumberFormat
+                          isDisabled={!isConnected}
                           customInput={CryptoInput}
                           isNumericString={true}
                           decimalSeparator={localeParts.decimal}
@@ -355,10 +358,12 @@ export const Deposit = ({
                   </InputRightElement>
                 )}
               </InputGroup>
+
               <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
                 {percentOptions.map(option => (
                   <Button
                     isActive={option === percent}
+                    isDisabled={!isConnected}
                     key={option}
                     variant='ghost'
                     colorScheme='blue'
@@ -378,6 +383,7 @@ export const Deposit = ({
                   </Button>
                 ))}
               </ButtonGroup>
+
               <Row px={4} py={4}>
                 <Row.Label>{translate('modals.deposit.estimatedReturns')}</Row.Label>
                 <Row.Value>

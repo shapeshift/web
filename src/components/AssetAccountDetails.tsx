@@ -1,7 +1,9 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { useSelector } from 'react-redux'
 import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
+import { selectAssetsLoading } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -16,6 +18,8 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
+  const loading = useSelector(selectAssetsLoading)
+  if (loading) return null
   return (
     <Page style={{ width: '100%' }}>
       <Flex flexGrow={1} zIndex={2} flexDir={{ base: 'column', lg: 'row' }}>

@@ -1,5 +1,7 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import React, {
   createContext,
@@ -32,13 +34,21 @@ type GenericAdapter = {
 }
 
 type Adapters = Map<KeyManager, GenericAdapter>
+
+export type WalletInfo = {
+  name: string
+  icon: ComponentWithAs<'svg', IconProps>
+  deviceId: string
+  meta?: { label?: string; address?: string }
+}
+
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
   wallet: HDWallet | null
   type: KeyManager | null
   initialRoute: string | null
-  walletInfo: { name: string; icon: ComponentWithAs<'svg', IconProps>; deviceId: string } | null
+  walletInfo: WalletInfo | null
   isConnected: boolean
   modal: boolean
 }
@@ -70,6 +80,7 @@ export type ActionTypes =
         name: string
         icon: ComponentWithAs<'svg', IconProps>
         deviceId: string
+        meta?: { label: string }
       }
     }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
@@ -83,15 +94,21 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      return {
+      const stateData = {
         ...state,
         wallet: action.payload.wallet,
         walletInfo: {
           name: action?.payload?.name,
           icon: action?.payload?.icon,
-          deviceId: action?.payload?.deviceId
+          deviceId: action?.payload?.deviceId,
+          meta: {
+            label: action.payload.meta?.label ?? '',
+            address: (action.payload.wallet as MetaMaskHDWallet | PortisHDWallet).ethAddress ?? ''
+          }
         }
       }
+
+      return stateData
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:

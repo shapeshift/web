@@ -81,7 +81,7 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
                 color='blue.500'
                 href={`${txDetails.explorerTxLink}${txDetails.tx.txid}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.tx.txid}</MiddleEllipsis>
+                <MiddleEllipsis address={txDetails.tx.txid} />
               </Link>
             </Row.Value>
           </Row>
@@ -161,9 +161,9 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
               <Link
                 isExternal
                 color='blue.500'
-                href={`${txDetails.explorerAddressLink}${txDetails.to ?? txDetails.from}`}
+                href={`${txDetails.explorerAddressLink}${txDetails.ensTo ?? txDetails.to}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.to ?? txDetails.from}</MiddleEllipsis>
+                <MiddleEllipsis address={txDetails.ensTo ?? txDetails.to} />
               </Link>
             </Row.Value>
           </Row>

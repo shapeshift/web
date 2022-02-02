@@ -43,6 +43,7 @@ export const marketData = createSlice({
   name: 'marketData',
   initialState,
   reducers: {
+    clear: () => initialState,
     setMarketData: (state, { payload }) => {
       state.byId = { ...state.byId, ...payload } // upsert
       const ids = Array.from(new Set([...state.ids, ...Object.keys(payload)]))
@@ -79,21 +80,19 @@ export const marketApi = createApi({
       }
     }),
     findByCaip19: build.query<MarketCapResult, CAIP19>({
-      queryFn: async (caip19: CAIP19) => {
+      queryFn: async (caip19: CAIP19, baseQuery) => {
         try {
-          const marketData = await findByCaip19({ caip19 })
-          if (!marketData) throw new Error()
-          const data = { [caip19]: marketData }
+          const currentMarketData = await findByCaip19({ caip19 })
+          if (!currentMarketData) throw new Error()
+          const data = { [caip19]: currentMarketData }
+          // dispatching new market data, this is done here instead of it being done in onCacheEntryAdded
+          // to prevent edge cases like #858
+          baseQuery.dispatch(marketData.actions.setMarketData(data))
           return { data }
         } catch (e) {
           const error = { data: `findByCaip19: no market data for ${caip19}`, status: 404 }
           return { error }
         }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const data = getCacheEntry().data
-        data && dispatch(marketData.actions.setMarketData(data))
       }
     }),
     findPriceHistoryByCaip19: build.query<HistoryData[], FindPriceHistoryByCaip19Args>({

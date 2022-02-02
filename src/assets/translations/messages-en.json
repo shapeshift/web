@@ -12,6 +12,7 @@
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
     "invalidAddress": "Invalid Address",
+    "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
@@ -218,8 +219,11 @@
       "tokenAddress": "Token Address",
       "scanQrCode": "Scan QR Code",
       "sent": "%{asset} sent",
-      "errorTitle": "Something went wrong",
-      "errorDescription": "Your send of %{asset} failed.",
+      "errorTitle": "Your send of %{asset} failed",
+      "errors": {
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas",
+        "transactionRejected": "User has rejected the transaction"
+      },
       "confirm": {
         "sendAsset": "Send %{asset}",
         "send": "Send",
@@ -430,7 +434,7 @@
       "success": {
         "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
         "header": "Wallet Connected",
-        "success": "Your wallet has been connected",
+        "success": "You can now close this window or it will auto-close shortly",
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {

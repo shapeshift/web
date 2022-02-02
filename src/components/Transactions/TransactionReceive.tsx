@@ -86,7 +86,7 @@ export const TransactionReceive = ({
                 color='blue.500'
                 href={`${txDetails.explorerTxLink}${txDetails.tx.txid}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.tx.txid}</MiddleEllipsis>
+                <MiddleEllipsis address={txDetails.tx.txid} />
               </Link>
             </Row.Value>
           </Row>
@@ -166,9 +166,9 @@ export const TransactionReceive = ({
               <Link
                 isExternal
                 color='blue.500'
-                href={`${txDetails.explorerAddressLink}${txDetails.to ?? txDetails.from}`}
+                href={`${txDetails.explorerAddressLink}${txDetails.ensFrom ?? txDetails.from}`}
               >
-                <MiddleEllipsis maxWidth='180px'>{txDetails.to ?? txDetails.from}</MiddleEllipsis>
+                <MiddleEllipsis address={txDetails.ensFrom ?? txDetails.from} />
               </Link>
             </Row.Value>
           </Row>

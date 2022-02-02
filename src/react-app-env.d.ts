@@ -2,5 +2,5 @@
 
 // Components w/o types
 declare module 'react-qr-reader'
-declare module 'react-middle-ellipsis'
 declare module 'reselect-tools'
+declare module '@ensdomains/ensjs'

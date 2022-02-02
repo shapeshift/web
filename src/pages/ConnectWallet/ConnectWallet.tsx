@@ -1,11 +1,12 @@
 import { Button } from '@chakra-ui/button'
+import { Stack } from '@chakra-ui/react'
 import { DarkMode } from '@chakra-ui/color-mode'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Badge, Center, Circle, Flex } from '@chakra-ui/layout'
 import { Dispatch, useEffect } from 'react'
 import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link as RouterLink } from 'react-router-dom'
 import Orbs from 'assets/orbs.svg'
 import OrbsStatic from 'assets/orbs-static.png'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -81,15 +82,22 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
           textAlign='center'
           translation='connectWalletPage.body'
         />
-        <Button
-          size='lg'
-          zIndex={1}
-          colorScheme='blue'
-          rightIcon={<ArrowForwardIcon />}
-          onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
-        >
-          <Text translation='connectWalletPage.cta' />
-        </Button>
+        <Stack mb={2}>
+          <Button
+            size='lg'
+            zIndex={1}
+            colorScheme='blue'
+            rightIcon={<ArrowForwardIcon />}
+            onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+          >
+            <Text translation='connectWalletPage.cta' />
+          </Button>
+          <RouterLink to='/assets/bitcoin'>
+            <Button size='lg' zIndex={1} colorScheme='gray' rightIcon={<ArrowForwardIcon />}>
+              <Text translation='connectWalletPage.tryWithoutWallet' />
+            </Button>
+          </RouterLink>
+        </Stack>
       </Center>
     </Page>
   )

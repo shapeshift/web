@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.13.0...@shapeshiftoss/asset-service-v1.14.0) (2022-02-02)
+
+
+### Features
+
+* add trust wallet icons ([#337](https://github.com/shapeshift/lib/issues/337)) ([6767a0f](https://github.com/shapeshift/lib/commit/6767a0f346f79b14ee1b627e2e8c34d8906ae6a7))
+
 # [@shapeshiftoss/asset-service-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.12.0...@shapeshiftoss/asset-service-v1.13.0) (2022-01-31)
 
 

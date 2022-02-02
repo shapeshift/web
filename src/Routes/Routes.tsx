@@ -22,7 +22,6 @@ import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
-import { PrivateRoute } from './PrivateRoute'
 
 export const routes: Array<NestedRoute> = [
   {
@@ -136,9 +135,9 @@ export const Routes = () => {
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
         return (
-          <PrivateRoute key={index} path={route.path} exact>
+          <Route key={index} path={route.path} exact>
             <Layout route={route} />
-          </PrivateRoute>
+          </Route>
         )
       })}
       <Route path='/connect-wallet'>

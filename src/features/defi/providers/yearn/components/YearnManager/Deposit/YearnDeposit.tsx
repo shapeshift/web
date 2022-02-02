@@ -607,7 +607,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const fiatAmountAvailable = marketData
+    ? bnOrZero(cryptoAmountAvailable).times(marketData.price)
+    : bnOrZero(0)
 
   return (
     <Flex

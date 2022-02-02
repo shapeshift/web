@@ -39,6 +39,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -191,6 +192,10 @@ export const Deposit = ({
 
   const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
   const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
+
+  const {
+    state: { isConnected }
+  } = useWallet()
 
   return (
     <SlideTransition>
@@ -404,13 +409,13 @@ export const Deposit = ({
           />
           <Button
             colorScheme={fieldError ? 'red' : 'blue'}
-            isDisabled={!isValid}
+            isDisabled={!isValid || !isConnected}
             mb={2}
             size='lg'
             type='submit'
             width='full'
           >
-            {translate(fieldError || 'common.continue')}
+            {translate(!isConnected ? 'common.connectWallet' : fieldError || 'common.continue')}
           </Button>
           <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
             {translate('common.cancel')}

@@ -606,14 +606,6 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     }
   }
 
-  if (loading || !asset || !marketData) {
-    return (
-      <Center minW='350px' minH='350px'>
-        <CircularProgress />
-      </Center>
-    )
-  }
-
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
@@ -635,14 +627,22 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>
               {routes.map(route => {
-                return (
-                  <Route
-                    exact
-                    key={route.path}
-                    render={() => renderRoute(route)}
-                    path={route.path}
-                  />
-                )
+                if ((route.path !== DepositPath.Deposit && loading) || !asset || !marketData) {
+                  return (
+                    <Center minW='350px' minH='350px'>
+                      <CircularProgress />
+                    </Center>
+                  )
+                } else {
+                  return (
+                    <Route
+                      exact
+                      key={route.path}
+                      render={() => renderRoute(route)}
+                      path={route.path}
+                    />
+                  )
+                }
               })}
             </Switch>
           </AnimatePresence>

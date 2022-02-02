@@ -136,7 +136,7 @@ export const Routes = () => {
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
         return (
-          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
+          <PrivateRoute key={index} path={route.path} exact>
             <Layout route={route} />
           </PrivateRoute>
         )

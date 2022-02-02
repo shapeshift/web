@@ -16,8 +16,6 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
     bnOrZero(vault?.balance).gt(0)
   )
 
-  if (balances.vaults.loading) return null
-
   return (
     <Box mb={6}>
       <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, lg: 0 }}>

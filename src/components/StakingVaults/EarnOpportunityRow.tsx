@@ -13,7 +13,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -47,27 +47,31 @@ export const EarnOpportunityRow = ({
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(chain)
   const {
-    state: { wallet }
+    state: { isConnected, wallet },
+    dispatch
   } = useWallet()
 
   const handleClick = () => {
-    history.push({
-      pathname: `/defi/${type}/${provider}/deposit`,
-      search: qs.stringify({
-        chain,
-        contractAddress: vaultAddress,
-        tokenId: tokenAddress
-      }),
-      state: { background: location }
-    })
+    isConnected
+      ? history.push({
+          pathname: `/defi/${type}/${provider}/deposit`,
+          search: qs.stringify({
+            chain,
+            contractAddress: vaultAddress,
+            tokenId: tokenAddress
+          }),
+          state: { background: location }
+        })
+      : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   useEffect(() => {
     ;(async () => {
-      if (!yearn || !wallet || loading) return null
+      if (!yearn || loading) return null
       try {
         const _vault = yearn.findByVaultTokenId(vaultAddress)
         if (_vault) setVault(_vault)
+        if (!wallet) return
         const userAddress = await chainAdapter.getAddress({ wallet })
         // TODO: currently this is hard coded to yearn vaults only.
         // In the future we should add a hook to get the provider interface by vault provider

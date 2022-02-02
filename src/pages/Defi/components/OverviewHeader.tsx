@@ -2,7 +2,7 @@ import { SimpleGrid, Stat, StatGroup, StatLabel, StatNumber } from '@chakra-ui/r
 import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
 
@@ -35,9 +35,9 @@ export const OverviewHeader = ({
   earnBalance: UseEarnBalancesReturn
   walletBalance: string
 }) => {
-  if (earnBalance.vaults.loading) return null
-
-  const netWorth = bn(earnBalance.totalEarningBalance).plus(bn(walletBalance)).toString()
+  const netWorth = earnBalance.vaults.loading
+    ? bnOrZero(0).toString()
+    : bn(earnBalance.totalEarningBalance).plus(bn(walletBalance)).toString()
 
   return (
     <Card variant='unstyled' textAlign='center'>

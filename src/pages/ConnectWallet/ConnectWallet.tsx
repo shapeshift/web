@@ -89,17 +89,18 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
           mb={8}
           onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
         >
-          <Text translation='connectWalletPage.cta' />
+          <Text translation='connectWalletPage.cta.primary' />
         </Button>
 
         <Button
           size='lg'
           zIndex={1}
           colorScheme='gray'
+          variant='ghost'
           rightIcon={<ArrowForwardIcon />}
           onClick={() => history.push('/assets/bitcoin')}
         >
-          <Text translation='connectWalletPage.try' />
+          <Text translation='connectWalletPage.cta.trial' />
         </Button>
       </Center>
     </Page>

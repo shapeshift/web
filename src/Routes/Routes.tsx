@@ -29,15 +29,13 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
     main: <Dashboard />,
-    rightSidebar: <DashboardSidebar />,
-    showWithoutWallet: true
+    rightSidebar: <DashboardSidebar />
   },
   {
     path: '/assets',
     label: 'navBar.assets',
     main: <Assets />,
     icon: <AssetsIcon color='inherit' />,
-    showWithoutWallet: true,
     routes: [
       {
         path: '/:chain/:tokenId?',
@@ -53,7 +51,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.accounts',
     main: <Accounts />,
     icon: <FaWallet color='inherit' />,
-    showWithoutWallet: false,
+    requiresWallet: true,
     routes: [
       {
         path: '/:accountId',
@@ -77,7 +75,6 @@ export const routes: Array<NestedRoute> = [
     icon: <FaRocket />,
     main: null,
     leftSidebar: <DefiSidebar />,
-    showWithoutWallet: true,
     routes: [
       {
         path: '/',

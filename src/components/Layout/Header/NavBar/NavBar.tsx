@@ -13,13 +13,7 @@ export const NavBar = (props: StackProps) => {
   return (
     <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
       {routes
-        .filter(
-          route =>
-            !route.disable &&
-            (route.showWithoutWallet === undefined ||
-              route.showWithoutWallet === true ||
-              isConnected)
-        )
+        .filter(route => !route.disable && (!route.requiresWallet || isConnected))
         .map(item => (
           <MainNavLink
             key={item.label}

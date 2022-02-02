@@ -16,7 +16,7 @@ export type Route = {
   path: string
   label: string
   main: React.ReactNode
-  showWithoutWallet?: boolean
+  requiresWallet?: boolean
   leftSidebar?: React.ReactNode
   rightSidebar?: React.ReactNode
   parent?: Route | null

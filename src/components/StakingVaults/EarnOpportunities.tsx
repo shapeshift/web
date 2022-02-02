@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
+import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -21,7 +21,7 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
-  const earnFeature = FeatureFlagEnum.Yearn
+  const earnFeature = FeatureFlag.Yearn
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   const yearnVaults = useYearnVaults()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account

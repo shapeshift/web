@@ -5,7 +5,6 @@ import { YearnVaultApi } from 'features/defi/providers/yearn/api/api'
 import { getSupportedVaults, SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -38,15 +37,13 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
     })
     const balance = balances[vaultCaip19]
 
-    if (balance) {
-      const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
-      acc[vault.vaultAddress] = {
-        ...vault,
-        balance,
-        vaultCaip19,
-        tokenCaip19,
-        pricePerShare: bnOrZero(pricePerShare)
-      }
+    const pricePerShare = await yearn?.pricePerShare({ vaultAddress: vault.vaultAddress })
+    acc[vault.vaultAddress] = {
+      ...vault,
+      balance,
+      vaultCaip19,
+      tokenCaip19,
+      pricePerShare: bnOrZero(pricePerShare)
     }
   }
   return acc
@@ -65,9 +62,6 @@ export type UseVaultBalancesReturn = {
 }
 
 export function useVaultBalances(): UseVaultBalancesReturn {
-  const {
-    state: { wallet }
-  } = useWallet()
   const [loading, setLoading] = useState(false)
   const [vaults, setVaults] = useState<Record<string, EarnVault>>({})
   const marketData = useSelector(selectMarketData)
@@ -79,7 +73,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
   const balancesLoading = useSelector(selectPortfolioLoading)
 
   useEffect(() => {
-    if (!wallet || yearnLoading) return
+    if (yearnLoading) return
     ;(async () => {
       setLoading(true)
       try {
@@ -91,7 +85,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
         setLoading(false)
       }
     })()
-  }, [balances, dispatch, wallet, balancesLoading, yearnLoading, yearn])
+  }, [balances, dispatch, balancesLoading, yearnLoading, yearn])
 
   const makeVaultFiatAmount = useCallback(
     (vault: EarnVault) => {

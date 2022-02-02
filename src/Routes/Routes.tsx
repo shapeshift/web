@@ -30,13 +30,15 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
     main: <Dashboard />,
-    rightSidebar: <DashboardSidebar />
+    rightSidebar: <DashboardSidebar />,
+    showWithoutWallet: true
   },
   {
     path: '/assets',
     label: 'navBar.assets',
     main: <Assets />,
     icon: <AssetsIcon color='inherit' />,
+    showWithoutWallet: true,
     routes: [
       {
         path: '/:chain/:tokenId?',
@@ -52,6 +54,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.accounts',
     main: <Accounts />,
     icon: <FaWallet color='inherit' />,
+    showWithoutWallet: false,
     routes: [
       {
         path: '/:accountId',
@@ -75,6 +78,7 @@ export const routes: Array<NestedRoute> = [
     icon: <FaRocket />,
     main: null,
     leftSidebar: <DefiSidebar />,
+    showWithoutWallet: true,
     routes: [
       {
         path: '/',
@@ -140,7 +144,7 @@ export const Routes = () => {
       <Route path='/connect-wallet'>
         <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
       </Route>
-      <Redirect from='/' to='/dashboard' />
+      <Redirect from='/' to='/connect-wallet' />
       <Route component={NotFound} />
     </Switch>
   )

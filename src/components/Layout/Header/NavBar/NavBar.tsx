@@ -1,15 +1,25 @@
 import { HStack, StackProps } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { routes } from 'Routes/Routes'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 import { MainNavLink } from './MainNavLink'
 
 export const NavBar = (props: StackProps) => {
   const translate = useTranslate()
+  const {
+    state: { isConnected }
+  } = useWallet()
   return (
     <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
       {routes
-        .filter(route => !route.disable)
+        .filter(
+          route =>
+            !route.disable &&
+            (route.showWithoutWallet === undefined ||
+              route.showWithoutWallet === true ||
+              isConnected)
+        )
         .map(item => (
           <MainNavLink
             key={item.label}

@@ -13,7 +13,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -47,22 +47,19 @@ export const EarnOpportunityRow = ({
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(chain)
   const {
-    state: { isConnected, wallet },
-    dispatch
+    state: { wallet }
   } = useWallet()
 
   const handleClick = () => {
-    isConnected
-      ? history.push({
-          pathname: `/defi/${type}/${provider}/deposit`,
-          search: qs.stringify({
-            chain,
-            contractAddress: vaultAddress,
-            tokenId: tokenAddress
-          }),
-          state: { background: location }
-        })
-      : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    history.push({
+      pathname: `/defi/${type}/${provider}/deposit`,
+      search: qs.stringify({
+        chain,
+        contractAddress: vaultAddress,
+        tokenId: tokenAddress
+      }),
+      state: { background: location }
+    })
   }
 
   useEffect(() => {

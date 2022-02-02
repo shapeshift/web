@@ -9,6 +9,7 @@ import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
+import { StakingOpportunities } from './Delegate/StakingOpportunities'
 
 type AssetDetailsProps = {
   assetId: CAIP19
@@ -30,6 +31,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
           <EarnOpportunities assetId={caip19} accountId={accountId} />
+          <StakingOpportunities assetId={caip19} accountId={accountId} />
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>

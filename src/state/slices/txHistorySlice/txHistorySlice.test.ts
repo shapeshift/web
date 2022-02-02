@@ -7,6 +7,10 @@ import { store } from 'state/store'
 import { makeUniqueTxId, selectLastNTxIds, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
+  beforeAll(() => {
+    jest.resetModules()
+  })
+
   it('returns empty object for initialState', async () => {
     expect(store.getState().txHistory).toEqual({
       byId: {},

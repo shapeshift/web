@@ -4,8 +4,8 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useRenderForChains } from 'hooks/useRenderForChains/useRenderForChains'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { renderForChains } from 'hooks/renderforChains/renderForChains'
 
 import { StakingOpportunitiesRow } from './StakingOpportunitiesRow'
 
@@ -44,5 +44,5 @@ export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesPr
   )
 
   // TODO: add ChainTypes.Cosmos to the array to render only on cosmos based chains
-  return renderForChains([], caip19, () => cosmosStaking)
+  return useRenderForChains([], () => cosmosStaking)
 }

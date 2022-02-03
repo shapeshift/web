@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const execa = require('execa')
+
 const findBrave = (): Cypress.Browser => {
   // the path is hard-coded for simplicity
   const browserPath = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
@@ -27,6 +28,10 @@ const findBrave = (): Cypress.Browser => {
  * @type {Cypress.PluginConfig}
  */
 module.exports = async (on: any, config: any) => {
+  if (config.testingType === 'component') {
+    require('@cypress/react/plugins/react-scripts')(on, config)
+  }
+
   const brave = await findBrave()
   config.browsers = config.browsers.concat(brave)
 

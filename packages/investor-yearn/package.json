@@ -1,0 +1,42 @@
+{
+  "name": "@shapeshiftoss/investor-yearn",
+  "version": "1.0.0",
+  "description": "An api layer for interaction with the ShapeShift Yearn Router Contract and the Yearn Vault contracts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "dist",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14.18.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && tsc --project tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc --watch",
+    "prepare": "yarn clean && yarn build",
+    "test": "jest --coverage"
+  },
+  "dependencies": {
+    "@ethersproject/providers": "^5.5.3",
+    "@shapeshiftoss/chain-adapters": "^1.31.1",
+    "@shapeshiftoss/hdwallet-core": "^1.18.4",
+    "@shapeshiftoss/types": "^1.21.0",
+    "@yfi/sdk": "^1.0.28",
+    "bignumber.js": "^9.0.2",
+    "lodash": "^4.17.21",
+    "web3": "^1.7.0",
+    "web3-core": "^1.7.0",
+    "web3-utils": "^1.7.0"
+  },
+  "devDependencies": {
+    "web3-eth-contract": "^1.7.0"
+  }
+}

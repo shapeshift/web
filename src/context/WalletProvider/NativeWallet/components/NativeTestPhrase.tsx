@@ -34,8 +34,7 @@ export const NativeTestPhrase = () => {
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
 
-  const { state } = location.state
-  const { vault } = state.vault ? state.vault : ''
+  const { vault }: any = location.state
 
   const shuffleMnemonic = useCallback(async () => {
     if (testCount >= TEST_COUNT_REQUIRED) return
@@ -76,7 +75,7 @@ export const NativeTestPhrase = () => {
     // If we've passed the required number of tests, then we can proceed
     if (testCount >= TEST_COUNT_REQUIRED) {
       vault.seal()
-      navigate('/native/password', { vault })
+      navigate('/native/password', { state: { vault } })
       return () => {
         // Make sure the component is completely unmounted before we revoke the mnemonic
         setTimeout(() => revoker.revoke(), 250)

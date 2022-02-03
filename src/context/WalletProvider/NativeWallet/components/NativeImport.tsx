@@ -10,9 +10,11 @@ import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import * as bip39 from 'bip39'
 import { FieldValues, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 export const NativeImport = () => {
+  const navigate = useNavigate()
   const onSubmit = async (values: FieldValues) => {
     try {
       const vault = await Vault.create()

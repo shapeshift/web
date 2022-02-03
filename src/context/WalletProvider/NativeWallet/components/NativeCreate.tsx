@@ -15,14 +15,15 @@ import { GENERATE_MNEMONIC, Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { range } from 'lodash'
 import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
-
-import { NativeSetupProps } from '../types'
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable
 
-export const NativeCreate = ({ history, location }: NativeSetupProps) => {
+export const NativeCreate = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [revealed, setRevealed] = useState<boolean>(false)
   const revealedOnce = useRef<boolean>(false)
   const handleShow = () => {
@@ -32,6 +33,8 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
   const [vault, setVault] = useState<Vault | null>(null)
   const [words, setWords] = useState<Component[] | null>(null)
   const [revoker] = useState(new (Revocable(class {}))())
+
+  const { error }: any = location.state
 
   const placeholders = useMemo(() => {
     return range(1, 13).map(i => (
@@ -103,10 +106,10 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
       </ModalHeader>
       <ModalBody>
         <Text color='gray.500' translation={'walletProvider.shapeShift.create.body'} />
-        {location?.state?.error && (
+        {error && (
           <Alert status='error'>
             <AlertIcon />
-            <AlertDescription>{location.state.error.message}</AlertDescription>
+            <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
         <Wrap mt={12} mb={6}>

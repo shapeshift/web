@@ -83,7 +83,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   // navigation
   const navigate = useNavigate()
   const location = useLocation()
-  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw })
+  const withdrawRoute = matchPath(location.pathname, WithdrawPath.Withdraw)
 
   useEffect(() => {
     ;(async () => {

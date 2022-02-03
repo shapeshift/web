@@ -104,7 +104,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   // navigation
   const navigate = useNavigate()
   const location = useLocation()
-  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit })
+  const depositRoute = matchPath(location.pathname, DepositPath.Deposit)
 
   // notify
   const toast = useToast()

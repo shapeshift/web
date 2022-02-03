@@ -1,7 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
-import { Route, useLocation } from 'react-router-dom'
+import { Route, useLocation, useParams } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
@@ -51,8 +51,9 @@ const DefiModules = {
 }
 
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
-  const location = useLocation<{ background: any }>()
-  const background = location.state && location.state.background
+  const location = useLocation()
+  const { background }: any = location.state
+  const params = useParams()
 
   return (
     <DefiManagerContext.Provider value={null}>
@@ -61,7 +62,7 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
         {background && (
           <Route
             path='/defi/:earnType/:provider/:action'
-            element={({ match: { params } }) => {
+            element={() => {
               const { provider } = params
               const Module = DefiModules[provider as DefiProvider]
               return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>

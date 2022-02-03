@@ -57,7 +57,7 @@ export const initMarketData: MarketData = {
 export const useAsset = () => {
   const dispatch = useAppDispatch()
 
-  const { chain, tokenId } = useParams<MatchParams>()
+  const { chain, tokenId }: any = useParams()
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
   const extra = tokenId ? { contractType, tokenId } : undefined

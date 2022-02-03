@@ -1,11 +1,11 @@
-import { History, Location } from 'history'
+import { Location } from 'history'
 import React, { useContext, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from 'hooks/useQuery/useQuery'
 
 type BrowserRouterContextProps<Q, P> = {
   location: Location
-  history: History
+  navigate: any
   params: P
   query: Q
 }

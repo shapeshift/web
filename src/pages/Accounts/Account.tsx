@@ -13,7 +13,7 @@ export type MatchParams = {
 }
 
 export const Account = () => {
-  const { accountId } = useParams<MatchParams>()
+  const { accountId }: any = useParams()
   const parsedAccountId = decodeURIComponent(accountId)
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))

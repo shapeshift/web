@@ -1,5 +1,6 @@
 import { caip2 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { useNavigate } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
@@ -9,7 +10,7 @@ import { WithBackButton } from './WithBackButton'
 
 type SelectAssetProps = { onClick: (asset: Asset) => void }
 
-export const SelectAsset = ({ onClick, history }: SelectAssetProps) => {
+export const SelectAsset = ({ onClick }: SelectAssetProps) => {
   // Filters the asset search to only show eth/erc20 assets
   const ethCAIP2 = caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
   const filterByCaip19 = (assets: Asset[]): Asset[] => {
@@ -17,6 +18,7 @@ export const SelectAsset = ({ onClick, history }: SelectAssetProps) => {
       ({ chain, network }: Asset) => caip2.toCAIP2({ chain, network }) === ethCAIP2
     )
   }
+  const navigate = useNavigate()
 
   const handleBack = () => {
     navigate('/trade/input')

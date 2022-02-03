@@ -96,7 +96,9 @@ export const withVariants = () => (
     <Button colorScheme='teal' variant='link'>
       Button
     </Button>
-    <Button colorScheme='teal' variant='unstyled'>Button</Button>
+    <Button colorScheme='teal' variant='unstyled'>
+      Button
+    </Button>
   </HStack>
 )
 

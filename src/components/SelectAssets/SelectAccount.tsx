@@ -1,6 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -17,18 +16,13 @@ type SelectAccountProps = {
   onClick: (asset: Asset, accountId: AccountSpecifier) => void
 }
 
-type SelectAccountLocation = {
-  assetId: CAIP19
-}
-
 export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
-  const location = useLocation<SelectAccountLocation>()
+  const location = useLocation()
+  const { assetId }: any = location.state
   const translate = useTranslate()
   const navigate = useNavigate()
-  const accountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, location.state.assetId)
-  )
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, location.state.assetId))
+  const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   return (
     <SlideTransition>
       <ModalHeader textAlign='center' display='grid' gridTemplateColumns='32px 1fr 32px' px={2}>

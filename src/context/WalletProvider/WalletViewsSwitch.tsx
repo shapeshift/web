@@ -8,7 +8,7 @@ import {
   ModalOverlay
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 
@@ -73,9 +73,14 @@ export const WalletViewsSwitch = () => {
               <Routes key={location.pathname} location={location}>
                 {state.type &&
                   SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
-                    const Component = route.element
+                    const Component = <WalletComponet />
+                    const pathRoute: any = route.path
                     return !Component ? null : (
-                      <Route exact key={index} path={route.path} element={<Component />} />
+                      <Route
+                        key={index}
+                        path={pathRoute}
+                        element={(routeProps: any) => <WalletComponet {...routeProps} />}
+                      />
                     )
                   })}
 
@@ -87,4 +92,10 @@ export const WalletViewsSwitch = () => {
       </Modal>
     </>
   )
+}
+
+class WalletComponet extends React.Component<any, any> {
+  render() {
+    return <div>{this.props.children}</div>
+  }
 }

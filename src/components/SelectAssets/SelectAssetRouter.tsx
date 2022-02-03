@@ -1,6 +1,6 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { SelectAssetView } from './SelectAssetView'
@@ -22,11 +22,14 @@ export type SelectAssetLocation = {
 }
 
 export const SelectAssetRouter = ({ onClick }: SelectAssetRouterProps) => {
-  const { state } = useLocation<SelectAssetLocation>()
+  const { toRoute, assetId }: any = useParams()
   return (
     <MemoryRouter initialEntries={entries}>
       <Routes>
-        <Route path='/' element={<SelectAssetView onClick={onClick} {...state} />} />
+        <Route
+          path='/'
+          element={<SelectAssetView onClick={onClick} toRoute={toRoute} assetId={assetId} />}
+        />
       </Routes>
     </MemoryRouter>
   )

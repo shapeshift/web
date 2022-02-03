@@ -172,7 +172,7 @@ export const TradeInput = () => {
           <Card.Body pb={0} px={0}>
             <FormControl isInvalid={!!errors.fiatAmount}>
               <Controller
-                element={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value } }) => (
                   <NumberFormat
                     inputMode='decimal'
                     thousandSeparator={localeParts.group}

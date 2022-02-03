@@ -9,16 +9,15 @@ import {
   ModalBody,
   ModalHeader
 } from '@chakra-ui/react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
-
-export const NativePassword = ({ history, location }: NativeSetupProps) => {
+export const NativePassword = () => {
+  const location = useLocation()
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
   let navigate = useNavigate()
@@ -26,7 +25,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {
     try {
-      const vault = location.state.vault
+      const vault: any = location.state
       vault.seal()
       await vault.setPassword(values.password)
       vault.meta.set('name', values.name)

@@ -187,7 +187,9 @@ export const TradeConfirm = () => {
                 </HelperTooltip>
                 <Row.Value>
                   {bnOrZero(fees?.fee).toNumber()} ≃{' '}
-                  {toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())}
+                  {typeof fiatRate === 'string'
+                    ? toFiat(bnOrZero(fees?.fee).times(fiatRate).toNumber())
+                    : ' '}
                 </Row.Value>
               </Row>
               <Row>

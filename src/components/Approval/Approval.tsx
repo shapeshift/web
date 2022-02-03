@@ -17,16 +17,12 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { theme } from 'theme/theme'
 
-type ApprovalParams = {
-  fiatRate: string
-}
-
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 export const Approval = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { fiatRate }: ApprovalParams = location.state
+  const { fiatRate }: any = location.state
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const toast = useToast()
   const translate = useTranslate()

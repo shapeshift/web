@@ -11,16 +11,16 @@ type MenuLinkProps = {
 
 const MenuLink = ({ index, path, icon, label }: MenuLinkProps) => {
   const translate = useTranslate()
-  const params = useParams()
+  const params: any = useParams()
   return (
     <Button
       key={params.index}
-      to={params.path}
       as={NavLink}
+      to={params.path}
       leftIcon={<IconCircle>{params.icon}</IconCircle>}
       justifyContent='flex-start'
       variant='ghost'
-      isActive={params ? true : false}
+      isActive={params.label ? true : false}
       size='lg'
       px={4}
       fontWeight='medium'

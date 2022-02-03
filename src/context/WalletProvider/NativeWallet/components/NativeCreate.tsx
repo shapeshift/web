@@ -125,7 +125,7 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
           disabled={!(vault && words && revealedOnce.current)}
           onClick={() => {
             if (vault) {
-              history.push('/native/create-test', { vault })
+              navigate('/native/create-test', { vault })
             }
           }}
         >

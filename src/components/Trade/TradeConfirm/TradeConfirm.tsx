@@ -128,7 +128,7 @@ export const TradeConfirm = ({ history }: RouterProps) => {
     if (txid) {
       reset()
     }
-    history.push('/trade/input')
+    navigate('/trade/input')
   }
 
   return (

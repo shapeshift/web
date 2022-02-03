@@ -17,8 +17,11 @@ import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
+import { useParams } from 'react-router';
 
 export const NativeRename = ({ history, location }: NativeSetupProps) => {
+  const navigate = useNavigate()
+  const params = useParams()
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -31,12 +34,12 @@ export const NativeRename = ({ history, location }: NativeSetupProps) => {
         if (result) {
           vault.meta.delete('name')
           await vault.save()
-          history.goBack()
+          navigate(-1)
         }
       } else {
         vault.meta.set('name', values.name)
         await vault.save()
-        history.goBack()
+        navigate(-1)
       }
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Rename - Error invalid password', e)

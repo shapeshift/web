@@ -1,10 +1,11 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { MemoryRouter, Route,  Routes} from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { ReceiveRouter } from './ReceiveRouter'
+import { useParams } from 'react-router-dom'
 
 export enum ReceiveRoutes {
   Info = '/receive/info',
@@ -21,20 +22,21 @@ type ReceivePropsType = {
 const Receive = ({ asset, accountId }: ReceivePropsType) => {
   const { receive } = useModal()
   const { close, isOpen } = receive
+  const params = useParams()
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
+          <Routes>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => (
-                <ReceiveRouter asset={asset} accountId={accountId} {...props} />
+              element={(params ) => (
+                <ReceiveRouter asset={asset} accountId={accountId} {...params} />
               )}
             />
-          </Switch>
+          </Routes>
         </MemoryRouter>
       </ModalContent>
     </Modal>

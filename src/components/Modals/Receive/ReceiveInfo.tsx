@@ -21,7 +21,7 @@ import {
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps, useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
@@ -37,7 +37,7 @@ import { ReceiveRoutes } from './Receive'
 type ReceivePropsType = {
   asset: Asset
   accountId: AccountSpecifier
-} & RouteComponentProps
+}
 
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
@@ -45,7 +45,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
-  const history = useHistory()
+  const navigate = useNavigate()
   const { chain, name, symbol } = asset
 
   const { wallet } = state
@@ -130,7 +130,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => history.push(ReceiveRoutes.Select)}
+        onClick={() => navigate(ReceiveRoutes.Select)}
       />
       <ModalHeader textAlign='center'>
         {translate('modals.receive.receiveAsset', { asset: name })}

@@ -2,12 +2,13 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import React, { useEffect } from 'react'
-import { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
+import { useNavigate } from 'react-router-dom'
 
-export const NativeStart = ({ history }: RouteComponentProps) => {
+export const NativeStart = () => {
   const [hasLocalWallet, setHasLocalWallet] = useStateIfMounted<boolean>(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     ;(async () => {
@@ -39,7 +40,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
             disabled={!hasLocalWallet}
-            onClick={() => history.push('/native/load')}
+            onClick={() => navigate('/native/load')}
           >
             <Text translation={'walletProvider.shapeShift.start.load'} />
           </Button>
@@ -53,7 +54,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/native/create')}
+            onClick={() => navigate('/native/create')}
           >
             <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
@@ -66,7 +67,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
-            onClick={() => history.push('/native/import')}
+            onClick={() => navigate('/native/import')}
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>

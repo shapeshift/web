@@ -54,7 +54,7 @@ export function TokenRow<C extends FieldValues>({
         </InputLeftElement>
       )}
       <Controller
-        render={({ field: { onChange, value } }) => {
+        element={({ field: { onChange, value } }) => {
           return (
             <NumberFormat
               inputMode='decimal'

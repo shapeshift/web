@@ -1,5 +1,5 @@
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
@@ -24,7 +24,7 @@ import { NotFound } from 'pages/NotFound/NotFound'
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
-export const routes: Array<NestedRoute> = [
+export const routesShift: Array<NestedRoute> = [
   {
     path: '/dashboard',
     label: 'navBar.dashboard',
@@ -116,23 +116,24 @@ export const routes: Array<NestedRoute> = [
   } */
 ]
 
-const appRoutes = generateAppRoutes(routes)
+const appRoutes = generateAppRoutes(routesShift)
 
 function useLocationBackground() {
-  const location = useLocation<{ background: any }>()
-  const background = location.state && location.state.background
+  let location = useLocation()
+  let params = useParams()
+  const background = location.state && params.background
   return { background, location }
 }
 
-export const Routes = () => {
-  const { background, location } = useLocationBackground()
+export const ShiftRoutes = () => {
+  const { location } = useLocationBackground()
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   return (
-    <Switch location={background || location}>
+    <Routes location={location}>
       {appRoutes.map((route, index) => {
         return (
-          <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
+          <PrivateRoute key={index} path={route.path} hasWallet={hasWallet}>
             <Layout route={route} />
           </PrivateRoute>
         )
@@ -140,8 +141,8 @@ export const Routes = () => {
       <Route path='/connect-wallet'>
         <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
       </Route>
-      <Redirect from='/' to='/dashboard' />
-      <Route component={NotFound} />
-    </Switch>
+      <Navigate to='/dashboard' />
+      <Route element={NotFound} />
+    </Routes>
   )
 }

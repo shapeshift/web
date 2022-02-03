@@ -1,7 +1,7 @@
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { Controller, ControllerProps, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 
 import { SendFormFields, SendInput } from '../Form'
@@ -13,17 +13,17 @@ type AddressInputProps = {
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
   const { control } = useFormContext<SendInput>()
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleQrClick = () => {
-    history.push(SendRoutes.Scan)
+    navigate(SendRoutes.Scan)
   }
 
   return (
     <InputGroup size='lg'>
       <Controller
-        render={({ field: { onChange, value } }) => (
+        element={({ field: { onChange, value } }) => (
           <Input
             spellCheck={false}
             autoFocus // eslint-disable-line jsx-a11y/no-autofocus

@@ -1,6 +1,6 @@
 import { History, Location } from 'history'
 import React, { useContext, useMemo } from 'react'
-import { useHistory, useLocation, useParams } from 'react-router-dom'
+import { useNavigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from 'hooks/useQuery/useQuery'
 
 type BrowserRouterContextProps<Q, P> = {
@@ -24,18 +24,18 @@ type BrowserRouterProviderProps = {
 
 export function BrowserRouterProvider({ children }: BrowserRouterProviderProps) {
   const location = useLocation()
-  const history = useHistory()
+  const navigate = useNavigate()
   const params = useParams()
   const query = useQuery()
 
   const router = useMemo(
     () => ({
-      history,
+      navigate,
       location,
       params,
       query
     }),
-    [query, params, location, history]
+    [query, params, navigate, location]
   )
 
   return <BrowserRouterContext.Provider value={router}>{children}</BrowserRouterContext.Provider>

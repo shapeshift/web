@@ -16,7 +16,7 @@ import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -30,7 +30,7 @@ import { SendRoutes } from '../Send'
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
-  const history = useHistory()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const {
     setValue,
@@ -49,7 +49,7 @@ export const Address = () => {
     adapter: ChainAdapter<ChainTypes>
   ): adapter is ChainAdapter<ChainTypes.Ethereum> => adapter.getType() === ChainTypes.Ethereum
 
-  const handleNext = () => history.push(SendRoutes.Details)
+  const handleNext = () => navigate(SendRoutes.Details)
 
   const addressError = get(errors, `${SendFormFields.Address}.message`, null)
 
@@ -66,7 +66,7 @@ export const Address = () => {
         size='sm'
         isRound
         onClick={() =>
-          history.push(SendRoutes.Select, {
+          navigate(SendRoutes.Select, {
             toRoute: SelectAssetRoutes.Account,
             assetId: asset.caip19
           })

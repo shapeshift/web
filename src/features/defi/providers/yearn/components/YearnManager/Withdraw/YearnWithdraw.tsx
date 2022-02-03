@@ -14,7 +14,7 @@ import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -58,7 +58,7 @@ type YearnWithdrawProps = {
 
 export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
@@ -81,9 +81,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
-  const memoryHistory = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
-  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
+  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw })
 
   useEffect(() => {
     ;(async () => {
@@ -141,7 +141,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       payload: { estimatedGasCrypto }
     })
 
-    memoryHistory.push(WithdrawPath.Confirm)
+    navigate(WithdrawPath.Confirm)
   }
 
   const handleConfirm = async () => {
@@ -161,7 +161,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         api.getGasPrice()
       ])
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      memoryHistory.push(WithdrawPath.Status)
+      navigate(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -183,11 +183,11 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleViewPosition = () => {
-    browserHistory.push('/defi')
+    navigate('/defi')
   }
 
   const handleCancel = () => {
-    browserHistory.goBack()
+    navigate(-1)
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -437,13 +437,11 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       <Flex flexDir='column' width='full' minWidth='400px'>
         {withdrawRoute && <DefiActionButtons />}
         <AnimatePresence exitBeforeEnter initial={false}>
-          <Switch location={location} key={location.key}>
+          <Routes location={location} key={location.key}>
             {routes.map(route => {
-              return (
-                <Route exact key={route.path} render={() => renderRoute(route)} path={route.path} />
-              )
+              return <Route key={route.path} element={() => renderRoute(route)} path={route.path} />
             })}
-          </Switch>
+          </Routes>
         </AnimatePresence>
       </Flex>
     </Flex>

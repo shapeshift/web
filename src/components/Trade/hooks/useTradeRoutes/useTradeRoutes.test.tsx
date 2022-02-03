@@ -8,7 +8,7 @@ import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useS
 import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({
-  useHistory: () => ({
+  useNavigate: () => ({
     push: jest.fn()
   })
 }))

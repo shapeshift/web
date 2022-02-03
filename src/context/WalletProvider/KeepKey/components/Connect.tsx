@@ -8,7 +8,6 @@ import {
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
@@ -17,12 +16,7 @@ import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
-export interface KeepKeySetupProps
-  extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
-  > {
+export interface KeepKeySetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
@@ -97,7 +91,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
           payload: { wallet, name: label, icon, deviceId, meta: { label } }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/keepkey/success')
+        navigate('/keepkey/success')
       } catch (e) {
         console.error('KeepKey Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')

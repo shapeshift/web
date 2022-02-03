@@ -1,22 +1,21 @@
 import React, { useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 
-export interface PortisSetupProps
-  extends RouteComponentProps<
-    {},
-    any // history
-  > {
+export interface PortisSetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export const PortisConnect = ({ history }: PortisSetupProps) => {
+// eslint-disable-next-line no-empty-pattern
+export const PortisConnect = ({}: PortisSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
+
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
@@ -40,11 +39,11 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
           payload: { wallet, name, icon, deviceId: 'test' }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        history.push('/portis/success')
+        navigate('/portis/success')
       } catch (e) {
         console.error('Portis Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.portis.errors.unknown')
-        history.push('/portis/failure')
+        navigate('/portis/failure')
       }
     }
     setLoading(false)

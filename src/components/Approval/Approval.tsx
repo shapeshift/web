@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -24,13 +24,13 @@ type ApprovalParams = {
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 export const Approval = () => {
-  const history = useHistory()
-  const location = useLocation<ApprovalParams>()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { fiatRate }:ApprovalParams = location.state
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const toast = useToast()
   const translate = useTranslate()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const { fiatRate } = location.state
 
   const {
     getValues,
@@ -72,7 +72,7 @@ export const Approval = () => {
         console.error(`Approval:approve:checkApprovalNeeded - ${e}`)
         handleToast()
         approvalInterval.current && clearInterval(approvalInterval.current)
-        return history.push('/trade/input')
+        return navigate('/trade/input')
       }
 
       approvalInterval.current && clearInterval(approvalInterval.current)
@@ -95,9 +95,9 @@ export const Approval = () => {
       }
 
       if (result?.success) {
-        history.push({ pathname: '/trade/confirm', state: { fiatRate } })
+        navigate('/trade/confirm', { state: { fiatRate } })
       } else {
-        history.push('/trade/input')
+        navigate('/trade/input')
       }
     }, 5000)
     approvalInterval.current = interval
@@ -117,8 +117,8 @@ export const Approval = () => {
   useEffect(() => {
     // TODO: (ryankk) fix errors to reflect correct attribute
     const error = errors?.quote?.rate ?? null
-    if (error) history.push('/trade/input')
-  }, [errors, history])
+    if (error) navigate('/trade/input')
+  }, [errors, navigate])
 
   return (
     <SlideTransition>
@@ -210,7 +210,7 @@ export const Approval = () => {
                 <Text translation='common.confirm' />
               </Button>
               {!approvalTxId && !isSubmitting && (
-                <Button variant='ghost' mt={2} size='lg' onClick={() => history.goBack()}>
+                <Button variant='ghost' mt={2} size='lg' onClick={() => navigate(-1)}>
                   <Text translation='common.reject' />
                 </Button>
               )}

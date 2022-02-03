@@ -8,7 +8,7 @@ import { YearnVault } from 'features/defi/providers/yearn/api/api'
 import { SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
@@ -33,7 +33,7 @@ export const EarnOpportunityRow = ({
   const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
   const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
   const { yearn, loading } = useYearn()
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
 
   const network = NetworkTypes.MAINNET
@@ -53,7 +53,7 @@ export const EarnOpportunityRow = ({
 
   const handleClick = () => {
     isConnected
-      ? history.push({
+      ? navigate({
           pathname: `/defi/${type}/${provider}/deposit`,
           search: qs.stringify({
             chain,

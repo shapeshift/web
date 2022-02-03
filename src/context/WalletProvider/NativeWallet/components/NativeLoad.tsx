@@ -15,7 +15,7 @@ import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -29,11 +29,12 @@ type VaultInfo = {
   createdAt: number
 }
 
-export const NativeLoad = ({ history }: RouteComponentProps) => {
+export const NativeLoad = () => {
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
+  const navigate = useNavigate()
 
   useEffect(() => {
     ;(async () => {
@@ -109,7 +110,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
 
   const handleRename = async (wallet: VaultInfo) => {
     const vault = wallet
-    history.push('/native/rename', { vault })
+    navigate('/native/rename', { state: { vault } })
   }
 
   return (

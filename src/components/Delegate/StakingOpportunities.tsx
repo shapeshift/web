@@ -20,7 +20,7 @@ export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesPr
   // TODO: wire up with real validator data
   const validators = [{ name: 'Cosmos Validator' }]
 
-  const cosmosStaking = (
+  const cosmosStaking = () => (
     <Card>
       <Card.Header flexDir='row' display='flex'>
         <HStack justify='space-between' flex={1}>
@@ -44,5 +44,5 @@ export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesPr
   )
 
   // TODO: add ChainTypes.Cosmos to the array to render only on cosmos based chains
-  return useRenderForChains([], () => cosmosStaking)
+  return useRenderForChains([], cosmosStaking)
 }

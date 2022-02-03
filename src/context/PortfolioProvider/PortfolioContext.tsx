@@ -1,3 +1,4 @@
+import { Logger } from '@shapeshiftoss/logger'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,6 +11,8 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/selectors'
+
+const logger = new Logger({ namespace: ['PortfolioProvider'], level: 'debug' })
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -38,6 +41,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     if (isEmpty(accountSpecifiers)) return
     // clear the old portfolio, we have different non null data, we're switching wallet
+    logger.info('dispatching portfolio clear action')
     dispatch(portfolio.actions.clear())
     // fetch each account
     accountSpecifiers.forEach(accountSpecifierMap =>

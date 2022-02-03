@@ -3707,6 +3707,11 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
+"@shapeshiftoss/logger@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.0.3.tgz#945437281a5ca67c6f00149b97a5a4605ee25233"
+  integrity sha512-q6+/Q6OaCVdu1QL6aKOJcvq9cnEVXbv2wbLG9uEeeG8TouFMtORPk48iAIi93xI27nLg04z4tAA4hUrP6GDnRQ==
+
 "@shapeshiftoss/market-service@^1.10.0":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.10.0.tgz#ec540095ed7a033b31aae6763e7b23cab15523ed"

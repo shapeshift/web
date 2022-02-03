@@ -8,6 +8,7 @@ import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { ReduxState } from 'state/reducer'
 
 import { accountToPortfolio } from './utils'
 
@@ -162,7 +163,7 @@ export const portfolio = createSlice({
   }
 })
 
-type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap; assetIds: string[] }
+type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
@@ -172,8 +173,11 @@ export const portfolioApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
-      queryFn: async ({ accountSpecifierMap, assetIds }, baseQuery) => {
+      queryFn: async ({ accountSpecifierMap }, { dispatch, getState }) => {
         if (isEmpty(accountSpecifierMap)) return { data: cloneDeep(initialState) }
+        // 0xdef1cafe: be careful with this, RTK query can't type this correctly
+        const untypedState = getState()
+        const assetIds = (untypedState as ReduxState).assets.ids
         const chainAdapters = getChainAdapters()
         const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
         // TODO(0xdef1cafe): chainAdapters.byCAIP2()
@@ -186,7 +190,7 @@ export const portfolioApi = createApi({
           const data = accountToPortfolio({ portfolioAccounts, assetIds })
           // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
           // to prevent edge cases like #820
-          baseQuery.dispatch(portfolio.actions.upsertPortfolio(data))
+          dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           const status = 400

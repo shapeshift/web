@@ -19,10 +19,9 @@ import {
 import { useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Page } from 'components/Layout/Page'
-import { Select } from '@chakra-ui/react'
 
-export default function GemBuySell() {
-  const location = useLocation();
+export const GemBuySell = () => {
+  const location = useLocation()
   return (
     <div>
       <Page>

@@ -35,14 +35,15 @@ export enum SendFormFields {
   FiatAmount = 'fiatAmount',
   FiatSymbol = 'fiatSymbol',
   AmountFieldError = 'amountFieldError',
-  SendMax = 'sendMax'
+  SendMax = 'sendMax',
+  GasNeed = 'gasNeed'
 }
 
 export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.EnsName]?: string
   [SendFormFields.AccountId]: AccountSpecifier
-  [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
+  [SendFormFields.AmountFieldError]: string | [string, { asset: string; amount: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
@@ -50,6 +51,7 @@ export type SendInput = {
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
   [SendFormFields.FiatSymbol]: string
+  [SendFormFields.GasNeed]: string
   [SendFormFields.SendMax]: boolean
 }
 

@@ -221,7 +221,7 @@
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
-        "notEnoughNativeToken": "Not enough %{asset} to cover gas",
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas, you need ${amount} %{asset}",
         "transactionRejected": "User has rejected the transaction"
       },
       "confirm": {

@@ -3732,16 +3732,16 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-yearn@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.0.0.tgz#8062da095c8418791f1f7cc31f08630a0e4223d0"
-  integrity sha512-Yfm8E8A6fzoSS/W/9Qe7dfKSXymbVKcYWP4JbUCd3n8Vj1ACwRWJUklr/IrxOLSQmWHa4fwEoWmJjxWSNfJNmA==
+"@shapeshiftoss/investor-yearn@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.1.0.tgz#97dda82f985e5c39755d7cd70ae23f166c4e3004"
+  integrity sha512-pMfC96k8dkF8q31F5E3UHJ/zPJ07Bc1eSAyQ50/7CrJv+gl+5tmtU1yLFnO5ulljp3nU9oodJPvUQqG+gKQnKA==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@shapeshiftoss/chain-adapters" "^1.31.1"
     "@shapeshiftoss/hdwallet-core" "^1.18.4"
     "@shapeshiftoss/types" "^1.21.0"
-    "@yfi/sdk" "^1.0.28"
+    "@yfi/sdk" "^1.0.27"
     bignumber.js "^9.0.2"
     lodash "^4.17.21"
     web3 "^1.7.0"
@@ -6272,7 +6272,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.27", "@yfi/sdk@^1.0.28":
+"@yfi/sdk@^1.0.27":
   version "1.0.28"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.0.28.tgz#31b311b5719b6a326d933cae063101af17f5713f"
   integrity sha512-wkPSTV8V91YwguJYcQ4x3o8zYxWOABvSlE0tPlsx+DYeiTnnB5JPmutyv4glJ2uB9SOw0qi91+mqhFXeskoHFw==

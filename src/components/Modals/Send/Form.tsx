@@ -51,7 +51,7 @@ export type SendInput = {
   [SendFormFields.CryptoSymbol]: string
   [SendFormFields.FiatAmount]: string
   [SendFormFields.FiatSymbol]: string
-  [SendFormFields.GasNeed]: string
+  [SendFormFields.GasNeeded]: string
   [SendFormFields.SendMax]: boolean
 }
 

@@ -163,7 +163,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       
       if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
         const gasNeed = nativeAssetBalance.minus(estimatedFees.fast.txFee)
-        setValue(SendFormFields.GasNeed, gasNeed.toFixed(2))
+        setValue(SendFormFields.GasNeeded, gasNeed.toFixed(2))
         setValue(SendFormFields.AmountFieldError, [
           'modals.send.errors.notEnoughNativeToken',
           { asset: feeAsset.symbol, amount: gasNeed.toString(2) }
@@ -252,7 +252,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       if (!hasEnoughNativeTokenForGas) {
         const gasNeed = nativeAssetBalance.minus(adapterFees.fast.txFee)
-        setValue(SendFormFields.GasNeed, gasNeed.toFixed(2))
+        setValue(SendFormFields.GasNeeded, gasNeed.toFixed(2))
         setValue(SendFormFields.AmountFieldError, [
           'modals.send.errors.notEnoughNativeToken',
           { asset: feeAsset.symbol, amount: gasNeed.toString(2) }
@@ -305,7 +305,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
         } else if (!hasEnoughNativeTokenForGas) {
           const gasNeed = nativeAssetBalance.minus(estimatedFees.fast.txFee)
-          setValue(SendFormFields.GasNeed, gasNeed.toFixed(2))
+          setValue(SendFormFields.GasNeeded, gasNeed.toFixed(2))
           setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol, amount: gasNeed.toString(2) }

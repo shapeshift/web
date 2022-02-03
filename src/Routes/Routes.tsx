@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
-import { Navigate, Routes, Route, useLocation, useParams } from 'react-router-dom'
-=======
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
->>>>>>> upstream/develop
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
@@ -131,7 +126,7 @@ function useLocationBackground() {
 }
 
 export const ShiftRoutes = () => {
-  const { background, location } = useLocationBackground()
+  const { location } = useLocationBackground()
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   return (
@@ -143,10 +138,9 @@ export const ShiftRoutes = () => {
           </PrivateRoute>
         )
       })}
-      <Route
-        path='/connect-wallet'
-        element={<ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />}
-      />
+      <Route path='/connect-wallet'>
+        <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
+      </Route>
       <Navigate to='/dashboard' />
       <Route element={NotFound} />
     </Routes>

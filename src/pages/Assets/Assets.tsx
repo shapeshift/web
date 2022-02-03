@@ -5,7 +5,7 @@ import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Page } from 'components/Layout/Page'
 
 export const Assets = () => {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const onClick = (asset: Asset) => {
     const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
     navigate(url)

@@ -68,7 +68,7 @@ export const FarmingList = () => {
             </Flex>
             <Text
               fontWeight='medium'
-              fontSize="large"
+              fontSize='lg'
               mb={2}
               color='gray.500'
               translation='defi.empty.farming.body'

@@ -65,7 +65,7 @@ const EmptyPortfolio = () => {
         </Flex>
         <Text
           fontWeight='medium'
-          fontSize="large"
+          fontSize='lg'
           mb={2}
           color='gray.500'
           translation='dashboard.portfolio.empty.title'

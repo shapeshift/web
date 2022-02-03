@@ -61,7 +61,7 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
         {background && (
           <Route
             path='/defi/:earnType/:provider/:action'
-            render={({ match: { params } }) => {
+            element={({ match: { params } }) => {
               const { provider } = params
               const Module = DefiModules[provider as DefiProvider]
               return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>

@@ -38,14 +38,9 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
-            <Route
-              path='/'
-              element={(props: RouteComponentProps) => (
-                <Form asset={asset} accountId={accountId} {...props} />
-              )}
-            />
-          </Switch>
+          <Routes>
+            <Route path='/' element={<Form asset={asset} accountId={accountId} />} />
+          </Routes>
         </MemoryRouter>
       </ModalContent>
     </Modal>

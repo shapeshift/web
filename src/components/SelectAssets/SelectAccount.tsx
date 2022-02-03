@@ -3,7 +3,7 @@ import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@ch
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
-import { useHistory, useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { SlideTransition } from 'components/SlideTransition'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
@@ -24,7 +24,7 @@ type SelectAccountLocation = {
 export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
   const location = useLocation<SelectAccountLocation>()
   const translate = useTranslate()
-  const history = useHistory()
+  const navigate = useNavigate()
   const accountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, location.state.assetId)
   )
@@ -39,7 +39,7 @@ export const SelectAccount = ({ onClick, ...rest }: SelectAccountProps) => {
           fontSize='xl'
           size='sm'
           isRound
-          onClick={() => history.push(SelectAssetRoutes.Search)}
+          onClick={() => navigate(SelectAssetRoutes.Search)}
         />
         Select an Account
         <ModalCloseButton position='static' />

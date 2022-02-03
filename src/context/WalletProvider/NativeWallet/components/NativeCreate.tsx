@@ -121,11 +121,11 @@ export const NativeCreate = ({ history, location }: NativeSetupProps) => {
         </Button>
         <Button
           colorScheme='blue'
-          size="large"
+          size='lg'
           disabled={!(vault && words && revealedOnce.current)}
           onClick={() => {
             if (vault) {
-              navigate('/native/create-test', {state: { vault }})
+              navigate('/native/create-test', { state: { vault } })
             }
           }}
         >

@@ -5,7 +5,7 @@ export const IconButtonStyle = {
   baseStyle: (props: Record<string, any>) => ({
     bg: mode('blue.50', 'gray.900')(props)
   }),
-  // styles for different sizes ("sm", "md", "lg")
+  // styles for different sizes ('sm', "md", 'lg')
   sizes: {},
   // styles for different visual variants ("outline", "solid")
   variants: {},

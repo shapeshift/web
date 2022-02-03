@@ -55,9 +55,9 @@ Basic.args = {
 export const Sizes: Story = () => (
   <>
     <RawText fontSize='xs'>(xs) fontSize</RawText>
-    <RawText fontSize="small">(sm) fontSize</RawText>
+    <RawText fontSize='sm'>(sm) fontSize</RawText>
     <RawText fontSize='md'>(md) fontSize this is the default size</RawText>
-    <RawText fontSize="large">(lg) fontSize</RawText>
+    <RawText fontSize='lg'>(lg) fontSize</RawText>
     <RawText fontSize='xl'>(xl) fontSize</RawText>
     <RawText fontSize='2xl'>(2xl) fontSize</RawText>
     <RawText fontSize='3xl'>(3xl) fontSize</RawText>

@@ -129,7 +129,7 @@ export const PinModal = ({
           <Text color='gray.500' translation={`walletProvider.keepKey.${translationType}.body`} />
           <SimpleGrid columns={3} spacing={6} my={6} maxWidth='250px' ml='auto' mr='auto'>
             {pinNumbers.map(number => (
-              <Button key={number} size="large" p={8} onClick={() => handlePinPress(number)}>
+              <Button key={number} size='lg' p={8} onClick={() => handlePinPress(number)}>
                 <CircleIcon boxSize={4} />
               </Button>
             ))}
@@ -137,7 +137,7 @@ export const PinModal = ({
           <Input
             type='password'
             ref={pinFieldRef}
-            size="large"
+            size='lg'
             variant='filled'
             mb={6}
             autoComplete='one-time-code'
@@ -152,7 +152,7 @@ export const PinModal = ({
           )}
           <Button
             isFullWidth
-            size="large"
+            size='lg'
             colorScheme='blue'
             onClick={handleSubmit}
             disabled={loading}

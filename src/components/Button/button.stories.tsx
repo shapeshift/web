@@ -96,9 +96,7 @@ export const withVariants = () => (
     <Button colorScheme='teal' variant='link'>
       Button
     </Button>
-    <Button colorScheme='teal' >
-      Button
-    </Button>
+    <Button colorScheme='teal' variant='unstyled'>Button</Button>
   </HStack>
 )
 
@@ -107,13 +105,13 @@ export const withSizes = () => (
     <Button colorScheme='blue' size='xs'>
       Button
     </Button>
-    <Button colorScheme='blue' size="small">
+    <Button colorScheme='blue' size='sm'>
       Button
     </Button>
     <Button colorScheme='blue' size='md'>
       Button
     </Button>
-    <Button colorScheme='blue' size="large">
+    <Button colorScheme='blue' size='lg'>
       Button
     </Button>
   </HStack>
@@ -132,7 +130,7 @@ export const WithIcon = () => (
 
 export const WithLoading = () => (
   <Stack direction='row' spacing={4} align='center'>
-    <Button size="large" isLoading colorScheme='teal'>
+    <Button size='lg' isLoading colorScheme='teal'>
       Email
     </Button>
 
@@ -198,7 +196,7 @@ export const iconButton = () => (
 
     <IconButton colorScheme='blue' aria-label='Search database' icon={<SearchIcon />} />
 
-    <IconButton colorScheme='teal' aria-label='Call Segun' size="large">
+    <IconButton colorScheme='teal' aria-label='Call Segun' size='lg'>
       <PhoneIcon />
     </IconButton>
   </Stack>
@@ -212,7 +210,7 @@ export const WithButtonGroup = () => (
 )
 
 export const attachedButtons = () => (
-  <ButtonGroup size="small" isAttached variant='outline'>
+  <ButtonGroup size='sm' isAttached variant='outline'>
     <Button marginEnd='-px'>Save</Button>
     <IconButton fontSize='2xl' aria-label='Add to friends' icon={<ChevronDownIcon />} />
   </ButtonGroup>

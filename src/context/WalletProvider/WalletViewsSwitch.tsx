@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
-import { Route, Routes, useNavigate, useLocation, useMatch } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 
 import { SUPPORTED_WALLETS } from './config'
@@ -17,13 +17,13 @@ import { SelectModal } from './SelectModal'
 import { useWallet, WalletActions } from './WalletProvider'
 
 export const WalletViewsSwitch = () => {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const location = useLocation()
   const match = useMatch('/')
   const { state, dispatch } = useWallet()
 
   const onClose = () => {
-    navigate('/', { replace: true })
+    ;<Navigate to='/' replace />
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }
 
@@ -41,7 +41,7 @@ export const WalletViewsSwitch = () => {
     if (state?.initialRoute) {
       navigate(state.initialRoute)
     }
-  }, [navigate, state?.initialRoute])
+  }, [navigate, state.initialRoute])
 
   return (
     <>
@@ -55,13 +55,13 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && (
+            {!match && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'
                 variant='ghost'
                 fontSize='xl'
-                size="small"
+                size='sm'
                 isRound
                 onClick={handleBack}
               />
@@ -75,11 +75,7 @@ export const WalletViewsSwitch = () => {
                   SUPPORTED_WALLETS[state.type].routes.map((route, index) => {
                     const Component = route.element
                     return !Component ? null : (
-                      <Route
-                        key={index}
-                        path={route.path}
-                        render={(routeProps: JSX.IntrinsicAttributes) => <Component {...routeProps} />}
-                      />
+                      <Route exact key={index} path={route.path} element={<Component />} />
                     )
                   })}
 

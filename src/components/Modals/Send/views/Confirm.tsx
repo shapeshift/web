@@ -41,9 +41,9 @@ export const Confirm = () => {
     control,
     formState: { isSubmitting }
   } = useFormContext<SendInput>()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const translate = useTranslate()
-  const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
+  const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
     control
   })
   const { fees } = useSendFees()
@@ -68,7 +68,7 @@ export const Confirm = () => {
         top={2}
         left={3}
         fontSize='xl'
-        size="small"
+        size='sm'
         isRound
         onClick={() => navigate(SendRoutes.Details)}
       />
@@ -93,7 +93,7 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis maxWidth='260px'>{address}</MiddleEllipsis>
+              <MiddleEllipsis address={ensName || address} />
             </Row.Value>
           </Row>
           <FormControl mt={4}>
@@ -139,7 +139,7 @@ export const Confirm = () => {
           disabled={!fees || isSubmitting}
           isLoading={isSubmitting}
           loadingText={translate('modals.send.broadcastingTransaction')}
-          size="large"
+          size='lg'
           mt={6}
           type='submit'
           width='full'

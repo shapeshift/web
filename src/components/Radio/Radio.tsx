@@ -64,7 +64,7 @@ export const Radio = <T extends RadioTypes>({
       {...group}
       variant={variant}
       colorScheme={colorScheme}
-      size="small"
+      size='sm'
       {...buttonGroupProps}
     >
       {options.map(option => {

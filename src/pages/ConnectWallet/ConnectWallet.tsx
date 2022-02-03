@@ -21,12 +21,12 @@ type NoWalletProps = {
 }
 
 export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
     hasWallet && navigate(query?.returnUrl ? query.returnUrl : '/dashboard')
-  }, [navigate, hasWallet, query.returnUrl])
+  }, [hasWallet, query.returnUrl, navigate])
   return (
     <Page>
       <Flex
@@ -76,13 +76,13 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
         </Flex>
         <Text
           color='gray.500'
-          fontSize="large"
+          fontSize='lg'
           mb={12}
           textAlign='center'
           translation='connectWalletPage.body'
         />
         <Button
-          size="large"
+          size='lg'
           zIndex={1}
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}

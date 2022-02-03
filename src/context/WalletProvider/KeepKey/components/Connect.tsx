@@ -37,7 +37,7 @@ const translateError = (event: Event) => {
   return `walletProvider.keepKey.errors.${t}`
 }
 
-export const KeepKeyConnect = ({  }: KeepKeySetupProps) => {
+export const KeepKeyConnect = () => {
   let navigate = useNavigate()
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
@@ -89,7 +89,7 @@ export const KeepKeyConnect = ({  }: KeepKeySetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name: label, icon, deviceId }
+          payload: { wallet, name: label, icon, deviceId, meta: { label } }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         navigate('/keepkey/success')

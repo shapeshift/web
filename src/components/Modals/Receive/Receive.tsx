@@ -27,14 +27,9 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
       <ModalOverlay />
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
-          <Switch>
-            <Route
-              path='/'
-              element={(props: RouteComponentProps) => (
-                <ReceiveRouter asset={asset} accountId={accountId} {...props} />
-              )}
-            />
-          </Switch>
+          <Routes>
+            <Route path='/' element={<ReceiveRouter asset={asset} accountId={accountId} />} />
+          </Routes>
         </MemoryRouter>
       </ModalContent>
     </Modal>

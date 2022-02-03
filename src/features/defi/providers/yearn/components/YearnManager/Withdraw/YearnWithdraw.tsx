@@ -14,7 +14,7 @@ import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -58,7 +58,7 @@ type YearnWithdrawProps = {
 
 export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
@@ -81,17 +81,17 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const location = useLocation()
   const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw })
 
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !tokenId) return
+        if (!walletState.wallet || !vaultAddress) return
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId),
+          api.findByDepositVaultAddress(vaultAddress),
           api.pricePerShare({ vaultAddress })
         ])
         dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
@@ -105,7 +105,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!state.userAddress || !tokenId) return
@@ -187,7 +187,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const handleCancel = () => {
-    browserHistory.goBack()
+    navigate(-1)
   }
 
   const validateCryptoAmount = (value: string) => {
@@ -291,7 +291,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -357,7 +357,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>
@@ -372,7 +372,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -439,9 +439,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         <AnimatePresence exitBeforeEnter initial={false}>
           <Routes location={location} key={location.key}>
             {routes.map(route => {
-              return (
-                <Route key={route.path} render={() => renderRoute(route)} path={route.path} />
-              )
+              return <Route key={route.path} element={() => renderRoute(route)} path={route.path} />
             })}
           </Routes>
         </AnimatePresence>

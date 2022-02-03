@@ -240,7 +240,7 @@ export const PrimaryChart = ({
           >
             <ul style={{ padding: '0', margin: '0', listStyle: 'none' }}>
               <li>
-                <Amount.Fiat fontWeight='bold' fontSize="large" my={2} value={tooltipData.price} />
+                <Amount.Fiat fontWeight='bold' fontSize='lg' my={2} value={tooltipData.price} />
               </li>
               <li style={{ paddingBottom: '0.25rem', fontSize: '12px', color: colors.gray[500] }}>
                 {dayjs(getDate(tooltipData)).format('MMMM D, YYYY h:mm A')}

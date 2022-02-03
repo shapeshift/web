@@ -14,7 +14,6 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
   if (!active) {
     active = params?.network === asset?.chain
   }
-
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')
 
   if (!asset) return null
@@ -33,7 +32,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       <AssetIcon src={asset?.icon} boxSize='24px' mr={4} />
       <Box textAlign='left'>
         <Text lineHeight={1}>{asset.name}</Text>
-        <Text fontWeight='normal' fontSize="small" color={color}>
+        <Text fontWeight='normal' fontSize='sm' color={color}>
           {asset.symbol}
         </Text>
       </Box>

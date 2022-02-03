@@ -14,19 +14,21 @@ import {
   ModalHeader,
   Skeleton,
   SkeletonText,
+  Tag,
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RouteComponentProps, useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { ensReverseLookup } from 'lib/ens'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
@@ -35,14 +37,15 @@ import { ReceiveRoutes } from './Receive'
 type ReceivePropsType = {
   asset: Asset
   accountId: AccountSpecifier
-} & RouteComponentProps
+}
 
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
+  const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { chain, name, symbol } = asset
 
   const { wallet } = state
@@ -54,15 +57,27 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
       const accountParams = utxoParams
-      setReceiveAddress(
-        await chainAdapter.getAddress({
-          wallet,
-          accountType,
-          ...accountParams
-        })
-      )
+      const selectedAccountAddress = await chainAdapter.getAddress({
+        wallet,
+        accountType,
+        ...accountParams
+      })
+      setReceiveAddress(selectedAccountAddress)
+      if (asset.chain === ChainTypes.Ethereum) {
+        const reverseSelectedAccountAddressLookup = await ensReverseLookup(selectedAccountAddress)
+        !reverseSelectedAccountAddressLookup.error &&
+          setEnsReceiveAddress(reverseSelectedAccountAddressLookup.name)
+      }
     })()
-  }, [setReceiveAddress, accountType, asset, wallet, chainAdapter, utxoParams])
+  }, [
+    setReceiveAddress,
+    setEnsReceiveAddress,
+    accountType,
+    asset,
+    wallet,
+    chainAdapter,
+    utxoParams
+  ])
 
   const handleVerify = async () => {
     const accountParams = utxoParams
@@ -113,7 +128,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
         top={2}
         left={3}
         fontSize='xl'
-        size="small"
+        size='sm'
         isRound
         onClick={() => navigate(ReceiveRoutes.Select)}
       />
@@ -142,8 +157,15 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 />
               </SkeletonText>
             </Box>
+            <Flex justifyContent='center'>
+              {ensReceiveAddress && (
+                <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
+                  {ensReceiveAddress}
+                </Tag>
+              )}
+            </Flex>
             <Card
-              
+              variant='unstyled'
               borderRadius='xl'
               display='inline-block'
               p={0}
@@ -162,13 +184,13 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       color='gray.500'
                       alignItems='center'
                       justifyContent='center'
-                      fontSize="small"
+                      fontSize='sm'
                       onClick={copyHandler}
                       _hover={{ color: 'blue.500' }}
                       _active={{ color: 'blue.800' }}
                       cursor='pointer'
                     >
-                      <MiddleEllipsis maxWidth='250px'>{receiveAddress}</MiddleEllipsis>
+                      <MiddleEllipsis address={receiveAddress} />
                     </Flex>
                   </Skeleton>
                 </Card.Body>

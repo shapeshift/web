@@ -60,9 +60,9 @@ export const Translations = () => <Text fontSize='6xl' translation='t.prop.takes
 export const Sizes: Story = () => (
   <>
     <Text fontSize='xs' translation='(xs) fontSize' />
-    <Text fontSize="small" translation='(sm) fontSize' />
+    <Text fontSize='sm' translation='(sm) fontSize' />
     <Text fontSize='md' translation='(md) fontSize: this is the default size' />
-    <Text fontSize="large" translation='(lg) fontSize' />
+    <Text fontSize='lg' translation='(lg) fontSize' />
     <Text fontSize='xl' translation='(xl) fontSize' />
     <Text fontSize='2xl' translation='(2xl) fontSize' />
     <Text fontSize='3xl' translation='(3xl) fontSize' />

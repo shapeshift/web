@@ -68,7 +68,7 @@ const CryptoInput = (props: InputProps) => (
   <Input
     pr='4.5rem'
     pl='7.5rem'
-    size="large"
+    size='lg'
     type='number'
     border={0}
     borderBottomRadius={0}
@@ -120,6 +120,8 @@ export const Deposit = ({
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
   const [percent, setPercent] = useState<number | null>(null)
   const amountRef = useRef<string | null>(null)
+  const bgColor = useColorModeValue('gray.50', 'gray.850')
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const {
     clearErrors,
@@ -194,7 +196,7 @@ export const Deposit = ({
     <SlideTransition>
       <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
         <ModalBody>
-          <Card size="small" width='full' variant='group' my={6}>
+          <Card size='sm' width='full' variant='group' my={6}>
             <Card.Body>
               <Flex alignItems='center'>
                 <AssetIcon src={asset.icon} boxSize='40px' />
@@ -246,18 +248,18 @@ export const Deposit = ({
               </FormHelperText>
             </Box>
             <VStack
-              bg={useColorModeValue('gray.50', 'gray.850')}
+              bg={bgColor}
               borderRadius='xl'
               borderWidth={1}
-              borderColor={useColorModeValue('gray.100', 'gray.750')}
+              borderColor={borderColor}
               divider={<Divider />}
               spacing={0}
             >
-              <InputGroup size="large">
+              <InputGroup size='lg'>
                 <InputLeftElement ml={1} width='auto'>
                   <Button
                     ml={1}
-                    size="small"
+                    size='sm'
                     variant='ghost'
                     textTransform='uppercase'
                     onClick={handleInputToggle}
@@ -325,7 +327,7 @@ export const Deposit = ({
                     <Popover>
                       <PopoverTrigger>
                         <IconButton
-                          size="small"
+                          size='sm'
                           aria-label='Slippage Settings'
                           variant='ghost'
                           icon={<SliderIcon />}
@@ -335,7 +337,7 @@ export const Deposit = ({
                         <PopoverArrow />
                         <PopoverCloseButton />
                         <PopoverHeader>
-                          <Text fontSize="small" translation='modals.deposit.slippageSettings' />
+                          <Text fontSize='sm' translation='modals.deposit.slippageSettings' />
                         </PopoverHeader>
                         <PopoverBody>
                           <Slippage
@@ -348,7 +350,7 @@ export const Deposit = ({
                   </InputRightElement>
                 )}
               </InputGroup>
-              <ButtonGroup width='full' justifyContent='space-between' size="small" px={4} py={2}>
+              <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
                 {percentOptions.map(option => (
                   <Button
                     isActive={option === percent}
@@ -393,7 +395,7 @@ export const Deposit = ({
         </ModalBody>
         <ModalFooter flexDir='column'>
           <Text
-            fontSize="small"
+            fontSize='sm'
             color='gray.500'
             mb={2}
             width='full'
@@ -404,13 +406,13 @@ export const Deposit = ({
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}
             mb={2}
-            size="large"
+            size='lg'
             type='submit'
             width='full'
           >
             {translate(fieldError || 'common.continue')}
           </Button>
-          <Button onClick={onCancel} size="large" variant='ghost' width='full'>
+          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
             {translate('common.cancel')}
           </Button>
         </ModalFooter>

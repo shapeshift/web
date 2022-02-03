@@ -14,7 +14,7 @@ const CryptoInput = (props: InputProps) => (
   <Input
     pr='4.5rem'
     pl='7.5rem'
-    size="large"
+    size='lg'
     type='number'
     variant='filled'
     placeholder='Enter amount'
@@ -47,7 +47,7 @@ export function TokenRow<C extends FieldValues>({
   } = useLocaleFormatter({ fiatType: 'USD' })
 
   return (
-    <InputGroup size="large" {...rest}>
+    <InputGroup size='lg' {...rest}>
       {inputLeftElement && (
         <InputLeftElement ml={1} width='auto'>
           {inputLeftElement}

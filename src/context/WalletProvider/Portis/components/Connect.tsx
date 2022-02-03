@@ -9,11 +9,12 @@ export interface PortisSetupProps {
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export const PortisConnect = ({  }: PortisSetupProps) => {
-  let navigate = useNavigate()
+// eslint-disable-next-line no-empty-pattern
+export const PortisConnect = ({}: PortisSetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))

@@ -28,7 +28,7 @@ import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
+import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -78,7 +78,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
@@ -102,9 +102,9 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const location = useLocation()
-  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit})
+  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit })
 
   // notify
   const toast = useToast()
@@ -112,10 +112,10 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !tokenId) return
+        if (!walletState.wallet || !vaultAddress) return
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId),
+          api.findByDepositVaultAddress(vaultAddress),
           api.pricePerShare({ vaultAddress })
         ])
         dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
@@ -129,7 +129,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getApproveGasEstimate = async () => {
     if (!state.userAddress || !tokenId) return
@@ -335,8 +335,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.vault.apy?.net_apy
-    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(apy)
+    const apy = state.vault.metadata?.apy?.net_apy
+    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -431,7 +431,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   <Text translation='modals.confirm.withdrawFrom' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -528,7 +528,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>
@@ -636,12 +636,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
             <Routes location={location} key={location.key}>
               {routes.map(route => {
                 return (
-                  <Route
-                    exact
-                    key={route.path}
-                    render={() => renderRoute(route)}
-                    path={route.path}
-                  />
+                  <Route key={route.path} element={() => renderRoute(route)} path={route.path} />
                 )
               })}
             </Routes>

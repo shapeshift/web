@@ -10,18 +10,16 @@ import {
   ModalHeader
 } from '@chakra-ui/react'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
-import React, { useState } from 'react'
-import { FieldValues, useForm,  } from 'react-hook-form'
+import { useState } from 'react'
+import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
-import { NativeSetupProps } from '../types'
-import { useNavigate,  useLocation } from 'react-router-dom'
-
 export const NativeRename = () => {
-  let location = useLocation()
-  let navigate = useNavigate()
+  const location = useLocation()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const [showPw, setShowPw] = useState<boolean>(false)
 
@@ -73,7 +71,7 @@ export const NativeRename = () => {
                   message: translate('modals.shapeShift.password.error.maxLength', { length: 64 })
                 }
               })}
-              size="large"
+              size='lg'
               variant='filled'
               id='name'
               placeholder={translate('walletProvider.shapeShift.rename.walletName')}
@@ -81,7 +79,7 @@ export const NativeRename = () => {
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
           <FormControl mb={6} isInvalid={errors.password}>
-            <InputGroup size="large" variant='filled'>
+            <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('password', {
                   required: translate('modals.shapeShift.password.error.required'),
@@ -100,7 +98,7 @@ export const NativeRename = () => {
                 <IconButton
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
-                  size="small"
+                  size='sm'
                   onClick={handleShowClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
@@ -110,7 +108,7 @@ export const NativeRename = () => {
           </FormControl>
           <Button
             colorScheme='blue'
-            size="large"
+            size='lg'
             isFullWidth
             type='submit'
             isLoading={isSubmitting}

@@ -3,14 +3,7 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import {
-  Navigate,
-  Route,
-  RouteComponentProps,
-  Routes,
-  useNavigate,
-  useLocation
-} from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -25,6 +18,7 @@ import { QrCodeScanner } from './views/QrCodeScanner'
 
 export enum SendFormFields {
   Address = 'address',
+  EnsName = 'ensName',
   AccountId = 'accountId',
   Asset = 'asset',
   FeeType = 'feeType',
@@ -39,8 +33,9 @@ export enum SendFormFields {
 
 export type SendInput = {
   [SendFormFields.Address]: string
+  [SendFormFields.EnsName]?: string
   [SendFormFields.AccountId]: AccountSpecifier
-  [SendFormFields.AmountFieldError]: string
+  [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
@@ -58,7 +53,7 @@ type SendFormProps = {
 
 export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   const location = useLocation()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const { handleSend } = useFormSend()
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
 
@@ -67,6 +62,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     defaultValues: {
       accountId,
       address: '',
+      ensName: '',
       asset: initialAsset,
       feeType: chainAdapters.FeeDataKey.Average,
       cryptoAmount: '',
@@ -93,12 +89,14 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
 
   useEffect(() => {
     if (!accountId && initialAsset) {
-      navigate(SendRoutes.Select,{ state: {
+      navigate(SendRoutes.Select, {
+        state: {
           toRoute: SelectAssetRoutes.Account,
           assetId: initialAsset.caip19
-        }})
+        }
+      })
     }
-  }, [accountId, initialAsset, history])
+  }, [accountId, initialAsset, navigate])
 
   return (
     <FormProvider {...methods}>
@@ -108,9 +106,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
           <Routes location={location} key={location.key}>
             <Route
               path={SendRoutes.Select}
-              element={(props: RouteComponentProps) => (
-                <SelectAssetRouter onClick={handleAssetSelect} {...props} />
-              )}
+              element={<SelectAssetRouter onClick={handleAssetSelect} />}
             />
             <Route path={SendRoutes.Address} element={Address} />
             <Route path={SendRoutes.Details} element={Details} />

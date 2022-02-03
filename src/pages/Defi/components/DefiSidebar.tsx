@@ -5,7 +5,7 @@ import { Text } from 'components/Text'
 
 export const DefiSidebar = ({ route }: LeftSidebarChildProps) => {
   return (
-    <Card>
+    <Card variant='unstyled'>
       <Card.Header>
         <Card.Heading fontSize='lg'>
           <Text translation='defi.defi' />

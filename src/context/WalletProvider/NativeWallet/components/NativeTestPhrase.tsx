@@ -6,10 +6,8 @@ import shuffle from 'lodash/shuffle'
 import slice from 'lodash/slice'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { RawText, Text } from 'components/Text'
-
-import { NativeSetupProps } from '../types'
-import { useLocation, useNavigate  } from 'react-router-dom'
 
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable
@@ -26,9 +24,9 @@ type TestState = {
   correctAnswerIndex: number
 }
 
-export const NativeTestPhrase = ({ }: NativeSetupProps) => {
-  let navigate = useNavigate()
-  let location = useLocation()
+export const NativeTestPhrase = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [testState, setTestState] = useState<TestState | null>(null)
   const [invalidTries, setInvalidTries] = useState<number[]>([])
   const [testCount, setTestCount] = useState<number>(0)
@@ -36,7 +34,7 @@ export const NativeTestPhrase = ({ }: NativeSetupProps) => {
   const [shuffledNumbers] = useState(slice(shuffle(range(12)), 0, TEST_COUNT_REQUIRED))
   const [, setError] = useState<string | null>(null)
 
-  const { state } = useLocation()
+  const { state } = location.state
   const { vault } = state.vault ? state.vault : ''
 
   const shuffleMnemonic = useCallback(async () => {
@@ -84,7 +82,7 @@ export const NativeTestPhrase = ({ }: NativeSetupProps) => {
         setTimeout(() => revoker.revoke(), 250)
       }
     }
-  }, [testCount, history, revoker, vault])
+  }, [testCount, revoker, vault, navigate])
 
   const handleClick = (index: number) => {
     if (index === testState?.correctAnswerIndex) {

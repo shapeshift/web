@@ -13,7 +13,7 @@ export const ColorModeSwitcher: React.FC<ColorModeSwitcherProps> = props => {
     <>
       <IconButton
         size='md'
-        fontSize="large"
+        fontSize='lg'
         variant='ghost'
         isRound
         colorScheme='blue'

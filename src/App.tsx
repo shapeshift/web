@@ -27,7 +27,7 @@ export const App = () => {
               <Button
                 variant='solid'
                 colorScheme='blue'
-                size="small"
+                size='sm'
                 onClick={() => window.location.reload()}
                 ml={4}
               >

@@ -13,10 +13,10 @@ import React, { useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
-import { useNavigate } from 'react-router-dom'
 
 export const NativePassword = ({ history, location }: NativeSetupProps) => {
   const translate = useTranslate()
@@ -30,7 +30,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
       vault.seal()
       await vault.setPassword(values.password)
       vault.meta.set('name', values.name)
-      navigate('/native/success', {state: { vault }})
+      navigate('/native/success', { state: { vault } })
     } catch (e) {
       console.error('WalletProvider:NativeWallet:Password - Error setting password', e)
       setError('password', {
@@ -63,7 +63,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                   message: translate('modals.shapeShift.password.error.maxLength', { length: 64 })
                 }
               })}
-              size="large"
+              size='lg'
               variant='filled'
               id='name'
               placeholder={translate('modals.shapeShift.password.walletName')}
@@ -71,7 +71,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
           <FormControl mb={6} isInvalid={errors.password}>
-            <InputGroup size="large" variant='filled'>
+            <InputGroup size='lg' variant='filled'>
               <Input
                 {...register('password', {
                   required: translate('modals.shapeShift.password.error.required'),
@@ -90,7 +90,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
                 <IconButton
                   aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                   h='1.75rem'
-                  size="small"
+                  size='sm'
                   onClick={handleShowClick}
                   icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                 />
@@ -100,7 +100,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
           </FormControl>
           <Button
             colorScheme='blue'
-            size="large"
+            size='lg'
             isFullWidth
             type='submit'
             isLoading={isSubmitting}

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
@@ -24,15 +24,13 @@ type ApprovalParams = {
 const APPROVAL_PERMISSION_URL = 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
 
 export const Approval = () => {
-  // const location = useLocation<ApprovalParams>()
+  const navigate = useNavigate()
   const location = useLocation()
+  const { fiatRate }: ApprovalParams = location.state
   const approvalInterval: { current: NodeJS.Timeout | undefined } = useRef()
   const toast = useToast()
   const translate = useTranslate()
   const [approvalTxId, setApprovalTxId] = useState<string>()
-  const [fiatRate, setFiatRate] = useState<ApprovalParams | unknown>()
-
-  setFiatRate(typeof location.state === 'string' ? location.state : '')
 
   const {
     getValues,
@@ -49,7 +47,6 @@ export const Approval = () => {
   const { quote, sellAsset, fees } = getValues()
   const fee = fees?.chainSpecific?.approvalFee
   const symbol = sellAsset.currency?.symbol
-  let navigate = useNavigate()
 
   const approve = async () => {
     if (!wallet) return
@@ -188,7 +185,7 @@ export const Approval = () => {
                       // TODO:(ryankk) create explorer links given a link template and a value
                       href={`${sellAsset.currency?.explorerTxLink}${approvalTxId}`}
                     >
-                      <MiddleEllipsis maxWidth='130px'>{approvalTxId}</MiddleEllipsis>
+                      <MiddleEllipsis address={approvalTxId} />
                     </Link>
                   </Row.Value>
                 </Row>

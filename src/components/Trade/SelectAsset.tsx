@@ -1,6 +1,5 @@
 import { caip2 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { RouteComponentProps } from 'react-router-dom'
 import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { Card } from 'components/Card/Card'
 import { SlideTransition } from 'components/SlideTransition'
@@ -8,7 +7,7 @@ import { Text } from 'components/Text'
 
 import { WithBackButton } from './WithBackButton'
 
-type SelectAssetProps = { onClick: (asset: Asset) => void } & RouteComponentProps
+type SelectAssetProps = { onClick: (asset: Asset) => void }
 
 export const SelectAsset = ({ onClick, history }: SelectAssetProps) => {
   // Filters the asset search to only show eth/erc20 assets
@@ -20,7 +19,7 @@ export const SelectAsset = ({ onClick, history }: SelectAssetProps) => {
   }
 
   const handleBack = () => {
-    history.push('/trade/input')
+    navigate('/trade/input')
   }
 
   return (

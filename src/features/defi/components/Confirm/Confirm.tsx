@@ -35,10 +35,10 @@ export const Confirm = ({
       <ModalFooter flexDir='column' textAlign='center' mt={6}>
         <Stack width='full'>
           {prefooter}
-          <Button size="large" colorScheme='blue' onClick={onConfirm}>
+          <Button size='lg' colorScheme='blue' onClick={onConfirm}>
             {translate('modals.confirm.signBroadcast')}
           </Button>
-          <Button size="large" variant='ghost' onClick={onCancel}>
+          <Button size='lg' variant='ghost' onClick={onCancel}>
             {translate('modals.confirm.cancel')}
           </Button>
         </Stack>

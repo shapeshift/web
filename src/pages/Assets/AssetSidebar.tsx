@@ -4,7 +4,7 @@ import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { LeftSidebarChildProps } from 'components/Layout/LeftSidebar'
 
 export const AssetSidebar = ({ onToggle }: LeftSidebarChildProps) => {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const onClick = (asset: Asset) => {
     const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
     navigate(url)

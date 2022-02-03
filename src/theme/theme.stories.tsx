@@ -104,9 +104,9 @@ export const Spacing = () => (
 export const fontSizes = () => (
   <>
     <Text fontSize='xs'>(xs) fontSize</Text>
-    <Text fontSize="small">(sm) fontSize</Text>
+    <Text fontSize='sm'>(sm) fontSize</Text>
     <Text fontSize='md'>(md) fontSize this is the default size</Text>
-    <Text fontSize="large">(lg) fontSize</Text>
+    <Text fontSize='lg'>(lg) fontSize</Text>
     <Text fontSize='xl'>(xl) fontSize</Text>
     <Text fontSize='2xl'>(2xl) fontSize</Text>
     <Text fontSize='3xl'>(3xl) fontSize</Text>

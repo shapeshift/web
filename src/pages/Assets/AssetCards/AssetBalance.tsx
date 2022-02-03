@@ -4,7 +4,7 @@ import { Text } from 'components/Text'
 
 export const AssetBalance = () => {
   return (
-    <Card  size="small">
+    <Card variant='unstyled' size='sm'>
       <Card.Header>
         <Card.Heading color='gray.400'>
           <Text translation={'assets.assetCards.accounts'} />

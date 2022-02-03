@@ -4,7 +4,7 @@ import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshif
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { RouterProps, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -29,7 +29,7 @@ type TradeConfirmParams = {
 
 type ZrxError = Error & { message: string }
 
-export const TradeConfirm = ({  }: RouterProps) => {
+export const TradeConfirm = () => {
   let navigate = useNavigate()
   const [txid, setTxid] = useState('')
   const {
@@ -138,7 +138,7 @@ export const TradeConfirm = ({  }: RouterProps) => {
   return (
     <SlideTransition>
       <Box as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Card >
+        <Card variant='unstyled'>
           <Card.Header px={0} pt={0}>
             <WithBackButton handleBack={handleBack}>
               <Card.Heading textAlign='center'>
@@ -205,7 +205,7 @@ export const TradeConfirm = ({  }: RouterProps) => {
               <Button
                 isLoading={isSubmitting}
                 colorScheme='blue'
-                size="large"
+                size='lg'
                 width='full'
                 mt={6}
                 type='submit'

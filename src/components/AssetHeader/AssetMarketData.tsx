@@ -84,7 +84,7 @@ export const AssetMarketData = ({ marketData, isLoaded }: AssetMarketDataProps) 
           <Text translation='assets.assetDetails.assetHeader.dayChange' />
         </StatLabel>
         <StatValue isLoaded={isLoaded}>
-          <StatArrow fontSize="small" mr={1} type={percentChange.gt(0) ? 'increase' : 'decrease'} />
+          <StatArrow fontSize='sm' mr={1} type={percentChange.gt(0) ? 'increase' : 'decrease'} />
           <Amount.Percent value={percentChange.div(100).toNumber() ?? 0} />
         </StatValue>
       </Stat>

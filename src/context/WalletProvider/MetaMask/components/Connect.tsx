@@ -1,7 +1,6 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { RouteComponentProps, useNavigate } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 
 import { ConnectModal } from '../../components/ConnectModal'

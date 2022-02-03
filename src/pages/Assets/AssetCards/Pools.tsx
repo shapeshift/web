@@ -5,7 +5,7 @@ import { RawText, Text } from 'components/Text'
 
 export const Pools = () => {
   return (
-    <Card  size="small" my={6}>
+    <Card variant='unstyled' size='sm' my={6}>
       <Card.Header>
         <Card.Heading color='gray.400'>
           <Text translation={'assets.assetCards.pools'} />
@@ -19,7 +19,7 @@ export const Pools = () => {
                 <AssetIcon symbol='sushi' boxSize='8' boxShadow='right' zIndex={2} mr={-3} />
                 <AssetIcon symbol='eth' boxSize='8' mr={2} />
               </Flex>
-              <RawText size="large">SUSHI/ETH</RawText>
+              <RawText size='lg'>SUSHI/ETH</RawText>
             </Flex>
             <Flex>
               <Tag colorScheme='green'>0.81% APR</Tag>
@@ -31,7 +31,7 @@ export const Pools = () => {
                 <AssetIcon symbol='dai' boxSize='8' boxShadow='right' zIndex={2} mr={-3} />
                 <AssetIcon symbol='eth' boxSize='8' mr={2} />
               </Flex>
-              <RawText size="large">DAI/ETH</RawText>
+              <RawText size='lg'>DAI/ETH</RawText>
             </Flex>
             <Flex>
               <Tag colorScheme='green'>0.04% APR</Tag>

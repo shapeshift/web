@@ -43,7 +43,7 @@ export const Approve = ({
       <ModalBody width='full' textAlign='center'>
         <CircularProgress size='120px' thickness='4px' mt={8} mb={4} isIndeterminate={loading}>
           <CircularProgressLabel>
-            <AssetIcon symbol='usdc' boxSize='90px' />
+            <AssetIcon src={asset.icon} boxSize='90px' />
           </CircularProgressLabel>
         </CircularProgress>
         <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
@@ -75,14 +75,14 @@ export const Approve = ({
           <Button
             onClick={onConfirm}
             width='full'
-            size="large"
+            size='lg'
             colorScheme='blue'
             isLoading={loading}
             loadingText={loadingText}
           >
             {translate('modals.approve.confirm')}
           </Button>
-          <Button onClick={onCancel} width='full' size="large" variant='ghost'>
+          <Button onClick={onCancel} width='full' size='lg' variant='ghost'>
             {translate('modals.approve.reject')}
           </Button>
         </Stack>

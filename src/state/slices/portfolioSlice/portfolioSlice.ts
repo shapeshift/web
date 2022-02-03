@@ -125,7 +125,7 @@ export const portfolio = createSlice({
   name: 'portfolio',
   initialState,
   reducers: {
-    clearPortfolio: () => initialState,
+    clear: () => initialState,
     upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
@@ -162,6 +162,8 @@ export const portfolio = createSlice({
   }
 })
 
+type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap; assetIds: string[] }
+
 export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
@@ -169,19 +171,22 @@ export const portfolioApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getAccount: build.query<Portfolio, AccountSpecifierMap>({
-      queryFn: async accountSpecifiers => {
-        if (isEmpty(accountSpecifiers)) return { data: cloneDeep(initialState) }
+    getAccount: build.query<Portfolio, GetAccountArgs>({
+      queryFn: async ({ accountSpecifierMap, assetIds }, baseQuery) => {
+        if (isEmpty(accountSpecifierMap)) return { data: cloneDeep(initialState) }
         const chainAdapters = getChainAdapters()
-        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifiers)[0] as [CAIP2, string]
+        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
         // TODO(0xdef1cafe): chainAdapters.byCAIP2()
         const { chain } = caip2.fromCAIP2(CAIP2)
         try {
           const chainAdaptersAccount = await chainAdapters
             .byChain(chain)
             .getAccount(accountSpecifier)
-          const account = { [accountSpecifier]: chainAdaptersAccount }
-          const data = accountToPortfolio(account)
+          const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
+          const data = accountToPortfolio({ portfolioAccounts, assetIds })
+          // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
+          // to prevent edge cases like #820
+          baseQuery.dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           const status = 400
@@ -189,12 +194,6 @@ export const portfolioApi = createApi({
           const error = { status, data }
           return { error }
         }
-      },
-      onCacheEntryAdded: async (_args, { dispatch, cacheDataLoaded, getCacheEntry }) => {
-        await cacheDataLoaded
-        const port = getCacheEntry().data
-        if (!port) return
-        dispatch(portfolio.actions.upsertPortfolio(port))
       }
     })
   })

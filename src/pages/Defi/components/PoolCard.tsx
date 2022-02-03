@@ -36,7 +36,7 @@ export const PoolCard = ({ token0, token1, tokenAmount, fiatAmount, isLoaded }: 
           </Flex>
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
-              <RawText size="large" fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
+              <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
                 {`${token0} • ${token1}`}
               </RawText>
               <Amount.Crypto color='gray.500' value={tokenAmount} symbol='LP' lineHeight={1} />

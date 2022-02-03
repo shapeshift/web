@@ -28,7 +28,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = props => {
     <>
       <ModalBody textAlign='center' pb={8}>
         <CheckCircleIcon color='green.500' boxSize={20} mb={6} />
-        <Text fontSize="large" fontWeight='bold' translation={props.headerText} />
+        <Text fontSize='lg' fontWeight='bold' translation={props.headerText} />
         {isSuccessful && <Text color='gray.500' translation={props.bodyText} />}
       </ModalBody>
     </>

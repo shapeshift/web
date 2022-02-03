@@ -52,7 +52,10 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         deviceId
       })
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-      dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon, deviceId } })
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: { wallet, name, icon, deviceId, meta: { label: vault.meta.get('name') as string } }
+      })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       close()
     } catch (e) {
@@ -86,7 +89,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
           <Text mb={6} color='gray.500' translation={'modals.shapeShift.password.body'} />
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl isInvalid={errors.password} mb={6}>
-              <InputGroup size="large" variant='filled'>
+              <InputGroup size='lg' variant='filled'>
                 <Input
                   {...register('password', {
                     required: translate('modals.shapeShift.password.error.required'),
@@ -105,7 +108,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
                   <IconButton
                     aria-label={translate(`modals.shapeShift.password.${showPw ? 'hide' : 'show'}`)}
                     h='1.75rem'
-                    size="small"
+                    size='sm'
                     onClick={handleShowClick}
                     icon={!showPw ? <FaEye /> : <FaEyeSlash />}
                   />
@@ -113,7 +116,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
               </InputGroup>
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
-            <Button colorScheme='blue' size="large" isFullWidth type='submit' isLoading={isSubmitting}>
+            <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
               <Text translation={'walletProvider.shapeShift.password.button'} />
             </Button>
           </form>

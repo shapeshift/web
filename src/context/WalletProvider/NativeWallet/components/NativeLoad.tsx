@@ -15,7 +15,7 @@ import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -30,11 +30,11 @@ type VaultInfo = {
 }
 
 export const NativeLoad = () => {
-  let navigate = useNavigate()
   const { state, dispatch } = useWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
   const translate = useTranslate()
+  const navigate = useNavigate()
 
   useEffect(() => {
     ;(async () => {
@@ -78,7 +78,7 @@ export const NativeLoad = () => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId }
+            payload: { wallet, name, icon, deviceId, meta: { label: item.name } }
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
@@ -110,7 +110,7 @@ export const NativeLoad = () => {
 
   const handleRename = async (wallet: VaultInfo) => {
     const vault = wallet
-    navigate('/native/rename', {state: { vault }})
+    navigate('/native/rename', { state: { vault } })
   }
 
   return (
@@ -133,7 +133,7 @@ export const NativeLoad = () => {
               >
                 <Button
                   px={4}
-                  
+                  variant='unstyled'
                   display='flex'
                   pl={4}
                   leftIcon={

@@ -13,7 +13,7 @@ import {
 import { caip19 } from '@shapeshiftoss/caip'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import qs from 'qs'
-import { useHistory, useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -40,7 +40,7 @@ export const StakingCard = ({
   cryptoAmount,
   fiatAmount
 }: StakingCardProps) => {
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const network = NetworkTypes.MAINNET
@@ -55,14 +55,15 @@ export const StakingCard = ({
 
   const handleClick = () => {
     isConnected
-      ? history.push({
-          pathname: `/defi/${type}/${provider}/deposit`,
-          search: qs.stringify({
-            chain,
-            contractAddress: vaultAddress,
-            tokenId: tokenAddress
-          }),
-          state: { background: location }
+      ? navigate(`/defi/${type}/${provider}/deposit`, {
+          state: {
+            search: qs.stringify({
+              chain,
+              contractAddress: vaultAddress,
+              tokenId: tokenAddress
+            }),
+            state: { background: location }
+          }
         })
       : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
@@ -74,13 +75,13 @@ export const StakingCard = ({
       <Card.Body>
         <Flex alignItems='center'>
           <Flex>
-            <SkeletonCircle boxSize="10" isLoaded={isLoaded}>
+            <SkeletonCircle boxSize='10' isLoaded={isLoaded}>
               <AssetIcon src={asset.icon} boxSize='10' zIndex={2} />
             </SkeletonCircle>
           </Flex>
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
-              <RawText size="lg" fontWeight="bold" textTransform='uppercase' lineHeight={1} mb={1}>
+              <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
                 {`${asset.symbol} ${type}`}
               </RawText>
               <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={symbol} lineHeight={1} />

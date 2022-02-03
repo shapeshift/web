@@ -21,7 +21,7 @@ const MenuLink = ({ index, path, icon, label }: MenuLinkProps) => {
       justifyContent='flex-start'
       variant='ghost'
       isActive={params ? true : false}
-      size="large"
+      size='lg'
       px={4}
       fontWeight='medium'
     >

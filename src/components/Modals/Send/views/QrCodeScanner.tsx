@@ -12,7 +12,7 @@ import { SendRoutes } from '../Send'
 const QrReader = lazy(() => import('react-qr-reader'))
 
 export const QrCodeScanner = () => {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const translate = useTranslate()
   const { setValue } = useFormContext<SendInput>()
 
@@ -45,7 +45,7 @@ export const QrCodeScanner = () => {
           <Button
             isFullWidth
             variant='ghost'
-            size="large"
+            size='lg'
             mr={3}
             onClick={() => navigate(SendRoutes.Address)}
           >

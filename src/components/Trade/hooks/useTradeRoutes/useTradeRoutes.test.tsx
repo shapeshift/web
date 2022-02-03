@@ -9,7 +9,7 @@ import { useTradeRoutes } from './useTradeRoutes'
 
 jest.mock('react-router-dom', () => ({
   useNavigate: () => ({
-    navigate: jest.fn()
+    push: jest.fn()
   })
 }))
 jest.mock('lib/web3-instance')

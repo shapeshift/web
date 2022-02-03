@@ -13,7 +13,7 @@ type AddressInputProps = {
 
 export const AddressInput = ({ rules }: AddressInputProps) => {
   const { control } = useFormContext<SendInput>()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const translate = useTranslate()
 
   const handleQrClick = () => {
@@ -21,7 +21,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
   }
 
   return (
-    <InputGroup size="large">
+    <InputGroup size='lg'>
       <Controller
         render={({ field: { onChange, value } }) => (
           <Input
@@ -30,7 +30,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             fontSize='sm'
             onChange={e => onChange(e.target.value.trim())}
             placeholder={translate('modals.send.tokenAddress')}
-            size="large"
+            size='lg'
             value={value}
             variant='filled'
           />
@@ -44,7 +44,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
           aria-label={translate('modals.send.scanQrCode')}
           icon={<QRCodeIcon />}
           onClick={handleQrClick}
-          size="small"
+          size='sm'
           variant='ghost'
         />
       </InputRightElement>

@@ -1,7 +1,7 @@
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { Route, RouteComponentProps, Switch, useNavigate , useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
@@ -16,7 +16,7 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
   const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
   const [selectedAccount, setSelectedAccount] = useState<AccountSpecifier>()
   const location = useLocation()
-  let navigate = useNavigate()
+  const navigate = useNavigate()
 
   const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
     setSelectedAsset(asset)
@@ -26,12 +26,14 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
 
   useEffect(() => {
     if (!selectedAsset && !asset && !accountId) {
-       navigate(ReceiveRoutes.Select)
+      navigate(ReceiveRoutes.Select)
     } else if (selectedAsset && asset && !accountId) {
-       navigate(ReceiveRoutes.Select, {state:{
-        toRoute: SelectAssetRoutes.Account,
-        assetId: asset.caip19
-      }})
+      navigate(ReceiveRoutes.Select, {
+        state: {
+          toRoute: SelectAssetRoutes.Account,
+          assetId: asset.caip19
+        }
+      })
     } else if (asset && accountId) {
       setSelectedAccount(accountId)
       setSelectedAsset(asset)
@@ -44,17 +46,15 @@ export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
       <Routes location={location} key={location.key}>
         <Route
           path={ReceiveRoutes.Info}
-          element={(props: RouteComponentProps) =>
+          element={
             selectedAccount && selectedAsset ? (
-              <ReceiveInfo asset={selectedAsset} accountId={selectedAccount} {...props} />
+              <ReceiveInfo asset={selectedAsset} accountId={selectedAccount} />
             ) : null
           }
         />
         <Route
           path={ReceiveRoutes.Select}
-          element={(props: RouteComponentProps) => (
-            <SelectAssetRouter onClick={handleAssetSelect} {...props} />
-          )}
+          element={<SelectAssetRouter onClick={handleAssetSelect} />}
         />
       </Routes>
     </AnimatePresence>

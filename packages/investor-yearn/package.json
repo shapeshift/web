@@ -29,14 +29,11 @@
     "@shapeshiftoss/chain-adapters": "^1.31.1",
     "@shapeshiftoss/hdwallet-core": "^1.18.4",
     "@shapeshiftoss/types": "^1.21.0",
-    "@yfi/sdk": "^1.0.28",
+    "@yfi/sdk": "^1.0.27",
     "bignumber.js": "^9.0.2",
     "lodash": "^4.17.21",
     "web3": "^1.7.0",
     "web3-core": "^1.7.0",
     "web3-utils": "^1.7.0"
-  },
-  "devDependencies": {
-    "web3-eth-contract": "^1.7.0"
   }
 }

@@ -1,4 +1,4 @@
-# @shapeshiftoss/logger
+# @shapeshiftoss/investor-yearn
 
 ShapeShift's Yearn investor package.
 

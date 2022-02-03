@@ -1,4 +1,5 @@
 import {
+  assetIds,
   btcAddresses,
   btcCaip10s,
   btcPubKeys,
@@ -11,7 +12,11 @@ import {
   mockEthAccount,
   mockETHandBTCAccounts,
   mockEthToken,
+  unknown1Caip19,
+  unknown2Caip19,
+  unknown3Caip19,
   usdcCaip19,
+  yvusdcCaip19,
   zeroCaip19
 } from 'test/mocks/accounts'
 import { mockAssetState } from 'test/mocks/assets'
@@ -49,7 +54,9 @@ describe('portfolioSlice', () => {
             }
           })
 
-          store.dispatch(portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount])))
+          store.dispatch(
+            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount], assetIds))
+          )
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -73,31 +80,9 @@ describe('portfolioSlice', () => {
           })
 
           store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
-          )
-
-          expect(store.getState().portfolio).toMatchSnapshot()
-        })
-
-        it('should update state with multiple accounts with the same token', () => {
-          const store = createStore()
-          const ethAccount = mockEthAccount({
-            chainSpecific: {
-              nonce: 1,
-              tokens: [mockEthToken({ balance: '1', caip19: foxCaip19 })]
-            }
-          })
-          const ethAccount2 = mockEthAccount({
-            balance: '10',
-            pubkey: ethPubKeys[1],
-            chainSpecific: {
-              nonce: 1,
-              tokens: [mockEthToken({ balance: '2', caip19: foxCaip19 })]
-            }
-          })
-
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+            portfolioSlice.actions.upsertPortfolio(
+              mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+            )
           )
 
           expect(store.getState().portfolio).toMatchSnapshot()
@@ -113,7 +98,9 @@ describe('portfolioSlice', () => {
             }
           })
 
-          store.dispatch(portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([btcAccount])))
+          store.dispatch(
+            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([btcAccount], assetIds))
+          )
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -134,7 +121,101 @@ describe('portfolioSlice', () => {
           })
 
           store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([btcAccount, btcAccount2]))
+            portfolioSlice.actions.upsertPortfolio(
+              mockUpsertPortfolio([btcAccount, btcAccount2], assetIds)
+            )
+          )
+
+          expect(store.getState().portfolio).toMatchSnapshot()
+        })
+      })
+
+      describe('Ethereum and bitcoin', () => {
+        it('should update state', () => {
+          const store = createStore()
+          const { ethAccount, ethAccount2, btcAccount } = mockETHandBTCAccounts({
+            ethAccountObj: {
+              balance: '27803816548287370',
+              chainSpecific: {
+                nonce: 5,
+                tokens: [
+                  mockEthToken({ balance: '42729243327349401946', caip19: foxCaip19 }),
+                  mockEthToken({ balance: '41208456', caip19: usdcCaip19 }),
+                  mockEthToken({ balance: '8178352', caip19: yvusdcCaip19 })
+                ]
+              },
+              pubkey: ethPubKeys[0]
+            },
+            ethAccount2Obj: {
+              balance: '23803816548287370',
+              chainSpecific: {
+                nonce: 5,
+                tokens: [
+                  mockEthToken({ balance: '40729243327349401946', caip19: foxCaip19 }),
+                  mockEthToken({ balance: '41208456', caip19: usdcCaip19 }),
+                  mockEthToken({ balance: '8178352', caip19: yvusdcCaip19 })
+                ]
+              },
+              pubkey: ethPubKeys[1]
+            },
+            btcAccountObj: {
+              balance: '1010',
+              chainSpecific: {
+                addresses: [
+                  mockBtcAddress({ balance: '1000', pubkey: btcAddresses[0] }),
+                  mockBtcAddress({ balance: '0', pubkey: btcAddresses[1] }),
+                  mockBtcAddress({ balance: '10', pubkey: btcAddresses[2] }),
+                  mockBtcAddress({ balance: '0', pubkey: btcAddresses[3] })
+                ]
+              }
+            }
+          })
+
+          store.dispatch(
+            portfolioSlice.actions.upsertPortfolio(
+              mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
+            )
+          )
+
+          expect(store.getState().portfolio).toMatchSnapshot()
+        })
+
+        it('should update state and exclude unknown asset ids', () => {
+          const store = createStore()
+          const { ethAccount, btcAccount } = mockETHandBTCAccounts({
+            ethAccountObj: {
+              balance: '23803816548287371',
+              chainSpecific: {
+                nonce: 5,
+                tokens: [
+                  mockEthToken({ balance: '4516123', caip19: unknown1Caip19 }),
+                  mockEthToken({ balance: '8178312', caip19: yvusdcCaip19 }),
+                  mockEthToken({ balance: '4516124', caip19: unknown2Caip19 }),
+                  mockEthToken({ balance: '41208442', caip19: usdcCaip19 }),
+                  mockEthToken({ balance: '4516125', caip19: unknown3Caip19 }),
+                  mockEthToken({ balance: '40729243327349401958', caip19: foxCaip19 }),
+                  mockEthToken({ balance: '4516126', caip19: zeroCaip19 })
+                ]
+              },
+              pubkey: ethPubKeys[2]
+            },
+            btcAccountObj: {
+              balance: '1010',
+              chainSpecific: {
+                addresses: [
+                  mockBtcAddress({ balance: '1000', pubkey: btcAddresses[0] }),
+                  mockBtcAddress({ balance: '0', pubkey: btcAddresses[1] }),
+                  mockBtcAddress({ balance: '10', pubkey: btcAddresses[2] }),
+                  mockBtcAddress({ balance: '0', pubkey: btcAddresses[3] })
+                ]
+              }
+            }
+          })
+
+          store.dispatch(
+            portfolioSlice.actions.upsertPortfolio(
+              mockUpsertPortfolio([ethAccount, btcAccount], assetIds)
+            )
           )
 
           expect(store.getState().portfolio).toMatchSnapshot()
@@ -150,7 +231,9 @@ describe('portfolioSlice', () => {
         const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockETHandBTCAccounts()
 
         store.dispatch(
-          portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+          portfolioSlice.actions.upsertPortfolio(
+            mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+          )
         )
         const state = store.getState()
 
@@ -165,7 +248,9 @@ describe('portfolioSlice', () => {
       const { ethAccount, btcAccount, ethAccountId, btcAccountId } = mockETHandBTCAccounts()
 
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, btcAccount]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, btcAccount], assetIds)
+        )
       )
       const state = store.getState()
 
@@ -193,7 +278,9 @@ describe('portfolioSlice', () => {
       const { ethAccount, btcAccount } = mockETHandBTCAccounts()
 
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, btcAccount]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, btcAccount], assetIds)
+        )
       )
       const state = store.getState()
 
@@ -211,7 +298,7 @@ describe('portfolioSlice', () => {
         // dispatch portfolio data
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount])
+            mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
           )
         )
 
@@ -246,7 +333,7 @@ describe('portfolioSlice', () => {
         // dispatch portfolio data
         store.dispatch(
           portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount])
+            mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
           )
         )
         const ethMarketData = mockMarketData({ price: null })
@@ -283,7 +370,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       it('can select crypto fiat account balance', () => {
@@ -351,7 +440,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       // dispatch market data
@@ -402,7 +493,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       // dispatch market data
@@ -456,7 +549,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       // dispatch market data
@@ -504,7 +599,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       // dispatch market data
@@ -550,7 +647,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       // dispatch market data
@@ -596,7 +695,9 @@ describe('portfolioSlice', () => {
 
       // dispatch portfolio data
       store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount, ethAccount2]))
+        portfolioSlice.actions.upsertPortfolio(
+          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+        )
       )
 
       // dispatch market data

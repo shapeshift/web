@@ -1,6 +1,5 @@
+import { YearnVault } from '@shapeshiftoss/investor-yearn'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-
-import { YearnVault } from '../../../api/api'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string

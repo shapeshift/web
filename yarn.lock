@@ -2647,9 +2647,34 @@
     bech32 "1.1.4"
     ws "7.4.6"
 
-"@ethersproject/providers@5.5.3", "@ethersproject/providers@^5.5.1":
+"@ethersproject/providers@5.5.2":
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.5.2.tgz#131ccf52dc17afd0ab69ed444b8c0e3a27297d99"
+  integrity sha512-hkbx7x/MKcRjyrO4StKXCzCpWer6s97xnm34xkfPiarhtEUVAN4TBBpamM+z66WcTt7H5B53YwbRj1n7i8pZoQ==
+  dependencies:
+    "@ethersproject/abstract-provider" "^5.5.0"
+    "@ethersproject/abstract-signer" "^5.5.0"
+    "@ethersproject/address" "^5.5.0"
+    "@ethersproject/basex" "^5.5.0"
+    "@ethersproject/bignumber" "^5.5.0"
+    "@ethersproject/bytes" "^5.5.0"
+    "@ethersproject/constants" "^5.5.0"
+    "@ethersproject/hash" "^5.5.0"
+    "@ethersproject/logger" "^5.5.0"
+    "@ethersproject/networks" "^5.5.0"
+    "@ethersproject/properties" "^5.5.0"
+    "@ethersproject/random" "^5.5.0"
+    "@ethersproject/rlp" "^5.5.0"
+    "@ethersproject/sha2" "^5.5.0"
+    "@ethersproject/strings" "^5.5.0"
+    "@ethersproject/transactions" "^5.5.0"
+    "@ethersproject/web" "^5.5.0"
+    bech32 "1.1.4"
+    ws "7.4.6"
+
+"@ethersproject/providers@^5.5.1", "@ethersproject/providers@^5.5.3":
   version "5.5.3"
-  resolved "https://registry.npmjs.org/@ethersproject/providers/-/providers-5.5.3.tgz#56c2b070542ac44eb5de2ed3cf6784acd60a3130"
+  resolved "https://registry.yarnpkg.com/@ethersproject/providers/-/providers-5.5.3.tgz#56c2b070542ac44eb5de2ed3cf6784acd60a3130"
   integrity sha512-ZHXxXXXWHuwCQKrgdpIkbzMNJMvs+9YWemanwp1fA7XZEv7QlilseysPvQe0D7Q7DlkJX/w/bGA1MdgK2TbGvA==
   dependencies:
     "@ethersproject/abstract-provider" "^5.5.0"
@@ -3558,9 +3583,9 @@
   resolved "https://registry.npmjs.org/@shapeshiftoss/caip/-/caip-1.10.0.tgz#72577b6560f36db69ea75badae550b37fc6dd61d"
   integrity sha512-KZkI173ox3Vw6rTlbvqRpFaexynZHufZrIE7xmMG9iF4FeBZkzgGLJvBcSCBVkHGvLygY1hRJwDqVPdtVDEbSw==
 
-"@shapeshiftoss/chain-adapters@^1.25.0":
+"@shapeshiftoss/chain-adapters@^1.25.0", "@shapeshiftoss/chain-adapters@^1.31.1":
   version "1.31.1"
-  resolved "https://registry.npmjs.org/@shapeshiftoss/chain-adapters/-/chain-adapters-1.31.1.tgz#9e2baf5eff159a7df103163415c087be90f73f76"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.31.1.tgz#9e2baf5eff159a7df103163415c087be90f73f76"
   integrity sha512-UkV8Ehm5MdSWkP/hk1BS/OxDCr1s3S4s4swg0LshdRr527AN1x0CPfqfHN7FWtqg5RPbjCyDhQYXOiYoLQyH0w==
   dependencies:
     axios "^0.21.2"
@@ -3600,7 +3625,17 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.18.4", "@shapeshiftoss/hdwallet-core@^1.18.3", "@shapeshiftoss/hdwallet-core@latest":
+"@shapeshiftoss/hdwallet-core@1.18.3":
+  version "1.18.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.3.tgz#844e70c8e72ec9d7cd8c7d4f93ac85d2c804db65"
+  integrity sha512-31JFa9owa7qnnzdKlwqp0kLdOlUHlq4XDm0XlWtrGCa3dT90mWtf2+pbJ5byvn9+2NSYHFAHnohnTkJ+A9N2Fw==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@1.18.4", "@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0", "@shapeshiftoss/hdwallet-core@^1.18.3", "@shapeshiftoss/hdwallet-core@^1.18.4":
   version "1.18.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.4.tgz#7272baa4b43de0fbb5e651d47cdeb9554f4ddd33"
   integrity sha512-dnzh6EmicNVb4AZPjN3d00z04SqLvKAUMqEhLq9v/rUtY7yb8dcvw5vHCnLEtq3a+N4UkH6rDA33i/hMjTBhUQ==
@@ -3705,6 +3740,22 @@
     bitcoinjs-message "^2.1.0"
     lodash "^4.17.15"
     web3 "^1.5.1"
+
+"@shapeshiftoss/investor-yearn@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.1.0.tgz#97dda82f985e5c39755d7cd70ae23f166c4e3004"
+  integrity sha512-pMfC96k8dkF8q31F5E3UHJ/zPJ07Bc1eSAyQ50/7CrJv+gl+5tmtU1yLFnO5ulljp3nU9oodJPvUQqG+gKQnKA==
+  dependencies:
+    "@ethersproject/providers" "^5.5.3"
+    "@shapeshiftoss/chain-adapters" "^1.31.1"
+    "@shapeshiftoss/hdwallet-core" "^1.18.4"
+    "@shapeshiftoss/types" "^1.21.0"
+    "@yfi/sdk" "^1.0.27"
+    bignumber.js "^9.0.2"
+    lodash "^4.17.21"
+    web3 "^1.7.0"
+    web3-core "^1.7.0"
+    web3-utils "^1.7.0"
 
 "@shapeshiftoss/market-service@^1.10.0":
   version "1.10.0"
@@ -6233,7 +6284,7 @@
 
 "@yfi/sdk@^1.0.27":
   version "1.0.28"
-  resolved "https://registry.npmjs.org/@yfi/sdk/-/sdk-1.0.28.tgz#31b311b5719b6a326d933cae063101af17f5713f"
+  resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.0.28.tgz#31b311b5719b6a326d933cae063101af17f5713f"
   integrity sha512-wkPSTV8V91YwguJYcQ4x3o8zYxWOABvSlE0tPlsx+DYeiTnnB5JPmutyv4glJ2uB9SOw0qi91+mqhFXeskoHFw==
   dependencies:
     bignumber.js "9.0.1"
@@ -21051,7 +21102,7 @@ web3-core-subscriptions@1.7.0:
     eventemitter3 "4.0.4"
     web3-core-helpers "1.7.0"
 
-web3-core@1.7.0:
+web3-core@1.7.0, web3-core@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/web3-core/-/web3-core-1.7.0.tgz#67b7839130abd19476e7f614ea6ec4c64d08eb00"
   integrity sha512-U/CRL53h3T5KHl8L3njzCBT7fCaHkbE6BGJe3McazvFldRbfTDEHXkUJCyM30ZD0RoLi3aDfTVeFIusmEyCctA==
@@ -21227,7 +21278,7 @@ web3-shh@1.7.0:
     web3-core-subscriptions "1.7.0"
     web3-net "1.7.0"
 
-web3-utils@1.7.0, web3-utils@^1.0.0-beta.31, web3-utils@^1.5.2, web3-utils@^1.6.0:
+web3-utils@1.7.0, web3-utils@^1.0.0-beta.31, web3-utils@^1.5.2, web3-utils@^1.6.0, web3-utils@^1.7.0:
   version "1.7.0"
   resolved "https://registry.npmjs.org/web3-utils/-/web3-utils-1.7.0.tgz#c59f0fd43b2449357296eb54541810b99b1c771c"
   integrity sha512-O8Tl4Ky40Sp6pe89Olk2FsaUkgHyb5QAXuaKo38ms3CxZZ4d3rPGfjP9DNKGm5+IUgAZBNpF1VmlSmNCqfDI1w==
@@ -21240,7 +21291,7 @@ web3-utils@1.7.0, web3-utils@^1.0.0-beta.31, web3-utils@^1.5.2, web3-utils@^1.6.
     randombytes "^2.1.0"
     utf8 "3.0.0"
 
-web3@^1.5.1, web3@^1.6.1:
+web3@^1.5.1, web3@^1.6.1, web3@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/web3/-/web3-1.7.0.tgz#5867cd10a2bebb5c33fc218368e3f6f826f6897e"
   integrity sha512-n39O7QQNkpsjhiHMJ/6JY6TaLbdX+2FT5iGs8tb3HbIWOhPm4+a7UDbr5Lkm+gLa9aRKWesZs5D5hWyEvg4aJA==

@@ -1,15 +1,16 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { SUPPORTED_VAULTS } from 'features/defi/providers/yearn/constants/vaults'
 import toLower from 'lodash/toLower'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AccountRow } from 'components/AccountRow/AccountRow'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
@@ -24,6 +25,7 @@ type UnderlyingTokenProps = {
 export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) => {
   const [underlyingCAIP19, setUnderlyingCAIP19] = useState('')
   const { loading, yearn } = useYearn()
+  const vaults: SupportedYearnVault[] = useYearnVaults()
 
   // Get asset from caip19
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -35,7 +37,10 @@ export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) =>
     state: { wallet }
   } = useWallet()
 
-  const vault = SUPPORTED_VAULTS.find(_vault => _vault.vaultAddress === asset.tokenId)
+  const vault = useMemo(() => {
+    return vaults.find(_vault => _vault.vaultAddress === asset.tokenId)
+  }, [vaults, asset.tokenId])
+
   const shouldHide = !asset.tokenId || !yearn || !vault
 
   useEffect(() => {

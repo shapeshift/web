@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { ButtonGroup, IconButton, Skeleton, Tooltip } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
@@ -12,9 +13,10 @@ type AssetActionProps = {
   isLoaded: boolean
   assetId: CAIP19
   accountId?: AccountSpecifier
+  cryptoBalance: string
 }
 
-export const AssetActions = ({ isLoaded, assetId, accountId }: AssetActionProps) => {
+export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: AssetActionProps) => {
   const { send, receive } = useModal()
   const translate = useTranslate()
   const {
@@ -29,6 +31,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId }: AssetActionProps)
     isConnected ? send.open({ asset: asset, accountId }) : handleWalletModalOpen()
   const handleReceiveClick = () =>
     isConnected ? receive.open({ asset: asset, accountId }) : handleWalletModalOpen()
+  const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   return (
     <ButtonGroup
@@ -37,14 +40,24 @@ export const AssetActions = ({ isLoaded, assetId, accountId }: AssetActionProps)
       width={{ base: 'full', lg: 'auto' }}
     >
       <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
-        <Tooltip label={translate('common.send')} fontSize='md' px={4} hasArrow>
-          <IconButton
-            onClick={handleSendClick}
-            isRound
-            width='full'
-            icon={<ArrowUpIcon />}
-            aria-label={translate('common.send')}
-          />
+        <Tooltip
+          label={
+            !hasValidBalance ? translate('common.insufficientFunds') : translate('common.send')
+          }
+          fontSize='md'
+          px={4}
+          hasArrow
+        >
+          <div>
+            <IconButton
+              onClick={handleSendClick}
+              isRound
+              width='full'
+              icon={<ArrowUpIcon />}
+              aria-label={translate('common.send')}
+              isDisabled={!hasValidBalance}
+            />
+          </div>
         </Tooltip>
       </Skeleton>
       <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>

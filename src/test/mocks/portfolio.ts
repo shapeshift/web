@@ -3,7 +3,8 @@ import { accountToPortfolio } from 'state/slices/portfolioSlice/utils'
 
 // Creates a mock portfolio
 export const mockUpsertPortfolio = (
-  accounts: chainAdapters.Account<ChainTypes.Ethereum | ChainTypes.Bitcoin>[]
+  accounts: chainAdapters.Account<ChainTypes.Ethereum | ChainTypes.Bitcoin>[],
+  assetIds: string[]
 ) => {
   const portfolioAccounts = accounts.reduce(
     (
@@ -16,5 +17,5 @@ export const mockUpsertPortfolio = (
     {}
   )
 
-  return accountToPortfolio(portfolioAccounts)
+  return accountToPortfolio({ portfolioAccounts, assetIds })
 }

@@ -29,7 +29,13 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId }
+          payload: {
+            wallet,
+            name,
+            icon,
+            deviceId,
+            meta: { label: vault.meta.get('name') as string }
+          }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

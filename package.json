@@ -27,7 +27,7 @@
     "@shapeshiftoss/investor-yearn": "^1.1.0",
     "@shapeshiftoss/market-service": "^1.10.0",
     "@shapeshiftoss/swapper": "^1.15.1",
-    "@shapeshiftoss/types": "^1.21.0",
+    "@shapeshiftoss/types": "^1.22.0",
     "@shapeshiftoss/unchained-client": "^5.1.0",
     "@shapeshiftoss/unchained-tx-parser": "^5.1.0",
     "@types/history": "^4.7.9",

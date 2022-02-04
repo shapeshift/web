@@ -112,6 +112,12 @@ Cypress.Commands.add('mockExternalRequests', () => {
 Cypress.Commands.add('mockInternalRequests', () => {
   cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, ethAccount).as('getEthAccount')
   cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, btcAccount).as('getBtcAccount')
+  cy.intercept('GET', `${ethereumApi}/api/v1/gas/estimate*`, '21000').as('getGasEstimate')
+  cy.intercept('GET', `${ethereumApi}/api/v1/gas/fees`, {
+    gasPrice: '51962967843',
+    maxFeePerGas: '104315056556',
+    maxPriorityFeePerGas: '2500000000'
+  }).as('getRecommendedGas')
 })
 
 // @ts-ignore

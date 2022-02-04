@@ -29,18 +29,7 @@ describe('The Dashboard', () => {
     // TODO - Mock API response and test account row price
     // TODO - Mock API response and test account row value
     // TODO - Mock API response and test account row allocation
-
-    // TODO - Open account and check transactions and values
   })
-
-  it('displays the correct total balance', () => {
-    // mock token price response
-    // Check in different fiat currencies
-  })
-
-  it('displays the expected graph and intervals', () => {})
-
-  it('displays data in titles for expected data-points', () => {})
 
   it('supports trades', () => {
     cy.getBySel('token-row-sell').find('input').type('89')
@@ -55,7 +44,7 @@ describe('The Dashboard', () => {
     cy.getBySel('token-row-sell-max-button').click()
     // This can't be clicked until max sell is calculated, and it can take some time to compute on slower hardware.
     cy.getBySel('trade-preview-button').should('be.not.disabled').click()
-    // TODO - We are now at approval - test the rest of the flow
+    // TODO - We are now at the approval screen - test the rest of the flow
   })
 
   it('supports send transaction setup', () => {
@@ -77,7 +66,8 @@ describe('The Dashboard', () => {
     cy.getBySel('account-card-fiat-label').should('exist')
     cy.getBySel('send-modal-next-button').should('be.disabled')
     cy.getBySel('send-modal-fiat-input').type('10')
-    cy.getBySel('send-modal-next-button').should('not.be.disabled').click()
+    cy.getBySel('send-modal-next-button').should('have.text', 'Not enough ETH to cover gas')
+    // TODO - Add more test data and finish this flow
     cy.backdropDismiss()
   })
 

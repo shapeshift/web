@@ -19,7 +19,7 @@ import { Text } from 'components/Text'
 
 import { NativeSetupProps } from '../types'
 
-export const getVault = async (): Promise<Vault> => {
+const getVault = async (): Promise<Vault> => {
   const vault = await Vault.create(undefined, false)
   vault.meta.set('createdAt', Date.now())
   vault.set('#mnemonic', GENERATE_MNEMONIC)

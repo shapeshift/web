@@ -1,189 +1,189 @@
 {
   "common": {
-    "back": "Back",
-    "next": "Next",
-    "error": "Error",
-    "cancel": "Cancel",
-    "continue": "Continue",
-    "confirm": "Confirm",
-    "reject": "Reject",
-    "connected": "Connected",
-    "created": "Created %{date}",
-    "noResultsFound": "No results found.",
-    "insufficientFunds": "Insufficient Funds",
-    "invalidAddress": "Invalid Address",
-    "unresolvableEnsDomain": "Cannot resolve ENS domain",
-    "deposit": "Deposit",
-    "withdraw": "Withdraw",
-    "getStarted": "Get Started",
-    "connectWallet": "Connect Wallet",
-    "connectedWallet": "Connected Wallet",
-    "noWallet": "No Wallet Connected",
-    "seeAll": "See All",
-    "darkMode": "Dark Mode",
-    "rename": "Rename",
-    "forget": "Forget?",
-    "available": "available",
-    "somethingWentWrong": "Something went wrong",
-    "somethingWentWrongBody": "Something went wrong",
-    "transactionFailed": "Transaction Failed",
-    "transactionFailedBody": "Transaction Failed",
-    "submitFeedback": "Submit Feedback",
-    "send": "Send",
-    "receive": "Receive"
+    "back": "Voltar",
+    "next": "Avançar",
+    "error": "Erro",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "confirm": "Confirmar",
+    "reject": "Rejeitar",
+    "connected": "Conectado",
+    "created": "Criado em %{date}",
+    "noResultsFound": "Nenhum resultado encontrado.",
+    "insufficientFunds": "Saldo insuficiente",
+    "invalidAddress": "Endereço inválido",
+    "unresolvableEnsDomain": "Não foi possível localizar o domínio ENS",
+    "deposit": "Depositar",
+    "withdraw": "Sacar",
+    "getStarted": "Começar",
+    "connectWallet": "Conectar Carteira",
+    "connectedWallet": "Carteira Conectada",
+    "noWallet": "Carteira não conectada",
+    "seeAll": "Ver tudo",
+    "darkMode": "Modo noturno",
+    "rename": "Renomear",
+    "forget": "Esqueceu?",
+    "available": "Disponível",
+    "somethingWentWrong": "Algo de errado aconteceu",
+    "somethingWentWrongBody": "Algo de errado aconteceu",
+    "transactionFailed": "Falha na transação",
+    "transactionFailedBody": "Falha na transação",
+    "submitFeedback": "Deixe um comentário",
+    "send": "Enviar",
+    "receive": "Receber"
   },
   "updateToast": {
-    "body": "A new version of the app is available",
-    "cta": "Reload App"
+    "body": "Nova versão do aplicativo disponível",
+    "cta": "Recarregar Aplicativo"
   },
   "dashboard": {
     "portfolio": {
-      "addAsset": "Add Asset",
-      "yourAssets": "Your Assets",
-      "asset": "Asset",
-      "portfolioBalance": "Portfolio Balance",
-      "balance": "Balance",
-      "price": "Price",
-      "value": "Value",
-      "allocation": "Allocation",
+      "addAsset": "Adicionar Ativo",
+      "yourAssets": "Meus Ativos",
+      "asset": "Ativos",
+      "portfolioBalance": "Fundos",
+      "balance": "Saldo",
+      "price": "Preço",
+      "value": "Valor",
+      "allocation": "Alocação",
       "empty": {
-        "title": "Cricket noises...",
-        "cta": "Send yourself some crypto!"
+        "title": "Cri.. Cri.. Eu ouvi um grilo?",
+        "cta": "Envie cripto para seu endereço"
       }
     },
     "recentTransactions": {
-      "recentTransactions": "Recent Transactions"
+      "recentTransactions": "Transações Recentes"
     }
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
     "alpha": "Alpha",
-    "exploreThe": "Explore The",
-    "defiUniverse": "DeFi Universe",
-    "body": "100% Free. Open Source. Community Owned. Non-Custodial. Private.",
-    "header": "Please connect a wallet to get started",
-    "cta": "Connect Wallet"
+    "exploreThe": "Explore o",
+    "defiUniverse": "Universo DeFi",
+    "body": "Uma DEX não custodial, de código aberto, e guiada pelas decisões da comunidade.",
+    "header": "Conecte sua carteira para iniciar",
+    "cta": "Conectar Carteira"
   },
   "connectWallet": {
     "menu": {
-      "triggerButton": "Connect Wallet",
-      "switchWallet": "Switch Wallet Provider",
-      "disconnect": "Disconnect",
-      "disconnected": "(Disconnected)"
+      "triggerButton": "Conectar Carteira",
+      "switchWallet": "Trocar de Carteira",
+      "disconnect": "Desconectar",
+      "disconnected": "(Sem conexão)"
     }
   },
   "defi": {
-    "earn": "Earn",
+    "earn": "Investimentos",
     "defi": "DeFi",
-    "defiBody": "Explore a growing universe of DeFi opportunities.",
-    "netWorth": "Net Worth",
-    "walletBalance": "Wallet Balance",
-    "earnBalance": "Earn Balance",
-    "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
-    "overview": "Overview",
-    "liquidityPools": "Liquidity Pools",
-    "stakingVaults": "Staking & Vaults",
+    "defiBody": "Explore o crescente universo DeFi.",
+    "netWorth": "Patrimônio líquido",
+    "walletBalance": "Saldo na Carteira",
+    "earnBalance": "Saldo de Investimentos",
+    "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
+    "overview": "Visão Geral",
+    "liquidityPools": "Pools de Liquidez",
+    "stakingVaults": "Poupança e Baús",
     "farming": "Farming",
-    "totalEarningBalance": "Total Earning Balance",
-    "stakingBalance": "Staking Balance",
-    "farmingBalance": "Farming Balance",
-    "liquidityPoolBalance": "Liquidity Pool Balance",
-    "poolValue": "Pool Value",
-    "currentValue": "Current Value",
-    "currentAPY": "Current APY",
-    "currentAPR": "Current APR",
+    "totalEarningBalance": "Saldo Total de Investimentos",
+    "stakingBalance": "Saldo da Poupança",
+    "farmingBalance": "Saldo de Farming",
+    "liquidityPoolBalance": "Saldo de Pools",
+    "poolValue": "Valor da Pool",
+    "currentValue": "Valor Atual",
+    "currentAPY": "APY atualizado",
+    "currentAPR": "APR atualizado",
     "yearn": "Yearn Finance",
     "empty": {
       "farming": {
-        "body": "You are not currently farming anything.",
-        "cta": "View Opportunities"
+        "body": "Você ainda não possui nenhum investimento por aqui.",
+        "cta": "Descobrir Oportunidades"
       },
       "stakingVaults": {
-        "body": "Explore opportunities to earn interest on your crypto assets.",
-        "cta": "View Opportunities"
+        "body": "Coloque seu dinheiro para render.",
+        "cta": "Descobrir Oportunidades"
       },
       "pools": {
-        "body": "You have not deposited into any liquidity pools.",
-        "cta": "View Opportunities"
+        "body": "Você não possui nenhuma Pool ativa.",
+        "cta": "Descobrir Oportunidades"
       }
     }
   },
   "staking": {
-    "staking": "Staking"
+    "staking": "Poupança"
   },
   "navBar": {
-    "dashboard": "Dashboard",
-    "assets": "Assets",
-    "accounts": "Accounts",
-    "earn": "Earn",
+    "dashboard": "Painel de Controle",
+    "assets": "Ativos",
+    "accounts": "Contas",
+    "earn": "Investimentos",
     "defi": "DeFi",
-    "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
+    "tradeHistory": "Histórico de Negociações",
+    "foxToken": "Token FOX"
   },
   "transactionRow": {
-    "send": "Sent %{symbol}",
-    "receive": "Received %{symbol}",
-    "moreDetails": "More Details",
-    "date": "Date",
-    "txid": "Transaction ID",
-    "fee": "Fee",
+    "send": "Enviado %{symbol}",
+    "receive": "Recebido %{symbol}",
+    "moreDetails": "Mais Detalhes",
+    "date": "Data",
+    "txid": "ID da Transação",
+    "fee": "Taxa",
     "status": "Status",
-    "confirmed": "Confirmed",
-    "pending": "Pending",
-    "failed": "Failed",
-    "network": "Network",
-    "blockHeight": "Block Height",
-    "to": "To",
-    "from": "From",
-    "trade": "Trade",
-    "amount": "Amount",
-    "for": "for"
+    "confirmed": "Confirmado",
+    "pending": "Pendente",
+    "failed": "Falha",
+    "network": "Rede",
+    "blockHeight": "Altura do Bloco",
+    "to": "De",
+    "from": "Para",
+    "trade": "Troca",
+    "amount": "Montante",
+    "for": "Por"
   },
   "trade": {
-    "searchingRate": "Searching for best rate...",
-    "previewTrade": "Preview Trade",
-    "rate": "Rate",
-    "minerFee": "Miner Fee",
-    "shapeshiftFee": "ShapeShift Fee",
-    "confirmDetails": "Confirm Details",
-    "confirmAndTrade": "Confirm and Trade",
-    "complete": "Trade Complete",
-    "approveAsset": "Approve interacting with %{symbol}",
-    "needPermission": "We need your permission to use your %{symbol}",
-    "whyNeedThis": "Why do I need to do this?",
-    "estimatedGasFee": "Estimated Gas Fee",
-    "approvingAsset": "Approving %{symbol}",
-    "viewTransaction": "View Transaction",
+    "searchingRate": "Procurando a melhor taxa...",
+    "previewTrade": "Prévia da Negociação",
+    "rate": "Taxa",
+    "minerFee": "Taxa de Mineração",
+    "shapeshiftFee": "Taxa ShapeShift",
+    "confirmDetails": "Confirmar Detalhes",
+    "confirmAndTrade": "Confirmar e Trocar",
+    "complete": "Troca efetivada com sucesso",
+    "approveAsset": "Aprovar %{symbol}",
+    "needPermission": "Precisamos de sua permissão para utilizar %{symbol}",
+    "whyNeedThis": "Por que isso é necessário?",
+    "estimatedGasFee": "Taxa Estimada da Rede",
+    "approvingAsset": "Aprovando %{symbol}",
+    "viewTransaction": "Ver transação",
     "tooltip": {
-      "rate": "This is the expected rate for this trade pair.",
-      "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
-      "shapeshiftFee": "ShapeShift adds no fees on trades 🎉"
+      "rate": "Esta é a taxa esperada para a negociação do par.",
+      "minerFee": "Esta é a taxa para processar a transação no blockchain, não é uma taxa cobrada pela ShapeShift.",
+      "shapeshiftFee": "A ShapeShift não adiciona taxas nas negociações 🎉"
     },
     "errors": {
-      "title": "Something went wrong",
-      "notEnoughEth": "Not enough ETH for the gas fee on this transaction.",
-      "amountToSmall": "Amount too small. The minimum trade amount for this pair is %{minLimit}.",
-      "negativeMax": "Not enough funds for the miner fee on this transaction. Est miner fee %{estimatedMinerFee}",
-      "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
-      "insufficientFunds": "Insufficient funds for miner fee and amount",
-      "transactionRejected": "User has rejected the transaction",
-      "broadcastFailed": "An error occured while broadcasting the transaction",
-      "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
-      "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
-      "noLiquidityError": "Not enough liquidity available",
-      "overMaxSlippage": "This trade would result in over %{slippagePercentage}% slippage. Please trade a lower amount for a better price",
-      "balanceToLow": "Balance too low. The minimum trade amount for this pair is %{minLimit}",
-      "dexTradeFailed": "Trade Failed, Tokens Returned",
-      "quoteFailed": "An error occurred getting a quote for your trade.",
-      "failedQuoteExecuted": "Cannot execute a failed quote",
-      "sellAssetRequired": "Cannot execute a quote without an asset to sell",
-      "sellAmountRequired": "Cannot execute a quote without an amount to sell",
-      "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
-      "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
-      "hdwalletInvalidConfig": "An error occured communicating with your hardware wallet",
+      "title": "Algo de errado aconteceu.",
+      "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
+      "amountToSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
+      "negativeMax": "Não há fundos suficientes para efetivr a taxa de mineração. Taxa de mineração %{estimatedMinerFee}",
+      "invalidMax": "Montante inválido. O valor máximo de negociação para este par é %{maxLimit}.",
+      "insufficientFunds": "Saldo insuficiente para efetivar as taxas da rede.",
+      "transactionRejected": "O usuário rejeitou a transação",
+      "broadcastFailed": "Ocorreu um erro ao transmitir a transação",
+      "insufficientFundsForLimit": "Saldo insuficiente. O valor mínimo de negociação para este par é %{minLimit}",
+      "insufficientFundsForAmount": "Saldo insuficiente. Seu saldo de %{symbol} é menor do que o selecionado",
+      "noLiquidityError": "Não há liquidez suficiente disponível",
+      "overMaxSlippage": "A operação ultrapassa em %{slippagePercentage}% a margem de Derrapagem da negociação. Reduza o valor para obter melhor cotação",
+      "balanceToLow": "Saldo muito baixo. O valor mínimo de negociação para este par é %{minLimit}",
+      "dexTradeFailed": "Falha na negociação, tokens devolvidos",
+      "quoteFailed": "Ocorreu um erro ao obter uma cotação para sua negociação.",
+      "failedQuoteExecuted": "Não é possível executar uma cotação que falhou uma vez",
+      "sellAssetRequired": "Não é possível executar uma cotação sem um ativo para vender",
+      "sellAmountRequired": "Não é possível executar uma cotação sem inserir o valor de venda",
+      "depositAddressRequired": "Não é possível executar uma cotação ETH sem um endereço DEX",
+      "sellAssetNetworkAndSymbolRequired": "Informe a rede e o símbolo são para executar a cotação",
+      "hdwalletInvalidConfig": "Ocorreu um erro de comunicação com sua carteira de hardware",
       "signing": {
-        "failed": "An error occured signing the transaction",
-        "required": "A signed transaction is required"
+        "failed": "Erro ao assinar a transação",
+        "required": "É necessário assinar a transação"
       }
     }
   },
@@ -191,341 +191,341 @@
     "keepKey": {
       "passphrase": {
         "errors": {
-          "unknown": "There was an error submitting your passphrase",
-          "empty": "You are using an empty passphrase"
+          "unknown": "Erro ao enviar sua senha",
+          "empty": "Você não digitou sua senha corretamente."
         },
-        "header": "Enter Your Passphrase",
-        "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
-        "button": "Submit Passphrase"
+        "header": "Digite sua senha",
+        "body": "Após confirmar sua senha, pressione o botão em sua KeepKey para aprová-la",
+        "button": "Confirmar Senha"
       }
     },
     "shapeShift": {
       "password": {
-        "header": "Enter Your Password",
-        "walletName": "Wallet nickname (optional)",
-        "body": "Enter your password to decrypt your wallet",
-        "placeholder": "Enter Password",
-        "show": "Show password",
-        "hide": "Hide password",
+        "header": "Insira sua Senha",
+        "walletName": "Nome da carteira (opcional)",
+        "body": "Insira sua senha para descriptografar sua carteira",
+        "placeholder": "Sua Senha",
+        "show": "Exibir senha",
+        "hide": "Ocultar senha",
         "error": {
-          "invalid": "Invalid Password",
-          "required": "Password is required",
-          "length": "Your password must be at least %{length} characters",
-          "maxLength": "Nickname must be %{length} characters maximum"
+          "invalid": "Senha Inválida",
+          "required": "É necessário inserir sua senha",
+          "length": "Sua senha deve conter ao menos %{length} caracteres",
+          "maxLength": "Apelido deve conter no máximo %{length} caracteres"
         }
       }
     },
     "send": {
-      "getBalanceError": "Error getting wallet balances",
-      "broadcastingTransaction": "Broadcasting Transaction",
-      "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "Token Address",
-      "scanQrCode": "Scan QR Code",
-      "sent": "%{asset} sent",
-      "errorTitle": "Your send of %{asset} failed",
+      "getBalanceError": "Erro ao obter saldos da carteira",
+      "broadcastingTransaction": "Transmitindo Transação",
+      "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
+      "tokenAddress": "Endereço do token",
+      "scanQrCode": "Digitalizar código QR",
+      "sent": "enviado %{asset}",
+      "errorTitle": "Seu envio de %{asset} falhou",
       "errors": {
-        "notEnoughNativeToken": "Not enough %{asset} to cover gas",
-        "transactionRejected": "User has rejected the transaction"
+        "notEnoughNativeToken": "Não há %{asset} suficiente para efetivar taxas na rede",
+        "transactionRejected": "O usuário rejeitou a transação"
       },
       "confirm": {
-        "sendAsset": "Send %{asset}",
-        "send": "Send",
-        "sendTo": "Send To",
-        "edit": "Edit",
+        "sendAsset": "Enviar %{asset}",
+        "send": "Enviar",
+        "sendTo": "Enviar para",
+        "edit": "Editar",
         "total": "Total",
-        "amount": "Amount",
-        "transactionFee": "Transaction Fee",
-        "fees": "Fees %{feeType}"
+        "amount": "Valor",
+        "transactionFee": "Taxa de Transação",
+        "fees": "Taxas %{feeType}"
       },
       "sendForm": {
-        "sendAsset": "Send %{asset}",
-        "sendTo": "Send To",
-        "sendAmount": "Send Amount",
+        "sendAsset": "Enviar %{asset}",
+        "sendTo": "Enviar para",
+        "sendAmount": "Valor a ser enviado",
         "max": "Max",
-        "transactionFee": "Transaction Fee",
-        "slow": "Slow",
-        "average": "Average",
-        "fast": "Fast",
-        "enterAmount": "Enter Amount"
+        "transactionFee": "Taxa de Transação",
+        "slow": "Lento",
+        "average": "Médio",
+        "fast": "Rápido",
+        "enterAmount": "Insira o valor"
       }
     },
     "receive": {
-      "connectAWallet": "Connect a wallet to receive %{symbol}",
-      "receiveAsset": "Receive %{asset}",
-      "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
-      "copy": "Copy",
-      "copied": "%{symbol} receive address copied to clipboard",
-      "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
-      "copyFailedDescription": "Please copy the address manually",
-      "setAmount": "Set Amount",
-      "verify": "Verify",
-      "verified": "Verified",
-      "notVerified": "Address Mismatch",
-      "blockExplorer": "Explorer"
+      "connectAWallet": "Conecte sua carteira para receber %{symbol}",
+      "receiveAsset": "Receber %{asset}",
+      "onlySend": "Envie apenas %{asset} (%{symbol}) para este endereço. O envio de outras moedas pode resultar em perda permanente.",
+      "copy": "Copiar",
+      "copied": "Endereço %{symbol} copiado para a área de transferência",
+      "copyFailed": "Falha ao copiar o endereço %{symbol} para a área de transferência",
+      "copyFailedDescription": "Copie o endereço manualmente",
+      "setAmount": "Definir valor",
+      "verify": "Verificar",
+      "verified": "Verificado",
+      "notVerified": "Endereço incompatível",
+      "blockExplorer": "Explorador de Blocos"
     },
     "deposit": {
-      "amountToDeposit": "Amount To Deposit",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "By continuing you agree to our terms of service.",
-      "slippageSettings": "Slippage Settings"
+      "amountToDeposit": "Valor a depositar",
+      "estimatedReturns": "Estimativa de rendimentos anuais*",
+      "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
+      "footerDisclaimer": "Ao continuar você concorda com nossos termos de serviço.",
+      "slippageSettings": "Configurações de Derrapagem"
     },
     "withdraw": {
-      "amountToWithdraw": "Amount To Withdraw",
-      "footerDisclaimer": "This transaction will require one transaction gas fee.",
-      "slippageSettings": "Slippage Settings"
+      "amountToWithdraw": "Valor da Retirada",
+      "footerDisclaimer": "Esta transação exigirá uma taxa.",
+      "slippageSettings": "Configurações de Derrapagem"
     },
     "approve": {
-      "header": "Allow ShapeShift DAO Router to spend your %{asset}",
-      "body": "We need your permission to use your %{asset}",
-      "learnMore": "Why do I need to do this?",
-      "depositFee": "There will be separate gas fee to deposit.",
-      "estimatedGas": "Estimated Gas Fee",
-      "confirm": "Confirm",
-      "reject": "Reject"
+      "header": "Permita que o Router da ShapeShift DAO utilize %{asset}",
+      "body": "Precisamos de sua permissão para utilizar %{asset}",
+      "learnMore": "Por que isso é necessário?",
+      "depositFee": "Haverá incidência de taxa ao depositar.",
+      "estimatedGas": "Taxa Estimada da Rede",
+      "confirm": "Confirmar",
+      "reject": "Rejeitar"
     },
     "confirm": {
       "withdraw": {
-        "header": "Confirm Withdraw"
+        "header": "Confirmar Retirada"
       },
       "deposit": {
-        "header": "Confirm Deposit",
-        "averageApr": "Average APR",
-        "estimatedReturns": "Estimated Yearly Returns*",
-        "preFooter": "Rewards accrue automatically"
+        "header": "Confirmar Depósito",
+        "averageApr": "Média APR",
+        "estimatedReturns": "Estimativa de rendimentos anuais*",
+        "preFooter": "As recompensas são acumuladas automaticamente"
       },
-      "withdrawFrom": "Withdrawal From",
-      "withdrawTo": "Withdraw To",
-      "depositTo": "Deposit To",
-      "averageApy": "Average APY",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimatedGas": "Estimated Gas Fee",
-      "preFooter": "Rewards accrue automatically",
-      "signBroadcast": "Sign & Broadcast",
-      "cancel": "Cancel"
+      "withdrawFrom": "Retirada de",
+      "withdrawTo": "Retirar para",
+      "depositTo": "Depositar em",
+      "averageApy": "Média APY",
+      "estimatedReturns": "Estimativa de rendimentos anuais*",
+      "estimatedGas": "Taxa Estimada da Rede",
+      "preFooter": "As recompensas são acumuladas automaticamente",
+      "signBroadcast": "Assinar e transmitir",
+      "cancel": "Cancelar"
     },
     "status": {
       "header": {
-        "pending": "Waiting on Confirmation",
-        "success": "Transaction Confirmed",
-        "failed": "Transaction Execution Failed"
+        "pending": "Aguardando confirmação",
+        "success": "Transação confirmada",
+        "failed": "Falha na transação"
       },
-      "depositTo": "Deposit To",
+      "depositTo": "Depositar em",
       "transactionId": "TX ID",
-      "averageApy": "Average APY",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimatedGas": "Estimated Gas Fee",
-      "gasUsed": "Total Gas Fee",
-      "continue": "View Transaction",
-      "position": "View Position",
-      "viewAsset": "View Asset",
-      "close": "Close"
+      "averageApy": "Média APY",
+      "estimatedReturns": "Estimativa de rendimentos anuais*",
+      "estimatedGas": "Taxa Estimada da Rede",
+      "gasUsed": "Total em taxas",
+      "continue": "Visualizar transação",
+      "position": "Visualizar posição",
+      "viewAsset": "Visualizar Ativo",
+      "close": "Fechar"
     },
     "connect": {
-      "loadingText": "Pairing Wallet"
+      "loadingText": "Emparelhando carteira"
     }
   },
   "walletProvider": {
     "errors": {
-      "walletNotFound": "Unable to communicate with your wallet"
+      "walletNotFound": "Não é possível se comunicar com sua carteira"
     },
     "keepKey": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with your KeepKey",
-        "pinCancelled": "PIN entry was cancelled",
-        "pinInvalid": "The PIN you entered is not valid",
-        "pinMismatch": "The two PINs you entered do not match"
+        "unknown": "Ocorreu um erro inesperado durante a comunicação com sua KeepKey",
+        "pinCancelled": "Entrada do PIN foi cancelada",
+        "pinInvalid": "O PIN que você digitou não é válido",
+        "pinMismatch": "Os PINs que você digitou não correspondem"
       },
       "connect": {
-        "header": "Pair Your KeepKey",
-        "body": "Connect a KeepKey device and click Pair.",
-        "button": "Pair",
-        "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey."
+        "header": "Emparelhe sua KeepKey",
+        "body": "Conecte sua KeepKey e clique em Emparelhar.",
+        "button": "Emparelhar",
+        "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo ."
       },
       "pin": {
-        "header": "Enter Your Pin",
-        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
-        "button": "Unlock"
+        "header": "Insira seu PIN",
+        "body": "Visualize o PIN em seu dispositivo e selecione a informação correta.",
+        "button": "Destravar"
       },
       "newPin": {
-        "header": "Enter Your New Pin",
-        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
-        "button": "Confirm"
+        "header": "Insira seu PIN",
+        "body": "Visualize o PIN em seu dispositivo e selecione a informação correta.",
+        "button": "Confirmar"
       },
       "newPinConfirm": {
-        "header": "Confirm Your New Pin",
-        "body": "Use PIN layout shown on your device to find the location to press on the pin pad.",
-        "button": "Save PIN"
+        "header": "Confirme seu novo PIN",
+        "body": "Visualize o PIN em seu dispositivo e selecione a informação correta.",
+        "button": "Salvar PIN"
       }
     },
     "metaMask": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with MetaMask",
-        "connectFailure": "Unable to connect MetaMask wallet",
-        "network": "MetaMask isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
+        "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
+        "connectFailure": "Não foi possível conectar a carteira MetaMask",
+        "network": "Selecione a rede Ethereum Mainnet em sua MetaMask",
+        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?"
       },
       "connect": {
-        "header": "Pair MetaMask",
-        "body": "Click Pair and login to MetaMask from the popup window",
-        "button": "Pair"
+        "header": "Emparelhar MetaMask",
+        "body": "Clique em Emparelhar e conecte sua carteira MetaMask na janela pop-up",
+        "button": "Emparelhar"
       },
       "failure": {
-        "header": "Error",
-        "body": "Unable to connect MetaMask wallet"
+        "header": "Erro",
+        "body": "Não foi possível conectar sua carteira MetaMask"
       },
       "redirect": {
-        "header": "Open in MetaMask App",
-        "body": "Click to open ShapeShift dashboard in MetaMask",
-        "button": "Open"
+        "header": "Abra no aplicativo MetaMask",
+        "body": "Clique para abrir o painel ShapeShift na carteira MetaMask",
+        "button": "Abrir"
       }
     },
     "portis": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with Portis",
-        "connectFailure": "Unable to connect Portis wallet"
+        "unknown": "Ocorreu um erro inesperado na comunicação com a Portis",
+        "connectFailure": "Não foi possível conectar sua carteira Portis"
       },
       "connect": {
-        "header": "Pair Portis",
-        "body": "Click Pair then select Portis from the popup window",
-        "button": "Pair"
+        "header": "Emparelhar Portis",
+        "body": "Clique em Emparelhar e conecte sua carteira Portis na janela pop-up",
+        "button": "Emparelhar"
       },
       "failure": {
-        "header": "Error",
-        "body": "Unable to connect Portis wallet"
+        "header": "Erro",
+        "body": "Não foi possível conectar sua carteira Portis"
       }
     },
     "shapeShift": {
       "load": {
         "error": {
-          "delete": "Unable to delete your wallet, sorry.",
-          "noWallet": "You have no saved wallets",
-          "pair": "Unable to pair your wallet"
+          "delete": "Não foi possível excluir sua carteira.",
+          "noWallet": "Você não tem carteiras salvas",
+          "pair": "Não foi possível emparelhar sua carteira"
         },
-        "header": "Saved Wallets",
-        "body": "Loading your saved wallet... Enter your password when prompted.",
-        "button": "Continue",
-        "confirmForget": "Are you sure you want to forget %{wallet}?"
+        "header": "Carteiras salvas",
+        "body": "Carregando sua carteira... Digite sua senha quando solicitado.",
+        "button": "Continuar",
+        "confirmForget": "Tem certeza que deseja esquecer %{wallet}?"
       },
       "import": {
-        "header": "Import your wallet",
-        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
-        "button": "Next",
-        "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
-        "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",
-        "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
+        "header": "Importe sua carteira",
+        "body": "Digite sua Frase Secreta de Recuperação para importar uma carteira existente",
+        "button": "Avançar",
+        "secretRecoveryPhraseError": "Digite sua Frase Secreta de Recuperação com um único espaço entre as palavras. Não utilize vírgulas ou caracteres adicionais.",
+        "secretRecoveryPhraseRequired": "A Frase Secreta de Recuperação é obrigatória",
+        "secretRecoveryPhraseTooShort": "Frase Secreta de Recuperação é curta demais"
       },
       "password": {
-        "header": "Enter Your Password",
-        "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
-        "button": "Next"
+        "header": "Insira sua senha",
+        "body": "Digite uma senha para criptografar sua carteira. É assim que você acessará sua carteira. Não esqueça esta senha.",
+        "button": "Avançar"
       },
       "create": {
-        "header": "Your Secret Recovery Phrase",
-        "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next",
-        "hideWords": "Hide Words",
-        "showWords": "Show Words"
+        "header": "Sua Frase Secreta de Recuperação",
+        "body": "Anote as 12 palavras e armazene-as offline em segurança. Esta frase de 12 palavras é utilizada para recuperar as chaves privadas da sua carteira.",
+        "button": "Avançar",
+        "hideWords": "Ocultar palavras",
+        "showWords": "Exibir palavras"
       },
       "start": {
-        "header": "ShapeShift Wallet",
-        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a Secret Recovery Phrase, or create a new wallet.",
-        "import": "Import a wallet",
-        "create": "Create a new wallet",
-        "load": "Saved wallets"
+        "header": "Carteira ShapeShift",
+        "body": "Você pode ter várias carteiras ShapeShift. Crie, carregue ou importe uma nova carteira utilizando sua Frase de Recuperação Secreta.",
+        "import": "Importar carteira",
+        "create": "Criar nova carteira",
+        "load": "Carteiras salvas"
       },
       "success": {
-        "encryptingWallet": "Encrypting your wallet... if your browser asks to store data in persistent storage, please click 'Allow'.",
-        "header": "Wallet Connected",
-        "success": "You can now close this window or it will auto-close shortly",
-        "error": "There was an error connecting your wallet"
+        "encryptingWallet": "Criptografando sua carteira... Caso seu navegador solicitar armazenamento persistente, clique em 'Permitir'.",
+        "header": "Carteira Conectada",
+        "success": "Você pode fechar esta janela ou ela fechará automaticamente em breve",
+        "error": "Ocorreu um erro ao conectar sua carteira"
       },
       "testPhrase": {
-        "header": "Verify Your Secret Recovery Phrase",
-        "body": "Which of these is the",
-        "body2": " word",
-        "body3": "in your secret phrase.",
-        "button": "Next"
+        "header": "Verifique sua Frase de Recuperação Secreta",
+        "body": "Selecione a",
+        "body2": " palavra",
+        "body3": "que compõe sua Frase de Recuperação Secreta.",
+        "button": "Avançar"
       },
       "rename": {
-        "header": "Rename your wallet",
-        "walletName": "New nickname for your wallet",
-        "body": "Enter the new nickname of your wallet and your password to decrypt your wallet.",
-        "button": "Next",
-        "confirmDelete": "Are you sure you want to delete the nickname of this wallet?"
+        "header": "Renomeie sua carteira",
+        "walletName": "Novo apelido para sua carteira",
+        "body": "Digite o novo apelido de sua carteira e sua senha para descriptografar sua carteira.",
+        "button": "Avançar",
+        "confirmDelete": "Tem certeza de que deseja excluir o apelido desta carteira?"
       }
     },
     "selectModal": {
-      "header": "Connect A Wallet",
-      "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer."
+      "header": "Conecte sua carteira",
+      "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift."
     }
   },
   "graph": {
     "timeControls": {
       "1H": "1H",
       "24H": "24H",
-      "1W": "1W",
+      "1W": "1S",
       "1M": "1M",
-      "1Y": "1Y",
-      "all": "All"
+      "1Y": "1A",
+      "all": "Total"
     }
   },
   "assets": {
     "assetDetails": {
       "assetHeader": {
-        "balance": "Balance",
-        "price": "Price",
-        "marketCap": "Market Cap",
-        "24HrVolume": "24hr Volume",
-        "dayChange": "Day Change",
-        "aboutAsset": "About %{asset}",
+        "balance": "Saldo",
+        "price": "Preço",
+        "marketCap": "Capitalização de mercado",
+        "24HrVolume": "Volume 24h",
+        "dayChange": "Variação diária",
+        "aboutAsset": "Sobre %{asset}",
         "SegwitP2sh": "Segwit",
-        "SegwitNative": "Segwit Native",
+        "SegwitNative": "Segwit Nativa",
         "P2pkh": "Legacy",
-        "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
-        "btcFormat": "BTC format"
+        "SegwitNativeTooltip": "Recomendado para a maioria dos usuários. Só utilize outros endereços sabendo sua função.",
+        "btcFormat": "Formato BTC"
       },
       "assetDescription": {
-        "showMore": "Show More",
-        "showLess": "Show Less"
+        "showMore": "Mostrar mais",
+        "showLess": "Mostrar menos"
       },
       "assetHistory": {
-        "transactionHistory": "Transaction History"
+        "transactionHistory": "Histórico de transações"
       },
       "assetAccounts": {
-        "account": "Account",
-        "assetAllocation": "Asset Allocation",
-        "allocation": "Allocation",
-        "amount": "Amount",
-        "value": "Value"
+        "account": "Conta",
+        "assetAllocation": "Alocação de ativos",
+        "allocation": "Alocação",
+        "amount": "Montante",
+        "value": "Valor"
       }
     },
     "assetCards": {
       "assetActions": {
-        "buy": "Buy",
-        "sell": "Sell",
-        "trade": "Trade"
+        "buy": "Comprar",
+        "sell": "Vender",
+        "trade": "Trocar"
       },
-      "accountTokens": "Account Tokens",
-      "showTokens": "Show Tokens (%{amount})",
-      "hideTokens": "Hide Tokens (%{amount})",
-      "underlyingAssets": "Underlying Assets",
+      "accountTokens": "Meus Tokens",
+      "showTokens": "Mostrar Tokens (%{amount})",
+      "hideTokens": "Esconder Tokens (%{amount})",
+      "underlyingAssets": "Ativos subjacentes",
       "rewards": {
-        "farmingRewards": "Farming Rewards",
-        "currentRewards": "Current Rewards",
-        "currentAPY": "Current APY",
-        "yourRewards": "Your Rewards",
-        "currentAPYLabel": "The current APY for your rewards",
-        "claimRewards": "Claim Rewards"
+        "farmingRewards": "Recompensas de Farming",
+        "currentRewards": "Recompensas atuais",
+        "currentAPY": "APY atual",
+        "yourRewards": "Suas recompensas",
+        "currentAPYLabel": "APY atual de suas recompensas",
+        "claimRewards": "Resgatar recompensas"
       },
-      "accounts": "Accounts",
-      "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
+      "accounts": "Contas",
+      "stakingVaults": "Poupança e Baús",
+      "stakingBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
       "pools": "Pools"
     }
   },
   "accounts": {
-    "accounts": "Accounts"
+    "accounts": "Contas"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
 }

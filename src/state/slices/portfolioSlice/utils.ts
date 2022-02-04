@@ -135,8 +135,13 @@ export const findAccountsByAssetId = (
   return result
 }
 
-type AccountToPortfolioArgs = {
+type PortfolioAccounts = {
   [k: CAIP10]: chainAdapters.Account<ChainTypes>
+}
+
+type AccountToPortfolioArgs = {
+  portfolioAccounts: PortfolioAccounts
+  assetIds: string[]
 }
 
 type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
@@ -150,7 +155,7 @@ const sumBalance = (totalBalance: string, currentBalance: string) => {
 export const accountToPortfolio: AccountToPortfolio = args => {
   const portfolio: Portfolio = cloneDeep(initialState)
 
-  Object.entries(args).forEach(([_xpubOrAccount, account]) => {
+  Object.entries(args.portfolioAccounts).forEach(([_xpubOrAccount, account]) => {
     const { chain } = account
 
     switch (chain) {
@@ -181,6 +186,10 @@ export const accountToPortfolio: AccountToPortfolio = args => {
         portfolio.accountSpecifiers.byId[accountSpecifier] = [CAIP10]
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
+          if (!args.assetIds.includes(token.caip19)) {
+            return
+          }
+
           portfolio.accounts.byId[CAIP10].push(token.caip19)
           // add assetId without dupes
           portfolio.assetBalances.ids = Array.from(

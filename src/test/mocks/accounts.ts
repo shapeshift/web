@@ -8,9 +8,14 @@ export const foxCaip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee
 export const usdcCaip19 = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const yvusdcCaip19 = 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9'
 export const zeroCaip19 = 'eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574'
+export const unknown1Caip19 = 'eip155:1/erc20:0x85c2ea30a20e5e96e1de337fe4cd8829be86f844'
+export const unknown2Caip19 = 'eip155:1/erc20:0x9cda935e34bcdfd1add4d2e8161d0f28fc354795'
+export const unknown3Caip19 = 'eip155:1/erc20:0xecd18dbba2987608c094ed552fef3924edb91e'
 
 export const btcCaip2 = 'bip122:000000000019d6689c085ae165831e93'
 export const btcCaip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+
+export const assetIds = [ethCaip19, foxCaip19, usdcCaip19, yvusdcCaip19, zeroCaip19]
 
 export const btcCaip10s = Object.freeze([
   'bip122:000000000019d6689c085ae165831e93:bc1qp45tn99yv90gnkqlx9q8uryr9ekxmrzm472kn7',
@@ -20,12 +25,14 @@ export const btcCaip10s = Object.freeze([
 
 export const ethCaip10s = Object.freeze([
   'eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1',
-  'eip155:1:0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
+  'eip155:1:0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8',
+  'eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9'
 ])
 
 export const ethPubKeys = Object.freeze([
   '0x9a2d593725045d1727d525dd07a396f9ff079bb1',
-  '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8'
+  '0xEA674fdDe714fd979de3EdF0F56AA9716B898ec8',
+  '0x6c8a778ef52e121b7dff1154c553662306a970e9'
 ])
 
 export const btcPubKeys = Object.freeze([

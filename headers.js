@@ -56,7 +56,8 @@ const cspMeta = Object.entries({
     'https://rawcdn.githack.com/yearn/yearn-assets/',
     'https://raw.githack.com/yearn/yearn-assets/',
     'https://assets.yearn.network/tokens/',
-    'https://raw.githubusercontent.com/yearn/yearn-assets/'
+    'https://raw.githubusercontent.com/yearn/yearn-assets/',
+    'https://rawcdn.githack.com/trustwallet/assets/'
   ],
   'script-src': [
     "'self'",

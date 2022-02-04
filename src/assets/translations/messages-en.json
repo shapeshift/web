@@ -375,8 +375,8 @@
         "body": "Não foi possível conectar sua carteira MetaMask"
       },
       "redirect": {
-        "header": "Abra no aplicativo MetaMask",
-        "body": "Clique para abrir o painel ShapeShift na carteira MetaMask",
+        "header": "Conecte sua carteira MetaMask",
+        "body": "Clique para autenticar a plataforma ShapeShift em sua carteira MetaMask",
         "button": "Abrir"
       }
     },

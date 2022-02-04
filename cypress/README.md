@@ -16,6 +16,19 @@ Fix lint: `lint:cypress:fix`
 
 ## Writing tests
 
+**Where do I put them?**
+
+Add to an existing file in `cypress/interation`, or create your own if the tests fall into a new category.
+
+**How do I find the element I want to test with Cypress?**
+
+If it already has a `data-test-*` tag, you can use `cy.getBySel('some-tag')`. If not, add your own to the element.
+
+Targeting the element by `tag`, `class` or `id` is very volatile and highly subject to change. We may swap out the element, refactor CSS and update ID's, or add or remove classes that affect the style of the element.
+Instead, adding the `data-test` attribute to the element gives us a targeted selector that's only used for testing.
+
+See best [the docs on best practice for selectors](https://docs.cypress.io/guides/references/best-practices#How-It-Works) for more information.
+
 ### Best practice
 
 Follow [Cypress best practice](https://docs.cypress.io/guides/references/best-practices)

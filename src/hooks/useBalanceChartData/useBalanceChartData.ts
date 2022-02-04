@@ -35,10 +35,7 @@ import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
   time: number
-  assetPriceHistoryData: {
-    date: string // epoch ms
-    price: number // in usd
-  }[]
+  assetPriceHistoryData: HistoryData[]
 }
 
 type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
@@ -46,7 +43,7 @@ type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
 export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData }): number => {
   const { length } = assetPriceHistoryData
   // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(assetPriceHistoryData, { date: String(time), price: 0 }, ({ date }) =>
+  const i = sortedIndexBy(assetPriceHistoryData, { date: time, price: 0 }, ({ date }) =>
     Number(date)
   )
   if (i === 0) return assetPriceHistoryData[i].price
@@ -261,7 +258,7 @@ type BucketsToChartData = (buckets: Bucket[]) => HistoryData[]
 export const bucketsToChartData: BucketsToChartData = buckets => {
   return buckets.map(bucket => ({
     price: bn(bucket.balance.fiat).decimalPlaces(2).toNumber(),
-    date: bucket.end.toISOString()
+    date: bucket.end.valueOf()
   }))
 }
 

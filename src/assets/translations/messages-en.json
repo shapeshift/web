@@ -108,6 +108,9 @@
       }
     }
   },
+  "staking": {
+    "staking": "Staking"
+  },
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",

@@ -34,18 +34,16 @@ import { selectTxsByFilter, Tx } from 'state/slices/txHistorySlice/txHistorySlic
 import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {
-  time: number
+  date: number
   assetPriceHistoryData: HistoryData[]
 }
 
 type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
 
-export const priceAtBlockTime: PriceAtBlockTime = ({ time, assetPriceHistoryData }): number => {
+export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData }): number => {
   const { length } = assetPriceHistoryData
   // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(assetPriceHistoryData, { date: time, price: 0 }, ({ date }) =>
-    Number(date)
-  )
+  const i = sortedIndexBy(assetPriceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
   if (i === 0) return assetPriceHistoryData[i].price
   if (i >= length) return assetPriceHistoryData[length - 1].price
   return assetPriceHistoryData[i].price
@@ -170,12 +168,12 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   portfolioAssets
 }) => {
   const { balance, end } = bucket
-  const time = end.valueOf()
+  const date = end.valueOf()
   const { crypto } = balance
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[caip19]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtBlockTime({ assetPriceHistoryData, time })
+    const price = priceAtBlockTime({ assetPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
       return acc

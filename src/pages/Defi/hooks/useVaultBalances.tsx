@@ -56,6 +56,7 @@ export type MergedEarnVault = EarnVault & {
   cryptoAmount: string
   fiatAmount: string
   apy?: number
+  underlyingTokenBalanceUsdc?: string
 }
 
 export type UseVaultBalancesReturn = {
@@ -65,6 +66,7 @@ export type UseVaultBalancesReturn = {
 }
 
 export function useVaultBalances(): UseVaultBalancesReturn {
+  const ASSET_USDC_PRECISION = 6
   const {
     state: { wallet }
   } = useWallet()
@@ -125,7 +127,10 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           ...vault,
           cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
-          apy: yearnVault?.metadata?.apy?.net_apy
+          apy: yearnVault?.metadata?.apy?.net_apy,
+          underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
+            .div(`1e+${ASSET_USDC_PRECISION}`)
+            .toString()
         }
         return acc
       },

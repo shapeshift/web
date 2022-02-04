@@ -3,13 +3,13 @@ import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useFeature } from 'hooks/useFeature/useFeature'
-import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
+import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
 
 export const AllEarnOpportunities = () => {
   const earnFeature = useFeature(FeatureFlagEnum.Yearn)
-  const vaults = useYearnVaults()
+  const sortedVaults = useSortedYearnVaults()
 
   if (!earnFeature) return null
 
@@ -25,7 +25,7 @@ export const AllEarnOpportunities = () => {
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          {vaults.map(vault => (
+          {sortedVaults.map(vault => (
             <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
           ))}
         </Stack>

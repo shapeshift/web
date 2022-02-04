@@ -7,10 +7,10 @@ import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useS
 
 import { useTradeRoutes } from './useTradeRoutes'
 
+const mockedUsedNavigate = jest.fn()
 jest.mock('react-router-dom', () => ({
-  useNavigate: () => ({
-    push: jest.fn()
-  })
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedUsedNavigate
 }))
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')

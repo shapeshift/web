@@ -33,6 +33,7 @@ export const AddressInput = ({ rules }: AddressInputProps) => {
             size='lg'
             value={value}
             variant='filled'
+            data-test='send-address-input'
           />
         )}
         control={control}

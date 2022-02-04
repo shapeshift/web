@@ -8,11 +8,11 @@ export const makeEthAccount = (): EthereumAccount => {
     pubkey: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
     tokens: [
       {
-        balance: '70306200',
-        contract: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        balance: '1450000000000000000000',
+        contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
         decimals: 6,
-        name: 'Tether USD',
-        symbol: 'USDT',
+        name: 'FOX',
+        symbol: 'FOX',
         type: 'ERC20'
       },
       {

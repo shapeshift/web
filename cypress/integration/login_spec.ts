@@ -46,17 +46,16 @@ describe('The Dashboard', () => {
       'have.text',
       translations.en.walletProvider.shapeShift.import.secretRecoveryPhraseError
     )
-    cy.getBySel('wallet-native-seed-input').clear()
 
+    // Load wallet from seed and password
+    cy.getBySel('wallet-native-seed-input').clear()
     cy.getBySel('wallet-native-seed-input').type(seed)
     cy.getBySel('wallet-native-seed-submit-button').click()
-
     cy.getBySel('wallet-native-set-name-input').type('cypress-test')
     cy.getBySel('wallet-native-password-input').type(password)
     cy.getBySel('wallet-native-password-submit-button').click()
 
-    // This redirect is slow and can flake - override the 4-second default
-    cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
+    cy.url().should('equal', `${baseUrl}dashboard`)
   })
 
   it('cannot login natively when no local Native wallets', () => {
@@ -80,9 +79,7 @@ describe('The Dashboard', () => {
         cy.getBySel('native-saved-wallet-button').click()
         cy.getBySel('wallet-password-input').type(password)
         cy.getBySel('wallet-password-submit-button').click()
-
-        // This redirect is slow and can flake - override the 4-second default
-        cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
+        cy.url().should('equal', `${baseUrl}dashboard`)
       })
     })
   })

@@ -1,14 +1,14 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
-import { makeEthFoxRateResponse } from '../../cypress/factories/api-responses/0x/ethFoxRate'
-import { makeEthUsdcRateResponse } from '../../cypress/factories/api-responses/0x/ethUsdcRate'
-import { makeChainlinkDataResponse } from '../../cypress/factories/api-responses/coingecko/chainlinkData'
-import { makeChartDataResponse } from '../../cypress/factories/api-responses/coingecko/chartData'
 import { makeBtcAccount } from '../../cypress/factories/bitcoin/account'
 import { makeEthAccount } from '../../cypress/factories/ethereum/account'
 import { wallet } from '../../cypress/fixtures/wallet'
 import { getWalletDbInstance } from '../../cypress/helpers'
+import { makeEthFoxRateResponse } from '../factories/0x/ethFoxRate'
+import { makeEthUsdcRateResponse } from '../factories/0x/ethUsdcRate'
+import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
+import { makeChartDataResponse } from '../factories/coingecko/chartData'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
@@ -32,6 +32,18 @@ Cypress.Commands.add('getBySel', (selector: string, ...args: any) => {
 })
 
 // @ts-ignore
+Cypress.Commands.add(
+  'findBySel',
+  {
+    prevSubject: true
+  },
+  (subject, selector) => {
+    // @ts-ignore
+    return subject.find(`[data-test=${selector}]`)
+  }
+)
+
+// @ts-ignore
 Cypress.Commands.add('getBySelLike', (selector: string, ...args: any) => {
   return cy.get(`[data-test*=${selector}]`, ...args)
 })
@@ -53,6 +65,8 @@ Cypress.Commands.add('clearIndexedDB', async () => {
 // TODO - Replace with programmatic login
 // @ts-ignore
 Cypress.Commands.add('login', () => {
+  // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
+  // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB().then(() => {
     cy.addWallet(wallet).then(() => {
       cy.visit('')
@@ -104,4 +118,44 @@ Cypress.Commands.add('mockInternalRequests', () => {
 Cypress.Commands.add('mockAllRequests', () => {
   cy.mockExternalRequests()
   cy.mockInternalRequests()
+})
+
+Cypress.Commands.add('backdropDismiss', () => {
+  cy.get('.chakra-modal__content-container').click('topRight')
+})
+
+// @ts-ignore
+Cypress.Commands.add('navigateToDashboard', () => {
+  cy.getBySel('full-width-header')
+    .findBySel('navbar-dashboard-button')
+    .click()
+    .url()
+    .should('equal', `${baseUrl}dashboard`)
+})
+
+// @ts-ignore
+Cypress.Commands.add('navigateToAccounts', () => {
+  cy.getBySel('full-width-header')
+    .findBySel('navbar-accounts-button')
+    .click()
+    .url()
+    .should('equal', `${baseUrl}accounts`)
+})
+
+// @ts-ignore
+Cypress.Commands.add('navigateToDefi', () => {
+  cy.getBySel('full-width-header')
+    .findBySel('navbar-defi-button')
+    .click()
+    .url()
+    .should('equal', `${baseUrl}defi`)
+})
+
+// @ts-ignore
+Cypress.Commands.add('navigateToAssets', () => {
+  cy.getBySel('full-width-header')
+    .findBySel('navbar-assets-button')
+    .click()
+    .url()
+    .should('equal', `${baseUrl}assets`)
 })

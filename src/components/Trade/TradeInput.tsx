@@ -263,7 +263,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 icon={<FaArrowsAltV />}
                 isLoading={!quote || action || error ? true : false}
                 _loading={{ color: 'blue.500' }}
-                data-test='switch-assets-button'
+                data-test='swap-assets-button'
               />
               <Box
                 display='flex'

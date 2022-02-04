@@ -11,11 +11,11 @@
     "created": "Créé le %{date}",
     "noResultsFound": "Aucun résultat trouvé.",
     "insufficientFunds": "Fonds insuffisants",
-    "invalidAddress": "Adresse non valable",
+    "invalidAddress": "Adresse invalide",
     "unresolvableEnsDomain": "Impossible de résoudre le domaine ENS",
     "deposit": "Déposer",
     "withdraw": "Retirer",
-    "getStarted": "Commencez",
+    "getStarted": "Commencer",
     "connectWallet": "Connecter Porte-monnaie",
     "connectedWallet": "Porte-monnaie Connecté",
     "noWallet": "Aucun porte-monnaie connecté",
@@ -34,14 +34,14 @@
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",
-    "cta": "Recharger l'App"
+    "cta": "Rafraîchir l'App"
   },
   "dashboard": {
     "portfolio": {
       "addAsset": "Ajouter Actif",
       "yourAssets": "Vos Actifs",
       "asset": "Actif",
-      "portfolioBalance": "Solde du Portefolio",
+      "portfolioBalance": "Solde du Portefeuille",
       "balance": "Solde",
       "price": "Prix",
       "value": "Valeur",
@@ -155,7 +155,7 @@
     "approvingAsset": "Approbation de %{symbol}",
     "viewTransaction": "Voir la transaction",
     "tooltip": {
-      "rate": "C'est le taux attendu pour cette paire d'échanges.",
+      "rate": "C'est le taux estimé pour cette paire d'échanges.",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les transactions 🎉"
     },
@@ -267,7 +267,7 @@
       "amountToDeposit": "Montant à déposer",
       "estimatedReturns": "Rendement annuel estimé*",
       "estimateDisclaimer": "*Les estimations fluctuent en fonction des conditions du marché.",
-      "footerDisclaimer": "En continuant, vous acceptez nos conditions de service.",
+      "footerDisclaimer": "En continuant, vous acceptez nos conditions d'utilisation.",
       "slippageSettings": "Paramètres de glissement de taux"
     },
     "withdraw": {

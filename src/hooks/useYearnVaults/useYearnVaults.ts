@@ -1,4 +1,4 @@
-import { getSupportedVaults, SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
+import { getSupportedVaults, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { useCallback, useEffect, useState } from 'react'
 
 type UseYearnVaults = () => SupportedYearnVault[]

@@ -1,7 +1,7 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
-import { Route, useLocation } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
@@ -50,25 +50,37 @@ const DefiModules = {
   [DefiProvider.Yearn]: YearnManager
 }
 
+const DefiProviders = {
+  [DefiProvider.Yearn]: YearnProvider
+}
+
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   const location = useLocation<{ background: any }>()
   const background = location.state && location.state.background
 
   return (
     <DefiManagerContext.Provider value={null}>
-      <YearnProvider>
-        {children}
-        {background && (
-          <Route
-            path='/defi/:earnType/:provider/:action'
-            render={({ match: { params } }) => {
-              const { provider } = params
-              const Module = DefiModules[provider as DefiProvider]
-              return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
-            }}
-          />
-        )}
-      </YearnProvider>
+      <Switch>
+        <YearnProvider>
+          {background && (
+            <Route
+              path='/defi/:earnType/:provider/:action'
+              render={({ match: { params } }) => {
+                const { provider } = params
+                const Module = DefiModules[provider as DefiProvider]
+                const Provider = DefiProviders[provider as DefiProvider]
+                return (
+                  <Provider>
+                    {children}
+                    <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
+                  </Provider>
+                )
+              }}
+            />
+          )}
+          <Route path='/*'>{children}</Route>
+        </YearnProvider>
+      </Switch>
     </DefiManagerContext.Provider>
   )
 }

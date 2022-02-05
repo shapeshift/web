@@ -1,6 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
+import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
@@ -34,7 +35,6 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
@@ -111,7 +111,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.withdrawEstimatedGas({
+        api.estimateWithdrawGas({
           tokenContractAddress: tokenId,
           vaultAddress,
           amountDesired: bnOrZero(withdraw.cryptoAmount)

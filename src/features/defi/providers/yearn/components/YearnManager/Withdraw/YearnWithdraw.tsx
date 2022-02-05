@@ -435,7 +435,14 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     >
       <YearnRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {withdrawRoute && <DefiActionButtons />}
+        {withdrawRoute && (
+          <DefiActionButtons
+            expired={
+              !!state.vault.metadata.depositsDisabled ||
+              bnOrZero(state.vault.metadata.depositLimit).lte(0)
+            }
+          />
+        )}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

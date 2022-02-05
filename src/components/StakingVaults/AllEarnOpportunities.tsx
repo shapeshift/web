@@ -24,9 +24,11 @@ export const AllEarnOpportunities = () => {
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          {vaults.map(vault => (
-            <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
-          ))}
+          {vaults
+            .filter(vault => !vault.expired)
+            .map(vault => (
+              <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
+            ))}
         </Stack>
       </Card.Body>
     </Card>

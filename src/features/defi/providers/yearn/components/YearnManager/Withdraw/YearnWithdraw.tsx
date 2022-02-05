@@ -437,7 +437,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       <Flex flexDir='column' width='full' minWidth='400px'>
         {withdrawRoute && (
           <DefiActionButtons
-            expired={
+            vaultExpired={
               !!state.vault.metadata.depositsDisabled ||
               bnOrZero(state.vault.metadata.depositLimit).lte(0)
             }

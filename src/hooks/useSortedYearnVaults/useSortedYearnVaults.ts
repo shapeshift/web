@@ -1,4 +1,4 @@
-import { SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
+import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { useMemo } from 'react'
 import { useVaultWithoutBalance } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { bnOrZero } from 'lib/bignumber/bignumber'

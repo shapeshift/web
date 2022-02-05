@@ -69,7 +69,7 @@ export type UseVaultBalancesReturn = {
 }
 
 export function useVaultBalances(): UseVaultBalancesReturn {
-  const ASSET_USDC_PRECISION = 6
+  const USDC_PRECISION = 6
   const {
     state: { wallet }
   } = useWallet()
@@ -132,7 +132,7 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           fiatAmount: fiatAmount.toString(),
           apy: yearnVault?.metadata?.apy?.net_apy,
           underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
-            .div(`1e+${ASSET_USDC_PRECISION}`)
+            .div(`1e+${USDC_PRECISION}`)
             .toString()
         }
         return acc

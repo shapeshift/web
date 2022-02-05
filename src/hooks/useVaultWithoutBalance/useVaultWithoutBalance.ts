@@ -1,5 +1,5 @@
+import { getSupportedVaults, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { getSupportedVaults, SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -20,7 +20,7 @@ export type UseVaultWithoutBalanceReturn = {
 }
 
 export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
-  const ASSET_USDC_PRECISION = 6
+  const USDC_PRECISION = 6
   const {
     state: { wallet }
   } = useWallet()
@@ -55,7 +55,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
           ...vault,
           apy: yearnVault?.metadata?.apy?.net_apy,
           underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
-            .div(`1e+${ASSET_USDC_PRECISION}`)
+            .div(`1e+${USDC_PRECISION}`)
             .toString()
         }
         return acc

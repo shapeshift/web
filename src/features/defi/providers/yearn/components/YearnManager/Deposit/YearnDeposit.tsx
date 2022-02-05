@@ -633,7 +633,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         {depositRoute && (
           <DefiActionButtons
             vaultExpired={
-              !!state.vault.metadata.depositsDisabled ||
+              state.vault.metadata.depositsDisabled ||
               bnOrZero(state.vault.metadata.depositLimit).lte(0)
             }
           />

@@ -438,7 +438,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         {withdrawRoute && (
           <DefiActionButtons
             vaultExpired={
-              !!state.vault.metadata.depositsDisabled ||
+              state.vault.metadata.depositsDisabled ||
               bnOrZero(state.vault.metadata.depositLimit).lte(0)
             }
           />

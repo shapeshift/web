@@ -1,4 +1,5 @@
-import { YearnVault } from '@shapeshiftoss/investor-yearn'
+import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 
 type EstimatedGas = {
@@ -12,7 +13,7 @@ type YearnDepositValues = DepositValues &
   }
 
 type YearnDepositState = {
-  vault: YearnVault
+  vault: SupportedYearnVault
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
@@ -24,6 +25,12 @@ type YearnDepositState = {
 export const initialState: YearnDepositState = {
   txid: null,
   vault: {
+    vaultAddress: '',
+    tokenAddress: '',
+    provider: '',
+    chain: ChainTypes.Ethereum,
+    type: '',
+    expired: false,
     address: '',
     typeId: 'VAULT_V2',
     token: '',

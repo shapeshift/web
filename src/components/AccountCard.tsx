@@ -44,7 +44,7 @@ export const AccountCard = ({
       {...rest}
     >
       <SkeletonText noOfLines={2} isLoaded={isLoaded} mr='auto'>
-        <RawText lineHeight='1' mb={1}>
+        <RawText lineHeight='1' mb={1} data-test='account-card-asset-name-label'>
           {asset.name}
         </RawText>
 
@@ -56,6 +56,7 @@ export const AccountCard = ({
             symbol={asset.symbol}
             value={cryptoAmountAvailable}
             suffix={translate('common.available')}
+            data-test='account-card-crypto-label'
           />
         ) : (
           <Amount.Fiat
@@ -63,6 +64,7 @@ export const AccountCard = ({
             lineHeight='1'
             color='gray.500'
             suffix={translate('common.available')}
+            data-test='account-card-fiat-label'
           />
         )}
       </SkeletonText>

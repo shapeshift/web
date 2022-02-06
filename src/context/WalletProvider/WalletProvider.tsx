@@ -68,6 +68,7 @@ export interface IWalletContext {
   state: InitialState
   dispatch: React.Dispatch<ActionTypes>
   connect: (adapter: KeyManager) => Promise<void>
+  create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
 }
 
@@ -180,14 +181,24 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
+  const create = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    if (SUPPORTED_WALLETS[type]?.routes[5]?.path) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[5].path as string
+      })
+    }
+  }, [])
+
   const disconnect = useCallback(() => {
     state.wallet?.disconnect()
     dispatch({ type: WalletActions.RESET_STATE })
   }, [state.wallet])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, disconnect }),
-    [state, connect, disconnect]
+    () => ({ state, dispatch, connect, create, disconnect }),
+    [state, connect, create, disconnect]
   )
 
   return (

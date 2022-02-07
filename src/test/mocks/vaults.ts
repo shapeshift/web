@@ -1,8 +1,7 @@
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { YearnVaultWithApyAndTvl } from 'hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 import { MergedEarnVault } from 'pages/Defi/hooks/useVaultBalances'
-
-import { YearnVaultWithApyAndTvl } from '../../hooks/useVaultWithoutBalance/useVaultWithoutBalance'
 
 export const mockVault = (obj?: {
   vaultAddress?: string

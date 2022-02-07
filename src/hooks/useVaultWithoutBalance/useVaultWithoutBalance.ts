@@ -40,7 +40,7 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
         const yearnVaults = await getSupportedVaults()
         setVaults(yearnVaults)
       } catch (error) {
-        console.error('error', error)
+        console.error('error getting supported yearn vaults', error)
       } finally {
         setLoading(false)
       }

@@ -21,17 +21,18 @@ export function useSortedYearnVaults(): SupportedYearnVault[] {
       return []
     }
 
-    const updatedVaults: YearnVaultWithApyAndTvl[] = Object.values(vaultsWithoutBalance)
+    const updatedVaults: YearnVaultWithApyAndTvl[] = Object.values(vaultsWithoutBalance).map(x =>
+      vaults[x.vaultAddress]
+        ? {
+            ...x,
+            apy: vaults[x.vaultAddress].apy,
+            underlyingTokenBalanceUsdc: vaults[x.vaultAddress].underlyingTokenBalanceUsdc,
+            fiatAmount: vaults[x.vaultAddress].fiatAmount
+          }
+        : x
+    )
 
-    updatedVaults.forEach(x => {
-      if (vaults[x.vaultAddress]) {
-        x.apy = vaults[x.vaultAddress].apy
-        x.underlyingTokenBalanceUsdc = vaults[x.vaultAddress].underlyingTokenBalanceUsdc
-        x.fiatAmount = vaults[x.vaultAddress].fiatAmount
-      }
-    })
-
-    return Object.values(updatedVaults).sort((vaultA, vaultB) => {
+    return updatedVaults.sort((vaultA, vaultB) => {
       const vaultABalance = bnOrZero(vaultA.fiatAmount)
       const vaultBBalance = bnOrZero(vaultB.fiatAmount)
       if (vaultABalance.gt(0) && vaultBBalance.gt(0)) {

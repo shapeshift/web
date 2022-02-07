@@ -14,7 +14,9 @@ const findBrave = (): Cypress.Browser | undefined => {
         return isBraveInstalled ? braveMacOsPath : undefined
       }
       case 'linux': {
-        const braveLinuxOsPath = execSync(resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh'))
+        const braveLinuxOsPath = execSync(
+          resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh')
+        )
         return braveLinuxOsPath ? braveLinuxOsPath.toString().trim() : undefined
       }
       default: {
@@ -23,24 +25,26 @@ const findBrave = (): Cypress.Browser | undefined => {
     }
   })()
 
-  return execa(browserPath, ['--version']).then((result: { stdout: string }) => {
-    // STDOUT will be like "Brave Browser 77.0.69.135"
-    // @ts-ignore
-    const [, version] = /Brave Browser (\d+\.\d+\.\d+\.\d+)/.exec(result.stdout)
-    const majorVersion = parseInt(version.split('.')[0])
+  return browserPath
+    ? execa(browserPath, ['--version']).then((result: { stdout: string }) => {
+        // STDOUT will be like "Brave Browser 77.0.69.135"
+        // @ts-ignore
+        const [, version] = /Brave Browser (\d+\.\d+\.\d+\.\d+)/.exec(result.stdout)
+        const majorVersion = parseInt(version.split('.')[0])
 
-    return browserPath
-      ? {
-          name: 'Brave',
-          channel: 'stable',
-          family: 'chromium',
-          displayName: 'Brave',
-          version,
-          path: browserPath,
-          majorVersion
-        }
-      : undefined
-  })
+        return browserPath
+          ? {
+              name: 'Brave',
+              channel: 'stable',
+              family: 'chromium',
+              displayName: 'Brave',
+              version,
+              path: browserPath,
+              majorVersion
+            }
+          : undefined
+      })
+    : undefined
 }
 
 /**

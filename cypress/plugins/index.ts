@@ -50,7 +50,9 @@ module.exports = async (on: any, config: any) => {
   }
 
   const brave = await findBrave()
-  config.browsers = config.browsers.concat(brave)
+  if (brave) {
+    config.browsers = config.browsers.concat(brave)
+  }
 
   // Allow Cypress to see key Node environment variables via Cypress.env('some-variable')
   config.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL =

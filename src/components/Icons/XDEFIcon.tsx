@@ -28,5 +28,5 @@ export const XDEFIcon = createIcon({
       />
     </svg>
   ),
-  viewBox: '0 0 318.6 318.6'
+  viewBox: '0 0 318.6 318.6',
 })

@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LocationState } from '../../NativeWallet/types'
+import { XDEFIConfig } from '../config'
 
 export interface XDeFiSetupProps
   extends RouteComponentProps<
@@ -44,7 +44,7 @@ export const XDeFiConnect = ({ history }: XDeFiSetupProps) => {
           throw new Error('Call to hdwallet-xdefi::pairDevice returned null or undefined')
         }
 
-        const { name, icon } = SUPPORTED_WALLETS[KeyManager.XDefi]
+        const { name, icon } = XDEFIConfig
 
         const deviceId = await wallet.getDeviceID()
 

@@ -1,12 +1,10 @@
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { Vault } from '@yfi/sdk'
-import toLower from 'lodash/toLower'
 
-import { DefiProvider, DefiType } from '../constants/enums'
+import { transformVault } from '../utils'
+import { YearnVault } from './api'
 import { yearnSdk } from './yearn-sdk'
 
-export type SupportedYearnVault = {
+export type SupportedYearnVault = YearnVault & {
   vaultAddress: string
   name: string
   symbol: string
@@ -19,16 +17,5 @@ export type SupportedYearnVault = {
 
 export const getSupportedVaults = async (): Promise<SupportedYearnVault[]> => {
   const vaults = await yearnSdk.vaults.get()
-  return vaults.map((vault: Vault) => {
-    return {
-      vaultAddress: toLower(vault.address),
-      name: `${vault.name} ${vault.version}`,
-      symbol: vault.symbol,
-      tokenAddress: toLower(vault.token),
-      chain: ChainTypes.Ethereum,
-      provider: DefiProvider.Yearn,
-      type: DefiType.Vault,
-      expired: vault.metadata.depositsDisabled || bnOrZero(vault.metadata.depositLimit).lte(0)
-    }
-  })
+  return vaults.map(transformVault)
 }

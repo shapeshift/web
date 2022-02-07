@@ -133,6 +133,8 @@ describe('coingecko market service', () => {
     it('can return from yearn if coingecko is not found', async () => {
       // @ts-ignore
       MarketProviders[0].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[1].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
       const result = await findPriceHistoryByCaip19(args)
       expect(result).toEqual(mockYearnPriceHistoryData)
     })

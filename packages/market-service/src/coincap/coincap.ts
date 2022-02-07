@@ -14,7 +14,8 @@ import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 
 import { MarketService } from '../api'
-import { bnOrZero } from '../utils/bignumber'
+import { bn, bnOrZero } from '../utils/bignumber'
+import { isValidDate } from '../utils/isValidDate'
 import { CoinCapMarketCap } from './coincap-types'
 
 export class CoinCapMarketService implements MarketService {
@@ -137,15 +138,35 @@ export class CoinCapMarketService implements MarketService {
       const to = end.valueOf()
       const contract = tokenId ? `/contract/${tokenId}` : ''
       const url = `${this.baseUrl}/assets/${id}${contract}/history`
+      type CoincapHistoryData = {
+        data: {
+          priceUsd: number
+          time: number
+        }[]
+      }
       const {
-        data: { data }
-      } = await axios.get(`${url}?id=${id}&start=${from}&end=${to}&interval=${interval}`)
-      return data.map((item: { priceUsd: number; time: number }) => {
-        return {
-          date: Number(item.time),
-          price: Number(item.priceUsd)
+        data: { data: coincapData }
+      } = await axios.get<CoincapHistoryData>(
+        `${url}?id=${id}&start=${from}&end=${to}&interval=${interval}`
+      )
+
+      return coincapData.reduce<HistoryData[]>((acc, current) => {
+        const date = current.time
+        if (!isValidDate(date)) {
+          console.error('Coincap asset history data has invalid date')
+          return acc
         }
-      })
+        const price = bn(current.priceUsd)
+        if (price.isNaN()) {
+          console.error('Coincap asset history data has invalid price')
+          return acc
+        }
+        acc.push({
+          date,
+          price: price.toNumber()
+        })
+        return acc
+      }, [])
     } catch (e) {
       console.warn(e)
       throw new Error('MarketService(findPriceHistoryByCaip19): error fetching price history')

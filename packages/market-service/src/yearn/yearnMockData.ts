@@ -290,15 +290,15 @@ export const mockYearnFindByCaip19Data = {
 
 export const mockYearnPriceHistoryData = [
   {
-    price: '456789',
+    price: 456789,
     timestamp: 123456
   },
   {
-    price: '556789',
+    price: 556789,
     timestamp: 223456
   },
   {
-    price: '656789',
+    price: 656789,
     timestamp: 323456
   }
 ]

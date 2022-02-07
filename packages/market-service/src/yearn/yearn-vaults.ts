@@ -17,6 +17,7 @@ import head from 'lodash/head'
 
 import { MarketService } from '../api'
 import { bn, bnOrZero } from '../utils/bignumber'
+import { isValidDate } from '../utils/isValidDate'
 import { ACCOUNT_HISTORIC_EARNINGS } from './gql-queries'
 import { VaultDayDataGQLResponse } from './yearn-types'
 
@@ -250,17 +251,28 @@ export class YearnVaultMarketCapService implements MarketService {
       const vaultDayData: VaultDayData[] =
         response.data.account.vaultPositions[0].vault.vaultDayData
 
-      return vaultDayData.map((datum: VaultDayData) => {
-        return {
-          date: datum.timestamp,
-          price: bnOrZero(datum.tokenPriceUSDC)
-            .div(`1e+${USDC_PRECISION}`)
-            .times(datum.pricePerShare)
-            .div(`1e+${decimals}`)
-            .dp(6)
-            .toNumber()
+      return vaultDayData.reduce<HistoryData[]>((acc, current: VaultDayData) => {
+        const date = Number(current.timestamp)
+        if (!isValidDate(date)) {
+          console.error('Yearn SDK vault has invalid date')
+          return acc
         }
-      })
+        const price = bn(current.tokenPriceUSDC)
+          .div(`1e+${USDC_PRECISION}`)
+          .times(current.pricePerShare)
+          .div(`1e+${decimals}`)
+          .dp(6)
+
+        if (price.isNaN()) {
+          console.error('Yearn SDK vault has invalid price')
+          return acc
+        }
+        acc.push({
+          date,
+          price: price.toNumber()
+        })
+        return acc
+      }, [])
     } catch (e) {
       console.warn(e)
       throw new Error('YearnMarketService(getPriceHistory): error fetching price history')

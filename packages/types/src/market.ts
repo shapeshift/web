@@ -16,7 +16,7 @@ export enum HistoryTimeframe {
 
 export type HistoryData = {
   price: number
-  date: string
+  date: number
 }
 
 export type PriceHistoryArgs = {

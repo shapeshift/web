@@ -117,13 +117,13 @@ describe('yearn market service', () => {
       timeframe: HistoryTimeframe.WEEK
     }
 
-    it('should return market data for yvDai', async () => {
+    it('should return market history data for yvDai', async () => {
       const expected = [
-        { date: '1639132035000', price: 1.082051 },
-        { date: '1639241453000', price: 1.082124 },
-        { date: '1639269839000', price: 1.082084 },
-        { date: '1639441831000', price: 1.085204 },
-        { date: '1639530562000', price: 1.085871 }
+        { date: 1639132035000, price: 1.082051 },
+        { date: 1639241453000, price: 1.082124 },
+        { date: 1639269839000, price: 1.082084 },
+        { date: 1639441831000, price: 1.085204 },
+        { date: 1639530562000, price: 1.085871 }
       ]
       expect(await yearnVaultMarketCapService.findPriceHistoryByCaip19(args)).toEqual(expected)
     })

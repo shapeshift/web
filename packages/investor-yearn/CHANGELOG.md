@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.1.0...@shapeshiftoss/investor-yearn-v1.2.0) (2022-02-07)
+
+
+### Features
+
+* expired prop on yearn vaults ([#344](https://github.com/shapeshift/lib/issues/344)) ([4fb3f1a](https://github.com/shapeshift/lib/commit/4fb3f1a6a6a0d2bdcb0ab19e1fa9a94817ce72e2))
+
 # [@shapeshiftoss/investor-yearn-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.0.0...@shapeshiftoss/investor-yearn-v1.1.0) (2022-02-03)
 
 

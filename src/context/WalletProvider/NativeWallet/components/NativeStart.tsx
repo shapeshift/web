@@ -41,6 +41,7 @@ export const NativeStart = () => {
             rightIcon={<ArrowForwardIcon />}
             disabled={!hasLocalWallet}
             onClick={() => navigate('/native/load')}
+            data-test='wallet-native-load-button'
           >
             <Text translation={'walletProvider.shapeShift.start.load'} />
           </Button>
@@ -55,6 +56,7 @@ export const NativeStart = () => {
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
             onClick={() => navigate('/native/create')}
+            data-test='wallet-native-create-button'
           >
             <Text translation={'walletProvider.shapeShift.start.create'} />
           </Button>
@@ -68,6 +70,7 @@ export const NativeStart = () => {
             justifyContent='space-between'
             rightIcon={<ArrowForwardIcon />}
             onClick={() => navigate('/native/import')}
+            data-test='wallet-native-import-button'
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>

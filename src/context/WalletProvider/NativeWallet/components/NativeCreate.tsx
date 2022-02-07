@@ -18,6 +18,15 @@ import { FaEye } from 'react-icons/fa'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Text } from 'components/Text'
 
+import { NativeSetupProps } from '../types'
+
+const getVault = async (): Promise<Vault> => {
+  const vault = await Vault.create(undefined, false)
+  vault.meta.set('createdAt', Date.now())
+  vault.set('#mnemonic', GENERATE_MNEMONIC)
+  return vault
+}
+
 const Revocable = native.crypto.Isolation.Engines.Default.Revocable
 const revocable = native.crypto.Isolation.Engines.Default.revocable
 
@@ -55,9 +64,7 @@ export const NativeCreate = () => {
   useEffect(() => {
     ;(async () => {
       try {
-        const vault = await Vault.create(undefined, false)
-        vault.meta.set('createdAt', Date.now())
-        vault.set('#mnemonic', GENERATE_MNEMONIC)
+        const vault = await getVault()
         setVault(vault)
       } catch (e) {
         // @TODO

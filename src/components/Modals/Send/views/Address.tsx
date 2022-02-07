@@ -125,6 +125,7 @@ export const Address = () => {
             colorScheme={addressError && !isValidatingEnsName ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}
+            data-test='send-address-next-button'
           >
             <Text translation={addressError || 'common.next'} />
           </Button>

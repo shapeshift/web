@@ -227,6 +227,7 @@ export const TradeInput = () => {
                     onClick={() => navigate('/trade/select/sell')}
                     logo={sellAsset?.currency?.icon}
                     symbol={sellAsset?.currency?.symbol}
+                    data-test='token-row-sell-token-button'
                   />
                 }
                 inputRightElement={
@@ -237,10 +238,12 @@ export const TradeInput = () => {
                     colorScheme='blue'
                     isDisabled={isSendMaxLoading || !!action || !hasValidBalance}
                     onClick={onSwapMax}
+                    data-test='token-row-sell-max-button'
                   >
                     Max
                   </Button>
                 }
+                data-test='token-row-sell'
               />
             </FormControl>
             <FormControl
@@ -259,8 +262,16 @@ export const TradeInput = () => {
                 icon={<FaArrowsAltV />}
                 isLoading={!quote || action || error ? true : false}
                 _loading={{ color: 'blue.500' }}
+                data-test='swap-assets-button'
               />
-              <Box display='flex' alignItems='center' color='gray.500' fontSize='sm' spacing='24px'>
+              <Box
+                display='flex'
+                alignItems='center'
+                color='gray.500'
+                fontSize='sm'
+                spacing='24px'
+                data-test='trade-rate-quote'
+              >
                 {!quote || action || error ? (
                   <Text translation={error ? 'common.error' : 'trade.searchingRate'} />
                 ) : (
@@ -293,8 +304,10 @@ export const TradeInput = () => {
                     onClick={() => navigate('/trade/select/buy')}
                     logo={buyAsset?.currency?.icon}
                     symbol={buyAsset?.currency?.symbol}
+                    data-test='token-row-buy-token-button'
                   />
                 }
+                data-test='token-row-buy'
               />
             </FormControl>
             <Button
@@ -308,6 +321,7 @@ export const TradeInput = () => {
                 whiteSpace: 'normal',
                 wordWrap: 'break-word'
               }}
+              data-test='trade-preview-button'
             >
               <Text translation={getTranslationKey()} />
             </Button>

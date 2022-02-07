@@ -19,6 +19,7 @@ export const NavBar = (props: StackProps) => {
             label={translate(item.label)}
             aria-label={translate(item.label)}
             children={undefined}
+            data-test={`navbar-${item.label.split('.')[1]}-button`}
           />
         ))}
     </HStack>

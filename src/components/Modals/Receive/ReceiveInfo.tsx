@@ -177,7 +177,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               <LightMode>
                 <Card.Body display='inline-block' textAlign='center' p={6}>
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
-                    <QRCode text={receiveAddress} />
+                    <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress}>
                     <Flex
@@ -190,7 +190,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       _active={{ color: 'blue.800' }}
                       cursor='pointer'
                     >
-                      <MiddleEllipsis address={receiveAddress} />
+                      <MiddleEllipsis address={receiveAddress} data-test='receive-address-label' />
                     </Flex>
                   </Skeleton>
                 </Card.Body>

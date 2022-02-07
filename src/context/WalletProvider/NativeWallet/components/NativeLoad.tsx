@@ -130,6 +130,7 @@ export const NativeLoad = () => {
                 justifyContent='space-between'
                 variant='btn-ghost'
                 colorScheme='blue'
+                data-test='native-saved-wallet'
               >
                 <Button
                   px={4}
@@ -142,6 +143,7 @@ export const NativeLoad = () => {
                     </IconCircle>
                   }
                   onClick={() => handleWalletSelect(wallet)}
+                  data-test='native-saved-wallet-button'
                 >
                   <Box textAlign='left'>
                     <RawText
@@ -150,6 +152,7 @@ export const NativeLoad = () => {
                       lineHeight='1.2'
                       mb={1}
                       isTruncated
+                      data-test='native-saved-wallet-name'
                     >
                       {wallet.name}
                     </RawText>

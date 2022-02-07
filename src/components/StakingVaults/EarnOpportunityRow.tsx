@@ -119,7 +119,9 @@ export const EarnOpportunityRow = ({
           </SkeletonCircle>
         </Flex>
         <Skeleton isLoaded={isLoaded}>
-          <RawText size='lg' fontWeight='bold'>{`${name} ${type}`}</RawText>
+          <RawText size='lg' fontWeight='bold'>
+            {name}
+          </RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
           <Tag colorScheme='green'>

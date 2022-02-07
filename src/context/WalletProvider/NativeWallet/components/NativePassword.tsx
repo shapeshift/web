@@ -66,6 +66,7 @@ export const NativePassword = () => {
               variant='filled'
               id='name'
               placeholder={translate('modals.shapeShift.password.walletName')}
+              data-test='wallet-native-set-name-input'
             />
             <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
           </FormControl>
@@ -84,6 +85,7 @@ export const NativePassword = () => {
                 placeholder={translate('modals.shapeShift.password.placeholder')}
                 autoComplete={'password'}
                 id='password'
+                data-test='wallet-native-password-input'
               />
               <InputRightElement>
                 <IconButton
@@ -104,6 +106,7 @@ export const NativePassword = () => {
             type='submit'
             isLoading={isSubmitting}
             isDisabled={errors.name}
+            data-test='wallet-native-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />
           </Button>

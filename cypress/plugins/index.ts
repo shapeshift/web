@@ -1,27 +1,50 @@
 require('dotenv').config()
+const { execSync } = require('child_process')
+const { resolve } = require('path')
+const fs = require('fs')
 
 const execa = require('execa')
 
-const findBrave = (): Cypress.Browser => {
-  // the path is hard-coded for simplicity
-  const browserPath = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
-
-  return execa(browserPath, ['--version']).then((result: { stdout: string }) => {
-    // STDOUT will be like "Brave Browser 77.0.69.135"
-    // @ts-ignore
-    const [, version] = /Brave Browser (\d+\.\d+\.\d+\.\d+)/.exec(result.stdout)
-    const majorVersion = parseInt(version.split('.')[0])
-
-    return {
-      name: 'Brave',
-      channel: 'stable',
-      family: 'chromium',
-      displayName: 'Brave',
-      version,
-      path: browserPath,
-      majorVersion
+const findBrave = (): Cypress.Browser | undefined => {
+  const browserPath: string | undefined = (() => {
+    switch (process.platform) {
+      case 'darwin': {
+        const braveMacOsPath = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+        const isBraveInstalled = fs.existsSync(braveMacOsPath)
+        return isBraveInstalled ? braveMacOsPath : undefined
+      }
+      case 'linux': {
+        const braveLinuxOsPath = execSync(
+          resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh')
+        )
+        return braveLinuxOsPath ? braveLinuxOsPath.toString().trim() : undefined
+      }
+      default: {
+        return undefined
+      }
     }
-  })
+  })()
+
+  return browserPath
+    ? execa(browserPath, ['--version']).then((result: { stdout: string }) => {
+        // STDOUT will be like "Brave Browser 77.0.69.135"
+        // @ts-ignore
+        const [, version] = /Brave Browser (\d+\.\d+\.\d+\.\d+)/.exec(result.stdout)
+        const majorVersion = parseInt(version.split('.')[0])
+
+        return browserPath
+          ? {
+              name: 'Brave',
+              channel: 'stable',
+              family: 'chromium',
+              displayName: 'Brave',
+              version,
+              path: browserPath,
+              majorVersion
+            }
+          : undefined
+      })
+    : undefined
 }
 
 /**
@@ -33,7 +56,9 @@ module.exports = async (on: any, config: any) => {
   }
 
   const brave = await findBrave()
-  config.browsers = config.browsers.concat(brave)
+  if (brave) {
+    config.browsers = config.browsers.concat(brave)
+  }
 
   // Allow Cypress to see key Node environment variables via Cypress.env('some-variable')
   config.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL =

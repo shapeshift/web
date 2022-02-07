@@ -18,7 +18,9 @@ Fix lint: `lint:cypress:fix`
 
 **Where do I put them?**
 
-Add to an existing file in `cypress/interation`, or create your own if the tests fall into a new category.
+Add to an existing file in `cypress/integration`, or create your own if the tests fall into a new category.
+
+For test files to be recognised by Cypress they must be appended with `_spec`. For example, if we are testing a staking page, we might name the test file `staking_spec.ts`.
 
 **How do I find the element I want to test with Cypress?**
 

@@ -1,5 +1,6 @@
 import { Box, Stack } from '@chakra-ui/react'
 import { FeatureFlag } from 'constants/FeatureFlag'
+import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
@@ -9,6 +10,16 @@ import { EarnOpportunityRow } from './EarnOpportunityRow'
 export const AllEarnOpportunities = () => {
   const earnFeature = FeatureFlag.Yearn
   const vaults = useYearnVaults()
+
+  const vaultRows = useMemo(
+    () =>
+      vaults
+        .filter(vault => !vault.expired)
+        .map(vault => (
+          <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
+        )),
+    [vaults]
+  )
 
   if (!earnFeature) return null
 
@@ -24,11 +35,7 @@ export const AllEarnOpportunities = () => {
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          {vaults
-            .filter(vault => !vault.expired)
-            .map(vault => (
-              <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
-            ))}
+          {vaultRows}
         </Stack>
       </Card.Body>
     </Card>

@@ -53,11 +53,15 @@ export const SelectModal = () => {
             })}
         </Stack>
         <Flex direction={['column', 'row']} mt={2} justifyContent='center' alignItems='center'>
-          <Text mb={[3]} color='gray.500' translation={'walletProvider.selectModal.footer'} />
+          <Text
+            mb={[3]}
+            color='gray.500'
+            translation={walletInfo?.name ? 'common.or' : 'walletProvider.selectModal.footer'}
+          />
           <Button
             variant='link'
             mb={[3]}
-            ml={[0, 2]}
+            ml={[0, 1.5]}
             borderTopRadius='none'
             colorScheme='blue'
             onClick={() => create(KeyManager.Native)}

@@ -1,4 +1,5 @@
 require('dotenv').config()
+const { execSync } = require('child_process')
 const { resolve } = require('path')
 const fs = require('fs')
 
@@ -13,7 +14,8 @@ const findBrave = (): Cypress.Browser | undefined => {
         return isBraveInstalled ? braveMacOsPath : undefined
       }
       case 'linux': {
-        return resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh')
+        const braveLinuxOsPath = execSync(resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh'))
+        return braveLinuxOsPath ? braveLinuxOsPath.toString().trim() : undefined
       }
       default: {
         return undefined

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.10.0...@shapeshiftoss/market-service-v1.10.1) (2022-02-07)
+
+
+### Bug Fixes
+
+* yearn chart data ([#341](https://github.com/shapeshift/lib/issues/341)) ([9a4dead](https://github.com/shapeshift/lib/commit/9a4dead4a8fe64972941b6a97978f805de0c61d6))
+
 # [@shapeshiftoss/market-service-v1.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.9.0...@shapeshiftoss/market-service-v1.10.0) (2022-01-31)
 
 

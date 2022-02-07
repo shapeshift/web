@@ -1,10 +1,25 @@
 require('dotenv').config()
+const { resolve } = require('path')
+const fs = require('fs')
 
 const execa = require('execa')
 
-const findBrave = (): Cypress.Browser => {
-  // the path is hard-coded for simplicity
-  const browserPath = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+const findBrave = (): Cypress.Browser | undefined => {
+  const browserPath: string | undefined = (() => {
+    switch (process.platform) {
+      case 'darwin': {
+        const braveMacOsPath = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+        const isBraveInstalled = fs.existsSync(braveMacOsPath)
+        return isBraveInstalled ? braveMacOsPath : undefined
+      }
+      case 'linux': {
+        return resolve(process.cwd(), 'cypress/scripts/linux-brave-version.sh')
+      }
+      default: {
+        return undefined
+      }
+    }
+  })()
 
   return execa(browserPath, ['--version']).then((result: { stdout: string }) => {
     // STDOUT will be like "Brave Browser 77.0.69.135"
@@ -12,15 +27,17 @@ const findBrave = (): Cypress.Browser => {
     const [, version] = /Brave Browser (\d+\.\d+\.\d+\.\d+)/.exec(result.stdout)
     const majorVersion = parseInt(version.split('.')[0])
 
-    return {
-      name: 'Brave',
-      channel: 'stable',
-      family: 'chromium',
-      displayName: 'Brave',
-      version,
-      path: browserPath,
-      majorVersion
-    }
+    return browserPath
+      ? {
+          name: 'Brave',
+          channel: 'stable',
+          family: 'chromium',
+          displayName: 'Brave',
+          version,
+          path: browserPath,
+          majorVersion
+        }
+      : undefined
   })
 }
 

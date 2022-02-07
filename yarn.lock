@@ -3747,10 +3747,10 @@
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/market-service@^1.10.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.10.0.tgz#ec540095ed7a033b31aae6763e7b23cab15523ed"
-  integrity sha512-CcvdPtqANQpL+0LrhdtjQHzIl9n7Yif32iNlKqirMpK4S6n5vac246/Jnl6QT84uTHIwuwg4tT2u2tWwFS560A==
+"@shapeshiftoss/market-service@^1.10.1":
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.10.1.tgz#48bdf672929d8a1c94b8e2d1df69f154a1cfeb18"
+  integrity sha512-7EiDQWujTLBXYUssWXksGgRXkPxrz2zM9AvfAte8/iNnwe8oRI6A4qj/gG1Bz/vNbVJVd+PgEqXh9RhNOpxkOw==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.27"
@@ -3776,10 +3776,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.5.3"
 
-"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0":
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.21.0.tgz#e9f74edecea8df89345a0f011b0f26924a6e487b"
-  integrity sha512-0vrBbS8PK/5TfdAspmk6J+N7C+k0hVMYG9NBVfDRMtXT5KyDHX0Jkb+hvPGp8XKQO+AUEhdFVs2qRaEaV/z+DQ==
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.21.1":
+  version "1.21.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.21.1.tgz#81e416a8cf088a498e0fd1178d0dd9f42911ede5"
+  integrity sha512-4RoynuG0ZlKX0h/K7evDVddnQjRqmOVNH3r4UJv0mRRnD1eUGzdAQjKLji43lapwL0x9HlPw2YRHL5ctmV6Zcw==
 
 "@shapeshiftoss/unchained-client@^5.1.0":
   version "5.1.0"

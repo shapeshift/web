@@ -8,7 +8,7 @@ Bug fixes and features should always come with tests.
   - [jest](https://jestjs.io/docs/getting-started), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library hooks](https://github.com/testing-library/react-hooks-testing-library#example)
 - E2E - to test the full stack completely on critical flows
   - [cypress](https://docs.cypress.io/guides/core-concepts/writing-and-organizing-tests)
-    - When selecting DOM elements use `data-testid` instead of using a `class` or `id`.
+    - When selecting DOM elements [use `data-test-*` instead of using a `class` or `id`](https://docs.cypress.io/guides/references/best-practices#Selecting-Elements).
 
 ### Testing Ui Business Logic
 

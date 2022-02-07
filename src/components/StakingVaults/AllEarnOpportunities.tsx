@@ -3,22 +3,22 @@ import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
+import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
 
 export const AllEarnOpportunities = () => {
   const earnFeature = FeatureFlag.Yearn
-  const vaults = useYearnVaults()
+  const sortedVaults = useSortedYearnVaults()
 
   const vaultRows = useMemo(
     () =>
-      vaults
+      sortedVaults
         .filter(vault => !vault.expired)
         .map(vault => (
           <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
         )),
-    [vaults]
+    [sortedVaults]
   )
 
   if (!earnFeature) return null

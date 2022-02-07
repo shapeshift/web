@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# TODO - replace `which` with `/usr/bin/which` and test on Linux
 BRAVE_PATH=$(which brave-browser)
 BRAVE_CODE=$?
 

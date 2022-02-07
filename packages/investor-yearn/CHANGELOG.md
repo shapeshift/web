@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.2.0...@shapeshiftoss/investor-yearn-v1.3.0) (2022-02-07)
+
+
+### Features
+
+* add transformVault util and change return types ([#346](https://github.com/shapeshift/lib/issues/346)) ([f88da2d](https://github.com/shapeshift/lib/commit/f88da2daca63d779cb8e8f31029b6106ca7f6f52))
+
 # [@shapeshiftoss/investor-yearn-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.1.0...@shapeshiftoss/investor-yearn-v1.2.0) (2022-02-07)
 
 

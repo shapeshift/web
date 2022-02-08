@@ -23,7 +23,7 @@ export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
     <Box pt='51px' pb='20px' px='24px'>
       <Flex
         direction='column'
-        width='395px'
+        maxWidth='395px'
         height='422px'
         alignItems='center'
         justifyContent='space-between'

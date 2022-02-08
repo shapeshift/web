@@ -10,7 +10,7 @@ type DefiModalHeaderProps = {
 export const DefiModalHeader = ({ headerImageSrc, headerText }: DefiModalHeaderProps) => (
   <>
     <Box textAlign='center'>
-      <Image src={headerImageSrc} width='68px' height='73px' />
+      <Image src={headerImageSrc} width='68px' />
     </Box>
     <Box textAlign='center' pt='13px'>
       <Text translation={headerText} fontSize='18px' fontWeight='bold' />

@@ -24,6 +24,10 @@
 
 - Where possible, please provide unit tests / integration tests that
   demonstrate new functionality is working.
+  
+- For all presentational components we leverage the chakra-ui with a custom theme. All of your components should be composed of chakra-ui base components. 
+If a need arises were you need to build something completely custom. Please post in the #product-public-chat on Discord.
+https://chakra-ui.com/
 
 #### Getting Your PR Accepted
 

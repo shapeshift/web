@@ -63,11 +63,13 @@ type WithdrawProps = {
 const CryptoInput = (props: InputProps) => (
   <Input
     pr='4.5rem'
-    pl='7.5rem'
+    pl='1rem'
+    ml='1rem'
     size='lg'
     type='number'
     border={0}
     borderBottomRadius={0}
+    borderTopLeftRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -244,7 +246,7 @@ export const Withdraw = ({
               spacing={0}
             >
               <InputGroup size='lg'>
-                <InputLeftElement ml={1} width='auto'>
+                <InputLeftElement pos='relative' ml={1} width='auto'>
                   <Button
                     ml={1}
                     size='sm'

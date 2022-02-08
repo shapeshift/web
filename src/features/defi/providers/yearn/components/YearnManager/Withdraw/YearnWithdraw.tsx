@@ -435,7 +435,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     >
       <YearnRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {withdrawRoute && <DefiActionButtons />}
+        {withdrawRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Routes location={location} key={location.key}>
             {routes.map(route => {

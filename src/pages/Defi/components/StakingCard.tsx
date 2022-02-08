@@ -38,7 +38,8 @@ export const StakingCard = ({
   isLoaded,
   apy,
   cryptoAmount,
-  fiatAmount
+  fiatAmount,
+  expired
 }: StakingCardProps) => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -55,7 +56,7 @@ export const StakingCard = ({
 
   const handleClick = () => {
     isConnected
-      ? navigate(`/defi/${type}/${provider}/deposit`, {
+      ? navigate(`/defi/${type}/${provider}/withdraw`, {
           state: {
             search: qs.stringify({
               chain,
@@ -99,7 +100,7 @@ export const StakingCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <StatNumber>
-                <Amount.Fiat value={fiatAmount} />
+                <Amount.Fiat color={expired ? 'red.500' : 'white'} value={fiatAmount} />
               </StatNumber>
             </Skeleton>
           </Stat>

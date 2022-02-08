@@ -38,7 +38,8 @@ export const StakingCard = ({
   isLoaded,
   apy,
   cryptoAmount,
-  fiatAmount
+  fiatAmount,
+  expired
 }: StakingCardProps) => {
   const history = useHistory()
   const location = useLocation()
@@ -56,7 +57,7 @@ export const StakingCard = ({
   const handleClick = () => {
     isConnected
       ? history.push({
-          pathname: `/defi/${type}/${provider}/deposit`,
+          pathname: `/defi/${type}/${provider}/withdraw`,
           search: qs.stringify({
             chain,
             contractAddress: vaultAddress,
@@ -98,7 +99,7 @@ export const StakingCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <StatNumber>
-                <Amount.Fiat value={fiatAmount} />
+                <Amount.Fiat color={expired ? 'red.500' : 'white'} value={fiatAmount} />
               </StatNumber>
             </Skeleton>
           </Stat>

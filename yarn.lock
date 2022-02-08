@@ -3731,10 +3731,10 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-yearn@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.1.0.tgz#97dda82f985e5c39755d7cd70ae23f166c4e3004"
-  integrity sha512-pMfC96k8dkF8q31F5E3UHJ/zPJ07Bc1eSAyQ50/7CrJv+gl+5tmtU1yLFnO5ulljp3nU9oodJPvUQqG+gKQnKA==
+"@shapeshiftoss/investor-yearn@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.3.0.tgz#e2c8ab0aac559a067de7c454334721aac0f4771e"
+  integrity sha512-XCQNe4XknKEnGK8HcOAcgKSQKhadO00u4vf5edYaEiW7vEeRC0duSHfouJVHYD/LV6RmpUTgUza4gGkRk2hKTw==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@shapeshiftoss/chain-adapters" "^1.31.1"

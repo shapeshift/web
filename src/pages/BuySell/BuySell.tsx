@@ -1,66 +1,73 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
-import  { useCallback, useEffect, useState } from 'react'
+import { Avatar, Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { getConfig } from 'config'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Redirect } from 'react-router-dom'
 import gemlogo from 'assets/gem-mark.png'
 import onjunologo from 'assets/onjuno.png'
 import { Card } from 'components/Card/Card'
 import { Page } from 'components/Layout/Page'
+import { Text } from 'components/Text'
 
 export const BuySell = () => {
-  const [supportedCoins, SetSupportedCoins] = useState([])
-  const [supportedSellCoins, SetSupportedSellCoins] = useState([])
-  const [redirectToGem, setRiderectToGem] = useState(false)
+  const [supportedCoins, setSupportedCoins] = useState<any[]>([])
+  const [supportedSellCoins, setSupportedSellCoins] = useState<any[]>([])
+  const [redirectToGem, setRedirectToGem] = useState(false)
 
   const getCoinifySupportedCurrencies = async () => {
     try {
       let coinifyResponse = await (
-        await fetch('https://api.gem.co/institutions/coinify/supported_currencies')
+        await fetch(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
       ).json()
 
       return coinifyResponse
     } catch (ex: any) {
-        console.log(ex)
+      console.error(ex)
+    }
   }
 
   const getWyreSupportedCurrencies = async () => {
     try {
-      let wyreResponse = await (
-        await fetch('https://api.gem.co/institutions/wyre/supported_currencies')
-      ).json()
-
+      let wyreResponse = await (await fetch(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)).json()
       return wyreResponse
     } catch (ex: any) {
-       console.log(ex)
+      console.error(ex)
     }
   }
   //Filter for the assets you can buy
-  const buyFilter = arg =>
+  const buyFilter = (arg: { transaction_direction: string }) =>
     arg.transaction_direction === 'bank_blockchain' ||
     arg.transaction_direction === 'card_blockchain'
 
   // Filter for the assets you can sell
-  const sellFilter = arg => arg.transaction_direction === 'blockchain_bank'
+  const sellFilter = (arg: { transaction_direction: string }) =>
+    arg.transaction_direction === 'blockchain_bank'
 
   //Filter and merge function
-  const filterAndMerge = (arr1, arr2, key, filter) => {
-    const list1 = arr1.filter(filter).map(list => list[key].currencies)
-    const list2 = arr2.filter(filter).map(list => list[key].currencies)
-    const results = list1.concat(list2).flat()
-    let filteredResults = []
+  const filterAndMerge = useMemo(
+    () => (arr1: any[], arr2: any[], key: string | number, filter: any) => {
+      const list1 = arr1
+        .filter(filter)
+        .map((list: { [x: string]: { currencies: any } }) => list[key].currencies)
+      const list2 = arr2
+        .filter(filter)
+        .map((list: { [x: string]: { currencies: any } }) => list[key].currencies)
+      const results = list1.concat(list2).flat()
+      let filteredResults: any[] = []
 
-    results.filter(function (item) {
-      var i = filteredResults.findIndex(x => x.ticker == item.ticker)
-      if (i <= -1) {
-        filteredResults.push(item)
-      }
-    })
-    return filteredResults
-  }
+      results.filter(function (item: { ticker: any }) {
+        var i = filteredResults.findIndex(x => x.ticker === item.ticker)
+        if (i <= -1) {
+          filteredResults.push(item)
+        }
+      })
+      return filteredResults
+    },
+    []
+  )
 
   const ridirectToGem = () => {
-
-    setRiderectToGem(true)
+    setRedirectToGem(true)
   }
 
   //Fetch supported coins and set them to state
@@ -71,17 +78,16 @@ export const BuySell = () => {
       const wyreList = await getWyreSupportedCurrencies()
       const buyList = filterAndMerge(coinifyList, wyreList, 'destination', buyFilter)
       const sellList = filterAndMerge(coinifyList, wyreList, 'source', sellFilter)
-      SetSupportedCoins(buyList)
-      SetSupportedSellCoins(sellList)
+      setSupportedCoins(buyList)
+      setSupportedSellCoins(sellList)
     } catch (e) {
-      console.log(e)
+      console.error(e)
     }
-  }, [])
+  }, [filterAndMerge])
 
   useEffect(() => {
-    setIsLoading(true)
     fetchSupportedCoins()
-    setIsLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -99,24 +105,23 @@ export const BuySell = () => {
           <Flex
             justifyContent='center'
             alignItems='center'
-            marginTop={'20%'}
+            mt={'20%'}
             minWidth={'60%'}
             maxWidth={'70%'}
-            marginLeft={'60%'}
+            ml={'60%'}
           >
             <Card textAlign='center' py={6} boxShadow='none' borderWidth={0}>
               <Card.Header>
-                <Card.Heading>Buy or Sell Crypto</Card.Heading>
+                <Card.Heading>
+                  <Text translation='buysell.page.title' />
+                </Card.Heading>
               </Card.Header>
               <Card.Body>
-                <Text lineHeight={1}>
-                  ShapeShift has Partnered with several fiat ramp providers for buying and selling
-                  cryptocurrencies.
-                </Text>
+                <Text lineHeight={1} translation='buysell.page.titleMessage' />
                 <Flex
                   flexDirection={'column'}
                   justifyContent={'flex-start'}
-                  marginTop={'5%'}
+                  mt={'5%'}
                   alignItems={'flex-start'}
                 >
                   <Box>
@@ -130,43 +135,43 @@ export const BuySell = () => {
                       _focus={{
                         shadow: 'outline-inset'
                       }}
-                      padding={'25px'}
+                      p={'25px'}
                       minWidth={'117%'}
                     >
                       <Avatar src={gemlogo} bg={useColorModeValue('gray.200', 'gray.700')} />
                       <Box textAlign='left'>
-                        <Text lineHeight={1}>GEM</Text>
-                        <Text fontWeight='normal' fontSize='sm'>
-                          Buy or sell Crypto with Gem
-                        </Text>
+                        <Text lineHeight={1} translation='buysell.page.gem' />
+                        <Text
+                          fontWeight='normal'
+                          fontSize='sm'
+                          translation='buysell.page.gemMessage'
+                        />
                       </Box>
-                      <Flex flexDirection={'row'} marginLeft={'15%'}>
+                      <Flex flexDirection={'row'} ml={'15%'}>
                         <Text
                           fontSize={'sm'}
                           color={'green.400'}
                           borderRadius={'10%'}
                           bg={useColorModeValue('green.200', 'green.800')}
                           padding={'2px'}
-                        >
-                          BUY
-                        </Text>
+                          translation='buysell.page.buy'
+                        />
                         <Text
-                          marginLeft={'15%'}
+                          ml={'15%'}
                           fontSize={'sm'}
                           color={'red.400'}
                           bg={useColorModeValue('red.200', 'red.800')}
                           borderRadius={'10%'}
-                          padding={'2px'}
-                        >
-                          SELL
-                        </Text>
+                          p={'2px'}
+                          translation='buysell.page.sell'
+                        />
                         <Box marginLeft={'15%'}>
                           <ChevronRightIcon w={5} h={5} color='blue.500' />
                         </Box>
                       </Flex>
                     </Button>
                   </Box>
-                  <Box marginTop={'5%'}>
+                  <Box mt={'5%'}>
                     <Button
                       variant='ghost'
                       onClick={() => {}}
@@ -175,15 +180,17 @@ export const BuySell = () => {
                       _focus={{
                         shadow: 'outline-inset'
                       }}
-                      padding={'25px'}
+                      p={'25px'}
                       minWidth={'115%'}
                     >
                       <Avatar src={onjunologo} bg={useColorModeValue('gray.200', 'gray.700')} />
                       <Box textAlign='left'>
-                        <Text lineHeight={1}>OnJuno</Text>
-                        <Text fontWeight='normal' fontSize='sm'>
-                          Coming soon ...
-                        </Text>
+                        <Text lineHeight={1} translation='buysell.page.onJuno' />
+                        <Text
+                          fontWeight='normal'
+                          fontSize='sm'
+                          translation='buysell.page.comingSoon'
+                        />
                       </Box>
                     </Button>
                   </Box>

@@ -14,7 +14,10 @@ const validators = {
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str(),
-  REACT_APP_HIDE_SPLASH: bool({ default: false })
+  REACT_APP_HIDE_SPLASH: bool({ default: false }),
+  REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
+  REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),
+  REACT_APP_GEM_ASSET_LOGO: url()
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -34,13 +34,16 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
+    // @gem(onramp) to get coinify supported currencies
+    process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
+    // @gem(onramp) to get wyre supported currencies
+    process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS,
     process.env.REACT_APP_ETHEREUM_NODE_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
     process.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL,
-    'https://api.gem.co/institutions/coinify/supported_currencies',
-    'https://api.gem.co/institutions/wyre/supported_currencies'
+    
   ],
   'frame-src': [
     'https://fwd.metamask.io/',
@@ -55,13 +58,14 @@ const cspMeta = Object.entries({
     'https://static.coincap.io/assets/icons/',
     'https://assets.coingecko.com/coins/images/',
     'https://rawcdn.githack.com/yearn/yearn-assets/',
-    'https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/',
     'https://raw.githack.com/trustwallet/assets/',
     'https://rawcdn.githack.com/yearn/yearn-assets/',
     'https://raw.githack.com/yearn/yearn-assets/',
     'https://assets.yearn.network/tokens/',
     'https://raw.githubusercontent.com/yearn/yearn-assets/',
-    'https://rawcdn.githack.com/trustwallet/assets/'
+    'https://rawcdn.githack.com/trustwallet/assets/',
+     // @gem(onramp) to get supported currencies logo
+    process.env.REACT_APP_GEM_ASSET_LOGO
   ],
   'script-src': [
     "'self'",

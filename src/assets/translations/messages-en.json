@@ -55,6 +55,24 @@
       "recentTransactions": "Recent Transactions"
     }
   },
+  "buysell":{
+    "page":{
+      "title": "Buy or Sell Crypto",
+      "titleMessage": "ShapeShift has Partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
+      "gem": "GEM",
+      "gemMessage": "Buy or sell Crypto with Gem",
+      "buy": "Buy",
+      "sell": "Sell",
+      "onJuno": "OnJuno",
+      "comingSoon": "Coming soon ...",
+      "assestBuyMessage": "Assest to Buy",
+      "selectAnAssestToBuy": "Select an assest to buy",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "assestSellMessage": "Assest to Sell",
+      "selectAnAssestToSell": "Select an assest to buy"
+    }
+  },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
     "alpha": "Alpha",

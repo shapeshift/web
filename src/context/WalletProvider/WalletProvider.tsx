@@ -173,20 +173,26 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    if (SUPPORTED_WALLETS[type]?.routes[0]?.path) {
+    if (SUPPORTED_WALLETS[type]?.routes?.find(({ path }) => String(path).endsWith('connect'))) {
+      const routeIndex = SUPPORTED_WALLETS[type]?.routes?.findIndex(({ path }) =>
+        String(path).endsWith('connect')
+      )
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[0].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
       })
     }
   }, [])
 
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    if (SUPPORTED_WALLETS[type]?.routes[5]?.path) {
+    if (SUPPORTED_WALLETS[type]?.routes?.find(({ path }) => String(path).endsWith('create'))) {
+      const routeIndex = SUPPORTED_WALLETS[type]?.routes?.findIndex(({ path }) =>
+        String(path).endsWith('create')
+      )
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[5].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
       })
     }
   }, [])

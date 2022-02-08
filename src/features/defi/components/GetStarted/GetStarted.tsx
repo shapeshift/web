@@ -50,9 +50,7 @@ export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
               zIndex={1}
               width='100%'
               colorScheme='blue'
-              onClick={() => {
-                console.log('Start Staking')
-              }}
+              onClick={() => 'Start Staking'}
             >
               Start Staking
             </Button>
@@ -61,9 +59,7 @@ export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
               zIndex={1}
               variant='ghost'
               colorScheme='white'
-              onClick={() => {
-                console.log('Learn More')
-              }}
+              onClick={() => 'Learn More'}
             >
               Learn More
             </Button>

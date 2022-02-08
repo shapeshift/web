@@ -40,11 +40,11 @@
     "portfolio": {
       "addAsset": "자산 추가",
       "yourAssets": "보유자산",
-      "asset": "자",
+      "asset": "자산",
       "portfolioBalance": "보유자산 현황",
       "balance": "총 보유 자산",
-      "price": "가",
-      "value": "총",
+      "price": "가격",
+      "value": "현 가치",
       "allocation": "배당 구성",
       "empty": {
         "title": "뻘쭘...",
@@ -113,8 +113,8 @@
   },
   "navBar": {
     "dashboard": "대시보",
-    "assets": "자",
-    "accounts": "계",
+    "assets": "자산",
+    "accounts": "계정",
     "earn": "자산 획득",
     "defi": "디파이",
     "tradeHistory": "거래 내역",

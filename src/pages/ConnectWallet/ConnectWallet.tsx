@@ -87,6 +87,7 @@ export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
           colorScheme='blue'
           rightIcon={<ArrowForwardIcon />}
           onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
+          data-test='connect-wallet-button'
         >
           <Text translation='connectWalletPage.cta' />
         </Button>

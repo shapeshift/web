@@ -1,8 +1,11 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import {
+  getSupportedVaults,
+  SupportedYearnVault,
+  YearnVaultApi
+} from '@shapeshiftoss/investor-yearn'
 import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { YearnVaultApi } from 'features/defi/providers/yearn/api/api'
-import { getSupportedVaults, SupportedYearnVault } from 'features/defi/providers/yearn/api/vaults'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -56,6 +59,7 @@ export type MergedEarnVault = EarnVault & {
   cryptoAmount: string
   fiatAmount: string
   apy?: number
+  underlyingTokenBalanceUsdc?: string
 }
 
 export type UseVaultBalancesReturn = {
@@ -65,6 +69,7 @@ export type UseVaultBalancesReturn = {
 }
 
 export function useVaultBalances(): UseVaultBalancesReturn {
+  const USDC_PRECISION = 6
   const {
     state: { wallet }
   } = useWallet()
@@ -125,7 +130,10 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           ...vault,
           cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
-          apy: yearnVault?.metadata?.apy?.net_apy
+          apy: yearnVault?.metadata?.apy?.net_apy,
+          underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
+            .div(`1e+${USDC_PRECISION}`)
+            .toString()
         }
         return acc
       },

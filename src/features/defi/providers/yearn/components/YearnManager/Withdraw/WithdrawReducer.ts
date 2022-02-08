@@ -1,6 +1,6 @@
+import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-
-import { YearnVault } from '../../../api/api'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -13,7 +13,7 @@ type YearnWithdrawValues = WithdrawValues &
   }
 
 type YearnWithdrawState = {
-  vault: YearnVault
+  vault: SupportedYearnVault
   userAddress: string | null
   approve: EstimatedGas
   withdraw: YearnWithdrawValues
@@ -25,6 +25,12 @@ type YearnWithdrawState = {
 export const initialState: YearnWithdrawState = {
   txid: null,
   vault: {
+    vaultAddress: '',
+    tokenAddress: '',
+    provider: '',
+    chain: ChainTypes.Ethereum,
+    type: '',
+    expired: false,
     address: '',
     typeId: 'VAULT_V2',
     token: '',

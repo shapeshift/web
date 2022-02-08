@@ -17,7 +17,9 @@ const validators = {
   REACT_APP_HIDE_SPLASH: bool({ default: false }),
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),
-  REACT_APP_GEM_ASSET_LOGO: url()
+  REACT_APP_GEM_ASSET_LOGO: url(),
+  REACT_APP_FEATURE_YEARN: bool({ default: true }),
+  REACT_APP_FEATURE_COSMOS_INVESTOR: bool({ default: false })
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

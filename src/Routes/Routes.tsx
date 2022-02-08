@@ -36,13 +36,13 @@ export const routes: Array<NestedRoute> = [
   },
   {
     path: '/buysell',
-    label: 'buysell',
+    label: 'buysell.page.routeTitle',
     icon: <DashboardIcon />,
     main: <BuySell />,
     routes: [
       {
         path: '/gem',
-        label: 'Gem on Ramp',
+        label: 'buysell.page.routeTitleForGem',
         icon: <DashboardIcon />,
         main: <GemBuySell />
       }

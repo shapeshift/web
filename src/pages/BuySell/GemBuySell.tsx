@@ -23,7 +23,8 @@ import { Page } from 'components/Layout/Page'
 import { Text } from 'components/Text'
 
 export const GemBuySell = () => {
-  const location = useLocation()
+  const location: any = useLocation()
+  const bgGray = useColorModeValue('gray.200', 'gray.700')
   return (
     <Page>
       <Flex mt={'20%'} ml={'170%'}>
@@ -73,7 +74,7 @@ export const GemBuySell = () => {
                                           buyCoin.ticker.toLowerCase() +
                                           '.svg'
                                         }
-                                        bg={useColorModeValue('gray.200', 'gray.700')}
+                                        bg={bgGray}
                                       />
                                       <Box textAlign='left'>
                                         <ChakraText lineHeight={1}>{buyCoin.name}</ChakraText>
@@ -142,7 +143,7 @@ export const GemBuySell = () => {
                                           sellCoin.ticker.toLowerCase() +
                                           '.svg'
                                         }
-                                        bg={useColorModeValue('gray.200', 'gray.700')}
+                                        bg={bgGray}
                                       />
                                       <Box textAlign='left'>
                                         <ChakraText lineHeight={1}>{sellCoin.name}</ChakraText>

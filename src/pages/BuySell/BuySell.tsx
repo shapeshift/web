@@ -14,6 +14,10 @@ export const BuySell = () => {
   const [supportedSellCoins, setSupportedSellCoins] = useState<any[]>([])
   const [redirectToGem, setRedirectToGem] = useState(false)
 
+  const bgGray = useColorModeValue('gray.200', 'gray.700')
+  const bgRed = useColorModeValue('red.200', 'red.800')
+  const bgGreen = useColorModeValue('green.200', 'green.800')
+
   const getCoinifySupportedCurrencies = async () => {
     try {
       let coinifyResponse = await (
@@ -55,13 +59,15 @@ export const BuySell = () => {
       const results = list1.concat(list2).flat()
       let filteredResults: any[] = []
 
-      results.filter(function (item: { ticker: any }) {
-        var i = filteredResults.findIndex(x => x.ticker === item.ticker)
+      filteredResults = results.map(result => {
+        var i = filteredResults.findIndex((x: { ticker: any }) => x.ticker === result.ticker)
         if (i <= -1) {
-          filteredResults.push(item)
+          return result
         }
+        return undefined
       })
-      return filteredResults
+
+      return filteredResults.filter(x => !!x)
     },
     []
   )
@@ -138,7 +144,7 @@ export const BuySell = () => {
                       p={'25px'}
                       minWidth={'117%'}
                     >
-                      <Avatar src={gemlogo} bg={useColorModeValue('gray.200', 'gray.700')} />
+                      <Avatar src={gemlogo} bg={bgGray} />
                       <Box textAlign='left'>
                         <Text lineHeight={1} translation='buysell.page.gem' />
                         <Text
@@ -152,7 +158,7 @@ export const BuySell = () => {
                           fontSize={'sm'}
                           color={'green.400'}
                           borderRadius={'10%'}
-                          bg={useColorModeValue('green.200', 'green.800')}
+                          bg={bgGreen}
                           padding={'2px'}
                           translation='buysell.page.buy'
                         />
@@ -160,7 +166,7 @@ export const BuySell = () => {
                           ml={'15%'}
                           fontSize={'sm'}
                           color={'red.400'}
-                          bg={useColorModeValue('red.200', 'red.800')}
+                          bg={bgRed}
                           borderRadius={'10%'}
                           p={'2px'}
                           translation='buysell.page.sell'
@@ -183,7 +189,7 @@ export const BuySell = () => {
                       p={'25px'}
                       minWidth={'115%'}
                     >
-                      <Avatar src={onjunologo} bg={useColorModeValue('gray.200', 'gray.700')} />
+                      <Avatar src={onjunologo} bg={bgGray} />
                       <Box textAlign='left'>
                         <Text lineHeight={1} translation='buysell.page.onJuno' />
                         <Text

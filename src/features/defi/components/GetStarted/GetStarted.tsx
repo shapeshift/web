@@ -52,7 +52,7 @@ export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
               colorScheme='blue'
               onClick={() => 'Start Staking'}
             >
-              Start Staking
+              <Text translation='defi.getStarted.cta.startStaking' />
             </Button>
             <Button
               size='lg'
@@ -61,7 +61,7 @@ export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
               colorScheme='white'
               onClick={() => 'Learn More'}
             >
-              Learn More
+              <Text translation='defi.getStarted.cta.learnMore' />
             </Button>
           </VStack>
         </Box>

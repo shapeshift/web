@@ -21,7 +21,7 @@ import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
 
-import { registerChains } from '../chains'
+import { registerChains } from '../plugins'
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 

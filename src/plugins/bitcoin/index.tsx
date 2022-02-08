@@ -1,12 +1,11 @@
-import { SupportedChains } from '../index'
+import { Plugin } from '../index'
 
-export function register(): SupportedChains {
+export function register(): Plugin {
   return [
     [
       'bip122:000000000019d6689c085ae165831e93',
       {
-        functions: {},
-        components: {
+        widgets: {
           accounts: {
             list: () => <UTXOAccountsList translations={'bitcoin.balh'} />,
             row: (accountId: string) => <BitcoinAccountRow accountId={accountId} />
@@ -19,8 +18,7 @@ export function register(): SupportedChains {
           }
         },
         routes: {
-          accounts: <BitcoinAccountsPage />,
-          account: (accountId: string) => <BitcoinAccountPage accountId={accountId} />
+          home: <BitcoinAccountsPage />
         }
       }
     ]

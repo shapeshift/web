@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.15.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.14.0...@shapeshiftoss/asset-service-v1.15.0) (2022-02-08)
+
+
+### Features
+
+* add ability to manually define asset descriptions ([#348](https://github.com/shapeshift/lib/issues/348)) ([bfe255b](https://github.com/shapeshift/lib/commit/bfe255b8e2a74ba608b9fbb73b03578e10b8a1ad))
+
 # [@shapeshiftoss/asset-service-v1.14.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.13.0...@shapeshiftoss/asset-service-v1.14.0) (2022-02-02)
 
 

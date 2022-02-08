@@ -9,6 +9,7 @@ import axios from 'axios'
 
 import { AssetService, flattenAssetData, indexAssetData } from './AssetService'
 import { mockAssets, mockBaseAssets, mockIndexedAssetData } from './AssetServiceTestData'
+import descriptions from './descriptions.json'
 
 jest.mock('axios')
 
@@ -33,6 +34,14 @@ const EthAsset: Asset = {
   sendSupport: false,
   receiveSupport: false
 }
+
+jest.mock(
+  './descriptions.json',
+  () => ({
+    'eip155:3/slip44:60': 'overriden description'
+  }),
+  { virtual: true }
+)
 
 describe('AssetService', () => {
   const assetFileUrl = 'http://example.com'
@@ -133,7 +142,18 @@ describe('AssetService', () => {
   })
 
   describe('description', () => {
+    it('should return the overridden description if it exists', async () => {
+      const assetService = new AssetService(assetFileUrl)
+
+      await expect(assetService.description({ asset: EthAsset })).resolves.toEqual(
+        'overriden description'
+      )
+    })
+
     it('should return a string if found', async () => {
+      const assetDescriptions = descriptions as Record<string, string>
+      delete assetDescriptions[EthAsset.caip19]
+
       const assetService = new AssetService(assetFileUrl)
       const description = { en: 'a blue fox' }
       mockedAxios.get.mockResolvedValue({ data: { description } })

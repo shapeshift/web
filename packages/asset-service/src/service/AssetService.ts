@@ -1,6 +1,7 @@
 import { Asset, AssetDataSource, BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import assetsDescriptions from './descriptions.json'
 import localAssetData from './generatedAssetData.json'
 
 export const flattenAssetData = (assetData: BaseAsset[]): Asset[] => {
@@ -114,7 +115,11 @@ export class AssetService {
   }
 
   async description({ asset }: { asset: Asset }): Promise<string> {
-    // Currently, we only get decription data for tokens with a coingecko datasource
+    const descriptions: Record<string, string> = assetsDescriptions
+
+    // Return overriden asset description if it exists
+    if (descriptions[asset.caip19]) return descriptions[asset.caip19]
+
     if (asset.dataSource !== AssetDataSource.CoinGecko) return ''
     const contractUrl =
       typeof asset.tokenId === 'string' ? `/contract/${asset.tokenId?.toLowerCase()}` : ''

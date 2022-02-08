@@ -69,6 +69,7 @@ const CryptoInput = (props: InputProps) => (
     type='number'
     border={0}
     borderBottomRadius={0}
+    borderTopLeftRadius={0}
     placeholder='Enter amount'
     {...props}
   />

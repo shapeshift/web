@@ -6,7 +6,7 @@ import {
 import { useParams } from 'react-router'
 
 type CosmosSdkManagerProps = {
-  assetId: string
+  assetId?: string
 }
 
 // TODO: Add proper routing with MemoryRouter, this just handles the "Get Started" modal route for now

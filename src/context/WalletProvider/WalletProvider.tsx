@@ -3,7 +3,7 @@ import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
-import { findIndex } from 'lodash'
+import findIndex from 'lodash/findIndex'
 import React, {
   createContext,
   useCallback,

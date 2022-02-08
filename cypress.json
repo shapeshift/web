@@ -1,1 +1,18 @@
-{}
+{
+  "baseUrl": "http://localhost:3000/",
+  "projectId": "5mmhr5",
+  "chromeWebSecurity": false,
+  "viewportWidth": 1280,
+  "viewportHeight": 1280,
+  "defaultCommandTimeout": 15000,
+  "env": {
+    "testPublicKey": "0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde",
+    "testSeed": "attract alcohol strike orphan decline flush option goat path offer sense know",
+    "testPassword": "tnj7!NNY@#ep",
+    "walletIndexedDbName": "c8e4859b-a0ca-5da8-b29a-05007e09151f",
+    "0xApi": "https://api.0x.org/",
+    "coinGeckoApi": "https://api.coingecko.com/api/v3/",
+    "foxContract": "0xc770eefad204b5180df6a14ee197d99d808ee52d",
+    "linkContract": "0x514910771af9ca656af840dff83e8264ecf986ca"
+  }
+}

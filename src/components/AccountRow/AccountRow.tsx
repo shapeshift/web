@@ -57,6 +57,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
       gridGap='1rem'
       alignItems='center'
       {...rest}
+      data-test='account-row'
     >
       <Flex alignItems='center'>
         <AssetIcon src={asset.icon} boxSize='30px' mr={2} />
@@ -70,6 +71,7 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
             overflow='hidden'
             display='inline-block'
             width={{ base: '100px', xl: '100%' }}
+            data-test={`account-row-asset-name-${asset.symbol}`}
           >
             {asset.name}
           </RawText>
@@ -79,7 +81,11 @@ export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs
         </Flex>
       </Flex>
       <Flex justifyContent='flex-end' textAlign='right' display={{ base: 'none', md: 'flex' }}>
-        <Amount.Crypto value={cryptoValue} symbol={asset.symbol} />
+        <Amount.Crypto
+          value={cryptoValue}
+          symbol={asset.symbol}
+          data-test={`account-row-asset-crypto-${asset.symbol}`}
+        />
       </Flex>
       <Flex display={{ base: 'none', lg: 'flex' }} justifyContent='flex-end'>
         {!marketData?.price ? '--' : <Amount.Fiat value={marketData.price} />}

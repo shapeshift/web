@@ -64,10 +64,20 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
                     translate('walletProvider.shapeShift.import.secretRecoveryPhraseError')
                 }
               })}
+              data-test='wallet-native-seed-input'
             />
-            <FormErrorMessage>{errors.mnemonic?.message}</FormErrorMessage>
+            <FormErrorMessage data-test='wallet-native-seed-validation-message'>
+              {errors.mnemonic?.message}
+            </FormErrorMessage>
           </FormControl>
-          <Button colorScheme='blue' isFullWidth size='lg' type='submit' isLoading={isSubmitting}>
+          <Button
+            colorScheme='blue'
+            isFullWidth
+            size='lg'
+            type='submit'
+            isLoading={isSubmitting}
+            data-test='wallet-native-seed-submit-button'
+          >
             <Text translation={'walletProvider.shapeShift.import.button'} />
           </Button>
         </form>

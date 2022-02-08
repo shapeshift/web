@@ -12,6 +12,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
+import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
@@ -48,7 +49,6 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
@@ -135,7 +135,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.approveEstimatedGas({
+        api.estimateApproveGas({
           tokenContractAddress: tokenId,
           userAddress: state.userAddress
         }),
@@ -157,7 +157,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.depositEstimatedGas({
+        api.estimateDepositGas({
           tokenContractAddress: tokenId,
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
@@ -630,7 +630,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         minWidth={{ base: 'auto', lg: '450px' }}
         maxWidth={{ base: 'auto', lg: '450px' }}
       >
-        {depositRoute && <DefiActionButtons />}
+        {depositRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>

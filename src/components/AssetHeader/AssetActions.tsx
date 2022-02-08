@@ -56,6 +56,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
               icon={<ArrowUpIcon />}
               aria-label={translate('common.send')}
               isDisabled={!hasValidBalance}
+              data-test='asset-action-send'
             />
           </div>
         </Tooltip>
@@ -68,6 +69,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
             width='full'
             icon={<ArrowDownIcon />}
             aria-label={translate('common.receive')}
+            data-test='asset-action-receive'
           />
         </Tooltip>
       </Skeleton>

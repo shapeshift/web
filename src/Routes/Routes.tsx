@@ -21,6 +21,7 @@ import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
 
+import { registerChains } from '../chains'
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
@@ -128,6 +129,7 @@ export const Routes = () => {
   const { background, location } = useLocationBackground()
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
+
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {

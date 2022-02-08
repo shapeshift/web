@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Avatar, Box, Button, Flex, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Redirect } from 'react-router-dom'
@@ -15,8 +15,9 @@ export const BuySell = () => {
   const [redirectToGem, setRedirectToGem] = useState(false)
 
   const bgGray = useColorModeValue('gray.200', 'gray.700')
-  const bgRed = useColorModeValue('red.200', 'red.800')
-  const bgGreen = useColorModeValue('green.200', 'green.800')
+  const bgRed = useColorModeValue('red.100', 'red.800')
+  const bgGreen = useColorModeValue('green.100', 'green.800')
+  const [isLargerThan550] = useMediaQuery('(min-width: 550px)')
 
   const getCoinifySupportedCurrencies = async () => {
     try {
@@ -109,14 +110,20 @@ export const BuySell = () => {
       {!redirectToGem && (
         <Page>
           <Flex
-            justifyContent='center'
-            alignItems='center'
-            mt={'20%'}
-            minWidth={'60%'}
-            maxWidth={'70%'}
-            ml={'60%'}
+            position={'absolute'}
+            top='50%'
+            left='50%'
+            marginRight={'-50%'}
+            transform={'translate(-35%,-50%)'}
           >
-            <Card textAlign='center' py={6} boxShadow='none' borderWidth={0}>
+            <Card
+              textAlign='center'
+              alignSelf={'center'}
+              boxShadow='none'
+              borderWidth={0}
+              minWidth={'68%'}
+              maxWidth={isLargerThan550 ? '75%' : '95%'}
+            >
               <Card.Header>
                 <Card.Heading>
                   <Text translation='buysell.page.title' />
@@ -142,7 +149,7 @@ export const BuySell = () => {
                         shadow: 'outline-inset'
                       }}
                       p={'25px'}
-                      minWidth={'117%'}
+                      wordBreak={'break-word'}
                     >
                       <Avatar src={gemlogo} bg={bgGray} />
                       <Box textAlign='left'>
@@ -151,9 +158,10 @@ export const BuySell = () => {
                           fontWeight='normal'
                           fontSize='sm'
                           translation='buysell.page.gemMessage'
+                          wordBreak={'break-word'}
                         />
                       </Box>
-                      <Flex flexDirection={'row'} ml={'15%'}>
+                      <Flex flexDirection={'row'} ml={'5%'}>
                         <Text
                           fontSize={'sm'}
                           color={'green.400'}
@@ -163,7 +171,7 @@ export const BuySell = () => {
                           translation='buysell.page.buy'
                         />
                         <Text
-                          ml={'15%'}
+                          ml={'5%'}
                           fontSize={'sm'}
                           color={'red.400'}
                           bg={bgRed}
@@ -171,7 +179,7 @@ export const BuySell = () => {
                           p={'2px'}
                           translation='buysell.page.sell'
                         />
-                        <Box marginLeft={'15%'}>
+                        <Box marginLeft={'5%'}>
                           <ChevronRightIcon w={5} h={5} color='blue.500' />
                         </Box>
                       </Flex>
@@ -181,13 +189,13 @@ export const BuySell = () => {
                     <Button
                       variant='ghost'
                       onClick={() => {}}
-                      isActive={false}
+                      isActive={true}
                       justifyContent='flex-start'
                       _focus={{
                         shadow: 'outline-inset'
                       }}
                       p={'25px'}
-                      minWidth={'115%'}
+                      minWidth={'100%'}
                     >
                       <Avatar src={onjunologo} bg={bgGray} />
                       <Box textAlign='left'>

@@ -1,1 +1,5 @@
-{}
+{
+  "eip155:1/erc20:0xed4064f376cb8d68f770fb1ff088a3d0f3ff5c4d": "This token represents a liquidity pool on Curve, a leading decentralized exchange. Holders earn fees from users trading in the pool, and can also deposit the LP token on ShapeShift to earn yield. This liquidity pool contains CRV and ETH. To acquire Curve CRV-ETH, deposit CRV and/or ETH on https://curve.fi/crveth/deposit. Please be aware that as liquidity pools are composed of differently-priced assets, they are subject to impermanent loss."
+}
+
+

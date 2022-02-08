@@ -1,7 +1,9 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { Button, Image, VStack } from '@chakra-ui/react'
+import { Button, VStack } from '@chakra-ui/react'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
+
+import { DefiModalHeader } from '../DefiModalHeader/DefiModalHeader'
 
 type GetStartedProps = {
   assetId: string
@@ -26,16 +28,10 @@ export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
         alignItems='center'
         justifyContent='space-between'
       >
-        <Box textAlign='center'>
-          <Image src={osmosis} width='68px' height='73px' />
-        </Box>
-        <Box textAlign='center' pt='13px'>
-          <Text
-            translation={['defi.getStarted.header', { assetName: asset.name, maxApr }]}
-            fontSize='18px'
-            fontWeight='bold'
-          />
-        </Box>
+        <DefiModalHeader
+          headerImageSrc={osmosis}
+          headerText={['defi.getStarted.header', { assetName: asset.name, maxApr }]}
+        />
         <Box textAlign='center'>
           <Text translation='defi.getStarted.body' color='gray.500' fontWeight='semibold' />
         </Box>

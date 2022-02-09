@@ -1,10 +1,10 @@
+import { ReceiveModal } from 'features/components/Modals/Receive/Receive'
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
-import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 
 // to add new modals, add a new key: value pair below

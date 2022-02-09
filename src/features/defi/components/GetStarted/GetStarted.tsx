@@ -9,12 +9,13 @@ type GetStartedProps = {
   assetId: string
 }
 
+// TODO: Abstract me in a service when I start to get too big
 const ASSET_ID_TO_MAX_APR = {
   'cosmoshub-3/slip44:118': '12'
 }
 
 export const GetStarted = ({ assetId }: GetStartedProps) => {
-  // TODO: parentheses are nice but let's get asset name from selectAssetNameById instead of this
+  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
     name: 'Osmo'
   }))(assetId)

@@ -121,8 +121,8 @@ export const BuySell = () => {
               alignSelf={'center'}
               boxShadow='none'
               borderWidth={0}
-              minWidth={'68%'}
-              maxWidth={isLargerThan550 ? '75%' : '95%'}
+              minWidth={'60%'}
+              maxWidth={isLargerThan550 ? '70%' : '120%'}
             >
               <Card.Header>
                 <Card.Heading>
@@ -130,7 +130,7 @@ export const BuySell = () => {
                 </Card.Heading>
               </Card.Header>
               <Card.Body>
-                <Text lineHeight={1} translation='buysell.page.titleMessage' />
+                <Text lineHeight={1.2} translation='buysell.page.titleMessage' />
                 <Flex
                   flexDirection={'column'}
                   justifyContent={'flex-start'}
@@ -150,6 +150,7 @@ export const BuySell = () => {
                       }}
                       p={'25px'}
                       wordBreak={'break-word'}
+                      minWidth={isLargerThan550 ? '120%' : '100%'}
                     >
                       <Avatar src={gemlogo} bg={bgGray} />
                       <Box textAlign='left'>
@@ -161,7 +162,7 @@ export const BuySell = () => {
                           wordBreak={'break-word'}
                         />
                       </Box>
-                      <Flex flexDirection={'row'} ml={'5%'}>
+                      <Flex flexDirection={'row'} ml={isLargerThan550 ? '15%' : '5%'}>
                         <Text
                           fontSize={'sm'}
                           color={'green.400'}
@@ -171,7 +172,7 @@ export const BuySell = () => {
                           translation='buysell.page.buy'
                         />
                         <Text
-                          ml={'5%'}
+                          ml={isLargerThan550 ? '10%' : '5%'}
                           fontSize={'sm'}
                           color={'red.400'}
                           bg={bgRed}
@@ -179,7 +180,7 @@ export const BuySell = () => {
                           p={'2px'}
                           translation='buysell.page.sell'
                         />
-                        <Box marginLeft={'5%'}>
+                        <Box marginLeft={isLargerThan550 ? '10%' : '5%'}>
                           <ChevronRightIcon w={5} h={5} color='blue.500' />
                         </Box>
                       </Flex>

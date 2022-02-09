@@ -22,6 +22,7 @@ export type Route = {
   routes?: Omit<Route, 'routes'>[]
   icon?: JSX.Element
   disable?: boolean
+  disableHeaderIcon?: boolean
 }
 
 const combinePaths = (parent: string, child: string): string =>

@@ -35,20 +35,6 @@ export const routes: Array<NestedRoute> = [
     rightSidebar: <DashboardSidebar />
   },
   {
-    path: '/buysell',
-    label: 'buysell.page.routeTitle',
-    icon: <DashboardIcon />,
-    main: <BuySell />,
-    routes: [
-      {
-        path: '/gem',
-        label: 'buysell.page.routeTitleForGem',
-        icon: <DashboardIcon />,
-        main: <GemBuySell />
-      }
-    ]
-  },
-  {
     path: '/assets',
     label: 'navBar.assets',
     main: <Assets />,
@@ -121,6 +107,20 @@ export const routes: Array<NestedRoute> = [
         icon: <FaTractor />,
         leftSidebar: <DefiSidebar />,
         disable: true
+      }
+    ]
+  },
+  {
+    path: '/buysell',
+    label: 'buysell.page.routeTitle',
+    main: <BuySell />,
+    disableHeaderIcon: true,
+    routes: [
+      {
+        path: '/gem',
+        label: 'buysell.page.routeTitleForGem',
+        main: <GemBuySell />,
+        disableHeaderIcon: true
       }
     ]
   } /* ,

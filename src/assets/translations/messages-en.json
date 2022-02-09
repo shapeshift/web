@@ -72,7 +72,8 @@
       "continue": "Continue",
       "cancel": "Cancel",
       "assestSellMessage": "Assest to Sell",
-      "selectAnAssestToSell": "Select an assest to buy"
+      "selectAnAssestToSell": "Select an assest to buy",
+      "headerLabel": "Buy/Sell Crypto"
     }
   },
   "connectWalletPage": {

@@ -4,6 +4,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
+import { BuySellHeader } from './NavBar/BuySell'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
@@ -53,6 +54,9 @@ export const HeaderContent = ({ route }: { route: Route }) => {
           />
         </RouterLink>
         <NavBar display={{ base: 'none', md: 'flex' }} />
+        <Flex alignItems='flex-end' justifyContent='flex-end' flex={2}>
+          <BuySellHeader />
+        </Flex>
         <Flex alignItems='center' justifyContent='flex-end' flex={2}>
           <UserMenu />
         </Flex>

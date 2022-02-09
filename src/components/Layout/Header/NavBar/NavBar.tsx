@@ -10,6 +10,7 @@ export const NavBar = (props: StackProps) => {
     <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
       {routes
         .filter(route => !route.disable)
+        .filter(route => !route.disableHeaderIcon)
         .map(item => (
           <MainNavLink
             key={item.label}

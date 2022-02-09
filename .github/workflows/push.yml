@@ -2,21 +2,6 @@ name: Cypress Tests using Cypress Docker Image
 
 on: [push]
 
-env:
-  # TODO - set in GitHub KV store
-  ESLINT_NO_DEV_ERRORS: true
-  TSC_COMPILE_ON_ERROR: true
-  IMAGE_INLINE_SIZE_LIMIT: 0
-  INLINE_RUNTIME_CHUNK: false
-  REACT_APP_HIDE_SPLASH: false
-  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: https://dev-api.ethereum.shapeshift.com
-  REACT_APP_UNCHAINED_ETHEREUM_WS_URL: wss://dev-api.ethereum.shapeshift.com
-  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
-  REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
-  REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
-  REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-  REACT_APP_METAMASK_DEEPLINK_URL: https://metamask.app.link/dapp/app.shapeshift.com
-
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
@@ -32,17 +17,11 @@ jobs:
             ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
       - name: Install
         run: yarn install --frozen-lockfile
+      - name: Install 2
+        run: apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - name: Build
+        run: yarn build
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          record: true
-          build: yarn run build
-          start: yarn dev
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 180
           browser: chrome
-        env:
-          # pass the Dashboard record key as an environment variable
-#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # Hardcode a burner key for testing
-          CYPRESS_RECORD_KEY: '88313c74-56f3-46af-89e5-e667bff1ba49'

@@ -150,9 +150,7 @@ export class YearnVaultMarketCapService implements MarketService {
         .div(`1e+${vault.decimals}`)
         .toString()
 
-      const marketCap = bnOrZero(vault.underlyingTokenBalance.amountUsdc)
-        .div('1e+6')
-        .toFixed(2)
+      const marketCap = bnOrZero(vault.underlyingTokenBalance.amountUsdc).div('1e+6').toFixed(2)
 
       const historicEarnings = vault.metadata.historicEarnings
       const lastHistoricalEarnings = historicEarnings
@@ -234,12 +232,8 @@ export class YearnVaultMarketCapService implements MarketService {
         {
           id,
           shareToken: id,
-          fromDate: this.getDate(daysAgo)
-            .getTime()
-            .toString(),
-          toDate: this.getDate(0)
-            .getTime()
-            .toString()
+          fromDate: this.getDate(daysAgo).getTime().toString(),
+          toDate: this.getDate(0).getTime().toString()
         }
       )) as VaultDayDataGQLResponse
 

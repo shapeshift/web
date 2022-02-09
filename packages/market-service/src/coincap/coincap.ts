@@ -29,11 +29,7 @@ export class CoinCapMarketService implements MarketService {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
     const perPage = count > 250 ? 250 : count
-    const pages = Math.ceil(
-      bnOrZero(count)
-        .div(perPage)
-        .toNumber()
-    )
+    const pages = Math.ceil(bnOrZero(count).div(perPage).toNumber())
     const urlAtPage = (page: number) => `${this.baseUrl}/assets?limit=${perPage}&offset=${page}`
     const pageCount = Array(pages)
       .fill(0)

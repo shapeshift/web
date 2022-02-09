@@ -170,10 +170,7 @@ describe('Logger', () => {
       })
 
       it('should include grandchild keys', () => {
-        logger
-          .child({ foo: 'bar' })
-          .child({ zan: ':)' })
-          .info('something')
+        logger.child({ foo: 'bar' }).child({ zan: ':)' }).info('something')
         const expected =
           '{"default":true,"foo":"bar","zan":":)","message":"something","timestamp":"2020-01-01T00:00:00Z","namespace":"testLogger","status":"info"}'
         expect(spy).toHaveBeenCalledTimes(1)

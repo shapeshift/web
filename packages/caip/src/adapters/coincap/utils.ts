@@ -45,10 +45,7 @@ export const parseEthData = (data: CoinCapCoin[]) => {
   const result = ethCoins.reduce((acc, { id, explorer }) => {
     let tokenId
     if (id !== 'ethereum' && explorer) {
-      tokenId = explorer
-        .replace('https://etherscan.io/token/', '')
-        .split('#')[0]
-        .split('?')[0]
+      tokenId = explorer.replace('https://etherscan.io/token/', '').split('#')[0].split('?')[0]
     }
     const caip19 = toCAIP19({ chain, network, ...(tokenId ? { contractType, tokenId } : {}) })
     acc[caip19] = id

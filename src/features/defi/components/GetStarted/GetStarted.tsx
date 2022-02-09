@@ -9,16 +9,16 @@ type GetStartedProps = {
   assetId: string
 }
 
-const CAIP19_TO_MAX_APR = {
+const ASSET_ID_TO_MAX_APR = {
   'cosmoshub-3/slip44:118': '12'
 }
 
-export const GetStarted = ({ assetId: caip19 }: GetStartedProps) => {
-  // TODO: parentheses are nice but let's get asset name from selectAssetByCAIP19 instead of this
+export const GetStarted = ({ assetId }: GetStartedProps) => {
+  // TODO: parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
     name: 'Osmo'
-  }))(caip19)
-  const maxApr = CAIP19_TO_MAX_APR['cosmoshub-3/slip44:118']
+  }))(assetId)
+  const maxApr = ASSET_ID_TO_MAX_APR['cosmoshub-3/slip44:118']
   return (
     <Box pt='51px' pb='20px' px='24px'>
       <Flex

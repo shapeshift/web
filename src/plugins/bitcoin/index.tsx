@@ -1,24 +1,16 @@
-import { Plugin } from '../index'
+import { AssetIcon } from '../../components/AssetIcon'
+import { Plugins } from '../index'
+import { BitcoinPluginHomepage } from './BitcoinPluginHomepage'
 
-export function register(): Plugin {
+export function register(): Plugins {
   return [
     [
       'bip122:000000000019d6689c085ae165831e93',
       {
-        widgets: {
-          accounts: {
-            list: () => <UTXOAccountsList translations={'bitcoin.balh'} />,
-            row: (accountId: string) => <BitcoinAccountRow accountId={accountId} />
-          },
-          assets: {
-            list: () => <BitcoinAssetsList />
-          },
-          singleSidedStaking: {
-            row: accountId => <BitcoinSingleSidedStakingRow />
-          }
-        },
+        name: 'Bitcoin',
+        icon: <AssetIcon src='https://assets.coincap.io/assets/icons/btc@2x.png' />,
         routes: {
-          home: <BitcoinAccountsPage />
+          home: <BitcoinPluginHomepage />
         }
       }
     ]

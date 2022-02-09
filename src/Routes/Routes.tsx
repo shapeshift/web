@@ -1,3 +1,4 @@
+import union from 'lodash/union'
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -21,7 +22,6 @@ import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
 
-import { registerChains } from '../plugins'
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
@@ -117,7 +117,7 @@ export const routes: Array<NestedRoute> = [
   } */
 ]
 
-const appRoutes = generateAppRoutes(routes)
+export let appRoutes: Array<NestedRoute> = []
 
 function useLocationBackground() {
   const location = useLocation<{ background: any }>()
@@ -125,11 +125,14 @@ function useLocationBackground() {
   return { background, location }
 }
 
-export const Routes = () => {
+export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
   const { background, location } = useLocationBackground()
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
+  appRoutes = generateAppRoutes(union(routes, props?.additionalRoutes))
+
+  console.info('Routes', appRoutes)
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {

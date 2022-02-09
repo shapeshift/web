@@ -1,6 +1,6 @@
-import type { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
+import type { CAIP19 } from '@shapeshiftoss/caip'
 
-const activePlugins = ['bitcoin', 'ethereum', 'cosmos']
+const activePlugins = ['bitcoin']
 
 export type AccountProps = { accountId: string }
 export type AssetProps = { assetId: CAIP19 }
@@ -9,6 +9,8 @@ export type Plugins = [caip2: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
 
 export interface Plugin {
+  name: string
+  icon: JSX.Element
   widgets?: {
     accounts?: {
       list?: React.FC<SearchableAssetProps>
@@ -20,9 +22,7 @@ export interface Plugin {
     }
   }
   routes: {
-    home: {
-      [k: CAIP2]: React.FC
-    }
+    home: React.ReactNode
   }
 }
 
@@ -39,13 +39,17 @@ class PluginManager {
   }
 
   getPlugins() {
-    return Object.fromEntries(this.#pluginManager.entries())
+    return this.#pluginManager.entries()
+  }
+
+  getPlugin(pluginId: string) {
+    return this.#pluginManager.get(pluginId)
   }
 }
 
 export const pluginManager = new PluginManager()
 export const registerPlugins = async () => {
-  for (const chain in activePlugins) {
-    pluginManager.register(await import(`./${chain}/index.tsx`))
+  for (const plugin of activePlugins) {
+    pluginManager.register(await import(`./${plugin}/index.tsx`))
   }
 }

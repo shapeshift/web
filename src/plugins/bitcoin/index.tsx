@@ -1,5 +1,6 @@
-import { AssetIcon } from '../../components/AssetIcon'
-import { Plugins } from '../index'
+import { Plugins } from 'plugins'
+import { AssetIcon } from 'components/AssetIcon'
+
 import { BitcoinPluginHomepage } from './BitcoinPluginHomepage'
 
 export function register(): Plugins {

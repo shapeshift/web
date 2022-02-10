@@ -43,7 +43,7 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
+  const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
     control
   })
   const { fees } = useSendFees()
@@ -93,7 +93,7 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis maxWidth='260px'>{address}</MiddleEllipsis>
+              <MiddleEllipsis address={ensName || address} />
             </Row.Value>
           </Row>
           <FormControl mt={4}>

@@ -52,7 +52,10 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         deviceId
       })
       const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-      dispatch({ type: WalletActions.SET_WALLET, payload: { wallet, name, icon, deviceId } })
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: { wallet, name, icon, deviceId, meta: { label: vault.meta.get('name') as string } }
+      })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
       close()
     } catch (e) {
@@ -100,6 +103,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
                   placeholder={translate('modals.shapeShift.password.placeholder')}
                   autoComplete={'password'}
                   id='password'
+                  data-test='wallet-password-input'
                 />
                 <InputRightElement>
                   <IconButton
@@ -113,7 +117,14 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
               </InputGroup>
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             </FormControl>
-            <Button colorScheme='blue' size='lg' isFullWidth type='submit' isLoading={isSubmitting}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              isFullWidth
+              type='submit'
+              isLoading={isSubmitting}
+              data-test='wallet-password-submit-button'
+            >
               <Text translation={'walletProvider.shapeShift.password.button'} />
             </Button>
           </form>

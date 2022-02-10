@@ -1,6 +1,6 @@
+import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
-
-import { YearnVault } from '../../../api/api'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -13,7 +13,7 @@ type YearnDepositValues = DepositValues &
   }
 
 type YearnDepositState = {
-  vault: YearnVault
+  vault: SupportedYearnVault
   userAddress: string | null
   approve: EstimatedGas
   deposit: YearnDepositValues
@@ -25,33 +25,39 @@ type YearnDepositState = {
 export const initialState: YearnDepositState = {
   txid: null,
   vault: {
-    inception: 0,
-    address: '',
-    symbol: '',
-    name: '',
-    display_name: '',
-    icon: '',
-    token: {
-      name: '',
-      symbol: '',
-      address: '',
-      decimals: 0,
-      display_name: '',
-      icon: ''
-    },
-    tvl: {
-      total_assets: 0,
-      price: 0,
-      tvl: 0
-    },
-    apy: {
-      net_apy: 0
-    },
-    endorsed: false,
-    version: '',
-    decimals: 0,
+    vaultAddress: '',
+    tokenAddress: '',
+    provider: '',
+    chain: ChainTypes.Ethereum,
     type: '',
-    emergency_shutdown: false
+    expired: false,
+    address: '',
+    typeId: 'VAULT_V2',
+    token: '',
+    name: '',
+    version: '',
+    symbol: '',
+    decimals: '',
+    tokenId: '',
+    underlyingTokenBalance: {
+      amount: '0',
+      amountUsdc: '0'
+    },
+    metadata: {
+      symbol: '',
+      pricePerShare: '',
+      migrationAvailable: false,
+      latestVaultAddress: '',
+      depositLimit: '',
+      emergencyShutdown: false,
+      controller: '',
+      totalAssets: '',
+      totalSupply: '',
+      displayName: '',
+      displayIcon: '',
+      defaultDisplayToken: '',
+      hideIfNoDeposits: false
+    }
   },
   userAddress: null,
   loading: false,

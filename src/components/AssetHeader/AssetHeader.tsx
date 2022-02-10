@@ -43,6 +43,7 @@ import {
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
+import { AccountLabel } from './AccountLabel'
 import { AssetActions } from './AssetActions'
 import { AssetMarketData } from './AssetMarketData'
 
@@ -95,31 +96,30 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   return (
     <Card variant='footer-stub'>
-      <Card.Header display='flex' alignItems='center' flexDir={{ base: 'column', lg: 'row' }}>
-        <Flex alignItems='center' mr='auto'>
-          <SkeletonCircle boxSize='60px' isLoaded={isLoaded}>
-            <Image src={icon} boxSize='60px' fallback={<SkeletonCircle boxSize='60px' />} />
-          </SkeletonCircle>
-          <Box ml={3} textAlign='left'>
-            <Skeleton isLoaded={isLoaded}>
-              <Heading fontSize='2xl' mb={1} lineHeight={1}>
-                {name}
-              </Heading>
-            </Skeleton>
-            <Skeleton isLoaded={isLoaded}>
-              <RawText fontSize='lg' color='gray.500' textTransform='uppercase' lineHeight={1}>
-                {symbol}
-              </RawText>
-            </Skeleton>
-          </Box>
+      <Card.Header>
+        <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }}>
+          <Flex alignItems='center' mr='auto'>
+            <SkeletonCircle boxSize='40px' isLoaded={isLoaded}>
+              <Image src={icon} boxSize='40px' fallback={<SkeletonCircle boxSize='40px' />} />
+            </SkeletonCircle>
+            <Box ml={3} textAlign='left'>
+              {accountId && <AccountLabel accountId={accountId} />}
+              <Skeleton isLoaded={isLoaded}>
+                <Heading fontSize='2xl' lineHeight='shorter'>
+                  {name} {`(${symbol})`}
+                </Heading>
+              </Skeleton>
+            </Box>
+          </Flex>
+          {walletSupportsChain ? (
+            <AssetActions
+              isLoaded={isLoaded}
+              assetId={assetId}
+              accountId={accountId ? accountId : singleAccount}
+              cryptoBalance={cryptoBalance}
+            />
+          ) : null}
         </Flex>
-        {walletSupportsChain ? (
-          <AssetActions
-            isLoaded={isLoaded}
-            assetId={assetId}
-            accountId={accountId ? accountId : singleAccount}
-          />
-        ) : null}
       </Card.Header>
       <Card.Body>
         <Box>

@@ -14,10 +14,11 @@ import {
   ModalHeader,
   Skeleton,
   SkeletonText,
+  Tag,
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
@@ -27,6 +28,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { ensReverseLookup } from 'lib/ens'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
@@ -40,6 +42,7 @@ type ReceivePropsType = {
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string>('')
+  const [ensReceiveAddress, setEnsReceiveAddress] = useState<string>('')
   const [verified, setVerified] = useState<boolean | null>(null)
   const chainAdapterManager = useChainAdapters()
   const history = useHistory()
@@ -54,15 +57,27 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     ;(async () => {
       if (!(wallet && chainAdapter)) return
       const accountParams = utxoParams
-      setReceiveAddress(
-        await chainAdapter.getAddress({
-          wallet,
-          accountType,
-          ...accountParams
-        })
-      )
+      const selectedAccountAddress = await chainAdapter.getAddress({
+        wallet,
+        accountType,
+        ...accountParams
+      })
+      setReceiveAddress(selectedAccountAddress)
+      if (asset.chain === ChainTypes.Ethereum) {
+        const reverseSelectedAccountAddressLookup = await ensReverseLookup(selectedAccountAddress)
+        !reverseSelectedAccountAddressLookup.error &&
+          setEnsReceiveAddress(reverseSelectedAccountAddressLookup.name)
+      }
     })()
-  }, [setReceiveAddress, accountType, asset, wallet, chainAdapter, utxoParams])
+  }, [
+    setReceiveAddress,
+    setEnsReceiveAddress,
+    accountType,
+    asset,
+    wallet,
+    chainAdapter,
+    utxoParams
+  ])
 
   const handleVerify = async () => {
     const accountParams = utxoParams
@@ -142,6 +157,13 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 />
               </SkeletonText>
             </Box>
+            <Flex justifyContent='center'>
+              {ensReceiveAddress && (
+                <Tag bg={bg} borderRadius='full' color='gray.500' mt={8} pl={4} pr={4}>
+                  {ensReceiveAddress}
+                </Tag>
+              )}
+            </Flex>
             <Card
               variant='unstyled'
               borderRadius='xl'
@@ -155,7 +177,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               <LightMode>
                 <Card.Body display='inline-block' textAlign='center' p={6}>
                   <Skeleton isLoaded={!!receiveAddress} mb={2}>
-                    <QRCode text={receiveAddress} />
+                    <QRCode text={receiveAddress} data-test='receive-qr-code' />
                   </Skeleton>
                   <Skeleton isLoaded={!!receiveAddress}>
                     <Flex
@@ -168,7 +190,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                       _active={{ color: 'blue.800' }}
                       cursor='pointer'
                     >
-                      <MiddleEllipsis maxWidth='250px'>{receiveAddress}</MiddleEllipsis>
+                      <MiddleEllipsis address={receiveAddress} data-test='receive-address-label' />
                     </Flex>
                   </Skeleton>
                 </Card.Body>

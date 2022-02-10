@@ -5,6 +5,7 @@ import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 
@@ -20,8 +21,11 @@ import { findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
 const FEE_ASSET_IDS = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
-export const selectPortfolioAssetIds = (state: ReduxState): PortfolioAssetBalances['ids'] =>
-  state.portfolio.assetBalances.ids
+
+export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
+  (state: ReduxState): PortfolioAssetBalances['ids'] => state.portfolio.assetBalances.ids,
+  ids => ids
+)
 export const selectPortfolioAssetBalances = (state: ReduxState): PortfolioAssetBalances['byId'] =>
   state.portfolio.assetBalances.byId
 export const selectAccountIds = (state: ReduxState): PortfolioAccountSpecifiers['byId'] =>
@@ -288,10 +292,9 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
     const balanceAllocationById = Object.entries(assetFiatBalancesByAccount).reduce<{
       [k: AccountSpecifier]: number
     }>((acc, [currentAccountId, assetAccountFiatBalance]) => {
-      const allocation = bnOrZero(assetAccountFiatBalance[assetId])
-        .div(bnOrZero(totalAssetFiatBalance))
-        .times(100)
-        .toNumber()
+      const allocation = bnOrZero(
+        bn(assetAccountFiatBalance[assetId]).div(totalAssetFiatBalance).times(100)
+      ).toNumber()
 
       acc[currentAccountId] = allocation
       return acc

@@ -67,11 +67,13 @@ type DepositProps = {
 const CryptoInput = (props: InputProps) => (
   <Input
     pr='4.5rem'
-    pl='7.5rem'
+    pl='1rem'
+    ml='1rem'
     size='lg'
     type='number'
     border={0}
     borderBottomRadius={0}
+    borderTopLeftRadius={0}
     placeholder='Enter amount'
     {...props}
   />
@@ -120,6 +122,8 @@ export const Deposit = ({
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
   const [percent, setPercent] = useState<number | null>(null)
   const amountRef = useRef<string | null>(null)
+  const bgColor = useColorModeValue('gray.50', 'gray.850')
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   const {
     clearErrors,
@@ -246,15 +250,15 @@ export const Deposit = ({
               </FormHelperText>
             </Box>
             <VStack
-              bg={useColorModeValue('gray.50', 'gray.850')}
+              bg={bgColor}
               borderRadius='xl'
               borderWidth={1}
-              borderColor={useColorModeValue('gray.100', 'gray.750')}
+              borderColor={borderColor}
               divider={<Divider />}
               spacing={0}
             >
               <InputGroup size='lg'>
-                <InputLeftElement ml={1} width='auto'>
+                <InputLeftElement pos='relative' ml={1} width='auto'>
                   <Button
                     ml={1}
                     size='sm'

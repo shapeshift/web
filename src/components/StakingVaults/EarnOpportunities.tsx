@@ -1,13 +1,12 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
-import { SUPPORTED_VAULTS } from 'features/defi/providers/yearn/constants/vaults'
+import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useFeature } from 'hooks/useFeature/useFeature'
+import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppSelector } from 'state/store'
@@ -22,18 +21,19 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
-  const earnFeature = useFeature(FeatureFlagEnum.Yearn)
+  const earnFeature = FeatureFlag.Yearn
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
+  const yearnVaults = useYearnVaults()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
   const vaults = useMemo(() => {
     if (asset.tokenId) {
-      return SUPPORTED_VAULTS.filter(vault => vault.tokenAddress === asset.tokenId)
+      return yearnVaults.filter(vault => vault.tokenAddress === asset.tokenId)
     } else {
       return []
     }
-  }, [asset.tokenId])
+  }, [yearnVaults, asset.tokenId])
 
-  if (!earnFeature || vaults.length === 0) return null
+  if (!earnFeature || !vaults?.length) return null
 
   return (
     <Card>
@@ -54,7 +54,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           {vaults.map(vault => (
-            <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
+            <EarnOpportunityRow {...vault} key={`${vault.vaultAddress}`} isLoaded={!!vault} />
           ))}
         </Stack>
       </Card.Body>

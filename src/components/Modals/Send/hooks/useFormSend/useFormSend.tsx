@@ -6,6 +6,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { ensLookup } from 'lib/ens'
+import { isEthAddress } from 'lib/utils'
 import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 
 import { SendInput } from '../../Form'
@@ -36,8 +38,9 @@ export const useFormSend = () => {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
           const gasLimit = fees.chainSpecific.gasLimit
+          const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
-            to,
+            to: address,
             value,
             wallet,
             chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit },
@@ -110,8 +113,10 @@ export const useFormSend = () => {
         })
       } catch (error) {
         toast({
-          title: translate('modals.send.sent'),
-          description: translate('modals.send.errorTitle'),
+          title: translate('modals.send.errorTitle', {
+            asset: data.asset.name
+          }),
+          description: translate('modals.send.errors.transactionRejected'),
           status: 'error',
           duration: 9000,
           isClosable: true,

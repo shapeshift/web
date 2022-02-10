@@ -96,7 +96,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
 
         dispatch({
           type: WalletActions.SET_WALLET,
-          payload: { wallet, name: label, icon, deviceId }
+          payload: { wallet, name: label, icon, deviceId, meta: { label } }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         history.push('/keepkey/success')

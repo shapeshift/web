@@ -1,6 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
+import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
@@ -34,7 +35,6 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
@@ -88,10 +88,10 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !tokenId) return
+        if (!walletState.wallet || !vaultAddress) return
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId),
+          api.findByDepositVaultAddress(vaultAddress),
           api.pricePerShare({ vaultAddress })
         ])
         dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
@@ -105,13 +105,13 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         console.error('YearnWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.withdrawEstimatedGas({
+        api.estimateWithdrawGas({
           tokenContractAddress: tokenId,
           vaultAddress,
           amountDesired: bnOrZero(withdraw.cryptoAmount)
@@ -291,7 +291,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -357,7 +357,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>
@@ -372,7 +372,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -435,7 +435,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     >
       <YearnRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {withdrawRoute && <DefiActionButtons />}
+        {withdrawRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

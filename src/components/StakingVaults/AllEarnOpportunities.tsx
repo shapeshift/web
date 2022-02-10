@@ -1,14 +1,25 @@
 import { Box, Stack } from '@chakra-ui/react'
-import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
-import { SUPPORTED_VAULTS } from 'features/defi/providers/yearn/constants/vaults'
+import { FeatureFlag } from 'constants/FeatureFlag'
+import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useFeature } from 'hooks/useFeature/useFeature'
+import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
 
 export const AllEarnOpportunities = () => {
-  const earnFeature = useFeature(FeatureFlagEnum.Yearn)
+  const earnFeature = FeatureFlag.Yearn
+  const sortedVaults = useSortedYearnVaults()
+
+  const vaultRows = useMemo(
+    () =>
+      sortedVaults
+        .filter(vault => !vault.expired)
+        .map(vault => (
+          <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
+        )),
+    [sortedVaults]
+  )
 
   if (!earnFeature) return null
 
@@ -24,9 +35,7 @@ export const AllEarnOpportunities = () => {
       </Card.Header>
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
-          {SUPPORTED_VAULTS.map(vault => (
-            <EarnOpportunityRow {...vault} key={vault.tokenAddress} isLoaded={!!vault} />
-          ))}
+          {vaultRows}
         </Stack>
       </Card.Body>
     </Card>

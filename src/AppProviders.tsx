@@ -1,7 +1,7 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { UnchainedUrls } from '@shapeshiftoss/chain-adapters'
 import { getConfig } from 'config'
-import { FeatureFlagEnum } from 'constants/FeatureFlagEnum'
+import { FeatureFlag } from 'constants/FeatureFlag'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { I18n } from 'react-polyglot'
@@ -16,12 +16,12 @@ import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
-import { useFeature } from 'hooks/useFeature/useFeature'
+import { simpleLocale } from 'lib/browserLocale'
 import { store } from 'state/store'
 import { theme } from 'theme/theme'
 
-const locale: string = navigator?.language?.split('-')[0] ?? 'en'
-const messages = translations[locale] || translations['en']
+const locale: string = simpleLocale()
+const messages = translations[locale]
 
 type ProvidersProps = {
   children: React.ReactNode
@@ -39,7 +39,7 @@ const unchainedUrls: UnchainedUrls = {
 }
 
 export function AppProviders({ children }: ProvidersProps) {
-  const earnFeature = useFeature(FeatureFlagEnum.Yearn)
+  const earnFeature = FeatureFlag.Yearn
   const DefiProvider = earnFeature ? DefiManagerProvider : React.Fragment
   return (
     <ReduxProvider store={store}>

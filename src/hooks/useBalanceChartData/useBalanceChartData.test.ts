@@ -94,7 +94,7 @@ describe('calculateBucketPrices', () => {
     const txs = [FOXSend]
 
     const priceHistoryData: PriceHistoryData = {
-      [foxCaip19]: [{ price: 0, date: String() }]
+      [foxCaip19]: [{ price: 0, date: Number() }]
     }
 
     const portfolioAssets: PortfolioAssets = {
@@ -124,7 +124,7 @@ describe('calculateBucketPrices', () => {
     const assetIds = [ethCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const priceHistoryData: PriceHistoryData = {
-      [ethCaip19]: [{ price: 0, date: String() }]
+      [ethCaip19]: [{ price: 0, date: Number() }]
     }
     const portfolioAssets: PortfolioAssets = {
       [ethCaip19]: ethereum

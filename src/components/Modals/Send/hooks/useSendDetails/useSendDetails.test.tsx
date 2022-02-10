@@ -7,10 +7,16 @@ import { TestProviders } from 'test/TestProviders'
 import { mocked } from 'ts-jest/utils'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { ensLookup } from 'lib/ens'
+import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioCryptoBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter
+} from 'state/slices/portfolioSlice/selectors'
 
 import { useSendDetails } from './useSendDetails'
 
@@ -26,15 +32,18 @@ jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('lib/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
   ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
   selectFeeAssetById: jest.fn()
 }))
 
-jest.mock('state/slices/portfolioSlice/portfolioSlice', () => ({
-  ...jest.requireActual('state/slices/portfolioSlice/portfolioSlice'),
-  selectPortfolioCryptoBalanceByAssetId: jest.fn()
+jest.mock('state/slices/portfolioSlice/selectors', () => ({
+  ...jest.requireActual('state/slices/portfolioSlice/selectors'),
+  selectPortfolioCryptoHumanBalanceByFilter: jest.fn(),
+  selectPortfolioCryptoBalanceByFilter: jest.fn(),
+  selectPortfolioFiatBalanceByFilter: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -44,6 +53,8 @@ const balances: PortfolioBalancesById = {
   [ethCaip19]: '5000000000000000000',
   [runeCaip19]: '21000000000000000000'
 }
+
+const runeFiatAmount = '14490.00'
 
 const estimatedFees = {
   [chainAdapters.FeeDataKey.Fast]: {
@@ -87,7 +98,11 @@ const setup = ({
     return fakeMarketData[assetId]
   })
   mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  mocked(selectPortfolioCryptoBalanceByAssetId).mockReturnValue(assetBalance)
+  mocked(selectPortfolioCryptoHumanBalanceByFilter).mockReturnValue(
+    fromBaseUnit(assetBalance, asset.precision)
+  )
+  mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue(assetBalance)
+  mocked(selectPortfolioFiatBalanceByFilter).mockReturnValue(runeFiatAmount)
   ;(useFormContext as jest.Mock<unknown>).mockImplementation(() => ({
     clearErrors: jest.fn(),
     setError,
@@ -103,7 +118,7 @@ const setup = ({
   return renderHook(() => useSendDetails(), { wrapper })
 }
 
-xdescribe('useSendDetails', () => {
+describe('useSendDetails', () => {
   beforeEach(() => {
     ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({ state: { wallet: {} } }))
     ;(useHistory as jest.Mock<unknown>).mockImplementation(() => ({ push: jest.fn() }))
@@ -115,6 +130,10 @@ xdescribe('useSendDetails', () => {
           txToSign: {}
         })
       })
+    }))
+    ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
+      address: '0x05A1ff0a32bc24265BCB39499d0c5D9A6cb2011c',
+      error: false
     }))
   })
 
@@ -128,7 +147,7 @@ xdescribe('useSendDetails', () => {
         assetBalance: balances[ethCaip19]
       })
       expect(result.current.balancesLoading).toBe(false)
-      expect(result.current.fieldName).toBe('fiatAmount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
       expect(result.current.loading).toBe(false)
     })
   })
@@ -139,12 +158,12 @@ xdescribe('useSendDetails', () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances[ethCaip19]
       })
-      expect(result.current.fieldName).toBe('fiatAmount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
       act(() => {
         result.current.toggleCurrency()
       })
       await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('cryptoAmount')
+      expect(result.current.fieldName).toBe('fiatAmount')
     })
   })
 
@@ -166,7 +185,7 @@ xdescribe('useSendDetails', () => {
 
       await waitForValueToChange(() => result.current.fieldName)
 
-      expect(result.current.fieldName).toBe('cryptoAmount')
+      expect(result.current.fieldName).toBe('fiatAmount')
     })
   })
 
@@ -178,19 +197,19 @@ xdescribe('useSendDetails', () => {
       setValue
     })
     // Field is set to fiatAmount
-    expect(result.current.fieldName).toBe('fiatAmount')
+    expect(result.current.fieldName).toBe('cryptoAmount')
 
     // Set fiat amount
     await act(async () => {
-      result.current.handleInputChange('3500')
+      result.current.handleInputChange('1')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
+      expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
 
       setValue.mockClear()
 
       result.current.handleInputChange('0')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
+      expect(setValue).toHaveBeenCalledWith('fiatAmount', '0')
       setValue.mockClear()
     })
     jest.useRealTimers()
@@ -206,20 +225,20 @@ xdescribe('useSendDetails', () => {
         setValue
       })
       // Field is set to fiatAmount
-      expect(result.current.fieldName).toBe('fiatAmount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
 
       // toggle field to cryptoAmount
       act(() => {
         result.current.toggleCurrency()
       })
       await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('cryptoAmount')
+      expect(result.current.fieldName).toBe('fiatAmount')
 
       // Set crypto amount
       await act(async () => {
-        result.current.handleInputChange('1')
+        result.current.handleInputChange('3500')
         jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
+        expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
         setValue.mockClear()
       })
     })
@@ -238,8 +257,8 @@ xdescribe('useSendDetails', () => {
       expect(setValue).toHaveBeenNthCalledWith(2, 'estimatedFees', {
         fast: { chainSpecific: { feePerTx: '6000000000000000' }, networkFee: '6000000000000000' }
       })
-      expect(setValue).toHaveBeenNthCalledWith(3, 'cryptoAmount', '5')
-      expect(setValue).toHaveBeenNthCalledWith(4, 'fiatAmount', '17500.00')
+      expect(setValue).toHaveBeenNthCalledWith(5, 'fiatAmount', '17500.00')
+      expect(setValue).toHaveBeenNthCalledWith(4, 'cryptoAmount', '5')
     })
   })
 
@@ -253,7 +272,7 @@ xdescribe('useSendDetails', () => {
     await act(async () => {
       await result.current.handleSendMax()
       expect(setValue).toHaveBeenNthCalledWith(1, 'cryptoAmount', '21')
-      expect(setValue).toHaveBeenNthCalledWith(2, 'fiatAmount', '14490.00')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'fiatAmount', runeFiatAmount)
     })
   })
 })

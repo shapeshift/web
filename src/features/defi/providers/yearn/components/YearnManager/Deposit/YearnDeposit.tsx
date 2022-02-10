@@ -12,6 +12,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { caip19 } from '@shapeshiftoss/caip'
+import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
@@ -48,7 +49,6 @@ import {
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { YearnVaultApi } from '../../../api/api'
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
@@ -112,10 +112,10 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !tokenId) return
+        if (!walletState.wallet || !vaultAddress) return
         const [address, vault, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositTokenId(tokenId),
+          api.findByDepositVaultAddress(vaultAddress),
           api.pricePerShare({ vaultAddress })
         ])
         dispatch({ type: YearnDepositActionType.SET_USER_ADDRESS, payload: address })
@@ -129,13 +129,13 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         console.error('YearnDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, tokenId, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, vaultAddress, walletState.wallet])
 
   const getApproveGasEstimate = async () => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.approveEstimatedGas({
+        api.estimateApproveGas({
           tokenContractAddress: tokenId,
           userAddress: state.userAddress
         }),
@@ -157,7 +157,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
     if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.depositEstimatedGas({
+        api.estimateDepositGas({
           tokenContractAddress: tokenId,
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
@@ -335,8 +335,8 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.vault.apy?.net_apy
-    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(apy)
+    const apy = state.vault.metadata?.apy?.net_apy
+    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -431,7 +431,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                   <Text translation='modals.confirm.withdrawFrom' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis maxWidth='200px'>{state.userAddress}</MiddleEllipsis>
+                  <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
@@ -528,7 +528,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
                     color='blue.500'
                     fontWeight='bold'
                   >
-                    <MiddleEllipsis maxWidth='200px'>{state.txid}</MiddleEllipsis>
+                    <MiddleEllipsis address={state.txid || ''} />
                   </Link>
                 </Row.Value>
               </Row>
@@ -630,7 +630,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         minWidth={{ base: 'auto', lg: '450px' }}
         maxWidth={{ base: 'auto', lg: '450px' }}
       >
-        {depositRoute && <DefiActionButtons />}
+        {depositRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>

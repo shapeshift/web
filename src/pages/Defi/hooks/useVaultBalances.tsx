@@ -1,11 +1,11 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import {
+  getSupportedVaults,
+  SupportedYearnVault,
+  YearnVaultApi
+} from '@shapeshiftoss/investor-yearn'
 import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { YearnVaultApi } from 'features/defi/providers/yearn/api/api'
-import {
-  SUPPORTED_VAULTS,
-  SupportedYearnVault
-} from 'features/defi/providers/yearn/constants/vaults'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -23,9 +23,10 @@ export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
 
 async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVaultApi | null) {
   const acc: Record<string, EarnVault> = {}
-  for (let index = 0; index < SUPPORTED_VAULTS.length; index++) {
-    // TODO: caip indentifiers in SUPPORTED_VAULTS
-    const vault = SUPPORTED_VAULTS[index]
+  const vaults = await getSupportedVaults()
+  for (let index = 0; index < vaults.length; index++) {
+    // TODO: caip indentifiers in vaults
+    const vault = vaults[index]
     const vaultCaip19 = caip19.toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
@@ -58,6 +59,7 @@ export type MergedEarnVault = EarnVault & {
   cryptoAmount: string
   fiatAmount: string
   apy?: number
+  underlyingTokenBalanceUsdc?: string
 }
 
 export type UseVaultBalancesReturn = {
@@ -67,6 +69,7 @@ export type UseVaultBalancesReturn = {
 }
 
 export function useVaultBalances(): UseVaultBalancesReturn {
+  const USDC_PRECISION = 6
   const {
     state: { wallet }
   } = useWallet()
@@ -127,7 +130,10 @@ export function useVaultBalances(): UseVaultBalancesReturn {
           ...vault,
           cryptoAmount: bnOrZero(vault.balance).div(`1e+${asset?.precision}`).toString(),
           fiatAmount: fiatAmount.toString(),
-          apy: yearnVault?.apy.net_apy
+          apy: yearnVault?.metadata?.apy?.net_apy,
+          underlyingTokenBalanceUsdc: bnOrZero(yearnVault?.underlyingTokenBalance.amountUsdc)
+            .div(`1e+${USDC_PRECISION}`)
+            .toString()
         }
         return acc
       },

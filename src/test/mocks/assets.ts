@@ -5,6 +5,7 @@ import {
   ContractTypes,
   NetworkTypes
 } from '@shapeshiftoss/types'
+import merge from 'lodash/merge'
 
 export const rune: Asset = {
   caip2: 'eip155:1',
@@ -41,6 +42,26 @@ export const ethereum: Asset = {
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  sendSupport: true,
+  receiveSupport: true
+}
+
+export const usdc: Asset = {
+  caip2: 'eip155:1',
+  caip19: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.MAINNET,
+  symbol: 'ETH',
+  name: 'USD Coin',
+  precision: 6,
+  slip44: 60,
+  color: '#FFFFFF',
+  secondaryColor: '#FFFFFF',
+  icon: 'https://assets.coingecko.com/coins/images/12367/thumb/oF1_9R1K_400x400.jpg?1599345463',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
@@ -113,3 +134,17 @@ export const fox: Asset = {
   symbol: 'FOX',
   tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 }
+
+export const mockAssetState = (obj?: Record<string, any>) =>
+  merge(
+    {
+      byId: {
+        [ethereum.caip19]: ethereum,
+        [fox.caip19]: fox,
+        [usdc.caip19]: usdc,
+        [zero.caip19]: zero
+      },
+      ids: [ethereum.caip19, fox.caip19, usdc.caip19]
+    },
+    obj
+  )

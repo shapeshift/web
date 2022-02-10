@@ -132,9 +132,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     }
   }
 
-  async buildSendTransaction(
-    tx: chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>
-  ): Promise<{
+  async buildSendTransaction(tx: chainAdapters.BuildSendTxInput<ChainTypes.Ethereum>): Promise<{
     txToSign: ETHSignTx
   }> {
     try {

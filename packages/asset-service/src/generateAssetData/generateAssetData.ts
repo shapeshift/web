@@ -21,19 +21,14 @@ const generateAssetData = async () => {
   const generatedAssetData = await Promise.all(
     baseAssets.map(async (baseAsset) => {
       if (baseAsset.chain === ChainTypes.Ethereum && baseAsset.network === NetworkTypes.MAINNET) {
-        const [
-          ethTokens,
-          yearnVaults,
-          ironBankTokens,
-          zapperTokens,
-          underlyingTokens
-        ] = await Promise.all([
-          await getTokens(),
-          await getYearnVaults(),
-          await getIronBankTokens(),
-          await getZapperTokens(),
-          await getUnderlyingVaultTokens()
-        ])
+        const [ethTokens, yearnVaults, ironBankTokens, zapperTokens, underlyingTokens] =
+          await Promise.all([
+            await getTokens(),
+            await getYearnVaults(),
+            await getIronBankTokens(),
+            await getZapperTokens(),
+            await getUnderlyingVaultTokens()
+          ])
         const tokens = [
           ...ethTokens,
           ...yearnVaults,

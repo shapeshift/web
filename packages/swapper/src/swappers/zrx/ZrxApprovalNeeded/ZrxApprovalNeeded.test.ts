@@ -32,9 +32,9 @@ describe('ZrxApprovalNeeded', () => {
   const { web3Instance: web3, adapterManager } = setupZrxDeps()
   const args = { web3, adapterManager }
   const walletAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  const wallet = ({
+  const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve(walletAddress))
-  } as unknown) as HDWallet
+  } as unknown as HDWallet
 
   const { quoteInput, sellAsset } = setupQuote()
 

@@ -74,27 +74,23 @@ export const accountTypeToScriptType: Record<UtxoAccountType, BTCInputScriptType
   [UtxoAccountType.SegwitNative]: BTCInputScriptType.SpendWitness
 })
 
-export const accountTypeToOutputScriptType: Record<
-  UtxoAccountType,
-  BTCOutputScriptType
-> = Object.freeze({
-  [UtxoAccountType.P2pkh]: BTCOutputScriptType.PayToAddress,
-  [UtxoAccountType.SegwitP2sh]: BTCOutputScriptType.PayToP2SHWitness,
-  [UtxoAccountType.SegwitNative]: BTCOutputScriptType.PayToWitness
-})
+export const accountTypeToOutputScriptType: Record<UtxoAccountType, BTCOutputScriptType> =
+  Object.freeze({
+    [UtxoAccountType.P2pkh]: BTCOutputScriptType.PayToAddress,
+    [UtxoAccountType.SegwitP2sh]: BTCOutputScriptType.PayToP2SHWitness,
+    [UtxoAccountType.SegwitNative]: BTCOutputScriptType.PayToWitness
+  })
 
-export const scriptTypeToAccountType: Record<
-  BTCInputScriptType,
-  UtxoAccountType | undefined
-> = Object.freeze({
-  [BTCInputScriptType.SpendAddress]: UtxoAccountType.P2pkh,
-  [BTCInputScriptType.SpendP2SHWitness]: UtxoAccountType.SegwitP2sh,
-  [BTCInputScriptType.SpendWitness]: UtxoAccountType.SegwitNative,
-  [BTCInputScriptType.SpendMultisig]: undefined,
-  [BTCInputScriptType.Bech32]: undefined,
-  [BTCInputScriptType.CashAddr]: undefined,
-  [BTCInputScriptType.External]: undefined
-})
+export const scriptTypeToAccountType: Record<BTCInputScriptType, UtxoAccountType | undefined> =
+  Object.freeze({
+    [BTCInputScriptType.SpendAddress]: UtxoAccountType.P2pkh,
+    [BTCInputScriptType.SpendP2SHWitness]: UtxoAccountType.SegwitP2sh,
+    [BTCInputScriptType.SpendWitness]: UtxoAccountType.SegwitNative,
+    [BTCInputScriptType.SpendMultisig]: undefined,
+    [BTCInputScriptType.Bech32]: undefined,
+    [BTCInputScriptType.CashAddr]: undefined,
+    [BTCInputScriptType.External]: undefined
+  })
 
 /*
  * @see https://github.com/blockkeeper/blockkeeper-frontend-web/issues/38

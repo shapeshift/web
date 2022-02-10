@@ -34,10 +34,10 @@ Web3.mockImplementation(() => ({
 describe('ZrxApproveInfinite', () => {
   const { web3Instance, adapterManager } = setupZrxDeps()
   const { quoteInput } = setupQuote()
-  const wallet = ({
+  const wallet = {
     ethGetAddress: jest.fn(() => Promise.resolve('0xc770eefad204b5180df6a14ee197d99d808ee52d')),
     ethSignTx: jest.fn(() => Promise.resolve({}))
-  } as unknown) as HDWallet
+  } as unknown as HDWallet
 
   it('should return a txid', async () => {
     const deps = { web3: web3Instance, adapterManager }

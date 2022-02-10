@@ -167,9 +167,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     }
   }
 
-  async buildSendTransaction(
-    tx: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin>
-  ): Promise<{
+  async buildSendTransaction(tx: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin>): Promise<{
     txToSign: chainAdapters.ChainTxType<ChainTypes.Bitcoin>
   }> {
     try {

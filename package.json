@@ -47,7 +47,7 @@
     "jest": "^27.1.0",
     "jest-mock-extended": "^1.0.9",
     "lerna": "^4.0.0",
-    "prettier": "2.2.1",
+    "prettier": "2.5.1",
     "rimraf": "^3.0.2",
     "semantic-release": "^17.4.7",
     "semantic-release-monorepo": "^7.0.5",

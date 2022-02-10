@@ -1,14 +1,10 @@
+import { HistoryData } from '@shapeshiftoss/types'
 import React from 'react'
-
-export interface DataProps {
-  date: string
-  price: number
-}
 
 export interface MarketContextProps {
   filteredDataState: {
-    filteredData: DataProps[]
-    setFilteredData: React.Dispatch<React.SetStateAction<DataProps[]>>
+    filteredData: HistoryData[]
+    setFilteredData: React.Dispatch<React.SetStateAction<HistoryData[]>>
   }
 }
 
@@ -21,7 +17,7 @@ export const MarketDataContext = React.createContext<MarketContextProps>({
 
 // TODO(0xdef1cafe): remove this whole provider
 export const MarketDataProvider: React.FC = ({ children }) => {
-  const [filteredData, setFilteredData] = React.useState<DataProps[]>([])
+  const [filteredData, setFilteredData] = React.useState<HistoryData[]>([])
 
   return (
     <MarketDataContext.Provider

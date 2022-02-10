@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const cspMeta = Object.entries({
   'default-src': ["'self'"],
+  'child-src': ["'self'",  "blob:", "'report-sample'"],
   'connect-src': [
     "'self'",
     'http://localhost:1646',
@@ -17,6 +18,8 @@ const cspMeta = Object.entries({
     // @shapeshiftoss/asset-service@1.10.0: https://github.com/shapeshift/lib/blob/636c6c9460ac5ae4d1189165eddd3a105406e0ef/packages/asset-service/src/generateAssetData/ethTokens/extendErc20.ts#L45
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/yearn/yearn.ts#L30
     'https://api.yearn.finance',
+    // @yfi/sdk@1.0.28 https://github.com/yearn/yearn-sdk/blob/master/src/context.ts#L73
+    'https://cache.yearn.finance/v1/chains/',
     // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/context.ts#L66
     'https://test-api.yearn.network/v1/',
     // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/subgraph/index.ts#L9-L29
@@ -25,6 +28,10 @@ const cspMeta = Object.entries({
     'https://raw.githubusercontent.com/yearn/yearn-assets/',
     // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/assets.ts#L17
     'https://raw.githack.com/trustwallet/assets/',
+    // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/zapper.ts#L28
+    'https://api.zapper.fi/v1/prices',
+    // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/meta.ts#22
+    'https://meta.yearn.network/vaults/1/all',
     // @yfi/sdk@1.0.12: https://github.com/yearn/yearn-sdk/blob/0a85ae7be734ba594b8b7e4a290e631610a3b399/src/services/assets.ts#L13
     'https://api.github.com/repos/yearn/yearn-assets/',
     // @shapeshiftoss/caip@1.7.0: https://github.com/shapeshift/lib/blob/5a378b186bf943c9f5e5342e1333b9fbc7c0deaf/packages/caip/src/adapters/coincap/index.ts#L5
@@ -49,7 +56,12 @@ const cspMeta = Object.entries({
     'https://assets.coincap.io/assets/icons/',
     'https://static.coincap.io/assets/icons/',
     'https://assets.coingecko.com/coins/images/',
-    'https://rawcdn.githack.com/yearn/yearn-assets/'
+    'https://raw.githack.com/trustwallet/assets/',
+    'https://rawcdn.githack.com/yearn/yearn-assets/',
+    'https://raw.githack.com/yearn/yearn-assets/',
+    'https://assets.yearn.network/tokens/',
+    'https://raw.githubusercontent.com/yearn/yearn-assets/',
+    'https://rawcdn.githack.com/trustwallet/assets/'
   ],
   'script-src': [
     "'self'",

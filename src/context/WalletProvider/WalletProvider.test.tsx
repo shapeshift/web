@@ -22,7 +22,8 @@ jest.mock('@shapeshiftoss/hdwallet-metamask', () => ({
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,
-  deviceId: ''
+  deviceId: '',
+  meta: { label: '', address: '' }
 }
 const setup = async () => {
   // @ts-ignore
@@ -111,6 +112,23 @@ describe('WalletProvider', () => {
 
       expect(result.current.state.type).toBe(type)
       expect(result.current.state.initialRoute).toBe(SUPPORTED_WALLETS[type].routes[0].path)
+    })
+  })
+
+  describe('create', () => {
+    it('dispatches SET_CONNECTOR_TYPE and SET_INITAL_ROUTE', async () => {
+      const result = await setup()
+      const type = KeyManager.Native
+      expect(result.current.state.wallet).toBe(null)
+      expect(result.current.state.walletInfo).toBe(null)
+      expect(result.current.state.isConnected).toBe(false)
+
+      act(() => {
+        result.current.create(type)
+      })
+
+      expect(result.current.state.type).toBe(type)
+      expect(result.current.state.initialRoute).toBe(SUPPORTED_WALLETS[type].routes[5].path)
     })
   })
 

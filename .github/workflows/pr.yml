@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - releases/**
 
 jobs:
   commitlint-lint-typecheck-test-build:
@@ -17,6 +18,8 @@ jobs:
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
       - name: Install
         run: yarn install --frozen-lockfile
       # needs to run after install

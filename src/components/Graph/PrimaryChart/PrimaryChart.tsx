@@ -73,12 +73,12 @@ export const PrimaryChart = ({
   const minPriceDate = getDate(data[minPriceIndex])
 
   const maxData = [
-    { date: getDate(firstPoint).toString(), price: maxPrice },
-    { date: getDate(currentPoint).toString(), price: maxPrice }
+    { date: getDate(firstPoint).valueOf(), price: maxPrice },
+    { date: getDate(currentPoint).valueOf(), price: maxPrice }
   ]
   const minData = [
-    { date: getDate(firstPoint).toString(), price: minPrice },
-    { date: getDate(currentPoint).toString(), price: minPrice }
+    { date: getDate(firstPoint).valueOf(), price: minPrice },
+    { date: getDate(currentPoint).valueOf(), price: minPrice }
   ]
   // scales
   const dateScale = useMemo(() => {

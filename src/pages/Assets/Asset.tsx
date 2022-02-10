@@ -9,6 +9,7 @@ import {
   NetworkTypes
 } from '@shapeshiftoss/types'
 import { useParams } from 'react-router-dom'
+import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -18,7 +19,7 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { AssetDetails } from './AssetDetails/AssetDetails'
+import { LoadingAsset } from './LoadingAsset'
 export interface MatchParams {
   chain: ChainTypes
   tokenId: string
@@ -79,12 +80,18 @@ export const useAsset = () => {
 }
 
 export const Asset = () => {
-  const { asset } = useAsset()
+  const { asset, marketData } = useAsset()
 
-  return (
+  return !marketData ? (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetDetails />
+        <LoadingAsset />
+      </Flex>
+    </Page>
+  ) : (
+    <Page style={{ flex: 1 }} key={asset?.tokenId}>
+      <Flex role='main' flex={1} height='100%'>
+        <AssetAccountDetails assetId={asset.caip19} />
       </Flex>
     </Page>
   )

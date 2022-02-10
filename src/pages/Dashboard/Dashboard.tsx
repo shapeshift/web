@@ -3,7 +3,7 @@ import { Page } from 'components/Layout/Page'
 
 import { Portfolio } from './Portfolio'
 
-export interface MatchParams {
+export type MatchParams = {
   assetId: string
 }
 

@@ -1,9 +1,12 @@
-import { FaLock, FaPiggyBank, FaTable, FaTractor, FaWater } from 'react-icons/fa'
+import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { Account } from 'pages/Accounts/Account'
+import { Accounts } from 'pages/Accounts/Accounts'
+import { AccountToken } from 'pages/Accounts/AccountToken'
 import { Asset } from 'pages/Assets/Asset'
 import { AssetRightSidebar } from 'pages/Assets/AssetRightSidebar'
 import { Assets } from 'pages/Assets/Assets'
@@ -11,11 +14,11 @@ import { AssetSidebar } from 'pages/Assets/AssetSidebar'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
-import { EarnSidebar } from 'pages/Earn/components/EarnSidebar'
-import { Farming } from 'pages/Earn/views/Farming'
-import { LiquidityPools } from 'pages/Earn/views/LiquidityPools'
-import { Overview } from 'pages/Earn/views/Overview'
-import { StakingVaults } from 'pages/Earn/views/StakingVaults'
+import { DefiSidebar } from 'pages/Defi/components/DefiSidebar'
+import { Farming } from 'pages/Defi/views/Farming'
+import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
+import { Overview } from 'pages/Defi/views/Overview'
+import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
@@ -45,40 +48,62 @@ export const routes: Array<NestedRoute> = [
     ]
   },
   {
-    path: '/earn',
-    label: 'navBar.earn',
-    icon: <FaPiggyBank />,
+    path: '/accounts',
+    label: 'navBar.accounts',
+    main: <Accounts />,
+    icon: <FaWallet color='inherit' />,
+    routes: [
+      {
+        path: '/:accountId',
+        label: 'Account Details',
+        main: <Account />,
+        leftSidebar: <AssetSidebar />,
+        rightSidebar: <AssetRightSidebar />
+      },
+      {
+        path: '/:accountId/:assetId?',
+        label: 'Account Asset',
+        main: <AccountToken />,
+        leftSidebar: <AssetSidebar />,
+        rightSidebar: <AssetRightSidebar />
+      }
+    ]
+  },
+  {
+    path: '/defi',
+    label: 'navBar.defi',
+    icon: <FaRocket />,
     main: null,
-    leftSidebar: <EarnSidebar />,
+    leftSidebar: <DefiSidebar />,
     routes: [
       {
         path: '/',
-        label: 'earn.overview',
+        label: 'defi.overview',
         main: <Overview />,
         icon: <FaTable />,
-        leftSidebar: <EarnSidebar />
+        leftSidebar: <DefiSidebar />
       },
       {
         path: '/liquidity-pools',
-        label: 'earn.liquidityPools',
+        label: 'defi.liquidityPools',
         main: <LiquidityPools />,
         icon: <FaWater />,
-        leftSidebar: <EarnSidebar />,
+        leftSidebar: <DefiSidebar />,
         disable: true
       },
       {
-        path: '/staking-vaults',
-        label: 'earn.stakingVaults',
+        path: '/earn',
+        label: 'defi.earn',
         main: <StakingVaults />,
         icon: <FaLock />,
-        leftSidebar: <EarnSidebar />
+        leftSidebar: <DefiSidebar />
       },
       {
         path: '/farming',
-        label: 'earn.farming',
+        label: 'defi.farming',
         main: <Farming />,
         icon: <FaTractor />,
-        leftSidebar: <EarnSidebar />,
+        leftSidebar: <DefiSidebar />,
         disable: true
       }
     ]

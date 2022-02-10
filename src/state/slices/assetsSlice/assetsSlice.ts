@@ -98,13 +98,15 @@ export const assetApi = createApi({
   })
 })
 
-export const { useGetAssetsQuery } = assetApi
+export const { useGetAssetsQuery, useGetAssetDescriptionQuery } = assetApi
 
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
   (byId, CAIP19) => byId[CAIP19]
 )
+
+export const selectAssetNameById = createSelector(selectAssetByCAIP19, ({ name }) => name)
 
 export const selectAssets = (state: ReduxState) => state.assets.byId
 export const selectAssetIds = (state: ReduxState) => state.assets.ids

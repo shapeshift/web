@@ -8,8 +8,7 @@ import { useWallet } from './WalletProvider'
 export const SelectModal = () => {
   const {
     state: { adapters, walletInfo },
-    connect,
-    create
+    connect
   } = useWallet()
   const translate = useTranslate()
 

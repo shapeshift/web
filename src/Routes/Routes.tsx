@@ -117,8 +117,6 @@ export const routes: Array<NestedRoute> = [
   } */
 ]
 
-export let appRoutes: Array<NestedRoute> = []
-
 function useLocationBackground() {
   const location = useLocation<{ background: any }>()
   const background = location.state && location.state.background
@@ -130,9 +128,8 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
-  appRoutes = generateAppRoutes(union(routes, props?.additionalRoutes))
+  const appRoutes = generateAppRoutes(union(routes, props?.additionalRoutes))
 
-  console.info('Routes', appRoutes)
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {

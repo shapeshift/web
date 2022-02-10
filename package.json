@@ -126,6 +126,9 @@
   },
   "jest": {
     "collectCoverageFrom": [],
+    "coveragePathIgnorePatterns": [
+      "./src/env"
+    ],
     "setupFiles": [
       "./src/test/setupGlobalMocks.ts"
     ]

@@ -3,11 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  marketApi,
-  selectMarketData,
-  useFindAllQuery
-} from 'state/slices/marketDataSlice/marketDataSlice'
+import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/selectors'
 
@@ -54,31 +50,35 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // once the portfolio has loaded, check we have market data
   // for more obscure assets, if we don't have it, fetch it
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
-  const marketData = useSelector(selectMarketData)
 
   // creating a variable to store the intervals in
   const [marketDataIntervalId, setMarketDataIntervalId] = useState<NodeJS.Timer | undefined>()
 
+  // market data pre and refetch management
   useEffect(() => {
     if (!portfolioAssetIds.length) return
-    // checking if marketDataIntervalId is set, if yes we clear the previous interval
+
+    const fetchMarketData = () => {
+      portfolioAssetIds.forEach(assetId => {
+        dispatch(marketApi.endpoints.findByCaip19.initiate(assetId, { forceRefetch: true }))
+      })
+    }
+
+    // do this the first time once
+    fetchMarketData()
+
+    // clear the old timer
     if (marketDataIntervalId) {
       clearInterval(marketDataIntervalId)
       setMarketDataIntervalId(undefined)
     }
-    // set the new interval, we set a new interval as the user's assets can change depending on their wallet portfolio
-    setMarketDataIntervalId(
-      setInterval(() => {
-        portfolioAssetIds.forEach(assetId => {
-          dispatch(marketApi.endpoints.findByCaip19.initiate(assetId, { forceRefetch: true }))
-        })
-        // update assets every two minutes
-      }, 120000)
-    )
-    // we need to disable this rule as we dont want this hook to run everytime marketDataIntervalId is updated
-    // this will end up causing an infinite loop
+
+    const MARKET_DATA_REFRESH_INTERVAL = 1000 * 60 * 2 // two minutes
+    setMarketDataIntervalId(setInterval(fetchMarketData, MARKET_DATA_REFRESH_INTERVAL))
+
+    // marketDataIntervalId causes infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioAssetIds, marketData, dispatch])
+  }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
 
   return <>{children}</>
 }

@@ -40,7 +40,7 @@ type UseSendDetailsReturnType = {
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
-  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
+  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmount)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()

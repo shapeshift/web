@@ -147,7 +147,7 @@ describe('useSendDetails', () => {
         assetBalance: balances[ethCaip19]
       })
       expect(result.current.balancesLoading).toBe(false)
-      expect(result.current.fieldName).toBe('fiatAmount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
       expect(result.current.loading).toBe(false)
     })
   })
@@ -158,12 +158,12 @@ describe('useSendDetails', () => {
       const { waitForValueToChange, result } = setup({
         assetBalance: balances[ethCaip19]
       })
-      expect(result.current.fieldName).toBe('fiatAmount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
       act(() => {
         result.current.toggleCurrency()
       })
       await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('cryptoAmount')
+      expect(result.current.fieldName).toBe('fiatAmount')
     })
   })
 
@@ -185,7 +185,7 @@ describe('useSendDetails', () => {
 
       await waitForValueToChange(() => result.current.fieldName)
 
-      expect(result.current.fieldName).toBe('cryptoAmount')
+      expect(result.current.fieldName).toBe('fiatAmount')
     })
   })
 
@@ -197,19 +197,19 @@ describe('useSendDetails', () => {
       setValue
     })
     // Field is set to fiatAmount
-    expect(result.current.fieldName).toBe('fiatAmount')
+    expect(result.current.fieldName).toBe('cryptoAmount')
 
     // Set fiat amount
     await act(async () => {
-      result.current.handleInputChange('3500')
+      result.current.handleInputChange('1')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
+      expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
 
       setValue.mockClear()
 
       result.current.handleInputChange('0')
       jest.advanceTimersByTime(1500) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '0')
+      expect(setValue).toHaveBeenCalledWith('fiatAmount', '0')
       setValue.mockClear()
     })
     jest.useRealTimers()
@@ -225,20 +225,20 @@ describe('useSendDetails', () => {
         setValue
       })
       // Field is set to fiatAmount
-      expect(result.current.fieldName).toBe('fiatAmount')
+      expect(result.current.fieldName).toBe('cryptoAmount')
 
       // toggle field to cryptoAmount
       act(() => {
         result.current.toggleCurrency()
       })
       await waitForValueToChange(() => result.current.fieldName)
-      expect(result.current.fieldName).toBe('cryptoAmount')
+      expect(result.current.fieldName).toBe('fiatAmount')
 
       // Set crypto amount
       await act(async () => {
-        result.current.handleInputChange('1')
+        result.current.handleInputChange('3500')
         jest.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
-        expect(setValue).toHaveBeenCalledWith('fiatAmount', '3500')
+        expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
         setValue.mockClear()
       })
     })

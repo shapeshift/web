@@ -16,11 +16,12 @@ import { ModalProvider } from 'context/ModalProvider/ModalProvider'
 import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
+import { simpleLocale } from 'lib/browserLocale'
 import { store } from 'state/store'
 import { theme } from 'theme/theme'
 
-const locale: string = navigator?.language?.split('-')[0] ?? 'en'
-const messages = translations[locale] || translations['en']
+const locale: string = simpleLocale()
+const messages = translations[locale]
 
 type ProvidersProps = {
   children: React.ReactNode

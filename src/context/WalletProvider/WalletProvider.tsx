@@ -3,6 +3,7 @@ import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
+import findIndex from 'lodash/findIndex'
 import React, {
   createContext,
   useCallback,
@@ -68,6 +69,7 @@ export interface IWalletContext {
   state: InitialState
   dispatch: React.Dispatch<ActionTypes>
   connect: (adapter: KeyManager) => Promise<void>
+  create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
 }
 
@@ -172,10 +174,26 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    if (SUPPORTED_WALLETS[type]?.routes[0]?.path) {
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('connect')
+    )
+    if (routeIndex > -1) {
       dispatch({
         type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[0].path as string
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+      })
+    }
+  }, [])
+
+  const create = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('create')
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
       })
     }
   }, [])
@@ -186,8 +204,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, disconnect }),
-    [state, connect, disconnect]
+    () => ({ state, dispatch, connect, create, disconnect }),
+    [state, connect, create, disconnect]
   )
 
   return (

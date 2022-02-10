@@ -630,7 +630,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
         minWidth={{ base: 'auto', lg: '450px' }}
         maxWidth={{ base: 'auto', lg: '450px' }}
       >
-        {depositRoute && <DefiActionButtons />}
+        {depositRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>

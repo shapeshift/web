@@ -105,6 +105,18 @@ It also creates a html page you can interact with at the root level of the proje
     yarn test
 ```
 
+Starts Cypress E2E testing with GUI.
+
+```
+yarn test:cypress
+```
+
+Or run Cypress headless
+
+```
+test:cypress:headless
+```
+
 Builds the app for production to the `build` folder.<br /> It correctly bundles
 React in production mode and optimizes the build for the best performance.
 

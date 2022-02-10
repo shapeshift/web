@@ -22,16 +22,7 @@ export const App = () => {
   useEffect(() => {
     registerPlugins()
       .then(() => {
-        const additionalRoutes: Route[] = Array.from(pluginManager.getPlugins()).map(
-          ([pluginId, plugin]) => ({
-            label: plugin.name,
-            icon: plugin.icon,
-            path: `/plugins/${pluginId}`,
-            main: plugin.routes.home
-          })
-        )
-
-        setPlugins(additionalRoutes)
+        setPlugins(pluginManager.getRoutes())
       })
       .catch(e => {
         console.error('RegisterPlugins', e)

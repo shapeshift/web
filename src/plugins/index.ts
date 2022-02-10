@@ -1,4 +1,7 @@
 import type { CAIP19 } from '@shapeshiftoss/caip'
+import { FeatureFlag } from 'constants/FeatureFlag'
+
+import { Route } from '../Routes/helpers'
 
 const activePlugins = ['bitcoin']
 
@@ -44,6 +47,21 @@ class PluginManager {
 
   getPlugin(pluginId: string) {
     return this.#pluginManager.get(pluginId)
+  }
+
+  getRoutes(): Route[] {
+    const routes = []
+    for (const [id, plugin] of this.#pluginManager.entries()) {
+      routes.push({
+        disable: !FeatureFlag.CosmosInvestor,
+        label: plugin.name,
+        icon: plugin.icon,
+        path: `/plugins/${id}`,
+        main: plugin.routes.home
+      })
+    }
+
+    return routes
   }
 }
 

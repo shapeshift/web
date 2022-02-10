@@ -12,7 +12,7 @@ import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { Route } from './Routes/helpers'
 
 export const App = () => {
-  const [plugins, setPlugins] = useState<Route[] | undefined>(undefined)
+  const [plugins, setPlugins] = useState<Route[]>([])
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
@@ -26,7 +26,7 @@ export const App = () => {
       })
       .catch(e => {
         console.error('RegisterPlugins', e)
-        setPlugins(undefined)
+        setPlugins([])
       })
   }, [setPlugins])
 

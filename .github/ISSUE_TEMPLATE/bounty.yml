@@ -38,10 +38,15 @@ body:
       placeholder: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
     validations:
       required: false
-  - type: markdown
+  - type: textarea
+    id: screenshots-or-mockups
     attributes:
+      label: Bounty Hunters
+      description: Information for bounty hunters to join ShapeShift discord and other general information (this can be left as it is)
+      placeholder: Information for bounty hunters to join ShapeShift discord and other general information
       value: |
-        ## Bounty Hunters
-          - Join our discord [here](https://discord.gg/shapeshift). Once you join you can see more about this issue [here](https://discord.com/channels/554694662431178782/873244924026449940/925799058537336853)
-          - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
-          - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info
+        - Join our discord [here](https://discord.gg/shapeshift). Once you join you can see more about this issue [here](https://discord.com/channels/554694662431178782/873244924026449940/925799058537336853)
+        - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
+        - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info
+    validations:
+      required: false

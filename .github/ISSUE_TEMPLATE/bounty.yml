@@ -18,7 +18,7 @@ body:
     attributes:
       label: Reference
       description: An explanation as to where the bounty hunter should look or code that is affected
-      placeholder: It may be useful to start by looking at `Dashboard.tsx`
+      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps here if applicable.
     validations:
       required: true
   - type: textarea
@@ -47,14 +47,9 @@ body:
           required: true
         - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
           required: true
-  - type: textarea
-    id: bounty-hunters
+  - type: markdown
     attributes:
-      label: Bounty Hunters
-      description: Information for bounty hunters (please don't edit)
       value: |
         - [Join our discord](https://discord.gg/shapeshift)
         - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
         - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info
-    validations:
-      required: true

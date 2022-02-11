@@ -5,55 +5,43 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
-  - type: input
-    id: contact
+        Thanks for taking the time to fill out this bounty
+  - type: textarea
+    id: overview
     attributes:
-      label: Contact Details
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
+      label: Overview
+      description: General background needed for bounty hunter to complete task
+      placeholder: General background needed for bounty hunter to complete task
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Reference
+      description: An explanation as to where the bounty hunter should look or code that is affected
+      placeholder: An explanation as to where the bounty hunter should look or code that is affected
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: The criteria that needs to be completed in order for the bounty to be considered complete
+      placeholder: The criteria that needs to be completed in order for the bounty to be considered complete
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots-or-mockups
+    attributes:
+      label: Screenshots/Mockups
+      description: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
+      placeholder: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
     validations:
       required: false
-  - type: textarea
-    id: what-happened
+  - type: markdown
     attributes:
-      label: What happened?
-      description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
-    validations:
-      required: true
-  - type: dropdown
-    id: version
-    attributes:
-      label: Version
-      description: What version of our software are you running?
-      options:
-        - 1.0.2 (Default)
-        - 1.0.3 (Edge)
-    validations:
-      required: true
-  - type: dropdown
-    id: browsers
-    attributes:
-      label: What browsers are you seeing the problem on?
-      multiple: true
-      options:
-        - Firefox
-        - Chrome
-        - Safari
-        - Microsoft Edge
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-      render: shell
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
-      options:
-        - label: I agree to follow this project's Code of Conduct
-          required: true
+      value: |
+        ## Bounty Hunters
+          - Join our discord [here](https://discord.gg/shapeshift). Once you join you can see more about this issue [here](https://discord.com/channels/554694662431178782/873244924026449940/925799058537336853)
+          - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
+          - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info

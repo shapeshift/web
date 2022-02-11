@@ -1,6 +1,5 @@
 name: Bounty
 description: Create a bounty
-title: ""
 labels: ["bounty"]
 body:
   - type: markdown

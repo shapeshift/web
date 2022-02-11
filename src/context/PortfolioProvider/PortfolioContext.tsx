@@ -6,6 +6,7 @@ import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/selectors'
+import { ipcRenderer } from 'electron'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -28,6 +29,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // and covers most assets users will have
   useFindAllQuery()
   const accountSpecifiers = useAccountSpecifiers()
+  ipcRenderer.send('onAccountInfo', accountSpecifiers)
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination

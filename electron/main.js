@@ -35,15 +35,31 @@
  *    P.S. use a keepkey!
  *                                                -Highlander
  */
+const TAG = ' | KK-MAIN | '
 
 const core = require('@shapeshiftoss/hdwallet-core')
 const KK = require('@shapeshiftoss/hdwallet-keepkey-nodewebusb')
-
-const TAG = ' | KK-MAIN | '
+const path = require('path')
+const isDev = require('electron-is-dev')
 const log = require('electron-log')
 const { app, Menu, Tray, BrowserWindow, nativeTheme, ipcMain, nativeImage } = require('electron')
 const usb = require('usb')
 const AutoLaunch = require('auto-launch')
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require(path.join(__dirname, './api/dist/swagger.json'))
+if(!swaggerDocument) throw Error("Failed to load API SPEC!")
+
+//core libs
+let {
+  getPaths
+} = require('@pioneer-sdk/coins')
+
+let {
+  getConfig,
+  innitConfig,
+  getWallets
+} = require("keepkey-config")
+
 // eslint-disable-next-line react-hooks/rules-of-hooks
 const adapter = KK.NodeWebUSBKeepKeyAdapter.useKeyring(new core.Keyring())
 const express = require('express')
@@ -53,16 +69,34 @@ const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: false }))
 appExpress.use(bodyParser.json())
-const path = require('path')
-const isDev = require('electron-is-dev')
+
+//DB persistence
+const Datastore = require('nedb')
+    , db = new Datastore({ filename: './.KeepKey/db', autoload: true });
+
+let wait = require('wait-promise');
+let sleep = wait.sleep;
 let server = {}
 let tray = {}
+let USER = {
+  online:false,
+  accounts:[],
+  balances:[]
+}
 let STATE = 0
+let USERNAME
+let CONFIG
+let WALLETS
+let CONTEXT
 let isQuitting = false
 let eventIPC = {}
+let APPROVED_ORIGINS = []
 
 const assetsDirectory = path.join(__dirname, 'assets')
 const EVENT_LOG = []
+let SIGNED_TX = null
+let USER_APPROVED_PAIR = null
+let USER_REJECT_PAIR = null
 
 /*
     Electron Settings
@@ -91,6 +125,20 @@ const menuTemplate = [
     enabled: false,
     type: 'normal',
     icon: path.join(assetsDirectory, 'status/unknown.png')
+  },
+  { label: '', type: 'separator' },
+  {
+    label: 'Show App',
+    click: function () {
+      log.info('show App')
+      if (mainWindow.isVisible()) {
+        mainWindow.hide()
+        app.dock.hide()
+      } else {
+        mainWindow.show()
+        app.dock.hide()
+      }
+    }
   },
   { label: '', type: 'separator' },
   {
@@ -211,8 +259,8 @@ function createWindow() {
       }
       kkAutoLauncher.enable()
     })
-    .catch(function () {
-      log.error('failed to enable auto launch: ', kkAutoLauncher)
+    .catch(function (e) {
+      log.error('failed to enable auto launch: ', e)
     })
 
   /**
@@ -231,6 +279,10 @@ function createWindow() {
       devTools: true
     }
   })
+
+  //TODO remove/ flag on dev
+  if(isDev) mainWindow.openDevTools()
+
   const startURL = isDev
     ? 'http://localhost:3000'
     : `file://${path.join(__dirname, '../build/index.html')}`
@@ -272,6 +324,91 @@ app.on('before-quit', () => {
   isQuitting = true
 })
 
+ipcMain.on('onSignedTx', async (event,data) => {
+  const tag = TAG + ' | onSignedTx | '
+  try {
+    log.info(tag, 'event: onSignedTx: ', data)
+    console.log("onSignedTx: ",data)
+    SIGNED_TX = data
+  } catch (e) {
+    log.error('e: ', e)
+    log.error(tag, e)
+  }
+})
+
+ipcMain.on('onApproveOrigin', async (event,data) => {
+  const tag = TAG + ' | onApproveOrigin | '
+  try {
+    log.info(tag,"data: ",data)
+
+    //Approve Origin
+    APPROVED_ORIGINS.push(data.origin)
+    USER_APPROVED_PAIR = true
+    //save to db
+    let doc = {
+      origin:data.origin,
+      added: new Date().getTime(),
+      isVerified:false
+    }
+    db.insert(doc, function(err,resp){
+      if(err) log.error("err: ",err)
+      log.info("saved origin: ",resp)
+    })
+  } catch (e) {
+    log.error('e: ', e)
+    log.error(tag, e)
+  }
+})
+
+ipcMain.on('onRejectOrigin', async (event,data) => {
+  const tag = TAG + ' | onRejectOrigin | '
+  try {
+    log.info(tag,"data: ",data)
+
+    USER_REJECT_PAIR = true
+  } catch (e) {
+    log.error('e: ', e)
+    log.error(tag, e)
+  }
+})
+
+ipcMain.on('onCloseModal', async (event,data) => {
+  const tag = TAG + ' | onCloseModal | '
+  try {
+    mainWindow.setAlwaysOnTop(false)
+  } catch (e) {
+    log.error('e: ', e)
+    log.error(tag, e)
+  }
+})
+
+ipcMain.on('onAccountInfo', async (event,data) => {
+  const tag = TAG + ' | onAccountInfo | '
+  try {
+    console.log("data: ",data)
+    if(data.length > 0){
+      USER.accounts = data
+    }
+  } catch (e) {
+    log.error('e: ', e)
+    log.error(tag, e)
+  }
+})
+
+ipcMain.on('onBalanceInfo', async (event,data) => {
+  const tag = TAG + ' | onBalanceInfo | '
+  try {
+    console.log("data: ",data)
+    if(data.length > 0){
+      USER.balances = data
+    }
+  } catch (e) {
+    log.error('e: ', e)
+    log.error(tag, e)
+  }
+})
+
+
 /*
 
   KeepKey Status codes
@@ -302,16 +439,82 @@ const start_bridge = async function (event) {
       log.info(tray)
     }
 
+    let transport
     if (device) {
-      let transport = await adapter.getTransportDelegate(device)
+      transport = await adapter.getTransportDelegate(device)
       await transport.connect?.()
       STATE = 2
       STATUS = 'keepkey connected'
-      event.sender.send('setKeepKeyState', { state: STATE })
-      event.sender.send('setKeepKeyStatus', { status: STATUS })
+      event.sender.send('setKeepKeyState', {state: STATE})
+      event.sender.send('setKeepKeyStatus', {status: STATUS})
+    } else {
+      log.info('Can not start! waiting for device connect')
+    }
 
-      let API_PORT = process.env['API_PORT_BRIDGE'] || '1646'
-      //bridge
+    let API_PORT = process.env['API_PORT_BRIDGE'] || '1646'
+
+    /*
+        KeepKey bridge
+
+        endpoints:
+          raw i/o keepkey bridge:
+          status:
+          pubkeys:
+          sign:
+
+
+     */
+
+    //docs
+    appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    //swagger.json
+    appExpress.use('/spec', express.static(path.join(__dirname, './api/dist')));
+
+    //status
+    appExpress.all('/status', async function (req, res, next) {
+      try {
+        if (req.method === 'GET') {
+          res.status(200).json({
+            success: true,
+            username: USERNAME,
+            status: STATUS,
+            state: STATE
+          })
+        }
+        next()
+      } catch (e) {
+        throw e
+      }
+    })
+
+    /*
+        Protected endpoint middleware
+        Only allow approved applications collect data
+
+        all routes below are protected
+     */
+    //TODO
+    // let authChecker = (req, res, next) => {
+    //   console.log("header: ",req.headers);
+    //   const host = req.headers.host;
+    //   let origin = req.headers.origin;
+    //   const referer = req.headers.referer;
+    //   if(!origin) origin = referer
+    //   console.log("origin: ",origin);
+    //   console.log("host: ",host);
+    //   if(!origin) {
+    //     res.status(400).json("Unable to determine origin!")
+    //   } else if(APPROVED_ORIGINS.indexOf(origin) >= 0){
+    //     console.log("Approved origin!")
+    //     next();
+    //   } else {
+    //     event.sender.send('approveOrigin', { origin })
+    //   }
+    // };
+    // appExpress.use(authChecker);
+
+    if (device) {
       appExpress.all('/exchange/device', async function (req, res, next) {
         try {
           if (req.method === 'GET') {
@@ -339,39 +542,89 @@ const start_bridge = async function (event) {
           throw e
         }
       })
-
-      //catchall
-      appExpress.use((err, req, res) => {
-        const { status = 500, message = 'something went wrong. ', data = {} } = err
-        //log.info(req.body, { status: status, message: message, data: data })
+    } else {
+      appExpress.all('/exchange/device', async function (req, res, next) {
         try {
-          res.status(status).json({ message, data })
-        } catch (e) {}
+          res.status(200).json({
+            success:false,
+            msg:"Device not connected!"
+          })
+          next()
+        } catch (e) {
+          throw e
+        }
       })
+    }
 
-      //port
+
+    //userInfo
+    appExpress.all('/user', async function (req, res, next) {
       try {
-        server = appExpress.listen(API_PORT, () => {
-          event.sender.send('playSound', { sound: 'success' })
-          log.info(`server started at http://localhost:${API_PORT}`)
-          STATE = 3
-          STATUS = 'bridge online'
-          event.sender.send('setKeepKeyState', { state: STATE })
-          event.sender.send('setKeepKeyStatus', { status: STATUS })
-          updateMenu(STATE)
-        })
+        if (req.method === 'GET') {
+          res.status(200).json(USER)
+        }
+        next()
       } catch (e) {
-        event.sender.send('playSound', { sound: 'fail' })
-        STATE = -1
-        STATUS = 'bridge error'
+        throw e
+      }
+    })
+
+    //sign
+    appExpress.all('/sign', async function (req, res, next) {
+      try {
+        console.log("checkpoint1: ")
+        if (req.method === 'POST') {
+          let body = req.body
+          console.log("body: ",body)
+          mainWindow.setAlwaysOnTop(true)
+          if (!mainWindow.isVisible()) {
+            mainWindow.show()
+            app.dock.show()
+          }
+          event.sender.send('signTx', { payload: body })
+          //hold till signed
+          while(!SIGNED_TX){
+            await sleep(300)
+          }
+          res.status(200).json({ success: true, status: 'signed', signedTx:SIGNED_TX })
+          SIGNED_TX = null
+        }
+        next()
+      } catch (e) {
+        throw e
+      }
+    })
+
+    //catchall
+    appExpress.use((err, req, res) => {
+      const { status = 500, message = 'something went wrong. ', data = {} } = err
+      //log.info(req.body, { status: status, message: message, data: data })
+      try {
+        res.status(status).json({ message, data })
+      } catch (e) {}
+    })
+
+    //port
+    try {
+      server = appExpress.listen(API_PORT, () => {
+        event.sender.send('playSound', { sound: 'success' })
+        log.info(`server started at http://localhost:${API_PORT}`)
+        STATE = 3
+        STATUS = 'bridge online'
         event.sender.send('setKeepKeyState', { state: STATE })
         event.sender.send('setKeepKeyStatus', { status: STATUS })
         updateMenu(STATE)
-        log.info('e: ', e)
-      }
-    } else {
-      log.info('Can not start! waiting for device connect')
+      })
+    } catch (e) {
+      event.sender.send('playSound', { sound: 'fail' })
+      STATE = -1
+      STATUS = 'bridge error'
+      event.sender.send('setKeepKeyState', { state: STATE })
+      event.sender.send('setKeepKeyStatus', { status: STATUS })
+      updateMenu(STATE)
+      log.info('e: ', e)
     }
+
   } catch (e) {
     log.error(e)
   }
@@ -387,7 +640,7 @@ const stop_bridge = async function (event) {
       STATUS = 'device connected'
       event.sender.send('setKeepKeyState', { state: STATE })
       event.sender.send('setKeepKeyStatus', { status: STATUS })
-      // updateMenu(STATE)
+      updateMenu(STATE)
     })
   } catch (e) {
     log.error(e)
@@ -412,10 +665,44 @@ ipcMain.on('onStartBridge', async event => {
   }
 })
 
-ipcMain.on('onStartApp', async event => {
+ipcMain.on('onStartApp', async (event, data) => {
   const tag = TAG + ' | onStartApp | '
   try {
-    log.info(tag, 'event: onStartApp: ')
+    log.info(tag, 'event: onStartApp: ', data)
+
+    //load DB
+    try{
+      db.find({ }, function (err, docs) {
+        for(let i = 0; i < docs.length; i++){
+          let doc = docs[i]
+          APPROVED_ORIGINS.push(doc.origin)
+        }
+      });
+      log.info(tag,"APPROVED_ORIGINS: ",APPROVED_ORIGINS)
+      event.sender.send('loadOrigins', { payload:APPROVED_ORIGINS })
+    }catch(e){
+      log.error("failed to load db: ",e)
+    }
+
+    try {
+      //is there config
+      let config = getConfig()
+      console.log("config: ",config)
+
+      if(!config){
+        //if not init
+        await innitConfig()
+        config = getConfig()
+      }
+      CONFIG = config
+
+      //wallets
+      WALLETS = await getWallets()
+
+    } catch (e) {
+      log.error('Failed to create tray! e: ', e)
+    }
+
     try {
       createTray(event)
     } catch (e) {

@@ -1,0 +1,244 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"Status": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"username": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"state": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"success",
+					"username",
+					"status",
+					"state"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PairResponce": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"username": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"username",
+					"code"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SignedTx": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"status": {
+						"type": "string"
+					},
+					"signedTx": {}
+				},
+				"required": [
+					"success",
+					"status",
+					"signedTx"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Read": {
+				"properties": {
+					"data": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Write": {
+				"properties": {
+					"output": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"output"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "@KeepKey/keepkey-bridge",
+		"version": "0.0.12",
+		"description": "A REST interface for the KeepKey Client",
+		"contact": {
+			"name": "highlander ",
+			"email": "highlander@keepkey.com"
+		}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/status": {
+			"get": {
+				"operationId": "Health",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Status"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/pair/{code}": {
+			"get": {
+				"operationId": "Pair",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PairResponce"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/user": {
+			"get": {
+				"operationId": "User",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/sign": {
+			"post": {
+				"operationId": "SignTransaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SignedTx"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/exchange/device": {
+			"get": {
+				"operationId": "ReadDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Read"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Device Bridge"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "WriteDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Write"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Device Bridge"
+				],
+				"security": [],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:1646/"
+		}
+	]
+}

@@ -46,6 +46,7 @@ const { app, Menu, Tray, BrowserWindow, nativeTheme, ipcMain, nativeImage } = re
 const usb = require('usb')
 const AutoLaunch = require('auto-launch')
 const swaggerUi = require('swagger-ui-express');
+//OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, './api/dist/swagger.json'))
 if(!swaggerDocument) throw Error("Failed to load API SPEC!")
 

@@ -31,7 +31,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"PairResponce": {
+			"PairResponse": {
 				"properties": {
 					"success": {
 						"type": "boolean"
@@ -138,7 +138,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PairResponce"
+									"$ref": "#/components/schemas/PairResponse"
 								}
 							}
 						}
@@ -209,7 +209,7 @@
 					}
 				},
 				"tags": [
-					"Device Bridge"
+					"Raw KeepKey Device I/0"
 				],
 				"security": [],
 				"parameters": []
@@ -229,7 +229,7 @@
 					}
 				},
 				"tags": [
-					"Device Bridge"
+					"Raw KeepKey Device I/0"
 				],
 				"security": [],
 				"parameters": []

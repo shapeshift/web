@@ -33,11 +33,11 @@ class PluginManager {
   #pluginManager = new Map<string, Plugin>()
 
   register(plugin: RegistrablePlugin): void {
-    for (const [pluginId, chain] of plugin.register()) {
+    for (const [pluginId, pluginManifest] of plugin.register()) {
       if (this.#pluginManager.has(pluginId)) {
         throw new Error('PluginManager: Duplicate pluginId')
       }
-      this.#pluginManager.set(pluginId, chain)
+      this.#pluginManager.set(pluginId, pluginManifest)
     }
   }
 

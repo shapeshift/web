@@ -12,7 +12,7 @@ import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { Route } from './Routes/helpers'
 
 export const App = () => {
-  const [plugins, setPlugins] = useState<Route[]>([])
+  const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
@@ -22,13 +22,13 @@ export const App = () => {
   useEffect(() => {
     registerPlugins()
       .then(() => {
-        setPlugins(pluginManager.getRoutes())
+        setPluginRoutes(pluginManager.getRoutes())
       })
       .catch(e => {
         console.error('RegisterPlugins', e)
-        setPlugins([])
+        setPluginRoutes([])
       })
-  }, [setPlugins])
+  }, [setPluginRoutes])
 
   useEffect(() => {
     if (shouldUpdate && !toast.isActive(updateId)) {
@@ -61,5 +61,5 @@ export const App = () => {
       toastIdRef.current = toastId
     }
   }, [shouldUpdate, toast, translate])
-  return <Routes additionalRoutes={plugins} />
+  return <Routes additionalRoutes={pluginRoutes} />
 }

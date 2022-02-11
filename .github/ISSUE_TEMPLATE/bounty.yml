@@ -41,17 +41,18 @@ body:
     id: cross-team
     attributes:
       label: Cross team
-      description: If my bounty needs engineering or needs product I will add the respective tags
+      description: If my bounty needs engineering or needs product I will add the respective tags after submitting the issue
       options:
         - label: I understand
+          required: true
   - type: textarea
     id: bounty-hunters
     attributes:
       label: Bounty Hunters
-      description: Information for bounty hunters to join ShapeShift discord and other general information (this can be left as it is)
+      description: Information for bounty hunters (please don't edit)
       value: |
         - [Join our discord](https://discord.gg/shapeshift)
         - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
         - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info
     validations:
-      required: false
+      required: true

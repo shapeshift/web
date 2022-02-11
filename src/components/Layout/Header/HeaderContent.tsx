@@ -1,11 +1,13 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Flex, IconButton, Portal, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
+
+const noBack = ['/defi', '/defi/']
 
 export const HeaderContent = ({ route }: { route: Route }) => {
   const navbarBg = useColorModeValue('white', 'gray.800')
@@ -23,7 +25,7 @@ export const HeaderContent = ({ route }: { route: Route }) => {
         <Box display='flex' alignItems='center' flex={2}>
           {pathTo(route).map((crumb, index, breadcrumbs) => (
             <div key={index} className='item'>
-              {index < breadcrumbs.length - 1 && crumb.path && (
+              {index < breadcrumbs.length - 1 && crumb.path && !noBack.includes(location.pathname) && (
                 <IconButton
                   icon={<ArrowBackIcon />}
                   aria-label={crumb.label}

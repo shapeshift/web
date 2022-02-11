@@ -65,7 +65,10 @@ class PluginManager {
   }
 }
 
+// @TODO - In the future we may want to create a Provider for this
+// if we need to support features that require re-rendering. Currently we do not.
 export const pluginManager = new PluginManager()
+
 export const registerPlugins = async () => {
   for (const plugin of activePlugins) {
     pluginManager.register(await import(`./${plugin}/index.tsx`))

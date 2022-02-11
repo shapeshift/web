@@ -39,7 +39,7 @@ body:
     validations:
       required: false
   - type: textarea
-    id: screenshots-or-mockups
+    id: bounty-hunters
     attributes:
       label: Bounty Hunters
       description: Information for bounty hunters to join ShapeShift discord and other general information (this can be left as it is)

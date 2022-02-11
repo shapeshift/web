@@ -41,10 +41,9 @@ body:
     id: cross-team
     attributes:
       label: Cross team
-      description: My bounty requires and I will add the tag(s)
+      description: If my bounty needs engineering or needs product I will add the respective tags
       options:
-        - label: needs engineering
-        - label: needs product
+        - label: I understand
   - type: textarea
     id: bounty-hunters
     attributes:

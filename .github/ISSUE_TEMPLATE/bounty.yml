@@ -4,7 +4,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bounty
+        Thanks for taking the time to fill out this bounty. Please give your bounty a short and succinct title.
   - type: textarea
     id: overview
     attributes:
@@ -38,12 +38,14 @@ body:
     validations:
       required: false
   - type: checkboxes
-    id: cross-team
+    id: ownership
     attributes:
-      label: Cross team
-      description: If my bounty needs engineering or needs product I will add the respective tags after submitting the issue
+      label: Ownership
+      description: I'm a good team member, and
       options:
-        - label: I understand
+        - label: If my bounty needs engineering or needs product I have added the respective labels on the right
+          required: true
+        - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
           required: true
   - type: textarea
     id: bounty-hunters

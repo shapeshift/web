@@ -20,8 +20,14 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          record: true
           build: yarn run build
           start: yarn dev
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 180
           browser: chrome
+        env:
+          # pass the Dashboard record key as an environment variable
+#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # Hardcode a burner key for testing
+          CYPRESS_RECORD_KEY: '88313c74-56f3-46af-89e5-e667bff1ba49'

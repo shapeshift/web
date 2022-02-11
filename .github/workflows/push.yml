@@ -17,11 +17,11 @@ jobs:
             ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
       - name: Install
         run: yarn install --frozen-lockfile
-      - name: Build
-        run: yarn build
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          build: yarn run build
           start: yarn dev
           wait-on: 'http://localhost:3000'
+          wait-on-timeout: 180
           browser: chrome

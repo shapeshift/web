@@ -144,14 +144,14 @@ If you're developing locally in this `web` repository, and need to make changes 
 or `unchained` (backend), use the following steps to link packages locally for developing.
 If your changes only touch `web` these steps are not necessary.
 
-Initial, one-off setup
+**Initial, one-off setup:**
 
 1. Clone the `lib` repo, `cd` into it, and run `yarn build`
 1. From `lib`, run `yarn link`
 1. Clone `unchained`, `cd` into it, and run `yarn build`
 1. From `unchained`, `cd packages/client` and `yarn link`, then do the same from `packages/parser`
 
-When working in `web`, and using local changes in `lib` or `unchained`
+**When working in `web`, and using local changes in `lib` or `unchained`:**
 
 1. Run `yarn link-packages` in `web` to use local versions of `lib` and `unchained` - now your `web`'s chain-adapters have a symlink to your `lib`'s.
 1. `yarn show-linked-packages` will show what's currently linked

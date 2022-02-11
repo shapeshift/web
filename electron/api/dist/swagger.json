@@ -99,7 +99,7 @@
 	"info": {
 		"title": "@KeepKey/keepkey-bridge",
 		"version": "0.0.12",
-		"description": "A REST interface for the KeepKey Client",
+		"description": "A REST interface for the KeepKey",
 		"contact": {
 			"name": "highlander ",
 			"email": "highlander@keepkey.com"

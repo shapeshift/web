@@ -24,7 +24,10 @@ export const useTradeRoutes = (): {
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      const buyAsset = assets[buyAssetId]
+      const buyAsset =
+        asset?.chain === 'ethereum' && asset?.caip19 !== sellAssetId
+          ? assets[asset.caip19]
+          : assets[buyAssetId]
       if (sellAsset && buyAsset) {
         await getBestSwapper({
           sellAsset: { currency: sellAsset },
@@ -46,7 +49,7 @@ export const useTradeRoutes = (): {
 
   useEffect(() => {
     setDefaultAssets()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [asset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {

@@ -28,8 +28,8 @@ type WalletProps = {
 async function connectCypressWallet(
   keyring: Keyring,
   dispatch: Dispatch<ActionTypes>,
-  walletSeed: string,
-  walletPassword: string
+  walletId: string,
+  walletPwd: string
 ) {
   // Import wallet
   const vault = await Vault.create()
@@ -42,28 +42,45 @@ async function connectCypressWallet(
   // Load wallet
   const deviceId = vault.id
   const adapter = SUPPORTED_WALLETS[KeyManager.Native].adapter.useKeyring(keyring)
-  const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
-  const mnemonic = (await vault.get('#mnemonic')) as native.crypto.Isolation.Core.BIP39.Mnemonic
-  mnemonic.addRevoker?.(() => vault.revoke())
-  await wallet.loadDevice({ mnemonic, deviceId })
-  const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-  dispatch({
-    type: WalletActions.SET_WALLET,
-    payload: {
-      wallet,
-      name,
-      icon,
-      deviceId,
-      meta: { label: vault.meta.get('name') as string }
+  if (adapter) {
+    const wallet = await adapter.pairDevice(walletId)
+    await wallet.initialize()
+  }
+
+  const vaultIds = await Vault.list()
+  for (let index = 0; index < vaultIds.length; index++) {
+    const deviceId = vaultIds[index]
+    if (deviceId !== walletId) {
+      continue
     }
-  })
-  dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+
+    const wallet = keyring.get<NativeHDWallet>(deviceId)
+    const vault = await Vault.open(deviceId, decodeURIComponent(walletPwd))
+    const mnemonic = (await vault.get('#mnemonic')) as native.crypto.Isolation.Core.BIP39.Mnemonic
+    mnemonic.addRevoker?.(() => vault.revoke())
+    await wallet?.loadDevice({
+      mnemonic,
+      deviceId
+    })
+    const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+    dispatch({
+      type: WalletActions.SET_WALLET,
+      payload: {
+        wallet,
+        name,
+        icon,
+        deviceId,
+        meta: { label: vault.meta.get('name') as string }
+      }
+    })
+    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+  }
 }
 
 export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
   const isCypressTest =
-    localStorage.hasOwnProperty('cypressWalletSeed') &&
-    localStorage.hasOwnProperty('cypressWalletPassword')
+    localStorage.hasOwnProperty('walletIdCypress') &&
+    localStorage.hasOwnProperty('walletPwdCypress')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const history = useHistory()
   const translate = useTranslate()
@@ -71,11 +88,10 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
   useEffect(() => {
     hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
     // Programmatic login for Cypress tests
-    // The first `!state.isConnected` filters any re-render if the wallet is already connected.
-    if (isCypressTest && !state.isConnected) {
-      const walletSeed = localStorage.getItem('cypressWalletSeed') || ''
-      const walletPassword = localStorage.getItem('cypressWalletPassword') || ''
-      connectCypressWallet(state.keyring, dispatch, walletSeed, walletPassword)
+    if (isCypressTest) {
+      const walletId = localStorage.getItem('walletIdCypress') || ''
+      const walletPwd = localStorage.getItem('walletPwdCypress') || ''
+      connectCypressWallet(state.keyring, dispatch, walletId, walletPwd)
         .then(() => {
           // The second `!state.isConnected` filters any intent to redirect if the redirecting had already happened.
           if (!state.isConnected) {

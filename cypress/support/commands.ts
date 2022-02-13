@@ -8,6 +8,9 @@ import { makeUsdcFoxSwapRateResponse } from '../factories/0x/usdcFoxRate'
 import { makeBtcAccount } from '../factories/bitcoin/account'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
+import { makeEthAccount } from '../factories/ethereum/account'
+import { wallet } from '../fixtures/wallet'
+import { getWalletDbInstance } from '../helpers'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
@@ -63,6 +66,18 @@ Cypress.Commands.add(
   }
 )
 
+Cypress.Commands.add(
+  'addCypressWallet',
+  // @ts-ignore
+  (wallet: { key: string; value: Object<string, unknown> }) => {
+    cy.addWallet(wallet).then(() => {
+      // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
+      localStorage.setItem('walletIdCypress', wallet.key)
+      localStorage.setItem('walletPasswordCypress', password)
+    })
+  }
+)
+
 // @ts-ignore
 Cypress.Commands.add('clearIndexedDB', async () => {
   await walletDb.clear()
@@ -72,11 +87,10 @@ Cypress.Commands.add('clearIndexedDB', async () => {
 Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
-  cy.clearIndexedDB().then(() => {
-    cy.addWallet(wallet).then(() => {
-      cy.visit('')
-      cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
-    })
+  cy.clearIndexedDB()
+  cy.addCypressWallet(wallet).then(() => {
+    cy.visit('')
+    cy.url().should('equal', `${baseUrl}dashboard`)
   })
 })
 

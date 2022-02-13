@@ -67,7 +67,6 @@ Cypress.Commands.add('clearIndexedDB', async () => {
   await walletDb.clear()
 })
 
-// TODO - Replace with programmatic login
 // @ts-ignore
 Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test

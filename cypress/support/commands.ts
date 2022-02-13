@@ -1,12 +1,11 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
-import { makeBtcAccount } from '../../cypress/factories/bitcoin/account'
-import { makeEthAccount } from '../../cypress/factories/ethereum/account'
-import { wallet } from '../../cypress/fixtures/wallet'
-import { getWalletDbInstance } from '../../cypress/helpers'
 import { makeEthFoxRateResponse } from '../factories/0x/ethFoxRate'
 import { makeEthUsdcRateResponse } from '../factories/0x/ethUsdcRate'
+import { makeFoxEthSwapRateResponse } from '../factories/0x/foxEthSwapRate'
+import { makeUsdcFoxSwapRateResponse } from '../factories/0x/usdcFoxRate'
+import { makeBtcAccount } from '../factories/bitcoin/account'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
 
@@ -24,6 +23,8 @@ const ethAccount = makeEthAccount()
 const btcAccount = makeBtcAccount()
 const ethUsdcSwapRate = makeEthUsdcRateResponse()
 const ethFoxSwapRate = makeEthFoxRateResponse()
+const foxEthSwapRate = makeFoxEthSwapRateResponse()
+const usdcFoxSwapRate = makeUsdcFoxSwapRateResponse()
 
 const walletDb = getWalletDbInstance()
 
@@ -103,6 +104,18 @@ Cypress.Commands.add('mockExternalRequests', () => {
     'GET',
     `${_0xApi}swap/v1/price?sellToken=ETH&buyToken=${foxContract}*`,
     ethFoxSwapRate
+  ).as('getEthFoxRate')
+
+  cy.intercept(
+    'GET',
+    `${_0xApi}swap/v1/price?sellToken=${foxContract}&buyToken=ETH*`,
+    foxEthSwapRate
+  ).as('getEthFoxRate')
+
+  cy.intercept(
+    'GET',
+    `${_0xApi}swap/v1/price?buyToken=USDC&buyToken=${foxContract}*`,
+    usdcFoxSwapRate
   ).as('getEthFoxRate')
 })
 

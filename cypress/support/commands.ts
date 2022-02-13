@@ -56,7 +56,7 @@ Cypress.Commands.add(
     await walletDb.setItem(wallet.key, wallet.value)
     // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
     localStorage.setItem('walletIdCypress', wallet.key)
-    localStorage.setItem('walletPwdCypress', password)
+    localStorage.setItem('walletPasswordCypress', password)
   }
 )
 

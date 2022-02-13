@@ -327,19 +327,23 @@ export const useSwapper = () => {
         const buyAmount = fromBaseUnit(quote.buyAmount, buyAsset.currency.precision)
         const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
+        const estimatedGasFee = fromBaseUnit(quote?.feeData?.fee || 0, 18) // ETH base
 
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('fiatAmount', newFiatAmount)
           setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         } else if (action === TradeActions.BUY && isBuyAmount && amount === buyAsset.amount) {
           setValue('sellAsset.amount', sellAmount)
           setValue('fiatAmount', newFiatAmount)
           setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('sellAsset.amount', sellAmount)
           setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         }
       }
     }

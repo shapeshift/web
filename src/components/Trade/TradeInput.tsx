@@ -23,6 +23,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
+import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -40,9 +41,15 @@ export const TradeInput = ({ history }: RouterProps) => {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const [isSendMaxLoading, setIsSendMaxLoading] = useState<boolean>(false)
-  const [quote, action, buyAsset, sellAsset] = useWatch({
-    name: ['quote', 'action', 'buyAsset', 'sellAsset']
-  }) as Array<unknown> as [TS['quote'], TS['action'], TS['buyAsset'], TS['sellAsset']]
+  const [quote, action, buyAsset, sellAsset, estimatedGasFees] = useWatch({
+    name: ['quote', 'action', 'buyAsset', 'sellAsset', 'estimatedGasFees']
+  }) as Array<unknown> as [
+    TS['quote'],
+    TS['action'],
+    TS['buyAsset'],
+    TS['sellAsset'],
+    TS['estimatedGasFees']
+  ]
   const { getQuote, buildQuoteTx, reset, checkApprovalNeeded, getFiatRate, getSendMaxAmount } =
     useSwapper()
   const toast = useToast()
@@ -56,6 +63,23 @@ export const TradeInput = ({ history }: RouterProps) => {
   )
   const hasValidTradeBalance = bnOrZero(sellAssetBalance).gte(bnOrZero(sellAsset?.amount))
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
+
+  const feeAsset = useAppSelector(state =>
+    sellAsset ? selectFeeAssetById(state, sellAsset?.currency?.caip19) : null
+  )
+  const feeAssetBalance = useAppSelector(state =>
+    feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null
+  )
+
+  const tradeDeduction =
+    sellAsset && feeAsset && feeAsset.caip19 === sellAsset.currency.caip19
+      ? bnOrZero(estimatedGasFees).plus(bnOrZero(sellAsset.amount))
+      : bnOrZero(0)
+
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(estimatedGasFees))
+    .minus(tradeDeduction)
+    .isPositive()
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -153,6 +177,10 @@ export const TradeInput = ({ history }: RouterProps) => {
 
     if (isValid && !hasValidTradeBalance) {
       return 'common.insufficientFunds'
+    }
+
+    if (isValid && hasValidTradeBalance && !hasEnoughBalanceForGas) {
+      return 'common.insufficientAmountForGas'
     }
 
     return error ?? 'trade.previewTrade'
@@ -315,9 +343,20 @@ export const TradeInput = ({ history }: RouterProps) => {
               type='submit'
               size='lg'
               width='full'
-              colorScheme={error || (isValid && !hasValidTradeBalance && !action) ? 'red' : 'blue'}
+              colorScheme={
+                error || (isValid && (!hasEnoughBalanceForGas || !hasValidTradeBalance) && !action)
+                  ? 'red'
+                  : 'blue'
+              }
               isLoading={isSubmitting || isSendMaxLoading || !!action}
-              isDisabled={!isDirty || !isValid || !!action || !wallet || !hasValidTradeBalance}
+              isDisabled={
+                !isDirty ||
+                !isValid ||
+                !!action ||
+                !wallet ||
+                !hasValidTradeBalance ||
+                !hasEnoughBalanceForGas
+              }
               style={{
                 whiteSpace: 'normal',
                 wordWrap: 'break-word'

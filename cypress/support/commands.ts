@@ -55,8 +55,8 @@ Cypress.Commands.add(
   async (wallet: { key: string; value: Object<string, unknown> }) => {
     await walletDb.setItem(wallet.key, wallet.value)
     // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
-    localStorage.setItem("walletId-cypress", wallet.key)
-    localStorage.setItem("walletPwd-cypress", password)
+    localStorage.setItem('walletIdCypress', wallet.key)
+    localStorage.setItem('walletPwdCypress', password)
   }
 )
 
@@ -65,7 +65,6 @@ Cypress.Commands.add('clearIndexedDB', async () => {
   await walletDb.clear()
 })
 
-// TODO - Replace with programmatic login
 // @ts-ignore
 Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test

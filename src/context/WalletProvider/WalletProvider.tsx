@@ -11,6 +11,7 @@ import React, {
   useMemo,
   useReducer
 } from 'react'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
@@ -164,6 +165,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
+  // const { sign, pair } = useModal()
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -245,6 +247,21 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('setDevice', (event, data) => {})
+
+    ipcRenderer.on('signTx', async (event: any, data: any) => {
+      let unsignedTx = data.payload.data
+      //open signTx
+      if (
+          unsignedTx &&
+          unsignedTx.invocation &&
+          unsignedTx.invocation.unsignedTx &&
+          unsignedTx.invocation.unsignedTx.HDwalletPayload
+      ) {
+        // sign.open(unsignedTx)
+      } else {
+        console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
+      }
+    })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // we explicitly only want this to happen once

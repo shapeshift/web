@@ -72,7 +72,7 @@ Cypress.Commands.add('login', () => {
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB().then(() => {
     cy.addWallet(wallet).then(() => {
-      cy.visit(``)
+      cy.visit('')
       cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
     })
   })

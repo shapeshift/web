@@ -79,16 +79,13 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
     hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
     // Programmatic login for Cypress tests
     if (isCypressTest) {
-      try {
-        const walletId = localStorage.getItem('walletIdCypress') || ''
-        const walletPwd = localStorage.getItem('walletPwdCypress') || ''
-        // @ts-ignore
-        connectCypressWallet(state.keyring, dispatch, walletId, walletPwd).then(payload => {
+      const walletId = localStorage.getItem('walletIdCypress') || ''
+      const walletPwd = localStorage.getItem('walletPwdCypress') || ''
+      connectCypressWallet(state.keyring, dispatch, walletId, walletPwd)
+        .then(() => {
           history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
         })
-      } catch (e) {
-        console.error(e)
-      }
+        .catch(e => console.error(e))
     }
   }, [history, hasWallet, query, state, dispatch, isCypressTest])
   return (

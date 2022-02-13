@@ -54,6 +54,9 @@ Cypress.Commands.add(
   // @ts-ignore
   async (wallet: { key: string; value: Object<string, unknown> }) => {
     await walletDb.setItem(wallet.key, wallet.value)
+    // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
+    localStorage.setItem("walletId-cypress", wallet.key)
+    localStorage.setItem("walletPwd-cypress", password)
   }
 )
 
@@ -69,13 +72,7 @@ Cypress.Commands.add('login', () => {
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB().then(() => {
     cy.addWallet(wallet).then(() => {
-      cy.visit('')
-      cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('wallet-native-button').click()
-      cy.getBySel('wallet-native-load-button').click()
-      cy.getBySel('native-saved-wallet-button').click()
-      cy.getBySel('wallet-password-input').type(password)
-      cy.getBySel('wallet-password-submit-button').click()
+      cy.visit(``)
       cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
     })
   })

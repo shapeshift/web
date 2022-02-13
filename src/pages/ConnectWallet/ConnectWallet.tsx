@@ -2,6 +2,9 @@ import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Badge, Center, Circle, Flex } from '@chakra-ui/layout'
+import * as native from '@shapeshiftoss/hdwallet-native'
+import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { Dispatch, useEffect } from 'react'
 import { isFirefox } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
@@ -11,22 +14,79 @@ import OrbsStatic from 'assets/orbs-static.png'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { colors } from 'theme/colors'
 
-type NoWalletProps = {
+import { KeyManager, SUPPORTED_WALLETS } from '../../context/WalletProvider/config'
+
+type WalletProps = {
+  state: InitialState
   dispatch: Dispatch<ActionTypes>
-  hasWallet: boolean
 }
 
-export const ConnectWallet = ({ dispatch, hasWallet }: NoWalletProps) => {
+export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
+  const hasWallet = Boolean(state.walletInfo?.deviceId)
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
     hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
-  }, [history, hasWallet, query.returnUrl])
+    if (
+      !(
+        localStorage.hasOwnProperty('walletId-cypress') &&
+        localStorage.hasOwnProperty('walletPwd-cypress')
+      )
+    ) {
+      return
+    }
+    const walletId = localStorage.getItem('walletId-cypress') || ''
+    const walletPwd = localStorage.getItem('walletPwd-cypress') || ''
+    ;(async () => {
+      // Here goes the programmatic login in case we are testing
+      try {
+        const adapter = SUPPORTED_WALLETS[KeyManager.Native].adapter.useKeyring(state.keyring)
+        if (adapter) {
+          const wallet = await adapter.pairDevice(walletId)
+          await wallet.initialize()
+        }
+
+        const vaultIds = await Vault.list()
+        for (let index = 0; index < vaultIds.length; index++) {
+          const deviceId = vaultIds[index]
+          if (deviceId !== walletId) {
+            continue
+          }
+
+          const wallet = state.keyring.get<NativeHDWallet>(deviceId)
+          const vault = await Vault.open(deviceId, decodeURIComponent(walletPwd))
+          const mnemonic = (await vault.get(
+            '#mnemonic'
+          )) as native.crypto.Isolation.Core.BIP39.Mnemonic
+          mnemonic.addRevoker?.(() => vault.revoke())
+          await wallet?.loadDevice({
+            mnemonic,
+            deviceId
+          })
+          const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              meta: { label: vault.meta.get('name') as string }
+            }
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
+        }
+      } catch (e) {
+        console.error('WalletProvider:NativeWallet:Load - Cannot get vault', e)
+      }
+    })()
+  }, [history, hasWallet, query, state, dispatch])
   return (
     <Page>
       <Flex

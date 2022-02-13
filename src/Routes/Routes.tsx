@@ -138,7 +138,7 @@ export const Routes = () => {
         )
       })}
       <Route path='/connect-wallet'>
-        <ConnectWallet dispatch={dispatch} hasWallet={hasWallet} />
+        <ConnectWallet dispatch={dispatch} state={state} />
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

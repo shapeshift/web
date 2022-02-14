@@ -17,7 +17,7 @@ env:
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
   REACT_APP_METAMASK_DEEPLINK_URL: https://metamask.app.link/dapp/app.shapeshift.com
 
-# TODO - set these as secrets
+# TODO - set these as secrets so we can use them
 #  ESLINT_NO_DEV_ERRORS: ${{ secrets.ESLINT_NO_DEV_ERRORS }}
 #  TSC_COMPILE_ON_ERROR: ${{ secrets.TSC_COMPILE_ON_ERROR }}
 #  IMAGE_INLINE_SIZE_LIMIT: ${{ secrets.IMAGE_INLINE_SIZE_LIMIT }}
@@ -32,11 +32,12 @@ env:
 #  REACT_APP_METAMASK_DEEPLINK_URL: ${{ secrets.REACT_APP_METAMASK_DEEPLINK_URL }}
 
 jobs:
-  cypress-run:
+  install-cypress:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Cache app dependencies
         uses: actions/cache@v2
         with:
@@ -44,21 +45,63 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+
       - name: Install
         run: yarn install --frozen-lockfile
-      - name: Cypress run
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
+
+      - name: Cypress install
         uses: cypress-io/github-action@v2
         with:
+          # Disable running of tests within install job
+          runTests: false
           record: true
           build: yarn run build
           start: yarn dev
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 180
           browser: chrome
+
+  run-tests:
+    runs-on: ubuntu-latest
+    needs: install
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run copies of the current job in parallel
+        containers: [ 1, 2, 3, 4, 5 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download the build folders
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: build
+
+      - name: 'UI Tests - Chrome'
+        uses: cypress-io/github-action@v2
+        with:
+          # We have already installed all dependencies above
+          install: false
+          record: true
+          build: yarn run build
+          start: yarn dev
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 180
+          browser: chrome
+          parallel: true
         env:
           # TODO - pass as an environment variables
-#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-#          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          # CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           # FIXME - Hardcode a burner key for testing, remove and use env vars
           CYPRESS_RECORD_KEY: '88313c74-56f3-46af-89e5-e667bff1ba49'
           CYPRESS_PROJECT_ID: 'vpyrho'

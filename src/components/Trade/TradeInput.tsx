@@ -71,6 +71,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null
   )
 
+  // when trading from ETH, the value of TX in ETH is deducted
   const tradeDeduction =
     sellAsset && feeAsset && feeAsset.caip19 === sellAsset.currency.caip19
       ? bnOrZero(estimatedGasFees).plus(bnOrZero(sellAsset.amount))
@@ -79,7 +80,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
     .minus(bnOrZero(estimatedGasFees))
     .minus(tradeDeduction)
-    .isPositive()
+    .gt(0)
 
   const onSubmit = async () => {
     if (!wallet) return
@@ -133,6 +134,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       await getQuote({
         sellAsset: currentSellAsset,
         buyAsset: currentBuyAsset,
+        feeAsset: feeAsset,
         action,
         amount: maxSendAmount
       })
@@ -166,6 +168,7 @@ export const TradeInput = ({ history }: RouterProps) => {
       amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,
+      feeAsset: feeAsset,
       action
     })
   }
@@ -223,7 +226,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                         if (action) {
                           setValue('action', action)
                         } else reset()
-                        getQuote({ amount: e.value, sellAsset, buyAsset, action })
+                        getQuote({ amount: e.value, sellAsset, buyAsset, feeAsset, action })
                       }
                     }}
                   />
@@ -248,7 +251,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                   if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
                     const action = amount ? TradeActions.SELL : undefined
                     action ? setValue('action', action) : reset()
-                    getQuote({ amount, sellAsset, buyAsset, action })
+                    getQuote({ amount, sellAsset, buyAsset, feeAsset, action })
                   }
                 }}
                 inputLeftElement={
@@ -326,7 +329,7 @@ export const TradeInput = ({ history }: RouterProps) => {
                 onInputChange={(amount: string) => {
                   const action = amount ? TradeActions.BUY : undefined
                   action ? setValue('action', action) : reset()
-                  getQuote({ amount, sellAsset, buyAsset, action })
+                  getQuote({ amount, sellAsset, buyAsset, feeAsset, action })
                 }}
                 inputLeftElement={
                   <TokenButton

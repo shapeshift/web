@@ -101,6 +101,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
+        feeAsset: null,
         action: TradeActions.SELL
       })
     })
@@ -123,6 +124,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
+        feeAsset: null,
         action: TradeActions.BUY
       })
     })
@@ -158,6 +160,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
+        feeAsset: null,
         action: TradeActions.FIAT
       })
     })
@@ -186,6 +189,7 @@ describe('useSwapper', () => {
         amount: '20',
         sellAsset: { currency: WETH },
         buyAsset: { currency: USDC },
+        feeAsset: null,
         action: TradeActions.SELL
       })
     })

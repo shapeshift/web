@@ -34,7 +34,8 @@ export const useTradeRoutes = (): {
         getQuote({
           amount: '0',
           sellAsset: { currency: sellAsset },
-          buyAsset: { currency: buyAsset }
+          buyAsset: { currency: buyAsset },
+          feeAsset: null
         })
       }
     } catch (e) {
@@ -57,7 +58,7 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({ amount: sellAsset.amount ?? '0', sellAsset, buyAsset, action })
+        getQuote({ amount: sellAsset.amount ?? '0', sellAsset, buyAsset, feeAsset: null, action })
       } catch (e) {
         console.warn(e)
       } finally {
@@ -78,7 +79,7 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({ amount: buyAsset.amount ?? '0', sellAsset, buyAsset, action })
+        getQuote({ amount: buyAsset.amount ?? '0', sellAsset, buyAsset, feeAsset: null, action })
       } catch (e) {
         console.warn(e)
       } finally {

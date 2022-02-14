@@ -1,3 +1,4 @@
+import { FeatureFlag } from 'constants/FeatureFlag'
 import { Plugins } from 'plugins'
 import { AssetIcon } from 'components/AssetIcon'
 
@@ -8,6 +9,7 @@ export function register(): Plugins {
     [
       'cosmos:cosmoshub-4',
       {
+        disabled: !FeatureFlag.Plugin.Cosmos,
         name: 'Cosmos',
         icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
         routes: {

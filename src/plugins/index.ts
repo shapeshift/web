@@ -1,5 +1,4 @@
 import type { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlag } from 'constants/FeatureFlag'
 
 import { Route } from '../Routes/helpers'
 
@@ -14,6 +13,7 @@ export type RegistrablePlugin = { register: () => Plugins }
 export interface Plugin {
   name: string
   icon: JSX.Element
+  disabled?: boolean
   widgets?: {
     accounts?: {
       list?: React.FC<SearchableAssetProps>
@@ -53,7 +53,7 @@ class PluginManager {
     const routes = []
     for (const [id, plugin] of this.#pluginManager.entries()) {
       routes.push({
-        disable: !FeatureFlag.CosmosInvestor,
+        disable: Boolean(plugin.disabled),
         label: plugin.name,
         icon: plugin.icon,
         path: `/plugins/${id}`,

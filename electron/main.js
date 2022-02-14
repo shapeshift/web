@@ -270,7 +270,7 @@ function createWindow() {
    * more options: https://www.electronjs.org/docs/api/browser-window
    */
   mainWindow = new BrowserWindow({
-    width: 460,
+    width: isDev ? 960 : 460,
     height: 780,
     show: false,
     backgroundColor: 'white',
@@ -387,8 +387,18 @@ ipcMain.on('onAccountInfo', async (event,data) => {
   const tag = TAG + ' | onAccountInfo | '
   try {
     console.log("data: ",data)
-    if(data.length > 0){
-      USER.accounts = data
+    if(data.length > 0 && USER.accounts.length === 0){
+      USER.online = true
+      for(let i = 0; i < data.length; i++){
+        let entry = data[i]
+        let caip = Object.keys(entry)
+        let pubkey = entry[caip[0]]
+        let entryNew = {
+          pubkey,
+          caip:caip[0]
+        }
+        USER.accounts.push(entryNew)
+      }
     }
   } catch (e) {
     log.error('e: ', e)

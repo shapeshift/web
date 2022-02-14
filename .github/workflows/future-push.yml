@@ -55,7 +55,7 @@ jobs:
 
   run-tests:
     runs-on: ubuntu-latest
-    needs: install
+    needs: install-cypress
     strategy:
       fail-fast: false
       matrix:

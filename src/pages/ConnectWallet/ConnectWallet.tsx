@@ -38,7 +38,6 @@ async function connectCypressWallet(
   vault.seal()
   await vault.setPassword(walletPassword)
   vault.meta.set('name', 'CypressWallet')
-  await new Promise(resolve => setTimeout(resolve, 250))
   await Promise.all([navigator.storage?.persist?.(), vault.save()])
   // Load wallet
   const deviceId = vault.id
@@ -63,8 +62,8 @@ async function connectCypressWallet(
 
 export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
   const isCypressTest =
-    localStorage.hasOwnProperty('walletSeedCypress') &&
-    localStorage.hasOwnProperty('walletPasswordCypress')
+    localStorage.hasOwnProperty('cypressWalletSeed') &&
+    localStorage.hasOwnProperty('cypressWalletPassword')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const history = useHistory()
   const translate = useTranslate()
@@ -74,8 +73,8 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
     // Programmatic login for Cypress tests
     // The first `!state.isConnected` filters any re-render if the wallet is already connected.
     if (isCypressTest && !state.isConnected) {
-      const walletSeed = localStorage.getItem('walletSeedCypress') || ''
-      const walletPassword = localStorage.getItem('walletPasswordCypress') || ''
+      const walletSeed = localStorage.getItem('cypressWalletSeed') || ''
+      const walletPassword = localStorage.getItem('cypressWalletPassword') || ''
       connectCypressWallet(state.keyring, dispatch, walletSeed, walletPassword)
         .then(() => {
           // The second `!state.isConnected` filters any intent to redirect if the redirecting had already happened.

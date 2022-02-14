@@ -1,4 +1,4 @@
-name: Cypress Tests using Cypress Docker Image
+name: Cypress Tests
 
 on: [push]
 
@@ -63,7 +63,9 @@ jobs:
           wait-on-timeout: 180
           browser: chrome
         env:
-          # pass the Dashboard record key as an environment variable
+          # TODO - pass as an environment variables
 #          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          # Hardcode a burner key for testing
+#          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          # FIXME - Hardcode a burner key for testing, remove and use env vars
           CYPRESS_RECORD_KEY: '88313c74-56f3-46af-89e5-e667bff1ba49'
+          CYPRESS_PROJECT_ID: 'vpyrho'

@@ -269,7 +269,7 @@ function createWindow() {
    *
    * more options: https://www.electronjs.org/docs/api/browser-window
    */
-  let mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 460,
     height: 780,
     show: false,

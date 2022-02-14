@@ -17,7 +17,10 @@ import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
+import { PioneerService } from './Pioneer'
 import { WalletViewsRouter } from './WalletViewsRouter'
+
+const pioneer = new PioneerService()
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -28,6 +31,7 @@ export enum WalletActions {
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   SET_KEEPKEY_STATE = 'SET_KEEPKEY_STATE',
   SET_KEEPKEY_STATUS = 'SET_KEEPKEY_STATUS',
+  SET_PIONEER = 'SET_PIONEER',
   RESET_STATE = 'RESET_STATE'
 }
 
@@ -52,6 +56,7 @@ export interface InitialState {
   type: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
+  pioneer: any
   isConnected: boolean
   modal: boolean
 }
@@ -64,7 +69,8 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
-  modal: false
+  modal: false,
+  pioneer: null
 }
 
 export interface IWalletContext {
@@ -73,6 +79,7 @@ export interface IWalletContext {
   connect: (adapter: KeyManager) => Promise<void>
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
+  pioneer: any,
 }
 
 function playSound(type: any) {
@@ -112,6 +119,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_KEEPKEY_STATE; payload: string }
   | { type: WalletActions.SET_KEEPKEY_STATUS; payload: string }
+  | { type: WalletActions.SET_PIONEER; payload: any | null }
   | { type: WalletActions.RESET_STATE }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -119,6 +127,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
+      pioneer.pairWallet('keepkey', action.payload.wallet)
       const stateData = {
         ...state,
         wallet: action.payload.wallet,
@@ -148,6 +157,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         newState.initialRoute = '/'
       }
       return newState
+    case WalletActions.SET_PIONEER:
+      return { ...state, pioneer: action.payload }
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -165,7 +176,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  // const { sign, pair } = useModal()
+  const { sign, pair } = useModal()
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -203,7 +214,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   //onStart()
   useEffect(() => {
-    ipcRenderer.send('onStartApp', {})
+    if (!state.wallet) {
+      ipcRenderer.send('onStartApp', {
+        username: pioneer.username,
+        queryKey: pioneer.queryKey,
+        spec: process.env.REACT_APP_URL_PIONEER_SPEC
+      })
+    }
 
     //listen to events on main
     ipcRenderer.on('hardware', (event, data) => {
@@ -246,6 +263,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       dispatch({ type: WalletActions.SET_KEEPKEY_STATUS, payload: data.status })
     })
 
+    ipcRenderer.on('approveOrigin', (event: any, data: any) => {
+      pair.open(data)
+    })
+
     ipcRenderer.on('setDevice', (event, data) => {})
 
     ipcRenderer.on('signTx', async (event: any, data: any) => {
@@ -257,14 +278,51 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           unsignedTx.invocation.unsignedTx &&
           unsignedTx.invocation.unsignedTx.HDwalletPayload
       ) {
-        // sign.open(unsignedTx)
+        sign.open(unsignedTx)
       } else {
         console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
       }
     })
 
+    //start pioneer
+    async function startPioneer() {
+      try {
+        //pioneer
+        let initResult = await pioneer.init()
+        if (pioneer.App.isPaired) {
+          if (pioneer) dispatch({ type: WalletActions.SET_PIONEER, payload: pioneer })
+        } else {
+          //console.log('app is not paired! can not start. please connect a wallet')
+        }
+
+        pioneer.events.on('invocations', async (event: any) => {
+          switch (event.type) {
+            case 'context':
+              break
+            case 'pairing':
+              break
+            case 'signRequest':
+              sign.open(event)
+              break
+            default:
+              console.error(' message unknown type:', event)
+          }
+        })
+
+        // pioneer.events.on('invocations', async (event: any) => {
+        //   console.log('invocations event: ', event)
+        //   ipcRenderer.send('showWindow')
+        //   let invocationInfo = await pioneer.App.getInvocation(event.invocationId)
+        //   sign.open(invocationInfo)
+        // })
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    startPioneer()
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // we explicitly only want this to happen once
+  }, [state.wallet]) // we explicitly only want this to happen once
 
   //onStart()
   const connect = useCallback(
@@ -314,8 +372,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, create, disconnect }),
-    [state, connect, create, disconnect]
+    () => ({ state, dispatch, connect, disconnect, create, pioneer }),
+    [state, connect, disconnect, create, pioneer]
   )
 
   return (

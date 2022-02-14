@@ -12,6 +12,7 @@ import { makeChartDataResponse } from '../factories/coingecko/chartData'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
+const seed = Cypress.env('testSeed')
 const publicKey = Cypress.env('testPublicKey')
 const ethereumApi = Cypress.env('REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL')
 const bitcoinApi = Cypress.env('REACT_APP_UNCHAINED_BITCOIN_HTTP_URL')
@@ -53,9 +54,10 @@ Cypress.Commands.add(
   'addWallet',
   // @ts-ignore
   async (wallet: { key: string; value: Object<string, unknown> }) => {
+    // Some tests currently require NativeWallet to be set in the IndexDB (e.g. login_spec.ts)
     await walletDb.setItem(wallet.key, wallet.value)
     // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
-    localStorage.setItem('walletIdCypress', wallet.key)
+    localStorage.setItem('walletSeedCypress', seed)
     localStorage.setItem('walletPasswordCypress', password)
   }
 )

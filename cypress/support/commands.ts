@@ -22,6 +22,8 @@ const _0xApi = Cypress.env('0xApi')
 const coinGeckoApi = Cypress.env('coinGeckoApi')
 const foxContract = Cypress.env('foxContract')
 
+const seed = Cypress.env('testSeed')
+
 const ethAccount = makeEthAccount()
 const btcAccount = makeBtcAccount()
 const ethUsdcSwapRate = makeEthUsdcRateResponse()
@@ -88,10 +90,21 @@ Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB()
-  cy.addCypressWallet(wallet).then(() => {
-    cy.visit('')
-    cy.url().should('equal', `${baseUrl}dashboard`)
-  })
+  // cy.addCypressWallet(wallet).then(() => {
+  //   cy.visit('')
+  //   cy.url().should('equal', `${baseUrl}dashboard`)
+  // })
+
+  // FIXME - temp, use programmatic login when it's ready
+  cy.visit('')
+  cy.getBySel('connect-wallet-button').click()
+  cy.getBySel('wallet-native-button').click()
+  cy.getBySel('wallet-native-import-button').click()
+  cy.getBySel('wallet-native-seed-input').type(seed)
+  cy.getBySel('wallet-native-seed-submit-button').click()
+  cy.getBySel('wallet-native-set-name-input').type('cypress-test')
+  cy.getBySel('wallet-native-password-input').type(password)
+  cy.getBySel('wallet-native-password-submit-button').click()
 })
 
 // @ts-ignore

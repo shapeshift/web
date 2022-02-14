@@ -9,7 +9,6 @@ import { makeBtcAccount } from '../factories/bitcoin/account'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
 import { makeEthAccount } from '../factories/ethereum/account'
-import { wallet } from '../fixtures/wallet'
 import { getWalletDbInstance } from '../helpers'
 
 const baseUrl = Cypress.config().baseUrl
@@ -73,7 +72,7 @@ Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB()
-  cy.addWallet(wallet).then(() => {
+  cy.addWallet().then(() => {
     cy.visit('')
     cy.url().should('equal', `${baseUrl}dashboard`)
   })

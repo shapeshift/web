@@ -10,6 +10,7 @@ describe('The Dashboard', () => {
   before(() => {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
+    cy.mockAllWebSocketRequests()
     cy.login()
   })
 

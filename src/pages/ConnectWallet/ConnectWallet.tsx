@@ -28,8 +28,8 @@ type WalletProps = {
 async function connectCypressWallet(
   keyring: Keyring,
   dispatch: Dispatch<ActionTypes>,
-  walletId: string,
-  walletPwd: string
+  walletSeed: string,
+  walletPassword: string
 ) {
   // Import wallet
   const vault = await Vault.create()
@@ -42,46 +42,30 @@ async function connectCypressWallet(
   // Load wallet
   const deviceId = vault.id
   const adapter = SUPPORTED_WALLETS[KeyManager.Native].adapter.useKeyring(keyring)
-  if (adapter) {
-    const wallet = await adapter.pairDevice(walletId)
-    await wallet.initialize()
-  }
-
-  const vaultIds = await Vault.list()
-  for (let index = 0; index < vaultIds.length; index++) {
-    const deviceId = vaultIds[index]
-    if (deviceId !== walletId) {
-      continue
+  const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
+  const mnemonic = (await vault.get('#mnemonic')) as native.crypto.Isolation.Core.BIP39.Mnemonic
+  mnemonic.addRevoker?.(() => vault.revoke())
+  await wallet.loadDevice({ mnemonic, deviceId })
+  const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+  dispatch({
+    type: WalletActions.SET_WALLET,
+    payload: {
+      wallet,
+      name,
+      icon,
+      deviceId,
+      meta: { label: vault.meta.get('name') as string }
     }
-
-    const wallet = keyring.get<NativeHDWallet>(deviceId)
-    const vault = await Vault.open(deviceId, decodeURIComponent(walletPwd))
-    const mnemonic = (await vault.get('#mnemonic')) as native.crypto.Isolation.Core.BIP39.Mnemonic
-    mnemonic.addRevoker?.(() => vault.revoke())
-    await wallet?.loadDevice({
-      mnemonic,
-      deviceId
-    })
-    const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
-    dispatch({
-      type: WalletActions.SET_WALLET,
-      payload: {
-        wallet,
-        name,
-        icon,
-        deviceId,
-        meta: { label: vault.meta.get('name') as string }
-      }
-    })
-    dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-  }
+  })
+  dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 }
 
 export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
   const isCypressTest =
-    localStorage.hasOwnProperty('walletIdCypress') &&
-    localStorage.hasOwnProperty('walletPwdCypress')
+    localStorage.hasOwnProperty('cypressWalletSeed') &&
+    localStorage.hasOwnProperty('cypressWalletPassword')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
+
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()

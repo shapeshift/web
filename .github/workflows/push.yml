@@ -46,5 +46,5 @@ jobs:
           wait-on-timeout: 180
           browser: chrome
         env:
-          CYPRESS_RECORD_KEY: '88313c74-56f3-46af-89e5-e667bff1ba49'
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: 'vpyrho'

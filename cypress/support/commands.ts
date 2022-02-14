@@ -22,8 +22,6 @@ const _0xApi = Cypress.env('0xApi')
 const coinGeckoApi = Cypress.env('coinGeckoApi')
 const foxContract = Cypress.env('foxContract')
 
-const seed = Cypress.env('testSeed')
-
 const ethAccount = makeEthAccount()
 const btcAccount = makeBtcAccount()
 const ethUsdcSwapRate = makeEthUsdcRateResponse()
@@ -55,28 +53,13 @@ Cypress.Commands.add('getBySelLike', (selector: string, ...args: any) => {
   return cy.get(`[data-test*=${selector}]`, ...args)
 })
 
-// @ts-ignore
 Cypress.Commands.add(
   'addWallet',
   // @ts-ignore
-  async (wallet: { key: string; value: Object<string, unknown> }) => {
-    // Some tests currently require NativeWallet to be set in the IndexDB (e.g. login_spec.ts)
-    await walletDb.setItem(wallet.key, wallet.value)
+  () => {
     // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
     localStorage.setItem('walletIdCypress', wallet.key)
     localStorage.setItem('walletPasswordCypress', password)
-  }
-)
-
-Cypress.Commands.add(
-  'addCypressWallet',
-  // @ts-ignore
-  (wallet: { key: string; value: Object<string, unknown> }) => {
-    cy.addWallet(wallet).then(() => {
-      // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
-      localStorage.setItem('walletIdCypress', wallet.key)
-      localStorage.setItem('walletPasswordCypress', password)
-    })
   }
 )
 
@@ -90,21 +73,10 @@ Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
   cy.clearIndexedDB()
-  // cy.addCypressWallet(wallet).then(() => {
-  //   cy.visit('')
-  //   cy.url().should('equal', `${baseUrl}dashboard`)
-  // })
-
-  // FIXME - temp, use programmatic login when it's ready
-  cy.visit('')
-  cy.getBySel('connect-wallet-button').click()
-  cy.getBySel('wallet-native-button').click()
-  cy.getBySel('wallet-native-import-button').click()
-  cy.getBySel('wallet-native-seed-input').type(seed)
-  cy.getBySel('wallet-native-seed-submit-button').click()
-  cy.getBySel('wallet-native-set-name-input').type('cypress-test')
-  cy.getBySel('wallet-native-password-input').type(password)
-  cy.getBySel('wallet-native-password-submit-button').click()
+  cy.addWallet(wallet).then(() => {
+    cy.visit('')
+    cy.url().should('equal', `${baseUrl}dashboard`)
+  })
 })
 
 // @ts-ignore

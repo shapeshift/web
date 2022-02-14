@@ -12,6 +12,7 @@ import { makeChartDataResponse } from '../factories/coingecko/chartData'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
+const seed = Cypress.env('testSeed')
 const publicKey = Cypress.env('testPublicKey')
 const ethereumApi = Cypress.env('REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL')
 const bitcoinApi = Cypress.env('REACT_APP_UNCHAINED_BITCOIN_HTTP_URL')
@@ -53,7 +54,11 @@ Cypress.Commands.add(
   'addWallet',
   // @ts-ignore
   async (wallet: { key: string; value: Object<string, unknown> }) => {
+    // Some tests currently require NativeWallet to be set in the IndexDB (e.g. login_spec.ts)
     await walletDb.setItem(wallet.key, wallet.value)
+    // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
+    localStorage.setItem('cypressWalletSeed', seed)
+    localStorage.setItem('cypressWalletPassword', password)
   }
 )
 
@@ -62,7 +67,6 @@ Cypress.Commands.add('clearIndexedDB', async () => {
   await walletDb.clear()
 })
 
-// TODO - Replace with programmatic login
 // @ts-ignore
 Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
@@ -70,12 +74,6 @@ Cypress.Commands.add('login', () => {
   cy.clearIndexedDB().then(() => {
     cy.addWallet(wallet).then(() => {
       cy.visit('')
-      cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('wallet-native-button').click()
-      cy.getBySel('wallet-native-load-button').click()
-      cy.getBySel('native-saved-wallet-button').click()
-      cy.getBySel('wallet-password-input').type(password)
-      cy.getBySel('wallet-password-submit-button').click()
       cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
     })
   })

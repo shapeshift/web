@@ -5,6 +5,10 @@ const seed = Cypress.env('testSeed')
 const password = Cypress.env('testPassword')
 
 describe('The Dashboard', () => {
+  before(() => {
+    cy.clearIndexedDB()
+  })
+
   it('supports log in via an imported Native wallet', () => {
     cy.visit('')
 

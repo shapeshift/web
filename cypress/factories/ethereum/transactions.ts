@@ -1,6 +1,6 @@
 import { TxHistory } from '@shapeshiftoss/unchained-client/dist/generated/ethereum'
 
-export const makeEthTransaction = (): TxHistory => {
+export const makeEthTxHistory = (): TxHistory => {
   return {
     page: 1,
     totalPages: 2650,

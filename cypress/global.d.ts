@@ -11,7 +11,7 @@ declare namespace Cypress {
     mockExternalRequests(): Chainable<Element>
     mockInternalRequests(): Chainable<Element>
     mockAllRequests(): Chainable<Element>
-    mockWebSocketRequests(method: string, data: Object, response: Object): Chainable<Element>
+    mockWebSocketRequest(method: string, data: Object, response: Object): Chainable<Element>
     mockAllWebSocketRequests(): Chainable<Element>
     navigateToDashboard(): Chainable<Element>
     navigateToAccounts(): Chainable<Element>

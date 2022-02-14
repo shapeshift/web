@@ -1,46 +1,47 @@
 // @ts-check
-///<reference path="../global.d.ts" />
+///<reference path='../global.d.ts' />
 
 import { makeBtcAccount } from '../../cypress/factories/bitcoin/account'
 import { makeEthAccount } from '../../cypress/factories/ethereum/account'
-import { makeEthTransaction } from '../../cypress/factories/ethereum/transactions'
+import { makeEthTxHistory } from '../../cypress/factories/ethereum/transactions'
 import { wallet } from '../../cypress/fixtures/wallet'
 import { getWalletDbInstance } from '../../cypress/helpers'
 import { makeEthFoxRateResponse } from '../factories/0x/ethFoxRate'
 import { makeEthUsdcRateResponse } from '../factories/0x/ethUsdcRate'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
-import { addStreamCommands } from '@lensesio/cypress-websocket-testing';
-import { WebSocketSubjectConfig } from "rxjs/webSocket";
+import { addStreamCommands } from '@lensesio/cypress-websocket-testing'
+import { WebSocketSubjectConfig } from 'rxjs/webSocket'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
 const publicKey = Cypress.env('testPublicKey')
 const ethereumApi = Cypress.env('REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL')
 const bitcoinApi = Cypress.env('REACT_APP_UNCHAINED_BITCOIN_HTTP_URL')
-const wsUrl = Cypress.env("wsUrl")
+const wsUrl = Cypress.env('wsUrl')
 const _0xApi = Cypress.env('0xApi')
 const coinGeckoApi = Cypress.env('coinGeckoApi')
 const foxContract = Cypress.env('foxContract')
 
 const ethAccount = makeEthAccount()
 const btcAccount = makeBtcAccount()
-const ethTransaction = makeEthTransaction()
+const ethTransaction = makeEthTxHistory()
 const ethUsdcSwapRate = makeEthUsdcRateResponse()
 const ethFoxSwapRate = makeEthFoxRateResponse()
 
 const walletDb = getWalletDbInstance()
 
-type MessageType = "connect" | "subscribe" | "end";
+type MessageType = 'connect' | 'subscribe' | 'end'
 interface IMessage {
-  method: MessageType;
-  data: any;
+  method: MessageType
+  data: any
 }
 const wsConfig: WebSocketSubjectConfig<IMessage> = {
   url: wsUrl
 }
 
-addStreamCommands();
+addStreamCommands()
+
 // @ts-ignore
 Cypress.Commands.add('getBySel', (selector: string, ...args: any) => {
   return cy.get(`[data-test=${selector}]`, ...args)
@@ -142,35 +143,35 @@ Cypress.Commands.add('mockAllRequests', () => {
 })
 
 // @ts-ignore
-Cypress.Commands.add('mockWebSocketRequests', (method: string, data: Object, response: Object) => {
+Cypress.Commands.add('mockWebSocketRequest', (method: string, data: Object, response: Object) => {
   let options = {
-    takeWhileFn: (message: IMessage) => message && message.method !== "end",
+    takeWhileFn: (message: IMessage) => message && message.method !== 'end',
     startUpMessage: {
       method: method,
       data: data
     },
-  };
+  }
   // Wrap the request in order to bypass the defaultCommandTimeout
   // Investigating alternative solutions
   cy.wrap(null, { timeout: 10000 }).then(() =>
     cy.streamRequest(wsConfig, options).then(results => {
-      const connectionResult = results && results[0];
-      expect(connectionResult).to.not.be.undefined;
-      expect(connectionResult).to.have.property("method", "connect");
-      expect(connectionResult).to.have.property("data", "connect success");
+      const connectionResult = results && results[0]
+      expect(connectionResult).to.not.be.undefined
+      expect(connectionResult).to.have.property('method', 'connect')
+      expect(connectionResult).to.have.property('data', 'connect success')
       
-      const result = results && results[1];
-      expect(result).to.not.be.undefined;
-      expect(result).to.have.property("method", method);
-      expect(result).to.have.property("data");
-      expect(result?.data).to.deep.eq(response);
+      const result = results && results[1]
+      expect(result).to.not.be.undefined
+      expect(result).to.have.property('method', method)
+      expect(result).to.have.property('data')
+      expect(result?.data).to.deep.eq(response)
     })
-  );
+  )
 })
 
 // @ts-ignore
 Cypress.Commands.add('mockAllWebSocketRequests', () => {
-  cy.mockWebSocketRequests('subscribe', {}, ethTransaction)
+  cy.mockWebSocketRequest('subscribe', {}, ethTransaction)
 })
 
 Cypress.Commands.add('backdropDismiss', () => {

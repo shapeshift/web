@@ -11,17 +11,27 @@ describe('The Dashboard', () => {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
     cy.login()
+
+    cy.on('uncaught:exception', e => {
+      if (
+        e.message.includes("Failed to execute 'send' on 'WebSocket': Still in CONNECTING state")
+      ) {
+        // we expected this error, so let's ignore it
+        // and let the test continue
+        return false
+      }
+      // on any other error message the test fails
+    })
   })
 
   it('nav bar works', () => {
     // A proxy to understand if the Dashboard has initialised
     cy.getBySel('account-row').should('have.length', 7)
 
-    // FIXME - add back in once effect call issue resolved
-    // cy.navigateToAccounts()
-    // cy.navigateToAssets()
-    // cy.navigateToDefi()
-    // cy.navigateToDashboard()
+    cy.navigateToAccounts()
+    cy.navigateToAssets()
+    cy.navigateToDefi()
+    cy.navigateToDashboard()
   })
 
   it('displays the expected account rows', () => {

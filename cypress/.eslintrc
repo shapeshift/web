@@ -1,5 +1,6 @@
 {
   "extends": [
+    "../.eslintrc",
     "plugin:cypress/recommended"
   ]
 }

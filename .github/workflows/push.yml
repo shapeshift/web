@@ -44,13 +44,6 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-      - name: Cache Cypress dependencies
-        uses: actions/cache@v2
-        with:
-          path: '~/.cache/Cypress'
-          key: cypress-${{ runner.os }}-cypress-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-          cypress-${{ runner.os }}-cypress-
       - name: Install
         run: yarn install --frozen-lockfile
       - name: Cypress run

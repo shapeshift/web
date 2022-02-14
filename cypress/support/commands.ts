@@ -1,6 +1,9 @@
 // @ts-check
 ///<reference path='../global.d.ts' />
 
+import { addStreamCommands } from '@lensesio/cypress-websocket-testing'
+import { WebSocketSubjectConfig } from 'rxjs/webSocket'
+
 import { makeBtcAccount } from '../../cypress/factories/bitcoin/account'
 import { makeEthAccount } from '../../cypress/factories/ethereum/account'
 import { makeEthTxHistory } from '../../cypress/factories/ethereum/transactions'
@@ -10,8 +13,6 @@ import { makeEthFoxRateResponse } from '../factories/0x/ethFoxRate'
 import { makeEthUsdcRateResponse } from '../factories/0x/ethUsdcRate'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
-import { addStreamCommands } from '@lensesio/cypress-websocket-testing'
-import { WebSocketSubjectConfig } from 'rxjs/webSocket'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
@@ -149,18 +150,22 @@ Cypress.Commands.add('mockWebSocketRequest', (method: string, data: Object, resp
     startUpMessage: {
       method: method,
       data: data
-    },
+    }
   }
   // Wrap the request in order to bypass the defaultCommandTimeout
   // Investigating alternative solutions
   cy.wrap(null, { timeout: 10000 }).then(() =>
     cy.streamRequest(wsConfig, options).then(results => {
       const connectionResult = results && results[0]
+
+      // eslint-disable-next-line
       expect(connectionResult).to.not.be.undefined
       expect(connectionResult).to.have.property('method', 'connect')
       expect(connectionResult).to.have.property('data', 'connect success')
-      
+
       const result = results && results[1]
+
+      // eslint-disable-next-line
       expect(result).to.not.be.undefined
       expect(result).to.have.property('method', method)
       expect(result).to.have.property('data')

@@ -1,41 +1,34 @@
-import { makeEthTxHistory } from '../factories/ethereum/transactions'
 import WebSocket from 'ws'
+
+import { makeEthTxHistory } from '../factories/ethereum/transactions'
 const wss = new WebSocket.Server({ port: 8080 })
 
 const ethTransaction = makeEthTxHistory()
 
-type MessageType = 'connect' | 'subscribe' | 'end'
-
-interface IMessage {
-  method: MessageType
-  data: any
-}
-
-wss.on('connection', function connection(ws) {
+wss.on('connection', function connection(ws: WebSocket) {
   const loginReply = JSON.stringify({
     method: 'connect',
-    data: 'connect success',
+    data: 'connect success'
   })
 
   ws.send(loginReply)
 
   const endReply = JSON.stringify({
     method: 'end',
-    data: 'end',
+    data: 'end'
   })
 
-  ws.on('message', function incoming(message: IMessage) {
+  ws.on('message', function incoming(message: string) {
     try {
-      // Messages are stringified by default by rxjs
       const jsonMessage = JSON.parse(message)
 
-      const method = message?.method
+      const method = jsonMessage?.method
 
       switch (method) {
         case 'subscribe':
           let reply = JSON.stringify({
             method: 'subscribe',
-            data: ethTransaction,
+            data: ethTransaction
           })
           ws.send(reply)
           ws.send(endReply)

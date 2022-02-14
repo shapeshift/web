@@ -7,6 +7,7 @@
     // be explicit about types included
     // to avoid clashing with Jest types
     "types": ["cypress", "@lensesio/cypress-websocket-testing"],
+    "module": "commonjs",
     "isolatedModules": false,
   },
   "include": [

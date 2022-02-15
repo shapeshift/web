@@ -288,7 +288,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     async function startPioneer() {
       try {
         //pioneer
-        let initResult = await pioneer.init()
+        await pioneer.init()
         if (pioneer.App.isPaired) {
           if (pioneer) dispatch({ type: WalletActions.SET_PIONEER, payload: pioneer })
         } else {

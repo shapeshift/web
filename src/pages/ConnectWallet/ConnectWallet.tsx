@@ -65,6 +65,7 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
     localStorage.hasOwnProperty('cypressWalletSeed') &&
     localStorage.hasOwnProperty('cypressWalletPassword')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
+
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()

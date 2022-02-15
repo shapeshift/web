@@ -9,8 +9,8 @@ import {
   useLocation
 } from 'react-router-dom'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAccounts } from 'state/slices/portfolioSlice/selectors'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
+import { selectPortfolioAccounts } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SelectAccount } from './SelectAccount'

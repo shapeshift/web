@@ -5,12 +5,12 @@ import { Link, LinkProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Allocations } from './Allocations'

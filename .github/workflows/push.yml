@@ -1,6 +1,6 @@
 name: Cypress Tests
 
-on: [push]
+on: workflow_dispatch
 
 env:
   ESLINT_NO_DEV_ERRORS: true

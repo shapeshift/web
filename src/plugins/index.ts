@@ -2,7 +2,7 @@ import type { CAIP19 } from '@shapeshiftoss/caip'
 
 import { Route } from '../Routes/helpers'
 
-const activePlugins = ['bitcoin']
+const activePlugins = ['bitcoin', 'cosmos']
 
 export type AccountProps = { accountId: string }
 export type AssetProps = { assetId: CAIP19 }

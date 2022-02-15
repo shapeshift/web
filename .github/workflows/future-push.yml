@@ -34,13 +34,6 @@ jobs:
       - name: Install
         run: yarn install --frozen-lockfile
 
-      - name: Save build folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: build
-          if-no-files-found: error
-          path: build
-
       - name: Cypress install
         uses: cypress-io/github-action@v2
         with:
@@ -52,6 +45,13 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 180
           browser: chrome
+
+      - name: Save build folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          if-no-files-found: error
+          path: build
 
   run-tests:
     runs-on: ubuntu-latest

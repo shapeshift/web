@@ -33,6 +33,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Cache app dependencies
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+
       # because of "record" and "parallel" parameters
       # these containers will load balance all found tests among themselves
       - name: Cypress run

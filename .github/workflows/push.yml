@@ -1,50 +1,50 @@
-# Deprecate this once action permissions granted, and env secrets set
-
-name: Cypress Tests
-
-on: [push]
-
-env:
-     ESLINT_NO_DEV_ERRORS: true
-     TSC_COMPILE_ON_ERROR: true
-     IMAGE_INLINE_SIZE_LIMIT: 0
-     INLINE_RUNTIME_CHUNK: false
-     REACT_APP_HIDE_SPLASH: false
-     REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: https://dev-api.ethereum.shapeshift.com
-     REACT_APP_UNCHAINED_ETHEREUM_WS_URL: wss://dev-api.ethereum.shapeshift.com
-     REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
-     REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
-     REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
-     REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
-     REACT_APP_METAMASK_DEEPLINK_URL: https://metamask.app.link/dapp/app.shapeshift.com
-
-jobs:
-  cypress-run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Cache app dependencies
-        uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-
-      - name: Install
-        run: yarn install --frozen-lockfile
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          record: true
-          build: yarn run build
-          start: yarn dev
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 180
-          browser: chrome
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          CYPRESS_PROJECT_ID: 'vpyrho'
+## Deprecate this once action permissions granted, and env secrets set
+#
+#name: Cypress Tests
+#
+#on: [push]
+#
+#env:
+#     ESLINT_NO_DEV_ERRORS: true
+#     TSC_COMPILE_ON_ERROR: true
+#     IMAGE_INLINE_SIZE_LIMIT: 0
+#     INLINE_RUNTIME_CHUNK: false
+#     REACT_APP_HIDE_SPLASH: false
+#     REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: https://dev-api.ethereum.shapeshift.com
+#     REACT_APP_UNCHAINED_ETHEREUM_WS_URL: wss://dev-api.ethereum.shapeshift.com
+#     REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: https://dev-api.bitcoin.shapeshift.com
+#     REACT_APP_UNCHAINED_BITCOIN_WS_URL: wss://dev-api.bitcoin.shapeshift.com
+#     REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
+#     REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
+#     REACT_APP_METAMASK_DEEPLINK_URL: https://metamask.app.link/dapp/app.shapeshift.com
+#
+#jobs:
+#  cypress-run:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Cache app dependencies
+#        uses: actions/cache@v2
+#        with:
+#          path: '**/node_modules'
+#          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+#
+#      - name: Install
+#        run: yarn install --frozen-lockfile
+#
+#      - name: Cypress run
+#        uses: cypress-io/github-action@v2
+#        with:
+#          record: true
+#          build: yarn run build
+#          start: yarn dev
+#          wait-on: 'http://localhost:3000'
+#          wait-on-timeout: 180
+#          browser: chrome
+#        env:
+#          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+#          CYPRESS_PROJECT_ID: 'vpyrho'

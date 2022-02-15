@@ -57,8 +57,8 @@ Cypress.Commands.add(
   // @ts-ignore
   () => {
     // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
-    localStorage.setItem('cypressWalletSeed', seed)
-    localStorage.setItem('cypressWalletPassword', password)
+    localStorage.setItem('walletIdCypress', wallet.key)
+    localStorage.setItem('walletPasswordCypress', password)
   }
 )
 

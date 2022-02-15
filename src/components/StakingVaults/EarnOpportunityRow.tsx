@@ -14,8 +14,7 @@ import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const EarnOpportunityRow = ({

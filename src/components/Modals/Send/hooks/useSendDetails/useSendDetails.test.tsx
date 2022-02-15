@@ -9,14 +9,14 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectFeeAssetById,
+  selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 
 import { useSendDetails } from './useSendDetails'
 
@@ -34,16 +34,14 @@ jest.mock('context/WalletProvider/WalletProvider')
 jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
 jest.mock('lib/ens', () => ({ ensLookup: jest.fn() }))
 
-jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
-  ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
-  selectFeeAssetById: jest.fn()
-}))
-
-jest.mock('state/slices/portfolioSlice/selectors', () => ({
-  ...jest.requireActual('state/slices/portfolioSlice/selectors'),
+jest.mock('state/slices/selectors', () => ({
+  ...jest.requireActual('state/slices/selectors'),
+  selectFeeAssetById: jest.fn(),
   selectPortfolioCryptoHumanBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
-  selectPortfolioFiatBalanceByFilter: jest.fn()
+  selectPortfolioFiatBalanceByFilter: jest.fn(),
+  selectMarketDataById: jest.fn(),
+  selectAssets: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'
@@ -64,11 +62,6 @@ const estimatedFees = {
     }
   }
 }
-
-jest.mock('state/slices/marketDataSlice/marketDataSlice', () => ({
-  ...jest.requireActual('state/slices/marketDataSlice/marketDataSlice'),
-  selectMarketDataById: jest.fn()
-}))
 
 const setup = ({
   asset = mockEthereum,

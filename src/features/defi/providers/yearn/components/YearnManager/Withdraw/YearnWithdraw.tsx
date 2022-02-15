@@ -27,12 +27,12 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioLoading
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'

@@ -4,10 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectPortfolioAssetBalances,
-  selectPortfolioLoading
-} from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAssetBalances, selectPortfolioLoading } from 'state/slices/selectors'
 
 export type YearnVaultWithApyAndTvl = SupportedYearnVault & {
   apy?: number

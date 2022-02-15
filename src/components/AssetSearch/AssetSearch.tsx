@@ -4,7 +4,7 @@ import { Asset } from '@shapeshiftoss/types'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
-import { selectAssetsByMarketCap } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetsByMarketCap } from 'state/slices/selectors'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'

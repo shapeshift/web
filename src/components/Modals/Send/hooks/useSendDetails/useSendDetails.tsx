@@ -10,14 +10,14 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ensLookup } from 'lib/ens'
 import { isEthAddress } from 'lib/utils'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
+  selectFeeAssetById,
+  selectMarketDataById,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
-} from 'state/slices/portfolioSlice/selectors'
-import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'

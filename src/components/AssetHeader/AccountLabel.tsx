@@ -1,8 +1,8 @@
 import { HStack, Tag, TagLabel } from '@chakra-ui/react'
 import { RawText } from 'components/Text'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const AccountLabel = ({ accountId }: { accountId: AccountSpecifier }) => {

@@ -6,7 +6,6 @@
     "prettier"
   ],
   "plugins": [
-    "jest",
     "prettier",
     "simple-import-sort"
   ],

@@ -1,4 +1,4 @@
-name: Parallel Cypress Tests
+name: Cypress Tests (parallel)
 
 on: [push]
 

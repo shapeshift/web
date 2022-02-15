@@ -21,13 +21,6 @@ const _0xApi = Cypress.env('0xApi')
 const coinGeckoApi = Cypress.env('coinGeckoApi')
 const foxContract = Cypress.env('foxContract')
 
-const ethAccount = makeEthAccount()
-const btcAccount = makeBtcAccount()
-const ethUsdcSwapRate = makeEthUsdcRateResponse()
-const ethFoxSwapRate = makeEthFoxRateResponse()
-const foxEthSwapRate = makeFoxEthSwapRateResponse()
-const usdcFoxSwapRate = makeUsdcFoxSwapRateResponse()
-
 const walletDb = getWalletDbInstance()
 
 // @ts-ignore
@@ -95,32 +88,36 @@ Cypress.Commands.add('mockExternalRequests', () => {
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?buyToken=USDC&buyAmount=1000000&sellToken=ETH`,
-    ethUsdcSwapRate
+    makeEthUsdcRateResponse()
   ).as('getEthUsdcRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?sellToken=ETH&buyToken=${foxContract}*`,
-    ethFoxSwapRate
+    makeEthFoxRateResponse()
   ).as('getEthFoxRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?sellToken=${foxContract}&buyToken=ETH*`,
-    foxEthSwapRate
+    makeFoxEthSwapRateResponse()
   ).as('getEthFoxRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?buyToken=USDC&buyToken=${foxContract}*`,
-    usdcFoxSwapRate
+    makeUsdcFoxSwapRateResponse()
   ).as('getEthFoxRate')
 })
 
 // @ts-ignore
 Cypress.Commands.add('mockInternalRequests', () => {
-  cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, ethAccount).as('getEthAccount')
-  cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, btcAccount).as('getBtcAccount')
+  cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, makeEthAccount()).as(
+    'getEthAccount'
+  )
+  cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, makeBtcAccount()).as(
+    'getBtcAccount'
+  )
   cy.intercept('GET', `${ethereumApi}/api/v1/gas/estimate*`, '21000').as('getGasEstimate')
   cy.intercept('GET', `${ethereumApi}/api/v1/gas/fees`, {
     gasPrice: '51962967843',

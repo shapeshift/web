@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -6,7 +7,6 @@ import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/selectors'
-import { ipcRenderer } from 'electron'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,

@@ -1,8 +1,8 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { getConfig } from 'config'
-import findIndex from 'lodash/findIndex'
 import { ipcRenderer } from 'electron'
+import findIndex from 'lodash/findIndex'
 import React, {
   createContext,
   useCallback,
@@ -79,7 +79,7 @@ export interface IWalletContext {
   connect: (adapter: KeyManager) => Promise<void>
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
-  pioneer: any,
+  pioneer: any
 }
 
 function playSound(type: any) {
@@ -273,10 +273,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       let unsignedTx = data.payload.data
       //open signTx
       if (
-          unsignedTx &&
-          unsignedTx.invocation &&
-          unsignedTx.invocation.unsignedTx &&
-          unsignedTx.invocation.unsignedTx.HDwalletPayload
+        unsignedTx &&
+        unsignedTx.invocation &&
+        unsignedTx.invocation.unsignedTx &&
+        unsignedTx.invocation.unsignedTx.HDwalletPayload
       ) {
         sign.open(unsignedTx)
       } else {
@@ -356,7 +356,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-        String(path).endsWith('create')
+      String(path).endsWith('create')
     )
     if (routeIndex > -1) {
       dispatch({

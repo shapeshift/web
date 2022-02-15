@@ -2,11 +2,11 @@ import {
   ChatIcon,
   ChevronRightIcon,
   CloseIcon,
+  ExternalLinkIcon,
   HamburgerIcon,
   MoonIcon,
   RepeatIcon,
-  WarningTwoIcon,
-  ExternalLinkIcon
+  WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import {
@@ -188,11 +188,11 @@ export const UserMenu = () => {
             <Text translation='common.submitFeedback' />
           </MenuItem>
           <MenuItem
-              icon={<ExternalLinkIcon />}
-              as={Link}
-              isExternal
-              _hover={{ textDecoration: 'none' }}
-              href='http://localhost:1646/docs'
+            icon={<ExternalLinkIcon />}
+            as={Link}
+            isExternal
+            _hover={{ textDecoration: 'none' }}
+            href='http://localhost:1646/docs'
           >
             <Text translation='common.devTools' />
           </MenuItem>

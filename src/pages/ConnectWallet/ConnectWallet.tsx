@@ -65,17 +65,17 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
     localStorage.hasOwnProperty('cypressWalletSeed') &&
     localStorage.hasOwnProperty('cypressWalletPassword')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
-
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()
   useEffect(() => {
     hasWallet && history.push(query?.returnUrl ? query.returnUrl : '/dashboard')
     // Programmatic login for Cypress tests
-    if (isCypressTest) {
-      const walletId = localStorage.getItem('walletIdCypress') || ''
-      const walletPwd = localStorage.getItem('walletPwdCypress') || ''
-      connectCypressWallet(state.keyring, dispatch, walletId, walletPwd)
+    // The first `!state.isConnected` filters any re-render if the wallet is already connected.
+    if (isCypressTest && !state.isConnected) {
+      const walletSeed = localStorage.getItem('cypressWalletSeed') || ''
+      const walletPassword = localStorage.getItem('cypressWalletPassword') || ''
+      connectCypressWallet(state.keyring, dispatch, walletSeed, walletPassword)
         .then(() => {
           // The second `!state.isConnected` filters any intent to redirect if the redirecting had already happened.
           if (!state.isConnected) {

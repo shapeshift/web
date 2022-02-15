@@ -39,7 +39,12 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           record: true
+          build: yarn run build
+          start: yarn dev
           parallel: true
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 180
+          browser: chrome
           group: 'Chrome tests'
         env:
           # pass the Dashboard record key as an environment variable

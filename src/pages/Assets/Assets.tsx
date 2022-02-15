@@ -7,7 +7,7 @@ import { Page } from 'components/Layout/Page'
 export const Assets = () => {
   const history = useHistory()
   const onClick = (asset: Asset) => {
-    const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
+    const url = `/assets/${encodeURIComponent(asset.caip19)}`
     history.push(url)
   }
   return (

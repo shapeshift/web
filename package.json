@@ -96,7 +96,7 @@
     "dev": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
     "local-ci": "yarn lint && yarn type-check && yarn test && yarn build",
-    "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
+    "lint": "eslint -c .eslintrc src cypress --ext .ts,.tsx",
     "lint:cypress": "eslint -c ./cypress/.eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "lint:cypress:fix": "yarn lint:cypress --fix",

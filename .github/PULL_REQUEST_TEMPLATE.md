@@ -19,11 +19,16 @@ Before submitting a pull request, please make sure you have answered the followi
 
 If applicable, please link to the github issue and put `closes #XXXX` in your comment to auto-close the issue that your PR fixes.
 
+## Risk
+
+Outline the scope of your changes and the risk associated with them. You must use your discretion as an engineer to determine the potential impact of your changes.
+
+E.g. an upgrade to `hdwallet` or core state management would be considered higher risk, and might require a full regression test. UI or isolated view changes, or something behind a feature flag may have near zero risk. Small bug fixes might require testing isolated to the specific fix.
+
 ## Testing
 
-Please outline all testing steps
+If your testing steps are technical, outline steps for an engineer to verify.
 
-1. Pull branch locally and run `yarn` to install new deps
-2. etc...
+If your testing steps are functional, please provide a full guide with any features requiring special attention for operations to test your branch in the preview environment.
 
 ## Screenshots (if applicable)

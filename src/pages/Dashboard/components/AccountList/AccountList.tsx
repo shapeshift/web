@@ -15,7 +15,7 @@ import {
   selectPortfolioAssetBalancesSortedFiat,
   selectPortfolioIsEmpty,
   selectPortfolioLoading
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 
 const AccountHeader = () => (
   <Grid

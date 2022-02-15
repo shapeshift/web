@@ -8,7 +8,7 @@ import { calculatePercentChange } from 'lib/charts'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe
-} from 'state/slices/marketDataSlice/marketDataSlice'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type PriceChartArgs = {

@@ -53,6 +53,13 @@ describe('utils', () => {
       )
       const rate = await getUsdRate({ symbol: 'FOX' })
       expect(rate).toBe('0.5')
+      expect(zrxService.get).toHaveBeenCalledWith('/swap/v1/price', {
+        params: {
+          buyToken: 'USDC',
+          buyAmount: '1000000000',
+          sellToken: 'FOX'
+        }
+      })
     })
     it('getUsdRate fails', async () => {
       ;(zrxService.get as jest.Mock<unknown>).mockReturnValue(Promise.resolve({ data: {} }))

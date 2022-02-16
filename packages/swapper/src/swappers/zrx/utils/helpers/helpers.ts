@@ -102,7 +102,7 @@ export const getUsdRate = async (input: Pick<Asset, 'symbol' | 'tokenId'>): Prom
     {
       params: {
         buyToken: 'USDC',
-        buyAmount: '1000000', // $1
+        buyAmount: '1000000000', // rate is imprecise for low $ values, hence asking for $1000
         sellToken: tokenId || symbol
       }
     }

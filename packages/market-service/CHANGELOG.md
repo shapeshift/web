@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.10.2...@shapeshiftoss/market-service-v1.11.0) (2022-02-16)
+
+
+### Features
+
+* add isTrusted to description of asset service ([#357](https://github.com/shapeshift/lib/issues/357)) ([49b002f](https://github.com/shapeshift/lib/commit/49b002f240ab29f3e6e85cfa7ef324bd16c7c3e3))
+
 # [@shapeshiftoss/market-service-v1.10.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.10.1...@shapeshiftoss/market-service-v1.10.2) (2022-02-09)
 
 # [@shapeshiftoss/market-service-v1.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.10.0...@shapeshiftoss/market-service-v1.10.1) (2022-02-07)

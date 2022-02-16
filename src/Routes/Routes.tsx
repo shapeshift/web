@@ -40,7 +40,7 @@ export const routes: Array<NestedRoute> = [
     icon: <AssetsIcon color='inherit' />,
     routes: [
       {
-        path: '/:chain/:tokenId?',
+        path: '/:assetId',
         label: 'Asset Details',
         main: <Asset />,
         leftSidebar: <AssetSidebar />,
@@ -108,13 +108,7 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
-  } /* ,
-  {
-    path: '/trade-history',
-    label: 'navBar.tradeHistory',
-    icon: <TimeIcon />,
-    main: <TradeHistory />
-  } */
+  }
 ]
 
 function useLocationBackground() {

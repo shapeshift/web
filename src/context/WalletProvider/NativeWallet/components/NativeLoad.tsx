@@ -22,7 +22,7 @@ import { RawText, Text } from 'components/Text'
 import {
   setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId
-} from 'context/WalletProvider/localWallet'
+} from 'context/WalletProvider/local-wallet'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { KeyManager, SUPPORTED_WALLETS } from '../../config'

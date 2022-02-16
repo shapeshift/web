@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/localWallet'
+import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'

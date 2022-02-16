@@ -30,7 +30,9 @@ class PluginManager {
   getRoutes(): Route[] {
     let routes: Route[] = []
     for (const [, plugin] of this.#pluginManager.entries()) {
-      routes = routes.concat(plugin.routes)
+      if (!plugin.disabled) {
+        routes = routes.concat(plugin.routes)
+      }
     }
 
     return routes

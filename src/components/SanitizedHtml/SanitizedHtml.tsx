@@ -7,21 +7,39 @@ import { RawText } from 'components/Text'
 DOMPurify.addHook('uponSanitizeElement', (node, data) => {
   const el = node as HTMLElement
   if (data.tagName === 'a') {
-    el.className = 'sanitized-tooltip'
-    const url : string = el.getAttribute('href') ?? ''
-    const isExternalURL = new URL(url).origin !== location.origin;
-    if(isExternalURL){
-      el.setAttribute('target', '_blank');
+    if(data.allowedTags['a']){
+      el.className = 'sanitized-tooltip'
+      const url : string = el.getAttribute('href') ?? ''
+      const isExternalURL = new URL(url).origin !== location.origin;
+      if(isExternalURL){
+        el.setAttribute('target', '_blank');
+      }
+    }else{
+      const span = document.createElement('span')
+      const innerSpan = document.createElement('span')
+      span.textContent = el.outerText
+      span.className = 'sanitized-tooltip'
+      innerSpan.textContent = 'Link removed for security'
+      innerSpan.className = 'sanitized-tooltiptext'
+      span.appendChild(innerSpan)
+      el.replaceWith(span)
     }
   }
   return el
 })
 
-export const SanitizedHtml = ({ dirtyHtml, ...rest }: { dirtyHtml: string } & TextProps) => {
-  const cleanText = sanitize(dirtyHtml ?? '', {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span','a'],
-    ADD_ATTR: ["target"]
-  })
+export const SanitizedHtml = ({ dirtyHtml, isTrusted, ...rest }: { dirtyHtml: string, isTrusted: boolean } & TextProps) => {
+  let cleanText = null
+  if(isTrusted){
+    cleanText = sanitize(dirtyHtml ?? '', {
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span','a'],
+      ADD_ATTR: ["target"],
+    })
+  }else{
+    cleanText = sanitize(dirtyHtml ?? '', {
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span']    
+    })
+  }
 
   return (
     <RawText

@@ -1,8 +1,15 @@
 import realFs from 'fs'
 
-import { makeBtcData, parseData, parseEthData, writeFiles } from './utils'
+import {
+  makeBtcData,
+  makeCosmosHubData,
+  makeOsmosisData,
+  parseData,
+  parseEthData,
+  writeFiles
+} from './utils'
 
-const eth = {
+const makeEthMockCoincapResponse = () => ({
   id: 'ethereum',
   rank: '2',
   symbol: 'ETH',
@@ -15,9 +22,9 @@ const eth = {
   changePercent24Hr: '1.7301970732523704',
   vwap24Hr: '3796.0013297212388563',
   explorer: 'https://etherscan.io/'
-}
+})
 
-const fox = {
+const makeFoxMockCoincapResponse = () => ({
   id: 'fox-token',
   rank: '396',
   symbol: 'FOX',
@@ -30,9 +37,9 @@ const fox = {
   changePercent24Hr: '-3.1066427856364231',
   vwap24Hr: '0.6546275575306273',
   explorer: 'https://etherscan.io/token/0xc770eefad204b5180df6a14ee197d99d808ee52d'
-}
+})
 
-const btc = {
+const makeBtcMockCoincapResponse = () => ({
   id: 'bitcoin',
   rank: '1',
   symbol: 'BTC',
@@ -45,7 +52,37 @@ const btc = {
   changePercent24Hr: '2.0370678507913180',
   vwap24Hr: '47473.8260811456834087',
   explorer: 'https://blockchain.info/'
-}
+})
+
+const makeCosmosMockCoincapResponse = () => ({
+  id: 'cosmos',
+  rank: '24',
+  symbol: 'ATOM',
+  name: 'Cosmos',
+  supply: '248453201.0000000000000000',
+  maxSupply: null,
+  marketCapUsd: '6802617738.3591834303735576',
+  volumeUsd24Hr: '294469112.0045679597220454',
+  priceUsd: '27.3798756102932376',
+  changePercent24Hr: '-2.0945235735481851',
+  vwap24Hr: '27.4571410501515669',
+  explorer: 'https://www.mintscan.io/cosmos'
+})
+
+const makeOsmosisMockCoincapResponse = () => ({
+  id: 'osmosis',
+  rank: '730',
+  symbol: 'OSMO',
+  name: 'Osmosis',
+  supply: '229862431.0000000000000000',
+  maxSupply: '1000000000.0000000000000000',
+  marketCapUsd: '1957320025.1314825668859843',
+  volumeUsd24Hr: '15685.4558405572962647',
+  priceUsd: '8.5151802172121053',
+  changePercent24Hr: '0.5555705025303916',
+  vwap24Hr: '8.7723272775832324',
+  explorer: 'https://www.mintscan.io/osmosis'
+})
 
 jest.mock('fs', () => ({
   promises: {
@@ -55,7 +92,7 @@ jest.mock('fs', () => ({
 
 describe('parseEthData', () => {
   it('can parse eth data', async () => {
-    const result = parseEthData([eth, fox])
+    const result = parseEthData([makeEthMockCoincapResponse(), makeFoxMockCoincapResponse()])
     const expected = {
       'eip155:1/slip44:60': 'ethereum',
       'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'fox-token'
@@ -68,14 +105,41 @@ describe('parseEthData', () => {
     const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
     expect(result).toEqual(expected)
   })
+
+  it('can parse cosmos data', async () => {
+    const result = makeCosmosHubData()
+    const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
+    expect(result).toEqual(expected)
+  })
+
+  it('can parse osmosis data', async () => {
+    const result = makeOsmosisData()
+    const expected = {
+      'cosmos:osmosis-1/slip44:118': 'osmosis'
+    }
+    expect(result).toEqual(expected)
+  })
 })
 
 describe('parseData', () => {
   it('can parse all data', async () => {
-    const result = parseData([eth, fox, btc])
+    const result = parseData([
+      makeEthMockCoincapResponse(),
+      makeFoxMockCoincapResponse(),
+      makeBtcMockCoincapResponse(),
+      makeCosmosMockCoincapResponse(),
+      makeOsmosisMockCoincapResponse()
+    ])
     const expected = {
       'bip122:000000000019d6689c085ae165831e93': {
         'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin'
+      },
+      'cosmos:cosmoshub-4': {
+        'cosmos:cosmoshub-4/slip44:118': 'cosmos'
+      },
+
+      'cosmos:osmosis-1': {
+        'cosmos:osmosis-1/slip44:118': 'osmosis'
       },
       'eip155:1': {
         'eip155:1/slip44:60': 'ethereum',

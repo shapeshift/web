@@ -99,5 +99,43 @@ export const baseAssets: Array<BaseAsset> = [
         symbol: 'TST'
       }
     ]
+  },
+  {
+    caip19: 'cosmos:cosmoshub-4/slip44:118',
+    caip2: 'cosmos:cosmoshub-4',
+    chain: ChainTypes.Cosmos,
+    dataSource: AssetDataSource.CoinGecko,
+    network: NetworkTypes.COSMOSHUB_MAINNET,
+    symbol: 'ATOM',
+    name: 'Cosmos',
+    precision: 18,
+    slip44: 118,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
+    explorer: 'https://www.mintscan.io/cosmos',
+    explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
+    explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
+    sendSupport: true,
+    receiveSupport: true
+  },
+  {
+    caip19: 'cosmos:osmosis-1/slip44:118',
+    caip2: 'cosmos:osmosis-1',
+    chain: ChainTypes.Cosmos,
+    dataSource: AssetDataSource.CoinGecko,
+    network: NetworkTypes.OSMOSIS_MAINNET,
+    symbol: 'OSMO',
+    name: 'Osmosis',
+    precision: 18,
+    slip44: 118,
+    color: '#FFFFFF',
+    secondaryColor: '#FFFFFF',
+    icon: 'https://assets.coincap.io/assets/icons/osmo@2x.png',
+    explorer: 'https://www.mintscan.io/osmosis',
+    explorerAddressLink: 'https://www.mintscan.io/osmosis/account/',
+    explorerTxLink: 'https://www.mintscan.io/osmosis/txs/',
+    sendSupport: true,
+    receiveSupport: true
   }
 ]

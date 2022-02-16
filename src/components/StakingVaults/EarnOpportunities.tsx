@@ -39,17 +39,25 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
   return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
-        <HStack gap={6}>
+        <HStack gap={6} width='full'>
           <Box>
             <Card.Heading>
               <Text translation='defi.earn' />
             </Card.Heading>
             <Text color='gray.500' translation='defi.earnBody' />
           </Box>
-
-          <Button size='sm' variant='link' colorScheme='blue' as={NavLink} to='/defi/earn'>
-            <Text translation='common.seeAll' /> <ArrowForwardIcon />
-          </Button>
+          <Box flex={1} textAlign='right'>
+            <Button
+              size='sm'
+              variant='link'
+              colorScheme='blue'
+              ml='auto'
+              as={NavLink}
+              to='/defi/earn'
+            >
+              <Text translation='common.seeAll' /> <ArrowForwardIcon />
+            </Button>
+          </Box>
         </HStack>
       </Card.Header>
       <Card.Body pt={0} px={2}>

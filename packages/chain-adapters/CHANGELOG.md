@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.32.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.31.3...@shapeshiftoss/chain-adapters-v1.32.0) (2022-02-16)
+
+
+### Features
+
+* add "byChainId" function to ChainAdapter Manager ([#379](https://github.com/shapeshift/lib/issues/379)) ([bdf8d26](https://github.com/shapeshift/lib/commit/bdf8d261b50ff2c208556e6da811e77868bf0add))
+
 # [@shapeshiftoss/chain-adapters-v1.31.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.31.2...@shapeshiftoss/chain-adapters-v1.31.3) (2022-02-15)
 
 # [@shapeshiftoss/chain-adapters-v1.31.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.31.1...@shapeshiftoss/chain-adapters-v1.31.2) (2022-02-10)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.18.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.17.0...@shapeshiftoss/asset-service-v1.18.0) (2022-02-16)
+
+
+### Features
+
+* improve asset service performance ([#378](https://github.com/shapeshift/lib/issues/378)) ([42b58a6](https://github.com/shapeshift/lib/commit/42b58a65cf80d6638d401f89ff56e40d22b88761))
+
 # [@shapeshiftoss/asset-service-v1.17.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.16.0...@shapeshiftoss/asset-service-v1.17.0) (2022-02-16)
 
 

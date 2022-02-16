@@ -16,10 +16,8 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import {
-  selectAssetByCAIP19,
-  useGetAssetDescriptionQuery
-} from 'state/slices/assetsSlice/assetsSlice'
+import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const AssetTeaser = ({ assetId }: { assetId: CAIP19 }) => {

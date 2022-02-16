@@ -1,7 +1,9 @@
-import { Box, Table, Tbody } from '@chakra-ui/react'
+import { Box, Flex, Table, Tbody } from '@chakra-ui/react'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
+import { IconCircle } from 'components/IconCircle'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
@@ -42,12 +44,31 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        <Box>
-          <Table variant='clickable'>
-            <EarnTableHeader />
-            <Tbody>{vaultRows}</Tbody>
-          </Table>
-        </Box>
+        {vaultRows.length > 0 ? (
+          <Box>
+            <Table variant='clickable'>
+              <EarnTableHeader />
+              <Tbody>{vaultRows}</Tbody>
+            </Table>
+          </Box>
+        ) : (
+          <Card textAlign='center' py={6} boxShadow='none' border={0}>
+            <Card.Body>
+              <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>
+                <IconCircle fontSize='2xl' boxSize='16'>
+                  <FoxIcon />
+                </IconCircle>
+              </Flex>
+              <Text
+                fontWeight='medium'
+                fontSize='lg'
+                mb={2}
+                color='gray.500'
+                translation='defi.emptyEarn'
+              />
+            </Card.Body>
+          </Card>
+        )}
       </Card.Body>
     </Card>
   )

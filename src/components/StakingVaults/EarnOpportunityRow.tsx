@@ -132,9 +132,7 @@ export const EarnOpportunityRow = ({
   ])
 
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
-  const handlOnMouseLeave = () => {
-    debouncedHandleMouseEnter.cancel()
-  }
+  const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const hasZeroBalanceAndApy =
     bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
 

@@ -17,6 +17,7 @@ export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) 
     case btcCAIP2: {
       return supportsBTC(wallet)
     }
+    // TODO: add supportsCosmos in hdwallet-core and support it here
     default: {
       console.error(`useWalletSupportsChain: unknown chain id ${chainId}`)
       return false

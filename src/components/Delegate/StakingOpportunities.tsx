@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, HStack, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -43,6 +44,5 @@ export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesPr
     </Card>
   )
 
-  // TODO: add ChainTypes.Cosmos to the array to render only on cosmos based chains
-  return useRenderForChains([], cosmosStaking)
+  return useRenderForChains([ChainTypes.Cosmos], cosmosStaking)
 }

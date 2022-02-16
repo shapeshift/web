@@ -42,10 +42,11 @@ describe('ChainAdapterManager', () => {
     })
 
     it('should add a network', () => {
-      expect(
-        // @ts-ignore
-        getCAM().addChain(ChainTypes.Ethereum, () => new ethereum.ChainAdapter())
-      ).toBeUndefined()
+      const cam = new ChainAdapterManager({})
+      expect(cam.getSupportedAdapters()).toHaveLength(0)
+      // @ts-ignore
+      cam.addChain(ChainTypes.Ethereum, () => ({}))
+      expect(cam.getSupportedAdapters()).toHaveLength(1)
     })
   })
 
@@ -76,6 +77,32 @@ describe('ChainAdapterManager', () => {
     it('should return array of adapter classes', () => {
       // @ts-ignore
       expect(getCAM().getSupportedAdapters()).toStrictEqual([expect.any(Function)])
+    })
+  })
+
+  describe('byChainId', () => {
+    it('should find a supported chain adapter', async () => {
+      const cam = new ChainAdapterManager({})
+      // @ts-ignore
+      cam.addChain(ChainTypes.Bitcoin, () => ({
+        getCaip2: async () => 'bip122:000000000019d6689c085ae165831e93'
+      }))
+      // @ts-ignore
+      cam.addChain(ChainTypes.Ethereum, () => ({
+        getCaip2: async () => 'eip155:1'
+      }))
+
+      await expect(cam.byChainId('eip155:1')).resolves.toBeTruthy()
+    })
+
+    it('should throw an error for an invalid ChainId', async () => {
+      const cam = new ChainAdapterManager({})
+      await expect(cam.byChainId('fake:caip2')).rejects.toThrow('invalid')
+    })
+
+    it('should throw an error if there is no supported adapter', async () => {
+      const cam = new ChainAdapterManager({})
+      await expect(cam.byChainId('eip155:1')).rejects.toThrow('not supported')
     })
   })
 })

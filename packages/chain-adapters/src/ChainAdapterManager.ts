@@ -1,3 +1,5 @@
+import type { CAIP2 } from '@shapeshiftoss/caip'
+import { caip2 } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -53,7 +55,7 @@ export class ChainAdapterManager {
    * import { ChainAdapterManager, UtxoChainAdapter } from 'chain-adapters'
    * const manager = new ChainAdapterManager(client)
    * manager.addChain('bitcoin', () => new UtxoChainAdapter('BTG', client))
-   * @param {ChainTypes} network - Coin/network symbol from Asset query
+   * @param {ChainTypes} chain - Coin/network symbol from Asset query
    * @param {Function} factory - A function that returns a ChainAdapter instance
    */
   addChain<T extends ChainTypes>(chain: T, factory: () => ChainAdapter<ChainTypes>): void {
@@ -90,5 +92,18 @@ export class ChainAdapterManager {
     }
 
     return adapter as ChainAdapter<T>
+  }
+
+  async byChainId(chainId: CAIP2) {
+    // this function acts like a validation function and throws if the check doesn't pass
+    caip2.isCAIP2(chainId)
+
+    for (const [chain] of this.supported) {
+      // byChain calls the factory function so we need to call it to create the instances
+      const adapter = this.byChain(chain)
+      if ((await adapter.getCaip2()) === chainId) return adapter
+    }
+
+    throw new Error(`Chain [${chainId}] is not supported`)
   }
 }

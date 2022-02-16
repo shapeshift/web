@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.16.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.15.2...@shapeshiftoss/asset-service-v1.16.0) (2022-02-16)
+
+
+### Features
+
+* caip2/caip19 for Cosmos SDK ([#371](https://github.com/shapeshift/lib/issues/371)) ([24d8f03](https://github.com/shapeshift/lib/commit/24d8f034348e4e6f11da7bdba035312924a0fe9d))
+
 # [@shapeshiftoss/asset-service-v1.15.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.15.1...@shapeshiftoss/asset-service-v1.15.2) (2022-02-10)
 
 # [@shapeshiftoss/asset-service-v1.15.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.15.0...@shapeshiftoss/asset-service-v1.15.1) (2022-02-08)

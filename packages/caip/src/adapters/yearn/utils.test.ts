@@ -4,6 +4,8 @@ import toLower from 'lodash/toLower'
 
 import { parseEthData, writeFiles } from './utils'
 
+jest.mock('@yfi/sdk')
+
 const vault1: Vault = {
   address: '0x6FAfCA7f49B4Fd9dC38117469cd31A1E5aec91F5',
   typeId: 'VAULT_V2',

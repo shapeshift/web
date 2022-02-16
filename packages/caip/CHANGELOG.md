@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.10.2...@shapeshiftoss/caip-v1.11.0) (2022-02-16)
+
+
+### Features
+
+* caip2/caip19 for Cosmos SDK ([#371](https://github.com/shapeshift/lib/issues/371)) ([24d8f03](https://github.com/shapeshift/lib/commit/24d8f034348e4e6f11da7bdba035312924a0fe9d))
+
 # [@shapeshiftoss/caip-v1.10.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.10.1...@shapeshiftoss/caip-v1.10.2) (2022-02-16)
 
 # [@shapeshiftoss/caip-v1.10.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.10.0...@shapeshiftoss/caip-v1.10.1) (2022-02-09)

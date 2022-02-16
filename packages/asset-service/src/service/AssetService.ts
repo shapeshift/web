@@ -32,8 +32,9 @@ const getDataIndexKey = (chain: ChainTypes, network: NetworkTypes, tokenId?: str
 }
 
 export const indexAssetData = (flatAssetData: Asset[]): IndexedAssetData => {
-  return flatAssetData.reduce((acc, val) => {
-    return { ...acc, [getDataIndexKey(val.chain, val.network, val.tokenId)]: val }
+  return flatAssetData.reduce<IndexedAssetData>((acc, val) => {
+    acc[getDataIndexKey(val.chain, val.network, val.tokenId)] = val
+    return acc
   }, {})
 }
 

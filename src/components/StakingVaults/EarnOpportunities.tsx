@@ -24,15 +24,25 @@ type EarnOpportunitiesProps = {
 export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
   const earnFeature = FeatureFlag.Yearn
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
-  const yearnVaults = useYearnVaults()
+  const vaults = useYearnVaults()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
-  const vaults = useMemo(() => {
-    if (asset.tokenId) {
-      return yearnVaults.filter(vault => vault.tokenAddress === asset.tokenId)
-    } else {
-      return []
-    }
-  }, [yearnVaults, asset.tokenId])
+
+  const vaultRows = useMemo(
+    () =>
+      vaults
+        .filter(vault => vault.tokenAddress === asset.tokenId)
+        .map((vault, index) => {
+          return (
+            <EarnOpportunityRow
+              {...vault}
+              key={vault.vaultAddress}
+              index={index + 1}
+              isLoaded={!!vault}
+            />
+          )
+        }),
+    [asset.tokenId, vaults]
+  )
 
   if (!earnFeature || !vaults?.length) return null
 
@@ -63,16 +73,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       <Card.Body pt={0} px={2}>
         <Table variant='clickable'>
           <EarnTableHeader />
-          <Tbody>
-            {vaults.map((vault, index) => (
-              <EarnOpportunityRow
-                {...vault}
-                key={`${vault.vaultAddress}`}
-                isLoaded={!!vault}
-                index={index + 1}
-              />
-            ))}
-          </Tbody>
+          <Tbody>{vaultRows}</Tbody>
         </Table>
       </Card.Body>
     </Card>

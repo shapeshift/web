@@ -11,11 +11,11 @@ import {
   SkeletonText,
   Stack
 } from '@chakra-ui/react'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -24,13 +24,7 @@ export const AssetTeaser = ({ assetId }: { assetId: CAIP19 }) => {
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const { description, icon, name } = asset || {}
   const { isLoading } = useGetAssetDescriptionQuery(assetId, { skip: !!description })
-  const url = useMemo(() => {
-    if (!assetId) return ''
-    const { chain, tokenId } = caip19.fromCAIP19(assetId)
-    let baseUrl = `/assets/${chain}`
-    if (tokenId) baseUrl = baseUrl + `/${tokenId}`
-    return baseUrl
-  }, [assetId])
+  const url = useMemo(() => (assetId ? `/assets/${encodeURIComponent(assetId)}` : ''), [assetId])
   return (
     <Portal>
       <PopoverContent>
@@ -53,7 +47,7 @@ export const AssetTeaser = ({ assetId }: { assetId: CAIP19 }) => {
         </PopoverBody>
         <PopoverFooter border={0}>
           <Button size='sm' isFullWidth as={Link} to={url}>
-            View Asset
+            <Text translation='common.viewAsset' />
           </Button>
         </PopoverFooter>
       </PopoverContent>

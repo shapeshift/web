@@ -31,7 +31,8 @@
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
-    "receive": "Receive"
+    "receive": "Receive",
+    "viewAsset": "View Asset"
   },
   "updateToast": {
     "body": "A new version of the app is available",

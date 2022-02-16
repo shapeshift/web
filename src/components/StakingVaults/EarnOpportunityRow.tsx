@@ -19,7 +19,7 @@ import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { debounce } from 'lodash'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-import { FaInfoCircle, FaQuestionCircle } from 'react-icons/fa'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -32,6 +32,12 @@ import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetTeaser } from './AssetTeaser'
+
+type EarnOpportunityRowProps = {
+  isLoaded: boolean
+  index: number
+  showTeaser?: boolean
+} & SupportedYearnVault
 
 export const EarnOpportunityRow = ({
   type,
@@ -47,11 +53,7 @@ export const EarnOpportunityRow = ({
   index,
   underlyingTokenBalance,
   showTeaser
-}: SupportedYearnVault & {
-  isLoaded: boolean
-  index: number
-  showTeaser?: boolean
-}) => {
+}: EarnOpportunityRowProps) => {
   const [isLargerThanMd, isLargerThanLg] = useMediaQuery([
     `(min-width: ${breakpoints['md']})`,
     `(min-width: ${breakpoints['lg']})`
@@ -71,7 +73,7 @@ export const EarnOpportunityRow = ({
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  // useGetAssetDescriptionQuery(tokenAddress)
+
   // account info
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(chain)
@@ -81,21 +83,18 @@ export const EarnOpportunityRow = ({
   } = useWallet()
 
   const handleClick = () => {
-    if (showPopover) {
+    if (isConnected && !showPopover) {
+      history.push({
+        pathname: `/defi/${type}/${provider}/deposit`,
+        search: qs.stringify({
+          chain,
+          contractAddress: vaultAddress,
+          tokenId: tokenAddress
+        }),
+        state: { background: location }
+      })
     } else {
-      if (isConnected) {
-        history.push({
-          pathname: `/defi/${type}/${provider}/deposit`,
-          search: qs.stringify({
-            chain,
-            contractAddress: vaultAddress,
-            tokenId: tokenAddress
-          }),
-          state: { background: location }
-        })
-      } else {
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      }
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     }
   }
 
@@ -150,15 +149,18 @@ export const EarnOpportunityRow = ({
 
       <Td>
         <HStack width='full'>
-          <SkeletonCircle isLoaded={isLoaded}>
-            <Popover isOpen={showPopover && showTeaser} onClose={() => setShowPopover(false)}>
+          {showTeaser && (
+            <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
               <PopoverTrigger>
-                <Box onMouseEnter={debouncedHandleMouseEnter} onMouseLeave={handlOnMouseLeave}>
-                  <AssetIcon src={asset?.icon} boxSize='8' />
+                <Box onMouseEnter={debouncedHandleMouseEnter} onMouseLeave={handleOnMouseLeave}>
+                  <FaInfoCircle />
                 </Box>
               </PopoverTrigger>
               {showPopover && <AssetTeaser assetId={asset.caip19} />}
             </Popover>
+          )}
+          <SkeletonCircle isLoaded={isLoaded}>
+            <AssetIcon src={asset?.icon} boxSize='8' />
           </SkeletonCircle>
           <SkeletonText noOfLines={2} isLoaded={isLoaded} flex={1}>
             <Stack spacing={0} flex={1}>

@@ -25,6 +25,7 @@ export const AllEarnOpportunities = () => {
               key={vault.vaultAddress}
               index={index + 1}
               isLoaded={!!vault}
+              showTeaser
             />
           )
         }),

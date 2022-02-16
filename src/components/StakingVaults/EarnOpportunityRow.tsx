@@ -45,10 +45,12 @@ export const EarnOpportunityRow = ({
   version,
   metadata,
   index,
-  underlyingTokenBalance
+  underlyingTokenBalance,
+  showTeaser
 }: SupportedYearnVault & {
   isLoaded: boolean
   index: number
+  showTeaser?: boolean
 }) => {
   const [isLargerThanMd, isLargerThanLg] = useMediaQuery([
     `(min-width: ${breakpoints['md']})`,
@@ -162,7 +164,7 @@ export const EarnOpportunityRow = ({
                   isTruncated
                   maxWidth={{ base: '150px', md: '100%' }}
                 >{`${metadata.displayName} (${version})`}</RawText>
-                {isLargerThanMd && (
+                {isLargerThanMd && showTeaser && (
                   <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
                     <PopoverTrigger>
                       <Box

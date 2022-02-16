@@ -148,6 +148,7 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
           rightIcon={<ArrowForwardIcon />}
           onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
           data-test='connect-wallet-button'
+          isLoading={state.isLoadingLocalWallet}
         >
           <Text translation='connectWalletPage.cta' />
         </Button>

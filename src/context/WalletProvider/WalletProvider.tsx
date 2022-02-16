@@ -16,6 +16,7 @@ import React, {
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
+import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
@@ -26,7 +27,8 @@ export enum WalletActions {
   SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
-  RESET_STATE = 'RESET_STATE'
+  RESET_STATE = 'RESET_STATE',
+  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING'
 }
 
 type GenericAdapter = {
@@ -52,6 +54,7 @@ export interface InitialState {
   walletInfo: WalletInfo | null
   isConnected: boolean
   modal: boolean
+  isLoadingLocalWallet: boolean
 }
 
 const initialState: InitialState = {
@@ -62,7 +65,8 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
-  modal: false
+  modal: false,
+  isLoadingLocalWallet: Boolean(getLocalWalletType())
 }
 
 export interface IWalletContext {
@@ -89,6 +93,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
+  | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
   | { type: WalletActions.RESET_STATE }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -125,6 +130,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         newState.initialRoute = '/'
       }
       return newState
+    case WalletActions.SET_LOCAL_WALLET_LOADING:
+      return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -132,7 +139,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         walletInfo: null,
         isConnected: false,
         type: null,
-        initialRoute: null
+        initialRoute: null,
+        isLoadingLocalWallet: false
       }
     default:
       return state
@@ -172,6 +180,75 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [state.keyring])
 
+  useEffect(() => {
+    const localWalletType = getLocalWalletType()
+    const localWalletDeviceId = getLocalWalletDeviceId()
+    if (localWalletType && state.adapters) {
+      ;(async () => {
+        if (state.adapters?.has(localWalletType)) {
+          if (localWalletType === KeyManager.Native) {
+            const localWallet = await state.adapters
+              .get(localWalletType)
+              ?.pairDevice(localWalletDeviceId)
+            if (localWallet) {
+              await localWallet.initialize()
+            } else {
+              clearLocalWallet()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+          } else if (localWalletType === KeyManager.KeepKey) {
+            try {
+              const localWallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice()
+              if (localWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
+                const deviceId = await localWallet.getDeviceID()
+                // This gets the firmware version needed for some KeepKey "supportsX" functions
+                await localWallet.getFeatures()
+                // Show the label from the wallet instead of a generic name
+                const label = (await localWallet.getLabel()) || name
+
+                await localWallet.initialize()
+
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: { wallet: localWallet, name: label, icon, deviceId, meta: { label } }
+                })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+              } else {
+                dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+                clearLocalWallet()
+              }
+            } catch (e) {
+              clearLocalWallet()
+            }
+          } else {
+            const localWallet = await state.adapters.get(localWalletType)?.pairDevice()
+            if (localWallet) {
+              const { name, icon } = SUPPORTED_WALLETS[localWalletType]
+              try {
+                await localWallet.initialize()
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localWallet,
+                    name,
+                    icon,
+                    deviceId: localWalletDeviceId || 'test'
+                  }
+                })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+              } catch (e) {
+                clearLocalWallet()
+              }
+            } else {
+              clearLocalWallet()
+            }
+          }
+        }
+      })()
+    }
+  }, [state.adapters])
+
   const connect = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
     const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
@@ -201,6 +278,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const disconnect = useCallback(() => {
     state.wallet?.disconnect()
     dispatch({ type: WalletActions.RESET_STATE })
+    clearLocalWallet()
   }, [state.wallet])
 
   const value: IWalletContext = useMemo(

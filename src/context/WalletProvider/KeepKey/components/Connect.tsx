@@ -12,6 +12,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
@@ -97,6 +98,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
           payload: { wallet, name: label, icon, deviceId, meta: { label } }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, deviceId)
         history.push('/keepkey/success')
       } catch (e) {
         console.error('KeepKey Connect: There was an error initializing the wallet', e)

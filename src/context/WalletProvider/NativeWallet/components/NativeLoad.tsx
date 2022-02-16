@@ -19,6 +19,10 @@ import { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import {
+  setLocalNativeWalletName,
+  setLocalWalletTypeAndDeviceId
+} from 'context/WalletProvider/localWallet'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { KeyManager, SUPPORTED_WALLETS } from '../../config'
@@ -83,6 +87,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         }
         // Always close the modal after trying to pair the wallet
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        setLocalNativeWalletName(item.name)
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')
       }

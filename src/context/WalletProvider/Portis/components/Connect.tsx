@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/localWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
@@ -40,6 +41,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
           payload: { wallet, name, icon, deviceId: 'test' }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        setLocalWalletTypeAndDeviceId(KeyManager.Portis, 'test')
         history.push('/portis/success')
       } catch (e) {
         console.error('Portis Connect: There was an error initializing the wallet', e)

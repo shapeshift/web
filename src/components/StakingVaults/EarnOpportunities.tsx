@@ -1,5 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack, Stack } from '@chakra-ui/react'
+import { Box, Button, HStack, Table, Tbody } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
@@ -12,6 +12,7 @@ import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
+import { EarnTableHeader } from './EarnTableHeader'
 
 type EarnOpportunitiesProps = {
   tokenId?: string
@@ -51,12 +52,20 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
           </Button>
         </HStack>
       </Card.Header>
-      <Card.Body pt={0}>
-        <Stack spacing={2} mt={2} mx={-4}>
-          {vaults.map(vault => (
-            <EarnOpportunityRow {...vault} key={`${vault.vaultAddress}`} isLoaded={!!vault} />
-          ))}
-        </Stack>
+      <Card.Body pt={0} px={2}>
+        <Table variant='clickable'>
+          <EarnTableHeader />
+          <Tbody>
+            {vaults.map((vault, index) => (
+              <EarnOpportunityRow
+                {...vault}
+                key={`${vault.vaultAddress}`}
+                isLoaded={!!vault}
+                index={index + 1}
+              />
+            ))}
+          </Tbody>
+        </Table>
       </Card.Body>
     </Card>
   )

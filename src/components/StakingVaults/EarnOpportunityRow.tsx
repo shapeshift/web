@@ -1,21 +1,37 @@
-import { Flex, HStack } from '@chakra-ui/layout'
-import { Button, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/layout'
+import {
+  Popover,
+  PopoverTrigger,
+  Skeleton,
+  SkeletonCircle,
+  SkeletonText,
+  Stack,
+  Td,
+  Tr,
+  useMediaQuery
+} from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import { caip19 } from '@shapeshiftoss/caip'
 import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
 import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { debounce } from 'lodash'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
+
+import { AssetTeaser } from './AssetTeaser'
 
 export const EarnOpportunityRow = ({
   type,
@@ -25,22 +41,35 @@ export const EarnOpportunityRow = ({
   chain,
   symbol,
   name,
-  isLoaded
-}: SupportedYearnVault & { isLoaded: boolean }) => {
+  isLoaded,
+  version,
+  metadata,
+  index,
+  underlyingTokenBalance
+}: SupportedYearnVault & {
+  isLoaded: boolean
+  index: number
+}) => {
+  const [isLargerThanMd, isLargerThanLg] = useMediaQuery([
+    `(min-width: ${breakpoints['md']})`,
+    `(min-width: ${breakpoints['lg']})`
+  ])
   const [vault, setVault] = useState<YearnVault | null>(null)
   const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
   const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
+  const [showPopover, setShowPopover] = useState(false)
   const { yearn, loading } = useYearn()
   const history = useHistory()
   const location = useLocation()
 
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
+  const TVL = bnOrZero(underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString()
   // asset
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-
+  // useGetAssetDescriptionQuery(tokenAddress)
   // account info
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(chain)
@@ -50,8 +79,10 @@ export const EarnOpportunityRow = ({
   } = useWallet()
 
   const handleClick = () => {
-    isConnected
-      ? history.push({
+    if (showPopover) {
+    } else {
+      if (isConnected) {
+        history.push({
           pathname: `/defi/${type}/${provider}/deposit`,
           search: qs.stringify({
             chain,
@@ -60,7 +91,10 @@ export const EarnOpportunityRow = ({
           }),
           state: { background: location }
         })
-      : dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      } else {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      }
+    }
   }
 
   useEffect(() => {
@@ -95,67 +129,93 @@ export const EarnOpportunityRow = ({
     yearn
   ])
 
+  const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
+  const handlOnMouseLeave = () => {
+    debouncedHandleMouseEnter.cancel()
+  }
   const hasZeroBalanceAndApy =
     bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
 
   if (!asset || !vault || hasZeroBalanceAndApy || !yearn || loading) return null
 
   return (
-    <Button
-      width='full'
-      height='auto'
-      justifyContent='space-between'
-      variant='ghost'
-      fontWeight='normal'
-      py={2}
-      onClick={handleClick}
-    >
-      <Flex alignItems='center'>
-        <Flex mr={4}>
-          <SkeletonCircle boxSize='8' isLoaded={isLoaded}>
+    <Tr onClick={handleClick} tabIndex={index}>
+      {isLargerThanMd && (
+        <Td>
+          <Skeleton isLoaded={isLoaded}>
+            <RawText color='gray.500'>{index}</RawText>
+          </Skeleton>
+        </Td>
+      )}
+
+      <Td>
+        <HStack>
+          <SkeletonCircle isLoaded={isLoaded}>
             <AssetIcon src={asset?.icon} boxSize='8' />
           </SkeletonCircle>
-        </Flex>
-        <Stack
-          direction={{ base: 'column', lg: 'row' }}
-          alignItems={{ base: 'flex-start', lg: 'center' }}
-          justifyContent='flex-start'
-          spacing={{ base: 1, lg: 4 }}
-        >
-          <Skeleton isLoaded={isLoaded} display='flex'>
-            <RawText
-              size='lg'
-              fontWeight='bold'
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-              overflow='hidden'
-              display='inline-block'
-              maxWidth={{ base: '200px', lg: '100%' }}
-            >
-              {name}
-            </RawText>
-          </Skeleton>
+          <SkeletonText noOfLines={2} isLoaded={isLoaded}>
+            <Stack spacing={0}>
+              <HStack>
+                <RawText
+                  fontWeight='bold'
+                  lineHeight='shorter'
+                  isTruncated
+                  maxWidth={{ base: '150px', md: '100%' }}
+                >{`${metadata.displayName} (${version})`}</RawText>
+                {isLargerThanMd && (
+                  <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
+                    <PopoverTrigger>
+                      <Box
+                        onMouseEnter={debouncedHandleMouseEnter}
+                        onMouseLeave={handlOnMouseLeave}
+                      >
+                        <FaInfoCircle />
+                      </Box>
+                    </PopoverTrigger>
+                    {showPopover && <AssetTeaser assetId={asset.caip19} />}
+                  </Popover>
+                )}
+              </HStack>
+              <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
+                {provider}
+              </RawText>
+            </Stack>
+          </SkeletonText>
+        </HStack>
+      </Td>
+      <Td display={{ base: 'none', lg: 'table-cell' }}>
+        <Skeleton isLoaded={isLoaded}>
+          <Tag textTransform='capitalize'>{type}</Tag>
+        </Skeleton>
+      </Td>
+      {isLargerThanMd && (
+        <Td>
           <Skeleton isLoaded={isLoaded}>
             <Tag colorScheme='green'>
               <Amount.Percent value={bnOrZero(vault?.metadata?.apy?.net_apy).toString()} />
             </Tag>
           </Skeleton>
-        </Stack>
-      </Flex>
-      <Flex>
+        </Td>
+      )}
+
+      {isLargerThanLg && (
+        <Td borderRightRadius='lg'>
+          <Skeleton isLoaded={isLoaded}>
+            <Amount.Fiat value={TVL} />
+          </Skeleton>
+        </Td>
+      )}
+      <Td textAlign='right'>
         <Skeleton isLoaded={isLoaded}>
           {cryptoAmount.gt(0) ? (
-            <HStack>
+            <Stack>
               <Amount.Fiat value={fiatAmount.toString()} color='green.500' />
-              <Amount.Crypto value={cryptoAmount.toString()} symbol={symbol} prefix='≈' />
-            </HStack>
+            </Stack>
           ) : (
-            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
-              <Text translation='common.getStarted' />
-            </Button>
+            <RawText>-</RawText>
           )}
         </Skeleton>
-      </Flex>
-    </Button>
+      </Td>
+    </Tr>
   )
 }

@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react'
+import { Box, Table, Tbody } from '@chakra-ui/react'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
@@ -6,6 +6,7 @@ import { Text } from 'components/Text'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
+import { EarnTableHeader } from './EarnTableHeader'
 
 export const AllEarnOpportunities = () => {
   const earnFeature = FeatureFlag.Yearn
@@ -15,16 +16,23 @@ export const AllEarnOpportunities = () => {
     () =>
       sortedVaults
         .filter(vault => !vault.expired)
-        .map(vault => (
-          <EarnOpportunityRow {...vault} key={vault.vaultAddress} isLoaded={!!vault} />
-        )),
+        .map((vault, index) => {
+          return (
+            <EarnOpportunityRow
+              {...vault}
+              key={vault.vaultAddress}
+              index={index + 1}
+              isLoaded={!!vault}
+            />
+          )
+        }),
     [sortedVaults]
   )
 
   if (!earnFeature) return null
 
   return (
-    <Card>
+    <Card variant='outline' my={6}>
       <Card.Header flexDir='row' display='flex'>
         <Box>
           <Card.Heading>
@@ -33,10 +41,13 @@ export const AllEarnOpportunities = () => {
           <Text color='gray.500' translation='defi.earnBody' />
         </Box>
       </Card.Header>
-      <Card.Body pt={0}>
-        <Stack spacing={2} mt={2} mx={-4}>
-          {vaultRows}
-        </Stack>
+      <Card.Body pt={0} px={2}>
+        <Box>
+          <Table variant='clickable'>
+            <EarnTableHeader />
+            <Tbody>{vaultRows}</Tbody>
+          </Table>
+        </Box>
       </Card.Body>
     </Card>
   )

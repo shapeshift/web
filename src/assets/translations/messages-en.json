@@ -84,6 +84,11 @@
       }
     },
     "earn": "Earn",
+    "asset": "Asset",
+    "category": "Category",
+    "tvl": "TVL",
+    "apy": "APY",
+    "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",

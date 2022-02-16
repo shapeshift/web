@@ -1,6 +1,4 @@
 import { HStack, StackProps } from '@chakra-ui/react'
-import union from 'lodash/union'
-import { pluginManager } from 'plugins'
 import { useTranslate } from 'react-polyglot'
 import { routes } from 'Routes/Routes'
 
@@ -10,7 +8,7 @@ export const NavBar = (props: StackProps) => {
 
   return (
     <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
-      {union(routes, pluginManager.getRoutes())
+      {routes
         .filter(route => !route.disable)
         .map(item => (
           <MainNavLink

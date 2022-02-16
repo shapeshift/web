@@ -19,7 +19,7 @@ import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { debounce } from 'lodash'
 import qs from 'qs'
 import { useEffect, useState } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
+import { FaInfoCircle, FaQuestionCircle } from 'react-icons/fa'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -151,32 +151,42 @@ export const EarnOpportunityRow = ({
       )}
 
       <Td>
-        <HStack>
+        <HStack width='full'>
           <SkeletonCircle isLoaded={isLoaded}>
-            <AssetIcon src={asset?.icon} boxSize='8' />
+            <Popover isOpen={showPopover && showTeaser} onClose={() => setShowPopover(false)}>
+              <PopoverTrigger>
+                <Box onMouseEnter={debouncedHandleMouseEnter} onMouseLeave={handlOnMouseLeave}>
+                  <AssetIcon src={asset?.icon} boxSize='8' />
+                </Box>
+              </PopoverTrigger>
+              {showPopover && <AssetTeaser assetId={asset.caip19} />}
+            </Popover>
           </SkeletonCircle>
-          <SkeletonText noOfLines={2} isLoaded={isLoaded}>
-            <Stack spacing={0}>
+          <SkeletonText noOfLines={2} isLoaded={isLoaded} flex={1}>
+            <Stack spacing={0} flex={1}>
               <HStack>
-                <RawText
-                  fontWeight='bold'
-                  lineHeight='shorter'
-                  isTruncated
-                  maxWidth={{ base: '150px', md: '100%' }}
-                >{`${metadata.displayName} (${version})`}</RawText>
-                {isLargerThanMd && showTeaser && (
-                  <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
-                    <PopoverTrigger>
-                      <Box
-                        onMouseEnter={debouncedHandleMouseEnter}
-                        onMouseLeave={handlOnMouseLeave}
-                      >
-                        <FaInfoCircle />
-                      </Box>
-                    </PopoverTrigger>
-                    {showPopover && <AssetTeaser assetId={asset.caip19} />}
-                  </Popover>
-                )}
+                <Box
+                  position='relative'
+                  overflow='hidden'
+                  height='20px'
+                  title={`${metadata.displayName} (${version})`}
+                  _after={{
+                    content: 'attr(title)',
+                    overflow: 'hidden',
+                    height: 0,
+                    display: 'block'
+                  }}
+                >
+                  <RawText
+                    fontWeight='bold'
+                    as='span'
+                    position='absolute'
+                    lineHeight='shorter'
+                    isTruncated
+                    display='block'
+                    maxWidth='100%'
+                  >{`${metadata.displayName} (${version})`}</RawText>
+                </Box>
               </HStack>
               <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
                 {provider}

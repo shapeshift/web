@@ -38,7 +38,7 @@ const EthAsset: Asset = {
 jest.mock(
   './descriptions.json',
   () => ({
-    'eip155:3/slip44:60': 'overriden description'
+    'eip155:3/slip44:60': 'overridden description'
   }),
   { virtual: true }
 )
@@ -145,9 +145,10 @@ describe('AssetService', () => {
     it('should return the overridden description if it exists', async () => {
       const assetService = new AssetService(assetFileUrl)
 
-      await expect(assetService.description({ asset: EthAsset })).resolves.toEqual(
-        'overriden description'
-      )
+      await expect(assetService.description({ asset: EthAsset })).resolves.toEqual({
+        description: 'overridden description',
+        isTrusted: true
+      })
     })
 
     it('should return a string if found', async () => {
@@ -157,7 +158,9 @@ describe('AssetService', () => {
       const assetService = new AssetService(assetFileUrl)
       const description = { en: 'a blue fox' }
       mockedAxios.get.mockResolvedValue({ data: { description } })
-      await expect(assetService.description({ asset: EthAsset })).resolves.toEqual(description.en)
+      await expect(assetService.description({ asset: EthAsset })).resolves.toEqual({
+        description: description.en
+      })
     })
 
     it('should throw if not found', async () => {

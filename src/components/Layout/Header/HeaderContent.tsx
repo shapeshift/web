@@ -13,6 +13,7 @@ export const HeaderContent = ({ route }: { route: Route }) => {
   const navbarBg = useColorModeValue('white', 'gray.800')
   const navbarBorder = useColorModeValue('gray.100', 'gray.750')
   const navShadow = useColorModeValue('lg', 'dark-lg')
+  const location = useLocation()
   return (
     <Flex px={4} width='full' justifyContent='space-between'>
       <Flex
@@ -25,17 +26,19 @@ export const HeaderContent = ({ route }: { route: Route }) => {
         <Box display='flex' alignItems='center' flex={2}>
           {pathTo(route).map((crumb, index, breadcrumbs) => (
             <div key={index} className='item'>
-              {index < breadcrumbs.length - 1 && crumb.path && !noBack.includes(location.pathname) && (
-                <IconButton
-                  icon={<ArrowBackIcon />}
-                  aria-label={crumb.label}
-                  as={RouterLink}
-                  to={crumb.path}
-                  size='md'
-                  isRound
-                  mr={2}
-                />
-              )}
+              {index < breadcrumbs.length - 1 &&
+                crumb.path &&
+                !noBack.includes(location.pathname) && (
+                  <IconButton
+                    icon={<ArrowBackIcon />}
+                    aria-label={crumb.label}
+                    as={RouterLink}
+                    to={crumb.path}
+                    size='md'
+                    isRound
+                    mr={2}
+                  />
+                )}
             </div>
           ))}
           <RouterLink to='/dashboard'>

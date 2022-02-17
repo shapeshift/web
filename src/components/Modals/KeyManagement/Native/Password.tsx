@@ -61,7 +61,8 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         payload: { wallet, name, icon, deviceId, meta: { label: vault.meta.get('name') as string } }
       })
       dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-      onClose()
+      dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+      close()
     } catch (e) {
       setError(
         'password',
@@ -74,9 +75,9 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
     }
   }
 
-  const onClose = () => {
+  const onCloseButtonClick = () => {
     if (state.isLoadingLocalWallet) {
-      dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+      dispatch({ type: WalletActions.RESET_STATE })
     }
     close()
   }
@@ -84,7 +85,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={close}
       isCentered
       closeOnOverlayClick={false}
       closeOnEsc={false}
@@ -92,7 +93,12 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
     >
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
-        <ModalCloseButton ml='auto' borderRadius='full' position='static' />
+        <ModalCloseButton
+          ml='auto'
+          borderRadius='full'
+          position='static'
+          onClick={onCloseButtonClick}
+        />
         <ModalHeader>
           <Text translation={'modals.shapeShift.password.header'} />
         </ModalHeader>
@@ -178,7 +184,8 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
                 borderTopRadius='none'
                 colorScheme='blue'
                 onClick={() => {
-                  onClose()
+                  close()
+                  dispatch({ type: WalletActions.RESET_STATE })
                   dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
                 }}
               >

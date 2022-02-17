@@ -16,14 +16,9 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { ActionTypes, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { colors } from 'theme/colors'
-
-type WalletProps = {
-  state: InitialState
-  dispatch: Dispatch<ActionTypes>
-}
 
 async function connectCypressWallet(
   keyring: Keyring,
@@ -60,7 +55,8 @@ async function connectCypressWallet(
   dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 }
 
-export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
+export const ConnectWallet = ({ showLoading = false }) => {
+  const { state, dispatch } = useWallet()
   const isCypressTest =
     localStorage.hasOwnProperty('cypressWalletSeed') &&
     localStorage.hasOwnProperty('cypressWalletPassword')
@@ -148,7 +144,7 @@ export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
           rightIcon={<ArrowForwardIcon />}
           onClick={() => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })}
           data-test='connect-wallet-button'
-          isLoading={state.isLoadingLocalWallet}
+          isLoading={showLoading || state.isLoadingLocalWallet}
         >
           <Text translation='connectWalletPage.cta' />
         </Button>

@@ -28,7 +28,8 @@ export enum WalletActions {
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   RESET_STATE = 'RESET_STATE',
-  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING'
+  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING',
+  SET_LOCAL_WALLET_INFO_DEVICE_ID = 'SET_LOCAL_WALLET_INFO_DEVICE_ID'
 }
 
 type GenericAdapter = {
@@ -92,6 +93,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
+  | { type: WalletActions.SET_LOCAL_WALLET_INFO_DEVICE_ID; payload: string }
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
   | { type: WalletActions.RESET_STATE }
@@ -133,6 +135,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return newState
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
+    case WalletActions.SET_LOCAL_WALLET_INFO_DEVICE_ID:
+      return { ...state, walletInfo: { deviceId: action.payload } as WalletInfo }
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -184,65 +188,119 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => {
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
+    if (localWalletType && localWalletDeviceId) {
+      /**
+       * set deviceId to bypass splash screen
+       */
+      dispatch({
+        type: WalletActions.SET_LOCAL_WALLET_INFO_DEVICE_ID,
+        payload: localWalletDeviceId as string
+      })
+    }
     if (localWalletType && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
-          if (localWalletType === KeyManager.Native) {
-            const localWallet = await state.adapters
-              .get(localWalletType)
-              ?.pairDevice(localWalletDeviceId)
-            if (localWallet) {
-              await localWallet.initialize()
-            } else {
-              clearLocalWallet()
-            }
-          } else if (localWalletType === KeyManager.KeepKey) {
-            try {
-              const localWallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice()
-              if (localWallet) {
-                const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
-                const deviceId = await localWallet.getDeviceID()
-                // This gets the firmware version needed for some KeepKey "supportsX" functions
-                await localWallet.getFeatures()
-                // Show the label from the wallet instead of a generic name
-                const label = (await localWallet.getLabel()) || name
-
-                await localWallet.initialize()
-
-                dispatch({
-                  type: WalletActions.SET_WALLET,
-                  payload: { wallet: localWallet, name: label, icon, deviceId, meta: { label } }
-                })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          switch (localWalletType) {
+            case KeyManager.Native:
+              const localNativeWallet = await state.adapters
+                .get(KeyManager.Native)
+                ?.pairDevice(localWalletDeviceId)
+              if (localNativeWallet) {
+                await localNativeWallet.initialize()
               } else {
-                dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
                 clearLocalWallet()
               }
-            } catch (e) {
-              clearLocalWallet()
-            }
-          } else {
-            const localWallet = await state.adapters.get(localWalletType)?.pairDevice()
-            if (localWallet) {
-              const { name, icon } = SUPPORTED_WALLETS[localWalletType]
+              break
+            case KeyManager.KeepKey:
+              /**
+               * this case isn't tested yet
+               */
               try {
-                await localWallet.initialize()
-                dispatch({
-                  type: WalletActions.SET_WALLET,
-                  payload: {
-                    wallet: localWallet,
-                    name,
-                    icon,
-                    deviceId: localWalletDeviceId || 'test'
-                  }
-                })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                const localKeepKeyWallet = await state.adapters
+                  .get(KeyManager.KeepKey)
+                  ?.pairDevice()
+                if (localKeepKeyWallet) {
+                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
+                  const deviceId = await localKeepKeyWallet.getDeviceID()
+                  // This gets the firmware version needed for some KeepKey "supportsX" functions
+                  await localKeepKeyWallet.getFeatures()
+                  // Show the label from the wallet instead of a generic name
+                  const label = (await localKeepKeyWallet.getLabel()) || name
+
+                  await localKeepKeyWallet.initialize()
+
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localKeepKeyWallet,
+                      name: label,
+                      icon,
+                      deviceId,
+                      meta: { label }
+                    }
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } else {
+                  clearLocalWallet()
+                }
               } catch (e) {
                 clearLocalWallet()
               }
-            } else {
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            case KeyManager.Portis:
+              const localPortisWallet = await state.adapters.get(KeyManager.Portis)?.pairDevice()
+              if (localPortisWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
+                try {
+                  await localPortisWallet.initialize()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localPortisWallet,
+                      name,
+                      icon,
+                      deviceId: localWalletDeviceId || 'test'
+                    }
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  clearLocalWallet()
+                }
+              } else {
+                clearLocalWallet()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            case KeyManager.MetaMask:
+              const localMetaMaskWallet = await state.adapters
+                .get(KeyManager.MetaMask)
+                ?.pairDevice()
+              if (localMetaMaskWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
+                try {
+                  await localMetaMaskWallet.initialize()
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localMetaMaskWallet,
+                      name,
+                      icon,
+                      deviceId: localWalletDeviceId as string
+                    }
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                } catch (e) {
+                  clearLocalWallet()
+                }
+              } else {
+                clearLocalWallet()
+              }
+              dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+              break
+            default:
               clearLocalWallet()
-            }
+              break
           }
         }
       })()

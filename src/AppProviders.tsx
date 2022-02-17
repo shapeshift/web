@@ -18,6 +18,7 @@ import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { simpleLocale } from 'lib/browserLocale'
+import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
 
@@ -44,14 +45,14 @@ export function AppProviders({ children }: ProvidersProps) {
   const DefiProvider = earnFeature ? DefiManagerProvider : React.Fragment
   return (
     <ReduxProvider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <ChakraProvider theme={theme}>
-          <ColorModeScript />
-          <BrowserRouter>
-            <ScrollToTop />
-            <BrowserRouterProvider>
-              <I18n locale={locale} messages={messages}>
-                <WalletProvider>
+      <ChakraProvider theme={theme}>
+        <ColorModeScript />
+        <BrowserRouter>
+          <ScrollToTop />
+          <BrowserRouterProvider>
+            <I18n locale={locale} messages={messages}>
+              <WalletProvider>
+                <PersistGate loading={<ConnectWallet showLoading />} persistor={persistor}>
                   <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
                     <PortfolioProvider>
                       <MarketDataProvider>
@@ -63,12 +64,12 @@ export function AppProviders({ children }: ProvidersProps) {
                       </MarketDataProvider>
                     </PortfolioProvider>
                   </ChainAdaptersProvider>
-                </WalletProvider>
-              </I18n>
-            </BrowserRouterProvider>
-          </BrowserRouter>
-        </ChakraProvider>
-      </PersistGate>
+                </PersistGate>
+              </WalletProvider>
+            </I18n>
+          </BrowserRouterProvider>
+        </BrowserRouter>
+      </ChakraProvider>
     </ReduxProvider>
   )
 }

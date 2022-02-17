@@ -3568,10 +3568,10 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.11.0", "@shapeshiftoss/caip@^1.6.1":
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.0.tgz#f03eaa937a7a362a9a4da26a6599445f30bc7425"
-  integrity sha512-rLV7rhSQB8DFdWB1uWYrIzIJHHgGK43ksl8BHmK1ji9Cqmc/DKDiu1MnhKmxRRkSKtNzJVAby5inmuEInwrZ7Q==
+"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.6.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.1.tgz#3b81f4c8973b4d9af635256e2abbf993aa577eac"
+  integrity sha512-8Cqn/4tqpNJDL6RHD2duQGe2U289I0A7gGp7bPQGMbtvy7cr5LIwo5nrPIuYfZUl2h1hvpyoVFkjkGWGMiqdRA==
 
 "@shapeshiftoss/chain-adapters@^1.25.0", "@shapeshiftoss/chain-adapters@^1.31.1":
   version "1.31.1"

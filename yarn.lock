@@ -3527,10 +3527,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.14.0.tgz#ae4875b44dd69f7c15675cdbb5d522eec2f1c1b1"
-  integrity sha512-VNd7tEtkPAX7Yaf4i/4djIcfU+iZooe5h/Z7qb/sEDnTZjbCq1ViCvZks5L4cLweUWPGxobYiYe1vTmMWcKI2A==
+"@shapeshiftoss/asset-service@^1.18.1":
+  version "1.18.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.18.1.tgz#eec99d9f64af46b4235ed9562926962daa5b0d0a"
+  integrity sha512-KEShhNuB1R8myDkWr5zhOqDAsrjkVnqj6IsMDdp56aMyNxpBpABHw6KroE16J+z04apO0iGdoiids8hogWO6RA==
   dependencies:
     axios "^0.24.0"
     lodash "^4.17.21"

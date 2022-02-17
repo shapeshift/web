@@ -1,22 +1,18 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { AprTag } from 'features/defi/components/AprTag/AprTag'
-import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
-  const history = useHistory()
-  const location = useLocation()
+  const { cosmos } = useModal()
 
   const handleClick = () => {
-    history.push({
-      pathname: `/defi/vault/cosmos/get-started`,
-      state: { background: location }
-    })
+    cosmos.open({ assetId: 'cosmoshub-4/slip44:118' })
   }
 
   return (

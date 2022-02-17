@@ -33,7 +33,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
   const translate = useTranslate()
   const { nativePassword } = useModal()
   const { close, isOpen } = nativePassword
-  const { state, dispatch } = useWallet()
+  const { state, dispatch, disconnect } = useWallet()
   const wallet = state.keyring.get<NativeHDWallet>(deviceId)
 
   const [showPw, setShowPw] = useState<boolean>(false)
@@ -77,7 +77,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
 
   const onCloseButtonClick = () => {
     if (state.isLoadingLocalWallet) {
-      dispatch({ type: WalletActions.RESET_STATE })
+      disconnect()
     }
     close()
   }
@@ -185,7 +185,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
                 colorScheme='blue'
                 onClick={() => {
                   close()
-                  dispatch({ type: WalletActions.RESET_STATE })
+                  disconnect()
                   dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
                 }}
               >

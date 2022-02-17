@@ -185,6 +185,38 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [state.keyring])
 
+  const connect = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('connect')
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+      })
+    }
+  }, [])
+
+  const create = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('create')
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+      })
+    }
+  }, [])
+
+  const disconnect = useCallback(() => {
+    state.wallet?.disconnect()
+    dispatch({ type: WalletActions.RESET_STATE })
+    clearLocalWallet()
+  }, [state.wallet])
+
   useEffect(() => {
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
@@ -208,7 +240,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               if (localNativeWallet) {
                 await localNativeWallet.initialize()
               } else {
-                clearLocalWallet()
+                disconnect()
               }
               break
             case KeyManager.KeepKey:
@@ -241,10 +273,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
-                  clearLocalWallet()
+                  disconnect()
                 }
               } catch (e) {
-                clearLocalWallet()
+                disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
@@ -265,10 +297,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
-                  clearLocalWallet()
+                  disconnect()
                 }
               } else {
-                clearLocalWallet()
+                disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
@@ -291,53 +323,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } catch (e) {
-                  clearLocalWallet()
+                  disconnect()
                 }
               } else {
-                clearLocalWallet()
+                disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
               break
             default:
-              clearLocalWallet()
+              disconnect()
               break
           }
         }
       })()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters])
-
-  const connect = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect')
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
-      })
-    }
-  }, [])
-
-  const create = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create')
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
-      })
-    }
-  }, [])
-
-  const disconnect = useCallback(() => {
-    state.wallet?.disconnect()
-    dispatch({ type: WalletActions.RESET_STATE })
-    clearLocalWallet()
-  }, [state.wallet])
 
   const value: IWalletContext = useMemo(
     () => ({ state, dispatch, connect, create, disconnect }),

@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import { persistReducer, persistStore } from 'redux-persist'
+import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { registerSelectors } from 'reselect-tools'
 
 import { reducer, ReduxState } from './reducer'
@@ -30,7 +30,7 @@ export const createStore = () =>
         immutableCheck: { warnAfter: 128 },
         serializableCheck: {
           warnAfter: 128,
-          ignoredActions: ['persist/PERSIST']
+          ignoredActions: [PERSIST]
         }
       }).concat(apiMiddleware),
     devTools: true

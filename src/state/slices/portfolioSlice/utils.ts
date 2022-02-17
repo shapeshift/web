@@ -159,6 +159,7 @@ export const accountToPortfolio: AccountToPortfolio = args => {
     const { chain } = account
 
     switch (chain) {
+      // TODO: Handle Cosmos ChainType here
       case ChainTypes.Ethereum: {
         const ethAccount = account as chainAdapters.Account<ChainTypes.Ethereum>
         const { caip2, caip19, pubkey } = account

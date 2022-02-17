@@ -128,6 +128,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       // Otherwise the connect button for last wallet we clicked on won't work
       if (action.payload !== state.modal) {
         newState.initialRoute = '/'
+        newState.isLoadingLocalWallet = false
       }
       return newState
     case WalletActions.SET_LOCAL_WALLET_LOADING:
@@ -195,7 +196,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             } else {
               clearLocalWallet()
             }
-            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
           } else if (localWalletType === KeyManager.KeepKey) {
             try {
               const localWallet = await state.adapters.get(KeyManager.KeepKey)?.pairDevice()

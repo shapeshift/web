@@ -3758,10 +3758,10 @@
     bignumber.js "^9.0.1"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.15.3":
-  version "1.15.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.15.3.tgz#5e45238eb3bbc603dfe47b5d5c53e143c942a1e0"
-  integrity sha512-yWyng4Td90jVYvLX513ScI39SYTbC6gJHIBoQspzfBMBxMTFOoNIm2qpQUox8OV/bKS5ViEVRHlITzuwNArhsg==
+"@shapeshiftoss/swapper@^1.15.4":
+  version "1.15.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.15.4.tgz#86eaef8e9b9c82ed3b213141c4273f8680fecd57"
+  integrity sha512-xRzWnyWUGNtzd73ur3XIuxETLWL+1Frh5GHV50GaXNobHKnl2fl8L+FW0YhsEZLnb/sSGzLxjQQImGn7QpAZxw==
   dependencies:
     axios "^0.21.4"
     bignumber.js "^9.0.1"

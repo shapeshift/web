@@ -2,7 +2,7 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { GetStarted } from 'features/defi/components/GetStarted/GetStarted'
 import { LearnMore } from 'features/defi/components/LearnMore/LearnMore'
 import React, { useRef } from 'react'
-import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
+import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type GetStartedModalProps = {
@@ -16,21 +16,19 @@ export enum GetStartedModalRoutes {
 
 export const entries = [GetStartedModalRoutes.GetStarted, GetStartedModalRoutes.LearnMore]
 
-const GetStartedModalRouter = ({ assetId, ...rest }) => {
-  const location = useLocation()
-  console.log({ assetId, rest })
-
-  return (
-    <Switch location={location} key={location.key}>
-      <Route path='/defi/modal/get-started'>
-        <GetStarted assetId={assetId} />
-      </Route>
-      <Route path='/defi/modal/learn-more'>
-        <LearnMore assetId={assetId} />
-      </Route>
-    </Switch>
-  )
-}
+const GetStartedModalRouter = ({
+  assetId,
+  location
+}: GetStartedModalProps & RouteComponentProps) => (
+  <Switch location={location} key={location.key}>
+    <Route path='/defi/modal/get-started'>
+      <GetStarted assetId={assetId} />
+    </Route>
+    <Route path='/defi/modal/learn-more'>
+      <LearnMore assetId={assetId} />
+    </Route>
+  </Switch>
+)
 
 export const GetStartedModal = ({ assetId }: GetStartedModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)

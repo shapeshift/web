@@ -10,7 +10,6 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
   const { cosmosGetStarted } = useModal()
-  console.log({ cosmosGetStarted })
 
   const handleGetStartedClick = () => {
     cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })

@@ -9,10 +9,11 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
-  const { cosmos } = useModal()
+  const { cosmosGetStarted } = useModal()
+  console.log({ cosmosGetStarted })
 
   const handleGetStartedClick = () => {
-    cosmos.open({ assetId: 'cosmoshub-4/slip44:118' })
+    cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
   }
 
   return (

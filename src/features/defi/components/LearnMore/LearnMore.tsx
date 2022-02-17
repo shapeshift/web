@@ -42,7 +42,7 @@ type LearnMoreProps = {
 
 export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const history = useHistory()
-  const { cosmos } = useModal()
+  const { cosmosGetStarted } = useModal()
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
     name: 'Osmo'
@@ -60,7 +60,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
   const isFirstStep = currentStep === 1
 
   const handleNextOrCloseClick = () => {
-    if (isLastStep) return cosmos.close()
+    if (isLastStep) return cosmosGetStarted.close()
 
     nextStep()
   }

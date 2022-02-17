@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.19.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.18.1...@shapeshiftoss/asset-service-v1.19.0) (2022-02-17)
+
+
+### Features
+
+* cosmos assets ([#366](https://github.com/shapeshift/lib/issues/366)) ([cb3dfac](https://github.com/shapeshift/lib/commit/cb3dfacb4f45ba7bb18cf58020b10935422c6314))
+
 # [@shapeshiftoss/asset-service-v1.18.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.18.0...@shapeshiftoss/asset-service-v1.18.1) (2022-02-17)
 
 # [@shapeshiftoss/asset-service-v1.18.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.17.0...@shapeshiftoss/asset-service-v1.18.0) (2022-02-16)

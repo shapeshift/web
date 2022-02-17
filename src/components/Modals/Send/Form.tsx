@@ -12,8 +12,8 @@ import {
   useLocation
 } from 'react-router-dom'
 import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'

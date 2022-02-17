@@ -4,7 +4,8 @@ import { mockStore } from 'test/mocks/store'
 import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
 import { store } from 'state/store'
 
-import { makeUniqueTxId, selectLastNTxIds, txHistory } from './txHistorySlice'
+import { selectLastNTxIds } from './selectors'
+import { makeUniqueTxId, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   beforeAll(() => {

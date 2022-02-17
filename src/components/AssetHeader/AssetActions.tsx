@@ -5,8 +5,8 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useTranslate } from 'react-polyglot'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {

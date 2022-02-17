@@ -1,80 +1,39 @@
 import { Flex } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
-import {
-  Asset as A,
-  AssetDataSource,
-  ChainTypes,
-  ContractTypes,
-  MarketData,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import type { CAIP19 } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  marketApi,
+  selectAssetByCAIP19,
   selectMarketDataById,
   selectMarketDataLoadingById
-} from 'state/slices/marketDataSlice/marketDataSlice'
+} from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoadingAsset } from './LoadingAsset'
 export interface MatchParams {
-  chain: ChainTypes
-  tokenId: string
-}
-
-// TODO(0xdef1cafe): this has to die, we can't return invalid assets
-export const initAsset: A = {
-  caip2: '',
-  caip19: '',
-  chain: ChainTypes.Ethereum,
-  network: NetworkTypes.MAINNET,
-  symbol: '',
-  name: '',
-  precision: 18,
-  color: '',
-  secondaryColor: '',
-  icon: '',
-  sendSupport: true,
-  receiveSupport: true,
-  slip44: 60,
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: '',
-  dataSource: AssetDataSource.CoinGecko,
-  description: ''
-}
-
-export const initMarketData: MarketData = {
-  price: '',
-  marketCap: '',
-  volume: '',
-  changePercent24Hr: 0
+  assetId: CAIP19
 }
 
 export const useAsset = () => {
   const dispatch = useAppDispatch()
 
-  const { chain, tokenId } = useParams<MatchParams>()
-  const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
-  const extra = tokenId ? { contractType, tokenId } : undefined
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, ...extra })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  const params = useParams<MatchParams>()
+  const assetId = decodeURIComponent(params.assetId)
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   // Many, but not all, assets are initialized with market data on app load. This dispatch will
   // ensure that those assets not initialized on app load will reach over the network and populate
   // the store with market data once a user visits that asset page.
-  if (!marketData) dispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
+  if (!marketData) dispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
 
-  const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetCAIP19))
+  const loading = useAppSelector(state => selectMarketDataLoadingById(state, assetId))
 
   return {
-    asset: asset ?? initAsset,
-    marketData: marketData ?? initMarketData,
+    asset,
+    marketData,
     loading
   }
 }
@@ -82,7 +41,7 @@ export const useAsset = () => {
 export const Asset = () => {
   const { asset, marketData } = useAsset()
 
-  return !marketData ? (
+  return !(asset && marketData) ? (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
         <LoadingAsset />

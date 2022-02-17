@@ -1,6 +1,6 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
-import { Tag } from '@chakra-ui/tag'
+import { AprTag } from 'features/defi/components/AprTag/AprTag'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -42,9 +42,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
           <RawText size='lg' fontWeight='bold'>{`${name}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
-          <Tag colorScheme='green'>
-            <Amount.Percent value={'1.24'} />
-          </Tag>
+          <AprTag percentage='1.25' />
         </Skeleton>
       </Flex>
       <Flex>

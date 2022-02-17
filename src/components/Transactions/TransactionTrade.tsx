@@ -33,6 +33,7 @@ export const TransactionTrade = ({
         as='button'
         w='full'
         py={4}
+        data-test='transaction-trade'
         onClick={toggleOpen}
       >
         <Flex alignItems='center' width='full'>

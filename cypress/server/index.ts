@@ -26,11 +26,23 @@ wss.on('connection', function connection(ws: WebSocket) {
 
       switch (method) {
         case 'subscribe':
-          let reply = JSON.stringify({
-            method: 'subscribe',
-            data: ethTransaction
+          for (let i = 0; i < ethTransaction.length; i++) {
+            let reply = JSON.stringify({
+              method: 'subscribe',
+              subscriptionId: jsonMessage.subscriptionId,
+              data: ethTransaction[i]
+            })
+            ws.send(reply)
+          }
+
+          ws.send(endReply)
+
+          break
+        case 'unsubscribe':
+          ws.send({
+            method: 'unsubscribe',
+            data: {}
           })
-          ws.send(reply)
           ws.send(endReply)
 
           break

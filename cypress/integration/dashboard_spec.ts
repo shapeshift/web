@@ -14,6 +14,11 @@ describe('The Dashboard', () => {
     cy.login()
   })
 
+  it('recent transactions', () => {
+    cy.getBySel('transaction-receive').should('have.length', 3)
+    cy.getBySel('transaction-send').should('have.length', 3)
+  })
+
   it('nav bar works', () => {
     cy.navigateToAccounts()
     cy.navigateToAssets()

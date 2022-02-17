@@ -31,6 +31,7 @@ export const TransactionReceive = ({
         as='button'
         w='full'
         py={4}
+        data-test='transaction-receive'
         onClick={toggleOpen}
       >
         <Flex alignItems='center' width='full'>

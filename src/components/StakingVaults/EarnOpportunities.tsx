@@ -44,7 +44,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
     [asset.tokenId, vaults]
   )
 
-  if (!earnFeature || !vaults?.length) return null
+  if (!earnFeature || !vaultRows?.length) return null
 
   return (
     <Card>

@@ -13,7 +13,7 @@ import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-const renderTransactionType = (txDetails: TxDetails, activeAsset?: Asset): JSX.Element | null => {
+const renderTransactionType = (txDetails: TxDetails): JSX.Element | null => {
   return (() => {
     switch (txDetails.type) {
       case TxType.Send:
@@ -21,7 +21,7 @@ const renderTransactionType = (txDetails: TxDetails, activeAsset?: Asset): JSX.E
       case TxType.Receive:
         return <TransactionReceive txDetails={txDetails} />
       case TradeType.Trade:
-        return <TransactionTrade txDetails={txDetails} activeAsset={activeAsset} />
+        return <TransactionTrade txDetails={txDetails} />
       default:
         // Unhandled transaction type - don't render anything
         return null

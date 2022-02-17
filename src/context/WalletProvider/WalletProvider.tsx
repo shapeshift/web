@@ -20,6 +20,14 @@ import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
+declare global {
+  interface Navigator {
+    usb: {
+      getDevices(): any[]
+    }
+  }
+}
+
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
   SET_WALLET = 'SET_WALLET',
@@ -229,7 +237,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         payload: localWalletDeviceId as string
       })
     }
-    if (localWalletType && state.adapters) {
+    if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
@@ -248,9 +256,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * this case isn't tested yet
                */
               try {
+                const devices = navigator.usb.getDevices()
                 const localKeepKeyWallet = await state.adapters
                   .get(KeyManager.KeepKey)
-                  ?.pairDevice()
+                  ?.initialize(devices)
                 if (localKeepKeyWallet) {
                   const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
                   const deviceId = await localKeepKeyWallet.getDeviceID()
@@ -338,7 +347,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.adapters])
+  }, [state.adapters, state.keyring])
 
   const value: IWalletContext = useMemo(
     () => ({ state, dispatch, connect, create, disconnect }),

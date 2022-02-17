@@ -40,8 +40,8 @@ export const routes: Array<NestedRoute> = [
     icon: <AssetsIcon color='inherit' />,
     routes: [
       {
-        path: '/:assetId',
-        label: 'Asset Details',
+        path: '/:chainId/:assetSubId',
+        label: 'navbar.assetDetails',
         main: <Asset />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
@@ -56,14 +56,14 @@ export const routes: Array<NestedRoute> = [
     routes: [
       {
         path: '/:accountId',
-        label: 'Account Details',
+        label: 'navbar.accountDetails',
         main: <Account />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
       },
       {
         path: '/:accountId/:assetId?',
-        label: 'Account Asset',
+        label: 'navbar.accountAsset',
         main: <AccountToken />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
@@ -122,7 +122,7 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
-  const appRoutes = generateAppRoutes(union(routes, props?.additionalRoutes))
+  const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
 
   return (
     <Switch location={background || location}>

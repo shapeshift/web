@@ -23,7 +23,7 @@ export type AccountRowArgs = {
 
 export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
-  const url = useMemo(() => (assetId ? `/assets/${encodeURIComponent(assetId)}` : ''), [assetId])
+  const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

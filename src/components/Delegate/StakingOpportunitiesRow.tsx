@@ -11,7 +11,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
   const { cosmos } = useModal()
 
-  const handleClick = () => {
+  const handleGetStartedClick = () => {
     cosmos.open({ assetId: 'cosmoshub-4/slip44:118' })
   }
 
@@ -23,7 +23,6 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
       variant='ghost'
       fontWeight='normal'
       py={2}
-      onClick={handleClick}
     >
       <Flex alignItems='center'>
         <Flex mr={4}>
@@ -49,7 +48,13 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
               <Amount.Crypto value={'10'} symbol={'OSMO'} prefix='≈' />
             </HStack>
           ) : (
-            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
+            <Button
+              onClick={handleGetStartedClick}
+              as='span'
+              colorScheme='blue'
+              variant='ghost-filled'
+              size='sm'
+            >
               <Text translation='common.getStarted' />
             </Button>
           )}

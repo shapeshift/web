@@ -32,11 +32,11 @@
     "dayjs": "^1.10.6"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^1.4.2",
-    "@shapeshiftoss/types": "^1.21.1"
+    "@shapeshiftoss/caip": "^1.11.0",
+    "@shapeshiftoss/types": "^1.23.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^1.4.2",
-    "@shapeshiftoss/types": "^1.21.1"
+    "@shapeshiftoss/caip": "^1.11.0",
+    "@shapeshiftoss/types": "^1.23.0"
   }
 }

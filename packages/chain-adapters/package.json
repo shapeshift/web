@@ -34,19 +34,19 @@
     "web3-utils": "^1.6.0"
   },
   "peerDependencies": {
-    "@shapeshiftoss/caip": "^1.5.1",
+    "@shapeshiftoss/caip": "^1.11.0",
     "@shapeshiftoss/hdwallet-core": "^1.18.2",
     "@shapeshiftoss/hdwallet-native": "^1.18.2",
-    "@shapeshiftoss/types": "^1.21.1",
+    "@shapeshiftoss/types": "^1.23.0",
     "@shapeshiftoss/unchained-client": "^5.1.0",
     "@shapeshiftoss/unchained-tx-parser": "^5.1.0",
     "bs58check": "^2.0.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/caip": "^1.5.1",
+    "@shapeshiftoss/caip": "^1.11.0",
     "@shapeshiftoss/hdwallet-core": "^1.18.2",
     "@shapeshiftoss/hdwallet-native": "^1.18.2",
-    "@shapeshiftoss/types": "^1.21.1",
+    "@shapeshiftoss/types": "^1.23.0",
     "@shapeshiftoss/unchained-client": "^5.1.0",
     "@shapeshiftoss/unchained-tx-parser": "^5.1.0",
     "@types/bs58check": "^2.1.0",

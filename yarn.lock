@@ -3527,10 +3527,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.14.0.tgz#ae4875b44dd69f7c15675cdbb5d522eec2f1c1b1"
-  integrity sha512-VNd7tEtkPAX7Yaf4i/4djIcfU+iZooe5h/Z7qb/sEDnTZjbCq1ViCvZks5L4cLweUWPGxobYiYe1vTmMWcKI2A==
+"@shapeshiftoss/asset-service@^1.18.1":
+  version "1.18.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.18.1.tgz#eec99d9f64af46b4235ed9562926962daa5b0d0a"
+  integrity sha512-KEShhNuB1R8myDkWr5zhOqDAsrjkVnqj6IsMDdp56aMyNxpBpABHw6KroE16J+z04apO0iGdoiids8hogWO6RA==
   dependencies:
     axios "^0.24.0"
     lodash "^4.17.21"
@@ -3568,10 +3568,10 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.10.0", "@shapeshiftoss/caip@^1.6.1":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.10.0.tgz#72577b6560f36db69ea75badae550b37fc6dd61d"
-  integrity sha512-KZkI173ox3Vw6rTlbvqRpFaexynZHufZrIE7xmMG9iF4FeBZkzgGLJvBcSCBVkHGvLygY1hRJwDqVPdtVDEbSw==
+"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.6.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.1.tgz#3b81f4c8973b4d9af635256e2abbf993aa577eac"
+  integrity sha512-8Cqn/4tqpNJDL6RHD2duQGe2U289I0A7gGp7bPQGMbtvy7cr5LIwo5nrPIuYfZUl2h1hvpyoVFkjkGWGMiqdRA==
 
 "@shapeshiftoss/chain-adapters@^1.25.0", "@shapeshiftoss/chain-adapters@^1.31.1":
   version "1.31.1"
@@ -3776,10 +3776,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.5.3"
 
-"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.21.1":
-  version "1.21.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.21.1.tgz#81e416a8cf088a498e0fd1178d0dd9f42911ede5"
-  integrity sha512-4RoynuG0ZlKX0h/K7evDVddnQjRqmOVNH3r4UJv0mRRnD1eUGzdAQjKLji43lapwL0x9HlPw2YRHL5ctmV6Zcw==
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.23.0":
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.23.0.tgz#d9d542616fa927244591ebe8d405006ebb2fe5db"
+  integrity sha512-itqM2tN5/2ZlQEYbZMHGVYzwb6eYWDp9FnNUUuRAljkTG8OFRhNoQtg97K+d+t4NwZT486RA/D6PD+B8MHd72g==
 
 "@shapeshiftoss/unchained-client@^5.1.1":
   version "5.1.1"

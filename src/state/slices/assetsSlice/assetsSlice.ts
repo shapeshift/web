@@ -76,9 +76,9 @@ export const assetApi = createApi({
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
         try {
-          const descriptionData = await service.description({ asset: byId[assetId] })
-          byId[assetId].description = descriptionData.description
-          byId[assetId].isTrustedDescription = descriptionData.isTrusted
+          const { description, isTrusted } = await service.description({ asset: byId[assetId] })
+          byId[assetId].description = description
+          byId[assetId].isTrustedDescription = isTrusted
           const data = { byId, ids }
           return { data }
         } catch (e) {

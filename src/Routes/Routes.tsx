@@ -41,7 +41,7 @@ export const routes: Array<NestedRoute> = [
     routes: [
       {
         path: '/:assetId',
-        label: 'Asset Details',
+        label: 'navbar.AssetDetails',
         main: Asset,
         leftSidebar: AssetSidebar,
         rightSidebar: AssetRightSidebar,
@@ -128,7 +128,7 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
 
-  const appRoutes = generateAppRoutes(union(routes, props?.additionalRoutes))
+  const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
 
   return (
     <Switch location={background || location}>

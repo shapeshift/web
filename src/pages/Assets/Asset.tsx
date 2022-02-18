@@ -1,5 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import type { CAIP19 } from '@shapeshiftoss/caip'
+import type { CAIP2 } from '@shapeshiftoss/caip'
 import { useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
@@ -14,14 +14,15 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoadingAsset } from './LoadingAsset'
 export interface MatchParams {
-  assetId: CAIP19
+  chainId: CAIP2
+  assetSubId: string
 }
 
 export const useAsset = () => {
   const dispatch = useAppDispatch()
 
   const params = useParams<MatchParams>()
-  const assetId = decodeURIComponent(params.assetId)
+  const assetId = `${params.chainId}/${params.assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

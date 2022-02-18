@@ -7,7 +7,7 @@ export const AssetSidebar = ({ onToggle }: LeftSidebarChildProps) => {
   const history = useHistory()
   const onClick = (asset: Asset) => {
     // @see onClick handler in `src/pages/Assets/Assets.tsx` - this needs to work the same
-    const url = `/assets/${encodeURIComponent(asset.caip19)}`
+    const url = `/assets/${asset.caip19}`
     history.push(url)
     onToggle && onToggle()
   }

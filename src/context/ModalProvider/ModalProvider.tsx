@@ -1,7 +1,7 @@
+import { GetStartedModal } from 'features/cosmos/components/modals/GetStarted/GetStarted'
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import React, { useContext, useMemo, useReducer } from 'react'
-import { GetStartedModal } from 'components/Modals/Cosmos/GetStartedModal'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'

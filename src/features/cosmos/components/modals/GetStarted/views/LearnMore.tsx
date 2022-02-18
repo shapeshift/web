@@ -2,6 +2,7 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
 import { useSteps } from 'chakra-ui-steps'
+import { DefiModalHeader } from 'features/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { useHistory } from 'react-router-dom'
 import rewards from 'assets/rewards.svg'
 import risk from 'assets/risk.svg'
@@ -10,8 +11,6 @@ import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-
-import { DefiModalHeader } from '../DefiModalHeader/DefiModalHeader'
 
 const STEPS_LENGTH = 3
 const STEP_TO_ELEMENTS_MAPPING = {

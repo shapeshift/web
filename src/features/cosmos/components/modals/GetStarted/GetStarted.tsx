@@ -1,9 +1,10 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { GetStarted } from 'features/defi/components/GetStarted/GetStarted'
-import { LearnMore } from 'features/defi/components/LearnMore/LearnMore'
 import React, { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+
+import { GetStarted } from './views/GetStarted'
+import { LearnMore } from './views/LearnMore'
 
 type GetStartedModalProps = {
   assetId: string

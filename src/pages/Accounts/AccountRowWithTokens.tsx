@@ -20,7 +20,7 @@ export const AccountRowWithTokens = ({ accountId }: AccountRowWithTokensProps) =
     <Card variant='outline'>
       <Card.Body>
         <Box mx={-4}>
-          <AssetAccountRow assetId={nativeAssetId} accountId={accountId} />
+          <AssetAccountRow accountId={accountId} />
         </Box>
       </Card.Body>
       {assetIds.length > 0 && (

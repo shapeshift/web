@@ -1,4 +1,4 @@
-import { HStack, StackProps } from '@chakra-ui/react'
+import { Stack, StackProps } from '@chakra-ui/react'
 import union from 'lodash/union'
 import { pluginManager } from 'plugins'
 import { useTranslate } from 'react-polyglot'
@@ -9,20 +9,24 @@ export const NavBar = (props: StackProps) => {
   const translate = useTranslate()
 
   return (
-    <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
+    <Stack width='full' flex='1 1 0%' {...props}>
       {union(routes, pluginManager.getRoutes())
         .filter(route => !route.disable)
-        .map(item => (
-          <MainNavLink
-            key={item.label}
-            icon={item.icon}
-            href={item.path}
-            to={item.path}
-            label={translate(item.label)}
-            aria-label={translate(item.label)}
-            data-test={`navbar-${item.label.split('.')[1]}-button`}
-          />
-        ))}
-    </HStack>
+        .map(item => {
+          return (
+            <>
+              <MainNavLink
+                key={item.label}
+                icon={item.icon}
+                href={item.path}
+                to={item.path}
+                label={translate(item.label)}
+                aria-label={translate(item.label)}
+                data-test={`navbar-${item.label.split('.')[1]}-button`}
+              />
+            </>
+          )
+        })}
+    </Stack>
   )
 }

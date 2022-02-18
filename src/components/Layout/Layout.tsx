@@ -3,39 +3,32 @@ import React from 'react'
 import { Route } from 'Routes/helpers'
 
 import { Header } from './Header/Header'
-import { LeftSidebar } from './LeftSidebar'
-import { RightSidebar } from './RightSidebar'
 
 export const Layout = ({ route }: { route: Route }) => {
+  const MainComponent = route.main as React.ElementType
   return (
-    <>
+    <Flex>
       <Header route={route} />
       <Container
         as='main'
         maxWidth='full'
         width='full'
-        paddingBottom={{ base: 'calc(57px + env(safe-area-inset-bottom))', md: 0 }}
+        paddingBottom={{ base: 'calc(0 + env(safe-area-inset-bottom))', md: 0 }}
         marginInline='auto'
         paddingInlineStart='0'
         paddingInlineEnd='0'
+        flex='1 1 0%'
       >
         <Box display={{ base: 'block', md: 'flex' }} width='full'>
           <Box flex={1}>
             <Box id='content' mx='auto' minH='76vh'>
-              <Flex
-                maxWidth={{ base: 'auto', '2xl': '1464px' }}
-                mx='auto'
-                px={{ base: 0, lg: 4 }}
-                flexDir={{ base: 'column', lg: 'row' }}
-              >
-                {route?.leftSidebar && <LeftSidebar route={route}>{route.leftSidebar}</LeftSidebar>}
-                {route.main}
-                {route?.rightSidebar && <RightSidebar>{route.rightSidebar}</RightSidebar>}
+              <Flex mx='auto' px={{ base: 0, lg: 0 }} flexDir={{ base: 'column', lg: 'row' }}>
+                {route.main && <MainComponent route={route} />}
               </Flex>
             </Box>
           </Box>
         </Box>
       </Container>
-    </>
+    </Flex>
   )
 }

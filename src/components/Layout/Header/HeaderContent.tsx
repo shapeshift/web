@@ -1,66 +1,70 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Box, Flex, IconButton, Portal, Stack, useColorModeValue } from '@chakra-ui/react'
-import { Link as RouterLink, useLocation } from 'react-router-dom'
-import { pathTo, Route } from 'Routes/helpers'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+import { ChatIcon, SearchIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Button,
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Link,
+  Portal,
+  Stack,
+  Switch,
+  useColorModeValue
+} from '@chakra-ui/react'
+import { FaMoon } from 'react-icons/fa'
+import { Route } from 'Routes/helpers'
+import { Text } from 'components/Text'
 
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
-
-const noBack = ['/defi', '/defi/']
 
 export const HeaderContent = ({ route }: { route: Route }) => {
   const navbarBg = useColorModeValue('white', 'gray.800')
   const navbarBorder = useColorModeValue('gray.100', 'gray.750')
   const navShadow = useColorModeValue('lg', 'dark-lg')
-  const location = useLocation()
   return (
-    <Flex px={4} width='full' justifyContent='space-between'>
+    <>
       <Flex
         width='full'
-        h={16}
-        alignItems={'center'}
-        justifyContent={'space-between'}
+        height='full'
+        alignItems='flex-start'
+        justifyContent='flex-start'
         data-test='full-width-header'
+        flexDir='column'
+        p={4}
       >
-        <Box display='flex' alignItems='center' flex={2}>
-          {pathTo(route).map((crumb, index, breadcrumbs) => (
-            <div key={index} className='item'>
-              {index < breadcrumbs.length - 1 &&
-                crumb.path &&
-                !noBack.includes(location.pathname) && (
-                  <IconButton
-                    icon={<ArrowBackIcon />}
-                    aria-label={crumb.label}
-                    as={RouterLink}
-                    to={crumb.path}
-                    size='md'
-                    isRound
-                    mr={2}
-                  />
-                )}
-            </div>
-          ))}
-          <RouterLink to='/dashboard'>
-            <FoxIcon
-              w={{ base: '30px', lg: '40px' }}
-              h={{ base: '30px', lg: '40px' }}
-              display={{ base: 'none', md: 'block' }}
-            />
-          </RouterLink>
-        </Box>
-        <RouterLink to='/dashboard'>
-          <FoxIcon
-            w={{ base: '30px', lg: '40px' }}
-            h={{ base: '30px', lg: '40px' }}
-            display={{ base: 'block', md: 'none' }}
-            justifySelf='flex-end'
-          />
-        </RouterLink>
-        <NavBar display={{ base: 'none', md: 'flex' }} />
-        <Flex alignItems='center' justifyContent='flex-end' flex={2}>
+        <Flex width='full'>
           <UserMenu />
         </Flex>
+        <InputGroup mt={12}>
+          <InputLeftElement>
+            <SearchIcon color='gray.300' />
+          </InputLeftElement>
+          <Input placeholder='Search by token or address' variant='filled' />
+        </InputGroup>
+        <NavBar display={{ base: 'none', md: 'flex' }} mt={6} />
+        <Stack width='full'>
+          <Button
+            variant='ghost'
+            isFullWidth
+            justifyContent='space-between'
+            leftIcon={<FaMoon />}
+            rightIcon={<Switch isChecked={true} />}
+          >
+            <Text mr='auto' translation='common.darkMode' />
+          </Button>
+          <Button
+            leftIcon={<ChatIcon />}
+            as={Link}
+            justifyContent='flex-start'
+            variant='ghost'
+            isExternal
+            href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
+          >
+            <Text translation='common.submitFeedback' />
+          </Button>
+        </Stack>
       </Flex>
       <Portal>
         <Box
@@ -81,6 +85,6 @@ export const HeaderContent = ({ route }: { route: Route }) => {
           </Stack>
         </Box>
       </Portal>
-    </Flex>
+    </>
   )
 }

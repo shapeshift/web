@@ -30,43 +30,49 @@ export const routes: Array<NestedRoute> = [
     path: '/dashboard',
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
-    main: <Dashboard />,
-    rightSidebar: <DashboardSidebar />
+    main: Dashboard,
+    rightSidebar: DashboardSidebar
   },
   {
     path: '/assets',
     label: 'navBar.assets',
-    main: <Assets />,
+    main: Assets,
     icon: <AssetsIcon color='inherit' />,
     routes: [
       {
         path: '/:assetId',
         label: 'Asset Details',
-        main: <Asset />,
-        leftSidebar: <AssetSidebar />,
-        rightSidebar: <AssetRightSidebar />
+        main: Asset,
+        leftSidebar: AssetSidebar,
+        rightSidebar: AssetRightSidebar,
+        hide: true
       }
     ]
   },
   {
     path: '/accounts',
     label: 'navBar.accounts',
-    main: <Accounts />,
+    main: Accounts,
     icon: <FaWallet color='inherit' />,
     routes: [
       {
         path: '/:accountId',
         label: 'Account Details',
-        main: <Account />,
-        leftSidebar: <AssetSidebar />,
-        rightSidebar: <AssetRightSidebar />
-      },
-      {
-        path: '/:accountId/:assetId?',
-        label: 'Account Asset',
-        main: <AccountToken />,
-        leftSidebar: <AssetSidebar />,
-        rightSidebar: <AssetRightSidebar />
+        main: Account,
+        leftSidebar: AssetSidebar,
+        rightSidebar: AssetRightSidebar,
+        hide: true,
+        routes: [
+          {
+            path: '/:assetId',
+            label: 'Account Asset',
+            breadcrumb: 'Asset',
+            main: AccountToken,
+            leftSidebar: AssetSidebar,
+            rightSidebar: AssetRightSidebar,
+            hide: true
+          }
+        ]
       }
     ]
   },
@@ -75,36 +81,36 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.defi',
     icon: <FaRocket />,
     main: null,
-    leftSidebar: <DefiSidebar />,
+    leftSidebar: DefiSidebar,
     routes: [
       {
         path: '/',
         label: 'defi.overview',
-        main: <Overview />,
+        main: Overview,
         icon: <FaTable />,
-        leftSidebar: <DefiSidebar />
+        leftSidebar: DefiSidebar
       },
       {
         path: '/liquidity-pools',
         label: 'defi.liquidityPools',
-        main: <LiquidityPools />,
+        main: LiquidityPools,
         icon: <FaWater />,
-        leftSidebar: <DefiSidebar />,
+        leftSidebar: DefiSidebar,
         disable: true
       },
       {
         path: '/earn',
         label: 'defi.earn',
-        main: <StakingVaults />,
+        main: StakingVaults,
         icon: <FaLock />,
-        leftSidebar: <DefiSidebar />
+        leftSidebar: DefiSidebar
       },
       {
         path: '/farming',
         label: 'defi.farming',
-        main: <Farming />,
+        main: Farming,
         icon: <FaTractor />,
-        leftSidebar: <DefiSidebar />,
+        leftSidebar: DefiSidebar,
         disable: true
       }
     ]

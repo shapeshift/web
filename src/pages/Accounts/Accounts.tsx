@@ -1,33 +1,28 @@
-import { Flex, Heading, Stack } from '@chakra-ui/react'
+import { Heading, Stack } from '@chakra-ui/react'
 import { useSelector } from 'react-redux'
-import { Page } from 'components/Layout/Page'
+import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
 import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
 
 import { AccountRowWithTokens } from './AccountRowWithTokens'
 
+const AccountHeader = () => {
+  return (
+    <Heading>
+      <Text translation='accounts.accounts' />
+    </Heading>
+  )
+}
+
 export const Accounts = () => {
   const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
   return (
-    <Page style={{ flex: 1 }}>
-      <Flex
-        role='main'
-        flex={1}
-        flexDir='column'
-        maxWidth='2xl'
-        mx='auto'
-        height={{ base: 'calc(100vh - 128px)', md: 'calc(100vh - 64px)' }}
-        px={4}
-      >
-        <Stack>
-          <Heading>
-            <Text translation='accounts.accounts' />
-          </Heading>
-          {sortedAccountIds.map(accountId => (
-            <AccountRowWithTokens accountId={accountId} key={accountId} />
-          ))}
-        </Stack>
-      </Flex>
-    </Page>
+    <Main titleComponent={<AccountHeader />}>
+      <Stack>
+        {sortedAccountIds.map(accountId => (
+          <AccountRowWithTokens accountId={accountId} key={accountId} />
+        ))}
+      </Stack>
+    </Main>
   )
 }

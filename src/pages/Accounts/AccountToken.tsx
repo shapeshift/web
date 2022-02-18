@@ -2,7 +2,9 @@ import { Flex } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
+import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
+import { Main } from 'components/Layout/Main'
 import { Page } from 'components/Layout/Page'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
@@ -11,7 +13,7 @@ export type MatchParams = {
   assetId: CAIP19
 }
 
-export const AccountToken = () => {
+export const AccountToken = ({ route }: { route: Route }) => {
   const { accountId, assetId } = useParams<MatchParams>()
 
   /**
@@ -26,10 +28,6 @@ export const AccountToken = () => {
   const caip19 = assetId ? decodeURIComponent(assetId) : null
   if (!caip19) return null
   return (
-    <Page style={{ flex: 1 }} key={accountId}>
-      <Flex role='main' flex={1} height='100%'>
-        <AssetAccountDetails assetId={caip19} accountId={accountId} />
-      </Flex>
-    </Page>
+    <AssetAccountDetails assetId={caip19} accountId={accountId} route={route} key={accountId} />
   )
 }

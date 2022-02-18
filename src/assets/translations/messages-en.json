@@ -227,6 +227,26 @@
         }
       }
     },
+    "sign": {
+      "header": "Confirm Transaction Details",
+      "sign": "Sign Transaction!",
+      "reject": "reject",
+      "extendedValidation": "Extended Validation",
+      "amount": "Amount",
+      "fee": "Fee",
+      "network": "Network",
+      "summary": "Summary",
+      "from": "From",
+      "to": "To",
+      "router": "Router",
+      "memo": "Memo",
+      "protocol":"Protocol",
+      "broadcastingTransaction": "Broadcasting Transaction",
+      "errors": {
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas",
+        "transactionRejected": "User has rejected the transaction"
+      }
+    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",

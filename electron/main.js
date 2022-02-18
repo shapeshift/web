@@ -451,7 +451,7 @@ const start_bridge = async function (event) {
     }
 
     let transport
-    if (device) {
+    if (device || true) {
       transport = await adapter.getTransportDelegate(device)
       await transport.connect?.()
       STATE = 2

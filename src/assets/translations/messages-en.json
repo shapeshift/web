@@ -108,10 +108,12 @@
       }
     },
     "staked": "Staked",
+    "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
     "rewards": "Rewards",
+    "unstaking": "Unstaking",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",

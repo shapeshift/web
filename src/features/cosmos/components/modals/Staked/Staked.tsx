@@ -1,8 +1,9 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { Staked } from 'features/defi/components/Staked/Staked'
 import React, { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+
+import { Staked } from './views/Staked'
 
 type StakedModalProps = {
   assetId: string

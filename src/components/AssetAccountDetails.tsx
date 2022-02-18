@@ -1,6 +1,5 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -8,7 +7,6 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
 import { AssetHeader } from './AssetHeader/AssetHeader'
-import { StakingOpportunities } from './Delegate/StakingOpportunities'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
 
@@ -18,7 +16,6 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
-  const cosmosInverstorFlag = FeatureFlag.CosmosInvestor
   return (
     <Page style={{ width: '100%' }}>
       <Flex flexGrow={1} zIndex={2} flexDir={{ base: 'column', lg: 'row' }}>
@@ -33,7 +30,6 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
           <EarnOpportunities assetId={caip19} accountId={accountId} />
-          {cosmosInverstorFlag && <StakingOpportunities assetId={caip19} accountId={accountId} />}
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>

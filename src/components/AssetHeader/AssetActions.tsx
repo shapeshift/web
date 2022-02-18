@@ -10,13 +10,20 @@ import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetActionProps = {
+  isDisabled: boolean
   isLoaded: boolean
   assetId: CAIP19
   accountId?: AccountSpecifier
   cryptoBalance: string
 }
 
-export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: AssetActionProps) => {
+export const AssetActions = ({
+  isDisabled,
+  isLoaded,
+  assetId,
+  accountId,
+  cryptoBalance
+}: AssetActionProps) => {
   const { send, receive } = useModal()
   const translate = useTranslate()
   const {
@@ -55,7 +62,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
               width='full'
               icon={<ArrowUpIcon />}
               aria-label={translate('common.send')}
-              isDisabled={!hasValidBalance}
+              isDisabled={isDisabled || !hasValidBalance}
               data-test='asset-action-send'
             />
           </div>
@@ -64,6 +71,7 @@ export const AssetActions = ({ isLoaded, assetId, accountId, cryptoBalance }: As
       <Skeleton isLoaded={isLoaded} width={{ base: 'full', lg: 'auto' }}>
         <Tooltip label={translate('common.receive')} fontSize='md' px={4} hasArrow>
           <IconButton
+            isDisabled={isDisabled}
             onClick={handleReceiveClick}
             isRound
             width='full'

@@ -55,7 +55,8 @@ type AssetHeaderProps = {
   accountId?: AccountSpecifier
 }
 
-export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
+export const AssetHeader: React.FC<AssetHeaderProps> = props => {
+  const { assetId, accountId } = props
   const translate = useTranslate()
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
@@ -109,14 +110,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
               </Skeleton>
             </Box>
           </Flex>
-          {walletSupportsChain ? (
-            <AssetActions
-              isLoaded={isLoaded}
-              assetId={assetId}
-              accountId={accountId ? accountId : singleAccount}
-              cryptoBalance={cryptoBalance}
-            />
-          ) : null}
+          <AssetActions
+            isDisabled={!walletSupportsChain}
+            isLoaded={isLoaded}
+            assetId={assetId}
+            accountId={accountId ? accountId : singleAccount}
+            cryptoBalance={cryptoBalance}
+          />
         </Flex>
       </Card.Header>
       <Card.Body>

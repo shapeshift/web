@@ -1,27 +1,16 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, HStack, Stack } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useRenderForChains } from 'hooks/useRenderForChains/useRenderForChains'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { StakingOpportunitiesRow } from './StakingOpportunitiesRow'
 
-type StakingOpportunitiesProps = {
-  tokenId?: string
-  assetId: CAIP19
-  accountId?: AccountSpecifier
-  isLoaded?: boolean
-}
-
-export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesProps) => {
+export const StakingOpportunities = () => {
   // TODO: wire up with real validator data
-  const validators = [{ name: 'Cosmos Validator' }]
+  const validators = [{ id: 1, name: 'Cosmos Validator' }]
 
-  const cosmosStaking = () => (
+  return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
         <HStack justify='space-between' flex={1}>
@@ -37,12 +26,10 @@ export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesPr
       <Card.Body pt={0}>
         <Stack spacing={2} mt={2} mx={-4}>
           {validators.map(validator => (
-            <StakingOpportunitiesRow name={validator.name} />
+            <StakingOpportunitiesRow name={validator.name} key={validator.id} />
           ))}
         </Stack>
       </Card.Body>
     </Card>
   )
-
-  return useRenderForChains([ChainTypes.Cosmos], cosmosStaking)
 }

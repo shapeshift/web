@@ -1,8 +1,10 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { FeatureFlag } from 'constants/FeatureFlag'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
+import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -26,6 +28,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           <AssetHeader assetId={caip19} accountId={accountId} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
+          {FeatureFlag.CosmosInvestor && <StakingOpportunities />}
           <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>
       </Flex>

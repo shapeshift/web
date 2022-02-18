@@ -30,7 +30,9 @@
     "transactionFailedBody": "交易失败",
     "submitFeedback": "提交反馈",
     "send": "发送",
-    "receive": "接收"
+    "receive": "接收",
+    "privacy": "隱私政策",
+    "terms": "服務條款"
   },
   "updateToast": {
     "body": "应用有新版本",

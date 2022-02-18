@@ -22,6 +22,7 @@ import {
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
@@ -151,9 +152,18 @@ export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
+  const history = useHistory()
 
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
+  const handleTerms = () => {
+    history.push('/legal/terms-of-service')
+  }
+
+  const handlePrivacy = () => {
+    history.push('/legal/privacy-policy')
   }
 
   return (
@@ -196,6 +206,12 @@ export const UserMenu = () => {
               <Text translation='common.darkMode' />
               <Switch isChecked={isActive} />
             </Flex>
+          </MenuItem>
+          <MenuItem onClick={handleTerms}>
+            <Text color='gray.500' translation={'common.terms'} />
+          </MenuItem>
+          <MenuItem onClick={handlePrivacy}>
+            <Text color='gray.500' translation={'common.privacy'} />
           </MenuItem>
         </MenuList>
       </Menu>

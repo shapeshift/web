@@ -21,7 +21,7 @@
     "swapcli": "yarn build && node ./dist/swappercli.js"
   },
   "dependencies": {
-    "axios": "^0.21.4",
+    "axios": "^0.26.0",
     "bignumber.js": "^9.0.1",
     "retry-axios": "^2.6.0",
     "web3": "^1.6.1"

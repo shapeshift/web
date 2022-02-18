@@ -23,7 +23,7 @@ import { WalletViewsRouter } from './WalletViewsRouter'
 declare global {
   interface Navigator {
     usb: {
-      getDevices(): any[]
+      getDevices(): Promise<any>
     }
   }
 }

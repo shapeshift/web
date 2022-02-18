@@ -256,7 +256,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * this case isn't tested yet
                */
               try {
-                const devices = navigator.usb.getDevices()
+                const devices = await navigator.usb.getDevices()
                 const localKeepKeyWallet = await state.adapters
                   .get(KeyManager.KeepKey)
                   ?.initialize(devices)

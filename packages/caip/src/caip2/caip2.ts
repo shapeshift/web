@@ -126,7 +126,7 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
       const chain = ChainTypes.Cosmos
       switch (n) {
         case ChainReference.CosmosHubMainnet: {
-          const network = NetworkTypes.MAINNET
+          const network = NetworkTypes.COSMOSHUB_MAINNET
           return { chain, network }
         }
         case ChainReference.CosmosHubVega: {

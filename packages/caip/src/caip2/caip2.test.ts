@@ -64,7 +64,7 @@ describe('caip2', () => {
       const cosmosHubCaip2 = 'cosmos:cosmoshub-4'
       const { chain, network } = fromCAIP2(cosmosHubCaip2)
       expect(chain).toEqual(ChainTypes.Cosmos)
-      expect(network).toEqual(NetworkTypes.MAINNET)
+      expect(network).toEqual(NetworkTypes.COSMOSHUB_MAINNET)
     })
 
     it('can turn CosmosHub testnet to chain and network', () => {

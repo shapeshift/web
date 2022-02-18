@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.2...@shapeshiftoss/caip-v1.11.3) (2022-02-18)
+
+
+### Bug Fixes
+
+* update fromCaip19 ([#389](https://github.com/shapeshift/lib/issues/389)) ([5ee728f](https://github.com/shapeshift/lib/commit/5ee728fe69c09d8a2d0459ebd020aa4d4f871929))
+
 # [@shapeshiftoss/caip-v1.11.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.1...@shapeshiftoss/caip-v1.11.2) (2022-02-18)
 
 # [@shapeshiftoss/caip-v1.11.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.0...@shapeshiftoss/caip-v1.11.1) (2022-02-17)

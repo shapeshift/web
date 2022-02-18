@@ -273,9 +273,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
+                  console.error("localKeepKeyWallet didn't initialize")
                   disconnect()
                 }
               } catch (e) {
+                console.error('KeepKey intilize error: ', e)
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })

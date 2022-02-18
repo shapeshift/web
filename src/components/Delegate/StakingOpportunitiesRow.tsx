@@ -1,6 +1,7 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { AprTag } from 'features/defi/components/AprTag/AprTag'
+import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
@@ -11,8 +12,9 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
   const { cosmosGetStarted, cosmosStaked } = useModal()
 
-  const handleGetStartedClick = () => {
+  const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
+    e.stopPropagation()
   }
 
   const handleStakedClick = () => {
@@ -54,11 +56,11 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
             </HStack>
           ) : (
             <Button
-              // onClick={handleGetStartedClick}
               as='span'
               colorScheme='blue'
               variant='ghost-filled'
               size='sm'
+              onClick={handleGetStartedClick}
             >
               <Text translation='common.getStarted' />
             </Button>

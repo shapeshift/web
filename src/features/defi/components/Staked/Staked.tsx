@@ -46,7 +46,7 @@ export const Staked = ({ assetId }: GetStartedProps) => {
             <Image src={osmosis} width='100%' minWidth='15px' maxWidth='30px' marginRight='13px' />
             <Text translation={'Osmos Staking'} fontSize='18px' fontWeight='bold' />
           </Flex>
-          <Flex width='100%'>
+          <Flex width='100%' mb='20px'>
             <Flex width='50%' height='20px'>
               <Text translation={'Staked'} marginRight='20px' fontSize='16px' />
               <AprTag percentage='1.25' />
@@ -64,7 +64,7 @@ export const Staked = ({ assetId }: GetStartedProps) => {
               <Text translation={'Unstake'} fontWeight='bold' color='white' />
             </Button>
           </Flex>
-          <Flex width='100%'>
+          <Flex width='100%' mb='20px'>
             <Flex width='50%' height='20px'>
               <Text translation={'Rewards'} fontSize='16px' />
             </Flex>

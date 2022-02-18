@@ -20,14 +20,6 @@ import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
-declare global {
-  interface Navigator {
-    usb: {
-      getDevices(): Promise<any>
-    }
-  }
-}
-
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
   SET_WALLET = 'SET_WALLET',
@@ -256,10 +248,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * this case isn't tested yet
                */
               try {
-                const devices = await navigator.usb.getDevices()
                 const localKeepKeyWallet = await state.adapters
                   .get(KeyManager.KeepKey)
-                  ?.initialize(devices)
+                  ?.initialize()
                 if (localKeepKeyWallet) {
                   const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
                   const deviceId = await localKeepKeyWallet.getDeviceID()

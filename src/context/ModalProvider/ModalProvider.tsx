@@ -2,6 +2,7 @@ import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { GetStartedModal } from 'components/Modals/Cosmos/GetStartedModal'
+import { StakedModal } from 'components/Modals/Cosmos/StakedModal'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
@@ -17,7 +18,8 @@ const MODALS = {
   keepkeyPassphrase: PassphraseModal,
   receive: ReceiveModal,
   send: SendModal,
-  cosmosGetStarted: GetStartedModal
+  cosmosGetStarted: GetStartedModal,
+  cosmosStaked: StakedModal
 }
 
 // state

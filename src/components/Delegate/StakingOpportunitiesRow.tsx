@@ -9,10 +9,14 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
-  const { cosmosGetStarted } = useModal()
+  const { cosmosGetStarted, cosmosStaked } = useModal()
 
   const handleGetStartedClick = () => {
     cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
+  }
+
+  const handleStakedClick = () => {
+    cosmosStaked.open({ assetId: 'cosmoshub-4/slip44:118' })
   }
 
   return (
@@ -23,6 +27,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
       variant='ghost'
       fontWeight='normal'
       py={2}
+      onClick={handleStakedClick}
     >
       <Flex alignItems='center'>
         <Flex mr={4}>
@@ -49,7 +54,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
             </HStack>
           ) : (
             <Button
-              onClick={handleGetStartedClick}
+              // onClick={handleGetStartedClick}
               as='span'
               colorScheme='blue'
               variant='ghost-filled'

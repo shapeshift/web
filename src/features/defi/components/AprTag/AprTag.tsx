@@ -6,7 +6,7 @@ type AprTagProps = {
   withAprText?: true
 }
 
-export const AprTag: React.FC<AprTagProps> = ({ percentage, withAprText }) => (
+export const AprTag: React.FC<AprTagProps> = ({ percentage }) => (
   <Tag colorScheme='green'>
     <Amount.Percent value={percentage} />
   </Tag>

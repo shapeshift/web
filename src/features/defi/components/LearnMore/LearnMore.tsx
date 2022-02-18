@@ -17,21 +17,24 @@ const STEPS_LENGTH = 3
 const STEP_TO_ELEMENTS_MAPPING = {
   1: {
     bodies: [
-      'defi.learnMore.bodies.rateFluctuationInfo',
-      'defi.learnMore.bodies.amountStakingInfo',
-      'defi.learnMore.bodies.withdrawInfo'
+      'defi.modals.learnMore.bodies.rateFluctuationInfo',
+      'defi.modals.learnMore.bodies.amountStakingInfo',
+      'defi.modals.learnMore.bodies.withdrawInfo'
     ],
-    header: 'defi.learnMore.headers.aboutStakingRewards',
+    header: 'defi.modals.learnMore.headers.aboutStakingRewards',
     headerImageSrc: rewards
   },
   2: {
-    bodies: ['defi.learnMore.bodies.unbondingInfo'],
-    header: 'defi.learnMore.headers.unstaking',
+    bodies: ['defi.modals.learnMore.bodies.unbondingInfo'],
+    header: 'defi.modals.learnMore.headers.unstaking',
     headerImageSrc: withdraw
   },
   3: {
-    bodies: ['defi.learnMore.bodies.slashingInfo', 'defi.learnMore.bodies.partnerInfo'],
-    header: 'defi.learnMore.headers.risks',
+    bodies: [
+      'defi.modals.learnMore.bodies.slashingInfo',
+      'defi.modals.learnMore.bodies.partnerInfo'
+    ],
+    header: 'defi.modals.learnMore.headers.risks',
     headerImageSrc: risk
   }
 }
@@ -131,7 +134,11 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
                 mb='20px'
                 onClick={handleNextOrCloseClick}
               >
-                <Text translation={isLastStep ? 'defi.learnMore.close' : 'defi.learnMore.next'} />
+                <Text
+                  translation={
+                    isLastStep ? 'defi.modals.learnMore.close' : 'defi.modals.learnMore.next'
+                  }
+                />
               </Button>
             </Box>
             <Box width='46px'>

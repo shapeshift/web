@@ -43,16 +43,20 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
           <DefiModalHeader
             headerImageSrc={osmosis}
             headerImageWidth={68}
-            headerText={['defi.getStarted.header', { assetName: asset.name, maxApr }]}
+            headerText={['defi.modals.getStarted.header', { assetName: asset.name, maxApr }]}
           />
           <Box textAlign='center'>
-            <Text translation='defi.getStarted.body' color='gray.500' fontWeight='semibold' />
+            <Text
+              translation='defi.modals.getStarted.body'
+              color='gray.500'
+              fontWeight='semibold'
+            />
           </Box>
 
           <Box width='100%'>
             <Box textAlign='center' pb='16px'>
               <Text
-                translation='defi.getStarted.userProtectionInfo'
+                translation='defi.modals.getStarted.userProtectionInfo'
                 color='gray.500'
                 fontSize='12px'
               />
@@ -65,7 +69,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
                 colorScheme='blue'
                 onClick={() => 'Start Staking'}
               >
-                <Text translation='defi.getStarted.cta.startStaking' />
+                <Text translation='defi.modals.getStarted.cta.startStaking' />
               </Button>
               <Button
                 size='lg'
@@ -74,7 +78,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
                 colorScheme='white'
                 onClick={handleLearnMoreClick}
               >
-                <Text translation='defi.getStarted.cta.learnMore' />
+                <Text translation='defi.modals.getStarted.cta.learnMore' />
               </Button>
             </VStack>
           </Box>

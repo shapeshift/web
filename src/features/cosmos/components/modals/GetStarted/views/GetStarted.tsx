@@ -1,11 +1,10 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
+import { DefiModalHeader } from 'features/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { AnimatePresence } from 'framer-motion'
 import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
-
-import { DefiModalHeader } from '../DefiModalHeader/DefiModalHeader'
 
 type GetStartedProps = {
   assetId: string

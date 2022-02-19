@@ -13,7 +13,6 @@ import React, {
   useReducer
 } from 'react'
 
-// import { persistor } from 'state/store'
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
@@ -68,7 +67,7 @@ const initialState: InitialState = {
   walletInfo: null,
   isConnected: false,
   modal: false,
-  isLoadingLocalWallet: Boolean(getLocalWalletType())
+  isLoadingLocalWallet: false
 }
 
 export interface IWalletContext {
@@ -160,9 +159,12 @@ const getInitialState = () => {
   const localWalletDeviceId = getLocalWalletDeviceId()
   if (localWalletType && localWalletDeviceId) {
     /**
-     * set deviceId to bypass splash screen
+     * set isLoadingLocalWallet->true to bypass splash screen
      */
-    return { ...initialState, walletInfo: { deviceId: localWalletDeviceId } as WalletInfo }
+    return {
+      ...initialState,
+      isLoadingLocalWallet: true
+    }
   }
   return initialState
 }
@@ -225,13 +227,13 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [])
 
   const disconnect = useCallback(() => {
-    state.wallet?.disconnect()
+    /**
+     * in case of KeepKey placeholder wallet,
+     * the disconnect function is undefined
+     */
+    state.wallet?.disconnect?.()
     dispatch({ type: WalletActions.RESET_STATE })
     clearLocalWallet()
-    /**
-     * clear persisted redux data when disconnecting wallet
-     */
-    // persistor.purge()
   }, [state.wallet])
 
   useEffect(() => {
@@ -246,18 +248,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 .get(KeyManager.Native)
                 ?.pairDevice(localWalletDeviceId)
               if (localNativeWallet) {
+                /**
+                 * This will eventually fire an event, which the native wallet
+                 * password modal will be shown
+                 */
                 await localNativeWallet.initialize()
               } else {
                 disconnect()
               }
               break
             case KeyManager.KeepKey:
-              /**
-               * this case isn't tested yet
-               */
               try {
-                console.info(state.keyring)
                 const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
+                /**
+                 * if localKeepKeyWallet is not null it means
+                 * KeepKey remained connected during the reload
+                 */
                 if (localKeepKeyWallet) {
                   const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
                   const deviceId = await localKeepKeyWallet.getDeviceID()
@@ -280,7 +286,28 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
-                  disconnect()
+                  /**
+                   * The KeepKey wallet is disconnected,
+                   * we're going to show user that a Keepkey wallet is in
+                   * disconnected mode.
+                   */
+                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      /**
+                       * We should create a placeholder wallet so that app could work properly,
+                       * note that once user connects the KeepKey wallet back, this wallet will be
+                       * replaced by the real one.
+                       */
+                      wallet: {} as HDWallet,
+                      name,
+                      icon,
+                      deviceId: localWalletDeviceId,
+                      meta: { label: name }
+                    }
+                  })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
                 }
               } catch (e) {
                 disconnect()

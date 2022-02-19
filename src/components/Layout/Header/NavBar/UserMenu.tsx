@@ -122,7 +122,7 @@ const WalletButton: FC<WalletButtonProps> = ({
     }
   }, [walletInfo])
 
-  return Boolean(walletInfo?.deviceId) ? (
+  return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <Button
       onClick={onConnect}
       leftIcon={<WalletImage walletInfo={walletInfo} />}

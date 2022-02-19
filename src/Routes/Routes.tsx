@@ -120,7 +120,7 @@ function useLocationBackground() {
 export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
   const { background, location } = useLocationBackground()
   const { state } = useWallet()
-  const hasWallet = Boolean(state.walletInfo?.deviceId)
+  const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
 
   const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
 

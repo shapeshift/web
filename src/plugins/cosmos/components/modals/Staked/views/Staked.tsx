@@ -81,7 +81,7 @@ export const Staked = ({ assetId }: StakedProps) => {
               <Text translation={'708.00 OSMO'} color='gray.500' />
             </Flex>
           </Flex>
-          <Button width='100%' backgroundColor='#144241'>
+          <Button width='100%' colorScheme='darkTeal'>
             <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />
           </Button>
         </Flex>

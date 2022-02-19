@@ -23,8 +23,11 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import { selectAssetByCAIP19, selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
-import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectAssetByCAIP19,
+  selectFeeAssetById,
+  selectPortfolioCryptoHumanBalanceByAssetId
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type TS = TradeState<ChainTypes, SwapperType>

@@ -10,13 +10,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectAssets,
+  selectMarketData,
   selectPortfolioAssetBalances,
   selectPortfolioLoading
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 
 export type EarnVault = Partial<chainAdapters.Account<ChainTypes>> &
   SupportedYearnVault & { vaultCaip19: CAIP19; tokenCaip19: CAIP19; pricePerShare: BigNumber }

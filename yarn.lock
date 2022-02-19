@@ -3527,10 +3527,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.14.0.tgz#ae4875b44dd69f7c15675cdbb5d522eec2f1c1b1"
-  integrity sha512-VNd7tEtkPAX7Yaf4i/4djIcfU+iZooe5h/Z7qb/sEDnTZjbCq1ViCvZks5L4cLweUWPGxobYiYe1vTmMWcKI2A==
+"@shapeshiftoss/asset-service@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-1.19.0.tgz#49860ec6bdbd1bc26b77548823f4c21b86b70567"
+  integrity sha512-ywMixQvgN7hwf5c3xVf6FIe9LGy82w4QvvZdcWn4UJ+cSpz2ZrI6rEGuhcSFXPXDOieHhtQtMUczUjCvG/Ai5A==
   dependencies:
     axios "^0.24.0"
     lodash "^4.17.21"
@@ -3557,10 +3557,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-5.1.0.tgz#378ae5a614ae0aadd6192b92d8d0b84b12ce2d30"
-  integrity sha512-9sDYtXOmF3l64YEVLVJkOHzz5BqS8/QXReWLQmA0mbOHers0NBdrzNweDWyww3ge/Re1/dnSUATX2tQSa0h/fg==
+"@shapeshiftoss/blockbook@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-5.1.1.tgz#a2c72265fdd507f2d093e3a9b28801289b14afa7"
+  integrity sha512-hmwGXC0kBKDmc5tzdCcT2HwsCe7KXV0Lh/ygCEWTavIvOZyyE8MxOSAyba6lZ22mCYSV/QmIHnUVPSyi9C7NKw==
   dependencies:
     axios "^0.21.2"
     express "^4.17.1"
@@ -3568,15 +3568,15 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.10.0", "@shapeshiftoss/caip@^1.6.1":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.10.0.tgz#72577b6560f36db69ea75badae550b37fc6dd61d"
-  integrity sha512-KZkI173ox3Vw6rTlbvqRpFaexynZHufZrIE7xmMG9iF4FeBZkzgGLJvBcSCBVkHGvLygY1hRJwDqVPdtVDEbSw==
+"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.6.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.1.tgz#3b81f4c8973b4d9af635256e2abbf993aa577eac"
+  integrity sha512-8Cqn/4tqpNJDL6RHD2duQGe2U289I0A7gGp7bPQGMbtvy7cr5LIwo5nrPIuYfZUl2h1hvpyoVFkjkGWGMiqdRA==
 
-"@shapeshiftoss/chain-adapters@^1.25.0", "@shapeshiftoss/chain-adapters@^1.31.1":
-  version "1.31.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.31.1.tgz#9e2baf5eff159a7df103163415c087be90f73f76"
-  integrity sha512-UkV8Ehm5MdSWkP/hk1BS/OxDCr1s3S4s4swg0LshdRr527AN1x0CPfqfHN7FWtqg5RPbjCyDhQYXOiYoLQyH0w==
+"@shapeshiftoss/chain-adapters@^1.31.1", "@shapeshiftoss/chain-adapters@^1.33.1":
+  version "1.33.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.33.1.tgz#c9559ebd8d41615737db4335e0c46135401659c5"
+  integrity sha512-sufF4S4oB0AdD4H0VKgpY/j9NXUa1P46rcFKf+kgseDjDjyGHJZ0AKj8HSk9acGJnDhw+z/Ld12gmfgYMV2hJA==
   dependencies:
     axios "^0.21.2"
     bignumber.js "^9.0.1"
@@ -3747,10 +3747,10 @@
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/market-service@^1.10.1":
-  version "1.10.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.10.1.tgz#48bdf672929d8a1c94b8e2d1df69f154a1cfeb18"
-  integrity sha512-7EiDQWujTLBXYUssWXksGgRXkPxrz2zM9AvfAte8/iNnwe8oRI6A4qj/gG1Bz/vNbVJVd+PgEqXh9RhNOpxkOw==
+"@shapeshiftoss/market-service@^1.11.1":
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.11.1.tgz#abccb44aa815b0fd682aa8ba6698e0ad87b01dd1"
+  integrity sha512-NkxuVfcr0fGElx7KKrNejpwPHcG2PkA/BzQm7MoIIepH/nYitelXBMV7ZJOwHFxCzGGM8vWIds8wgQrdU+N5GA==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.27"
@@ -3758,47 +3758,47 @@
     bignumber.js "^9.0.1"
     dayjs "^1.10.6"
 
-"@shapeshiftoss/swapper@^1.15.1":
-  version "1.15.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.15.1.tgz#e9b6eaad473a230c560883b650aa4c25956a87a8"
-  integrity sha512-KavJCAJOwEm7Uuzf1dMIX3N7ebuCUZd2bULi8CvDAtx3a5kUNULn8pegAOgx2zQpZe20ga8dXv5Eg8lbCHUaIw==
+"@shapeshiftoss/swapper@^1.15.4":
+  version "1.15.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-1.15.4.tgz#86eaef8e9b9c82ed3b213141c4273f8680fecd57"
+  integrity sha512-xRzWnyWUGNtzd73ur3XIuxETLWL+1Frh5GHV50GaXNobHKnl2fl8L+FW0YhsEZLnb/sSGzLxjQQImGn7QpAZxw==
   dependencies:
     axios "^0.21.4"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/thorchain@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-5.1.0.tgz#352ec65d51cfa31dad1f112a0011be0bc8f4b1aa"
-  integrity sha512-u6NwiTXGk1CuQ6JkZYjXfh9Obn5sutZYiMFcwyhghClPGGKa1gfau4E5SJUCVNjFgw1OctA/yegxF2ZRTomdwA==
+"@shapeshiftoss/thorchain@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/thorchain/-/thorchain-5.1.1.tgz#31d646c9df75857da0a6fb9f453de6350b2f0217"
+  integrity sha512-J924x9LrPDRKNVv76it03X99ylzImSuDBNF66+T35bqLn+2IwvJjJ9D1Q9y72yr9mSBlqCfLwFTSY9wHqvljkg==
   dependencies:
     bignumber.js "^9.0.1"
     ethers "^5.5.3"
 
-"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.21.1":
-  version "1.21.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.21.1.tgz#81e416a8cf088a498e0fd1178d0dd9f42911ede5"
-  integrity sha512-4RoynuG0ZlKX0h/K7evDVddnQjRqmOVNH3r4UJv0mRRnD1eUGzdAQjKLji43lapwL0x9HlPw2YRHL5ctmV6Zcw==
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.23.0":
+  version "1.23.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.23.0.tgz#d9d542616fa927244591ebe8d405006ebb2fe5db"
+  integrity sha512-itqM2tN5/2ZlQEYbZMHGVYzwb6eYWDp9FnNUUuRAljkTG8OFRhNoQtg97K+d+t4NwZT486RA/D6PD+B8MHd72g==
 
-"@shapeshiftoss/unchained-client@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-5.1.0.tgz#c2fe567286a81370c37aff36d824c690f11d142f"
-  integrity sha512-kUzvbbPxmHMAp9uBMNrVrXM6YvfTVnv6Mxg6dAGWWV+4L4iiVlyMhmgcKwyBYnujpQQRRFQjn1WLmsbhf/XDXQ==
+"@shapeshiftoss/unchained-client@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-5.1.1.tgz#05485d8e8cd473a8e0261b1a119fea2f326f0f5e"
+  integrity sha512-kZww7MqItoIY7PxBmD3ZHX1aCI0sZnGfbImpWo8Y7289ldpwvP398//n1Ql8YXpitPhp1LW107+lx/smxSnG7Q==
   dependencies:
-    "@shapeshiftoss/blockbook" "^5.1.0"
-    "@shapeshiftoss/unchained-tx-parser" "^5.1.0"
+    "@shapeshiftoss/blockbook" "^5.1.1"
+    "@shapeshiftoss/unchained-tx-parser" "^5.1.1"
     isomorphic-ws "^4.0.1"
     ws "^8.3.0"
 
-"@shapeshiftoss/unchained-tx-parser@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-tx-parser/-/unchained-tx-parser-5.1.0.tgz#bf669344d1b24ed58de708761864e6bd350efc51"
-  integrity sha512-Xvi70RLzZUdPfYImBszu3wKqJhxB7CzxOxzkbReyvffuFI84ypKMwq+II44XWmQ1gZgytMAu99y8rYjDWdyYPw==
+"@shapeshiftoss/unchained-tx-parser@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-tx-parser/-/unchained-tx-parser-5.1.1.tgz#9e79b7ebd3f92c6a8c3ad6a03517d47dd69add66"
+  integrity sha512-7ayPCeyESiAL3TxbErBPDCaLpqLujnm5tQSnXiV2yXsyEqCfTs5pr1Lk9r9PM45IlWvFmmNbKuFD8aXvpbfI9A==
   dependencies:
-    "@shapeshiftoss/blockbook" "^5.1.0"
+    "@shapeshiftoss/blockbook" "^5.1.1"
     "@shapeshiftoss/caip" "^1.6.1"
-    "@shapeshiftoss/thorchain" "^5.1.0"
+    "@shapeshiftoss/thorchain" "^5.1.1"
     "@shapeshiftoss/types" "^1.17.0"
     bignumber.js "^9.0.1"
 

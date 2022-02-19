@@ -125,7 +125,10 @@
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",
+    "assetDetails": "Asset Details",
     "accounts": "Accounts",
+    "accountAsset": "Account Asset",
+    "accountDetails": "Account Details",
     "earn": "Earn",
     "defi": "DeFi",
     "tradeHistory": "Trade History",

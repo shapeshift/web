@@ -16,11 +16,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  PriceHistoryData,
-  selectPriceHistoriesLoadingByAssetTimeframe,
-  selectPriceHistoryTimeframe
-} from 'state/slices/marketDataSlice/marketDataSlice'
+import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   AccountSpecifier,
   PortfolioAssets,
@@ -28,9 +24,12 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountId
-} from 'state/slices/portfolioSlice/selectors'
-import { selectTxsByFilter, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+  selectPortfolioCryptoBalancesByAccountId,
+  selectPriceHistoriesLoadingByAssetTimeframe,
+  selectPriceHistoryTimeframe,
+  selectTxsByFilter
+} from 'state/slices/selectors'
+import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 type PriceAtBlockTimeArgs = {

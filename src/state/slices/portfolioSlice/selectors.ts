@@ -6,8 +6,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssets } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssets, selectMarketData } from 'state/slices/selectors'
 
 import {
   AccountSpecifier,

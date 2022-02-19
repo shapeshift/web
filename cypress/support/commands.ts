@@ -1,28 +1,25 @@
 // @ts-check
 ///<reference path="../global.d.ts" />
 
-import { makeBtcAccount } from '../../cypress/factories/bitcoin/account'
-import { makeEthAccount } from '../../cypress/factories/ethereum/account'
-import { wallet } from '../../cypress/fixtures/wallet'
-import { getWalletDbInstance } from '../../cypress/helpers'
 import { makeEthFoxRateResponse } from '../factories/0x/ethFoxRate'
 import { makeEthUsdcRateResponse } from '../factories/0x/ethUsdcRate'
+import { makeFoxEthSwapRateResponse } from '../factories/0x/foxEthSwapRate'
+import { makeUsdcFoxSwapRateResponse } from '../factories/0x/usdcFoxRate'
+import { makeBtcAccount } from '../factories/bitcoin/account'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
+import { makeEthAccount } from '../factories/ethereum/account'
+import { getWalletDbInstance } from '../helpers'
 
 const baseUrl = Cypress.config().baseUrl
 const password = Cypress.env('testPassword')
+const seed = Cypress.env('testSeed')
 const publicKey = Cypress.env('testPublicKey')
 const ethereumApi = Cypress.env('REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL')
 const bitcoinApi = Cypress.env('REACT_APP_UNCHAINED_BITCOIN_HTTP_URL')
 const _0xApi = Cypress.env('0xApi')
 const coinGeckoApi = Cypress.env('coinGeckoApi')
 const foxContract = Cypress.env('foxContract')
-
-const ethAccount = makeEthAccount()
-const btcAccount = makeBtcAccount()
-const ethUsdcSwapRate = makeEthUsdcRateResponse()
-const ethFoxSwapRate = makeEthFoxRateResponse()
 
 const walletDb = getWalletDbInstance()
 
@@ -48,12 +45,13 @@ Cypress.Commands.add('getBySelLike', (selector: string, ...args: any) => {
   return cy.get(`[data-test*=${selector}]`, ...args)
 })
 
-// @ts-ignore
 Cypress.Commands.add(
   'addWallet',
   // @ts-ignore
-  async (wallet: { key: string; value: Object<string, unknown> }) => {
-    await walletDb.setItem(wallet.key, wallet.value)
+  () => {
+    // For programmatic login, we need to pass some parameters to the `connect-wallet` page.
+    localStorage.setItem('cypressWalletSeed', seed)
+    localStorage.setItem('cypressWalletPassword', password)
   }
 )
 
@@ -62,22 +60,14 @@ Cypress.Commands.add('clearIndexedDB', async () => {
   await walletDb.clear()
 })
 
-// TODO - Replace with programmatic login
 // @ts-ignore
 Cypress.Commands.add('login', () => {
   // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
   // We do, however, need to clear indexedDB during login to clear any saved wallet data
-  cy.clearIndexedDB().then(() => {
-    cy.addWallet(wallet).then(() => {
-      cy.visit('')
-      cy.getBySel('connect-wallet-button').click()
-      cy.getBySel('wallet-native-button').click()
-      cy.getBySel('wallet-native-load-button').click()
-      cy.getBySel('native-saved-wallet-button').click()
-      cy.getBySel('wallet-password-input').type(password)
-      cy.getBySel('wallet-password-submit-button').click()
-      cy.url({ timeout: 8000 }).should('equal', `${baseUrl}dashboard`)
-    })
+  cy.clearIndexedDB()
+  cy.addWallet().then(() => {
+    cy.visit('')
+    cy.url().should('equal', `${baseUrl}dashboard`)
   })
 })
 
@@ -98,20 +88,36 @@ Cypress.Commands.add('mockExternalRequests', () => {
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?buyToken=USDC&buyAmount=1000000&sellToken=ETH`,
-    ethUsdcSwapRate
+    makeEthUsdcRateResponse()
   ).as('getEthUsdcRate')
 
   cy.intercept(
     'GET',
     `${_0xApi}swap/v1/price?sellToken=ETH&buyToken=${foxContract}*`,
-    ethFoxSwapRate
+    makeEthFoxRateResponse()
+  ).as('getEthFoxRate')
+
+  cy.intercept(
+    'GET',
+    `${_0xApi}swap/v1/price?sellToken=${foxContract}&buyToken=ETH*`,
+    makeFoxEthSwapRateResponse()
+  ).as('getEthFoxRate')
+
+  cy.intercept(
+    'GET',
+    `${_0xApi}swap/v1/price?buyToken=USDC&buyToken=${foxContract}*`,
+    makeUsdcFoxSwapRateResponse()
   ).as('getEthFoxRate')
 })
 
 // @ts-ignore
 Cypress.Commands.add('mockInternalRequests', () => {
-  cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, ethAccount).as('getEthAccount')
-  cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, btcAccount).as('getBtcAccount')
+  cy.intercept('GET', `${ethereumApi}/api/v1/account/${publicKey}`, makeEthAccount()).as(
+    'getEthAccount'
+  )
+  cy.intercept('GET', `${bitcoinApi}/api/v1/account/${publicKey}`, makeBtcAccount()).as(
+    'getBtcAccount'
+  )
   cy.intercept('GET', `${ethereumApi}/api/v1/gas/estimate*`, '21000').as('getGasEstimate')
   cy.intercept('GET', `${ethereumApi}/api/v1/gas/fees`, {
     gasPrice: '51962967843',

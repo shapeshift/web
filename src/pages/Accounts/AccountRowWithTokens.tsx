@@ -3,8 +3,8 @@ import { AccountAssetsList } from 'components/AccountAssets/AccountAssetsList'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { Card } from 'components/Card/Card'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/portfolioSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AccountRowWithTokensProps = {

@@ -1,12 +1,11 @@
-import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { AssetService } from '@shapeshiftoss/asset-service'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
-import sortBy from 'lodash/sortBy'
-import { ReduxState } from 'state/reducer'
-import { selectMarketDataIds } from 'state/slices/marketDataSlice/marketDataSlice'
+
+import { FeatureFlag } from '../../../constants/FeatureFlag'
 
 let service: AssetService | undefined = undefined
 
@@ -57,7 +56,12 @@ export const assetApi = createApi({
       // all assets
       queryFn: async () => {
         const service = await getAssetService()
-        const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
+        const assetArray = service?.byNetwork(
+          // Cosmos assets have a network type of COSMOSHUB_MAINNET
+          // If the flag is OFF then we'll filter out only Bitcoin/Ethereum assets
+          // If the flag is ON then we'll allow all assets through
+          FeatureFlag.Plugin.Cosmos ? undefined : NetworkTypes.MAINNET
+        )
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
           const { caip19 } = cur
           acc.byId[caip19] = cur
@@ -79,7 +83,9 @@ export const assetApi = createApi({
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)
         try {
-          byId[assetId].description = await service.description({ asset: byId[assetId] })
+          const { description, isTrusted } = await service.description({ asset: byId[assetId] })
+          byId[assetId].description = description
+          byId[assetId].isTrustedDescription = isTrusted
           const data = { byId, ids }
           return { data }
         } catch (e) {
@@ -99,44 +105,3 @@ export const assetApi = createApi({
 })
 
 export const { useGetAssetsQuery, useGetAssetDescriptionQuery } = assetApi
-
-export const selectAssetByCAIP19 = createSelector(
-  (state: ReduxState) => state.assets.byId,
-  (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
-  (byId, CAIP19) => byId[CAIP19]
-)
-
-export const selectAssetNameById = createSelector(selectAssetByCAIP19, ({ name }) => name)
-
-export const selectAssets = (state: ReduxState) => state.assets.byId
-export const selectAssetIds = (state: ReduxState) => state.assets.ids
-
-export const selectAssetsByMarketCap = createSelector(
-  selectAssets,
-  selectMarketDataIds,
-  (assetsByIdOriginal, marketDataIds) => {
-    const assetById = cloneDeep(assetsByIdOriginal)
-    // we only prefetch market data for some
-    // and want this to be fairly performant so do some mutatey things
-    // market data ids are already sorted by market cap
-    const sortedWithMarketCap = marketDataIds.reduce<Asset[]>((acc, cur) => {
-      const asset = assetById[cur]
-      if (!asset) return acc
-      acc.push(asset)
-      delete assetById[cur]
-      return acc
-    }, [])
-    const remainingSortedNoMarketCap = sortBy(Object.values(assetById), ['name', 'symbol'])
-    return [...sortedWithMarketCap, ...remainingSortedNoMarketCap]
-  }
-)
-
-export const selectFeeAssetById = createSelector(
-  selectAssets,
-  (_state: ReduxState, assetId: CAIP19) => assetId,
-  (assetsById, assetId): Asset => {
-    const { chain, network } = caip19.fromCAIP19(assetId)
-    const feeAssetId = caip19.toCAIP19({ chain, network })
-    return assetsById[feeAssetId]
-  }
-)

@@ -1,16 +1,16 @@
 import { Flex, SimpleGrid, useColorModeValue } from '@chakra-ui/react'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import type { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByAssetId,
   selectPortfolioFiatBalanceByAssetId
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Allocations } from './Allocations'
@@ -23,13 +23,7 @@ export type AccountRowArgs = {
 
 export const AccountRow = ({ allocationValue, assetId, ...rest }: AccountRowArgs) => {
   const rowHover = useColorModeValue('gray.100', 'gray.750')
-  const url = useMemo(() => {
-    if (!assetId) return ''
-    const { chain, tokenId } = caip19.fromCAIP19(assetId)
-    let baseUrl = `/assets/${chain}`
-    if (tokenId) baseUrl = baseUrl + `/${tokenId}`
-    return baseUrl
-  }, [assetId])
+  const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

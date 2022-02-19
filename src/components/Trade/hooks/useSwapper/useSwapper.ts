@@ -380,6 +380,7 @@ export const useSwapper = () => {
     const fee = feeBN.toString()
 
     switch (sellAsset.chain) {
+      // TODO: Handle Cosmos ChainType here
       case ChainTypes.Ethereum: {
         const ethResult = result as Quote<ChainTypes.Ethereum, SwapperType.Zrx>
         const approvalFee = ethResult?.feeData?.chainSpecific?.approvalFee

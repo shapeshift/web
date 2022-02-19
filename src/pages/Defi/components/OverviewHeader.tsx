@@ -41,7 +41,7 @@ export const OverviewHeader = ({
 
   return (
     <Card variant='unstyled' textAlign='center'>
-      <Card.Header px={0} textAlign='left'>
+      <Card.Header px={{ base: 4, lg: 0 }} textAlign='left'>
         <StatGroup>
           <Stat>
             <StatLabel>
@@ -54,7 +54,10 @@ export const OverviewHeader = ({
         </StatGroup>
       </Card.Header>
       <Card.Footer px={0}>
-        <SimpleGrid gridTemplateColumns='repeat(auto-fit,minmax(200px,1fr))' gridGap={6}>
+        <SimpleGrid
+          gridTemplateColumns='repeat(auto-fit,minmax(200px,1fr))'
+          gridGap={{ base: 0, lg: 6 }}
+        >
           <EarnStat label='defi.walletBalance' value={walletBalance} />
           <EarnStat label='defi.earnBalance' value={earnBalance.totalEarningBalance} />
         </SimpleGrid>

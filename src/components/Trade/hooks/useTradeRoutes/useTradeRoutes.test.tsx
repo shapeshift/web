@@ -4,6 +4,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
+import { useAsset } from 'pages/Assets/Asset'
 
 import { useTradeRoutes } from './useTradeRoutes'
 
@@ -15,6 +16,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
+jest.mock('pages/Assets/Asset')
 jest.mock('state/slices/selectors', () => ({
   ...jest.requireActual('state/slices/selectors'),
   selectAssets: () => ({
@@ -26,7 +28,11 @@ jest.mock('state/slices/selectors', () => ({
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const getQuote = jest.fn()
   const setValue = jest.fn()
+  const asset = jest.fn()
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
+  ;(useAsset as jest.Mock<unknown>).mockImplementation(() => ({
+    asset: asset
+  }))
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     getQuote: getQuote,
     getBestSwapper: () => SwapperType.Zrx,

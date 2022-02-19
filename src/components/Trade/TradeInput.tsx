@@ -23,7 +23,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetByCAIP19, selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
 import { selectPortfolioCryptoHumanBalanceByAssetId } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -65,7 +65,9 @@ export const TradeInput = ({ history }: RouterProps) => {
   const hasValidBalance = bnOrZero(sellAssetBalance).gt(0)
 
   const feeAsset = useAppSelector(state =>
-    sellAsset ? selectFeeAssetById(state, sellAsset?.currency?.caip19) : null
+    sellAsset
+      ? selectFeeAssetById(state, sellAsset?.currency?.caip19)
+      : selectAssetByCAIP19(state, 'eip155:1/slip44:6')
   )
   const feeAssetBalance = useAppSelector(state =>
     feeAsset ? selectPortfolioCryptoHumanBalanceByAssetId(state, feeAsset?.caip19) : null

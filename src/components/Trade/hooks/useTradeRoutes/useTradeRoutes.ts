@@ -18,6 +18,7 @@ export const useTradeRoutes = (): {
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
+  const feeAsset = assets['eip155:1/slip44:60']
 
   const setDefaultAssets = useCallback(async () => {
     try {
@@ -35,7 +36,7 @@ export const useTradeRoutes = (): {
           amount: '0',
           sellAsset: { currency: sellAsset },
           buyAsset: { currency: buyAsset },
-          feeAsset: null
+          feeAsset: feeAsset
         })
       }
     } catch (e) {
@@ -58,7 +59,13 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({ amount: sellAsset.amount ?? '0', sellAsset, buyAsset, feeAsset: null, action })
+        getQuote({
+          amount: sellAsset.amount ?? '0',
+          sellAsset,
+          buyAsset,
+          feeAsset: feeAsset,
+          action
+        })
       } catch (e) {
         console.warn(e)
       } finally {
@@ -79,7 +86,13 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({ amount: buyAsset.amount ?? '0', sellAsset, buyAsset, feeAsset: null, action })
+        getQuote({
+          amount: buyAsset.amount ?? '0',
+          sellAsset,
+          buyAsset,
+          feeAsset: feeAsset,
+          action
+        })
       } catch (e) {
         console.warn(e)
       } finally {

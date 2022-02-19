@@ -304,7 +304,7 @@ export const useSwapper = () => {
     buyAsset,
     feeAsset,
     action
-  }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset; feeAsset: Asset | null }) => {
+  }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset; feeAsset: Asset }) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
 
     const isSellAmount = action === TradeActions.SELL || !amount
@@ -318,7 +318,7 @@ export const useSwapper = () => {
     if (precision) {
       formattedAmount = toBaseUnit(amount, precision)
     }
-    const feeAssetPrecision = feeAsset?.precision || 18 // ETH Fallback
+    const feeAssetPrecision = feeAsset.precision
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {

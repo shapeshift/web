@@ -77,7 +77,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         } else {
           dispatch({
             type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId }
+            payload: { wallet, name, icon, deviceId, meta: { label: item.name } }
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
@@ -129,6 +129,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                 justifyContent='space-between'
                 variant='btn-ghost'
                 colorScheme='blue'
+                data-test='native-saved-wallet'
               >
                 <Button
                   px={4}
@@ -141,6 +142,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                     </IconCircle>
                   }
                   onClick={() => handleWalletSelect(wallet)}
+                  data-test='native-saved-wallet-button'
                 >
                   <Box textAlign='left'>
                     <RawText
@@ -149,6 +151,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
                       lineHeight='1.2'
                       mb={1}
                       isTruncated
+                      data-test='native-saved-wallet-name'
                     >
                       {wallet.name}
                     </RawText>

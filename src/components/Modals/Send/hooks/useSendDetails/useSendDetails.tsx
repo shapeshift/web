@@ -1,27 +1,23 @@
-import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams
-} from '@shapeshiftoss/chain-adapters'
+import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
-import { ReduxState } from 'state/reducer'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { ensLookup } from 'lib/ens'
+import { isEthAddress } from 'lib/utils'
+import { accountIdToUtxoParams } from 'state/slices/portfolioSlice/utils'
 import {
-  selectPortfolioCryptoBalanceById,
-  selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId,
-  selectPortfolioFiatBalanceByAccountTypeAndAssetId
-} from 'state/slices/portfolioSlice/portfolioSlice'
+  selectFeeAssetById,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoHumanBalanceByFilter,
+  selectPortfolioFiatBalanceByFilter
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
@@ -44,34 +40,40 @@ type UseSendDetailsReturnType = {
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
-  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.FiatAmount)
+  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmount)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()
   const asset = useWatch<SendInput, SendFormFields.Asset>({ name: SendFormFields.Asset })
   const address = useWatch<SendInput, SendFormFields.Address>({ name: SendFormFields.Address })
+  const accountId = useWatch<SendInput, SendFormFields.AccountId>({
+    name: SendFormFields.AccountId
+  })
   const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, asset.caip19)).price)
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.caip19))
   const balancesLoading = false
-  const accountType: UtxoAccountType | undefined = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
 
-  // TODO(0xdef1cafe): this is a janky temporary fix till we implement accounts next week
   const cryptoHumanBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoHumanBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+      selectPortfolioCryptoHumanBalanceByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
 
   const fiatBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioFiatBalanceByAccountTypeAndAssetId(state, asset.caip19, accountType)
+      selectPortfolioFiatBalanceByFilter(state, { assetId: asset.caip19, accountId })
     )
   )
+
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceById(state, asset.caip19)
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: asset.caip19, accountId })
+  )
+
+  const nativeAssetBalance = bnOrZero(
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAsset.caip19, accountId })
+    )
   )
   const chainAdapterManager = useChainAdapters()
   const {
@@ -81,10 +83,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const { chain, tokenId } = asset
 
   const adapter = chainAdapterManager.byChain(asset.chain)
-
-  const currentAccountType = useSelector(
-    (state: ReduxState) => state.preferences.accountTypes[asset.chain]
-  )
 
   const estimateFormFees = useCallback(async (): Promise<
     chainAdapters.FeeDataEstimate<ChainTypes>
@@ -103,26 +101,34 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           wallet
         })
         const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+        const to = isEthAddress(values.address)
+          ? values.address
+          : ((await ensLookup(values.address)).address as string)
         return ethereumChainAdapter.getFeeData({
-          to: values.address,
+          to,
           value,
           chainSpecific: { from, contractAddress: values.asset.tokenId },
           sendMax: values.sendMax
         })
       }
       case ChainTypes.Bitcoin: {
-        const accountParams = utxoAccountParams(asset, currentAccountType, 0)
+        const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
+        if (!utxoParams) throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
+        if (!accountType) {
+          throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
+        }
+        const { bip44Params, scriptType } = utxoParams
         const pubkeys = await wallet.getPublicKeys([
           {
             coin: adapter.getType(),
-            addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip44Params)),
+            addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
             curve: 'secp256k1',
-            scriptType: accountParams.scriptType
+            scriptType
           }
         ])
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-        const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
+        const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
         const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
@@ -134,7 +140,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       default:
         throw new Error('unsupported chain type')
     }
-  }, [adapter, asset, chainAdapterManager, currentAccountType, getValues, wallet])
+  }, [accountId, adapter, asset, chainAdapterManager, getValues, wallet])
 
   const handleNextClick = async () => {
     try {
@@ -148,11 +154,23 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   const handleSendMax = async () => {
-    // we can always send the full balance of tokens, no need to make network
-    // calls to estimate fees
     if (feeAsset.caip19 !== asset.caip19) {
       setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, fiatBalance.toFixed(2))
+      setLoading(true)
+
+      const estimatedFees = await estimateFormFees()
+
+      if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      } else {
+        setValue(SendFormFields.EstimatedFees, estimatedFees)
+      }
+
+      setLoading(false)
       return
     }
 
@@ -161,13 +179,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       setLoading(true)
       const to = address
 
-      const accountParams = currentAccountType
-        ? utxoAccountParams(asset, currentAccountType, 0)
-        : {}
+      const { utxoParams, accountType } = accountIdToUtxoParams(asset, accountId, 0)
       const from = await adapter.getAddress({
         wallet,
-        accountType: currentAccountType,
-        ...accountParams
+        accountType,
+        ...utxoParams
       })
 
       // Assume fast fee for send max
@@ -189,18 +205,23 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           break
         }
         case ChainTypes.Bitcoin: {
-          const accountParams = utxoAccountParams(asset, currentAccountType, 0)
+          if (!accountType)
+            throw new Error('useSendDetails: no accountType from accountIdToUtxoParams')
+          if (!utxoParams) {
+            throw new Error('useSendDetails: no utxoParams from accountIdToUtxoParams')
+          }
+          const { bip44Params, scriptType } = utxoParams
           const pubkeys = await wallet.getPublicKeys([
             {
               coin: adapter.getType(),
-              addressNList: bip32ToAddressNList(toRootDerivationPath(accountParams.bip44Params)),
+              addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
               curve: 'secp256k1',
-              scriptType: accountParams.scriptType
+              scriptType
             }
           ])
 
           if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
-          const pubkey = convertXpubVersion(pubkeys[0].xpub, currentAccountType)
+          const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
           const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
           const value = assetBalance
           adapterFees = await btcAdapter.getFeeData({
@@ -223,6 +244,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const maxCrypto = cryptoHumanBalance.minus(networkFee)
       const maxFiat = maxCrypto.times(price)
+
+      const hasEnoughNativeTokenForGas = nativeAssetBalance
+        .minus(adapterFees.fast.txFee)
+        .isPositive()
+
+      if (!hasEnoughNativeTokenForGas) {
+        setValue(SendFormFields.AmountFieldError, [
+          'modals.send.errors.notEnoughNativeToken',
+          { asset: feeAsset.symbol }
+        ])
+      }
+
       setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
       setLoading(false)
@@ -231,36 +264,53 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleInputChange = useCallback(
-    debounce(async (inputValue: string) => {
-      setValue(SendFormFields.SendMax, false)
-      const key =
-        fieldName !== SendFormFields.FiatAmount
-          ? SendFormFields.FiatAmount
-          : SendFormFields.CryptoAmount
-      const amount =
-        fieldName === SendFormFields.FiatAmount
-          ? bnOrZero(bn(inputValue).div(price)).toString()
-          : bnOrZero(bn(inputValue).times(price)).toString()
+    debounce(
+      async (inputValue: string) => {
+        setLoading(true)
+        setValue(SendFormFields.SendMax, false)
+        const key =
+          fieldName !== SendFormFields.FiatAmount
+            ? SendFormFields.FiatAmount
+            : SendFormFields.CryptoAmount
+        const amount =
+          fieldName === SendFormFields.FiatAmount
+            ? bnOrZero(bn(inputValue).div(price)).toString()
+            : bnOrZero(bn(inputValue).times(price)).toString()
 
-      setValue(key, amount)
+        setValue(key, amount)
 
-      const estimatedFees = await estimateFormFees()
-      setValue(SendFormFields.EstimatedFees, estimatedFees)
+        let estimatedFees
 
-      const values = getValues()
+        try {
+          estimatedFees = await estimateFormFees()
+          setValue(SendFormFields.EstimatedFees, estimatedFees)
+        } catch (e) {
+          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+          setLoading(false)
 
-      let hasValidBalance = false
-      // we only need to deduct fees if we're sending the fee asset
-      if (feeAsset.caip19 === asset.caip19) {
-        hasValidBalance = cryptoHumanBalance
-          .minus(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-          .gte(values.cryptoAmount)
-      } else {
-        hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
-      }
+          throw e
+        }
 
-      setValue(SendFormFields.AmountFieldError, hasValidBalance ? '' : 'common.insufficientFunds')
-    }, 1000),
+        const values = getValues()
+
+        const hasValidBalance = cryptoHumanBalance.gte(values.cryptoAmount)
+        const hasEnoughNativeTokenForGas = nativeAssetBalance
+          .minus(estimatedFees.fast.txFee)
+          .isPositive()
+
+        if (!hasValidBalance) {
+          setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+        } else if (!hasEnoughNativeTokenForGas) {
+          setValue(SendFormFields.AmountFieldError, [
+            'modals.send.errors.notEnoughNativeToken',
+            { asset: feeAsset.symbol }
+          ])
+        }
+        setLoading(false)
+      },
+      1000,
+      { leading: true }
+    ),
     [asset, fieldName, setValue, estimateFormFees, getValues, cryptoHumanBalance, fiatBalance]
   )
 

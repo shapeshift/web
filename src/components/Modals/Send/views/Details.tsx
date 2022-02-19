@@ -139,6 +139,7 @@ export const Details = () => {
               rules={{
                 required: true
               }}
+              data-test='send-modal-crypto-input'
             />
           )}
           {fieldName === SendFormFields.FiatAmount && (
@@ -154,14 +155,18 @@ export const Details = () => {
                   textTransform='uppercase'
                   onClick={toggleCurrency}
                   width='full'
+                  data-test='toggle-currency-button'
                 >
                   {fiatSymbol}
                 </Button>
               }
-              inputRightElement={<SendMaxButton onClick={handleSendMax} />}
+              inputRightElement={
+                <SendMaxButton onClick={handleSendMax} data-test='send-max-button' />
+              }
               rules={{
                 required: true
               }}
+              data-test='send-modal-fiat-input'
             />
           )}
         </FormControl>
@@ -170,11 +175,12 @@ export const Details = () => {
         <Stack flex={1}>
           <Button
             isFullWidth
-            isDisabled={!!amountFieldError || loading}
+            isDisabled={!(cryptoAmount ?? fiatAmount) || !!amountFieldError || loading}
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
             isLoading={loading}
+            data-test='send-modal-next-button'
           >
             <Text translation={amountFieldError || 'common.next'} />
           </Button>

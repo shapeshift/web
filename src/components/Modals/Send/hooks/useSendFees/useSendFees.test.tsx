@@ -8,13 +8,14 @@ import { ReduxState } from 'state/reducer'
 
 import { useSendFees } from './useSendFees'
 
-jest.mock('@shapeshiftoss/market-service')
 jest.mock('react-hook-form')
 jest.mock('context/WalletProvider/WalletProvider')
-jest.mock('state/slices/assetsSlice/assetsSlice', () => ({
-  ...jest.requireActual('state/slices/assetsSlice/assetsSlice'),
+jest.mock('state/slices/selectors', () => ({
+  ...jest.requireActual('state/slices/selectors'),
   selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
-  selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset
+  selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
+  selectMarketDataById: () => mockEthAsset,
+  selectAssets: jest.fn()
 }))
 
 const fees = {
@@ -48,11 +49,6 @@ const mockEthAsset = {
   symbol: 'eth',
   precision: 18
 }
-
-jest.mock('state/slices/marketDataSlice/marketDataSlice', () => ({
-  ...jest.requireActual('state/slices/marketDataSlice/marketDataSlice'),
-  selectMarketDataById: () => mockEthAsset
-}))
 
 const setup = ({ asset = {}, estimatedFees = {}, wallet = {} }) => {
   ;(useWallet as jest.Mock<unknown>).mockImplementation(() => ({

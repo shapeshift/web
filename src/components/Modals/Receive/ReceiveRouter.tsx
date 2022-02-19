@@ -2,33 +2,42 @@ import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Route, RouteComponentProps, Switch, useHistory, useLocation } from 'react-router-dom'
-import { SelectAssets } from 'components/SelectAssets/SelectAssets'
+import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { ReceiveRoutes } from './Receive'
 import { ReceiveInfo } from './ReceiveInfo'
 
 type ReceiveRouterProps = {
   asset?: Asset
+  accountId?: AccountSpecifier
 }
-export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
-  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>()
+export const ReceiveRouter = ({ asset, accountId }: ReceiveRouterProps) => {
+  const [selectedAsset, setSelectedAsset] = useState<Asset | undefined>(asset)
+  const [selectedAccount, setSelectedAccount] = useState<AccountSpecifier>()
   const location = useLocation()
   const history = useHistory()
 
-  const handleAssetSelect = async (asset: Asset) => {
+  const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
     setSelectedAsset(asset)
+    setSelectedAccount(accountId)
     history.push(ReceiveRoutes.Info)
   }
 
   useEffect(() => {
-    if (!selectedAsset && !asset) {
+    if (!selectedAsset && !asset && !accountId) {
       history.push(ReceiveRoutes.Select)
+    } else if (selectedAsset && asset && !accountId) {
+      history.push(ReceiveRoutes.Select, {
+        toRoute: SelectAssetRoutes.Account,
+        assetId: asset.caip19
+      })
+    } else if (asset && accountId) {
+      setSelectedAccount(accountId)
+      setSelectedAsset(asset)
     }
-  }, [asset, history, selectedAsset])
-
-  useEffect(() => {
-    setSelectedAsset(asset)
-  }, [asset])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -36,13 +45,15 @@ export const ReceiveRouter = ({ asset }: ReceiveRouterProps) => {
         <Route
           path={ReceiveRoutes.Info}
           component={(props: RouteComponentProps) =>
-            selectedAsset ? <ReceiveInfo asset={selectedAsset} {...props} /> : null
+            selectedAccount && selectedAsset ? (
+              <ReceiveInfo asset={selectedAsset} accountId={selectedAccount} {...props} />
+            ) : null
           }
         />
         <Route
           path={ReceiveRoutes.Select}
           component={(props: RouteComponentProps) => (
-            <SelectAssets onClick={handleAssetSelect} {...props} />
+            <SelectAssetRouter onClick={handleAssetSelect} {...props} />
           )}
         />
       </Switch>

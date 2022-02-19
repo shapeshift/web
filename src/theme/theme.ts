@@ -18,6 +18,7 @@ import { SpinnerStyle as Spinner } from 'components/Spinner/Spinner.theme'
 import { StatStyle as Stat } from 'components/Stat/Stat.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
 import { TextareaStyle as Textarea } from 'components/Textarea/Textarea.theme'
+import { TooltipStyle as Tooltip } from 'components/Tooltip/Tooltip.theme'
 
 import { colors } from './colors'
 
@@ -106,6 +107,7 @@ export const theme = extendTheme({
     Row,
     Drawer,
     Textarea,
+    Tooltip,
     Skeleton,
     Steps,
     Popover

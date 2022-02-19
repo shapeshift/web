@@ -2,6 +2,7 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { ReceiveRouter } from './ReceiveRouter'
 
@@ -14,9 +15,10 @@ export const entries = [ReceiveRoutes.Info, ReceiveRoutes.Select]
 
 type ReceivePropsType = {
   asset?: Asset
+  accountId?: AccountSpecifier
 }
 
-const Receive = ({ asset }: ReceivePropsType) => {
+const Receive = ({ asset, accountId }: ReceivePropsType) => {
   const { receive } = useModal()
   const { close, isOpen } = receive
 
@@ -28,7 +30,9 @@ const Receive = ({ asset }: ReceivePropsType) => {
           <Switch>
             <Route
               path='/'
-              component={(props: RouteComponentProps) => <ReceiveRouter asset={asset} {...props} />}
+              component={(props: RouteComponentProps) => (
+                <ReceiveRouter asset={asset} accountId={accountId} {...props} />
+              )}
             />
           </Switch>
         </MemoryRouter>

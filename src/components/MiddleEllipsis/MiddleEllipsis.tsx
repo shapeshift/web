@@ -1,18 +1,15 @@
 import { Box, BoxProps } from '@chakra-ui/react'
-import React from 'react'
-import ReactMiddleEllipsis from 'react-middle-ellipsis'
+import { firstFourLastFour } from 'state/slices/portfolioSlice/utils'
 
 type MiddleEllipsisProps = {
-  children: React.ReactNode
-  maxWidth: string
+  address: string
+  shouldShorten?: boolean
 } & BoxProps
 
-export const MiddleEllipsis = ({ children, maxWidth, ...rest }: MiddleEllipsisProps) => {
+export const MiddleEllipsis = ({ address, shouldShorten = true, ...rest }: MiddleEllipsisProps) => {
   return (
-    <Box whiteSpace='nowrap' maxWidth={maxWidth} {...rest}>
-      <ReactMiddleEllipsis>
-        <span>{children}</span>
-      </ReactMiddleEllipsis>
+    <Box whiteSpace='nowrap' {...rest}>
+      <span>{shouldShorten ? firstFourLastFour(address) : address}</span>
     </Box>
   )
 }

@@ -11,7 +11,7 @@ import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalFiatBalance
-} from 'state/slices/portfolioSlice/portfolioSlice'
+} from 'state/slices/selectors'
 
 import { AccountList } from './components/AccountList/AccountList'
 

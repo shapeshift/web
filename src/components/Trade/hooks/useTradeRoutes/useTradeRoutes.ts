@@ -36,13 +36,13 @@ export const useTradeRoutes = (): {
           amount: '0',
           sellAsset: { currency: sellAsset },
           buyAsset: { currency: buyAsset },
-          feeAsset: feeAsset
+          feeAsset
         })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, getQuote, getDefaultPair, getBestSwapper])
+  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper])
 
   useEffect(() => {
     setDefaultAssets()
@@ -63,7 +63,7 @@ export const useTradeRoutes = (): {
           amount: sellAsset.amount ?? '0',
           sellAsset,
           buyAsset,
-          feeAsset: feeAsset,
+          feeAsset,
           action
         })
       } catch (e) {
@@ -72,7 +72,7 @@ export const useTradeRoutes = (): {
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote]
   )
 
   const handleBuyClick = useCallback(
@@ -90,7 +90,7 @@ export const useTradeRoutes = (): {
           amount: buyAsset.amount ?? '0',
           sellAsset,
           buyAsset,
-          feeAsset: feeAsset,
+          feeAsset,
           action
         })
       } catch (e) {
@@ -99,7 +99,7 @@ export const useTradeRoutes = (): {
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote]
   )
 
   return { handleSellClick, handleBuyClick }

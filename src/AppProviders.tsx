@@ -7,7 +7,7 @@ import React from 'react'
 import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
-import { PersistGate } from 'redux-persist/integration/react'
+// import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
 import { translations } from 'assets/translations'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -18,8 +18,8 @@ import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { simpleLocale } from 'lib/browserLocale'
-import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
-import { persistor, store } from 'state/store'
+// import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
+import { store } from 'state/store'
 import { theme } from 'theme/theme'
 
 const locale: string = simpleLocale()
@@ -52,19 +52,19 @@ export function AppProviders({ children }: ProvidersProps) {
           <BrowserRouterProvider>
             <I18n locale={locale} messages={messages}>
               <WalletProvider>
-                <PersistGate loading={<ConnectWallet showLoading />} persistor={persistor}>
-                  <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                    <PortfolioProvider>
-                      <MarketDataProvider>
-                        <TransactionsProvider>
-                          <ModalProvider>
-                            <DefiProvider>{children}</DefiProvider>
-                          </ModalProvider>
-                        </TransactionsProvider>
-                      </MarketDataProvider>
-                    </PortfolioProvider>
-                  </ChainAdaptersProvider>
-                </PersistGate>
+                {/* <PersistGate loading={<ConnectWallet showLoading />} persistor={persistor}> */}
+                <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                  <PortfolioProvider>
+                    <MarketDataProvider>
+                      <TransactionsProvider>
+                        <ModalProvider>
+                          <DefiProvider>{children}</DefiProvider>
+                        </ModalProvider>
+                      </TransactionsProvider>
+                    </MarketDataProvider>
+                  </PortfolioProvider>
+                </ChainAdaptersProvider>
+                {/* </PersistGate> */}
               </WalletProvider>
             </I18n>
           </BrowserRouterProvider>

@@ -13,6 +13,7 @@ import React, {
   useReducer
 } from 'react'
 
+// import { persistor } from 'state/store'
 import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
@@ -154,8 +155,20 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 
 const WalletContext = createContext<IWalletContext | null>(null)
 
+const getInitialState = () => {
+  const localWalletType = getLocalWalletType()
+  const localWalletDeviceId = getLocalWalletDeviceId()
+  if (localWalletType && localWalletDeviceId) {
+    /**
+     * set deviceId to bypass splash screen
+     */
+    return { ...initialState, walletInfo: { deviceId: localWalletDeviceId } as WalletInfo }
+  }
+  return initialState
+}
+
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, getInitialState())
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
   useNativeEventHandler(state, dispatch)
@@ -215,20 +228,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     state.wallet?.disconnect()
     dispatch({ type: WalletActions.RESET_STATE })
     clearLocalWallet()
+    /**
+     * clear persisted redux data when disconnecting wallet
+     */
+    // persistor.purge()
   }, [state.wallet])
 
   useEffect(() => {
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
-    if (localWalletType && localWalletDeviceId) {
-      /**
-       * set deviceId to bypass splash screen
-       */
-      dispatch({
-        type: WalletActions.SET_LOCAL_WALLET_INFO_DEVICE_ID,
-        payload: localWalletDeviceId as string
-      })
-    }
     if (localWalletType && localWalletDeviceId && state.adapters) {
       ;(async () => {
         if (state.adapters?.has(localWalletType)) {
@@ -248,9 +256,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * this case isn't tested yet
                */
               try {
-                await state.adapters.get(KeyManager.KeepKey)?.initialize()
-                const localKeepKeyWalletId = state.keyring.getAlias(localWalletDeviceId)
-                const localKeepKeyWallet = state.keyring.get(localKeepKeyWalletId)
+                console.info(state.keyring)
+                const localKeepKeyWallet = state.keyring.get(localWalletDeviceId)
                 if (localKeepKeyWallet) {
                   const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
                   const deviceId = await localKeepKeyWallet.getDeviceID()
@@ -273,11 +280,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
                 } else {
-                  console.error("localKeepKeyWallet didn't initialize")
                   disconnect()
                 }
               } catch (e) {
-                console.error('KeepKey intilize error: ', e)
                 disconnect()
               }
               dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })

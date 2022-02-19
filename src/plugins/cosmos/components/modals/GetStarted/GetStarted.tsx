@@ -22,10 +22,10 @@ const GetStartedModalRouter = ({
   location
 }: GetStartedModalProps & RouteComponentProps) => (
   <Switch location={location} key={location.key}>
-    <Route path='/defi/modal/get-started'>
+    <Route path={GetStartedModalRoutes.GetStarted}>
       <GetStarted assetId={assetId} />
     </Route>
-    <Route path='/defi/modal/learn-more'>
+    <Route path={GetStartedModalRoutes.LearnMore}>
       <LearnMore assetId={assetId} />
     </Route>
   </Switch>

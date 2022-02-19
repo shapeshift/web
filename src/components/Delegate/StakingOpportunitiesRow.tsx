@@ -1,6 +1,6 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
-import { AprTag } from 'features/defi/components/AprTag/AprTag'
+import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'

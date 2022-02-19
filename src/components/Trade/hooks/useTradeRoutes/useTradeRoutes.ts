@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import { useAsset } from 'pages/Assets/Asset'
 import { selectAssets } from 'state/slices/selectors'
 
 import { TradeState } from '../../Trade'

@@ -57,17 +57,20 @@ export const Staked = ({ assetId }: StakedProps) => {
           <Flex
             width='100%'
             bgColor='#222a38'
-            px='9px'
+            px='15px'
             py='10px'
             mt='20px'
             borderRadius='8px'
             justifyContent='space-between'
           >
-            <Flex direction='column'>
-              <Text translation={'defi.unstaking'} fontWeight='bold' color='white' />
-              <Text translation={'Available in 8 days'} color='gray.400' />
+            <Flex alignItems='center'>
+              <Box bgColor='#FFF24A' width='28px' height='28px' borderRadius='50%' mr='17px' />
+              <Flex direction='column'>
+                <Text translation={'defi.unstaking'} fontWeight='bold' color='white' />
+                <Text translation={'Available in 8 days'} color='gray.400' />
+              </Flex>
             </Flex>
-            <Flex direction='column'>
+            <Flex direction='column' alignItems='flex-end'>
               <Text translation={'$420.65'} fontWeight='bold' color='white' />
               <Text translation={'850 OSMO'} color='gray.400' />
             </Flex>

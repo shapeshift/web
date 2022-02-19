@@ -1,10 +1,10 @@
 {
-  "name": "keepkey-client",
+  "name": "keepkey-desktop",
   "version": "0.1.15",
   "private": true,
   "main": "electron/main.js",
   "repository": {
-    "url": "https://github.com/keepkey/keepkey-client"
+    "url": "https://github.com/keepkey/keepkey-desktop"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
@@ -111,6 +111,7 @@
     "dev-electron": "concurrently \"yarn dev\" \"wait-on http://localhost:3000 && electron .\"",
     "build:electron": "yarn build-bundle-electron && cp -R electron/assets build/ && cp electron/icon.png build/icon.png && electron-builder build --publish always",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
+    "lint:cypress": "eslint -c ./cypress/.eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",
     "lint:cypress:fix": "yarn lint:cypress --fix",
     "minify": "yarn yarn-minify",

@@ -1,7 +1,10 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import { ipcRenderer } from 'electron'
+import findIndex from 'lodash/findIndex'
 import React, {
   createContext,
   useCallback,
@@ -125,8 +128,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           icon: action?.payload?.icon,
           deviceId: action?.payload?.deviceId,
           meta: {
-            label: action.payload.meta?.label ?? '',
-            address: (action.payload.wallet as any ?? '')
+            label: '', //TODO fixme
+            address: (action.payload.wallet as any).ethAddress ?? ''
           }
         }
       }

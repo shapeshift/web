@@ -5,7 +5,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { ReduxState } from 'state/reducer'
-import { selectLastNTxIds } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectLastNTxIds } from 'state/slices/selectors'
 
 export const RecentTransactions = () => {
   const recentTxIds = useSelector((state: ReduxState) => selectLastNTxIds(state, 10))

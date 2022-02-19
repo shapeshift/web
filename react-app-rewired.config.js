@@ -5,6 +5,9 @@ const stableStringify = require('fast-json-stable-stringify')
 const fs = require('fs')
 const _ = require('lodash')
 const path = require('path')
+const { CID } = require('multiformats/cid')
+const raw = require('multiformats/codecs/raw')
+const { sha256 } = require('multiformats/hashes/sha2')
 const ssri = require('ssri')
 const webpack = require('webpack')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
@@ -18,16 +21,22 @@ process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
 // environment variables that can be used in the template.
 for (const dirent of fs.readdirSync('./public', { withFileTypes: true })) {
   if (!dirent.isFile()) continue
-  const integrity = ssri.fromData(fs.readFileSync(`./public/${dirent.name}`), {
-    strict: true,
-    algorithms: ['sha256']
-  })
   const mungedName = dirent.name
     .toUpperCase()
     .split('')
     .map(x => (/^[0-9A-Z]$/.test(x) ? x : '_'))
     .join('')
+  const data = fs.readFileSync(`./public/${dirent.name}`)
+
+  const integrity = ssri.fromData(data, {
+    strict: true,
+    algorithms: ['sha256']
+  })
   process.env[`REACT_APP_SRI_${mungedName}`] = integrity.toString()
+
+  // While we're at it, also calculate IPFS CIDs for everything.
+  const cid = CID.create(1, raw.code, sha256.digest(data)).toString()
+  process.env[`REACT_APP_CID_${mungedName}`] = cid
 }
 
 module.exports = {
@@ -112,7 +121,7 @@ module.exports = {
       ]
     })
 
-    // Remove synthetic CSP/SRI environment variables from DefinePlugin.
+    // Remove synthetic CSP/SRI/CID environment variables from DefinePlugin.
     _.merge(config, {
       plugins: config.plugins.map(plugin => {
         if (plugin.constructor.name !== 'DefinePlugin') return plugin
@@ -121,7 +130,7 @@ module.exports = {
         const env = definitions['process.env'] || {}
 
         for (const key in env) {
-          if (/^REACT_APP_(CSP|SRI)_.*$/.test(key)) delete env[key]
+          if (/^REACT_APP_(CSP|SRI|CID)_.*$/.test(key)) delete env[key]
         }
 
         return new webpack.DefinePlugin(definitions)

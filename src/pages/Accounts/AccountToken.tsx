@@ -5,7 +5,7 @@ import { Redirect, useParams } from 'react-router-dom'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
 export type MatchParams = {
   accountId: AccountSpecifier
   assetId: CAIP19

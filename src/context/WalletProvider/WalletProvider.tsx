@@ -1,8 +1,10 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
+import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
-import findIndex from 'lodash/findIndex'
 import { ipcRenderer } from 'electron'
+import findIndex from 'lodash/findIndex'
 import React, {
   createContext,
   useCallback,
@@ -280,15 +282,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const create = useCallback(async (type: KeyManager) => {
     dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-        String(path).endsWith('create')
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
-      })
-    }
+    // const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+    //     String(path).endsWith('create')
+    // )
+    // if (routeIndex > -1) {
+    //   dispatch({
+    //     type: WalletActions.SET_INITIAL_ROUTE,
+    //     payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+    //   })
+    // }
   }, [])
 
   const disconnect = useCallback(() => {

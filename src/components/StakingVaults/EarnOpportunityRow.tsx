@@ -1,5 +1,5 @@
 import { Flex, HStack } from '@chakra-ui/layout'
-import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
+import { Button, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import { caip19 } from '@shapeshiftoss/caip'
 import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
@@ -14,8 +14,7 @@ import { RawText, Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const EarnOpportunityRow = ({
@@ -117,16 +116,31 @@ export const EarnOpportunityRow = ({
             <AssetIcon src={asset?.icon} boxSize='8' />
           </SkeletonCircle>
         </Flex>
-        <Skeleton isLoaded={isLoaded}>
-          <RawText size='lg' fontWeight='bold'>
-            {name}
-          </RawText>
-        </Skeleton>
-        <Skeleton isLoaded={isLoaded} ml={4}>
-          <Tag colorScheme='green'>
-            <Amount.Percent value={bnOrZero(vault?.metadata?.apy?.net_apy).toString()} />
-          </Tag>
-        </Skeleton>
+        <Stack
+          direction={{ base: 'column', lg: 'row' }}
+          alignItems={{ base: 'flex-start', lg: 'center' }}
+          justifyContent='flex-start'
+          spacing={{ base: 1, lg: 4 }}
+        >
+          <Skeleton isLoaded={isLoaded} display='flex'>
+            <RawText
+              size='lg'
+              fontWeight='bold'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              overflow='hidden'
+              display='inline-block'
+              maxWidth={{ base: '200px', lg: '100%' }}
+            >
+              {name}
+            </RawText>
+          </Skeleton>
+          <Skeleton isLoaded={isLoaded}>
+            <Tag colorScheme='green'>
+              <Amount.Percent value={bnOrZero(vault?.metadata?.apy?.net_apy).toString()} />
+            </Tag>
+          </Skeleton>
+        </Stack>
       </Flex>
       <Flex>
         <Skeleton isLoaded={isLoaded}>

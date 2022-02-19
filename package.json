@@ -1,10 +1,10 @@
 {
-  "name": "keepkey-client",
+  "name": "keepkey-desktop",
   "version": "0.1.15",
   "private": true,
   "main": "electron/main.js",
   "repository": {
-    "url": "https://github.com/keepkey/keepkey-client"
+    "url": "https://github.com/keepkey/keepkey-desktop"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
@@ -143,6 +143,9 @@
   },
   "jest": {
     "collectCoverageFrom": [],
+    "coveragePathIgnorePatterns": [
+      "./src/env"
+    ],
     "setupFiles": [
       "./src/test/setupGlobalMocks.ts"
     ]
@@ -223,8 +226,8 @@
     "@types/react-window": "^1.8.5",
     "babel-plugin-react-remove-properties": "^0.3.0",
     "cypress": "9.4.1",
-    "concurrently": "^6.4.0",
     "electron": "^16.0.1",
+    "concurrently": "^6.4.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",
@@ -232,6 +235,7 @@
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.36.5",
     "msw-storybook-addon": "^1.6.0",
+    "multiformats": "^9.6.3",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
     "reselect-tools": "^0.0.7",

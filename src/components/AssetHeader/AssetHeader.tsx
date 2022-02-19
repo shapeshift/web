@@ -29,17 +29,15 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import {
-  selectAssetByCAIP19,
-  useGetAssetDescriptionQuery
-} from 'state/slices/assetsSlice/assetsSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/marketDataSlice'
+import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdsByAssetId,
+  selectAssetByCAIP19,
+  selectMarketDataById,
   selectPortfolioCryptoHumanBalanceByFilter,
   selectPortfolioFiatBalanceByFilter
-} from 'state/slices/portfolioSlice/selectors'
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

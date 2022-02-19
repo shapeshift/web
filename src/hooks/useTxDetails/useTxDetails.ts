@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
-import { selectTxById, Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectAssetByCAIP19, selectTxById } from 'state/slices/selectors'
+import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export interface TxDetails {
   tx: Tx

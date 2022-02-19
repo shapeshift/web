@@ -248,9 +248,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                * this case isn't tested yet
                */
               try {
-                const localKeepKeyWallet = await state.adapters
-                  .get(KeyManager.KeepKey)
-                  ?.initialize()
+                await state.adapters.get(KeyManager.KeepKey)?.initialize()
+                const localKeepKeyWalletId = state.keyring.getAlias(localWalletDeviceId)
+                const localKeepKeyWallet = state.keyring.get(localKeepKeyWalletId)
                 if (localKeepKeyWallet) {
                   const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
                   const deviceId = await localKeepKeyWallet.getDeviceID()

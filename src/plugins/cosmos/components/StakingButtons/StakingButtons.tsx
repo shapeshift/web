@@ -1,9 +1,9 @@
-import { Flex } from '@chakra-ui/layout'
+import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 
-export const StakingButtons = () => (
-  <Flex justifyContent='space-between' width='100%'>
+export const StakingButtons = (styleProps?: FlexProps) => (
+  <Flex justifyContent='space-between' {...styleProps}>
     <Button width='190px'>
       <Text translation={'defi.stake'} fontWeight='bold' color='white' />
     </Button>

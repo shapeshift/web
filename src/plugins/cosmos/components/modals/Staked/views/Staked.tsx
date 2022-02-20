@@ -1,12 +1,12 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton } from '@chakra-ui/react'
-import { Image } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
 import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
+import { StakingHeader } from 'plugins/cosmos/components/StakingHeader/StakingHeader'
 import { StakingRow } from 'plugins/cosmos/components/StakingRow/StakingRow'
-import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import osmosis from 'assets/osmosis.svg'
+import { UnbondingRows } from 'plugins/cosmos/components/UnbondingRows/UnbondingRows'
 import { Text } from 'components/Text'
 
 type StakedProps = {
@@ -18,7 +18,7 @@ export const Staked = ({ assetId }: StakedProps) => {
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
     name: 'Osmo'
-  }))(assetId)
+  }))(assetId) as Asset
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Box pt='38px' pb='70px' px='24px'>
@@ -30,18 +30,11 @@ export const Staked = ({ assetId }: StakedProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <Flex width='100%' justifyContent='center' alignItems='center' marginBottom='35px'>
-            <Image src={osmosis} width='100%' minWidth='15px' maxWidth='30px' marginRight='13px' />
-            <Text
-              translation={['defi.assetStaking', { assetName: asset.name }]}
-              fontSize='18px'
-              fontWeight='bold'
-            />
-          </Flex>
-          <StakingRow />
-          <StakingButtons />
-          <UnbondingRow />
-          <RewardsRow />
+          <StakingHeader asset={asset} width='100%' mb='35px' />
+          <StakingRow width='100%' mb='20px' />
+          <StakingButtons width='100%' />
+          <UnbondingRows width='100%' mt='20px' />
+          <RewardsRow width='100%' mb='20px' mt='25px' />
           <Button width='100%' colorScheme='darkTeal'>
             <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />
           </Button>

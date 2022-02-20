@@ -1,8 +1,8 @@
-import { Flex } from '@chakra-ui/layout'
+import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Text } from 'components/Text'
 
-export const RewardsRow = () => (
-  <Flex width='100%' mb='20px' mt='20px'>
+export const RewardsRow = (styleProps?: FlexProps) => (
+  <Flex {...styleProps}>
     <Flex width='50%' height='20px'>
       <Text translation={'defi.rewards'} />
     </Flex>

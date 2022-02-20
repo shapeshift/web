@@ -1,9 +1,9 @@
-import { Flex } from '@chakra-ui/layout'
+import { Flex, FlexProps } from '@chakra-ui/layout'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { Text } from 'components/Text'
 
-export const StakingRow = () => (
-  <Flex width='100%' mb='20px' justifyContent='space-between'>
+export const StakingRow = (styleProps: FlexProps) => (
+  <Flex width='100%' justifyContent='space-between'>
     <Flex height='20px'>
       <Text translation={'defi.staked'} marginRight='20px' />
       <AprTag percentage='1.25' />

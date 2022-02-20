@@ -3,7 +3,7 @@ import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { Text } from 'components/Text'
 
 export const StakingRow = (styleProps: FlexProps) => (
-  <Flex width='100%' justifyContent='space-between'>
+  <Flex width='100%' justifyContent='space-between' {...styleProps}>
     <Flex height='20px'>
       <Text translation={'defi.staked'} marginRight='20px' />
       <AprTag percentage='1.25' />

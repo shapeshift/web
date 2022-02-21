@@ -25,6 +25,8 @@ export const useTradeRoutes = (): {
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
+      // TODO: this is fine for now, since we can only trade ETH/ERC20
+      // but should be refactored to adequate incoming new chains - i.e. thorchain swaps
       const buyAsset =
         asset?.chain === 'ethereum' && asset?.caip19 !== sellAssetId
           ? assets[asset.caip19]

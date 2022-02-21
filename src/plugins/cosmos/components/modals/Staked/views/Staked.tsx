@@ -8,6 +8,7 @@ import { StakingHeader } from 'plugins/cosmos/components/StakingHeader/StakingHe
 import { StakingRow } from 'plugins/cosmos/components/StakingRow/StakingRow'
 import { UnbondingRows } from 'plugins/cosmos/components/UnbondingRows/UnbondingRows'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type StakedProps = {
   assetId: string
@@ -17,7 +18,8 @@ type StakedProps = {
 export const Staked = ({ assetId }: StakedProps) => {
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
-    name: 'Osmo'
+    name: 'Osmo',
+    symbol: 'OSMO'
   }))(assetId) as Asset
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -31,10 +33,24 @@ export const Staked = ({ assetId }: StakedProps) => {
           justifyContent='space-between'
         >
           <StakingHeader asset={asset} width='100%' mb='35px' />
-          <StakingRow width='100%' mb='20px' />
+          <StakingRow
+            width='100%'
+            mb='20px'
+            asset={asset}
+            fiatRate={bnOrZero('8.47')}
+            stakedAmount={bnOrZero('708.00')}
+            apr={bnOrZero('1.25')}
+          />
           <StakingButtons width='100%' />
           <UnbondingRows width='100%' mt='20px' />
-          <RewardsRow width='100%' mb='20px' mt='25px' />
+          <RewardsRow
+            width='100%'
+            mb='20px'
+            mt='25px'
+            asset={asset}
+            fiatRate={bnOrZero('8.47')}
+            rewardsAmount={bnOrZero('23.24')}
+          />
           <Button width='100%' colorScheme='darkTeal'>
             <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />
           </Button>

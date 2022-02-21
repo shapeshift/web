@@ -42,7 +42,6 @@ export const useAsset = () => {
 
 export const Asset = ({ route }: { route: Route }) => {
   const { asset, marketData } = useAsset()
-  console.info('must be an asset?')
   return !(asset && marketData) ? (
     <Page key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>

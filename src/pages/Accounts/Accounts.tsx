@@ -8,7 +8,7 @@ import { AccountRowWithTokens } from './AccountRowWithTokens'
 
 const AccountHeader = () => {
   return (
-    <Heading>
+    <Heading pb={6}>
       <Text translation='accounts.accounts' />
     </Heading>
   )

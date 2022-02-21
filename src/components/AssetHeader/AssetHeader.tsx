@@ -12,7 +12,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AccountLabel } from './AccountLabel'
 import { AssetActions } from './AssetActions'
 
 type AssetHeaderProps = {

@@ -1,11 +1,8 @@
-import { Flex } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
-import { Main } from 'components/Layout/Main'
-import { Page } from 'components/Layout/Page'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
 export type MatchParams = {

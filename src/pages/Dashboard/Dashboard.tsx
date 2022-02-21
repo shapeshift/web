@@ -1,6 +1,4 @@
-import { Flex } from '@chakra-ui/react'
 import { Main } from 'components/Layout/Main'
-import { Page } from 'components/Layout/Page'
 
 import { Portfolio } from './Portfolio'
 

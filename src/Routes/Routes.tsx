@@ -40,12 +40,19 @@ export const routes: Array<NestedRoute> = [
     icon: <AssetsIcon color='inherit' />,
     routes: [
       {
-        path: '/:assetId',
-        label: 'navbar.AssetDetails',
-        main: Asset,
-        leftSidebar: AssetSidebar,
-        rightSidebar: AssetRightSidebar,
-        hide: true
+        path: '/:chainId/:assetSubId',
+        label: 'Overview',
+        icon: <AssetsIcon color='inherit' />,
+        main: null,
+        hide: true,
+        routes: [
+          {
+            path: '/',
+            label: 'navBar.overview',
+            main: Asset,
+            hide: true
+          }
+        ]
       }
     ]
   },

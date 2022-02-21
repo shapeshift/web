@@ -3,7 +3,7 @@ import { Box, Container, HStack } from '@chakra-ui/layout'
 import { useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, NavLink, useLocation } from 'react-router-dom'
+import { generatePath, matchPath, NavLink, useLocation, useParams } from 'react-router-dom'
 import { pathTo, Route } from 'Routes/helpers'
 
 type MenuLinkProps = {
@@ -13,11 +13,13 @@ type MenuLinkProps = {
 const MenuLink = ({ index, path, icon, label }: MenuLinkProps) => {
   const location = useLocation()
   const translate = useTranslate()
+  const params = useParams()
   const match = matchPath(location.pathname, { path, exact: true }) != null
+  const generatedPath = generatePath(path, params)
   return (
     <Button
       key={index}
-      to={path}
+      to={generatedPath}
       as={NavLink}
       leftIcon={icon}
       variant='tab'
@@ -47,14 +49,7 @@ const Menu = ({ routes, level }: MenuProps) => {
 
   if (!routeList?.length) return null
   return (
-    <Box
-      borderBottom='1px'
-      borderColor={borderColor}
-      bg={bg}
-      position='sticky'
-      top={70}
-      zIndex='banner'
-    >
+    <Box borderBottom='1px' borderColor={borderColor} bg={bg}>
       <Container maxW='container.xl'>
         <HStack>{routeList}</HStack>
       </Container>

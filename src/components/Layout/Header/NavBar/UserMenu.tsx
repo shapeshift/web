@@ -1,22 +1,12 @@
 import {
-  ChatIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   CloseIcon,
-  MoonIcon,
   RepeatIcon,
   WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import {
-  Button,
-  Flex,
-  HStack,
-  Link,
-  Switch,
-  useColorMode,
-  useColorModeValue
-} from '@chakra-ui/react'
+import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -116,7 +106,6 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
   return Boolean(walletInfo?.deviceId) ? (
     <MenuButton
       as={Button}
-      isFullWidth
       size='lg'
       pl={4}
       leftIcon={
@@ -145,15 +134,13 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
       </Flex>
     </MenuButton>
   ) : (
-    <MenuButton onClick={onConnect} as={Button} isFullWidth leftIcon={<FaWallet />}>
+    <Button onClick={onConnect} leftIcon={<FaWallet />}>
       <Text translation='common.connectWallet' />
-    </MenuButton>
+    </Button>
   )
 }
 
 export const UserMenu = () => {
-  const { toggleColorMode } = useColorMode()
-  const isActive = useColorModeValue(false, true)
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -176,27 +163,6 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuDivider />
-        <MenuItem
-          icon={<ChatIcon />}
-          as={Link}
-          isExternal
-          _hover={{ textDecoration: 'none' }}
-          href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
-        >
-          <Text translation='common.submitFeedback' />
-        </MenuItem>
-        <MenuItem
-          icon={<MoonIcon />}
-          closeOnSelect={false}
-          justifyContent='space-between'
-          onClick={toggleColorMode}
-        >
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text translation='common.darkMode' />
-            <Switch isChecked={isActive} />
-          </Flex>
-        </MenuItem>
       </MenuList>
     </Menu>
   )

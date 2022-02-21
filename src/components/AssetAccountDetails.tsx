@@ -1,4 +1,4 @@
-import { HStack, Stack } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { Route } from 'Routes/helpers'
@@ -27,13 +27,13 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
   const cosmosInverstorFlag = FeatureFlag.CosmosInvestor
   return (
     <Main route={route} titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
-      <HStack alignItems='flex-start' spacing={4} mx='auto'>
-        <Stack flex='1 1 0%' maxWidth='sm' spacing={4}>
-          <TradeCard />
-          <AssetMarketData assetId={caip19} />
-          <AssetDescription assetId={caip19} />
-        </Stack>
-        <Stack spacing={4} flex='1 1 0%'>
+      <Stack
+        alignItems='flex-start'
+        spacing={4}
+        mx='auto'
+        direction={{ base: 'column', xl: 'row' }}
+      >
+        <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={caip19} isLoaded={true} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
@@ -42,7 +42,12 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>
-      </HStack>
+        <Stack flex='1 1 0%' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+          <TradeCard />
+          <AssetMarketData assetId={caip19} />
+          <AssetDescription assetId={caip19} />
+        </Stack>
+      </Stack>
     </Main>
   )
 }

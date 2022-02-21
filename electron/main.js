@@ -43,12 +43,18 @@ const path = require('path')
 const isDev = require('electron-is-dev')
 const log = require('electron-log')
 const { app, Menu, Tray, BrowserWindow, nativeTheme, ipcMain, nativeImage } = require('electron')
+const { autoUpdater } = require("electron-updater");
 const usb = require('usb')
 const AutoLaunch = require('auto-launch')
 const swaggerUi = require('swagger-ui-express');
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, './api/dist/swagger.json'))
-if(!swaggerDocument) throw Error("Failed to load API SPEC!")
+if (!swaggerDocument) throw Error("Failed to load API SPEC!")
+
+const isMac = process.platform === "darwin";
+const isWin = process.platform === "win32";
+const isLinux =
+  process.platform !== "darwin" && process.platform !== "win32";
 
 //core libs
 let {
@@ -73,16 +79,16 @@ appExpress.use(bodyParser.json())
 
 //DB persistence
 const Datastore = require('nedb')
-    , db = new Datastore({ filename: './.KeepKey/db', autoload: true });
+  , db = new Datastore({ filename: './.KeepKey/db', autoload: true });
 
 let wait = require('wait-promise');
 let sleep = wait.sleep;
 let server = {}
 let tray = {}
 let USER = {
-  online:false,
-  accounts:[],
-  balances:[]
+  online: false,
+  accounts: [],
+  balances: []
 }
 let STATE = 0
 let USERNAME
@@ -98,16 +104,21 @@ const EVENT_LOG = []
 let SIGNED_TX = null
 let USER_APPROVED_PAIR = null
 let USER_REJECT_PAIR = null
+let skipUpdateTimeout
+let windowShowInterval
+let splash
+let mainWindow
+let shouldShowWindow = false;
 
 /*
     Electron Settings
  */
 
 try {
-  if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
+  if (isWin && nativeTheme.shouldUseDarkColors === true) {
     require('fs').unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
   }
-} catch (_) {}
+} catch (_) { }
 
 /**
  * Set `__statics` path to static files in production;
@@ -117,7 +128,6 @@ if (process.env.PROD) {
   global.__statics = __dirname
 }
 
-let mainWindow
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 
 const menuTemplate = [
@@ -127,7 +137,7 @@ const menuTemplate = [
     type: 'normal',
     icon: path.join(assetsDirectory, 'status/unknown.png')
   },
-  { label: '', type: 'separator' },
+  { type: 'separator' },
   {
     label: 'Show App',
     click: function () {
@@ -141,7 +151,7 @@ const menuTemplate = [
       }
     }
   },
-  { label: '', type: 'separator' },
+  { type: 'separator' },
   {
     label: 'Start Bridge',
     click: function () {
@@ -158,8 +168,7 @@ const menuTemplate = [
       stop_bridge(eventIPC)
     }
   },
-  //
-  { label: '', type: 'separator' },
+  { type: 'separator' },
   {
     label: 'Toggle App',
     click: function () {
@@ -282,7 +291,7 @@ function createWindow() {
   })
 
   //TODO remove/ flag on dev
-  if(isDev) mainWindow.openDevTools()
+  if (isDev) mainWindow.openDevTools()
 
   const startURL = isDev
     ? 'http://localhost:3000'
@@ -298,6 +307,10 @@ function createWindow() {
     stop_bridge()
   })
 
+  mainWindow.once("ready-to-show", () => {
+    shouldShowWindow = true;
+  });
+
   // mainWindow.on("closed", () => {
 
   // });
@@ -306,10 +319,17 @@ function createWindow() {
 app.setAsDefaultProtocolClient('keepkey')
 // Export so you can access it from the renderer thread
 
-app.on('ready', createWindow)
+app.on('ready', async () => {
+  createSplashWindow()
+  if (isDev) skipUpdateCheck(splash)
+  if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
+  if (isLinux && !isDev) {
+    skipUpdateCheck(splash)
+  }
+})
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  if (!isMac) {
     app.quit()
   }
 })
@@ -325,11 +345,41 @@ app.on('before-quit', () => {
   isQuitting = true
 })
 
-ipcMain.on('onSignedTx', async (event,data) => {
+autoUpdater.on("update-available", (info) => {
+  splash.webContents.send("@update/download", info);
+  // skip the update if it takes more than 1 minute
+  skipUpdateTimeout = setTimeout(() => {
+    skipUpdateCheck(splash);
+  }, 60000);
+});
+autoUpdater.on("download-progress", (progress) => {
+  let prog = Math.floor(progress.percent);
+  splash.webContents.send("@update/percentage", prog);
+  splash.setProgressBar(prog / 100);
+  // stop timeout that skips the update
+  if (skipUpdateTimeout) {
+    clearTimeout(skipUpdateTimeout);
+  }
+});
+autoUpdater.on("update-downloaded", () => {
+  splash.webContents.send("@update/relaunch");
+  // stop timeout that skips the update
+  if (skipUpdateTimeout) {
+    clearTimeout(skipUpdateTimeout);
+  }
+  setTimeout(() => {
+    autoUpdater.quitAndInstall();
+  }, 1000);
+});
+autoUpdater.on("update-not-available", () => {
+  skipUpdateCheck(splash);
+});
+
+ipcMain.on('onSignedTx', async (event, data) => {
   const tag = TAG + ' | onSignedTx | '
   try {
     log.info(tag, 'event: onSignedTx: ', data)
-    console.log("onSignedTx: ",data)
+    console.log("onSignedTx: ", data)
     SIGNED_TX = data
   } catch (e) {
     log.error('e: ', e)
@@ -337,23 +387,23 @@ ipcMain.on('onSignedTx', async (event,data) => {
   }
 })
 
-ipcMain.on('onApproveOrigin', async (event,data) => {
+ipcMain.on('onApproveOrigin', async (event, data) => {
   const tag = TAG + ' | onApproveOrigin | '
   try {
-    log.info(tag,"data: ",data)
+    log.info(tag, "data: ", data)
 
     //Approve Origin
     APPROVED_ORIGINS.push(data.origin)
     USER_APPROVED_PAIR = true
     //save to db
     let doc = {
-      origin:data.origin,
+      origin: data.origin,
       added: new Date().getTime(),
-      isVerified:false
+      isVerified: false
     }
-    db.insert(doc, function(err,resp){
-      if(err) log.error("err: ",err)
-      log.info("saved origin: ",resp)
+    db.insert(doc, function (err, resp) {
+      if (err) log.error("err: ", err)
+      log.info("saved origin: ", resp)
     })
   } catch (e) {
     log.error('e: ', e)
@@ -361,10 +411,10 @@ ipcMain.on('onApproveOrigin', async (event,data) => {
   }
 })
 
-ipcMain.on('onRejectOrigin', async (event,data) => {
+ipcMain.on('onRejectOrigin', async (event, data) => {
   const tag = TAG + ' | onRejectOrigin | '
   try {
-    log.info(tag,"data: ",data)
+    log.info(tag, "data: ", data)
 
     USER_REJECT_PAIR = true
   } catch (e) {
@@ -373,7 +423,7 @@ ipcMain.on('onRejectOrigin', async (event,data) => {
   }
 })
 
-ipcMain.on('onCloseModal', async (event,data) => {
+ipcMain.on('onCloseModal', async (event, data) => {
   const tag = TAG + ' | onCloseModal | '
   try {
     mainWindow.setAlwaysOnTop(false)
@@ -383,19 +433,19 @@ ipcMain.on('onCloseModal', async (event,data) => {
   }
 })
 
-ipcMain.on('onAccountInfo', async (event,data) => {
+ipcMain.on('onAccountInfo', async (event, data) => {
   const tag = TAG + ' | onAccountInfo | '
   try {
-    console.log("data: ",data)
-    if(data.length > 0 && USER.accounts.length === 0){
+    console.log("data: ", data)
+    if (data.length > 0 && USER.accounts.length === 0) {
       USER.online = true
-      for(let i = 0; i < data.length; i++){
+      for (let i = 0; i < data.length; i++) {
         let entry = data[i]
         let caip = Object.keys(entry)
         let pubkey = entry[caip[0]]
         let entryNew = {
           pubkey,
-          caip:caip[0]
+          caip: caip[0]
         }
         USER.accounts.push(entryNew)
       }
@@ -406,11 +456,11 @@ ipcMain.on('onAccountInfo', async (event,data) => {
   }
 })
 
-ipcMain.on('onBalanceInfo', async (event,data) => {
+ipcMain.on('onBalanceInfo', async (event, data) => {
   const tag = TAG + ' | onBalanceInfo | '
   try {
-    console.log("data: ",data)
-    if(data.length > 0){
+    console.log("data: ", data)
+    if (data.length > 0) {
       USER.balances = data
     }
   } catch (e) {
@@ -418,6 +468,47 @@ ipcMain.on('onBalanceInfo', async (event,data) => {
     log.error(tag, e)
   }
 })
+
+
+
+const skipUpdateCheck = (splash) => {
+  createWindow();
+  splash.webContents.send("@update/notfound");
+  if (isLinux || isDev) {
+    splash.webContents.send("@update/skipCheck");
+  }
+  // stop timeout that skips the update
+  if (skipUpdateTimeout) {
+    clearTimeout(skipUpdateTimeout);
+  }
+  windowShowInterval = setInterval(() => {
+    if (shouldShowWindow) {
+      splash.webContents.send("@update/launch");
+      clearInterval(windowShowInterval);
+      setTimeout(() => {
+        splash.destroy();
+        mainWindow.show();
+      }, 800);
+    }
+  }, 1000);
+}
+
+const createSplashWindow = () => {
+  splash = new BrowserWindow({
+    width: 300,
+    height: 410,
+    transparent: true,
+    frame: false,
+    resizable: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
+  splash.loadFile(
+    path.join(__dirname, "./resources/splash/splash-screen.html")
+  );
+}
 
 
 /*
@@ -456,8 +547,8 @@ const start_bridge = async function (event) {
       await transport.connect?.()
       STATE = 2
       STATUS = 'keepkey connected'
-      event.sender.send('setKeepKeyState', {state: STATE})
-      event.sender.send('setKeepKeyStatus', {status: STATUS})
+      event.sender.send('setKeepKeyState', { state: STATE })
+      event.sender.send('setKeepKeyStatus', { status: STATUS })
     } else {
       log.info('Can not start! waiting for device connect')
     }
@@ -557,8 +648,8 @@ const start_bridge = async function (event) {
       appExpress.all('/exchange/device', async function (req, res, next) {
         try {
           res.status(200).json({
-            success:false,
-            msg:"Device not connected!"
+            success: false,
+            msg: "Device not connected!"
           })
           next()
         } catch (e) {
@@ -586,7 +677,7 @@ const start_bridge = async function (event) {
         console.log("checkpoint1: ")
         if (req.method === 'POST') {
           let body = req.body
-          console.log("body: ",body)
+          console.log("body: ", body)
           mainWindow.setAlwaysOnTop(true)
           if (!mainWindow.isVisible()) {
             mainWindow.show()
@@ -594,10 +685,10 @@ const start_bridge = async function (event) {
           }
           event.sender.send('signTx', { payload: body })
           //hold till signed
-          while(!SIGNED_TX){
+          while (!SIGNED_TX) {
             await sleep(300)
           }
-          res.status(200).json({ success: true, status: 'signed', signedTx:SIGNED_TX })
+          res.status(200).json({ success: true, status: 'signed', signedTx: SIGNED_TX })
           SIGNED_TX = null
         }
         next()
@@ -612,7 +703,7 @@ const start_bridge = async function (event) {
       //log.info(req.body, { status: status, message: message, data: data })
       try {
         res.status(status).json({ message, data })
-      } catch (e) {}
+      } catch (e) { }
     })
 
     //port
@@ -682,25 +773,25 @@ ipcMain.on('onStartApp', async (event, data) => {
     log.info(tag, 'event: onStartApp: ', data)
 
     //load DB
-    try{
-      db.find({ }, function (err, docs) {
-        for(let i = 0; i < docs.length; i++){
+    try {
+      db.find({}, function (err, docs) {
+        for (let i = 0; i < docs.length; i++) {
           let doc = docs[i]
           APPROVED_ORIGINS.push(doc.origin)
         }
       });
-      log.info(tag,"APPROVED_ORIGINS: ",APPROVED_ORIGINS)
-      event.sender.send('loadOrigins', { payload:APPROVED_ORIGINS })
-    }catch(e){
-      log.error("failed to load db: ",e)
+      log.info(tag, "APPROVED_ORIGINS: ", APPROVED_ORIGINS)
+      event.sender.send('loadOrigins', { payload: APPROVED_ORIGINS })
+    } catch (e) {
+      log.error("failed to load db: ", e)
     }
 
     try {
       //is there config
       let config = getConfig()
-      console.log("config: ",config)
+      console.log("config: ", config)
 
-      if(!config){
+      if (!config) {
         //if not init
         await innitConfig()
         config = getConfig()

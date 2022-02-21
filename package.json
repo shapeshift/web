@@ -62,6 +62,7 @@
     "electron-is": "^3.0.0",
     "electron-log": "^4.4.1",
     "electron-notarize": "^1.1.1",
+    "electron-updater": "^4.6.5",
     "envalid": "^7.2.1",
     "express": "^4.17.1",
     "framer-motion": "^4",

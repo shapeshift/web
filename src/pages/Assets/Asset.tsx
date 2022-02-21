@@ -1,11 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import type { CAIP2 } from '@shapeshiftoss/caip'
 import { caip19 } from '@shapeshiftoss/caip'
-=======
-import {
-  DefiParams,
-  DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { matchPath } from 'react-router-dom'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'

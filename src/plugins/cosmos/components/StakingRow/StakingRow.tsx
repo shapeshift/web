@@ -21,13 +21,11 @@ export const StakingRow = ({
   <Flex width='100%' justifyContent='space-between' {...styleProps}>
     <Flex height='20px'>
       <Text translation={'defi.staked'} marginRight='20px' />
-      <AprTag percentage={apr} />
+      <AprTag percentage={apr.toPrecision()} />
     </Flex>
     <Flex direction='column' alignItems='flex-end'>
       <CText fontWeight='semibold'>{`$${stakedAmount.times(fiatRate).toPrecision()}`}</CText>
-      <CText color='gray.500'>
-        {stakedAmount + ' ' + asset.symbol}
-      </CText>
+      <CText color='gray.500'>{stakedAmount + ' ' + asset.symbol}</CText>
     </Flex>
   </Flex>
 )

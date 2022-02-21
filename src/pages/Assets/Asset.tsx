@@ -48,16 +48,10 @@ export const useAsset = () => {
 export const Asset = ({ route }: { route: Route }) => {
   const { asset, marketData } = useAsset()
 
-  return asset && marketData ? (
+  return (
     <Page style={{ flex: 1 }} key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        <AssetAccountDetails assetId={asset.caip19} />
-      </Flex>
-    </Page>
-  ) : (
-    <Page style={{ flex: 1 }} key={asset?.tokenId}>
-      <Flex role='main' flex={1} height='100%'>
-        <LoadingAsset />
+        {asset && marketData ? <AssetAccountDetails assetId={asset.caip19} /> : <LoadingAsset />}
       </Flex>
     </Page>
   )

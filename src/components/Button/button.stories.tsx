@@ -153,7 +153,7 @@ export const WithLoadingSpinnerPlacement = () => (
       loadingText='Loading'
       colorScheme='teal'
       variant='outline'
-      spinnerPosition='start'
+      spinnerPlacement='start'
     >
       Submit
     </Button>

@@ -27,7 +27,7 @@ export interface MatchParams {
 export const useAsset = () => {
   const dispatch = useAppDispatch()
 
-  const { location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { location } = useBrowserRouter<{}, MatchParams>()
   const match = matchPath<MatchParams>(location.pathname, {
     path: '/assets/:chainId/:assetSubId',
     exact: true

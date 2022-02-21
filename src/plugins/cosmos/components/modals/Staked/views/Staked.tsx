@@ -6,7 +6,7 @@ import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
 import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
 import { StakingHeader } from 'plugins/cosmos/components/StakingHeader/StakingHeader'
 import { StakingRow } from 'plugins/cosmos/components/StakingRow/StakingRow'
-import { UnbondingRows } from 'plugins/cosmos/components/UnbondingRows/UnbondingRows'
+import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -42,7 +42,19 @@ export const Staked = ({ assetId }: StakedProps) => {
             apr={bnOrZero('1.25')}
           />
           <StakingButtons width='100%' />
-          <UnbondingRows width='100%' mt='20px' />
+          <Box width='100%' mt='20px'>
+            {
+              /* TODO: use real unbonds data */
+              new Array(3).fill(undefined).map((_, i) => (
+                <UnbondingRow
+                  key={i}
+                  asset={asset}
+                  fiatRate={bnOrZero('8.47')}
+                  unbondedAmount={bnOrZero('420.65')}
+                />
+              ))
+            }
+          </Box>
           <RewardsRow
             width='100%'
             mb='20px'

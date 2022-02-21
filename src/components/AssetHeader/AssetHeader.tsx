@@ -224,7 +224,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
               <SanitizedHtml
                 color='gray.500'
                 dirtyHtml={description}
-                isTrustedDescription={isTrustedDescription}
+                isTrusted={isTrustedDescription}
               />
             </SkeletonText>
           </Collapse>

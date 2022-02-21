@@ -30,11 +30,11 @@ DOMPurify.addHook('uponSanitizeElement', (node, data) => {
 
 export const SanitizedHtml = ({
   dirtyHtml,
-  isTrustedDescription,
+  isTrusted,
   ...rest
-}: { dirtyHtml: string; isTrustedDescription: boolean } & TextProps) => {
+}: { dirtyHtml: string; isTrusted: boolean } & TextProps) => {
   let cleanText = null
-  if (isTrustedDescription) {
+  if (isTrusted) {
     cleanText = sanitize(dirtyHtml ?? '', {
       ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'span', 'a'],
       ADD_ATTR: ['target']

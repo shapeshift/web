@@ -36,8 +36,8 @@
  *                                                -Highlander
  */
 
-import core from '@shapeshiftoss/hdwallet-core'
-import KK from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
+import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
@@ -46,7 +46,7 @@ import usb from 'usb'
 import AutoLaunch from 'auto-launch'
 import swaggerUi from 'swagger-ui-express'
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
-const swaggerDocument = require(path.join(__dirname, './api/dist/swagger.json'))
+const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
 //core libs
@@ -61,7 +61,7 @@ let {
 } = require("keepkey-config")
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-const adapter = KK.NodeWebUSBKeepKeyAdapter.useKeyring(new core.Keyring())
+const adapter = NodeWebUSBKeepKeyAdapter.useKeyring(new Keyring())
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
@@ -102,7 +102,7 @@ let isQuitting = false
 let eventIPC = {}
 let APPROVED_ORIGINS: string[] = []
 
-const assetsDirectory = path.join(__dirname, 'assets')
+const assetsDirectory = path.join(__dirname, '../assets')
 const EVENT_LOG: Array<{ read: { data: string } }> = []
 let SIGNED_TX = null
 let USER_APPROVED_PAIR: boolean
@@ -295,7 +295,7 @@ function createWindow() {
 
     const startURL = isDev
         ? 'http://localhost:3000'
-        : `file://${path.join(__dirname, '../build/index.html')}`
+        : `file://${path.join(__dirname, '../../build/index.html')}`
     log.info('startURL: ', startURL)
 
     mainWindow.loadURL(startURL)
@@ -489,7 +489,7 @@ const start_bridge = async function (event) {
         appExpress.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
         //swagger.json
-        appExpress.use('/spec', express.static(path.join(__dirname, './api/dist')));
+        appExpress.use('/spec', express.static(path.join(__dirname, '../api/dist')));
 
         //status
         appExpress.all('/status', async function (req, res, next) {

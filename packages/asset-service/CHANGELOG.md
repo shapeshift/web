@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.19.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.19.2...@shapeshiftoss/asset-service-v1.19.3) (2022-02-22)
+
+
+### Bug Fixes
+
+* typo in getOsmosisAssets and caused the wrong caip19 in generated asset data ([#393](https://github.com/shapeshift/lib/issues/393)) ([d763ebc](https://github.com/shapeshift/lib/commit/d763ebccba8db4a8e3c4ab19713661d69aad6b26))
+
 # [@shapeshiftoss/asset-service-v1.19.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.19.1...@shapeshiftoss/asset-service-v1.19.2) (2022-02-18)
 
 # [@shapeshiftoss/asset-service-v1.19.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.19.0...@shapeshiftoss/asset-service-v1.19.1) (2022-02-18)

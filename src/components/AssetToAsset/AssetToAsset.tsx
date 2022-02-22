@@ -51,7 +51,7 @@ export const AssetToAsset = ({
           p='2px'
           background={`linear-gradient(to right, ${fromAsset.color}, ${toAsset.color})`}
         >
-          <Circle bg={bg ? bg : defaultBg} w='100%' h='100%'>
+          <Circle bg={bg ? bg : defaultBg} size='100%'>
             <Center position='absolute'>{statusIcon}</Center>
             <CircularProgress
               color='blue.500'

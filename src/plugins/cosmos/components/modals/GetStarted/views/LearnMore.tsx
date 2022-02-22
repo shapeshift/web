@@ -12,9 +12,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
-const STEPS_LENGTH = 3
-const STEP_TO_ELEMENTS_MAPPING = {
-  1: {
+const STEP_TO_ELEMENTS_MAPPING = [
+  {
     bodies: [
       'defi.modals.learnMore.bodies.rateFluctuationInfo',
       'defi.modals.learnMore.bodies.amountStakingInfo',
@@ -23,12 +22,12 @@ const STEP_TO_ELEMENTS_MAPPING = {
     header: 'defi.modals.learnMore.headers.aboutStakingRewards',
     headerImageSrc: rewards
   },
-  2: {
+  {
     bodies: ['defi.modals.learnMore.bodies.unbondingInfo'],
     header: 'defi.modals.learnMore.headers.unstaking',
     headerImageSrc: withdraw
   },
-  3: {
+  {
     bodies: [
       'defi.modals.learnMore.bodies.slashingInfo',
       'defi.modals.learnMore.bodies.partnerInfo'
@@ -36,7 +35,7 @@ const STEP_TO_ELEMENTS_MAPPING = {
     header: 'defi.modals.learnMore.headers.risks',
     headerImageSrc: risk
   }
-}
+]
 
 type LearnMoreProps = {
   assetId: string
@@ -50,16 +49,13 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
     name: 'Osmo'
   }))(assetId)
 
-  const { nextStep, prevStep, activeStep } = useSteps({
+  const { nextStep, prevStep, setStep, activeStep } = useSteps({
     initialStep: 1
   })
 
-  // activeStep from useSteps() can have an infinite of step, but at runtime, it is effectively restricted to max. 3 in our case
-  // This makes tsc happy regarding exhaustive property access of STEP_TO_ELEMENTS_MAPPING
-  let currentStep = activeStep as 1 | 2 | 3
-
-  const isLastStep = currentStep === STEPS_LENGTH
-  const isFirstStep = currentStep === 1
+  const stepsLength = Object.keys(STEP_TO_ELEMENTS_MAPPING).length
+  const isFirstStep = activeStep === 1
+  const isLastStep = activeStep === stepsLength
 
   const handleNextOrCloseClick = () => {
     if (isLastStep) return cosmosGetStarted.close()
@@ -74,6 +70,8 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
 
     prevStep()
   }
+
+  const currentElement = STEP_TO_ELEMENTS_MAPPING[activeStep - 1]
 
   return (
     <>
@@ -97,19 +95,16 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <SlideTransition key={currentStep}>
+          <SlideTransition key={activeStep}>
             <Flex direction='column' alignItems='center'>
               <DefiModalHeader
-                headerImageSrc={STEP_TO_ELEMENTS_MAPPING[currentStep].headerImageSrc}
-                headerText={[
-                  STEP_TO_ELEMENTS_MAPPING[currentStep].header,
-                  { assetName: asset.name }
-                ]}
-                headerImageWidth={120}
+                headerImageSrc={currentElement.headerImageSrc}
+                headerText={[currentElement.header, { assetName: asset.name }]}
+                headerImageMaxWidth={120}
               />
               <Box>
                 <Flex direction='column'>
-                  {STEP_TO_ELEMENTS_MAPPING[currentStep].bodies.map((body, i) => (
+                  {currentElement.bodies.map((body, i) => (
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
                         translation={[body, { assetName: asset.name }]}
@@ -141,7 +136,7 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
               </Button>
             </Box>
             <Box width='46px'>
-              <CarouselDots length={STEPS_LENGTH} activeIndex={currentStep} />
+              <CarouselDots length={stepsLength} activeIndex={activeStep} onClick={setStep} />
             </Box>
           </Flex>
         </Flex>

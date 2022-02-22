@@ -4,14 +4,14 @@ import { Text } from 'components/Text'
 
 type DefiModalHeaderProps = {
   headerImageSrc: string
-  headerImageWidth: number
+  headerImageMaxWidth: number
   headerText: string | [string, Record<string, string>]
 }
 
 export const DefiModalHeader = ({
   headerImageSrc,
   headerText,
-  headerImageWidth
+  headerImageMaxWidth
 }: DefiModalHeaderProps) => (
   <>
     <Box textAlign='center'>
@@ -19,7 +19,7 @@ export const DefiModalHeader = ({
         src={headerImageSrc}
         width='100%'
         minWidth='68px'
-        maxWidth={{ base: `${headerImageWidth / 2}px`, sm: `${headerImageWidth}px` }}
+        maxWidth={{ base: `${headerImageMaxWidth / 2}px`, sm: `${headerImageMaxWidth}px` }}
       />
     </Box>
     <Box textAlign='center' my='24px'>

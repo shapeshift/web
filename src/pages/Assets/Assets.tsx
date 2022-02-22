@@ -7,7 +7,9 @@ import { Page } from 'components/Layout/Page'
 export const Assets = () => {
   const history = useHistory()
   const onClick = (asset: Asset) => {
-    const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
+    // CAIP19 has a `/` separator so the router will have to parse 2 variables
+    // e.g., /assets/:chainId/:assetSubId
+    const url = `/assets/${asset.caip19}`
     history.push(url)
   }
   return (

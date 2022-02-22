@@ -1,3 +1,4 @@
+import union from 'lodash/union'
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -39,8 +40,8 @@ export const routes: Array<NestedRoute> = [
     icon: <AssetsIcon color='inherit' />,
     routes: [
       {
-        path: '/:chain/:tokenId?',
-        label: 'Asset Details',
+        path: '/:chainId/:assetSubId',
+        label: 'navbar.assetDetails',
         main: <Asset />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
@@ -55,14 +56,14 @@ export const routes: Array<NestedRoute> = [
     routes: [
       {
         path: '/:accountId',
-        label: 'Account Details',
+        label: 'navbar.accountDetails',
         main: <Account />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
       },
       {
         path: '/:accountId/:assetId?',
-        label: 'Account Asset',
+        label: 'navbar.accountAsset',
         main: <AccountToken />,
         leftSidebar: <AssetSidebar />,
         rightSidebar: <AssetRightSidebar />
@@ -107,16 +108,8 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
-  } /* ,
-  {
-    path: '/trade-history',
-    label: 'navBar.tradeHistory',
-    icon: <TimeIcon />,
-    main: <TradeHistory />
-  } */
+  }
 ]
-
-const appRoutes = generateAppRoutes(routes)
 
 function useLocationBackground() {
   const location = useLocation<{ background: any }>()
@@ -124,10 +117,13 @@ function useLocationBackground() {
   return { background, location }
 }
 
-export const Routes = () => {
+export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
   const { background, location } = useLocationBackground()
   const { state, dispatch } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
+
+  const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
+
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {

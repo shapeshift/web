@@ -39,6 +39,8 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
     selectPortfolioCryptoHumanBalanceByFilter(state, filter)
   )
 
+  if (!chainId) return null
+
   return (
     <Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }} flex={1} py={4}>
       <Flex alignItems='center' mr='auto'>

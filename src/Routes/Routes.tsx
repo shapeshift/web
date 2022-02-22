@@ -7,11 +7,12 @@ import { Layout } from 'components/Layout/Layout'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
-import { AccountToken } from 'pages/Accounts/AccountToken'
+import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
+import { AccountTokenTxHistory } from 'pages/Accounts/AccountToken/AccountTokenTxHistory'
+import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
 import { Asset } from 'pages/Assets/Asset'
-import { AssetRightSidebar } from 'pages/Assets/AssetRightSidebar'
 import { Assets } from 'pages/Assets/Assets'
-import { AssetSidebar } from 'pages/Assets/AssetSidebar'
+import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
 import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
@@ -49,8 +50,12 @@ export const routes: Array<NestedRoute> = [
           {
             path: '/',
             label: 'navBar.overview',
-            main: Asset,
-            hide: true
+            main: Asset
+          },
+          {
+            path: '/transactions',
+            label: 'navBar.transactions',
+            main: AssetTxHistory
           }
         ]
       }
@@ -65,19 +70,36 @@ export const routes: Array<NestedRoute> = [
       {
         path: '/:accountId',
         label: 'Account Details',
-        main: Account,
-        leftSidebar: AssetSidebar,
-        rightSidebar: AssetRightSidebar,
+        main: null,
         hide: true,
         routes: [
           {
+            path: '/',
+            label: 'navBar.overview',
+            main: Account
+          },
+          {
+            path: '/transactions',
+            label: 'navBar.transactions',
+            main: AccountTxHistory
+          },
+          {
             path: '/:assetId',
-            label: 'Account Asset',
-            breadcrumb: 'Asset',
-            main: AccountToken,
-            leftSidebar: AssetSidebar,
-            rightSidebar: AssetRightSidebar,
-            hide: true
+            label: 'navBar.overview',
+            main: null,
+            hide: true,
+            routes: [
+              {
+                path: '/',
+                main: AccountToken,
+                label: 'navBar.overview'
+              },
+              {
+                path: '/transactions',
+                main: AccountTokenTxHistory,
+                label: 'navBar.transactions'
+              }
+            ]
           }
         ]
       }

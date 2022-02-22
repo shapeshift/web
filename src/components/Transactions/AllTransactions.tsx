@@ -1,10 +1,13 @@
+import { Center } from '@chakra-ui/layout'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
+import InfiniteScroll from 'react-infinite-scroller'
 import { Card } from 'components/Card/Card'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -14,17 +17,15 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type TxHistoryProps = {
+type AssetTransactionProps = {
   assetId: CAIP19
   accountId?: AccountSpecifier
 }
 
-export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
-  const translate = useTranslate()
+export const AllTransactions: React.FC<AssetTransactionProps> = ({ assetId, accountId }) => {
   const {
     state: { wallet }
   } = useWallet()
-
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const chainId = asset.caip2
   const accountIds = useAppSelector(state => selectAccountIdsByAssetId(state, assetId))
@@ -39,29 +40,41 @@ export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
 
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
+  const { next, data, hasMore } = useInfiniteScroll(txIds)
+
   const txRows = useMemo(() => {
     if (!asset.caip19) return null
-    return txIds
-      ?.map((txId: string) => <TransactionRow key={txId} txId={txId} activeAsset={asset} />)
-      .slice(0, 10)
-  }, [asset, txIds])
+    return data?.map((txId: string) => (
+      <TransactionRow key={txId} txId={txId} activeAsset={asset} />
+    ))
+  }, [asset, data])
 
   if (!walletSupportsChain) return null
 
   return (
     <Card>
-      <Card.Header>
-        <Card.Heading>
-          {translate('assets.assetDetails.assetHistory.recentTransactions')}
-        </Card.Heading>
-      </Card.Header>
-      {txIds?.length ? (
-        <Card.Body px={2} pt={0}>
-          {txRows}
+      {data?.length ? (
+        <Card.Body px={2}>
+          <InfiniteScroll
+            pageStart={0}
+            loadMore={next}
+            hasMore={hasMore}
+            loader={
+              <Center key={0}>
+                <CircularProgress isIndeterminate />
+              </Center>
+            }
+          >
+            {txRows}
+          </InfiniteScroll>
         </Card.Body>
       ) : (
         <Card.Body>
-          <Text color='gray.500' translation='assets.assetDetails.assetHistory.emptyTransactions' />
+          <Text
+            textAlign='center'
+            color='gray.500'
+            translation='assets.assetDetails.assetHistory.emptyTransactions'
+          />
         </Card.Body>
       )}
     </Card>

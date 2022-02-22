@@ -131,6 +131,7 @@
     "earn": "Earn",
     "defi": "DeFi",
     "overview": "Overview",
+    "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token"
   },
@@ -506,7 +507,9 @@
         "showLess": "Show Less"
       },
       "assetHistory": {
-        "transactionHistory": "Transaction History"
+        "transactionHistory": "Transaction History",
+        "recentTransactions": "Recent Transactions",
+        "emptyTransactions": "Transactions will appear here."
       },
       "assetAccounts": {
         "account": "Account",

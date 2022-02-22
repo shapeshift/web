@@ -49,7 +49,7 @@ const Menu = ({ routes, level }: MenuProps) => {
 
   if (!routeList?.length) return null
   return (
-    <Box borderBottom='1px' borderColor={borderColor} bg={bg}>
+    <Box borderBottom='1px' borderColor={borderColor} bg={bg} data-level={level}>
       <Container maxW='container.xl'>
         <HStack>{routeList}</HStack>
       </Container>
@@ -68,9 +68,8 @@ export const NestedMenu = ({ route }: NestedMenuType) => {
     <>
       {pathTo(route)
         .filter(r => r.routes)
-        .map((r, index) => (
-          <Menu key={index} routes={r.routes} level={index} />
-        ))}
+        .map((r, index) => <Menu key={index} routes={r.routes} level={index} />)
+        .slice(-1)}
     </>
   )
 }

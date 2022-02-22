@@ -38,7 +38,7 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
     let assetNamespace = 'slip44:118'
     let assetReference = '118'
 
-    if (current.base.startsWith('u') && current.base !== 'usomo') {
+    if (current.base.startsWith('u') && current.base !== 'uosmo') {
       assetNamespace = 'native'
       assetReference = current.base
     } else if (current.base.startsWith('ibc')) {

@@ -87965,7 +87965,7 @@
     "receiveSupport": true
   },
   {
-    "caip19": "cosmos:osmosis-1/native:uosmo",
+    "caip19": "cosmos:osmosis-1/slip44:118",
     "caip2": "cosmos:osmosis-1",
     "chain": "cosmos",
     "dataSource": "coingecko",

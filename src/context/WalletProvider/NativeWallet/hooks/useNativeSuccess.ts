@@ -3,6 +3,10 @@ import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useEffect } from 'react'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import {
+  setLocalNativeWalletName,
+  setLocalWalletTypeAndDeviceId
+} from 'context/WalletProvider/local-wallet'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
@@ -27,6 +31,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
         mnemonic.addRevoker?.(() => vault.revoke())
         await wallet.loadDevice({ mnemonic, deviceId })
         const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+        const walletLabel = vault.meta.get('name') as string
         dispatch({
           type: WalletActions.SET_WALLET,
           payload: {
@@ -34,12 +39,13 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
             name,
             icon,
             deviceId,
-            meta: { label: vault.meta.get('name') as string }
+            meta: { label: walletLabel }
           }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-
+        setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        setLocalNativeWalletName(walletLabel)
         setIsSuccessful(true)
       } catch (error) {
         console.error('Failed to load device', error)

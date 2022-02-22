@@ -83,7 +83,8 @@ export const EarnOpportunityRow = ({
   } = useWallet()
 
   const handleClick = () => {
-    if (isConnected && !showPopover) {
+    if (showPopover) return
+    if (isConnected) {
       history.push({
         pathname: `/defi/${type}/${provider}/deposit`,
         search: qs.stringify({

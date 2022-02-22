@@ -24,7 +24,7 @@ export const AssetTeaser = ({ assetId }: { assetId: CAIP19 }) => {
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const { description, icon, name } = asset || {}
   const { isLoading } = useGetAssetDescriptionQuery(assetId, { skip: !!description })
-  const url = useMemo(() => (assetId ? `/assets/${encodeURIComponent(assetId)}` : ''), [assetId])
+  const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
   return (
     <Portal>
       <PopoverContent>

@@ -3052,10 +3052,10 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.27":
-  version "1.0.27"
-  resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.0.27.tgz#c744993ad2f996e218e83650f9dbac23dd3396ab"
-  integrity sha512-SvqLbcBALeAr6tfBseinYQ4cdNf9Riso/gKlPbrrwAHG+2pf4nHvEEcxd/ZzdOGKDQ5GbuNRAsnXwIJvawdJRg==
+"@yfi/sdk@^1.0.27", "@yfi/sdk@^1.0.29":
+  version "1.0.29"
+  resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.0.29.tgz#2cec41c41f7b8571e8a2a45fdfb97b45d4f9303b"
+  integrity sha512-IlpSCGjhrpj+afonYBmsRQDHrN8oE9M9Ib63ByFuMn4gwPOLytYUXNrxbMSEXn33VEFNoQZ29j03a9g14PMfhQ==
   dependencies:
     bignumber.js "9.0.1"
     cross-fetch "3.1.4"

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { RouteComponentProps } from 'react-router-dom'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
@@ -84,6 +85,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           payload: { wallet, name, icon, deviceId }
         })
         dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
         history.push('/metamask/success')
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {

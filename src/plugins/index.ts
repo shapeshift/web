@@ -2,11 +2,9 @@ import type { CAIP19 } from '@shapeshiftoss/caip'
 
 import { Route } from '../Routes/helpers'
 
-const activePlugins = ['bitcoin', 'cosmos']
+const activePlugins = ['cosmos']
 
-export type AccountProps = { accountId: string }
 export type AssetProps = { assetId: CAIP19 }
-export type SearchableAssetProps = { collapsed: boolean; search?: string }
 export type Plugins = [caip2: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
 
@@ -14,19 +12,7 @@ export interface Plugin {
   name: string
   icon: JSX.Element
   disabled?: boolean
-  widgets?: {
-    accounts?: {
-      list?: React.FC<SearchableAssetProps>
-      row?: React.FC<AccountProps>
-    }
-    assets?: {
-      list?: React.FC<SearchableAssetProps>
-      row?: React.FC<AssetProps>
-    }
-  }
-  routes: {
-    home: React.ReactNode
-  }
+  routes: Route[]
 }
 
 class PluginManager {
@@ -41,24 +27,12 @@ class PluginManager {
     }
   }
 
-  getPlugins() {
-    return this.#pluginManager.entries()
-  }
-
-  getPlugin(pluginId: string) {
-    return this.#pluginManager.get(pluginId)
-  }
-
   getRoutes(): Route[] {
-    const routes = []
-    for (const [id, plugin] of this.#pluginManager.entries()) {
-      routes.push({
-        disable: Boolean(plugin.disabled),
-        label: plugin.name,
-        icon: plugin.icon,
-        path: `/plugins/${id}`,
-        main: plugin.routes.home
-      })
+    let routes: Route[] = []
+    for (const [, plugin] of this.#pluginManager.entries()) {
+      if (!plugin.disabled) {
+        routes = routes.concat(plugin.routes)
+      }
     }
 
     return routes

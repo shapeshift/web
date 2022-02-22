@@ -270,6 +270,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       async (inputValue: string) => {
         setLoading(true)
         setValue(SendFormFields.SendMax, false)
+        if (inputValue === '') {
+          /**
+           * The input is empty so removing errors if they are present
+           * and stop the loading, and return because next lines don't need
+           * to run.
+           */
+          setValue(SendFormFields.AmountFieldError, '')
+          setLoading(false)
+          return
+        }
         const key =
           fieldName !== SendFormFields.FiatAmount
             ? SendFormFields.FiatAmount
@@ -307,6 +317,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol }
           ])
+        } else {
+          /**
+           * the balance is enough for transfer, so removing errors if previously the balance was too low,
+           * and user got insufficientFunds or notEnoughNativeToken errors.
+           */
+          setValue(SendFormFields.AmountFieldError, '')
         }
         setLoading(false)
       },

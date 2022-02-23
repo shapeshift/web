@@ -23,7 +23,7 @@ export const Staked = ({ assetId }: StakedProps) => {
   }))(assetId) as Asset
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Box pt='38px' pb='70px' px='24px'>
+      <Box pt='38px' pb='70px' px='34px'>
         <ModalCloseButton borderRadius='full' />
         <Flex
           direction='column'
@@ -45,7 +45,7 @@ export const Staked = ({ assetId }: StakedProps) => {
           <Box width='100%' mt='20px'>
             {
               /* TODO: use real unbonds data */
-              new Array(3).fill(undefined).map((_, i) => (
+              new Array(2).fill(undefined).map((_, i) => (
                 <UnbondingRow
                   key={i}
                   assetSymbol={asset.symbol}

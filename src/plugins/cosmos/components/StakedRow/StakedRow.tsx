@@ -4,19 +4,19 @@ import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-type StakingRowProps = {
+type StakedRowProps = {
   assetSymbol: string
   cryptoStakedAmount: BigNumber
   fiatRate: BigNumber
   apr: BigNumber
 }
-export const StakingRow = ({
+export const StakedRow = ({
   cryptoStakedAmount,
   fiatRate,
   assetSymbol,
   apr,
   ...styleProps
-}: StakingRowProps & FlexProps) => (
+}: StakedRowProps & FlexProps) => (
   <Flex width='100%' justifyContent='space-between' {...styleProps}>
     <Flex height='20px'>
       <Text translation={'defi.staked'} marginRight='20px' />

@@ -1,4 +1,5 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
+import { Text as CText } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
@@ -19,12 +20,10 @@ export const RewardsRow = ({
       <Text translation={'defi.rewards'} />
     </Flex>
     <Flex direction='column' alignItems='flex-end' width='100%'>
-      <Text
-        translation={`$${cryptoRewardsAmount.times(fiatRate).toPrecision()}`}
-        fontWeight='semibold'
-        color='green.500'
-      />
-      <Text translation={cryptoRewardsAmount + ' ' + assetSymbol} color='gray.500' />
+      <CText fontWeight='semibold' color='green.500'>
+        {`$${cryptoRewardsAmount.times(fiatRate).toPrecision()}`}
+      </CText>
+      <CText color='gray.500'>{cryptoRewardsAmount + ' ' + assetSymbol}</CText>
     </Flex>
   </Flex>
 )

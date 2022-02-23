@@ -3,9 +3,9 @@ import { Button, ModalCloseButton } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
+import { StakedHeader } from 'plugins/cosmos/components/StakedHeader/StakedHeader'
+import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
-import { StakingHeader } from 'plugins/cosmos/components/StakingHeader/StakingHeader'
-import { StakingRow } from 'plugins/cosmos/components/StakingRow/StakingRow'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -32,8 +32,8 @@ export const Staked = ({ assetId }: StakedProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <StakingHeader assetName={asset.name} width='100%' mb='35px' />
-          <StakingRow
+          <StakedHeader assetName={asset.name} width='100%' mb='35px' />
+          <StakedRow
             width='100%'
             mb='20px'
             assetSymbol={asset.symbol}

@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/layout'
 import { Image } from '@chakra-ui/react'
 import pending from 'assets/pending.svg'
+import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
@@ -39,7 +40,11 @@ export const UnbondingRow = ({
         fontWeight='bold'
         color='white'
       />
-      <Text translation={cryptoUnbondedAmount + ' ' + assetSymbol} color='gray.500' />
+      <Amount.Crypto
+        color='gray.500'
+        value={cryptoUnbondedAmount.toString()}
+        symbol={assetSymbol}
+      />
     </Flex>
   </Flex>
 )

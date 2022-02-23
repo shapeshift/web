@@ -56,11 +56,11 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
             </HStack>
           ) : (
             <Button
+              onClick={handleGetStartedClick}
               as='span'
               colorScheme='blue'
               variant='ghost-filled'
               size='sm'
-              onClick={handleGetStartedClick}
             >
               <Text translation='common.getStarted' />
             </Button>

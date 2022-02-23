@@ -23,7 +23,7 @@ export const RewardsRow = ({
       <CText fontWeight='semibold' color='green.500'>
         {`$${cryptoRewardsAmount.times(fiatRate).toPrecision()}`}
       </CText>
-      <CText color='gray.500'>{cryptoRewardsAmount + ' ' + assetSymbol}</CText>
+      <CText color='gray.500'>{`${cryptoRewardsAmount} ${assetSymbol}`}</CText>
     </Flex>
   </Flex>
 )

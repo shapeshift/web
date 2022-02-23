@@ -5,7 +5,6 @@ import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
-import { CosmosSdkManager } from '../../providers/cosmosSdk/components/CosmosSdkManager/CosmosSdkManager'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 
 export enum DefiType {
@@ -16,8 +15,7 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
-  Yearn = 'yearn',
-  CosmosSdk = 'cosmos'
+  Yearn = 'yearn'
 }
 
 export enum DefiAction {
@@ -50,8 +48,7 @@ type DefiManagerContextProps = {
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 const DefiModules = {
-  [DefiProvider.Yearn]: YearnManager,
-  [DefiProvider.CosmosSdk]: CosmosSdkManager
+  [DefiProvider.Yearn]: YearnManager
 }
 
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {

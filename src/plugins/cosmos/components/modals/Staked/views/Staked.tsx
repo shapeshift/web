@@ -64,7 +64,7 @@ export const Staked = ({ assetId }: StakedProps) => {
             fiatRate={bnOrZero('8.47')}
             cryptoRewardsAmount={bnOrZero('23.24')}
           />
-          <Button width='100%' colorScheme='darkTeal'>
+          <Button width='100%' bg='#144241' _hover={{ bg: '#3F6D6C' }}>
             <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />
           </Button>
         </Flex>

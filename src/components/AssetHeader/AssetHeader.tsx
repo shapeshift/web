@@ -29,6 +29,7 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { markdownLinkToHTML } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -223,7 +224,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
               <SanitizedHtml
                 color='gray.500'
-                dirtyHtml={description}
+                dirtyHtml={markdownLinkToHTML(description)}
                 isTrusted={isTrustedDescription}
               />
             </SkeletonText>

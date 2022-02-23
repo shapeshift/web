@@ -14,7 +14,6 @@ export const SideNav = ({ route }: { route: Route }) => {
     <>
       <chakra.header
         paddingTop={`env(safe-area-inset-top)`}
-        zIndex='banner'
         bg={bg}
         borderRightWidth={1}
         borderColor={borderColor}

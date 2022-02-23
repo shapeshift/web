@@ -15,7 +15,6 @@ import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
 import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
 import { Dashboard } from 'pages/Dashboard/Dashboard'
-import { DashboardSidebar } from 'pages/Dashboard/DashboardSidebar'
 import { DefiSidebar } from 'pages/Defi/components/DefiSidebar'
 import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
@@ -31,8 +30,7 @@ export const routes: Array<NestedRoute> = [
     path: '/dashboard',
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
-    main: Dashboard,
-    rightSidebar: DashboardSidebar
+    main: Dashboard
   },
   {
     path: '/assets',
@@ -110,36 +108,31 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.defi',
     icon: <FaRocket />,
     main: null,
-    leftSidebar: DefiSidebar,
     routes: [
       {
         path: '/',
         label: 'defi.overview',
         main: Overview,
-        icon: <FaTable />,
-        leftSidebar: DefiSidebar
+        icon: <FaTable />
       },
       {
         path: '/liquidity-pools',
         label: 'defi.liquidityPools',
         main: LiquidityPools,
         icon: <FaWater />,
-        leftSidebar: DefiSidebar,
         disable: true
       },
       {
         path: '/earn',
         label: 'defi.earn',
         main: StakingVaults,
-        icon: <FaLock />,
-        leftSidebar: DefiSidebar
+        icon: <FaLock />
       },
       {
         path: '/farming',
         label: 'defi.farming',
         main: Farming,
         icon: <FaTractor />,
-        leftSidebar: DefiSidebar,
         disable: true
       }
     ]

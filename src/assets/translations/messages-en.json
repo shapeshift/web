@@ -440,7 +440,8 @@
       "password": {
         "header": "Enter Your Password",
         "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
-        "button": "Next"
+        "button": "Next",
+        "connect": "Connect to another wallet"
       },
       "create": {
         "header": "Your Secret Recovery Phrase",

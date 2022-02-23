@@ -76,10 +76,16 @@ const WalletConnected = ({
 
 type WalletButtonProps = {
   isConnected: boolean
+  isLoadingLocalWallet: boolean
   onConnect: () => void
 } & Pick<InitialState, 'walletInfo'>
 
-const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnect }) => {
+const WalletButton: FC<WalletButtonProps> = ({
+  isConnected,
+  walletInfo,
+  onConnect,
+  isLoadingLocalWallet
+}) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.300', 'gray.800')
@@ -107,7 +113,7 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
     <MenuButton
       as={Button}
       size='lg'
-      pl={4}
+      isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>
           {isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
@@ -151,7 +157,12 @@ export const UserMenu = () => {
 
   return (
     <Menu>
-      <WalletButton onConnect={handleConnect} walletInfo={walletInfo} isConnected={isConnected} />
+      <WalletButton
+        onConnect={handleConnect}
+        walletInfo={walletInfo}
+        isConnected={isConnected}
+        isLoadingLocalWallet={state.isLoadingLocalWallet}
+      />
       <MenuList maxWidth='100%' minWidth={0}>
         {hasWallet ? (
           <WalletConnected

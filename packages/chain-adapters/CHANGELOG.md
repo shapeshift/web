@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.34.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.33.2...@shapeshiftoss/chain-adapters-v1.34.0) (2022-02-23)
+
+
+### Features
+
+* refactor ChainAdapter.getCaip2() functions to be synchronous & add `getChainId` [#381](https://github.com/shapeshift/lib/issues/381) ([#384](https://github.com/shapeshift/lib/issues/384)) ([5bd0cce](https://github.com/shapeshift/lib/commit/5bd0cce1864050994c84978fb181aeed44891884))
+
 # [@shapeshiftoss/chain-adapters-v1.33.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.33.1...@shapeshiftoss/chain-adapters-v1.33.2) (2022-02-18)
 
 # [@shapeshiftoss/chain-adapters-v1.33.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.33.0...@shapeshiftoss/chain-adapters-v1.33.1) (2022-02-17)

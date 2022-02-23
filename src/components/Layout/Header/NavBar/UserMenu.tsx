@@ -109,7 +109,7 @@ const WalletButton: FC<WalletButtonProps> = ({
     }
   }, [walletInfo])
 
-  return Boolean(walletInfo?.deviceId) ? (
+  return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <MenuButton
       as={Button}
       size='lg'

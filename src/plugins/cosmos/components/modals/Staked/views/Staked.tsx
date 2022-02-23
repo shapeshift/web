@@ -32,13 +32,13 @@ export const Staked = ({ assetId }: StakedProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <StakingHeader asset={asset} width='100%' mb='35px' />
+          <StakingHeader assetName={asset.name} width='100%' mb='35px' />
           <StakingRow
             width='100%'
             mb='20px'
-            asset={asset}
+            assetSymbol={asset.symbol}
             fiatRate={bnOrZero('8.47')}
-            stakedAmount={bnOrZero('708.00')}
+            cryptoStakedAmount={bnOrZero('708.00')}
             apr={bnOrZero('1.25')}
           />
           <StakingButtons width='100%' />
@@ -48,9 +48,9 @@ export const Staked = ({ assetId }: StakedProps) => {
               new Array(3).fill(undefined).map((_, i) => (
                 <UnbondingRow
                   key={i}
-                  asset={asset}
+                  assetSymbol={asset.symbol}
                   fiatRate={bnOrZero('8.47')}
-                  unbondedAmount={bnOrZero('420.65')}
+                  cryptoUnbondedAmount={bnOrZero('420.65')}
                 />
               ))
             }
@@ -59,9 +59,9 @@ export const Staked = ({ assetId }: StakedProps) => {
             width='100%'
             mb='20px'
             mt='25px'
-            asset={asset}
+            assetSymbol={asset.symbol}
             fiatRate={bnOrZero('8.47')}
-            rewardsAmount={bnOrZero('23.24')}
+            cryptoRewardsAmount={bnOrZero('23.24')}
           />
           <Button width='100%' colorScheme='darkTeal'>
             <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />

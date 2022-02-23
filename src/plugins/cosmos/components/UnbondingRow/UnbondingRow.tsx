@@ -1,17 +1,20 @@
 import { Flex } from '@chakra-ui/layout'
 import { Image } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import pending from 'assets/pending.svg'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
 type UnbondingRowProps = {
-  asset: Asset
-  unbondedAmount: BigNumber
+  assetSymbol: string
+  cryptoUnbondedAmount: BigNumber
   fiatRate: BigNumber
 }
 
-export const UnbondingRow = ({ asset, unbondedAmount, fiatRate }: UnbondingRowProps) => (
+export const UnbondingRow = ({
+  assetSymbol,
+  cryptoUnbondedAmount,
+  fiatRate
+}: UnbondingRowProps) => (
   <Flex
     bgColor='#222a38'
     pl='8px'
@@ -30,11 +33,11 @@ export const UnbondingRow = ({ asset, unbondedAmount, fiatRate }: UnbondingRowPr
     </Flex>
     <Flex direction='column' alignItems='flex-end'>
       <Text
-        translation={unbondedAmount.times(fiatRate).toPrecision()}
+        translation={cryptoUnbondedAmount.times(fiatRate).toPrecision()}
         fontWeight='bold'
         color='white'
       />
-      <Text translation={unbondedAmount + ' ' + asset.symbol} color='gray.500' />
+      <Text translation={cryptoUnbondedAmount + ' ' + assetSymbol} color='gray.500' />
     </Flex>
   </Flex>
 )

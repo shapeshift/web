@@ -1,17 +1,16 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Asset } from '@shapeshiftoss/types'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
 type RewardsRowProps = {
-  asset: Asset
-  rewardsAmount: BigNumber
+  assetSymbol: string
+  cryptoRewardsAmount: BigNumber
   fiatRate: BigNumber
 }
 
 export const RewardsRow = ({
-  asset,
-  rewardsAmount,
+  assetSymbol,
+  cryptoRewardsAmount,
   fiatRate,
   ...styleProps
 }: RewardsRowProps & FlexProps) => (
@@ -21,11 +20,11 @@ export const RewardsRow = ({
     </Flex>
     <Flex direction='column' alignItems='flex-end' width='100%'>
       <Text
-        translation={`$${rewardsAmount.times(fiatRate).toPrecision()}`}
+        translation={`$${cryptoRewardsAmount.times(fiatRate).toPrecision()}`}
         fontWeight='semibold'
         color='green.500'
       />
-      <Text translation={rewardsAmount + ' ' + asset.symbol} color='gray.500' />
+      <Text translation={cryptoRewardsAmount + ' ' + assetSymbol} color='gray.500' />
     </Flex>
   </Flex>
 )

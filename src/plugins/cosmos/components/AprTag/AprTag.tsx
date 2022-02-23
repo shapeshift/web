@@ -3,7 +3,6 @@ import { Amount } from 'components/Amount/Amount'
 
 type AprTagProps = {
   percentage: string
-  withAprText?: true
 }
 
 export const AprTag: React.FC<AprTagProps> = ({ percentage }) => (

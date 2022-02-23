@@ -7,5 +7,5 @@ export const isEthAddress = (address: string) => {
 }
 
 export const markdownLinkToHTML = (markdown: string): string => {
-  return markdown.replace(/\[([^\]]+)\]\(([^)]+)\)/, '<a href="$2">$1</a>')
+  return markdown.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
 }

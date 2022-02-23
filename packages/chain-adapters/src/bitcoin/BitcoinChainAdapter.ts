@@ -40,6 +40,7 @@ export interface ChainAdapterArgs {
     ws: bitcoin.ws.Client
   }
   coinName: string
+  chainId?: CAIP2
 }
 
 export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
@@ -54,10 +55,23 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     accountNumber: 0
   }
 
+  private readonly chainId: CAIP2 = 'bip122:000000000019d6689c085ae165831e93'
+
   // TODO(0xdef1cafe): constraint this to utxo coins and refactor this to be a UTXOChainAdapter
   coinName: string
 
   constructor(args: ChainAdapterArgs) {
+    if (args.chainId) {
+      try {
+        const { chain } = caip2.fromCAIP2(args.chainId)
+        if (chain !== ChainTypes.Bitcoin) {
+          throw new Error()
+        }
+        this.chainId = args.chainId
+      } catch (e) {
+        throw new Error(`The ChainID ${args.chainId} is not supported`)
+      }
+    }
     this.providers = args.providers
     this.coinName = args.coinName
   }
@@ -66,21 +80,12 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
     return ChainTypes.Bitcoin
   }
 
-  async getCaip2(): Promise<CAIP2> {
-    try {
-      const { data } = await this.providers.http.getInfo()
+  getCaip2(): CAIP2 {
+    return this.chainId
+  }
 
-      switch (data.network) {
-        case 'mainnet':
-          return caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.MAINNET })
-        case 'testnet':
-          return caip2.toCAIP2({ chain: ChainTypes.Bitcoin, network: NetworkTypes.TESTNET })
-        default:
-          throw new Error(`BitcoinChainAdapter: network is not supported: ${data.network}`)
-      }
-    } catch (err) {
-      return ErrorHandler(err)
-    }
+  getChainId(): CAIP2 {
+    return this.chainId
   }
 
   private async getPublicKey(

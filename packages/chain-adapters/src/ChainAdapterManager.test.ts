@@ -85,11 +85,11 @@ describe('ChainAdapterManager', () => {
       const cam = new ChainAdapterManager({})
       // @ts-ignore
       cam.addChain(ChainTypes.Bitcoin, () => ({
-        getCaip2: async () => 'bip122:000000000019d6689c085ae165831e93'
+        getCaip2: () => 'bip122:000000000019d6689c085ae165831e93'
       }))
       // @ts-ignore
       cam.addChain(ChainTypes.Ethereum, () => ({
-        getCaip2: async () => 'eip155:1'
+        getCaip2: () => 'eip155:1'
       }))
 
       await expect(cam.byChainId('eip155:1')).resolves.toBeTruthy()

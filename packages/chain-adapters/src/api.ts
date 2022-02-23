@@ -13,8 +13,9 @@ export type ChainAdapter<T extends ChainTypes> = {
    */
   getType(): T
 
-  getCaip2(): Promise<CAIP2>
+  getCaip2(): CAIP2
 
+  getChainId(): CAIP2
   /**
    * Get the balance of an address
    */

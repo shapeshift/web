@@ -25,6 +25,7 @@ export interface ChainAdapterArgs {
     http: ethereum.api.V1Api
     ws: ethereum.ws.Client
   }
+  chainId?: CAIP2
 }
 
 async function getErc20Data(to: string, value: string, contractAddress?: string) {
@@ -45,7 +46,20 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     accountNumber: 0
   }
 
+  private readonly chainId: CAIP2 = 'eip155:1'
+
   constructor(args: ChainAdapterArgs) {
+    if (args.chainId) {
+      try {
+        const { chain } = caip2.fromCAIP2(args.chainId)
+        if (chain !== ChainTypes.Ethereum) {
+          throw new Error()
+        }
+        this.chainId = args.chainId
+      } catch (e) {
+        throw new Error(`The ChainID ${args.chainId} is not supported`)
+      }
+    }
     this.providers = args.providers
   }
 
@@ -53,28 +67,17 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     return ChainTypes.Ethereum
   }
 
-  async getCaip2(): Promise<CAIP2> {
-    try {
-      const { data } = await this.providers.http.getInfo()
+  getCaip2(): CAIP2 {
+    return this.chainId
+  }
 
-      switch (data.network) {
-        case 'mainnet':
-          return caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.MAINNET })
-        case 'ropsten':
-          return caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.ETH_ROPSTEN })
-        case 'rinkeby':
-          return caip2.toCAIP2({ chain: ChainTypes.Ethereum, network: NetworkTypes.ETH_RINKEBY })
-        default:
-          throw new Error(`EthereumChainAdapter: network is not supported: ${data.network}`)
-      }
-    } catch (err) {
-      return ErrorHandler(err)
-    }
+  getChainId(): CAIP2 {
+    return this.chainId
   }
 
   async getAccount(pubkey: string): Promise<chainAdapters.Account<ChainTypes.Ethereum>> {
     try {
-      const caip = await this.getCaip2()
+      const caip = this.getCaip2()
       const { chain, network } = caip2.fromCAIP2(caip)
       const { data } = await this.providers.http.getAccount({ pubkey })
 

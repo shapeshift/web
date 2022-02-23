@@ -1,22 +1,26 @@
-import { DarkMode, Flex, Link } from '@chakra-ui/react'
+import { Center, DarkMode, Flex, Link } from '@chakra-ui/react'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 
 export const TermsOfService = () => {
   return (
     <Page>
-      <Flex px={{ base: 2, lg: 4 }} direction={'column'} rowGap={4}>
+      <Flex px={{ base: 2, lg: 4 }} py={{ base: 4, lg: 8 }} direction={'column'} rowGap={4}>
         <DarkMode>
-          <Text as='h1' translation={'common.terms'} />
+          <Center flexDirection={'column'}>
+            <Text as='h3' translation={'connectWalletPage.shapeshift'} />
+            <Text as='h1' translation={'common.terms'} />
+            <Text as='h3' translation={'Dated: January 2022'} mt={4} />
+          </Center>
           <RawText as='p'>WELCOME TO THE DECENTRALIZED SHAPESHIFT PLATFORM!</RawText>
           <RawText as='p'>
             THESE TERMS CONSTITUTE A LEGALLY BINDING AGREEMENT BETWEEN YOU AND THE SHAPESHIFT
             DECENTRALIZED AUTONOMOUS ORGANIZATION (WHO WE REFER TO IN HE FIRST PERSON IN THESE
-            TERMS).
+            TERMS).{' '}
             <RawText as='strong'>
               WE ARE NOT AFFILIATED WITH SHAPESHIFT AG (OR ANY OF ITS AFFILIATES), THE PRIOR OWNER
               AND OPERATOR OF THE SHAPESHIFT PLATFORM.
-            </RawText>
+            </RawText>{' '}
             PLEASE READ THIS DOCUMENT CAREFULLY TO ENSURE THAT YOU UNDERSTAND AND AGREE TO EVERY
             PORTION OF THESE TERMS BEFORE USING THE PLATFORM.
           </RawText>
@@ -29,8 +33,7 @@ export const TermsOfService = () => {
             using the Platform; or (2) clicking a button or checking a box marked &quot;I
             Agree&quot; (or substantially similar language) on the Platform, you acknowledge that
             you have read, understood, acknowledge, and agree to: (i) these terms in full; and (ii)
-            our
-            <RawText as='strong'>privacy policy</RawText> (&quot;
+            our <RawText as='strong'>privacy policy</RawText> (&quot;
             <RawText as='strong'>Privacy Policy</RawText>&quot;), which is incorporated into these
             terms and clarifies our data collection, privacy, storage, and transfer practices. Any
             conflicts between these terms and our Privacy Policy will be resolved in favor of the
@@ -40,17 +43,19 @@ export const TermsOfService = () => {
             <RawText as='strong'>How we can change these terms:</RawText> We may, in our sole
             discretion, modify these terms at any time, so you should review this page periodically.
             When we change these terms, we will update the date at the top of this page. Prior
-            versions of these terms can be found
-            <RawText as='strong'>here</RawText>. Your continued use of the Platform after any change
-            to these terms constitutes your acceptance of such change. If you do not agree to any
-            portion of these terms, then you should not use or access (or continue to access) the
-            Platform.
+            versions of these terms can be found{' '}
+            <Link href='#0'>
+              <RawText as='strong'>here</RawText>
+            </Link>
+            . Your continued use of the Platform after any change to these terms constitutes your
+            acceptance of such change. If you do not agree to any portion of these terms, then you
+            should not use or access (or continue to access) the Platform.
           </RawText>
           <RawText as='p'>
             <RawText as='strong'>
               Quick disclaimer on buying, selling, transferring, or really doing anything in the
               cryptocurrency space:
-            </RawText>
+            </RawText>{' '}
             We do not endorse or recommend any particular cryptocurrency, transaction, or purchasing
             strategy. Content on any of our websites or your communications with any member of our
             community should not be construed as advice. While the blockchains that you can access
@@ -82,7 +87,7 @@ export const TermsOfService = () => {
               The Platform only supports certain types of wallets, which are listed when you click
               &quot;Connect a Wallet&quot;, but we are constantly working to add more compatibility.
               For the latest updates on the addition of new features, such as the addition of new
-              wallets, join our discord server
+              wallets, join our discord server{' '}
               <Link href='https://discord.com/invite/shapeshift'>
                 <RawText as='strong'>here</RawText>
               </Link>
@@ -111,7 +116,7 @@ export const TermsOfService = () => {
               the ShapeShift native wallet (&quot;
               <RawText as='strong'>Native Wallet</RawText>&quot;) was originally designed and
               operated by ShapeShift AG and has since had its codebase open-sourced. The code can be
-              reviewed
+              reviewed{' '}
               <Link href='https://github.com/shapeshift/hdwallet'>
                 <RawText as='strong'>here</RawText>
               </Link>
@@ -131,7 +136,7 @@ export const TermsOfService = () => {
             <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
               <RawText as='strong'>
                 Quick note on cryptocurrency pricing information on the Platform:
-              </RawText>
+              </RawText>{' '}
               Because the Platform pulls pricing information from external, publicly available
               sources, we make no guarantees that this pricing information will actually materialize
               into such value as is listed on the Platform.YOU ARE RESPONSIBLE FOR CONFIRMING AN
@@ -211,26 +216,28 @@ export const TermsOfService = () => {
           </RawText>
           <RawText as='p'>
             <RawText as='strong'>Alpha Platform:</RawText> We have made available an alternate
-            version of our Platform called &quot; <RawText as='strong'>Alpha</RawText>&quot;, which
+            version of our Platform called &quot;<RawText as='strong'>Alpha</RawText>&quot;, which
             is where we will introduce new features for the Platform prior to their actual launch on
             the Platform. Alpha is available at{' '}
-            <Link href='http://alpha.shapeshift.com/'>alpha.shapeshift.com</Link>. Please note that since
-            Alpha will include additional and often times experimental features, if you use Alpha,
-            you acknowledge that any use of Alpha carries heightened risks—yes, even beyond the
-            risks we pointed out above! In exchange for your use of Alpha, you consent to our
-            collection of certain additional data on your use of Alpha. For more details on this,
-            please refer to our Privacy Policy. All references to the Platform in these terms is
-            deemed to include Alpha as well.
+            <Link href='http://alpha.shapeshift.com/'>
+              <RawText as='strong'>alpha.shapeshift.com</RawText>
+            </Link>
+            . Please note that since Alpha will include additional and often times experimental
+            features, if you use Alpha, you acknowledge that any use of Alpha carries heightened
+            risks—yes, even beyond the risks we pointed out above! In exchange for your use of
+            Alpha, you consent to our collection of certain additional data on your use of Alpha.
+            For more details on this, please refer to our Privacy Policy. All references to the
+            Platform in these terms is deemed to include Alpha as well.
           </RawText>
           <RawText as='dl' display={'flex'} flexDirection={'column'} rowGap={4}>
             <RawText as='dt'>
               <RawText as='strong'>Mobile App:</RawText> If you use a mobile application version of
-              the Platform (the &quot; <RawText as='strong'>App</RawText>&quot;), these same terms
+              the Platform (the &quot;<RawText as='strong'>App</RawText>&quot;), these same terms
               apply.
             </RawText>
             <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
               <RawText as='p'>
-                <RawText as='strong'>Additional Apple App Store Terms</RawText> : This section
+                <RawText as='strong'>Additional Apple App Store Terms:</RawText> This section
                 applies to all users who obtain our App from Apple's App Store. You and we
                 acknowledge that: (i) these terms are solely between you and us; (ii) Apple, Inc.
                 and its affiliates or subsidiaries (&quot;
@@ -288,8 +295,8 @@ export const TermsOfService = () => {
           </RawText>
           <RawText as='p'>
             <RawText as='strong'>Promotions:</RawText> We may run various promotions or giveaways
-            (each, a &quot; <RawText as='strong'>Promotio</RawText>** n**&quot;) in connection with
-            the Platform. These promotions will be communicated through official ShapeShift DAO
+            (each, a &quot;<RawText as='strong'>Promotion</RawText>&quot;) in connection with the
+            Platform. These promotions will be communicated through official ShapeShift DAO
             communication mediums, including email, social media, andthe ShapeShift DAO Discord
             server and all applicable details, including any qualification periods, entry procedures
             or requirements, award or selection criteria, and notification procedures will be
@@ -300,7 +307,7 @@ export const TermsOfService = () => {
           <RawText as='p'>
             <RawText as='strong'>FOX Tokens:</RawText> ShapeShift AG, with whom we are not
             affiliated, created a standard ERC-20 token on the Ethereum blockchain that can be
-            accessed through most wallets that support Ethereum called the FOX token (each a &quot;{' '}
+            accessed through most wallets that support Ethereum called the FOX token (each a &quot;
             <RawText as='strong'>FOX Token</RawText>&quot;). In spring 2021, ShapeShift AG
             airdropped the majority of its FOX Tokens to prior users, members of various DAOs,
             shareholders, employees, and to fund us as a DAO. FOX Tokens used as governance tokens
@@ -330,7 +337,7 @@ export const TermsOfService = () => {
             <Link href='https://github.com/shapeshift/lib'>
               <RawText as='strong'>here</RawText>
             </Link>
-            , and
+            , and{' '}
             <Link href='https://github.com/shapeshift/unchained'>
               <RawText as='strong'>here</RawText>
             </Link>

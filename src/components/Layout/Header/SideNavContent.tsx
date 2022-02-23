@@ -1,21 +1,22 @@
-import { ChatIcon, SearchIcon } from '@chakra-ui/icons'
+import { ChatIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Button,
   Flex,
   FlexProps,
-  Input,
-  InputGroup,
-  InputLeftElement,
   Link,
   Stack,
   Switch,
   useColorMode,
   useColorModeValue
 } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
 import { FaMoon } from 'react-icons/fa'
+import { useHistory } from 'react-router'
 import { Route } from 'Routes/helpers'
 import { Text } from 'components/Text'
 
+import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
@@ -26,6 +27,13 @@ type HeaderContentProps = {
 export const SideNavContent = ({ route }: HeaderContentProps) => {
   const { toggleColorMode } = useColorMode()
   const isActive = useColorModeValue(false, true)
+  const history = useHistory()
+  const onClick = (asset: Asset) => {
+    // CAIP19 has a `/` separator so the router will have to parse 2 variables
+    // e.g., /assets/:chainId/:assetSubId
+    const url = `/assets/${asset.caip19}`
+    history.push(url)
+  }
   return (
     <Flex
       width='full'
@@ -39,12 +47,9 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
       <Flex width='full' display={{ base: 'block', md: 'none' }}>
         <UserMenu />
       </Flex>
-      <InputGroup mt={12} display={{ base: 'block', md: 'none' }}>
-        <InputLeftElement>
-          <SearchIcon color='gray.300' />
-        </InputLeftElement>
-        <Input placeholder='Search by token or address' variant='filled' />
-      </InputGroup>
+      <Box mt={12} width='full' display={{ base: 'block', md: 'none' }}>
+        <AutoCompleteSearch onClick={onClick} />
+      </Box>
       <NavBar mt={6} />
       <Stack width='full'>
         <Button

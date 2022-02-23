@@ -1,4 +1,4 @@
-import { HamburgerIcon, SearchIcon } from '@chakra-ui/icons'
+import { HamburgerIcon } from '@chakra-ui/icons'
 import {
   Box,
   Drawer,
@@ -7,15 +7,15 @@ import {
   Flex,
   HStack,
   IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
+import { useHistory } from 'react-router'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
+import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -23,6 +23,13 @@ export const Header = ({ route }: { route: Route }) => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const history = useHistory()
+  const onClick = (asset: Asset) => {
+    // CAIP19 has a `/` separator so the router will have to parse 2 variables
+    // e.g., /assets/:chainId/:assetSubId
+    const url = `/assets/${asset.caip19}`
+    history.push(url)
+  }
   return (
     <>
       <Flex
@@ -53,12 +60,7 @@ export const Header = ({ route }: { route: Route }) => {
             justifyContent='center'
             display={{ base: 'none', md: 'block' }}
           >
-            <InputGroup size='lg' width='100%' maxWidth='4xl'>
-              <InputLeftElement>
-                <SearchIcon color='gray.300' />
-              </InputLeftElement>
-              <Input variant='filled' placeholder='Search by token name, or address' />
-            </InputGroup>
+            <AutoCompleteSearch onClick={onClick} />
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
             <Box display={{ base: 'none', md: 'block' }}>

@@ -1,10 +1,11 @@
-import { Box, Flex, Table, Tbody } from '@chakra-ui/react'
+import { Box, Button, Flex, Table, Tbody, Tfoot } from '@chakra-ui/react'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
 import { IconCircle } from 'components/IconCircle'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
 import { EarnOpportunityRow } from './EarnOpportunityRow'
@@ -14,9 +15,11 @@ export const AllEarnOpportunities = () => {
   const earnFeature = FeatureFlag.Yearn
   const sortedVaults = useSortedYearnVaults()
 
+  const { next, data, hasMore } = useInfiniteScroll(sortedVaults)
+
   const vaultRows = useMemo(
     () =>
-      sortedVaults
+      data
         .filter(vault => !vault.expired)
         .map((vault, index) => {
           return (
@@ -29,7 +32,7 @@ export const AllEarnOpportunities = () => {
             />
           )
         }),
-    [sortedVaults]
+    [data]
   )
 
   if (!earnFeature) return null
@@ -50,6 +53,11 @@ export const AllEarnOpportunities = () => {
             <Table variant='clickable'>
               <EarnTableHeader />
               <Tbody>{vaultRows}</Tbody>
+              {hasMore && (
+                <Tfoot>
+                  <Button onClick={next}>Load More</Button>
+                </Tfoot>
+              )}
             </Table>
           </Box>
         ) : (

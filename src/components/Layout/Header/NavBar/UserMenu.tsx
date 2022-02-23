@@ -112,7 +112,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <MenuButton
       as={Button}
-      size='lg'
+      width={{ base: '100%', lg: 'auto' }}
       isLoading={isLoadingLocalWallet}
       leftIcon={
         <HStack>

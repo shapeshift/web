@@ -31,7 +31,8 @@
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
-    "receive": "Receive"
+    "receive": "Receive",
+    "viewAsset": "View Asset"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -114,6 +115,12 @@
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",
+    "earn": "Earn",
+    "asset": "Asset",
+    "category": "Category",
+    "tvl": "TVL",
+    "apy": "APY",
+    "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
@@ -133,6 +140,7 @@
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
+    "emptyEarn": "Earn opporuntities will appear here.",
     "empty": {
       "farming": {
         "body": "You are not currently farming anything.",
@@ -154,7 +162,10 @@
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",
+    "assetDetails": "Asset Details",
     "accounts": "Accounts",
+    "accountAsset": "Account Asset",
+    "accountDetails": "Account Details",
     "earn": "Earn",
     "defi": "DeFi",
     "tradeHistory": "Trade History",
@@ -458,7 +469,8 @@
       "password": {
         "header": "Enter Your Password",
         "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
-        "button": "Next"
+        "button": "Next",
+        "connect": "Connect to another wallet"
       },
       "create": {
         "header": "Your Secret Recovery Phrase",

@@ -41,7 +41,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
         >
           <DefiModalHeader
             headerImageSrc={osmosis}
-            headerImageWidth={68}
+            headerImageMaxWidth={68}
             headerText={['defi.modals.getStarted.header', { assetName: asset.name, maxApr }]}
           />
           <Box textAlign='center'>
@@ -57,7 +57,8 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
               <Text
                 translation='defi.modals.getStarted.userProtectionInfo'
                 color='gray.500'
-                fontSize='12px'
+                fontSize='13px'
+                mt='32px'
               />
             </Box>
             <VStack spacing={4} align='center' width='100%'>

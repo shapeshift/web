@@ -5,6 +5,8 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 
+import { FeatureFlag } from '../../../constants/FeatureFlag'
+
 let service: AssetService | undefined = undefined
 
 // do not export this, views get data from selectors
@@ -54,7 +56,12 @@ export const assetApi = createApi({
       // all assets
       queryFn: async () => {
         const service = await getAssetService()
-        const assetArray = service?.byNetwork(NetworkTypes.MAINNET)
+        const assetArray = service?.byNetwork(
+          // Cosmos assets have a network type of COSMOSHUB_MAINNET
+          // If the flag is OFF then we'll filter out only Bitcoin/Ethereum assets
+          // If the flag is ON then we'll allow all assets through
+          FeatureFlag.Plugin.Cosmos ? undefined : NetworkTypes.MAINNET
+        )
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
           const { caip19 } = cur
           acc.byId[caip19] = cur

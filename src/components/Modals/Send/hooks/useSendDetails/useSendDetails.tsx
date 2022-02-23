@@ -270,25 +270,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       async (inputValue: string) => {
         setLoading(true)
         setValue(SendFormFields.SendMax, false)
-        if (inputValue === '') {
-          /**
-           * The input is empty so removing errors if they are present
-           * and stop the loading, and return because next lines don't need
-           * to run.
-           */
-          setValue(SendFormFields.AmountFieldError, '')
-          setLoading(false)
-          return
-        }
         const key =
           fieldName !== SendFormFields.FiatAmount
             ? SendFormFields.FiatAmount
             : SendFormFields.CryptoAmount
+        if (inputValue === '') {
+          // Don't show an error message when the input is empty
+          setValue(SendFormFields.AmountFieldError, '')
+          setLoading(false)
+          // Set value of the other input to an empty string as well
+          setValue(key, '')
+          return
+        }
         const amount =
           fieldName === SendFormFields.FiatAmount
             ? bnOrZero(bn(inputValue).div(price)).toString()
             : bnOrZero(bn(inputValue).times(price)).toString()
-
         setValue(key, amount)
 
         let estimatedFees
@@ -318,10 +315,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             { asset: feeAsset.symbol }
           ])
         } else {
-          /**
-           * the balance is enough for transfer, so removing errors if previously the balance was too low,
-           * and user got insufficientFunds or notEnoughNativeToken errors.
-           */
+          // Remove existing error messages because the send amount is valid
           setValue(SendFormFields.AmountFieldError, '')
         }
         setLoading(false)

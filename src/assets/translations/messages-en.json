@@ -329,7 +329,8 @@
       "continue": "View Transaction",
       "position": "View Position",
       "viewAsset": "View Asset",
-      "close": "Close"
+      "close": "Close",
+      "viewExplorer": "View in Explorer"
     },
     "connect": {
       "loadingText": "Pairing Wallet"

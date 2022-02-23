@@ -113,7 +113,7 @@ export const useFormSend = () => {
               </Text>
               {data.asset.explorerTxLink && (
                 <Link href={`${data.asset.explorerTxLink}${broadcastTXID}`} isExternal>
-                  View in Explorer <ExternalLinkIcon mx='2px' />
+                  {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                 </Link>
               )}
             </Text>

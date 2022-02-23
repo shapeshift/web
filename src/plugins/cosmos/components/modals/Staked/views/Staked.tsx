@@ -51,6 +51,7 @@ export const Staked = ({ assetId }: StakedProps) => {
                   assetSymbol={asset.symbol}
                   fiatRate={bnOrZero('8.47')}
                   cryptoUnbondedAmount={bnOrZero('420.65')}
+                  unbondingEnd='8 days'
                 />
               ))
             }

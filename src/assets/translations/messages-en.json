@@ -115,6 +115,7 @@
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",
+    "availableIn": "Available in %{unbondingEnd}",
     "earn": "Earn",
     "asset": "Asset",
     "category": "Category",

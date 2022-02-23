@@ -8,12 +8,14 @@ type UnbondingRowProps = {
   assetSymbol: string
   cryptoUnbondedAmount: BigNumber
   fiatRate: BigNumber
+  unbondingEnd: string // TODO: use timestamp and convert it to "x hours/days"
 }
 
 export const UnbondingRow = ({
   assetSymbol,
   cryptoUnbondedAmount,
-  fiatRate
+  fiatRate,
+  unbondingEnd
 }: UnbondingRowProps) => (
   <Flex
     bgColor='#222a38'
@@ -28,7 +30,7 @@ export const UnbondingRow = ({
       <Image src={pending} width='40px' height='40px' mr='10px' />
       <Flex direction='column'>
         <Text translation={'defi.unstaking'} fontWeight='bold' color='white' />
-        <Text translation={'Available in 8 days'} color='gray.500' />
+        <Text translation={['defi.availableIn', { unbondingEnd }]} color='gray.500' />
       </Flex>
     </Flex>
     <Flex direction='column' alignItems='flex-end'>

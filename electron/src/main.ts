@@ -449,7 +449,7 @@ ipcMain.on('onCloseModal', async (event, data) => {
 ipcMain.on('onAccountInfo', async (event, data) => {
     const tag = TAG + ' | onAccountInfo | '
     try {
-        //console.log("data: ", data)
+        console.log("data: ", data)
         if (data.length > 0 && USER.accounts.length === 0) {
             USER.online = true
             for (let i = 0; i < data.length; i++) {
@@ -472,7 +472,7 @@ ipcMain.on('onAccountInfo', async (event, data) => {
 ipcMain.on('onBalanceInfo', async (event, data) => {
     const tag = TAG + ' | onBalanceInfo | '
     try {
-        //console.log("data: ", data)
+        console.log("data: ", data)
         if (data.length > 0) {
             USER.balances = data
         }

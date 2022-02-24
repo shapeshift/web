@@ -1,7 +1,7 @@
 {
   "name": "keepkey-desktop",
   "version": "0.1.23",
-  "author": "Your Name <bithighlander@gmail.com>bithighlander@gmail.com",
+  "author": "Highlander <bithighlander@gmail.com>",
   "email": "bithighlander@gmail.com",
   "private": true,
   "main": "electron/dist/main.js",

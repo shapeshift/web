@@ -9,14 +9,17 @@ import {
   MarketDataArgs,
   PriceHistoryArgs
 } from '@shapeshiftoss/types'
-import axios from 'axios'
 import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 
 import { MarketService } from '../api'
+import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
+import { rateLimitedAxios } from '../utils/rateLimiters'
 import { CoinCapMarketCap } from './coincap-types'
+
+const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)
 
 export class CoinCapMarketService implements MarketService {
   baseUrl = 'https://api.coincap.io/v2'

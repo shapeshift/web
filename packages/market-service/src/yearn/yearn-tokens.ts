@@ -14,7 +14,11 @@ import { ChainId, Token, Yearn } from '@yfi/sdk'
 import uniqBy from 'lodash/uniqBy'
 
 import { MarketService } from '../api'
+import { RATE_LIMIT_THRESHOLDS_PER_MINUTE } from '../config'
 import { bnOrZero } from '../utils/bignumber'
+import { createRateLimiter } from '../utils/rateLimiters'
+
+const rateLimiter = createRateLimiter(RATE_LIMIT_THRESHOLDS_PER_MINUTE.YEARN)
 
 type YearnTokenMarketCapServiceArgs = {
   yearnSdk: Yearn<ChainId>
@@ -38,9 +42,9 @@ export class YearnTokenMarketCapService implements MarketService {
     try {
       const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
       const response = await Promise.allSettled([
-        this.yearnSdk.ironBank.tokens(),
-        this.yearnSdk.tokens.supported(),
-        this.yearnSdk.vaults.tokens()
+        rateLimiter(() => this.yearnSdk.ironBank.tokens()),
+        rateLimiter(() => this.yearnSdk.tokens.supported()),
+        rateLimiter(() => this.yearnSdk.vaults.tokens())
       ])
       const [ironBankResponse, zapperResponse, underlyingTokensResponse] = response
 
@@ -86,9 +90,9 @@ export class YearnTokenMarketCapService implements MarketService {
       // the price to web. Doing allSettled so that one rejection does not interfere with the other
       // calls.
       const response = await Promise.allSettled([
-        this.yearnSdk.ironBank.tokens(),
-        this.yearnSdk.tokens.supported(),
-        this.yearnSdk.vaults.tokens()
+        rateLimiter(() => this.yearnSdk.ironBank.tokens()),
+        rateLimiter(() => this.yearnSdk.tokens.supported()),
+        rateLimiter(() => this.yearnSdk.vaults.tokens())
       ])
       const [ironBankResponse, zapperResponse, underlyingTokensResponse] = response
 

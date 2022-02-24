@@ -9,17 +9,17 @@ jest.mock('@yfi/sdk')
 const mockedYearnSdk = jest.fn(() => ({
   vaults: {
     tokens: jest.fn(() => {
-      return mockYearnTokenRestData
+      return Promise.resolve(mockYearnTokenRestData)
     })
   },
   ironBank: {
     tokens: jest.fn(() => {
-      return mockYearnTokenRestData
+      return Promise.resolve(mockYearnTokenRestData)
     })
   },
   tokens: {
     supported: jest.fn(() => {
-      return mockYearnTokenRestData
+      return Promise.resolve(mockYearnTokenRestData)
     })
   }
 }))()

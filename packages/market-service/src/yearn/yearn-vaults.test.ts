@@ -9,14 +9,16 @@ jest.mock('@yfi/sdk')
 const mockedYearnSdk = jest.fn(() => ({
   vaults: {
     get: jest.fn((addresses) => {
-      return addresses
-        ? mockYearnVaultRestData.filter((datum) => addresses.includes(datum.address))
-        : mockYearnVaultRestData
+      return Promise.resolve(
+        addresses
+          ? mockYearnVaultRestData.filter((datum) => addresses.includes(datum.address))
+          : mockYearnVaultRestData
+      )
     })
   },
   services: {
     subgraph: {
-      fetchQuery: jest.fn(() => mockYearnGQLData)
+      fetchQuery: jest.fn(() => Promise.resolve(mockYearnGQLData))
     }
   }
 }))()

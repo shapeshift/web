@@ -177,7 +177,25 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "electron/entitlements.mac.plist",
-      "entitlementsInherit": "electron/entitlements.mac.plist"
+      "entitlementsInherit": "electron/entitlements.mac.plist",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "electron/icon.png",
+      "target": "nsis",
+      "publish": [
+        "github"
+      ]
+    },
+    "linux": {
+      "icon": "electron/icon.png",
+      "target": [
+        "deb",
+        "AppImage"
+      ]
     }
   },
   "browserslist": {

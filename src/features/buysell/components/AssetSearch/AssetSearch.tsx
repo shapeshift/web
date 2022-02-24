@@ -8,6 +8,7 @@ import {
   InputLeftElement
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
+import axios from 'axios'
 import { getConfig } from 'config'
 import { concat, flatten, uniqBy } from 'lodash'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
@@ -38,11 +39,8 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
 
   const getCoinifySupportedCurrencies = async () => {
     try {
-      let coinifyResponse = await (
-        await fetch(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
-      ).json()
-
-      return coinifyResponse
+      const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
+      return data
     } catch (ex: any) {
       console.error(ex)
     }
@@ -50,8 +48,8 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
 
   const getWyreSupportedCurrencies = async () => {
     try {
-      let wyreResponse = await (await fetch(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)).json()
-      return wyreResponse
+      const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
+      return data
     } catch (ex: any) {
       console.error(ex)
     }
@@ -80,12 +78,10 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
     []
   )
 
-  //Fetch supported coins and set them to state
   const fetchSupportedCoins = async () => {
     setLoading(true)
 
     try {
-      //const res = await getCoinifySupportedCurrencies();
       const coinifyList = await getCoinifySupportedCurrencies()
       const wyreList = await getWyreSupportedCurrencies()
       const buyList = filterAndMerge(coinifyList, wyreList, 'destination', buyFilter)

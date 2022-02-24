@@ -11,5 +11,5 @@ export const filterAssetsBySearchTerm = (search: string, assets: Asset[]) => {
     return assets.filter(asset => asset?.tokenId?.toLowerCase() === searchLower)
   }
 
-  return matchSorter(assets, search, { keys: ['name', 'symbol'] })
+  return matchSorter(assets, search, { keys: ['name', 'ticker'] })
 }

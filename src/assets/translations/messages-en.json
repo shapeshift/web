@@ -65,8 +65,8 @@
       "recentTransactions": "Recent Transactions"
     }
   },
-  "buysell":{
-    "page":{
+  "buysell": {
+    "page": {
       "routeTitle": "Buy or Sell",
       "routeTitleForGem": "Gem on Ramp",
       "title": "Buy or Sell Crypto",
@@ -77,12 +77,12 @@
       "sell": "SELL",
       "onJuno": "OnJuno",
       "comingSoon": "Coming Soon ...",
-      "assestBuyMessage": "Assest to Buy",
-      "selectAnAssestToBuy": "Select an assest to buy",
+      "assetToBuy": "Assest to Buy",
+      "selectAnAssestToBuy": "Select an asset to buy",
       "continue": "Continue",
       "cancel": "Cancel",
-      "assestSellMessage": "Assest to Sell",
-      "selectAnAssestToSell": "Select an assest to buy",
+      "assetToSell": "Assest to Sell",
+      "selectAnAssestToSell": "Select an asset to sell",
       "headerLabel": "Buy/Sell Crypto"
     }
   },

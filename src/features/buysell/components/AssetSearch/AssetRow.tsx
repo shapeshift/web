@@ -3,6 +3,8 @@ import { BuySellAsset } from 'features/buysell/contexts/BuySellManagerProvider/B
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
 
+import { getAssetLogoUrl } from './helpers/getAssetLogoUrl/getAssetLogoUrl'
+
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
   const asset: BuySellAsset = data.items[index]
 
@@ -21,7 +23,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
         shadow: 'outline-inset'
       }}
     >
-      <AssetIcon src={asset?.source} boxSize='24px' mr={4} />
+      <AssetIcon src={getAssetLogoUrl(asset)} boxSize='24px' mr={4} />
       <Box textAlign='left'>
         <Text lineHeight={1}>{asset.name}</Text>
         <Text fontWeight='normal' fontSize='sm' color={color}>

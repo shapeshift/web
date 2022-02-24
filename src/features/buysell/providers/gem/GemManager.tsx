@@ -1,6 +1,7 @@
 import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, IconButton, Stack, Text as RawText } from '@chakra-ui/react'
 import { AssetSearch } from 'features/buysell/components/AssetSearch/AssetSearch'
+import { getAssetLogoUrl } from 'features/buysell/components/AssetSearch/helpers/getAssetLogoUrl/getAssetLogoUrl'
 import { BuySellActionButtons } from 'features/buysell/components/BuySellActionButtons'
 import {
   BuySellAsset,
@@ -65,15 +66,15 @@ export const GemManager = () => {
               rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
             >
               {asset ? (
-                <>
-                  <AssetIcon src={asset?.source} mr={4} />
+                <Flex alignItems='center'>
+                  <AssetIcon src={getAssetLogoUrl(asset)} mr={4} />
                   <Box textAlign='left'>
                     <RawText lineHeight={1}>{asset.name}</RawText>
                     <RawText fontWeight='normal' fontSize='sm' color='gray.500'>
                       {asset.ticker}
                     </RawText>
                   </Box>
-                </>
+                </Flex>
               ) : (
                 <Text translation={selectAssetTranslation} color='gray.500' />
               )}

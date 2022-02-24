@@ -17,10 +17,10 @@ import { KeyManager, SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
-import { PioneerService } from './Pioneer'
+import { KeepKeyService } from './KeepKey'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
-const pioneer = new PioneerService()
+const keepkey = new KeepKeyService()
 
 export enum WalletActions {
   SET_ADAPTERS = 'SET_ADAPTERS',
@@ -56,7 +56,7 @@ export interface InitialState {
   type: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
-  pioneer: any
+  keepkey: any
   isConnected: boolean
   modal: boolean
 }
@@ -70,7 +70,7 @@ const initialState: InitialState = {
   walletInfo: null,
   isConnected: false,
   modal: false,
-  pioneer: null
+  keepkey: null
 }
 
 export interface IWalletContext {
@@ -79,7 +79,7 @@ export interface IWalletContext {
   connect: (adapter: KeyManager) => Promise<void>
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
-  pioneer: any
+  keepkey: any
 }
 
 function playSound(type: any) {
@@ -127,7 +127,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      pioneer.pairWallet('keepkey', action.payload.wallet)
+      keepkey.pairWallet('keepkey', action.payload.wallet)
       const stateData = {
         ...state,
         wallet: action.payload.wallet,
@@ -158,7 +158,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       }
       return newState
     case WalletActions.SET_PIONEER:
-      return { ...state, pioneer: action.payload }
+      return { ...state, keepkey: action.payload }
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -216,8 +216,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => {
     if (!state.wallet) {
       ipcRenderer.send('onStartApp', {
-        username: pioneer.username,
-        queryKey: pioneer.queryKey,
+        username: keepkey.username,
+        queryKey: keepkey.queryKey,
         spec: process.env.REACT_APP_URL_PIONEER_SPEC
       })
     }
@@ -284,37 +284,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    //start pioneer
+    //start keepkey
     async function startPioneer() {
       try {
-        //pioneer
-        await pioneer.init()
-        if (pioneer.App.isPaired) {
-          if (pioneer) dispatch({ type: WalletActions.SET_PIONEER, payload: pioneer })
-        } else {
-          //console.log('app is not paired! can not start. please connect a wallet')
-        }
-
-        pioneer.events.on('invocations', async (event: any) => {
-          switch (event.type) {
-            case 'context':
-              break
-            case 'pairing':
-              break
-            case 'signRequest':
-              sign.open(event)
-              break
-            default:
-              console.error(' message unknown type:', event)
-          }
-        })
-
-        // pioneer.events.on('invocations', async (event: any) => {
-        //   console.log('invocations event: ', event)
-        //   ipcRenderer.send('showWindow')
-        //   let invocationInfo = await pioneer.App.getInvocation(event.invocationId)
-        //   sign.open(invocationInfo)
-        // })
+        //keepkey
+        await keepkey.init()
       } catch (e) {
         console.error(e)
       }
@@ -372,8 +346,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, disconnect, create, pioneer }),
-    [state, connect, disconnect, create, pioneer]
+    () => ({ state, dispatch, connect, disconnect, create, keepkey }),
+    [state, connect, disconnect, create, keepkey]
   )
 
   return (

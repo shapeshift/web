@@ -26,7 +26,7 @@ import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
 
 export const SignModal = (input: any) => {
-  const { pioneer } = useWallet()
+  const { keepkey } = useWallet()
   const [error] = useState<string | null>(null)
   const [loading] = useState(false)
   const [show, setShow] = React.useState(false)
@@ -41,7 +41,7 @@ export const SignModal = (input: any) => {
   const HandleSubmit = async () => {
     setIsApproved(true)
     //show sign
-    let signedTx = await pioneer.signTx(input.invocation.unsignedTx)
+    let signedTx = await keepkey.signTx(input.invocation.unsignedTx)
     ipcRenderer.send('onSignedTx', signedTx)
     //onCloseModal
     ipcRenderer.send('onCloseModal', {})

@@ -40,6 +40,9 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
     // @gem(onramp) to get wyre supported currencies
     process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS,
+    process.env.REACT_APP_GEM_ENV,
+    process.env.REACT_APP_GEM_API_KEY,
+    process.env.REACT_APP_GEM_URL,
     process.env.REACT_APP_ETHEREUM_NODE_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,

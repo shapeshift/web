@@ -1,5 +1,16 @@
-import { ArrowBackIcon, ChevronRightIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, IconButton, Stack, Text as RawText } from '@chakra-ui/react'
+import { ArrowBackIcon, CheckIcon, ChevronRightIcon, CopyIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Button,
+  Flex,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  Stack,
+  Text as RawText
+} from '@chakra-ui/react'
+import { getConfig } from 'config'
 import { AssetSearch } from 'features/buysell/components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from 'features/buysell/components/AssetSearch/helpers/getAssetLogoUrl/getAssetLogoUrl'
 import { BuySellActionButtons } from 'features/buysell/components/BuySellActionButtons'
@@ -7,33 +18,64 @@ import {
   BuySellAsset,
   BuySellParams
 } from 'features/buysell/contexts/BuySellManagerProvider/BuySellManagerProvider'
+import queryString from 'querystring'
 import { useMemo, useState } from 'react'
 import { useRouteMatch } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+
+const middleEllipsis = (address: string, cut: number) =>
+  `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
+
+const GEM_ENV = getConfig().REACT_APP_GEM_ENV
+const GEM_API_KEY = getConfig().REACT_APP_GEM_API_KEY
+const GEM_URL = getConfig().REACT_APP_GEM_URL
 
 export const GemManager = () => {
   const [asset, setAsset] = useState<BuySellAsset>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
 
+  const history = useHistory()
   const onSelectAsset = (data: BuySellAsset) => {
     setIsSelectingAsset(false)
     setAsset(data)
   }
   const match = useRouteMatch<BuySellParams>()
   const action = match?.params?.action
+  const { state } = useWallet()
+  const address = state?.walletInfo?.meta?.address
 
-  const selectAssetTranslation = useMemo(
+  const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
-      action === 'buy' ? 'buysell.page.selectAnAssestToBuy' : 'buysell.page.selectAnAssestToSell',
+      action === 'buy'
+        ? ['buysell.selectAnAssestToBuy', 'buysell.assetToBuy', 'buysell.fundsTo']
+        : ['buysell.selectAnAssestToSell', 'buysell.assetToSell', 'buysell.fundsFrom'],
     [action]
   )
 
-  const assetTranslation = useMemo(
-    () => (action === 'buy' ? 'buysell.page.assetToBuy' : 'buysell.page.assetToSell'),
-    [action]
-  )
+  const gemUrl = useMemo(() => {
+    const onrampConfig = {
+      partnerName: 'ShapeShift',
+      environment: GEM_ENV,
+      partnerIconUrl:
+        'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png',
+      apiKey: GEM_API_KEY
+    }
+    const queryConfig = queryString.stringify({
+      ...onrampConfig,
+      intent: action,
+      wallets: JSON.stringify([{ address, asset: asset?.ticker }])
+    })
+    return `${GEM_URL}?${queryConfig}`
+  }, [address, action, asset])
+
+  const onSubmit = () => {
+    window.open(gemUrl, '_blank')
+  }
+
   return (
     <SlideTransition>
       <Box spacing={2} minWidth='300px' maxWidth='500px' m={4}>
@@ -79,10 +121,35 @@ export const GemManager = () => {
                 <Text translation={selectAssetTranslation} color='gray.500' />
               )}
             </Button>
-            <Button width='full' colorScheme='blue'>
+            {asset && (
+              <Flex flexDirection='column'>
+                <Text translation={fundsTranslation} color='gray.500'></Text>
+                <InputGroup size='md'>
+                  <Input pr='4.5rem' value={middleEllipsis(address as string, 11)} readOnly />
+                  <InputRightElement width='4.5rem'>
+                    <IconButton
+                      icon={<CopyIcon />}
+                      aria-label='copy-icon'
+                      size='sm'
+                      isRound
+                      variant='ghost'
+                    />
+                    <IconButton
+                      icon={<CheckIcon />}
+                      aria-label='check-icon'
+                      size='sm'
+                      color='green.500'
+                      isRound
+                      variant='ghost'
+                    />
+                  </InputRightElement>
+                </InputGroup>
+              </Flex>
+            )}
+            <Button width='full' colorScheme='blue' disabled={!asset} onClick={onSubmit}>
               <Text translation='common.continue' />
             </Button>
-            <Button width='full' variant='ghost'>
+            <Button width='full' variant='ghost' onClick={history.goBack}>
               <Text translation='common.cancel' />
             </Button>
           </Stack>

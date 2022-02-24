@@ -16,12 +16,12 @@ export const BuySell = () => {
       variant='ghost'
       mr={2}
     >
-      <Text translation='buysell.page.headerLabel' />
+      <Text translation='buysell.headerLabel' />
     </Button>
   ) : (
     <IconButton
       icon={<BuySellIcon color='inherit' />}
-      aria-label='buysell.page.headerLabel'
+      aria-label='buysell.headerLabel'
       as={NavLink}
       rounded='full'
       to={{ pathname: '/buysell', state: { background: location } }}

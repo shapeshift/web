@@ -19,11 +19,11 @@ export const BuySellProviders = () => {
       <Card boxShadow='none' borderWidth={0} maxWidth='500px'>
         <Card.Header>
           <Card.Heading>
-            <Text translation='buysell.page.title' />
+            <Text translation='buysell.title' />
           </Card.Heading>
         </Card.Header>
         <Card.Body>
-          <Text lineHeight={1.2} color='gray.500' translation='buysell.page.titleMessage' />
+          <Text lineHeight={1.2} color='gray.500' translation='buysell.titleMessage' />
           <Stack spacing={2} mt={2} mx={-4}>
             <Button
               width='full'
@@ -43,15 +43,15 @@ export const BuySellProviders = () => {
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                 <AssetIcon src={gemlogo} />
                 <Box textAlign='left' ml={2}>
-                  <Text fontWeight='bold' color='white' translation='buysell.page.gem' />
-                  <Text translation='buysell.page.gemMessage' />
+                  <Text fontWeight='bold' color='white' translation='buysell.gem' />
+                  <Text translation='buysell.gemMessage' />
                 </Box>
               </Flex>
               <Tag colorScheme='green'>
-                <Text translation='buysell.page.buy' />
+                <Text translation='buysell.buy' />
               </Tag>
               <Tag colorScheme='gray'>
-                <Text translation='buysell.page.sell' />
+                <Text translation='buysell.sell' />
               </Tag>
             </Button>
             <Button
@@ -65,8 +65,8 @@ export const BuySellProviders = () => {
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                 <AssetIcon src={onjunologo} />
                 <Box textAlign='left' ml={2}>
-                  <Text fontWeight='bold' color='white' translation='buysell.page.onJuno' />
-                  <Text translation='buysell.page.comingSoon' />
+                  <Text fontWeight='bold' color='white' translation='buysell.onJuno' />
+                  <Text translation='buysell.comingSoon' />
                 </Box>
               </Flex>
             </Button>

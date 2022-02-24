@@ -1,18 +1,12 @@
 import { SearchIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Center,
-  CircularProgress,
-  Input,
-  InputGroup,
-  InputLeftElement
-} from '@chakra-ui/react'
+import { Box, Center, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { concat, flatten, uniqBy } from 'lodash'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
@@ -133,7 +127,7 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
       <Box flex={1} justifyContent='center'>
         {loading ? (
           <Center minH='200px' w='full'>
-            <CircularProgress isIndeterminate color='gray.500' />
+            <CircularProgress isIndeterminate />
           </Center>
         ) : (
           <AssetList

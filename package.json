@@ -1,6 +1,6 @@
 {
-  "name": "keepkey-client",
-  "version": "0.1.20",
+  "name": "keepkey-desktop",
+  "version": "0.1.22",
   "private": true,
   "main": "electron/dist/main.js",
   "repository": {

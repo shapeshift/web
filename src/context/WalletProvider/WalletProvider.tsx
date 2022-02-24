@@ -14,10 +14,10 @@ import React, {
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { KeyManager, SUPPORTED_WALLETS } from './config'
+import { KeepKeyService } from './KeepKey'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
-import { KeepKeyService } from './KeepKey'
 import { WalletViewsRouter } from './WalletViewsRouter'
 
 const keepkey = new KeepKeyService()

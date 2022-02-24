@@ -118,7 +118,7 @@
     "build-bundle-electron": "react-app-rewired build",
     "dev-electron": "concurrently \"yarn dev\" \"wait-on http://localhost:3000 && cd electron && tsc && cd .. && electron .\"",
     "dev-electron-windows": "concurrently \"yarn dev-windows\" \"wait-on http://localhost:3000 && cd electron && tsc && cd .. && electron .\"",
-    "build:electron": "cd electron && tsc && cd .. && electron-builder build",
+    "build:electron": "yarn build-bundle-electron && cd electron && tsc && cd .. && electron-builder build",
     "lint": "eslint -c .eslintrc src --ext .ts,.tsx",
     "lint:cypress": "eslint -c ./cypress/.eslintrc src --ext .ts,.tsx",
     "lint:fix": "yarn lint --fix",

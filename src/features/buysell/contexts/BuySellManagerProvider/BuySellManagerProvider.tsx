@@ -27,6 +27,21 @@ export type BuySellQueryParams = {
   tokenId?: string
 }
 
+export type BuySellAsset = {
+  created_at: string
+  external_id: string
+  gem_asset_id: string
+  mapping_id: string
+  name: string
+  primary_color: string
+  rank: number
+  resolved: boolean
+  source: string
+  ticker: string
+  transaction_fields: Object
+  updated_at: string
+}
+
 type BuySellManagerProviderProps = {
   children: React.ReactNode
 }
@@ -51,7 +66,7 @@ export function BuySellManagerProvider({ children }: BuySellManagerProviderProps
       {children}
       {background && (
         <Route
-          path='/buysell/:provider?/:id?'
+          path='/buysell/:provider?/:action?'
           render={({ match: { params } }) => {
             const { provider } = params as { provider: BuySellProvider }
             const Module = BuySellModules[provider as BuySellProvider]

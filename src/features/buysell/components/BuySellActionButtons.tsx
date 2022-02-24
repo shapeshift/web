@@ -28,7 +28,7 @@ export const BuySellActionButtons = () => {
   }
 
   return (
-    <ButtonGroup variant='ghost' colorScheme='blue' px={6} pt={6}>
+    <ButtonGroup variant='ghost' colorScheme='blue' pt={6}>
       <Button
         isActive={match?.params?.action === BuySellAction.Buy}
         onClick={() => handleClick(BuySellAction.Buy)}

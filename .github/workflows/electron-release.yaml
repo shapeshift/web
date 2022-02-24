@@ -28,8 +28,6 @@ jobs:
         run: yarn
       - name: Build UI
         run: yarn build:ui
-      - name: Compile Electron Typescript
-        run: yarn compile:electron
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
         # Import Apple API key for app notarization on macOS
@@ -42,6 +40,7 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
           github_token: ${{ secrets.github_token }}
+          build_script_name: yarn compile:electron
           release: true
         env:
           # macOS notarization API key

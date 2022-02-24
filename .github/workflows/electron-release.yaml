@@ -26,10 +26,10 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install deps
         run: yarn
-      - name: Compile Typescript
-        run: yarn compile
       - name: Build UI
         run: yarn build:ui
+      - name: Compile Electron Typescript
+        run: yarn compile:electron
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
         # Import Apple API key for app notarization on macOS

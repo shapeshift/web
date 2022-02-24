@@ -39,6 +39,7 @@ import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewe
 import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
+import { autoUpdater } from 'electron-updater'
 import { app, Menu, Tray, BrowserWindow, nativeTheme, ipcMain, nativeImage } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
@@ -46,6 +47,15 @@ import swaggerUi from 'swagger-ui-express'
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
+
+const isMac = process.platform === "darwin";
+const isWin = process.platform === "win32";
+const isLinux =
+    process.platform !== "darwin" && process.platform !== "win32";
+
+
+log.transports.file.level = "debug";
+autoUpdater.logger = log;
 
 //core libs
 let {
@@ -105,13 +115,19 @@ const EVENT_LOG: Array<{ read: { data: string } }> = []
 let SIGNED_TX = null
 let USER_APPROVED_PAIR: boolean
 let USER_REJECT_PAIR: boolean
+let skipUpdateTimeout: NodeJS.Timeout
+let windowShowInterval: NodeJS.Timeout
+let splash: BrowserWindow
+let mainWindow: BrowserWindow
+let shouldShowWindow = false;
+
 
 /*
     Electron Settings
  */
 
 try {
-    if (process.platform === 'win32' && nativeTheme.shouldUseDarkColors === true) {
+    if (isWin && nativeTheme.shouldUseDarkColors === true) {
         require('fs').unlinkSync(require('path').join(app.getPath('userData'), 'DevTools Extensions'))
     }
 } catch (_) { }
@@ -124,7 +140,6 @@ if (process.env.PROD) {
     global.__statics = __dirname
 }
 
-let mainWindow
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 
 const menuTemplate: any = [
@@ -289,7 +304,7 @@ function createWindow() {
     })
 
     //TODO remove/ flag on dev
-    if (isDev) mainWindow.openDevTools()
+    if (isDev) mainWindow.webContents.openDevTools()
 
     const startURL = isDev
         ? 'http://localhost:3000'
@@ -298,13 +313,14 @@ function createWindow() {
 
     mainWindow.loadURL(startURL)
 
-    mainWindow.once('ready-to-show', () => mainWindow.show())
-
     mainWindow.on('closed', (event) => {
-        mainWindow = null
+        mainWindow.destroy()
         stop_bridge(eventIPC)
     })
 
+    mainWindow.once("ready-to-show", () => {
+        shouldShowWindow = true;
+    });
     // mainWindow.on("closed", () => {
 
     // });
@@ -313,10 +329,14 @@ function createWindow() {
 app.setAsDefaultProtocolClient('keepkey')
 // Export so you can access it from the renderer thread
 
-app.on('ready', createWindow)
+app.on('ready', async () => {
+    createSplashWindow()
+    if (isDev || isLinux) skipUpdateCheck(splash)
+    if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
+})
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
+    if (!isMac) {
         app.quit()
     }
 })
@@ -331,6 +351,37 @@ app.on('before-quit', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isQuitting = true
 })
+
+autoUpdater.on("update-available", (info) => {
+    splash.webContents.send("@update/download", info);
+    // skip the update if it takes more than 1 minute
+    skipUpdateTimeout = setTimeout(() => {
+        skipUpdateCheck(splash);
+    }, 60000);
+});
+autoUpdater.on("download-progress", (progress) => {
+    let prog = Math.floor(progress.percent);
+    splash.webContents.send("@update/percentage", prog);
+    splash.setProgressBar(prog / 100);
+    // stop timeout that skips the update
+    if (skipUpdateTimeout) {
+        clearTimeout(skipUpdateTimeout);
+    }
+});
+autoUpdater.on("update-downloaded", () => {
+    splash.webContents.send("@update/relaunch");
+    // stop timeout that skips the update
+    if (skipUpdateTimeout) {
+        clearTimeout(skipUpdateTimeout);
+    }
+    setTimeout(() => {
+        autoUpdater.quitAndInstall();
+    }, 1000);
+});
+autoUpdater.on("update-not-available", () => {
+    skipUpdateCheck(splash);
+});
+
 
 ipcMain.on('onSignedTx', async (event, data) => {
     const tag = TAG + ' | onSignedTx | '
@@ -425,6 +476,46 @@ ipcMain.on('onBalanceInfo', async (event, data) => {
         log.error(tag, e)
     }
 })
+
+const skipUpdateCheck = (splash: BrowserWindow) => {
+    createWindow();
+    splash.webContents.send("@update/notfound");
+    if (isLinux || isDev) {
+        splash.webContents.send("@update/skipCheck");
+    }
+    // stop timeout that skips the update
+    if (skipUpdateTimeout) {
+        clearTimeout(skipUpdateTimeout);
+    }
+    windowShowInterval = setInterval(() => {
+        if (shouldShowWindow) {
+            splash.webContents.send("@update/launch");
+            clearInterval(windowShowInterval);
+            setTimeout(() => {
+                splash.destroy();
+                mainWindow.show();
+            }, 800);
+        }
+    }, 1000);
+}
+
+const createSplashWindow = () => {
+    splash = new BrowserWindow({
+        width: 300,
+        height: 410,
+        transparent: true,
+        frame: false,
+        resizable: false,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+    });
+    splash.loadFile(
+        path.join(__dirname, "../resources/splash/splash-screen.html")
+    );
+}
+
 
 
 /*

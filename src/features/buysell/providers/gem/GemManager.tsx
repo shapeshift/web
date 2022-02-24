@@ -19,7 +19,7 @@ import {
   BuySellParams
 } from 'features/buysell/contexts/BuySellManagerProvider/BuySellManagerProvider'
 import queryString from 'querystring'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouteMatch } from 'react-router'
 import { useHistory } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
@@ -35,7 +35,7 @@ const GEM_API_KEY = getConfig().REACT_APP_GEM_API_KEY
 const GEM_URL = getConfig().REACT_APP_GEM_URL
 
 export const GemManager = () => {
-  const [asset, setAsset] = useState<BuySellAsset>()
+  const [asset, setAsset] = useState<BuySellAsset | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
 
   const history = useHistory()
@@ -47,6 +47,8 @@ export const GemManager = () => {
   const action = match?.params?.action
   const { state } = useWallet()
   const address = state?.walletInfo?.meta?.address
+
+  useEffect(() => setAsset(null), [action])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -78,7 +80,7 @@ export const GemManager = () => {
 
   return (
     <SlideTransition>
-      <Box spacing={2} minWidth='300px' maxWidth='500px' m={4}>
+      <Box spacing={2} minWidth='370px' maxWidth='500px' m={4}>
         {isSelectingAsset ? (
           <Stack>
             <Flex>
@@ -133,6 +135,9 @@ export const GemManager = () => {
                       size='sm'
                       isRound
                       variant='ghost'
+                      onClick={() => {
+                        navigator.clipboard.writeText(address as string)
+                      }}
                     />
                     <IconButton
                       icon={<CheckIcon />}

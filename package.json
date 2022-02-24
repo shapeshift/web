@@ -175,7 +175,8 @@
     "mac": {
       "type": "distribution",
       "hardenedRuntime": true,
-      "gatekeeperAssess": false,
+      "category": "public.app-category.finance",
+      "icon": "electron/icon.png",
       "entitlements": "electron/entitlements.mac.plist",
       "entitlementsInherit": "electron/entitlements.mac.plist",
       "target": [

@@ -26,6 +26,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install deps
         run: yarn
+      - name: Save env vars
+        run: echo "'${{ secrets.DOTENV_VARS }}'" >> .env
       - name: Build UI
         run: yarn build:ui
       - name: Prepare for app notarization
@@ -40,7 +42,7 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
           github_token: ${{ secrets.github_token }}
-          build_script_name: yarn compile:electron
+          build_script_name: compile:electron
           release: true
         env:
           # macOS notarization API key

@@ -1,18 +1,16 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, Stack, Tag } from '@chakra-ui/react'
-import {
-  BuySellParams,
-  BuySellQueryParams
-} from 'features/buysell/contexts/BuySellManagerProvider/BuySellManagerProvider'
+import { useHistory } from 'react-router-dom'
 import gemlogo from 'assets/gem-mark.png'
 import onjunologo from 'assets/onjuno.png'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
+
+import { BuySellRoutes } from '../BuySell'
 
 export const BuySellProviders = () => {
-  const { location, history } = useBrowserRouter<BuySellQueryParams, BuySellParams>()
+  const history = useHistory()
 
   return (
     <Flex justifyContent='center' alignItems='center'>
@@ -32,12 +30,7 @@ export const BuySellProviders = () => {
               variant='ghost'
               fontWeight='normal'
               py={2}
-              onClick={() =>
-                history.replace({
-                  ...location,
-                  pathname: `/buysell/gem/buy`
-                })
-              }
+              onClick={() => history.push(BuySellRoutes.Gem)}
               rightIcon={<ChevronRightIcon boxSize={6} />}
             >
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>

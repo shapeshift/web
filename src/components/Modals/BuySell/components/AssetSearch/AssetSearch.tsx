@@ -9,7 +9,7 @@ import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 import { AssetList } from './AssetList'
-import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm'
 
 type AssetSearchProps = {
   onClick: (asset: any) => void

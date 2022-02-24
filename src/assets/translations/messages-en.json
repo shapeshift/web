@@ -39,8 +39,11 @@
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "viewAsset": "View Asset",
-    "days": "Days"
+    "days": "Days",
+    "copied": "Copied to clipboard.",
+    "copyFailed": "Failed to copy to clipboard",
+    "copyFailedDescription": "Please copy manually",
+    "viewAsset": "View Asset"
   },
   "updateToast": {
     "body": "A new version of the app is available",

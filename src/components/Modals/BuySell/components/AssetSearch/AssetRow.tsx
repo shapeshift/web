@@ -1,9 +1,9 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
-import { BuySellAsset } from 'features/buysell/contexts/BuySellManagerProvider/BuySellManagerProvider'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { getAssetLogoUrl } from './helpers/getAssetLogoUrl/getAssetLogoUrl'
+import { BuySellAsset } from '../../BuySell'
+import { getAssetLogoUrl } from './helpers/getAssetLogoUrl'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
   const asset: BuySellAsset = data.items[index]

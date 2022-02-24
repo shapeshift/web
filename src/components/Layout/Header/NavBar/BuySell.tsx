@@ -1,18 +1,18 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
-import { NavLink, useLocation } from 'react-router-dom'
 import { BuySellIcon } from 'components/Icons/Buysell'
 import { Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 export const BuySell = () => {
   const [isLargerThan765] = useMediaQuery('(min-width: 765px)')
 
-  const location = useLocation()
+  const { buysell } = useModal()
+
   return isLargerThan765 ? (
     <Button
       leftIcon={<BuySellIcon color='inherit' />}
       colorScheme='blue'
-      as={NavLink}
-      to={{ pathname: '/buysell', state: { background: location } }}
+      onClick={buysell.open}
       variant='ghost'
       mr={2}
     >
@@ -22,9 +22,8 @@ export const BuySell = () => {
     <IconButton
       icon={<BuySellIcon color='inherit' />}
       aria-label='buysell.headerLabel'
-      as={NavLink}
+      onClick={buysell.open}
       rounded='full'
-      to={{ pathname: '/buysell', state: { background: location } }}
       mr={2}
     />
   )

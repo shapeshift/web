@@ -1,4 +1,4 @@
-import { ArrowBackIcon, CheckIcon, ChevronRightIcon, CopyIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, CheckIcon, ChevronRightIcon, CopyIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -8,24 +8,23 @@ import {
   InputGroup,
   InputRightElement,
   Stack,
-  Text as RawText
+  Text as RawText,
+  useToast
 } from '@chakra-ui/react'
 import { getConfig } from 'config'
-import { AssetSearch } from 'features/buysell/components/AssetSearch/AssetSearch'
-import { getAssetLogoUrl } from 'features/buysell/components/AssetSearch/helpers/getAssetLogoUrl/getAssetLogoUrl'
-import { BuySellActionButtons } from 'features/buysell/components/BuySellActionButtons'
-import {
-  BuySellAsset,
-  BuySellParams
-} from 'features/buysell/contexts/BuySellManagerProvider/BuySellManagerProvider'
 import queryString from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
-import { useRouteMatch } from 'react-router'
-import { useHistory } from 'react-router-dom'
+import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+
+import { BuySellAction, BuySellActionType, BuySellAsset } from '../BuySell'
+import { AssetSearch } from '../components/AssetSearch/AssetSearch'
+import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
+import { BuySellActionButtons } from '../components/BuySellActionButtons'
 
 const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
@@ -35,18 +34,22 @@ const GEM_API_KEY = getConfig().REACT_APP_GEM_API_KEY
 const GEM_URL = getConfig().REACT_APP_GEM_URL
 
 export const GemManager = () => {
+  const translate = useTranslate()
+  const toast = useToast()
+  const { buysell } = useModal()
+
   const [asset, setAsset] = useState<BuySellAsset | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
+  const [verified, setVerified] = useState<boolean | null>(null)
 
-  const history = useHistory()
   const onSelectAsset = (data: BuySellAsset) => {
     setIsSelectingAsset(false)
     setAsset(data)
   }
-  const match = useRouteMatch<BuySellParams>()
-  const action = match?.params?.action
+  const [action, setAction] = useState<BuySellActionType>(BuySellAction.Buy)
   const { state } = useWallet()
   const address = state?.walletInfo?.meta?.address
+  const wallet = state?.wallet
 
   useEffect(() => setAsset(null), [action])
 
@@ -78,6 +81,28 @@ export const GemManager = () => {
     window.open(gemUrl, '_blank')
   }
 
+  const copyHandler = async () => {
+    const duration = 2500
+    const isClosable = true
+    const toastPayload = { duration, isClosable }
+    try {
+      await navigator.clipboard.writeText(address as string)
+      const title = translate('common.copied')
+      const status = 'success'
+      const description = address
+      toast({ description, title, status, ...toastPayload })
+    } catch (e) {
+      const title = translate('common.copyFailed')
+      const status = 'error'
+      const description = translate('common.copyFailedDescription')
+      toast({ description, title, status })
+    }
+  }
+
+  const handleVerify = async () => {
+    setVerified(true)
+  }
+
   return (
     <SlideTransition>
       <Box minWidth='370px' maxWidth='500px' m={4}>
@@ -99,7 +124,7 @@ export const GemManager = () => {
           </Stack>
         ) : (
           <Stack spacing={4} mt={2}>
-            <BuySellActionButtons />
+            <BuySellActionButtons action={action} setAction={setAction} />
             <Text translation={assetTranslation} color='gray.500' />
             <Button
               width='full'
@@ -135,18 +160,19 @@ export const GemManager = () => {
                       size='sm'
                       isRound
                       variant='ghost'
-                      onClick={() => {
-                        navigator.clipboard.writeText(address as string)
-                      }}
+                      onClick={copyHandler}
                     />
-                    <IconButton
-                      icon={<CheckIcon />}
-                      aria-label='check-icon'
-                      size='sm'
-                      color='green.500'
-                      isRound
-                      variant='ghost'
-                    />
+                    {!(wallet?.getVendor() === 'Native') ? (
+                      <IconButton
+                        icon={verified ? <CheckIcon /> : <ViewIcon />}
+                        onClick={handleVerify}
+                        aria-label='check-icon'
+                        size='sm'
+                        color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                        isRound
+                        variant='ghost'
+                      />
+                    ) : undefined}
                   </InputRightElement>
                 </InputGroup>
               </Flex>
@@ -154,7 +180,7 @@ export const GemManager = () => {
             <Button width='full' colorScheme='blue' disabled={!asset} onClick={onSubmit}>
               <Text translation='common.continue' />
             </Button>
-            <Button width='full' variant='ghost' onClick={history.goBack}>
+            <Button width='full' variant='ghost' onClick={buysell.close}>
               <Text translation='common.cancel' />
             </Button>
           </Stack>

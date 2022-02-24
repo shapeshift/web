@@ -295,7 +295,6 @@ export const TradeInput = ({ history }: RouterProps) => {
                 onInputChange={(amount: string) => {
                   const action = amount ? TradeActions.BUY : undefined
                   action ? setValue('action', action) : reset()
-                  console.info('buyAsset', amount, action)
                   getQuote({ amount, sellAsset, buyAsset, action })
                 }}
                 inputLeftElement={

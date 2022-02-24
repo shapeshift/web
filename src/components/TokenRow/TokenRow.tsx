@@ -66,7 +66,7 @@ export function TokenRow<C extends FieldValues>({
               disabled={disabled}
               onValueChange={e => {
                 onChange(e.value)
-                onInputChange && e.value !== value && onInputChange(e.value)
+                if (onInputChange && e.value !== value) onInputChange(e.value)
               }}
             />
           )

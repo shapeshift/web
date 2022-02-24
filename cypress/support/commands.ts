@@ -4,7 +4,6 @@
 import { addStreamCommands } from '@lensesio/cypress-websocket-testing'
 import { WebSocketSubjectConfig } from 'rxjs/webSocket'
 
-import { makeEthTxHistory } from '../factories/ethereum/transactions'
 import { makeEthFoxRateResponse } from '../factories/0x/ethFoxRate'
 import { makeEthUsdcRateResponse } from '../factories/0x/ethUsdcRate'
 import { makeFoxEthSwapRateResponse } from '../factories/0x/foxEthSwapRate'
@@ -13,6 +12,7 @@ import { makeBtcAccount } from '../factories/bitcoin/account'
 import { makeChainlinkDataResponse } from '../factories/coingecko/chainlinkData'
 import { makeChartDataResponse } from '../factories/coingecko/chartData'
 import { makeEthAccount } from '../factories/ethereum/account'
+import { makeEthTxHistory } from '../factories/ethereum/transactions'
 import { getWalletDbInstance } from '../helpers'
 
 const baseUrl = Cypress.config().baseUrl

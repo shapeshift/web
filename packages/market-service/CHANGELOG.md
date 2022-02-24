@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.11.3...@shapeshiftoss/market-service-v1.12.0) (2022-02-24)
+
+
+### Features
+
+* market service rate limiter ([#392](https://github.com/shapeshift/lib/issues/392)) ([3e425f8](https://github.com/shapeshift/lib/commit/3e425f82d8df2c95851dd82af1d83c2b8ad1b92f))
+
 # [@shapeshiftoss/market-service-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.11.2...@shapeshiftoss/market-service-v1.11.3) (2022-02-22)
 
 # [@shapeshiftoss/market-service-v1.11.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v1.11.1...@shapeshiftoss/market-service-v1.11.2) (2022-02-18)

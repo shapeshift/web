@@ -18,8 +18,6 @@
  *    * KeepKey bridge (express server on port: localhost:1646
  *    * invocation support (web app pairing similar UX to BEX embedding like Metamask)
  *
- *  Pioneer Invocation API
- *    docs: https://ahead-respect-850.notion.site/Invocation-Protocol-3cb988fa2c3747d4a4a63016271cb3f4
  *
  *  Notes:
  *    This will "pair" a users wallet with the pioneer api.

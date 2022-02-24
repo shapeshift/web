@@ -80,7 +80,7 @@ export const GemManager = () => {
 
   return (
     <SlideTransition>
-      <Box spacing={2} minWidth='370px' maxWidth='500px' m={4}>
+      <Box minWidth='370px' maxWidth='500px' m={4}>
         {isSelectingAsset ? (
           <Stack>
             <Flex>

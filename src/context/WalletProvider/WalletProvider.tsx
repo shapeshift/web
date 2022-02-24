@@ -347,7 +347,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   const value: IWalletContext = useMemo(
     () => ({ state, dispatch, connect, disconnect, create, keepkey }),
-    [state, connect, disconnect, create, keepkey]
+    [state, connect, disconnect, create]
   )
 
   return (

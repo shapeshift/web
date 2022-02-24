@@ -27,7 +27,7 @@ jobs:
       - name: Install deps
         run: yarn
       - name: Save env vars
-        run: echo "'${{ secrets.DOTENV_VARS }}'" >> .env
+        run: echo "${{ secrets.DOTENV_VARS }}" >> .env
       - name: Build UI
         run: yarn build:ui
       - name: Prepare for app notarization

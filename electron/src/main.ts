@@ -55,6 +55,10 @@ const isWin = process.platform === "win32";
 const isLinux =
     process.platform !== "darwin" && process.platform !== "win32";
 
+
+log.transports.file.level = "debug";
+autoUpdater.logger = log;
+
 //core libs
 let {
     getPaths
@@ -329,11 +333,8 @@ app.setAsDefaultProtocolClient('keepkey')
 
 app.on('ready', async () => {
     createSplashWindow()
-    if (isDev) skipUpdateCheck(splash)
+    if (isDev || isLinux) skipUpdateCheck(splash)
     if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
-    if (isLinux && !isDev) {
-        skipUpdateCheck(splash)
-    }
 })
 
 app.on('window-all-closed', () => {
@@ -382,6 +383,10 @@ autoUpdater.on("update-downloaded", () => {
 autoUpdater.on("update-not-available", () => {
     skipUpdateCheck(splash);
 });
+
+autoUpdater.on("", () => {
+
+})
 
 ipcMain.on('onSignedTx', async (event, data) => {
     const tag = TAG + ' | onSignedTx | '
@@ -444,7 +449,7 @@ ipcMain.on('onCloseModal', async (event, data) => {
 ipcMain.on('onAccountInfo', async (event, data) => {
     const tag = TAG + ' | onAccountInfo | '
     try {
-        console.log("data: ", data)
+        //console.log("data: ", data)
         if (data.length > 0 && USER.accounts.length === 0) {
             USER.online = true
             for (let i = 0; i < data.length; i++) {
@@ -467,7 +472,7 @@ ipcMain.on('onAccountInfo', async (event, data) => {
 ipcMain.on('onBalanceInfo', async (event, data) => {
     const tag = TAG + ' | onBalanceInfo | '
     try {
-        console.log("data: ", data)
+        //console.log("data: ", data)
         if (data.length > 0) {
             USER.balances = data
         }
@@ -477,7 +482,7 @@ ipcMain.on('onBalanceInfo', async (event, data) => {
     }
 })
 
-const skipUpdateCheck = (splash) => {
+const skipUpdateCheck = (splash: BrowserWindow) => {
     createWindow();
     splash.webContents.send("@update/notfound");
     if (isLinux || isDev) {

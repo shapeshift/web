@@ -163,6 +163,7 @@
     "afterSign": "scripts/afterSignHook.js",
     "files": [
       "assets/**/*",
+      "resources/**/*",
       "build/**/*",
       "electron/**/*",
       "api/**/*",

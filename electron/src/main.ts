@@ -384,9 +384,6 @@ autoUpdater.on("update-not-available", () => {
     skipUpdateCheck(splash);
 });
 
-autoUpdater.on("", () => {
-
-})
 
 ipcMain.on('onSignedTx', async (event, data) => {
     const tag = TAG + ' | onSignedTx | '

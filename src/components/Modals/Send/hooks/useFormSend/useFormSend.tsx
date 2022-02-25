@@ -1,4 +1,5 @@
-import { useToast } from '@chakra-ui/react'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
@@ -102,10 +103,21 @@ export const useFormSend = () => {
 
         toast({
           title: translate('modals.send.sent', { asset: data.asset.name }),
-          description: translate('modals.send.youHaveSent', {
-            amount: data.cryptoAmount,
-            symbol: data.cryptoSymbol
-          }),
+          description: (
+            <Text>
+              <Text>
+                {translate('modals.send.youHaveSent', {
+                  amount: data.cryptoAmount,
+                  symbol: data.cryptoSymbol
+                })}
+              </Text>
+              {data.asset.explorerTxLink && (
+                <Link href={`${data.asset.explorerTxLink}${broadcastTXID}`} isExternal>
+                  {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                </Link>
+              )}
+            </Text>
+          ),
           status: 'success',
           duration: 9000,
           isClosable: true,

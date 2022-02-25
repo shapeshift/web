@@ -56,6 +56,7 @@
     "buffer": "^6.0.3",
     "chakra-ui-steps": "^1.5.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
@@ -115,7 +116,7 @@
     "dev": "ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true react-app-rewired start",
     "dev-windows": "set ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true && react-app-rewired start",
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
-    "build:ui": "NODE_OPTIONS=--max-old-space-size=4096 react-app-rewired build",
+    "build:ui": "cross-env NODE_OPTIONS=--max-old-space-size=4096 react-app-rewired build",
     "dev-electron": "concurrently \"yarn dev\" \"wait-on http://localhost:3000 && cd electron && tsc && cd .. && electron .\"",
     "dev-electron-windows": "concurrently \"yarn dev-windows\" \"wait-on http://localhost:3000 && cd electron && tsc && cd .. && electron .\"",
     "compile:electron": "cd electron && tsc && cd ..",
@@ -286,4 +287,3 @@
     }
   }
 }
-

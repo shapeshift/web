@@ -59,6 +59,7 @@
     "crypto-js": "^4.1.1",
     "dayjs": "^1.10.6",
     "dompurify": "^2.3.2",
+    "electron-builder-notarize": "^1.4.0",
     "electron-is": "^3.0.0",
     "electron-is-dev": "^2.0.0",
     "electron-log": "^4.4.1",
@@ -159,9 +160,9 @@
   },
   "homepage": "./",
   "build": {
-    "appId": "com.keepkey.client",
+    "appId": "com.keepkey.desktop",
     "productName": "KeepKey Client",
-    "afterSign": "scripts/afterSignHook.js",
+    "afterSign": "electron-builder-notarize",
     "files": [
       "assets/**/*",
       "resources/**/*",

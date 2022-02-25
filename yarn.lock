@@ -11088,6 +11088,15 @@ ejs@^3.1.6:
   dependencies:
     jake "^10.6.1"
 
+electron-builder-notarize@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/electron-builder-notarize/-/electron-builder-notarize-1.4.0.tgz#9e3609935eb70bf08f64fba255c3e4c43b0058e7"
+  integrity sha512-5CPVlzkG+SofK3VU3E6HKmdXW6Uu6q5WWvzXX6diLAlAy9qJsR0n99aNztVKKsPl6yjEbvT+MUl4ci0YCwOBRA==
+  dependencies:
+    electron-notarize "^1.1.1"
+    js-yaml "^3.14.0"
+    read-pkg-up "^7.0.0"
+
 electron-builder@^22.14.5:
   version "22.14.13"
   resolved "https://registry.yarnpkg.com/electron-builder/-/electron-builder-22.14.13.tgz#fd40564685cf5422a8f8d667940af3d3776f4fb8"
@@ -15512,7 +15521,7 @@ js-string-escape@^1.0.1:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@^3.13.1:
+js-yaml@^3.13.1, js-yaml@^3.14.0:
   version "3.14.1"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.1.tgz#dae812fdb3825fa306609a8717383c50c36a0537"
   integrity sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==
@@ -19751,7 +19760,7 @@ read-pkg-up@^2.0.0:
     find-up "^2.0.0"
     read-pkg "^2.0.0"
 
-read-pkg-up@^7.0.1:
+read-pkg-up@^7.0.0, read-pkg-up@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/read-pkg-up/-/read-pkg-up-7.0.1.tgz#f3a6135758459733ae2b95638056e1854e7ef507"
   integrity sha512-zK0TB7Xd6JpCLmlLmufqykGE+/TlOePD6qKClNW7hHDKFh/J7/7gCWGR7joEQEW1bKq3a3yUZSObOoWLFQ4ohg==

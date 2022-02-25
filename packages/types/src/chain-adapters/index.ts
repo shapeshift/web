@@ -137,6 +137,7 @@ export type SubscribeTxsMessage<T extends ChainTypes> = {
   status: TxStatus
   tradeDetails?: TradeDetails
   transfers: Array<TxTransfer>
+  data?: TxMetadata
 }
 
 export enum TradeType {
@@ -148,6 +149,11 @@ export type TradeDetails = {
   dexName: string
   memo?: string
   type: TradeType
+}
+
+export interface TxMetadata {
+  method?: string
+  parser: string
 }
 
 export type TxTransfer = {

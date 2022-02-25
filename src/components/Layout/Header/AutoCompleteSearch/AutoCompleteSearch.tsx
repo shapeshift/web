@@ -58,6 +58,7 @@ export const AutoCompleteSearch = ({ onClick, filterBy }: AssetSearchProps) => {
             variant='filled'
             onFocus={() => setIsFocused(true)}
             onBlur={debounceBlur}
+            autoComplete='off'
           />
         </InputGroup>
       </Box>

@@ -11,7 +11,7 @@ export const NavBar = (props: StackProps) => {
   return (
     <Stack width='full' flex='1 1 0%' {...props}>
       {union(routes, pluginManager.getRoutes())
-        .filter(route => !route.disable)
+        .filter(route => !route.disable && !route.hide)
         .map(item => {
           return (
             <>

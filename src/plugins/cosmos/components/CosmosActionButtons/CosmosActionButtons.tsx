@@ -6,9 +6,11 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type CosmosActionButtonsProps = {
   activeAction: StakingAction
+  assetSymbol: string
 }
 export const CosmosActionButtons = ({
   activeAction,
+  assetSymbol,
   ...styleProps
 }: CosmosActionButtonsProps & FlexProps) => {
   const { cosmosStaking } = useModal()
@@ -31,7 +33,7 @@ export const CosmosActionButtons = ({
         onClick={handleStakeClick}
         isDisabled={false}
       >
-        <Text translation={'defi.stake'} fontWeight='bold' color='white' />
+        <Text translation={['defi.stakeAsset', { assetSymbol }]} fontWeight='bold' color='white' />
       </Button>
       <Button
         isActive={activeAction === StakingAction.Unstake}
@@ -40,7 +42,11 @@ export const CosmosActionButtons = ({
         flexGrow={1}
         variant={activeAction === StakingAction.Stake ? 'ghost' : undefined}
       >
-        <Text translation={'defi.unstake'} fontWeight='bold' color='white' />
+        <Text
+          translation={['defi.unstakeAsset', { assetSymbol }]}
+          fontWeight='bold'
+          color='white'
+        />
       </Button>
     </Flex>
   )

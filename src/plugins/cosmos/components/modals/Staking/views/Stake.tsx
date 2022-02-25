@@ -164,6 +164,7 @@ export const Stake = ({
           justifyContent='space-between'
         >
           <CosmosActionButtons
+            assetSymbol={asset.symbol}
             activeAction={StakingAction.Stake}
             width='100%'
             px='6px'

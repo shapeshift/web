@@ -1,5 +1,4 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Text as CText } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'

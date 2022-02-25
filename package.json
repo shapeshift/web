@@ -1,6 +1,8 @@
 {
   "name": "keepkey-desktop",
-  "version": "0.1.23",
+  "version": "0.1.24",
+  "author": "Highlander <bithighlander@gmail.com>",
+  "email": "bithighlander@gmail.com",
   "private": true,
   "main": "electron/dist/main.js",
   "repository": {
@@ -17,7 +19,6 @@
     "@formatjs/intl-numberformat": "^7.2.2",
     "@formatjs/intl-pluralrules": "^4.1.2",
     "@metamask/detect-provider": "^1.2.0",
-    "@pioneer-sdk/sdk": "0.0.13",
     "@reduxjs/toolkit": "^1.7.0",
     "@shapeshiftoss/asset-service": "^1.14.0",
     "@shapeshiftoss/caip": "^1.10.0",

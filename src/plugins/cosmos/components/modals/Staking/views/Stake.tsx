@@ -184,8 +184,6 @@ export const Stake = ({
           <FormControl>
             <AmountToStake
               width='100%'
-              justifyContent='space-between'
-              alignItems='flex-start'
               values={values}
               isCryptoField={activeField === InputType.Crypto}
               asset={asset}

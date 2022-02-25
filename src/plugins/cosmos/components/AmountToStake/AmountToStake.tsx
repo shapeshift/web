@@ -20,7 +20,7 @@ export const AmountToStake = ({
   asset,
   ...styleProps
 }: AmountToStakeProps & FlexProps) => (
-  <Flex {...styleProps}>
+  <Flex justifyContent='space-between' alignItems='flex-start' {...styleProps}>
     <FormLabel lineHeight={1} color='gray.500'>
       <Text translation='defi.amountToStake' />
     </FormLabel>

@@ -359,6 +359,8 @@ autoUpdater.on("update-available", (info) => {
         skipUpdateCheck(splash);
     }, 60000);
 });
+
+
 autoUpdater.on("download-progress", (progress) => {
     let prog = Math.floor(progress.percent);
     splash.webContents.send("@update/percentage", prog);
@@ -368,6 +370,8 @@ autoUpdater.on("download-progress", (progress) => {
         clearTimeout(skipUpdateTimeout);
     }
 });
+
+
 autoUpdater.on("update-downloaded", () => {
     splash.webContents.send("@update/relaunch");
     // stop timeout that skips the update
@@ -378,7 +382,14 @@ autoUpdater.on("update-downloaded", () => {
         autoUpdater.quitAndInstall();
     }, 1000);
 });
+
+
 autoUpdater.on("update-not-available", () => {
+    skipUpdateCheck(splash);
+});
+
+
+autoUpdater.on("error", () => {
     skipUpdateCheck(splash);
 });
 

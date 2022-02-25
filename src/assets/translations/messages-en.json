@@ -120,6 +120,8 @@
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
     "unstake": "Unstake",
+    "stakeAsset": "Stake %{assetSymbol}",
+    "unstakeAsset": "Unstake %{assetSymbol}",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",

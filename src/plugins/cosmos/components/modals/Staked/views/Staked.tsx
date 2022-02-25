@@ -23,7 +23,7 @@ export const Staked = ({ assetId }: StakedProps) => {
   }))(assetId) as Asset
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Box pt='38px' pb='70px' px='34px'>
+      <Box pt='38px' pb='70px' px='24px'>
         <ModalCloseButton borderRadius='full' />
         <Flex
           direction='column'
@@ -35,7 +35,7 @@ export const Staked = ({ assetId }: StakedProps) => {
           <StakedHeader assetName={asset.name} width='100%' mb='35px' />
           <StakedRow
             width='100%'
-            mb='10px'
+            mb='20px'
             assetSymbol={asset.symbol}
             fiatRate={bnOrZero('8.47')}
             cryptoStakedAmount={bnOrZero('708.00')}
@@ -45,7 +45,7 @@ export const Staked = ({ assetId }: StakedProps) => {
           <Box width='100%' mt='20px'>
             {
               /* TODO: use real unbonds data */
-              new Array(2).fill(undefined).map((_, i) => (
+              new Array(3).fill(undefined).map((_, i) => (
                 <UnbondingRow
                   key={i}
                   assetSymbol={asset.symbol}

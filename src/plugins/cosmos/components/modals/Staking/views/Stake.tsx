@@ -25,6 +25,8 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { StakingAction } from '../Staking'
+
 export enum InputType {
   Crypto = 'crypto',
   Fiat = 'fiat'
@@ -162,6 +164,7 @@ export const Stake = ({
           justifyContent='space-between'
         >
           <CosmosActionButtons
+            activeAction={StakingAction.Stake}
             width='100%'
             px='6px'
             py='6px'

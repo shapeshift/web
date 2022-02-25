@@ -2,13 +2,13 @@ import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { BuySellIcon } from 'components/Icons/Buysell'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { breakpoints } from 'theme/theme'
 
 export const BuySell = () => {
-  const [isLargerThan765] = useMediaQuery('(min-width: 765px)')
-
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { buysell } = useModal()
 
-  return isLargerThan765 ? (
+  return isLargerThanMd ? (
     <Button
       leftIcon={<BuySellIcon color='inherit' />}
       colorScheme='blue'

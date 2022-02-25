@@ -8,15 +8,16 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
+import { BuySellAction } from '../../BuySell'
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm'
 
 type AssetSearchProps = {
   onClick: (asset: any) => void
-  type: 'buy' | 'sell'
+  type: BuySellAction
 }
 
-export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
+export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchProps) => {
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -35,8 +36,8 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
       return data
-    } catch (ex: any) {
-      console.error(ex)
+    } catch (e: any) {
+      console.error(e)
     }
   }
 
@@ -44,26 +45,26 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
       return data
-    } catch (ex: any) {
-      console.error(ex)
+    } catch (e: any) {
+      console.error(e)
     }
   }
   //Filter for the assets you can buy
-  const buyFilter = (arg: { transaction_direction: string }) =>
-    arg.transaction_direction === 'bank_blockchain' ||
-    arg.transaction_direction === 'card_blockchain'
+  const buyFilter = (asset: { transaction_direction: string }) =>
+    asset.transaction_direction === 'bank_blockchain' ||
+    asset.transaction_direction === 'card_blockchain'
 
   // Filter for the assets you can sell
-  const sellFilter = (arg: { transaction_direction: string }) =>
-    arg.transaction_direction === 'blockchain_bank'
+  const sellFilter = (asset: { transaction_direction: string }) =>
+    asset.transaction_direction === 'blockchain_bank'
 
   //Filter and merge function
   const filterAndMerge = useMemo(
-    () => (arr1: any[], arr2: any[], key: string | number, filter: any) => {
-      const list1 = arr1
+    () => (coinifyList: any[], wyreList: any[], key: string | number, filter: any) => {
+      const list1 = coinifyList
         .filter(filter)
         .map((list: { [x: string]: { currencies: any } }) => list[key].currencies)
-      const list2 = arr2
+      const list2 = wyreList
         .filter(filter)
         .map((list: { [x: string]: { currencies: any } }) => list[key].currencies)
       const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
@@ -80,7 +81,7 @@ export const AssetSearch = ({ onClick, type = 'buy' }: AssetSearchProps) => {
       const wyreList = await getWyreSupportedCurrencies()
       const buyList = filterAndMerge(coinifyList, wyreList, 'destination', buyFilter)
       const sellList = filterAndMerge(coinifyList, wyreList, 'source', sellFilter)
-      if (type === 'buy') {
+      if (type === BuySellAction.Buy) {
         setCurrentAssets(buyList)
       } else {
         setCurrentAssets(sellList)

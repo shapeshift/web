@@ -21,7 +21,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
-import { BuySellAction, BuySellActionType, BuySellAsset } from '../BuySell'
+import { BuySellAction, BuySellAsset } from '../BuySell'
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
 import { BuySellActionButtons } from '../components/BuySellActionButtons'
@@ -46,7 +46,7 @@ export const GemManager = () => {
     setIsSelectingAsset(false)
     setAsset(data)
   }
-  const [action, setAction] = useState<BuySellActionType>(BuySellAction.Buy)
+  const [action, setAction] = useState<BuySellAction>(BuySellAction.Buy)
   const { state } = useWallet()
   const address = state?.walletInfo?.meta?.address
   const wallet = state?.wallet
@@ -55,7 +55,7 @@ export const GemManager = () => {
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
-      action === 'buy'
+      action === BuySellAction.Buy
         ? ['buysell.selectAnAssestToBuy', 'buysell.assetToBuy', 'buysell.fundsTo']
         : ['buysell.selectAnAssestToSell', 'buysell.assetToSell', 'buysell.fundsFrom'],
     [action]
@@ -76,10 +76,6 @@ export const GemManager = () => {
     })
     return `${GEM_URL}?${queryConfig}`
   }, [address, action, asset])
-
-  const onSubmit = () => {
-    window.open(gemUrl, '_blank')
-  }
 
   const copyHandler = async () => {
     const duration = 2500
@@ -177,7 +173,14 @@ export const GemManager = () => {
                 </InputGroup>
               </Flex>
             )}
-            <Button width='full' colorScheme='blue' disabled={!asset} onClick={onSubmit}>
+            <Button
+              width='full'
+              colorScheme='blue'
+              disabled={!asset}
+              as='a'
+              href={gemUrl}
+              target='_blank'
+            >
               <Text translation='common.continue' />
             </Button>
             <Button width='full' variant='ghost' onClick={buysell.close}>

@@ -14,8 +14,6 @@ export enum BuySellAction {
   Sell = 'sell'
 }
 
-export type BuySellActionType = BuySellAction.Buy | BuySellAction.Sell
-
 export type BuySellAsset = {
   created_at: string
   external_id: string
@@ -27,7 +25,7 @@ export type BuySellAsset = {
   resolved: boolean
   source: string
   ticker: string
-  transaction_fields: Object
+  transaction_fields: Record<string, never>
   updated_at: string
 }
 
@@ -48,7 +46,9 @@ const BuySell = () => {
         <ModalCloseButton />
         <MemoryRouter initialEntries={entries}>
           <Switch>
-            <Route path='/' component={() => <BuySellRouter />} />
+            <Route path='/'>
+              <BuySellRouter />
+            </Route>
           </Switch>
         </MemoryRouter>
       </ModalContent>

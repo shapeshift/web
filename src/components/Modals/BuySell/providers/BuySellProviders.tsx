@@ -41,10 +41,10 @@ export const BuySellProviders = () => {
                 </Box>
               </Flex>
               <Tag colorScheme='green'>
-                <Text translation='buysell.buy' />
+                <Text translation='buysell.buy' style={{ textTransform: 'uppercase' }} />
               </Tag>
               <Tag colorScheme='gray'>
-                <Text translation='buysell.sell' />
+                <Text translation='buysell.sell' style={{ textTransform: 'uppercase' }} />
               </Tag>
             </Button>
             <Button

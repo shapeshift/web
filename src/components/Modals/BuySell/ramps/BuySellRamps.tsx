@@ -9,7 +9,7 @@ import { Text } from 'components/Text'
 
 import { BuySellRoutes } from '../BuySell'
 
-export const BuySellProviders = () => {
+export const BuySellRamps = () => {
   const history = useHistory()
 
   return (

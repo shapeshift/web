@@ -56,8 +56,8 @@ export const GemManager = () => {
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
       action === BuySellAction.Buy
-        ? ['buysell.selectAnAssestToBuy', 'buysell.assetToBuy', 'buysell.fundsTo']
-        : ['buysell.selectAnAssestToSell', 'buysell.assetToSell', 'buysell.fundsFrom'],
+        ? ['buysell.selectAnAssetToBuy', 'buysell.assetToBuy', 'buysell.fundsTo']
+        : ['buysell.selectAnAssetToSell', 'buysell.assetToSell', 'buysell.fundsFrom'],
     [action]
   )
 

@@ -4,7 +4,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { BuySellRouter } from './BuySellRouter'
 
-export enum BuySellProvider {
+export enum BuySellRamp {
   Gem = 'gem',
   OnJuno = 'onjuno'
 }

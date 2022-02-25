@@ -30,11 +30,7 @@ jobs:
         run: |
           mkdir -p ~/private_keys/
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-          if [ -d "~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8" ]; then
-	        echo "Directory exists"
-          else 
-	        echo "Directory does not exists"
-          fi
+          if [ -d "~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8" ]; then echo "Directory exists"; else echo "Directory does not exist"; fi
       - name: Install deps
         run: yarn
       - name: Save env vars

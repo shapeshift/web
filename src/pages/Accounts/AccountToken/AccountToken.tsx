@@ -10,7 +10,11 @@ export type MatchParams = {
   assetId: CAIP19
 }
 
-export const AccountToken = ({ route }: { route: Route }) => {
+type AccountTokenProps = {
+  route: Route
+}
+
+export const AccountToken = ({ route }: AccountTokenProps) => {
   const { accountId, assetId } = useParams<MatchParams>()
 
   /**

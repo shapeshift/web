@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.11.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.3...@shapeshiftoss/caip-v1.11.4) (2022-02-25)
+
+
+### Bug Fixes
+
+* caip support for Osmosis ([#398](https://github.com/shapeshift/lib/issues/398)) ([e0edc67](https://github.com/shapeshift/lib/commit/e0edc673732df2810dae32c5a49014cd174bad5a))
+
 # [@shapeshiftoss/caip-v1.11.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.2...@shapeshiftoss/caip-v1.11.3) (2022-02-18)
 
 

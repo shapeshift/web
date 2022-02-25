@@ -32,7 +32,8 @@
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
-    "viewAsset": "View Asset"
+    "viewAsset": "View Asset",
+    "days": "Days"
   },
   "updateToast": {
     "body": "A new version of the app is available",

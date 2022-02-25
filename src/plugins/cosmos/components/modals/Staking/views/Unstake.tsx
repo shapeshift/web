@@ -167,7 +167,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Staked
               {translate('staking.itWillTake')}
               <span> </span>
               <Box as='span' fontWeight='semibold' color='white'>
-                14 days
+                14 {translate('common.days')}
               </Box>
               <span> </span>
               {translate('staking.toUnlock')}

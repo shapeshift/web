@@ -2,6 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack, Table, Tbody } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlag } from 'constants/FeatureFlag'
+import { YearnVaultRow } from 'features/defi/providers/yearn/components/YearnVaultRow'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
@@ -11,7 +12,6 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { EarnOpportunityRow } from './EarnOpportunityRow'
 import { EarnTableHeader } from './EarnTableHeader'
 
 type EarnOpportunitiesProps = {
@@ -33,7 +33,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
         .filter(vault => vault.tokenAddress === asset.tokenId)
         .map((vault, index) => {
           return (
-            <EarnOpportunityRow
+            <YearnVaultRow
               {...vault}
               key={vault.vaultAddress}
               index={index + 1}

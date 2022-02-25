@@ -1,5 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { FoxyManager } from 'features/defi/providers/foxy/components/FoxyManager/FoxyManager'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -11,11 +12,13 @@ export enum DefiType {
   Pool = 'pool',
   Vault = 'vault',
   Staking = 'staking',
-  Farming = 'farming'
+  Farming = 'farming',
+  TokenStaking = 'token staking'
 }
 
 export enum DefiProvider {
-  Yearn = 'yearn'
+  Yearn = 'yearn',
+  FOXy = 'foxy'
 }
 
 export enum DefiAction {
@@ -48,7 +51,8 @@ type DefiManagerContextProps = {
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 
 const DefiModules = {
-  [DefiProvider.Yearn]: YearnManager
+  [DefiProvider.Yearn]: YearnManager,
+  [DefiProvider.FOXy]: FoxyManager
 }
 
 export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
@@ -61,7 +65,7 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
         {children}
         {background && (
           <Route
-            path='/defi/:earnType/:provider/:action'
+            path='/defi/:earnType/:provider'
             render={({ match: { params } }) => {
               const { provider } = params
               const Module = DefiModules[provider as DefiProvider]

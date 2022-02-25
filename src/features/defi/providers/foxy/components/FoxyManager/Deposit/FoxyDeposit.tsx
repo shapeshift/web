@@ -24,13 +24,12 @@ import {
   DefiQueryParams
 } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
-import { History, Location } from 'history'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch } from 'react-router-dom'
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -51,16 +50,16 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
+import { FoxyRouteSteps, StatusTextEnum } from '../../FoxyRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
 enum DepositPath {
-  Deposit = '/',
-  Approve = '/approve',
-  ApproveSettings = '/approve/settings',
-  Confirm = '/confirm',
-  ConfirmSettings = '/confirm/settings',
-  Status = '/status'
+  Deposit = '/deposit',
+  Approve = '/deposit/approve',
+  ApproveSettings = '/deposit/approve/settings',
+  Confirm = '/deposit/confirm',
+  ConfirmSettings = '/deposit/confirm/settings',
+  Status = '/deposit/status'
 }
 
 export const routes = [
@@ -74,11 +73,9 @@ export const routes = [
 
 export type YearnDepositProps = {
   api: YearnVaultApi
-  location: Location
-  history: History
 }
 
-export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
+export const FoxyDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -106,6 +103,8 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
+  const memoryHistory = useHistory()
+  const location = useLocation()
   const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
 
   // notify
@@ -201,7 +200,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_DEPOSIT,
           payload: { estimatedGasCrypto }
         })
-        history.push(DepositPath.Confirm)
+        memoryHistory.push(DepositPath.Confirm)
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
@@ -209,7 +208,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
           type: YearnDepositActionType.SET_APPROVE,
           payload: { estimatedGasCrypto }
         })
-        history.push(DepositPath.Approve)
+        memoryHistory.push(DepositPath.Approve)
       }
     } catch (error) {
       console.error('YearnDeposit:handleContinue error:', error)
@@ -252,7 +251,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
         payload: { estimatedGasCrypto }
       })
 
-      history.push(DepositPath.Confirm)
+      memoryHistory.push(DepositPath.Confirm)
     } catch (error) {
       console.error('YearnDeposit:handleApprove error:', error)
       toast({
@@ -283,7 +282,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
         api.getGasPrice()
       ])
       dispatch({ type: YearnDepositActionType.SET_TXID, payload: txid })
-      history.push(DepositPath.Status)
+      memoryHistory.push(DepositPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -607,9 +606,6 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
         throw new Error('Route does not exist')
     }
   }
-  useEffect(() => {
-    console.info(location)
-  }, [location])
 
   if (loading || !asset || !marketData) {
     return (
@@ -628,13 +624,14 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      <YearnRouteSteps routes={routes} />
+      <FoxyRouteSteps routes={routes} />
       <Flex
         flexDir='column'
         width='full'
         minWidth={{ base: 'auto', lg: '450px' }}
         maxWidth={{ base: 'auto', lg: '450px' }}
       >
+        {depositRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>

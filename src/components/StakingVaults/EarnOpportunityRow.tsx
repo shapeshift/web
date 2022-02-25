@@ -11,138 +11,61 @@ import {
   useMediaQuery
 } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { caip19 } from '@shapeshiftoss/caip'
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
-import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { USDC_PRECISION } from 'constants/UsdcPrecision'
-import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/investor-yearn'
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { debounce } from 'lodash'
-import qs from 'qs'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { useHistory, useLocation } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetTeaser } from './AssetTeaser'
 
 type EarnOpportunityRowProps = {
-  isLoaded: boolean
+  isLoaded?: boolean
   index: number
   showTeaser?: boolean
-} & SupportedYearnVault
+  assetId: CAIP19
+  icon?: string
+  onClick: () => void
+} & EarnOpportunityType
 
 export const EarnOpportunityRow = ({
   type,
   provider,
-  vaultAddress,
-  tokenAddress,
-  chain,
-  symbol,
-  name,
-  isLoaded,
+  tvl,
   version,
-  metadata,
   index,
-  underlyingTokenBalance,
-  showTeaser
+  showTeaser,
+  assetId,
+  apy,
+  fiatAmount,
+  onClick
 }: EarnOpportunityRowProps) => {
   const [isLargerThanMd, isLargerThanLg] = useMediaQuery([
     `(min-width: ${breakpoints['md']})`,
     `(min-width: ${breakpoints['lg']})`
   ])
-  const [vault, setVault] = useState<YearnVault | null>(null)
-  const [cryptoAmount, setCryptoAmount] = useState<BigNumber>(bnOrZero(0))
-  const [fiatAmount, setFiatAmount] = useState<BigNumber>(bnOrZero(0))
   const [showPopover, setShowPopover] = useState(false)
-  const { yearn, loading } = useYearn()
-  const history = useHistory()
-  const location = useLocation()
-
-  const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
-  const TVL = bnOrZero(underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString()
-  // asset
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-
-  // account info
-  const chainAdapterManager = useChainAdapters()
-  const chainAdapter = chainAdapterManager.byChain(chain)
-  const {
-    state: { isConnected, wallet },
-    dispatch
-  } = useWallet()
-
-  const handleClick = () => {
-    if (showPopover) return
-    if (isConnected) {
-      history.push({
-        pathname: `/defi/${type}/${provider}/deposit`,
-        search: qs.stringify({
-          chain,
-          contractAddress: vaultAddress,
-          tokenId: tokenAddress
-        }),
-        state: { background: location }
-      })
-    } else {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    }
-  }
-
-  useEffect(() => {
-    ;(async () => {
-      if (!yearn || !wallet || loading) return null
-      try {
-        const _vault = yearn.findByVaultTokenId(vaultAddress)
-        if (_vault) setVault(_vault)
-        const userAddress = await chainAdapter.getAddress({ wallet })
-        // TODO: currently this is hard coded to yearn vaults only.
-        // In the future we should add a hook to get the provider interface by vault provider
-        const [balance, pricePerShare] = await Promise.all([
-          yearn.balance({ vaultAddress, userAddress }),
-          yearn.pricePerShare({ vaultAddress })
-        ])
-        const amount = bnOrZero(balance).div(`1e+${vault?.decimals}`)
-        const price = pricePerShare.div(`1e+${vault?.decimals}`).times(marketData?.price)
-        setCryptoAmount(amount)
-        setFiatAmount(amount.times(price))
-      } catch (error) {
-        console.error('StakingVaultRow useEffect', error)
-      }
-    })()
-  }, [
-    chainAdapter,
-    loading,
-    marketData?.price,
-    tokenAddress,
-    vault?.decimals,
-    vaultAddress,
-    wallet,
-    yearn
-  ])
 
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
-  const hasZeroBalanceAndApy =
-    bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
-
-  if (!asset || !vault || hasZeroBalanceAndApy || !yearn || loading) return null
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const handleClick = () => {
+    if (showPopover) return
+    onClick()
+  }
 
   return (
     <Tr onClick={handleClick} tabIndex={index}>
       {isLargerThanMd && (
         <Td>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!!index}>
             <RawText color='gray.500'>{index}</RawText>
           </Skeleton>
         </Td>
@@ -157,20 +80,20 @@ export const EarnOpportunityRow = ({
                   <FaInfoCircle />
                 </Box>
               </PopoverTrigger>
-              {showPopover && <AssetTeaser assetId={asset.caip19} />}
+              {showPopover && <AssetTeaser assetId={assetId} />}
             </Popover>
           )}
-          <SkeletonCircle isLoaded={isLoaded}>
-            <AssetIcon src={asset?.icon} boxSize='8' />
+          <SkeletonCircle isLoaded={!!asset}>
+            <AssetIcon src={asset.icon} boxSize='8' />
           </SkeletonCircle>
-          <SkeletonText noOfLines={2} isLoaded={isLoaded} flex={1}>
+          <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
             <Stack spacing={0} flex={1}>
               <HStack>
                 <Box
                   position='relative'
                   overflow='hidden'
                   height='20px'
-                  title={`${metadata.displayName} (${version})`}
+                  title={`${asset.name} (${version})`}
                   _after={{
                     content: 'attr(title)',
                     overflow: 'hidden',
@@ -186,7 +109,7 @@ export const EarnOpportunityRow = ({
                     isTruncated
                     display='block'
                     maxWidth='100%'
-                  >{`${metadata.displayName} (${version})`}</RawText>
+                  >{`${asset.name} (${version})`}</RawText>
                 </Box>
               </HStack>
               <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
@@ -197,15 +120,15 @@ export const EarnOpportunityRow = ({
         </HStack>
       </Td>
       <Td display={{ base: 'none', lg: 'table-cell' }}>
-        <Skeleton isLoaded={isLoaded}>
+        <Skeleton isLoaded={!!type}>
           <Tag textTransform='capitalize'>{type}</Tag>
         </Skeleton>
       </Td>
       {isLargerThanMd && (
         <Td>
-          <Skeleton isLoaded={isLoaded}>
+          <Skeleton isLoaded={!!apy}>
             <Tag colorScheme='green'>
-              <Amount.Percent value={bnOrZero(vault?.metadata?.apy?.net_apy).toString()} />
+              <Amount.Percent value={apy ? apy : '0'} />
             </Tag>
           </Skeleton>
         </Td>
@@ -213,16 +136,16 @@ export const EarnOpportunityRow = ({
 
       {isLargerThanLg && (
         <Td borderRightRadius='lg'>
-          <Skeleton isLoaded={isLoaded}>
-            <Amount.Fiat value={TVL} />
+          <Skeleton isLoaded={!!tvl}>
+            <Amount.Fiat value={tvl} />
           </Skeleton>
         </Td>
       )}
       <Td textAlign='right'>
-        <Skeleton isLoaded={isLoaded}>
-          {cryptoAmount.gt(0) ? (
+        <Skeleton isLoaded={!!fiatAmount}>
+          {fiatAmount && bnOrZero(fiatAmount).gt(0) ? (
             <Stack>
-              <Amount.Fiat value={fiatAmount.toString()} color='green.500' />
+              <Amount.Fiat value={fiatAmount} color='green.500' />
             </Stack>
           ) : (
             <RawText>-</RawText>

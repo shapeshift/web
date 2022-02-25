@@ -12,11 +12,10 @@ import {
   DefiQueryParams
 } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
-import { History, Location } from 'history'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch } from 'react-router-dom'
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -36,14 +35,14 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
+import { FoxyRouteSteps, StatusTextEnum } from '../../FoxyRouteSteps'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
 enum WithdrawPath {
-  Withdraw = '/',
-  Confirm = '/confirm',
-  ConfirmSettings = '/confirm/settings',
-  Status = '/status'
+  Withdraw = '/withdraw',
+  Confirm = '/withdraw/confirm',
+  ConfirmSettings = '/withdraw/confirm/settings',
+  Status = '/withdraw/status'
 }
 
 export const routes = [
@@ -55,11 +54,9 @@ export const routes = [
 
 type YearnWithdrawProps = {
   api: YearnVaultApi
-  location: Location
-  history: History
 }
 
-export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) => {
+export const FoxyWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
@@ -84,6 +81,8 @@ export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) =>
   const loading = useSelector(selectPortfolioLoading)
 
   // navigation
+  const memoryHistory = useHistory()
+  const location = useLocation()
   const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
 
   useEffect(() => {
@@ -141,7 +140,8 @@ export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) =>
       type: YearnWithdrawActionType.SET_WITHDRAW,
       payload: { estimatedGasCrypto }
     })
-    history.push(WithdrawPath.Confirm)
+
+    memoryHistory.push(WithdrawPath.Confirm)
   }
 
   const handleConfirm = async () => {
@@ -161,7 +161,7 @@ export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) =>
         api.getGasPrice()
       ])
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      history.push(WithdrawPath.Status)
+      memoryHistory.push(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -433,8 +433,9 @@ export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) =>
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      <YearnRouteSteps routes={routes} />
+      <FoxyRouteSteps routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
+        {withdrawRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

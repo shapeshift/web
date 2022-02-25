@@ -1,6 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import React, { useRef } from 'react'
-import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Staked } from './views/Staked'
@@ -26,10 +26,9 @@ export const StakedModal = ({ assetId }: StakedModalProps) => {
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
           <Switch>
-            <Route
-              path='/'
-              component={(props: RouteComponentProps) => <Staked assetId={assetId} />}
-            />
+            <Route path='/'>
+              <Staked assetId={assetId} />
+            </Route>
           </Switch>
         </MemoryRouter>
       </ModalContent>

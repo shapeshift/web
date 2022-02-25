@@ -30,6 +30,7 @@ export const CosmosActionButtons = ({
       </Button>
       <Button
         isActive={activeAction === StakingAction.Unstake}
+        colorScheme='blue'
         onClick={handleUnstakeClick}
         flexGrow={1}
         variant={activeAction === StakingAction.Stake ? 'ghost' : undefined}

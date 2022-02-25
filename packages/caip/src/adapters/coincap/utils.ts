@@ -3,7 +3,7 @@ import axios from 'axios'
 import fs from 'fs'
 
 import { toCAIP2 } from '../../caip2/caip2'
-import { toCAIP19 } from './../../caip19/caip19'
+import { toCAIP19 } from '../../caip19/caip19'
 
 export type CoinCapCoin = {
   id: string
@@ -42,7 +42,7 @@ export const parseEthData = (data: CoinCapCoin[]) => {
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
 
-  const result = ethCoins.reduce((acc, { id, explorer }) => {
+  return ethCoins.reduce((acc, { id, explorer }) => {
     let tokenId
     if (id !== 'ethereum' && explorer) {
       tokenId = explorer.replace('https://etherscan.io/token/', '').split('#')[0].split('?')[0]
@@ -51,8 +51,6 @@ export const parseEthData = (data: CoinCapCoin[]) => {
     acc[caip19] = id
     return acc
   }, {} as Record<string, string>)
-
-  return result
 }
 
 export const makeBtcData = () => {
@@ -70,7 +68,7 @@ export const makeCosmosHubData = () => {
 }
 
 export const makeOsmosisData = () => {
-  const chain = ChainTypes.Cosmos
+  const chain = ChainTypes.Osmosis
   const network = NetworkTypes.OSMOSIS_MAINNET
   const caip19 = toCAIP19({ chain, network })
   return { [caip19]: 'osmosis' }
@@ -84,7 +82,7 @@ export const parseData = (d: CoinCapCoin[]) => {
     network: NetworkTypes.COSMOSHUB_MAINNET
   })
   const osmosisMainnet = toCAIP2({
-    chain: ChainTypes.Cosmos,
+    chain: ChainTypes.Osmosis,
     network: NetworkTypes.OSMOSIS_MAINNET
   })
   return {

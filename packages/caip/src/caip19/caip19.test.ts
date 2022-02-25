@@ -33,8 +33,8 @@ describe('caip19', () => {
       expect(result).toEqual('cosmos:cosmoshub-4/slip44:118')
     })
 
-    it('can return ibc asset caip 19 for cosmos', () => {
-      const chain = ChainTypes.Cosmos
+    it('can return ibc asset caip 19 for osmosis', () => {
+      const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
       const assetNamespace = AssetNamespace.IBC
       const assetReference = '346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'
@@ -44,8 +44,8 @@ describe('caip19', () => {
       )
     })
 
-    it('can return native asset caip 19 for cosmos', () => {
-      const chain = ChainTypes.Cosmos
+    it('can return native asset caip 19 for osmosis', () => {
+      const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
       const assetNamespace = AssetNamespace.NATIVE
       const assetReference = 'uion'
@@ -53,8 +53,8 @@ describe('caip19', () => {
       expect(result).toEqual('cosmos:osmosis-1/native:uion')
     })
 
-    it('can return cw20 asset caip 19 for cosmos', () => {
-      const chain = ChainTypes.Cosmos
+    it('can return cw20 asset caip 19 for osmosis', () => {
+      const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
       const assetNamespace = AssetNamespace.CW20
       const assetReference = 'canlab'
@@ -62,8 +62,8 @@ describe('caip19', () => {
       expect(result).toEqual('cosmos:osmosis-1/cw20:canlab')
     })
 
-    it('can return cw721 asset caip 19 for cosmos', () => {
-      const chain = ChainTypes.Cosmos
+    it('can return cw721 asset caip 19 for osmosis', () => {
+      const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
       const assetNamespace = AssetNamespace.CW721
       const assetReference = 'osmosiskitty'
@@ -233,7 +233,7 @@ describe('caip19', () => {
     it('can parse a osmosis native token', () => {
       const caip19 = 'cosmos:osmosis-1/slip44:118'
       const { chain, network, assetNamespace, assetReference } = fromCAIP19(caip19)
-      expect(chain).toEqual(ChainTypes.Cosmos)
+      expect(chain).toEqual(ChainTypes.Osmosis)
       expect(network).toEqual(NetworkTypes.OSMOSIS_MAINNET)
       expect(assetNamespace).toBeUndefined()
       expect(assetReference).toBeUndefined()
@@ -243,7 +243,7 @@ describe('caip19', () => {
       const caip19 =
         'cosmos:osmosis-1/ibc:346786EA82F41FE55FAD14BF69AD8BA9B36985406E43F3CB23E6C45A285A9593'
       const { chain, network, assetNamespace, assetReference } = fromCAIP19(caip19)
-      expect(chain).toEqual(ChainTypes.Cosmos)
+      expect(chain).toEqual(ChainTypes.Osmosis)
       expect(network).toEqual(NetworkTypes.OSMOSIS_MAINNET)
       expect(assetNamespace).toEqual(AssetNamespace.IBC)
       expect(assetReference).toEqual(
@@ -254,7 +254,7 @@ describe('caip19', () => {
     it('can parse a osmosis cw20 token', () => {
       const caip19 = 'cosmos:osmosis-1/cw20:canlab'
       const { chain, network, assetNamespace, assetReference } = fromCAIP19(caip19)
-      expect(chain).toEqual(ChainTypes.Cosmos)
+      expect(chain).toEqual(ChainTypes.Osmosis)
       expect(network).toEqual(NetworkTypes.OSMOSIS_MAINNET)
       expect(assetNamespace).toEqual(AssetNamespace.CW20)
       expect(assetReference).toEqual('canlab')
@@ -263,7 +263,7 @@ describe('caip19', () => {
     it('can parse a osmosis cw721 token', () => {
       const caip19 = 'cosmos:osmosis-1/cw721:osmokitty'
       const { chain, network, assetNamespace, assetReference } = fromCAIP19(caip19)
-      expect(chain).toEqual(ChainTypes.Cosmos)
+      expect(chain).toEqual(ChainTypes.Osmosis)
       expect(network).toEqual(NetworkTypes.OSMOSIS_MAINNET)
       expect(assetNamespace).toEqual(AssetNamespace.CW721)
       expect(assetReference).toEqual('osmokitty')
@@ -286,9 +286,9 @@ describe('caip19', () => {
         'fromCAIP19: unsupported cosmos network: invalid'
       )
     })
-    it('errors for invalid cosmos asset namespace', () => {
+    it('errors for invalid osmosis asset namespace', () => {
       expect(() => fromCAIP19('cosmos:osmosis-1/invalid:118')).toThrow(
-        'fromCAIP19: invalid asset namespace invalid on chain cosmos'
+        'fromCAIP19: invalid asset namespace invalid on chain osmosis'
       )
     })
   })

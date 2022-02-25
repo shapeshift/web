@@ -30,55 +30,43 @@ type ToCAIP2Args = {
   network: NetworkTypes
 }
 
-type ToCAIP2 = (args: ToCAIP2Args) => string
-
-export const toCAIP2: ToCAIP2 = ({ chain, network }): string => {
-  const shapeShiftToCAIP2 = {
-    [ChainTypes.Ethereum]: {
-      namespace: ChainNamespace.Ethereum,
-      reference: {
-        [NetworkTypes.MAINNET]: ChainReference.EthereumMainnet,
-        [NetworkTypes.ETH_ROPSTEN]: ChainReference.EthereumRopsten,
-        [NetworkTypes.ETH_RINKEBY]: ChainReference.EthereumRinkeby
-      }
-    },
-    [ChainTypes.Bitcoin]: {
-      namespace: ChainNamespace.Bitcoin,
-      reference: {
-        [NetworkTypes.MAINNET]: ChainReference.BitcoinMainnet,
-        [NetworkTypes.TESTNET]: ChainReference.BitcoinTestnet
-      }
-    },
-    [ChainTypes.Cosmos]: {
-      namespace: ChainNamespace.Cosmos,
-      reference: {
-        [NetworkTypes.COSMOSHUB_MAINNET]: ChainReference.CosmosHubMainnet,
-        [NetworkTypes.COSMOSHUB_VEGA]: ChainReference.CosmosHubVega,
-
-        [NetworkTypes.OSMOSIS_MAINNET]: ChainReference.OsmosisMainnet,
-        [NetworkTypes.OSMOSIS_TESTNET]: ChainReference.OsmosisTestnet
-      }
+const shapeShiftToCAIP2 = Object.freeze({
+  [ChainTypes.Ethereum]: {
+    namespace: ChainNamespace.Ethereum,
+    reference: {
+      [NetworkTypes.MAINNET]: ChainReference.EthereumMainnet,
+      [NetworkTypes.ETH_ROPSTEN]: ChainReference.EthereumRopsten,
+      [NetworkTypes.ETH_RINKEBY]: ChainReference.EthereumRinkeby
     }
-  } as const
+  },
+  [ChainTypes.Bitcoin]: {
+    namespace: ChainNamespace.Bitcoin,
+    reference: {
+      [NetworkTypes.MAINNET]: ChainReference.BitcoinMainnet,
+      [NetworkTypes.TESTNET]: ChainReference.BitcoinTestnet
+    }
+  },
+  [ChainTypes.Cosmos]: {
+    namespace: ChainNamespace.Cosmos,
+    reference: {
+      [NetworkTypes.COSMOSHUB_MAINNET]: ChainReference.CosmosHubMainnet,
+      [NetworkTypes.COSMOSHUB_VEGA]: ChainReference.CosmosHubVega
+    }
+  },
+  [ChainTypes.Osmosis]: {
+    namespace: ChainNamespace.Cosmos,
+    reference: {
+      [NetworkTypes.OSMOSIS_MAINNET]: ChainReference.OsmosisMainnet,
+      [NetworkTypes.OSMOSIS_TESTNET]: ChainReference.OsmosisTestnet
+    }
+  }
+})
 
+export const toCAIP2 = (args: ToCAIP2Args): string => {
+  const { chain, network } = args
   const namespace: ChainNamespace = shapeShiftToCAIP2[chain].namespace
 
   switch (chain) {
-    case ChainTypes.Cosmos: {
-      const referenceMap = shapeShiftToCAIP2[chain].reference
-      switch (network) {
-        case NetworkTypes.COSMOSHUB_MAINNET:
-        case NetworkTypes.COSMOSHUB_VEGA:
-        case NetworkTypes.OSMOSIS_MAINNET:
-        case NetworkTypes.OSMOSIS_TESTNET: {
-          const reference: ChainReference = referenceMap[network]
-          const caip2 = `${namespace}:${reference}`
-          return caip2
-        }
-      }
-      break
-    }
-
     case ChainTypes.Ethereum: {
       const referenceMap = shapeShiftToCAIP2[chain].reference
       switch (network) {
@@ -86,23 +74,43 @@ export const toCAIP2: ToCAIP2 = ({ chain, network }): string => {
         case NetworkTypes.ETH_ROPSTEN:
         case NetworkTypes.ETH_RINKEBY: {
           const reference: ChainReference = referenceMap[network]
-          const caip2 = `${namespace}:${reference}`
-          return caip2
+          return `${namespace}:${reference}`
         }
       }
       break
     }
-
     case ChainTypes.Bitcoin: {
       const referenceMap = shapeShiftToCAIP2[chain].reference
       switch (network) {
         case NetworkTypes.MAINNET:
         case NetworkTypes.TESTNET: {
           const reference: ChainReference = referenceMap[network]
-          const caip2 = `${namespace}:${reference}`
-          return caip2
+          return `${namespace}:${reference}`
         }
       }
+      break
+    }
+    case ChainTypes.Cosmos: {
+      const referenceMap = shapeShiftToCAIP2[chain].reference
+      switch (network) {
+        case NetworkTypes.COSMOSHUB_MAINNET:
+        case NetworkTypes.COSMOSHUB_VEGA: {
+          const reference: ChainReference = referenceMap[network]
+          return `${namespace}:${reference}`
+        }
+      }
+      break
+    }
+    case ChainTypes.Osmosis: {
+      const referenceMap = shapeShiftToCAIP2[chain].reference
+      switch (network) {
+        case NetworkTypes.OSMOSIS_MAINNET:
+        case NetworkTypes.OSMOSIS_TESTNET: {
+          const reference: ChainReference = referenceMap[network]
+          return `${namespace}:${reference}`
+        }
+      }
+      break
     }
   }
 
@@ -126,20 +134,16 @@ export const fromCAIP2: FromCAIP2 = (caip2) => {
       const chain = ChainTypes.Cosmos
       switch (n) {
         case ChainReference.CosmosHubMainnet: {
-          const network = NetworkTypes.COSMOSHUB_MAINNET
-          return { chain, network }
+          return { chain, network: NetworkTypes.COSMOSHUB_MAINNET }
         }
         case ChainReference.CosmosHubVega: {
-          const network = NetworkTypes.COSMOSHUB_VEGA
-          return { chain, network }
+          return { chain, network: NetworkTypes.COSMOSHUB_VEGA }
         }
         case ChainReference.OsmosisMainnet: {
-          const network = NetworkTypes.OSMOSIS_MAINNET
-          return { chain, network }
+          return { chain: ChainTypes.Osmosis, network: NetworkTypes.OSMOSIS_MAINNET }
         }
         case ChainReference.OsmosisTestnet: {
-          const network = NetworkTypes.OSMOSIS_TESTNET
-          return { chain, network }
+          return { chain: ChainTypes.Osmosis, network: NetworkTypes.OSMOSIS_TESTNET }
         }
         default: {
           throw new Error(`fromCAIP19: unsupported ${c} network: ${n}`)
@@ -201,6 +205,8 @@ export const isCAIP2: IsCAIP2 = (caip2) => {
       switch (n) {
         case ChainReference.CosmosHubMainnet:
         case ChainReference.CosmosHubVega:
+        case ChainReference.OsmosisMainnet:
+        case ChainReference.OsmosisTestnet:
           return true
       }
       break
@@ -221,6 +227,7 @@ export const isCAIP2: IsCAIP2 = (caip2) => {
         case ChainReference.BitcoinTestnet:
           return true
       }
+      break
     }
   }
 

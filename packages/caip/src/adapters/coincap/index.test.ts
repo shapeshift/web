@@ -1,6 +1,6 @@
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { toCAIP19 } from './../../caip19/caip19'
+import { toCAIP19 } from '../../caip19/caip19'
 import { CAIP19ToCoinCap, coincapToCAIP19 } from '.'
 
 describe('coincap adapter', () => {
@@ -37,7 +37,7 @@ describe('coincap adapter', () => {
   })
 
   it('can get CAIP19 for osmosis', () => {
-    const chain = ChainTypes.Cosmos
+    const chain = ChainTypes.Osmosis
     const network = NetworkTypes.OSMOSIS_MAINNET
     const caip19 = toCAIP19({ chain, network })
     expect(coincapToCAIP19('osmosis')).toEqual(caip19)
@@ -75,7 +75,7 @@ describe('coincap adapter', () => {
     })
 
     it('can get coincap id for osmosis CAIP19', () => {
-      const chain = ChainTypes.Cosmos
+      const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
       const caip19 = toCAIP19({ chain, network })
       expect(CAIP19ToCoinCap(caip19)).toEqual('osmosis')

@@ -11,11 +11,25 @@ describe('caip2', () => {
       expect(result).toEqual('cosmos:cosmoshub-4')
     })
 
-    it('can turn Osmosis mainnet to caip2', () => {
+    it('can turn CosmosHub testnet to caip2', () => {
       const chain = ChainTypes.Cosmos
+      const network = NetworkTypes.COSMOSHUB_VEGA
+      const result = toCAIP2({ chain, network })
+      expect(result).toEqual('cosmos:vega-testnet')
+    })
+
+    it('can turn Osmosis mainnet to caip2', () => {
+      const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
       const result = toCAIP2({ chain, network })
       expect(result).toEqual('cosmos:osmosis-1')
+    })
+
+    it('can turn Osmosis testnet to caip2', () => {
+      const chain = ChainTypes.Osmosis
+      const network = NetworkTypes.OSMOSIS_TESTNET
+      const result = toCAIP2({ chain, network })
+      expect(result).toEqual('cosmos:osmo-testnet-1')
     })
 
     it('can turn Ethereum mainnet to caip2', () => {
@@ -25,11 +39,32 @@ describe('caip2', () => {
       expect(result).toEqual('eip155:1')
     })
 
+    it('can turn Ethereum testnet to caip2', () => {
+      const chain = ChainTypes.Ethereum
+      const network = NetworkTypes.ETH_ROPSTEN
+      const result = toCAIP2({ chain, network })
+      expect(result).toEqual('eip155:3')
+    })
+
     it('can turn Bitcoin mainnet to caip2', () => {
       const chain = ChainTypes.Bitcoin
       const network = NetworkTypes.MAINNET
       const result = toCAIP2({ chain, network })
       expect(result).toEqual('bip122:000000000019d6689c085ae165831e93')
+    })
+
+    it('can turn Bitcoin testnet to caip2', () => {
+      const chain = ChainTypes.Bitcoin
+      const network = NetworkTypes.TESTNET
+      const result = toCAIP2({ chain, network })
+      expect(result).toEqual('bip122:000000000933ea01ad0ee984209779ba')
+    })
+
+    it('should throw an error for an invalid chain', () => {
+      // @ts-ignore
+      expect(() => toCAIP2({ chain: ChainTypes.Osmosis, network: NetworkTypes.MAINNET })).toThrow(
+        'unsupported'
+      )
     })
   })
 
@@ -91,14 +126,14 @@ describe('caip2', () => {
     it('can turn Osmosis mainnet to chain and network', () => {
       const osmosisCaip2 = 'cosmos:osmosis-1'
       const { chain, network } = fromCAIP2(osmosisCaip2)
-      expect(chain).toEqual(ChainTypes.Cosmos)
+      expect(chain).toEqual(ChainTypes.Osmosis)
       expect(network).toEqual(NetworkTypes.OSMOSIS_MAINNET)
     })
 
     it('can turn Osmosis testnet to chain and network', () => {
       const osmosisCaip2 = 'cosmos:osmo-testnet-1'
       const { chain, network } = fromCAIP2(osmosisCaip2)
-      expect(chain).toEqual(ChainTypes.Cosmos)
+      expect(chain).toEqual(ChainTypes.Osmosis)
       expect(network).toEqual(NetworkTypes.OSMOSIS_TESTNET)
     })
 
@@ -134,47 +169,42 @@ describe('caip2', () => {
       expect(chain).toEqual(ChainTypes.Ethereum)
       expect(network).toEqual(NetworkTypes.ETH_RINKEBY)
     })
+
+    it('should throw when there is no network reference', () => {
+      expect(() => fromCAIP2('bip122')).toThrow('error parsing')
+      expect(() => fromCAIP2(':1')).toThrow('error parsing')
+      expect(() => fromCAIP2(':')).toThrow('error parsing')
+    })
   })
 })
 
 describe('isCAIP2', () => {
-  it('throws on eip155', () => {
-    // missing network
+  it('throws on eip155 without a network reference', () => {
     expect(() => isCAIP2('eip155')).toThrow()
   })
 
-  it('validates eip155:1 as true', () => {
-    // mainnet
-    expect(isCAIP2('eip155:1')).toBeTruthy()
+  it('validates eip155:1 mainnet as true', () => {
+    expect(isCAIP2('eip155:1')).toBe(true)
   })
 
-  it('throws on eip155:2', () => {
-    // doesn't exist
+  it('throws on eip155:2 invalid network reference', () => {
     expect(() => isCAIP2('eip155:2')).toThrow()
   })
 
-  it('validates eip155:3 as true', () => {
-    // ropsten
-    expect(isCAIP2('eip155:3')).toBeTruthy()
+  it('validates ethereum testnets as true', () => {
+    expect(isCAIP2('eip155:3')).toBe(true)
+    expect(isCAIP2('eip155:4')).toBe(true)
   })
 
-  it('validates eip155:4 as true', () => {
-    // rinkeby
-    expect(isCAIP2('eip155:4')).toBeTruthy()
+  it('validates bip122:000000000019d6689c085ae165831e93 mainnet as true', () => {
+    expect(isCAIP2('bip122:000000000019d6689c085ae165831e93')).toBe(true)
   })
 
-  it('validates bip122:000000000019d6689c085ae165831e93 as true', () => {
-    // mainnet
-    expect(isCAIP2('bip122:000000000019d6689c085ae165831e93')).toBeTruthy()
+  it('validates bip122:000000000933ea01ad0ee984209779ba testnet as true', () => {
+    expect(isCAIP2('bip122:000000000933ea01ad0ee984209779ba')).toBe(true)
   })
 
-  it('validates bip122:000000000933ea01ad0ee984209779ba as true', () => {
-    // testnet
-    expect(isCAIP2('bip122:000000000933ea01ad0ee984209779ba')).toBeTruthy()
-  })
-
-  it('throws on bip122:1', () => {
-    // wrong network
+  it('throws on bip122 with the wrong network reference', () => {
     expect(() => isCAIP2('bip122:1')).toThrow()
   })
 
@@ -186,5 +216,19 @@ describe('isCAIP2', () => {
   it('throws on empty string', () => {
     // missing network
     expect(() => isCAIP2('')).toThrow()
+  })
+
+  it('should return true for cosmos', () => {
+    expect(isCAIP2('cosmos:cosmoshub-4')).toBe(true)
+    expect(isCAIP2('cosmos:vega-testnet')).toBe(true)
+  })
+
+  it('should return true for osmosis', () => {
+    expect(isCAIP2('cosmos:osmosis-1')).toBe(true)
+    expect(isCAIP2('cosmos:osmo-testnet-1')).toBe(true)
+  })
+
+  it('should throw for an unknown cosmos chain', () => {
+    expect(() => isCAIP2('cosmos:fakechain-1')).toThrow('invalid')
   })
 })

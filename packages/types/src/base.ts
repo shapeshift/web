@@ -22,7 +22,8 @@ export enum ContractTypes {
 export enum ChainTypes {
   Ethereum = 'ethereum',
   Bitcoin = 'bitcoin',
-  Cosmos = 'cosmos'
+  Cosmos = 'cosmos',
+  Osmosis = 'osmosis'
 }
 
 export enum NetworkTypes {

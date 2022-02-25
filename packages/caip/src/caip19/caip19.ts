@@ -2,7 +2,7 @@
 
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { fromCAIP2, toCAIP2 } from './../caip2/caip2'
+import { fromCAIP2, toCAIP2 } from '../caip2/caip2'
 
 export type CAIP19 = string
 
@@ -46,7 +46,8 @@ export const toCAIP19: ToCAIP19 = ({
   switch (chain) {
     // TODO: There is no chain-level fungible token standard in Cosmos SDK, but CosmWasm chains have CW20/CW721
     // This should be implemented when we want to support tokens for Cosmos SDK chains
-    case ChainTypes.Cosmos: {
+    case ChainTypes.Cosmos:
+    case ChainTypes.Osmosis: {
       if (!assetNamespace || !assetReference) {
         return `${caip2}/${AssetNamespace.Slip44}:${AssetReference.Cosmos}`
       }
@@ -183,6 +184,7 @@ export const fromCAIP19: FromCAIP19 = (caip19) => {
         }
       }
     }
+    case ChainTypes.Osmosis:
     case ChainTypes.Cosmos: {
       switch (namespace) {
         case AssetNamespace.Slip44: {

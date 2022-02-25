@@ -3,7 +3,7 @@ import axios from 'axios'
 import fs from 'fs'
 
 import { toCAIP2 } from '../../caip2/caip2'
-import { toCAIP19 } from './../../caip19/caip19'
+import { toCAIP19 } from '../../caip19/caip19'
 
 export type CoingeckoCoin = {
   id: string
@@ -34,14 +34,12 @@ export const parseEthData = (data: CoingeckoCoin[]) => {
   const network = NetworkTypes.MAINNET
   const contractType = ContractTypes.ERC20
 
-  const result = ethCoins.reduce((acc, { id, platforms }) => {
+  return ethCoins.reduce((acc, { id, platforms }) => {
     const tokenId = platforms?.ethereum
     const caip19 = toCAIP19({ chain, network, ...(tokenId ? { contractType, tokenId } : {}) })
     acc[caip19] = id
     return acc
   }, {} as Record<string, string>)
-
-  return result
 }
 
 export const makeBtcData = () => {
@@ -59,7 +57,7 @@ export const makeCosmosHubData = () => {
 }
 
 export const makeOsmosisData = () => {
-  const chain = ChainTypes.Cosmos
+  const chain = ChainTypes.Osmosis
   const network = NetworkTypes.OSMOSIS_MAINNET
   const caip19 = toCAIP19({ chain, network })
   return { [caip19]: 'osmosis' }
@@ -73,7 +71,7 @@ export const parseData = (d: CoingeckoCoin[]) => {
     network: NetworkTypes.COSMOSHUB_MAINNET
   })
   const osmosisMainnet = toCAIP2({
-    chain: ChainTypes.Cosmos,
+    chain: ChainTypes.Osmosis,
     network: NetworkTypes.OSMOSIS_MAINNET
   })
   return {

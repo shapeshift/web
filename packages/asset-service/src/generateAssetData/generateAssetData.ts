@@ -1,6 +1,7 @@
 import 'dotenv/config'
 
 import fs from 'fs'
+import orderBy from 'lodash/orderBy'
 
 import { atom, bitcoin, tBitcoin, tEthereum } from './baseAssets'
 import { getOsmosisAssets } from './cosmos/getOsmosisAssets'
@@ -10,7 +11,10 @@ const generateAssetData = async () => {
   const ethereum = await addTokensToEth()
   const osmosisAssets = await getOsmosisAssets()
 
-  const generatedAssetData = [bitcoin, tBitcoin, ethereum, tEthereum, atom, ...osmosisAssets]
+  const generatedAssetData = orderBy(
+    [bitcoin, tBitcoin, ethereum, tEthereum, atom, ...osmosisAssets],
+    'caip19'
+  )
 
   await fs.promises.writeFile(
     `./src/service/generatedAssetData.json`,

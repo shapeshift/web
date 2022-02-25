@@ -1,6 +1,8 @@
 import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
+
 type AssetList = {
   description: string
   denom_units: {
@@ -46,7 +48,7 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
       assetReference = current.base.split('/')[1]
     }
 
-    acc.push({
+    const assetDatum = {
       caip19: `cosmos:osmosis-1/${assetNamespace}:${assetReference}`,
       caip2: 'cosmos:osmosis-1',
       chain: ChainTypes.Cosmos,
@@ -64,7 +66,27 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
       explorerTxLink: 'https://mintscan.io/cosmos/txs/',
       sendSupport: true,
       receiveSupport: true
-    })
+    }
+
+    if (!assetDatum.icon) {
+      const options: IdenticonOptions = {
+        identiconImage: {
+          size: 128,
+          background: [45, 55, 72, 255]
+        },
+        identiconText: {
+          symbolScale: 7,
+          enableShadow: true
+        }
+      }
+      assetDatum.icon = getRenderedIdenticonBase64(
+        assetDatum.caip19,
+        assetDatum.symbol.substring(0, 3),
+        options
+      )
+    }
+
+    acc.push(assetDatum)
     return acc
   }, [])
 }

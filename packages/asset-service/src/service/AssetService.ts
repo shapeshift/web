@@ -2,6 +2,7 @@ import { Asset, AssetDataSource, BaseAsset, ChainTypes, NetworkTypes } from '@sh
 import axios from 'axios'
 
 import assetsDescriptions from './descriptions.json'
+import { getRenderedIdenticonBase64, IdenticonOptions } from './GenerateAssetIcon'
 import localAssetData from './generatedAssetData.json'
 
 export const flattenAssetData = (assetData: BaseAsset[]): Asset[] => {
@@ -153,5 +154,13 @@ export class AssetService {
     } catch (e) {
       throw new Error(errorMessage)
     }
+  }
+
+  async generateAssetIconBase64(
+    identity: string,
+    text?: string,
+    options?: IdenticonOptions
+  ): Promise<string> {
+    return getRenderedIdenticonBase64(identity, text, options)
   }
 }

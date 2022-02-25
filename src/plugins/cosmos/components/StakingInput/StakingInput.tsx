@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/layout'
+import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Input, InputLeftElement, Tag } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/views/Stake'
@@ -56,21 +56,14 @@ export const StakingInput = ({
   control,
   isCryptoField,
   onInputToggle,
-  onInputChange
-}: StakingInputProps) => {
+  onInputChange,
+  ...styleProps
+}: StakingInputProps & FlexProps) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   return (
-    <Flex
-      height='40px'
-      width='100%'
-      px='8px'
-      py='8px'
-      bgColor='gray.850'
-      borderRadius='12px'
-      alignItems='center'
-    >
+    <Flex bgColor='gray.850' borderRadius='12px' alignItems='center' {...styleProps}>
       <InputLeftElement pos='relative' ml={1} width='auto'>
         <Tag as='button' onClick={onInputToggle} color='gray.500' bgColor='gray.700' mr='12px'>
           {isCryptoField ? asset.symbol : 'USD'}

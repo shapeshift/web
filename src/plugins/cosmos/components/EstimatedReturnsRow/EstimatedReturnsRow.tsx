@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/layout'
 import { Amount } from 'components/Amount/Amount'
-import { Row } from 'components/Row/Row'
+import { Row, RowProps } from 'components/Row/Row'
 import { Text } from 'components/Text'
 
 type EstimatedReturnsRowProps = {
@@ -11,9 +11,10 @@ type EstimatedReturnsRowProps = {
 export const EstimatedReturnsRow = ({
   assetSymbol,
   cryptoYield,
-  fiatYield
-}: EstimatedReturnsRowProps) => (
-  <Row px={4} py={4}>
+  fiatYield,
+  ...styleProps
+}: EstimatedReturnsRowProps & RowProps) => (
+  <Row {...styleProps}>
     <Row.Label>
       <Text translation='modals.deposit.estimatedReturns' />
     </Row.Label>

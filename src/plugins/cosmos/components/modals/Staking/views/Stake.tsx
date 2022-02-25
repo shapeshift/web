@@ -161,8 +161,18 @@ export const Stake = ({
           alignItems='center'
           justifyContent='space-between'
         >
-          <CosmosActionButtons />
+          <CosmosActionButtons
+            width='100%'
+            px='6px'
+            py='6px'
+            bgColor='gray.850'
+            borderRadius='12px'
+          />
           <AssetHoldingsCard
+            size='sm'
+            py='8px'
+            width='full'
+            my={6}
             assetSymbol={asset.symbol}
             assetName={asset.name}
             cryptoAmountAvailable={cryptoAmountAvailable}
@@ -170,6 +180,9 @@ export const Stake = ({
           />
           <FormControl>
             <AmountToStake
+              width='100%'
+              justifyContent='space-between'
+              alignItems='flex-start'
               values={values}
               isCryptoField={activeField === InputType.Crypto}
               asset={asset}
@@ -184,6 +197,10 @@ export const Stake = ({
               spacing={0}
             >
               <StakingInput
+                height='40px'
+                width='100%'
+                px='8px'
+                py='8px'
                 isCryptoField={activeField === InputType.Crypto}
                 amountRef={amountRef.current}
                 asset={asset}
@@ -191,8 +208,14 @@ export const Stake = ({
                 onInputChange={handleInputChange}
                 control={control}
               />
-              <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
+              <PercentOptionsRow
+                width='100%'
+                onPercentClick={handlePercentClick}
+                percent={percent}
+              />
               <EstimatedReturnsRow
+                px={4}
+                py={4}
                 assetSymbol={asset.symbol}
                 cryptoYield={cryptoYield}
                 fiatYield={fiatYield}

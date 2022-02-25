@@ -3,7 +3,7 @@ import { Text as CText } from '@chakra-ui/react'
 import osmosis from 'assets/osmosis.svg'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Card } from 'components/Card/Card'
+import { Card, CardProps } from 'components/Card/Card'
 
 type AssetHoldingsCardProps = {
   assetSymbol: string
@@ -16,9 +16,10 @@ export const AssetHoldingsCard = ({
   assetSymbol,
   assetName,
   cryptoAmountAvailable,
-  fiatAmountAvailable
-}: AssetHoldingsCardProps) => (
-  <Card size='sm' py='8px' width='full' variant='group' my={6}>
+  fiatAmountAvailable,
+  ...styleProps
+}: AssetHoldingsCardProps & CardProps) => (
+  <Card variant='group' {...styleProps}>
     <Card.Body>
       <Flex alignItems='center'>
         <AssetIcon src={osmosis} boxSize='40px' />

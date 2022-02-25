@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/layout'
+import { Box, Flex, FlexProps } from '@chakra-ui/layout'
 import { FormLabel } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
@@ -17,9 +17,10 @@ export const AmountToStake = ({
   onInputToggle,
   isCryptoField,
   values,
-  asset
-}: AmountToStakeProps) => (
-  <Flex width='100%' justifyContent='space-between' alignItems='flex-start'>
+  asset,
+  ...styleProps
+}: AmountToStakeProps & FlexProps) => (
+  <Flex {...styleProps}>
     <FormLabel lineHeight={1} color='gray.500'>
       <Text translation='defi.amountToStake' />
     </FormLabel>

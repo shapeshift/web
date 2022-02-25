@@ -1,17 +1,17 @@
-import { Flex } from '@chakra-ui/layout'
+import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
-export const CosmosActionButtons = () => {
+export const CosmosActionButtons = (styleProps: FlexProps) => {
   const { cosmosStaking } = useModal()
 
   const handleUnstakeClick = () => {
     cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Unstake })
   }
   return (
-    <Flex width='100%' px='6px' py='6px' bgColor='gray.850' borderRadius='12px'>
+    <Flex {...styleProps}>
       <Button
         flexGrow={1}
         colorScheme='blue'

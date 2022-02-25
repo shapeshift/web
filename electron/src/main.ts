@@ -83,9 +83,13 @@ appExpress.use(bodyParser.json())
 
 //DB persistence
 
-const dbPath = path.join(__dirname, './.KeepKey/db')
+const dbDirPath = path.join(__dirname, '../.KeepKey')
+const dbPath = path.join(dbDirPath, './db')
 
-if (!fs.existsSync(dbPath)) fs.closeSync(fs.openSync(dbPath, 'w'))
+if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbDirPath)
+    fs.closeSync(fs.openSync(dbPath, 'w'))
+}
 
 const Datastore = require('nedb')
     , db = new Datastore({ filename: dbPath, autoload: true });

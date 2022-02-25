@@ -16,6 +16,11 @@ export const CosmosActionButtons = ({
   const handleUnstakeClick = () => {
     cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Unstake })
   }
+
+  const handleStakeClick = () => {
+    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Stake })
+  }
+
   return (
     <Flex {...styleProps}>
       <Button
@@ -23,7 +28,7 @@ export const CosmosActionButtons = ({
         colorScheme='blue'
         isActive={activeAction === StakingAction.Stake}
         variant={activeAction === StakingAction.Unstake ? 'ghost' : undefined}
-        onClick={() => 'onClick'}
+        onClick={handleStakeClick}
         isDisabled={false}
       >
         <Text translation={'defi.stake'} fontWeight='bold' color='white' />

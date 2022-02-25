@@ -32,7 +32,7 @@ export const PercentOptionsRow = ({
               value={option}
               options={{
                 minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
+                maximumFractionDigits: 0
               }}
             />
           )}

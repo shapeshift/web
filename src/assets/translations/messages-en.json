@@ -116,6 +116,7 @@
       }
     },
     "amountToStake": "Amount to Stake",
+    "amountToUnstake": "Amount to Unstake",
     "staked": "Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
@@ -166,7 +167,10 @@
     }
   },
   "staking": {
-    "staking": "Staking"
+    "staking": "Staking",
+    "itWillTake": "It will take",
+    "toUnlock": "to unlock your Osmo after you unstake. Staking rewards will need to withdrawn separately.",
+    "assetStakingBalance": "%{assetName} Staking Balance"
   },
   "navBar": {
     "dashboard": "Dashboard",

@@ -131,6 +131,19 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           setPercentChange={setPercentChange}
         />
       </Box>
+      <Skeleton isLoaded={isLoaded} display={{ base: 'block', md: 'none' }}>
+        <TimeControls
+          onChange={setTimeframe}
+          defaultTime={timeframe}
+          buttonGroupProps={{
+            display: 'flex',
+            width: 'full',
+            justifyContent: 'space-between',
+            px: 6,
+            py: 4
+          }}
+        />
+      </Skeleton>
     </Card>
   )
 }

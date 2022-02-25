@@ -174,7 +174,6 @@
     "asar": true,
     "extends": null,
     "mac": {
-      "type": "distribution",
       "hardenedRuntime": true,
       "category": "public.app-category.finance",
       "icon": "electron/icon.png",

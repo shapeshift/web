@@ -1,5 +1,6 @@
 import { Flex } from '@chakra-ui/layout'
 import { Image } from '@chakra-ui/react'
+import dayjs from 'dayjs'
 import pending from 'assets/pending.svg'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
@@ -9,7 +10,7 @@ type UnbondingRowProps = {
   assetSymbol: string
   cryptoUnbondedAmount: BigNumber
   fiatRate: BigNumber
-  unbondingEnd: string // TODO: use timestamp and convert it to "x hours/days"
+  unbondingEnd: number
 }
 
 export const UnbondingRow = ({
@@ -31,7 +32,10 @@ export const UnbondingRow = ({
       <Image src={pending} width='40px' height='40px' mr='10px' />
       <Flex direction='column'>
         <Text translation={'defi.unstaking'} fontWeight='bold' color='white' />
-        <Text translation={['defi.availableIn', { unbondingEnd }]} color='gray.500' />
+        <Text
+          translation={['defi.available', { unbondingEnd: dayjs().to(dayjs.unix(unbondingEnd)) }]}
+          color='gray.500'
+        />
       </Flex>
     </Flex>
     <Flex direction='column' alignItems='flex-end'>

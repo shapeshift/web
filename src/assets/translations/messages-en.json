@@ -123,7 +123,7 @@
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",
-    "availableIn": "Available in %{unbondingEnd}",
+    "available": "Available %{unbondingEnd}",
     "earn": "Earn",
     "asset": "Asset",
     "category": "Category",
@@ -379,7 +379,8 @@
       "continue": "View Transaction",
       "position": "View Position",
       "viewAsset": "View Asset",
-      "close": "Close"
+      "close": "Close",
+      "viewExplorer": "View in Explorer"
     },
     "connect": {
       "loadingText": "Pairing Wallet"

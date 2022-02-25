@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.20.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.19.3...@shapeshiftoss/asset-service-v1.20.0) (2022-02-25)
+
+
+### Features
+
+* identicon asset icons for missing icons ([#400](https://github.com/shapeshift/lib/issues/400)) ([cbe5351](https://github.com/shapeshift/lib/commit/cbe53510fc56f6b0c16956a66ad5291c4c333728))
+
 # [@shapeshiftoss/asset-service-v1.19.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.19.2...@shapeshiftoss/asset-service-v1.19.3) (2022-02-22)
 
 

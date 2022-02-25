@@ -9,7 +9,7 @@ import {
   useStyles
 } from '@chakra-ui/react'
 
-export type RowProps = BoxProps & ThemingProps & Pick<ButtonProps, 'colorScheme'>
+type RowProps = BoxProps & ThemingProps & Pick<ButtonProps, 'colorScheme'>
 
 export const Row = (props: RowProps) => {
   const { size, variant, colorScheme, children, ...rest } = props

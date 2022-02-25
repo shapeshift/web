@@ -24,20 +24,18 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Prepare for app notarization
-        if: startsWith(matrix.os, 'macos')
-        # Import Apple API key for app notarization on macOS
-        run: |
-          mkdir -p ~/private_keys/
-          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-          if [ -d "~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8" ]; then echo "Directory exists"; else echo "Directory does not exist"; fi
       - name: Install deps
         run: yarn
       - name: Save env vars
         run: echo "${{ secrets.DOTENV_VARS }}" >> .env
       - name: Build UI
         run: yarn build:ui
-      
+      - name: Prepare for app notarization
+        if: startsWith(matrix.os, 'macos')
+        # Import Apple API key for app notarization on macOS
+        run: |
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:

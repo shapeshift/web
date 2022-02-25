@@ -35,9 +35,9 @@ export const UnbondingRow = ({
       </Flex>
     </Flex>
     <Flex direction='column' alignItems='flex-end'>
-      <Text
-        translation={cryptoUnbondedAmount.times(fiatRate).toPrecision()}
-        fontWeight='bold'
+      <Amount.Fiat
+        fontWeight='light'
+        value={cryptoUnbondedAmount.times(fiatRate).toPrecision()}
         color='white'
       />
       <Amount.Crypto

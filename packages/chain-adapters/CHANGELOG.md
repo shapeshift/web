@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.35.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.34.0...@shapeshiftoss/chain-adapters-v1.35.0) (2022-02-25)
+
+
+### Features
+
+* add metadata to transaction WebSocket messages ([#396](https://github.com/shapeshift/lib/issues/396)) ([7f6ccf3](https://github.com/shapeshift/lib/commit/7f6ccf35c9f31044e74cb77c869e0126618f4fb9))
+
 # [@shapeshiftoss/chain-adapters-v1.34.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.33.2...@shapeshiftoss/chain-adapters-v1.34.0) (2022-02-23)
 
 

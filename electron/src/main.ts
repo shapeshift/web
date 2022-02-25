@@ -74,14 +74,21 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import { Server } from 'http'
+import fs from 'fs'
+
 const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: false }))
 appExpress.use(bodyParser.json())
 
 //DB persistence
+
+const dbPath = path.join(__dirname, './.KeepKey/db')
+
+if (!fs.existsSync(dbPath)) fs.closeSync(fs.openSync(dbPath, 'w'))
+
 const Datastore = require('nedb')
-    , db = new Datastore({ filename: './.KeepKey/db', autoload: true });
+    , db = new Datastore({ filename: dbPath, autoload: true });
 
 const TAG = ' | KK-MAIN | '
 
@@ -486,6 +493,10 @@ ipcMain.on('onBalanceInfo', async (event, data) => {
         log.error('e: ', e)
         log.error(tag, e)
     }
+})
+
+ipcMain.on("@app/version", (event, _data) => {
+    event.sender.send("@app/version", app.getVersion());
 })
 
 const skipUpdateCheck = (splash: BrowserWindow) => {

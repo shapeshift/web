@@ -854,8 +854,13 @@ ipcMain.on('onStartApp', async (event, data) => {
                 //get version
             }
 
-            let result = await usb.findByIds(11044,1)
-            if(result){
+            let resultPreWebUsb = await usb.findByIds(11044,1)
+            if(resultPreWebUsb){
+                log.info(tag,"update required!")
+            }
+
+            let resultUpdater = await usb.findByIds(11044,1)
+            if(resultUpdater){
                 log.info(tag,"UPDATER MODE DETECTED!")
             }
         }catch(e){

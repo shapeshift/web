@@ -1,9 +1,17 @@
+import { CAIP2 } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter, Route, Switch, useParams } from 'react-router-dom'
 import { TradeActions } from 'components/Trade/hooks/useSwapper/useSwapper'
 
 import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
+
+export interface MatchParams {
+  chainId: CAIP2
+  assetSubId: string
+  assetId: string
+  accountId: string
+}
 
 export type TradeAsset = {
   currency: Asset
@@ -36,12 +44,17 @@ export const Trade = () => {
       fiatAmount: undefined
     }
   })
-
+  const match = useParams<MatchParams>()
+  const assetId = !match.accountId
+    ? `${match?.chainId}/${match?.assetSubId}`
+    : `${decodeURIComponent(match?.assetId)}`
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={entries}>
         <Switch>
-          <Route path='/' component={TradeRoutes} />
+          <Route path='/'>
+            <TradeRoutes assetId={assetId} />
+          </Route>
         </Switch>
       </MemoryRouter>
     </FormProvider>

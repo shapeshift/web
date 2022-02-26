@@ -1,10 +1,8 @@
 import { Flex } from '@chakra-ui/react'
 import type { CAIP2 } from '@shapeshiftoss/caip'
-import { caip19 } from '@shapeshiftoss/caip'
-import { matchPath } from 'react-router-dom'
+import { Route, useParams } from 'react-router-dom'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetByCAIP19,
@@ -22,12 +20,8 @@ export interface MatchParams {
 export const useAsset = () => {
   const dispatch = useAppDispatch()
 
-  const { location } = useBrowserRouter<{}, MatchParams>()
-  const match = matchPath<MatchParams>(location.pathname, {
-    path: '/assets/:chainId/:assetSubId',
-    exact: true
-  })
-  const assetId = `${match?.params.chainId}/${match?.params.assetSubId}`
+  const match = useParams<MatchParams>()
+  const assetId = `${match?.chainId}/${match?.assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

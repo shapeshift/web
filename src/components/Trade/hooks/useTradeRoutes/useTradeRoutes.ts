@@ -3,13 +3,15 @@ import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
-import { useAsset } from 'pages/Assets/Asset'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
-export const useTradeRoutes = (): {
+export const useTradeRoutes = (
+  assetId: string
+): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
@@ -20,6 +22,7 @@ export const useTradeRoutes = (): {
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
   const feeAsset = assets['eip155:1/slip44:60']
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 
   const setDefaultAssets = useCallback(async () => {
     try {
@@ -48,7 +51,7 @@ export const useTradeRoutes = (): {
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper])
+  }, [asset, assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper])
 
   useEffect(() => {
     setDefaultAssets()

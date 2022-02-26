@@ -4,7 +4,6 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH as mockETH, FOX as mockFOX, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
 import { TradeActions, useSwapper } from 'components/Trade/hooks/useSwapper/useSwapper'
-import { useAsset } from 'pages/Assets/Asset'
 
 import { useTradeRoutes } from './useTradeRoutes'
 
@@ -28,11 +27,7 @@ jest.mock('state/slices/selectors', () => ({
 function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: string }) {
   const getQuote = jest.fn()
   const setValue = jest.fn()
-  const asset = jest.fn()
   ;(useWatch as jest.Mock<unknown>).mockImplementation(() => [{}, {}])
-  ;(useAsset as jest.Mock<unknown>).mockImplementation(() => ({
-    asset: asset
-  }))
   ;(useSwapper as jest.Mock<unknown>).mockImplementation(() => ({
     getQuote: getQuote,
     getBestSwapper: () => SwapperType.Zrx,
@@ -56,7 +51,7 @@ function setup({ buyAmount, sellAmount }: { buyAmount?: string; sellAmount?: str
     })
   }))
   const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
-  const { result, waitFor } = renderHook(() => useTradeRoutes(), { wrapper })
+  const { result, waitFor } = renderHook(() => useTradeRoutes(mockFOX.caip19), { wrapper })
   return { result, waitFor, setValue, getQuote }
 }
 

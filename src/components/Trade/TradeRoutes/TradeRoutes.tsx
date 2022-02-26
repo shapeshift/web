@@ -7,11 +7,16 @@ import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
 
+export interface MatchParams {
+  assetId: string
+}
+
 export const entries = ['/send/details', '/send/confirm']
 
-export const TradeRoutes = () => {
+export const TradeRoutes = ({ assetId }: MatchParams) => {
   const location = useLocation()
-  const { handleBuyClick, handleSellClick } = useTradeRoutes()
+
+  const { handleBuyClick, handleSellClick } = useTradeRoutes(assetId)
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>

@@ -7,6 +7,7 @@ export const StakingButtons = (styleProps?: FlexProps) => (
     justifyContent='space-between'
     flexWrap='wrap'
     height={{ base: '100px', sm: 'auto' }}
+    width='100%'
     {...styleProps}
   >
     <Button width={{ base: '100%', sm: '180px' }}>

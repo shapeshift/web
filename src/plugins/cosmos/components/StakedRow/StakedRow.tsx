@@ -18,9 +18,9 @@ export const StakedRow = ({
   ...styleProps
 }: StakedRowProps & FlexProps) => (
   <Flex width='100%' justifyContent='space-between' {...styleProps}>
-    <Flex height='20px'>
+    <Flex>
       <Text translation={'defi.staked'} marginRight='20px' />
-      <AprTag percentage={apr.toPrecision()} />
+      <AprTag height='20px' percentage={apr.toPrecision()} />
     </Flex>
     <Flex direction='column' alignItems='flex-end'>
       <Amount.Fiat fontWeight='semibold' value={cryptoStakedAmount.times(fiatRate).toPrecision()} />

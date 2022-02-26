@@ -28,20 +28,18 @@ export const Staked = ({ assetId }: StakedProps) => {
         <Flex
           direction='column'
           maxWidth='595px'
-          minHeight='380px'
           alignItems='center'
           justifyContent='space-between'
         >
-          <StakedHeader assetName={asset.name} width='100%' mb='35px' />
+          <StakedHeader assetName={asset.name} mb='35px' />
           <StakedRow
-            width='100%'
             mb='10px'
             assetSymbol={asset.symbol}
             fiatRate={bnOrZero('8.47')}
             cryptoStakedAmount={bnOrZero('708.00')}
             apr={bnOrZero('1.25')}
           />
-          <StakingButtons width='100%' />
+          <StakingButtons />
           <Box width='100%' mt='20px'>
             {
               /* TODO: use real unbonds data */
@@ -57,7 +55,6 @@ export const Staked = ({ assetId }: StakedProps) => {
             }
           </Box>
           <RewardsRow
-            width='100%'
             mb='20px'
             mt='25px'
             assetSymbol={asset.symbol}

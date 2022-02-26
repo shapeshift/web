@@ -1,7 +1,5 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
-import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import { ipcRenderer } from 'electron'
 import findIndex from 'lodash/findIndex'
@@ -186,20 +184,20 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 
 const WalletContext = createContext<IWalletContext | null>(null)
 
-const getInitialState = () => {
-  const localWalletType = getLocalWalletType()
-  const localWalletDeviceId = getLocalWalletDeviceId()
-  if (localWalletType && localWalletDeviceId) {
-    /**
-     * set isLoadingLocalWallet->true to bypass splash screen
-     */
-    return {
-      ...initialState,
-      isLoadingLocalWallet: true
-    }
-  }
-  return initialState
-}
+// const getInitialState = () => {
+//   const localWalletType = getLocalWalletType()
+//   const localWalletDeviceId = getLocalWalletDeviceId()
+//   if (localWalletType && localWalletDeviceId) {
+//     /**
+//      * set isLoadingLocalWallet->true to bypass splash screen
+//      */
+//     return {
+//       ...initialState,
+//       isLoadingLocalWallet: true
+//     }
+//   }
+//   return initialState
+// }
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const { sign, pair } = useModal()

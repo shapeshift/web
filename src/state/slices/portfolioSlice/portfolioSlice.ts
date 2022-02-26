@@ -19,7 +19,8 @@ export const supportedAccountTypes = {
     UtxoAccountType.SegwitP2sh,
     UtxoAccountType.P2pkh
   ],
-  [ChainTypes.Ethereum]: undefined
+  [ChainTypes.Ethereum]: undefined,
+  [ChainTypes.Cosmos]: undefined
 }
 
 /*

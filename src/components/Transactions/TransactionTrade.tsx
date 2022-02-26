@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, Link, SimpleGrid, Tag } from '@chakra-ui/react'
-import { Asset, chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { FaExchangeAlt } from 'react-icons/fa'
@@ -13,13 +13,7 @@ import { RawText, Text } from 'components/Text'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
-export const TransactionTrade = ({
-  txDetails,
-  activeAsset
-}: {
-  txDetails: TxDetails
-  activeAsset?: Asset
-}) => {
+export const TransactionTrade = ({ txDetails }: { txDetails: TxDetails }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
 

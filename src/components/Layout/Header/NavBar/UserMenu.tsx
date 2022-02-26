@@ -90,10 +90,16 @@ const WalletConnected = ({
 
 type WalletButtonProps = {
   isConnected: boolean
+  isLoadingLocalWallet: boolean
   onConnect: () => void
 } & Pick<InitialState, 'walletInfo'>
 
-const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnect }) => {
+const WalletButton: FC<WalletButtonProps> = ({
+  isConnected,
+  walletInfo,
+  onConnect,
+  isLoadingLocalWallet
+}) => {
   const [walletLabel, setWalletLabel] = useState('')
   const [shouldShorten, setShouldShorten] = useState(true)
   const bgColor = useColorModeValue('gray.300', 'gray.800')
@@ -117,11 +123,12 @@ const WalletButton: FC<WalletButtonProps> = ({ isConnected, walletInfo, onConnec
     }
   }, [walletInfo])
 
-  return Boolean(walletInfo?.deviceId) ? (
+  return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
     <Button
       onClick={onConnect}
       leftIcon={<WalletImage walletInfo={walletInfo} />}
       rightIcon={isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+      isLoading={isLoadingLocalWallet}
     >
       {walletLabel ? (
         <MiddleEllipsis
@@ -160,7 +167,12 @@ export const UserMenu = () => {
   return (
     <ButtonGroup isAttached colorScheme='blue' variant='ghost-filled'>
       {isLargerThanMd && (
-        <WalletButton onConnect={handleConnect} walletInfo={walletInfo} isConnected={isConnected} />
+        <WalletButton
+          onConnect={handleConnect}
+          walletInfo={walletInfo}
+          isConnected={isConnected}
+          isLoadingLocalWallet={state.isLoadingLocalWallet}
+        />
       )}
       <Menu>
         <MenuButton as={IconButton} isRound={!isLargerThanMd}>

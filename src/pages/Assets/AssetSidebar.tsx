@@ -6,7 +6,8 @@ import { LeftSidebarChildProps } from 'components/Layout/LeftSidebar'
 export const AssetSidebar = ({ onToggle }: LeftSidebarChildProps) => {
   const history = useHistory()
   const onClick = (asset: Asset) => {
-    const url = asset.tokenId ? `/assets/${asset.chain}/${asset.tokenId}` : `/assets/${asset.chain}`
+    // @see onClick handler in `src/pages/Assets/Assets.tsx` - this needs to work the same
+    const url = `/assets/${asset.caip19}`
     history.push(url)
     onToggle && onToggle()
   }

@@ -536,10 +536,12 @@ const createSplashWindow = () => {
 let STATUS = 'preInit'
 
 const start_bridge = async function (event) {
+    let tag = " | start_bridge | "
     try {
         let device
         try {
             device = await adapter.getDevice()
+            log.info(tag,"device: ",device)
         } catch (e) {
             STATE = 1
             STATUS = `no devices`
@@ -549,9 +551,11 @@ const start_bridge = async function (event) {
         }
 
         let transport
-        if (device || true) {
+        if (device) {
             transport = await adapter.getTransportDelegate(device)
             await transport.connect?.()
+            log.info(tag,"transport: ",transport)
+
             STATE = 2
             STATUS = 'keepkey connected'
             event.sender.send('setKeepKeyState', { state: STATE })
@@ -693,6 +697,7 @@ const start_bridge = async function (event) {
                     event.sender.send('signTx', { payload: body })
                     //hold till signed
                     while (!SIGNED_TX) {
+                        console.log("waiting!")
                         await sleep(300)
                     }
                     res.status(200).json({ success: true, status: 'signed', signedTx: SIGNED_TX })
@@ -812,6 +817,25 @@ ipcMain.on('onStartApp', async (event, data) => {
             log.error('Failed to create tray! e: ', e)
         }
 
+        //onStart
+        try{
+            let allDevices = await usb.getDeviceList()
+            log.info(tag,"allDevices: ",allDevices)
+
+            let resultWebUsb = await usb.findByIds(11044,2)
+            if(resultWebUsb){
+                log.info(tag,"KeepKey connected in webusb!")
+                //get version
+            }
+
+            let result = await usb.findByIds(11044,1)
+            if(result){
+                log.info(tag,"UPDATER MODE DETECTED!")
+            }
+        }catch(e){
+            log.error(e)
+        }
+
         try {
             createTray(event)
         } catch (e) {
@@ -832,7 +856,7 @@ ipcMain.on('onStartApp', async (event, data) => {
         usb.on('detach', function (device) {
             log.info('detach device: ', device)
             event.sender.send('detach', { device })
-            stop_bridge(event)
+            //stop_bridge(event)
         })
     } catch (e) {
         log.error('e: ', e)

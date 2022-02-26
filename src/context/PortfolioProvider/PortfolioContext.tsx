@@ -6,7 +6,7 @@ import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpeci
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAssetIds } from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,

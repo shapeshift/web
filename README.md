@@ -141,21 +141,26 @@ Runs the component documentation.<br /> Open
 
 ### Linking
 
-If you're developing locally in this web repository, and need to make changes affecting packages in lib 
-or unchained (backend), use the following steps to link packages locally for developing. 
-If your changes only touch web these steps are not necessary.
+If you're developing locally in this `web` repository, and need to make changes affecting packages in `lib`
+or `unchained` (backend), use the following steps to link packages locally for developing.
+If your changes only touch `web` these steps are not necessary.
 
-1. Clone lib and unchained repos
-3. Go into lib and run yarn link - you only have to do this the first time to get things setup
-4. Go into unchained, then cd packages/client and yarn link, then do the same in packages/parser - again, this only has to be done the initial time
-5. If you're working in web and need to make changes in lib or unchained, run yarn link-packages in web to use local versions of them
-6. `yarn show-linked-packages` will show what's currently linked
-7. If you're done developing locally `yarn unlink-packages` to use published upstream versions
+**Initial, one-off setup:**
 
-Now your web's chain-adapters have a symlink to your lib's
+1. Clone the `lib` repo, `cd` into it, and run `yarn build`
+1. From `lib`, run `yarn link`
+1. Clone `unchained`, `cd` into it, and run `yarn build`
+1. From `unchained`, `cd packages/client` and `yarn link`, then do the same from `packages/parser`
+
+**When working in `web`, and using local changes in `lib` or `unchained`:**
+
+1. Run `yarn link-packages` in `web` to use local versions of `lib` and `unchained` - now your `web`'s chain-adapters have a symlink to your `lib`'s.
+1. `yarn show-linked-packages` will show what's currently linked
+1. Once you're done developing locally, run `yarn unlink-packages` to use published upstream versions
 
 ## Developer Onboarding
-1. Create a pull request on Github. (You can do this at `https://github.com/<username>/<fork name>/pull/new/<branch name>`.)
+
+1. Create a pull request on GitHub. (You can do this at `https://github.com/<username>/<fork name>/pull/new/<branch name>`.)
 2. Ensure you've followed the guidelines in [CONTRIBUTING.md](https://github.com/shapeshift/web/blob/main/CONTRIBUTING.md); in particular, make sure that the title of your PR conforms to the Conventional Commits format.
 3. Post a link to your new pull request in `#engineering-prs` in the [Discord](https://discord.gg/shapeshift)
 4. (optional) Return to the `develop` branch to get ready to start another task.
@@ -164,6 +169,7 @@ Now your web's chain-adapters have a symlink to your lib's
 The script `./scripts/release.sh` helps to automate the release process.
 
 ### Create a release branch
+
 `yarn create-release v1.1.1`
 or
 `./scripts/release.sh release v1.1.1`
@@ -171,6 +177,7 @@ or
 This creates a `releases/v1.1.1` branch based on `origin/develop` and pushes it to origin
 
 ### Merge a release into main
+
 `yarn merge-release v1.1.1`
 or
 `./scripts/release.sh main v1.1.1`

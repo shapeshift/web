@@ -11,12 +11,12 @@ import {
 import { useParams } from 'react-router-dom'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  marketApi,
+  selectAssetByCAIP19,
   selectMarketDataById,
   selectMarketDataLoadingById
-} from 'state/slices/marketDataSlice/marketDataSlice'
+} from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LoadingAsset } from './LoadingAsset'

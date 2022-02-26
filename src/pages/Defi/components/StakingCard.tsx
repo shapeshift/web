@@ -19,7 +19,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { RawText, Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
-import { selectAssetByCAIP19 } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { MergedEarnVault } from '../hooks/useVaultBalances'

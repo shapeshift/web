@@ -40,6 +40,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
 
       let pubkey
       switch (chain) {
+        // TODO: Handle Cosmos ChainType here
         case ChainTypes.Ethereum: {
           if (!supportsETH(wallet)) continue
           pubkey = await adapter.getAddress({ wallet })

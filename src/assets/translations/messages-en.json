@@ -32,7 +32,8 @@
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
-    "devTools": "Developer Tools"
+    "devTools": "Developer Tools",
+    "viewAsset": "View Asset"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -76,16 +77,45 @@
     }
   },
   "defi": {
-    "getStarted": {
-      "header": "Stake your %{assetName} to earn up to %{maxApr}% APR*",
-      "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
-      "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
-      "cta": {
-        "startStaking": "Start Staking",
-        "learnMore": "Learn More"
+    "modals": {
+      "learnMore": {
+        "next": "Next",
+        "close": "Close",
+        "headers": {
+          "aboutStakingRewards": "About Staking Rewards",
+          "unstaking": "Unstaking Your %{assetName}",
+          "risks": "Are There Risks?"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "The rate of %{assetName} you earn, the Annual Percentage Return (APR), typically fluctuates between 7% - 20%.",
+          "amountStakingInfo": "You can stake any amount of %{assetName} and they’ll immediately beginning earning rewards.",
+          "withdrawInfo": "You can withdraw your rewards at anytime, which requires a small gas fee around ~$.01.",
+          "unbondingInfo": "When you unstake your tokens, they’ll remain locked for 14 days, during which time they won’t earn rewards. After the 14 days, your %{assetName} will return to your Primary Wallet.",
+          "slashingInfo": "Staking is done through a validator. It’s incredibly rare, but if the validator you’ve staked with messes up by allowing false or incorrect transactions to go through, you could lose a part of your assets.",
+          "partnerInfo": "We’ve mitigated this risk by partnering with a reputable validator—which has a secure, reliable, and audited infrastructure."
+        },
+        "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
+        "cta": {
+          "startStaking": "Start Staking",
+          "learnMore": "Learn More"
+        }
+      },
+      "getStarted": {
+        "header": "Stake your %{assetName} to earn up to %{maxApr}% APR*",
+        "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
+        "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
+        "cta": {
+          "startStaking": "Start Staking",
+          "learnMore": "Learn More"
+        }
       }
     },
     "earn": "Earn",
+    "asset": "Asset",
+    "category": "Category",
+    "tvl": "TVL",
+    "apy": "APY",
+    "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
@@ -105,6 +135,7 @@
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
+    "emptyEarn": "Earn opporuntities will appear here.",
     "empty": {
       "farming": {
         "body": "You are not currently farming anything.",
@@ -126,7 +157,10 @@
   "navBar": {
     "dashboard": "Dashboard",
     "assets": "Assets",
+    "assetDetails": "Asset Details",
     "accounts": "Accounts",
+    "accountAsset": "Account Asset",
+    "accountDetails": "Account Details",
     "earn": "Earn",
     "defi": "DeFi",
     "tradeHistory": "Trade History",
@@ -452,7 +486,8 @@
       "password": {
         "header": "Enter Your Password",
         "body": "Enter a password to encrypt your wallet. This is how you will access your wallet. Do not forget this password.",
-        "button": "Next"
+        "button": "Next",
+        "connect": "Connect to another wallet"
       },
       "create": {
         "header": "Your Secret Recovery Phrase",

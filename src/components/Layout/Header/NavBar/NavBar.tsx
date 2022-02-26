@@ -3,9 +3,9 @@ import { useTranslate } from 'react-polyglot'
 import { routes } from 'Routes/Routes'
 
 import { MainNavLink } from './MainNavLink'
-
 export const NavBar = (props: StackProps) => {
   const translate = useTranslate()
+
   return (
     <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
       {routes

@@ -31,3 +31,5 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+.KeepKey
+dist

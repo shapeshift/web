@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -28,6 +29,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // and covers most assets users will have
   useFindAllQuery()
   const accountSpecifiers = useAccountSpecifiers()
+  ipcRenderer.send('onAccountInfo', accountSpecifiers)
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination

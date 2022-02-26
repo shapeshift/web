@@ -2,6 +2,7 @@ import {
   ChatIcon,
   ChevronRightIcon,
   CloseIcon,
+  ExternalLinkIcon,
   HamburgerIcon,
   MoonIcon,
   RepeatIcon,
@@ -185,6 +186,15 @@ export const UserMenu = () => {
             href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
           >
             <Text translation='common.submitFeedback' />
+          </MenuItem>
+          <MenuItem
+            icon={<ExternalLinkIcon />}
+            as={Link}
+            isExternal
+            _hover={{ textDecoration: 'none' }}
+            href='http://localhost:1646/docs'
+          >
+            <Text translation='common.devTools' />
           </MenuItem>
           <MenuItem
             icon={<MoonIcon />}

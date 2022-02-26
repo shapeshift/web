@@ -31,7 +31,8 @@
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
-    "receive": "Receive"
+    "receive": "Receive",
+    "devTools": "Developer Tools"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -224,6 +225,26 @@
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
+      }
+    },
+    "sign": {
+      "header": "Confirm Transaction Details",
+      "sign": "Sign Transaction!",
+      "reject": "reject",
+      "extendedValidation": "Extended Validation",
+      "amount": "Amount",
+      "fee": "Fee",
+      "network": "Network",
+      "summary": "Summary",
+      "from": "From",
+      "to": "To",
+      "router": "Router",
+      "memo": "Memo",
+      "protocol":"Protocol",
+      "broadcastingTransaction": "Broadcasting Transaction",
+      "errors": {
+        "notEnoughNativeToken": "Not enough %{asset} to cover gas",
+        "transactionRejected": "User has rejected the transaction"
       }
     },
     "send": {

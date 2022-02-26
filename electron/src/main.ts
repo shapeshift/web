@@ -74,14 +74,25 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import { Server } from 'http'
+import fs from 'fs'
+
 const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: false }))
 appExpress.use(bodyParser.json())
 
 //DB persistence
+
+const dbDirPath = path.join(__dirname, '../.KeepKey')
+const dbPath = path.join(dbDirPath, './db')
+
+if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbDirPath)
+    fs.closeSync(fs.openSync(dbPath, 'w'))
+}
+
 const Datastore = require('nedb')
-    , db = new Datastore({ filename: './.KeepKey/db', autoload: true });
+    , db = new Datastore({ filename: dbPath, autoload: true });
 
 const TAG = ' | KK-MAIN | '
 
@@ -359,6 +370,8 @@ autoUpdater.on("update-available", (info) => {
         skipUpdateCheck(splash);
     }, 60000);
 });
+
+
 autoUpdater.on("download-progress", (progress) => {
     let prog = Math.floor(progress.percent);
     splash.webContents.send("@update/percentage", prog);
@@ -368,6 +381,8 @@ autoUpdater.on("download-progress", (progress) => {
         clearTimeout(skipUpdateTimeout);
     }
 });
+
+
 autoUpdater.on("update-downloaded", () => {
     splash.webContents.send("@update/relaunch");
     // stop timeout that skips the update
@@ -378,7 +393,14 @@ autoUpdater.on("update-downloaded", () => {
         autoUpdater.quitAndInstall();
     }, 1000);
 });
+
+
 autoUpdater.on("update-not-available", () => {
+    skipUpdateCheck(splash);
+});
+
+
+autoUpdater.on("error", () => {
     skipUpdateCheck(splash);
 });
 
@@ -475,6 +497,10 @@ ipcMain.on('onBalanceInfo', async (event, data) => {
         log.error('e: ', e)
         log.error(tag, e)
     }
+})
+
+ipcMain.on("@app/version", (event, _data) => {
+    event.sender.send("@app/version", app.getVersion());
 })
 
 const skipUpdateCheck = (splash: BrowserWindow) => {

@@ -37,6 +37,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           throw new Error(`asset not found for chain ${chain}`)
         }
 
+        // @ts-ignore
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]
 
         for await (const accountType of accountTypes) {

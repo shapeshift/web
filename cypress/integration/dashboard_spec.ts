@@ -14,6 +14,9 @@ describe('The Dashboard', () => {
   })
 
   it('nav bar works', () => {
+    // A proxy to understand if the Dashboard has initialised
+    cy.getBySel('account-row').should('have.length', 7)
+
     cy.navigateToAccounts()
     cy.navigateToAssets()
     cy.navigateToDefi()
@@ -39,7 +42,7 @@ describe('The Dashboard', () => {
       .should('have.text', 'Insufficient Funds')
     cy.getBySel('trade-rate-quote').should('have.text', '1 ETH = 7,673.93 FOX')
     cy.getBySel('swap-assets-button').click()
-    cy.getBySel('trade-rate-quote').should('have.text', '1 FOX = 0.00012 ETH')
+    cy.getBySel('trade-rate-quote').should('have.text', '1 FOX = 0.00011 ETH')
     cy.getBySel('trade-preview-button').should('be.disabled')
     cy.getBySel('token-row-sell-max-button').click()
     // This can't be clicked until max sell is calculated, and it can take some time to compute on slower hardware.
@@ -63,9 +66,9 @@ describe('The Dashboard', () => {
       .should('have.text', 'Next')
       .click()
     cy.getBySel('account-card-asset-name-label').should('have.text', 'Chainlink')
-    cy.getBySel('account-card-fiat-label').should('exist')
+    cy.getBySel('account-card-crypto-label').should('exist')
     cy.getBySel('send-modal-next-button').should('be.disabled')
-    cy.getBySel('send-modal-fiat-input').type('10')
+    cy.getBySel('send-modal-crypto-input').type('10')
     cy.getBySel('send-modal-next-button').should('have.text', 'Not enough ETH to cover gas')
     // TODO - Add more test data and finish this flow
     cy.backdropDismiss()

@@ -9,7 +9,7 @@ import { entries, TradeRoutes } from './TradeRoutes/TradeRoutes'
 export interface MatchParams {
   chainId: CAIP2
   assetSubId: string
-  assetId: string
+  assetId: CAIP19
   accountId: string
 }
 

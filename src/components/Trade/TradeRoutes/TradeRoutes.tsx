@@ -13,7 +13,7 @@ type TradeRoutesProps = {
 
 export const entries = ['/send/details', '/send/confirm']
 
-export const TradeRoutes = ({ assetId }: MatchParams) => {
+export const TradeRoutes = ({ assetId }: TradeRoutesProps) => {
   const location = useLocation()
 
   const { handleBuyClick, handleSellClick } = useTradeRoutes(assetId)

@@ -1,5 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
@@ -9,7 +10,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type GetStartedProps = {
-  assetId: string
+  assetId: CAIP19
 }
 
 // TODO: Abstract me in a service when I start to get too big

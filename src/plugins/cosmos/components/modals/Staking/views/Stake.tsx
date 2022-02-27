@@ -9,6 +9,7 @@ import {
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import get from 'lodash/get'
@@ -42,9 +43,9 @@ export type StakingValues = {
   [Field.CryptoAmount]: string
 }
 
-type StakedProps = {
+type StakeProps = {
   apr: string
-  assetId: string
+  assetId: CAIP19
   cryptoAmountAvailable: string
   fiatAmountAvailable: string
   marketData: MarketData
@@ -62,7 +63,7 @@ export const Stake = ({
   cryptoAmountAvailable,
   fiatAmountAvailable,
   marketData
-}: StakedProps) => {
+}: StakeProps) => {
   const {
     clearErrors,
     control,

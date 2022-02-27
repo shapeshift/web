@@ -7,6 +7,7 @@ import {
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import get from 'lodash/get'
@@ -34,14 +35,14 @@ export enum Field {
   CryptoAmount = 'cryptoAmount'
 }
 
-export type StakingValues = {
+export type UnstakingValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
 }
 
-type StakedProps = {
+type UnstakeProps = {
   apr: string
-  assetId: string
+  assetId: CAIP19
   cryptoAmountStaked: string
   marketData: MarketData
 }
@@ -52,7 +53,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 }
 
 // TODO: Wire up the whole component with staked data
-export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: StakedProps) => {
+export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: UnstakeProps) => {
   const {
     clearErrors,
     control,
@@ -60,7 +61,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Staked
     handleSubmit,
     setError,
     setValue
-  } = useForm<StakingValues>({
+  } = useForm<UnstakingValues>({
     mode: 'onChange',
     defaultValues: {
       [Field.FiatAmount]: '',

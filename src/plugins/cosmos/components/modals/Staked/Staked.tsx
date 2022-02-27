@@ -1,12 +1,13 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import React, { useRef } from 'react'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { useRef } from 'react'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Staked } from './views/Staked'
 
 type StakedModalProps = {
-  assetId: string
+  assetId: CAIP19
 }
 
 export enum StakedModalRoutes {

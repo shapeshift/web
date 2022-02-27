@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, IconButton } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { useSteps } from 'chakra-ui-steps'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
 import { useHistory } from 'react-router-dom'
@@ -38,7 +39,7 @@ const STEP_TO_ELEMENTS_MAPPING = [
 ]
 
 type LearnMoreProps = {
-  assetId: string
+  assetId: CAIP19
 }
 
 export const LearnMore = ({ assetId }: LearnMoreProps) => {

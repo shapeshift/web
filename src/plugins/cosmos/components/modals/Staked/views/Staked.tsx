@@ -1,5 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Button, ModalCloseButton } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
@@ -11,14 +12,14 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type StakedProps = {
-  assetId: string
+  assetId: CAIP19
 }
 
 // TODO: Wire up the whole component with staked data
 export const Staked = ({ assetId }: StakedProps) => {
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
-    name: 'Osmo',
+    name: 'Osmosis',
     symbol: 'OSMO'
   }))(assetId) as Asset
   return (

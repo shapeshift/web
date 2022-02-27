@@ -15,8 +15,9 @@ export class KeepKeyService {
   public firmwareVersion: string | undefined
   public latestBootloaderVersion: string | undefined
   public latestFirmareVersion: string | undefined
-
+  public isInUpdaterMode: boolean
   constructor() {
+    this.isInUpdaterMode = false
     let queryKey: string | null = localStorage.getItem('queryKey')
     let username: string | null = localStorage.getItem('username')
     if (!queryKey) {
@@ -48,6 +49,15 @@ export class KeepKeyService {
     localStorage.removeItem('queryKey')
     localStorage.removeItem('username')
     return true
+  }
+
+  async setUpdaterMode(status: any): Promise<any> {
+    try {
+
+
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async updateKeepKeyFirmwareLatest(features: any): Promise<any> {

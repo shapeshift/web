@@ -48,7 +48,7 @@ export const FirmwareModal = () => {
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         <ModalHeader>
-          <Text translation={'modals.sign.header'} />
+          <Text translation={'modals.firmware.header'} />
         </ModalHeader>
         <ModalBody>
           <div>

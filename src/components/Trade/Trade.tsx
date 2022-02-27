@@ -1,4 +1,4 @@
-import { CAIP2 } from '@shapeshiftoss/caip'
+import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, chainAdapters, ChainTypes, Quote, SwapperType } from '@shapeshiftoss/types'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useParams } from 'react-router-dom'

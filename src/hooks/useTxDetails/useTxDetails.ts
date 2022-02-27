@@ -34,13 +34,12 @@ export interface TxDetails {
   precision: number
   explorerTxLink: string
   explorerAddressLink: string
+  valueExchanged: boolean
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getBuyTx = (tx: Tx) =>
-  !!tx.tradeDetails ? tx.transfers.find(t => t.type === chainAdapters.TxType.Receive) : undefined
-export const getSellTx = (tx: Tx) =>
-  !!tx.tradeDetails ? tx.transfers.find(t => t.type === chainAdapters.TxType.Send) : undefined
+export const getBuyTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Receive)
+export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Send)
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
@@ -52,6 +51,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const standardTx = getStandardTx(tx)
   const buyTx = getBuyTx(tx)
   const sellTx = getSellTx(tx)
+
+  const valueExchanged = tx.transfers.length > 0
 
   const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
 
@@ -112,6 +113,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     symbol,
     precision,
     explorerTxLink,
-    explorerAddressLink
+    explorerAddressLink,
+    valueExchanged
   }
 }

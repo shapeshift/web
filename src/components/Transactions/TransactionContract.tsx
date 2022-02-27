@@ -49,7 +49,10 @@ export const TransactionContract = ({
                 lineHeight='1'
                 whiteSpace='nowrap'
                 mb={2}
-                translation={[`transactionRow.${txDetails.type.toLowerCase()}`, { symbol: '' }]}
+                translation={[
+                  `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.tx.data?.method}`,
+                  { symbol: '' }
+                ]}
               />
               <RawText color='gray.500' fontSize='sm' lineHeight='1'>
                 {dayjs(txDetails.tx.blockTime * 1000).fromNow()}
@@ -57,13 +60,15 @@ export const TransactionContract = ({
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              <Amount.Crypto
-                color='inherit'
-                value={fromBaseUnit(txDetails.value, txDetails.precision)}
-                symbol={txDetails.symbol}
-                maximumFractionDigits={6}
-                prefix='-'
-              />
+              {txDetails.valueExchanged && (
+                <Amount.Crypto
+                  color='inherit'
+                  value={fromBaseUnit(txDetails.value, txDetails.precision)}
+                  symbol={txDetails.symbol}
+                  maximumFractionDigits={6}
+                  prefix='-'
+                />
+              )}
             </Flex>
           </Flex>
         </Flex>

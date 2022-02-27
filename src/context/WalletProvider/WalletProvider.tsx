@@ -1,7 +1,5 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
-import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import { ipcRenderer } from 'electron'
 import findIndex from 'lodash/findIndex'
@@ -33,7 +31,6 @@ export enum WalletActions {
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   SET_KEEPKEY_STATE = 'SET_KEEPKEY_STATE',
   SET_KEEPKEY_STATUS = 'SET_KEEPKEY_STATUS',
-  SET_PIONEER = 'SET_PIONEER',
   RESET_STATE = 'RESET_STATE'
 }
 
@@ -121,7 +118,6 @@ export type ActionTypes =
   | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
   | { type: WalletActions.SET_KEEPKEY_STATE; payload: string }
   | { type: WalletActions.SET_KEEPKEY_STATUS; payload: string }
-  | { type: WalletActions.SET_PIONEER; payload: any | null }
   | { type: WalletActions.RESET_STATE }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -159,8 +155,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         newState.initialRoute = '/'
       }
       return newState
-    case WalletActions.SET_PIONEER:
-      return { ...state, keepkey: action.payload }
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -178,7 +172,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  const { sign, pair } = useModal()
+  const { sign, pair, firmware } = useModal()
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -267,6 +261,20 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('approveOrigin', (event: any, data: any) => {
       pair.open(data)
+    })
+
+    ipcRenderer.on('loadKeepKeyInfo', (event, data) => {
+      firmware.open({})
+      keepkey.updateFeatures(data.payload)
+    })
+
+    ipcRenderer.on('loadKeepKeyFirmwareLatest', (event, data) => {
+      firmware.open({})
+      keepkey.updateKeepKeyFirmwareLatest(data.payload)
+    })
+
+    ipcRenderer.on('openFirmwareUpdate', (event, data) => {
+      firmware.open({})
     })
 
     ipcRenderer.on('setDevice', (event, data) => {})

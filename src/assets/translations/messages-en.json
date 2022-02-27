@@ -211,6 +211,11 @@
         "button": "Submit Passphrase"
       }
     },
+    "firmware": {
+        "header": "Updater Your KeepKey!",
+        "bootloader": "BootLoader version",
+        "firmware": "Firmware version"
+    },
     "shapeShift": {
       "password": {
         "header": "Enter Your Password",

@@ -48,6 +48,8 @@ import swaggerUi from 'swagger-ui-express'
 const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
+let Hardware = require("@keepkey/keepkey-hardware-hid")
+
 const isMac = process.platform === "darwin";
 const isWin = process.platform === "win32";
 const isLinux =
@@ -845,6 +847,18 @@ ipcMain.on('onStartApp', async (event, data) => {
 
         //onStart
         try{
+            let firmwareInfo = await Hardware.getLatestFirmwareData()
+            log.info(tag,"firmwareInfo: ",firmwareInfo)
+            event.sender.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
+
+            //init
+            let resultInit = await Hardware.init()
+            if(resultInit && resultInit.success && resultInit.wallet){
+                event.sender.send('loadKeepKeyInfo', { payload: resultInit })
+                event.sender.send('openFirmwareUpdate', { })
+            }
+            log.info(tag,"resultInit: ",resultInit)
+
             let allDevices = await usb.getDeviceList()
             log.info(tag,"allDevices: ",allDevices)
 

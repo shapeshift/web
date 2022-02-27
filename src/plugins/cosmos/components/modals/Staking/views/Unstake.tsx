@@ -47,11 +47,6 @@ type UnstakeProps = {
   marketData: MarketData
 }
 
-// TODO: Make this a derived selector after this is wired up
-function calculateYearlyYield(apy: string, amount: string = '') {
-  return bnOrZero(amount).times(apy).div(100).toString()
-}
-
 // TODO: Wire up the whole component with staked data
 export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: UnstakeProps) => {
   const {
@@ -86,9 +81,6 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
   const onSubmit = (_: any) => {
     // TODO: onContinue()
   }
-
-  const cryptoYield = calculateYearlyYield(apr, values.cryptoAmount)
-  // const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
 
   const translate = useTranslate()
 

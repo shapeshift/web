@@ -7,7 +7,7 @@ import { SelectAsset } from '../SelectAsset'
 import { TradeConfirm } from '../TradeConfirm/TradeConfirm'
 import { TradeInput } from '../TradeInput'
 
-export interface MatchParams {
+type TradeRoutesProps = {
   assetId: string
 }
 

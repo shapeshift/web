@@ -7,6 +7,15 @@ import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
+const SUPPORTED_CONTRACT_METHODS = new Set([
+  'deposit',
+  'approve',
+  'withdraw',
+  'addLiquidityETH',
+  'removeLiquidityETH',
+  'transferOut'
+])
+
 export interface TxDetails {
   tx: Tx
   buyTx: TxTransfer | undefined
@@ -35,6 +44,10 @@ export const getSellTx = (tx: Tx) =>
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
+
+  const isSupportedContract = tx.data?.method
+    ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method)
+    : false
 
   const standardTx = getStandardTx(tx)
   const buyTx = getBuyTx(tx)
@@ -73,7 +86,9 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
   }, [from, to])
-  const type = standardTx?.type ?? tx.tradeDetails?.type ?? ''
+  const type = isSupportedContract
+    ? TxType.Contract
+    : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
   const explorerTxLink = standardAsset?.explorerTxLink ?? tradeAsset?.explorerTxLink ?? ''

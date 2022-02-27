@@ -83,7 +83,7 @@ appExpress.use(bodyParser.json())
 
 //DB persistence
 
-const dbDirPath = path.join(__dirname, '../.KeepKey')
+const dbDirPath = isDev ? path.join(__dirname, '../.KeepKey') : path.join(app.getPath('userData'), './.KeepKey')
 const dbPath = path.join(dbDirPath, './db')
 
 if (!fs.existsSync(dbPath)) {
@@ -132,6 +132,9 @@ let splash: BrowserWindow
 let mainWindow: BrowserWindow
 let shouldShowWindow = false;
 
+const kkAutoLauncher = new AutoLaunch({
+    name: 'KeepKey Client'
+})
 
 /*
     Electron Settings
@@ -280,10 +283,7 @@ function createWindow() {
     log.info('Creating window!')
 
     //Auto launch on startup
-    let kkAutoLauncher = new AutoLaunch({
-        name: 'keepkey-client',
-        path: '/Applications/kkAutoLauncher.app'
-    })
+
     kkAutoLauncher.enable()
     kkAutoLauncher
         .isEnabled()
@@ -567,7 +567,7 @@ const start_bridge = async function (event) {
         let device
         try {
             device = await adapter.getDevice()
-            log.info(tag,"device: ",device)
+            log.info(tag, "device: ", device)
         } catch (e) {
             STATE = 1
             STATUS = `no devices`
@@ -580,7 +580,7 @@ const start_bridge = async function (event) {
         if (device) {
             transport = await adapter.getTransportDelegate(device)
             await transport.connect?.()
-            log.info(tag,"transport: ",transport)
+            log.info(tag, "transport: ", transport)
 
             STATE = 2
             STATUS = 'keepkey connected'
@@ -844,26 +844,26 @@ ipcMain.on('onStartApp', async (event, data) => {
         }
 
         //onStart
-        try{
+        try {
             let allDevices = await usb.getDeviceList()
-            log.info(tag,"allDevices: ",allDevices)
+            log.info(tag, "allDevices: ", allDevices)
 
-            let resultWebUsb = await usb.findByIds(11044,2)
-            if(resultWebUsb){
-                log.info(tag,"KeepKey connected in webusb!")
+            let resultWebUsb = await usb.findByIds(11044, 2)
+            if (resultWebUsb) {
+                log.info(tag, "KeepKey connected in webusb!")
                 //get version
             }
 
-            let resultPreWebUsb = await usb.findByIds(11044,1)
-            if(resultPreWebUsb){
-                log.info(tag,"update required!")
+            let resultPreWebUsb = await usb.findByIds(11044, 1)
+            if (resultPreWebUsb) {
+                log.info(tag, "update required!")
             }
 
-            let resultUpdater = await usb.findByIds(11044,1)
-            if(resultUpdater){
-                log.info(tag,"UPDATER MODE DETECTED!")
+            let resultUpdater = await usb.findByIds(11044, 1)
+            if (resultUpdater) {
+                log.info(tag, "UPDATER MODE DETECTED!")
             }
-        }catch(e){
+        } catch (e) {
             log.error(e)
         }
 

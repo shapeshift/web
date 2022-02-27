@@ -212,7 +212,11 @@
       }
     },
     "firmware": {
-        "header": "Updater Your KeepKey!",
+        "header": "Update Required Your KeepKey!",
+        "update": "check KeepKey Status",
+        "continue": "approve and continue",
+        "bootloaderNeeded": "to continue you must updater your bootloader!",
+        "firmwareNeeded": "to continue you must updater your firmware!",
         "bootloader": "BootLoader version",
         "firmware": "Firmware version"
     },

@@ -53,8 +53,7 @@ export class KeepKeyService {
 
   async setUpdaterMode(status: any): Promise<any> {
     try {
-
-
+      this.isInUpdaterMode = true
     } catch (e) {
       console.error(e)
     }

@@ -264,12 +264,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('loadKeepKeyInfo', (event, data) => {
-      firmware.open({})
       keepkey.updateFeatures(data.payload)
     })
 
+    ipcRenderer.on('setUpdaterMode', (event, data) => {
+      keepkey.setUpdaterMode(data.payload)
+    })
+
     ipcRenderer.on('loadKeepKeyFirmwareLatest', (event, data) => {
-      firmware.open({})
       keepkey.updateKeepKeyFirmwareLatest(data.payload)
     })
 

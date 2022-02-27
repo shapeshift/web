@@ -1,4 +1,5 @@
 import {
+  Button, Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -19,12 +20,18 @@ export const FirmwareModal = () => {
   // const [error] = useState<string | null>(null)
   // const [loading] = useState(false)
   // const [show, setShow] = React.useState(false)
+  const [bootloaderMode, setBootloaderMode] = React.useState(false)
+  const [loading] = useState(false)
   // const [isApproved, setIsApproved] = React.useState(false)
   const { firmware } = useModal()
   const { close, isOpen } = firmware
 
   const HandleSubmit = async () => {
     close()
+  }
+
+  const HandleUpdate = async () => {
+    ipcRenderer.send('onUpdateKeepKeyStatus', {})
   }
 
   const HandleReject = async () => {
@@ -52,20 +59,45 @@ export const FirmwareModal = () => {
         </ModalHeader>
         <ModalBody>
           <div>
-            <Row>
-              <Row.Label>
-                <Text translation={'modals.firmware.bootloader'} />
-              </Row.Label>
-              <Row.Value>{keepkey?.bootloaderVersion}</Row.Value>
-            </Row>
-            <Row>
-              <Row.Label>
-                <Text translation={'modals.firmware.firmware'} />
-              </Row.Label>
-              <Row.Value>{keepkey?.firmwareVersion}</Row.Value>
-            </Row>
+            {keepkey.isInUpdaterMode ? (<div>
+              <h2>BootLoader Mode actived!</h2>
+              <small>click to perform action</small>
+              <Button
+                  isFullWidth
+                  size='lg'
+                  colorScheme='blue'
+                  onClick={HandleSubmit}
+                  disabled={loading}
+              >
+                <Text translation={'modals.firmware.continue'} />
+              </Button>
+            </div>) : (
+                <div>
+                  <Row>
+                    <Row.Label>
+                      <Text translation={'modals.firmware.bootloader'} />
+                    </Row.Label>
+                    <Row.Value>{keepkey?.bootloaderVersion}</Row.Value>
+                  </Row>
+                  <Row>
+                    <Row.Label>
+                      <Text translation={'modals.firmware.firmware'} />
+                    </Row.Label>
+                    <Row.Value>{keepkey?.firmwareVersion}</Row.Value>
+                  </Row>
+                  <Image src={KeepKey} alt='Approve Transaction On Device!' />
+                  <small>Please disconnect, hold down button, and reconnect device to enter bootloader mode to continue</small>
+                  <Button
+                      isFullWidth
+                      size='lg'
+                      colorScheme='blue'
+                      onClick={HandleUpdate}
+                  >
+                    <Text translation={'modals.firmware.update'} />
+                  </Button>
+                </div>
+            )}
           </div>
-
         </ModalBody>
       </ModalContent>
     </Modal>

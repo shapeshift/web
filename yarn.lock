@@ -3438,10 +3438,10 @@
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
 
-"@keepkey/keepkey-hardware-hid@8.1.17":
-  version "8.1.17"
-  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-hid/-/keepkey-hardware-hid-8.1.17.tgz#f95cb2b09b338fbfb4cde41f345e7dbf4e642f0e"
-  integrity sha512-AAcdh+nFH8Z64ZNfmWSFerQkQqjmxuPqk0yORLdZt6fIs+KofIMQ1hCC44uP/riZNUXUzmryOc/XhknyQr8vdA==
+"@keepkey/keepkey-hardware-hid@8.1.18":
+  version "8.1.18"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-hid/-/keepkey-hardware-hid-8.1.18.tgz#f168f79d7d6afdd7a2ea1eb427f118f1177d7307"
+  integrity sha512-49za5WQw0XvTLKLULaTCFiQTR7PniK19Unk7Ku8lr/SDKpsa1F/vnYy3mK4nzfXjxYazT9+z0lQTN6me+1J0pg==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@bithighlander/hdwallet-core" "2.14.2"

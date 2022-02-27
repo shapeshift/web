@@ -853,6 +853,9 @@ ipcMain.on('onStartApp', async (event, data) => {
 
             //init
             let resultInit = await Hardware.init()
+            if(resultInit && resultInit.success && resultInit.bootloaderMode){
+                event.sender.send('setUpdaterMode', { payload: true })
+            }
             if(resultInit && resultInit.success && resultInit.wallet){
                 event.sender.send('loadKeepKeyInfo', { payload: resultInit })
                 event.sender.send('openFirmwareUpdate', { })
@@ -892,10 +895,14 @@ ipcMain.on('onStartApp', async (event, data) => {
             log.error('Failed to start_bridge! e: ', e)
         }
 
-        usb.on('attach', function (device) {
+        usb.on('attach', async function (device) {
             log.info('attach device: ', device)
             event.sender.send('attach', { device })
             start_bridge(event)
+
+            let resultInit = await Hardware.init()
+            log.info(tag,"resultInit: ",resultInit)
+            //if updater mode send event
         })
 
         usb.on('detach', function (device) {

@@ -154,7 +154,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Staked
           justifyContent='space-between'
         >
           <CosmosActionButtons
-            assetSymbol={asset.symbol}
+            asset={asset}
             activeAction={StakingAction.Unstake}
             width='100%'
             px='6px'

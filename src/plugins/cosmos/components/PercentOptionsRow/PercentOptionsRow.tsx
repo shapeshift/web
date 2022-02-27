@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button, ButtonGroup } from '@chakra-ui/react'
+import { Button, ButtonGroup, ButtonGroupProps } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 
 const PERCENT_OPTIONS = [0.25, 0.5, 0.75, 1]
@@ -11,7 +11,7 @@ export const PercentOptionsRow = ({
   percent,
   onPercentClick,
   ...styleProps
-}: PercentOptionsRowProps & BoxProps) => (
+}: PercentOptionsRowProps & ButtonGroupProps) => (
   <ButtonGroup width='100%' bgColor='gray.850' py='5px' borderRadius='12px' {...styleProps}>
     {PERCENT_OPTIONS.map(option => (
       <Button

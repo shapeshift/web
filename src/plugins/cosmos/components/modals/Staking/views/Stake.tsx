@@ -164,12 +164,7 @@ export const Stake = ({
           alignItems='center'
           justifyContent='space-between'
         >
-          <CosmosActionButtons
-            asset={asset}
-            activeAction={StakingAction.Stake}
-            px='6px'
-            py='6px'
-          />
+          <CosmosActionButtons asset={asset} activeAction={StakingAction.Stake} px='6px' py='6px' />
           <AssetHoldingsCard
             py='8px'
             my={6}

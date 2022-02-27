@@ -5,12 +5,12 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Stake } from './views/Stake'
 
-type StakedModalProps = {
+type StakingModalProps = {
   assetId: string
   action: StakingAction
 }
 
-export enum StakedModalRoutes {
+export enum StakingModalRoutes {
   Stake = '/plugins/cosmos/stake',
   Unstake = '/plugins/cosmos/unstake'
 }
@@ -20,9 +20,9 @@ export enum StakingAction {
   Unstake = 'unstake'
 }
 
-export const entries = [StakedModalRoutes.Stake, StakedModalRoutes.Unstake]
+export const entries = [StakingModalRoutes.Stake, StakingModalRoutes.Unstake]
 
-export const StakingModal = ({ assetId, action }: StakedModalProps) => {
+export const StakingModal = ({ assetId, action }: StakingModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
   const { cosmosStaking } = useModal()
   const { close, isOpen } = cosmosStaking

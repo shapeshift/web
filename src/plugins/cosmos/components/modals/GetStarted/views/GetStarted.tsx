@@ -29,12 +29,12 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   }
 
   const handleStartStakingClick = () => {
-    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Stake })
+    cosmosStaking.open({ assetId, action: StakingAction.Stake })
     cosmosGetStarted.close()
   }
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
-    name: 'Osmo'
+    name: 'Osmosis'
   }))(assetId)
   const maxApr = ASSET_ID_TO_MAX_APR['cosmoshub-4/slip44:118']
   return (

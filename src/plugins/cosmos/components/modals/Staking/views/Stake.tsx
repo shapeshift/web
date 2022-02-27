@@ -142,8 +142,9 @@ export const Stake = ({
   }
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
-    name: 'Osmo',
-    symbol: 'OSMO'
+    name: 'Osmosis',
+    symbol: 'OSMO',
+    caip19: assetId
   }))(assetId) as Asset
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -164,18 +165,13 @@ export const Stake = ({
           justifyContent='space-between'
         >
           <CosmosActionButtons
-            assetSymbol={asset.symbol}
+            asset={asset}
             activeAction={StakingAction.Stake}
-            width='100%'
             px='6px'
             py='6px'
-            bgColor='gray.850'
-            borderRadius='12px'
           />
           <AssetHoldingsCard
-            size='sm'
             py='8px'
-            width='full'
             my={6}
             assetSymbol={asset.symbol}
             assetName={asset.name}
@@ -210,11 +206,7 @@ export const Stake = ({
                 onInputChange={handleInputChange}
                 control={control}
               />
-              <PercentOptionsRow
-                width='100%'
-                onPercentClick={handlePercentClick}
-                percent={percent}
-              />
+              <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
               <EstimatedReturnsRow
                 px={4}
                 py={4}

@@ -25,6 +25,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { StakingAction } from '../Staking'
 
+const UNBONDING_DURATION = '14'
+
 export enum InputType {
   Crypto = 'crypto',
   Fiat = 'fiat'
@@ -155,17 +157,15 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
             bgColor='gray.850'
             borderRadius='12px'
           />
-          <Box>
-            <CText color='gray.500' my='25px'>
-              {translate('staking.itWillTake')}
-              <span> </span>
-              <Box as='span' fontWeight='semibold' color='white'>
-                14 {translate('common.days')}
-              </Box>
-              <span> </span>
-              {translate('staking.toUnlock')}
-            </CText>
-          </Box>
+          <CText color='gray.500' my='25px'>
+            {translate('staking.itWillTake')}
+            <span> </span>
+            <Box as='span' fontWeight='semibold' color='white'>
+              {`${UNBONDING_DURATION} ${translate('common.days')}`}
+            </Box>
+            <span> </span>
+            {translate('staking.toUnlock')}
+          </CText>
           <Flex width='100%' mb='6px' justifyContent='space-between' alignItems='center'>
             <Text
               lineHeight={1}

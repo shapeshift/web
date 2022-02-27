@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/layout'
+import { Flex } from '@chakra-ui/layout'
 import {
   Button,
   Divider,
@@ -149,7 +149,7 @@ export const Stake = ({
   }))(assetId) as Asset
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Box
+      <Flex
         as='form'
         pt='22px'
         pb='15px'
@@ -157,95 +157,90 @@ export const Stake = ({
         maxWidth='lg'
         width='full'
         onSubmit={handleSubmit(onSubmit)}
+        direction='column'
+        minHeight='380px'
+        alignItems='center'
+        justifyContent='space-between'
       >
-        <Flex
-          direction='column'
-          maxWidth='595px'
-          minHeight='380px'
-          alignItems='center'
-          justifyContent='space-between'
-        >
-          <CosmosActionButtons asset={asset} activeAction={StakingAction.Stake} px='6px' py='6px' />
-          <AssetHoldingsCard
-            py='8px'
-            my={6}
-            assetSymbol={asset.symbol}
-            assetName={asset.name}
-            cryptoAmountAvailable={cryptoAmountAvailable}
-            fiatAmountAvailable={fiatAmountAvailable}
+        <CosmosActionButtons asset={asset} activeAction={StakingAction.Stake} px='6px' py='6px' />
+        <AssetHoldingsCard
+          py='8px'
+          my={6}
+          assetSymbol={asset.symbol}
+          assetName={asset.name}
+          cryptoAmountAvailable={cryptoAmountAvailable}
+          fiatAmountAvailable={fiatAmountAvailable}
+        />
+        <FormControl>
+          <AmountToStake
+            values={values}
+            isCryptoField={activeField === InputType.Crypto}
+            asset={asset}
+            onInputToggle={handleInputToggle}
           />
-          <FormControl>
-            <AmountToStake
+          <VStack
+            bg={bgColor}
+            borderRadius='xl'
+            borderWidth={1}
+            borderColor={borderColor}
+            divider={<Divider />}
+            spacing={0}
+          >
+            <StakingInput
+              height='40px'
               width='100%'
-              values={values}
+              px='8px'
+              py='8px'
               isCryptoField={activeField === InputType.Crypto}
+              amountRef={amountRef.current}
               asset={asset}
               onInputToggle={handleInputToggle}
+              onInputChange={handleInputChange}
+              control={control}
             />
-            <VStack
-              bg={bgColor}
-              borderRadius='xl'
-              borderWidth={1}
-              borderColor={borderColor}
-              divider={<Divider />}
-              spacing={0}
-            >
-              <StakingInput
-                height='40px'
-                width='100%'
-                px='8px'
-                py='8px'
-                isCryptoField={activeField === InputType.Crypto}
-                amountRef={amountRef.current}
-                asset={asset}
-                onInputToggle={handleInputToggle}
-                onInputChange={handleInputChange}
-                control={control}
-              />
-              <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
-              <EstimatedReturnsRow
-                px={4}
-                py={4}
-                assetSymbol={asset.symbol}
-                cryptoYield={cryptoYield}
-                fiatYield={fiatYield}
-              />
-            </VStack>
-            <Flex direction='column' alignItems='center'>
-              <FormHelperText pb={2} mb='30px' mt='10px'>
-                <Text fontSize='12px' translation='defi.modals.staking.estimateDisclaimer' />
-              </FormHelperText>
-            </Flex>
-          </FormControl>
-          <CText fontSize='12px' color='gray.500' mb='20px' width='full' textAlign='center'>
-            {`${translate('defi.modals.staking.byContinuing')} `}
-            <Link
-              color='blue.500'
-              target='_blank'
-              href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
-            >
-              {`${translate('defi.modals.staking.risks')}`}
-            </Link>
-            {` ${translate('defi.modals.staking.ofParticipating')} `}
-            <Link color='blue.500' target='_blank' href='/legal/privacy-policy'>
-              {`${translate('defi.modals.staking.terms')}.`}
-            </Link>
-          </CText>
-          <Button
-            colorScheme={fieldError ? 'red' : 'blue'}
-            isDisabled={!isValid}
-            mb={2}
-            size='lg'
-            type='submit'
-            width='full'
+            <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
+            <EstimatedReturnsRow
+              px={4}
+              py={4}
+              assetSymbol={asset.symbol}
+              cryptoYield={cryptoYield}
+              fiatYield={fiatYield}
+            />
+          </VStack>
+          <Flex direction='column' alignItems='center'>
+            <FormHelperText pb={2} mb='30px' mt='10px'>
+              <Text fontSize='12px' translation='defi.modals.staking.estimateDisclaimer' />
+            </FormHelperText>
+          </Flex>
+        </FormControl>
+        <CText fontSize='12px' color='gray.500' mb='20px' width='full' textAlign='center'>
+          {`${translate('defi.modals.staking.byContinuing')} `}
+          <Link
+            color='blue.500'
+            target='_blank'
+            href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
           >
-            <Text translation={fieldError || 'common.continue'} />
-          </Button>
-          <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
-            <Text translation='common.cancel' />
-          </Button>
-        </Flex>
-      </Box>
+            {`${translate('defi.modals.staking.risks')}`}
+          </Link>
+          {` ${translate('defi.modals.staking.ofParticipating')} `}
+          <Link color='blue.500' target='_blank' href='/legal/privacy-policy'>
+            {`${translate('defi.modals.staking.terms')}.`}
+          </Link>
+        </CText>
+        <Button
+          colorScheme={fieldError ? 'red' : 'blue'}
+          isDisabled={!isValid}
+          mb={2}
+          size='lg'
+          type='submit'
+          width='full'
+        >
+          <Text translation={fieldError || 'common.continue'} />
+        </Button>
+        <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
+          <Text translation='common.cancel' />
+        </Button>
+      </Flex>
     </AnimatePresence>
   )
 }

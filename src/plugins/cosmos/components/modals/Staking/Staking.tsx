@@ -1,4 +1,5 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { useRef } from 'react'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -6,7 +7,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { Stake } from './views/Stake'
 
 type StakingModalProps = {
-  assetId: string
+  assetId: CAIP19
   action: StakingAction
 }
 

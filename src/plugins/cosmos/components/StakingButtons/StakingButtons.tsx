@@ -1,11 +1,12 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type StakingButtonsProps = {
-  assetId: string
+  assetId: CAIP19
 }
 
 export const StakingButtons = ({ assetId, ...styleProps }: StakingButtonsProps & FlexProps) => {

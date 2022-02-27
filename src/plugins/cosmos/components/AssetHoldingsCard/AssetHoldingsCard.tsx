@@ -19,7 +19,7 @@ export const AssetHoldingsCard = ({
   fiatAmountAvailable,
   ...styleProps
 }: AssetHoldingsCardProps & CardProps) => (
-  <Card variant='group' {...styleProps}>
+  <Card size='sm' width='full' variant='group' {...styleProps}>
     <Card.Body>
       <Flex alignItems='center'>
         <AssetIcon src={osmosis} boxSize='40px' />

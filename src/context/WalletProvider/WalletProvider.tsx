@@ -228,7 +228,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           playSound('success')
           break
         case 'disconnect':
-          playSound('fail')
+          // playSound('fail')
           break
         default:
         //TODO Spammy
@@ -269,6 +269,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('setUpdaterMode', (event, data) => {
       keepkey.setUpdaterMode(data.payload)
+    })
+
+    ipcRenderer.on('setNeedsBootloaderUpdate', (event, data) => {
+      keepkey.setNeedsBootloaderUpdate(true)
     })
 
     ipcRenderer.on('loadKeepKeyFirmwareLatest', (event, data) => {

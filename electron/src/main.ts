@@ -119,6 +119,7 @@ let USERNAME
 let CONFIG
 let WALLETS
 let CONTEXT
+let KEEPKEY_FEATURES
 let isQuitting = false
 let eventIPC = {}
 let APPROVED_ORIGINS: string[] = []
@@ -488,6 +489,16 @@ ipcMain.on('onAccountInfo', async (event, data) => {
     }
 })
 
+ipcMain.on('onKeepKeyInfo', async (event, data) => {
+    const tag = TAG + ' | onKeepKeyInfo | '
+    try {
+        KEEPKEY_FEATURES = data.payload
+    } catch (e) {
+        log.error('e: ', e)
+        log.error(tag, e)
+    }
+})
+
 ipcMain.on('onBalanceInfo', async (event, data) => {
     const tag = TAG + ' | onBalanceInfo | '
     try {
@@ -622,6 +633,18 @@ const start_bridge = async function (event) {
                         status: STATUS,
                         state: STATE
                     })
+                }
+                next()
+            } catch (e) {
+                throw e
+            }
+        })
+
+        //status
+        appExpress.all('/device', async function (req, res, next) {
+            try {
+                if (req.method === 'GET') {
+                    res.status(200).json({})
                 }
                 next()
             } catch (e) {
@@ -807,6 +830,93 @@ ipcMain.on('onStartBridge', async event => {
     }
 })
 
+ipcMain.on('onUpdateFirmware', async event => {
+    const tag = TAG + ' | onUpdateFirmware | '
+    try {
+        let result = await Hardware.getLatestFirmwareData()
+        let firmware = await Hardware.downloadFirmware(result.firmware.url)
+        const updateResponse = await Hardware.loadFirmware(firmware)
+        console.log("updateResponse: ",updateResponse)
+
+        event.sender.send('onCompleteFirmwareUpload', {
+            bootloader:true,
+            success:true
+        })
+
+    } catch (e) {
+        log.error(tag, e)
+    }
+})
+
+ipcMain.on('onUpdateBootloader', async event => {
+    const tag = TAG + ' | onUpdateBootloader | '
+    try {
+        log.info(tag,"checkpoint: ")
+        let result = await Hardware.getLatestFirmwareData()
+        log.info(tag,"result: ",result)
+        log.info(tag,"result: ",result.bootloader.url)
+        let firmware = await Hardware.downloadFirmware(result.bootloader.url)
+        const updateResponse = await Hardware.loadFirmware(firmware)
+        console.log("updateResponse: ",updateResponse)
+
+        event.sender.send('onCompleteBootloaderUpload', {
+            bootloader:true,
+            success:true
+        })
+
+    } catch (e) {
+        log.error(tag, e)
+    }
+})
+
+const update_keepkey_status = async function (event) {
+    let tag = " | update_keepkey_status | "
+    try {
+        //
+        let firmwareInfo = await Hardware.getLatestFirmwareData()
+        log.info(tag,"firmwareInfo: ",firmwareInfo)
+        event.sender.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
+
+        //init
+        let resultInit = await Hardware.init()
+        if(resultInit && resultInit.success && resultInit.bootloaderMode){
+            event.sender.send('setUpdaterMode', { payload: true })
+        }
+        if(resultInit && resultInit.success && resultInit.wallet){
+            KEEPKEY_FEATURES = resultInit
+            event.sender.send('loadKeepKeyInfo', { payload: resultInit })
+            event.sender.send('openFirmwareUpdate', { })
+            //if not latest bootloader, set need bootloader update
+            if(resultInit.bootloaderVersion !== "v1.1.0"){
+                event.sender.send('setUpdaterMode', { payload: true })
+            }
+        }
+        log.info(tag,"resultInit: ",resultInit)
+
+        let allDevices = await usb.getDeviceList()
+        log.info(tag,"allDevices: ",allDevices)
+
+        let resultWebUsb = await usb.findByIds(11044,2)
+        if(resultWebUsb){
+            log.info(tag,"KeepKey connected in webusb!")
+            //get version
+        }
+
+        let resultPreWebUsb = await usb.findByIds(11044,1)
+        if(resultPreWebUsb){
+            log.info(tag,"update required!")
+        }
+
+        let resultUpdater = await usb.findByIds(11044,1)
+        if(resultUpdater){
+            log.info(tag,"UPDATER MODE DETECTED!")
+        }
+    }catch(e){
+        log.error(e)
+    }
+}
+
+
 ipcMain.on('onStartApp', async (event, data) => {
     const tag = TAG + ' | onStartApp | '
     try {
@@ -847,39 +957,7 @@ ipcMain.on('onStartApp', async (event, data) => {
 
         //onStart
         try{
-            let firmwareInfo = await Hardware.getLatestFirmwareData()
-            log.info(tag,"firmwareInfo: ",firmwareInfo)
-            event.sender.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
-
-            //init
-            let resultInit = await Hardware.init()
-            if(resultInit && resultInit.success && resultInit.bootloaderMode){
-                event.sender.send('setUpdaterMode', { payload: true })
-            }
-            if(resultInit && resultInit.success && resultInit.wallet){
-                event.sender.send('loadKeepKeyInfo', { payload: resultInit })
-                event.sender.send('openFirmwareUpdate', { })
-            }
-            log.info(tag,"resultInit: ",resultInit)
-
-            let allDevices = await usb.getDeviceList()
-            log.info(tag,"allDevices: ",allDevices)
-
-            let resultWebUsb = await usb.findByIds(11044,2)
-            if(resultWebUsb){
-                log.info(tag,"KeepKey connected in webusb!")
-                //get version
-            }
-
-            let resultPreWebUsb = await usb.findByIds(11044,1)
-            if(resultPreWebUsb){
-                log.info(tag,"update required!")
-            }
-
-            let resultUpdater = await usb.findByIds(11044,1)
-            if(resultUpdater){
-                log.info(tag,"UPDATER MODE DETECTED!")
-            }
+            update_keepkey_status(event)
         }catch(e){
             log.error(e)
         }
@@ -900,15 +978,15 @@ ipcMain.on('onStartApp', async (event, data) => {
             event.sender.send('attach', { device })
             start_bridge(event)
 
-            let resultInit = await Hardware.init()
-            log.info(tag,"resultInit: ",resultInit)
-            //if updater mode send event
+            update_keepkey_status(event)
         })
 
         usb.on('detach', function (device) {
             log.info('detach device: ', device)
             event.sender.send('detach', { device })
             //stop_bridge(event)
+
+            update_keepkey_status(event)
         })
     } catch (e) {
         log.error('e: ', e)

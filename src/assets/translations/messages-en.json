@@ -211,6 +211,11 @@
         "button": "Submit Passphrase"
       }
     },
+    "initialize": {
+      "header": "Initialize KeepKey!",
+      "initialize": "Initialize new KeepKey",
+      "restore": "Restore KeepKey from seed"
+    },
     "firmware": {
         "header": "Update Required Your KeepKey!",
         "update": "check KeepKey Status",

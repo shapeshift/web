@@ -26,10 +26,12 @@ export const FirmwareModal = () => {
   const { firmware } = useModal()
   const { close, isOpen } = firmware
 
-  const HandleSubmit = async () => {
-    close()
+  const HandleUpdateBootloader = async () => {
+    ipcRenderer.send('onUpdateBootloader', {})
   }
-
+  const HandleUpdateFirmware = async () => {
+    ipcRenderer.send('onUpdateFirmware', {})
+  }
   const HandleUpdate = async () => {
     ipcRenderer.send('onUpdateKeepKeyStatus', {})
   }
@@ -62,11 +64,20 @@ export const FirmwareModal = () => {
             {keepkey.isInUpdaterMode ? (<div>
               <h2>BootLoader Mode actived!</h2>
               <small>click to perform action</small>
+              {/*<Button*/}
+              {/*    isFullWidth*/}
+              {/*    size='lg'*/}
+              {/*    colorScheme='blue'*/}
+              {/*    onClick={HandleUpdateBootloader}*/}
+              {/*    disabled={loading}*/}
+              {/*>*/}
+              {/*  <Text translation={'modals.firmware.continue'} />*/}
+              {/*</Button>*/}
               <Button
                   isFullWidth
                   size='lg'
                   colorScheme='blue'
-                  onClick={HandleSubmit}
+                  onClick={HandleUpdateFirmware}
                   disabled={loading}
               >
                 <Text translation={'modals.firmware.continue'} />
@@ -87,14 +98,14 @@ export const FirmwareModal = () => {
                   </Row>
                   <Image src={KeepKey} alt='Approve Transaction On Device!' />
                   <small>Please disconnect, hold down button, and reconnect device to enter bootloader mode to continue</small>
-                  <Button
-                      isFullWidth
-                      size='lg'
-                      colorScheme='blue'
-                      onClick={HandleUpdate}
-                  >
-                    <Text translation={'modals.firmware.update'} />
-                  </Button>
+                  {/*<Button*/}
+                  {/*    isFullWidth*/}
+                  {/*    size='lg'*/}
+                  {/*    colorScheme='blue'*/}
+                  {/*    onClick={HandleUpdate}*/}
+                  {/*>*/}
+                  {/*  <Text translation={'modals.firmware.update'} />*/}
+                  {/*</Button>*/}
                 </div>
             )}
           </div>

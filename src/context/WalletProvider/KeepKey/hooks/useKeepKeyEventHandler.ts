@@ -8,7 +8,7 @@ import { FailureType, MessageType } from '../KeepKeyTypes'
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
 export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
-  const { keepkeyPin, keepkeyPassphrase } = useModal()
+  const { keepkeyPin, keepkeyPassphrase, initialize } = useModal()
   const { keyring } = state
 
   useEffect(() => {
@@ -64,7 +64,12 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
         const wallet = keyring.get(id)
         if (wallet && id === state.walletInfo?.deviceId) {
           // This gets the firmware version needed for some KeepKey "supportsX" functions
-          await wallet.getFeatures()
+          let features = await wallet.getFeatures()
+          console.log("features: ",features)
+          if(!features.initialized){
+            console.log("KEEPKEY NOT INITIALIZED")
+            initialize.open({})
+          }
           // Show the label from the wallet instead of a generic name
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.

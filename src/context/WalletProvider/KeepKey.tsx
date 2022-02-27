@@ -4,7 +4,6 @@
 */
 import cryptoTools from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
-import { ipcRenderer } from 'electron'
 
 export class KeepKeyService {
   public queryKey: string
@@ -16,6 +15,10 @@ export class KeepKeyService {
   public latestBootloaderVersion: string | undefined
   public latestFirmareVersion: string | undefined
   public isInUpdaterMode: boolean
+  public needsBootloaderUpdate: boolean | undefined
+  public needsFirmwareUpdate: boolean | undefined
+  public skippedFirmwareUpdate: boolean | undefined
+  public initialize: any
   constructor() {
     this.isInUpdaterMode = false
     let queryKey: string | null = localStorage.getItem('queryKey')
@@ -59,6 +62,14 @@ export class KeepKeyService {
     }
   }
 
+  async setNeedsBootloaderUpdate(status: any): Promise<any> {
+    try {
+      this.needsBootloaderUpdate = true
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   async updateKeepKeyFirmwareLatest(features: any): Promise<any> {
     try {
       //
@@ -74,14 +85,15 @@ export class KeepKeyService {
   async updateFeatures(features: any): Promise<any> {
     try {
       //
-      console.log("features: ",features)
       this.bootloaderVersion = features.bootloaderVersion
       this.firmwareVersion = features.firmwareVersion
 
       //get latest firmware save in memory
 
-      //prompt user to enter bootloader mode
 
+      //if not on latest
+      //prompt user to enter bootloader mode
+      //allow skip
     } catch (e) {
       console.error(e)
     }
@@ -92,7 +104,13 @@ export class KeepKeyService {
       this.HDWallet = HDWallet
       // @ts-ignore
       let features = await HDWallet.getFeatures()
-      console.log("features:",features)
+      console.log("pairWallet: features:",features)
+      if(!features.initilized){
+        console.log("KeepKey NOT initialized!")
+        this.initialize.open()
+      } else {
+        console.log("KeepKey initialized!")
+      }
 
       //get latest firmware
 

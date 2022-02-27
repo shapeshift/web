@@ -15,11 +15,9 @@ export const RewardsRow = ({
   fiatRate,
   ...styleProps
 }: RewardsRowProps & FlexProps) => (
-  <Flex {...styleProps}>
-    <Flex width='50%' height='20px'>
-      <Text translation={'defi.rewards'} />
-    </Flex>
-    <Flex direction='column' alignItems='flex-end' width='100%'>
+  <Flex width='100%' alignItems='center' justifyContent='space-between' {...styleProps}>
+    <Text translation={'defi.rewards'} />
+    <Flex direction='column' alignItems='flex-end'>
       <Amount.Fiat
         value={cryptoRewardsAmount.times(fiatRate).toPrecision()}
         fontWeight='semibold'

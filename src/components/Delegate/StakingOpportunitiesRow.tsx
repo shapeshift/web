@@ -1,22 +1,24 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
-import { AprTag } from 'features/defi/components/AprTag/AprTag'
-import { useHistory, useLocation } from 'react-router-dom'
+import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
-  const history = useHistory()
-  const location = useLocation()
+  const { cosmosGetStarted, cosmosStaked } = useModal()
 
-  const handleClick = () => {
-    history.push({
-      pathname: `/defi/vault/cosmos/get-started`,
-      state: { background: location }
-    })
+  const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
+    e.stopPropagation()
+  }
+
+  const handleStakedClick = () => {
+    cosmosStaked.open({ assetId: 'cosmoshub-4/slip44:118' })
   }
 
   return (
@@ -27,7 +29,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
       variant='ghost'
       fontWeight='normal'
       py={2}
-      onClick={handleClick}
+      onClick={handleStakedClick}
     >
       <Flex alignItems='center'>
         <Flex mr={4}>
@@ -53,7 +55,13 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
               <Amount.Crypto value={'10'} symbol={'OSMO'} prefix='≈' />
             </HStack>
           ) : (
-            <Button as='span' colorScheme='blue' variant='ghost-filled' size='sm'>
+            <Button
+              onClick={handleGetStartedClick}
+              as='span'
+              colorScheme='blue'
+              variant='ghost-filled'
+              size='sm'
+            >
               <Text translation='common.getStarted' />
             </Button>
           )}

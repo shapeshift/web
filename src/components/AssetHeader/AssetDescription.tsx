@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
+import { markdownLinkToHTML } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,7 +18,7 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
   const [showDescription, setShowDescription] = useState(false)
   const handleToggle = () => setShowDescription(!showDescription)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const { name, description } = asset || {}
+  const { name, description, isTrustedDescription } = asset || {}
   const query = useGetAssetDescriptionQuery(assetId)
   const isLoaded = !query.isLoading
   if (!description || !isLoaded) return null
@@ -31,7 +32,11 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
         </Skeleton>
         <Collapse startingHeight={70} in={showDescription}>
           <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
-            <SanitizedHtml color='gray.500' dirtyHtml={description} />
+            <SanitizedHtml
+              color='gray.500'
+              dirtyHtml={markdownLinkToHTML(description)}
+              isTrusted={isTrustedDescription}
+            />
           </SkeletonText>
         </Collapse>
         <Button size='sm' onClick={handleToggle} mt='1rem'>

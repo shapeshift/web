@@ -11,7 +11,7 @@ DOMPurify.addHook('uponSanitizeElement', (node, data) => {
       el.className = 'sanitized-link'
       const url: string = el.getAttribute('href') ?? ''
       const isExternalURL = new URL(url).origin !== window.location.origin
-      if (!isExternalURL) {
+      if (isExternalURL) {
         el.setAttribute('target', '_blank')
       }
     } else {
@@ -32,7 +32,7 @@ export const SanitizedHtml = ({
   dirtyHtml,
   isTrusted,
   ...rest
-}: { dirtyHtml: string; isTrusted: boolean } & TextProps) => {
+}: { dirtyHtml: string; isTrusted?: boolean } & TextProps) => {
   let cleanText = null
   if (isTrusted) {
     cleanText = sanitize(dirtyHtml ?? '', {

@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "yarn clean && tsc --project tsconfig.build.json",
-    "generate": "yarn build && node ./dist/generateAssetData/GenerateAssetData.js",
+    "generate": "yarn build && node ./dist/generateAssetData/generateAssetData.js",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "jest test",

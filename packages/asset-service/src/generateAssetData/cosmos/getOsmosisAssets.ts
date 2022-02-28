@@ -37,7 +37,7 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
     const denom = current.denom_units.find((item) => item.denom === current.display)
     const precision = denom?.exponent ?? 6
 
-    let assetNamespace = 'slip44:118'
+    let assetNamespace = 'slip44'
     let assetReference = '118'
 
     if (current.base.startsWith('u') && current.base !== 'uosmo') {

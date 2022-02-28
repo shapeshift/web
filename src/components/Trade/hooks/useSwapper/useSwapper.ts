@@ -302,8 +302,9 @@ export const useSwapper = () => {
     amount,
     sellAsset,
     buyAsset,
+    feeAsset,
     action
-  }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset }) => {
+  }: GetQuoteInput & { sellAsset: TradeAsset; buyAsset: TradeAsset; feeAsset: Asset }) => {
     if (!buyAsset?.currency || !sellAsset?.currency) return
 
     const isSellAmount = action === TradeActions.SELL || !amount
@@ -317,6 +318,7 @@ export const useSwapper = () => {
     if (precision) {
       formattedAmount = toBaseUnit(amount, precision)
     }
+    const feeAssetPrecision = feeAsset.precision
 
     const onFinish = (quote: Quote<ChainTypes, SwapperType>) => {
       if (isComponentMounted.current) {
@@ -328,18 +330,23 @@ export const useSwapper = () => {
         const sellAmount = fromBaseUnit(quote.sellAmount, sellAsset.currency.precision)
         const newFiatAmount = bn(buyAmount).times(bnOrZero(buyAsset.fiatRate)).toFixed(2)
 
+        const estimatedGasFee = fromBaseUnit(quote?.feeData?.fee || 0, feeAssetPrecision)
+
         if (action === TradeActions.SELL && isSellAmount && amount === sellAsset.amount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('fiatAmount', newFiatAmount)
           setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         } else if (action === TradeActions.BUY && isBuyAmount && amount === buyAsset.amount) {
           setValue('sellAsset.amount', sellAmount)
           setValue('fiatAmount', newFiatAmount)
           setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         } else if (action === TradeActions.FIAT && isFiatAmount && amount === fiatAmount) {
           setValue('buyAsset.amount', buyAmount)
           setValue('sellAsset.amount', sellAmount)
           setValue('action', undefined)
+          setValue('estimatedGasFees', estimatedGasFee)
         }
       }
     }

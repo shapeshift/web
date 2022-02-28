@@ -11,6 +11,7 @@
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
+    "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",

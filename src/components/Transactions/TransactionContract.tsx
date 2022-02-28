@@ -21,6 +21,8 @@ export const TransactionContract = ({
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
 
+  const toAddress = txDetails.ensTo || txDetails.to || undefined
+
   return (
     <>
       <Flex
@@ -163,20 +165,22 @@ export const TransactionContract = ({
               )}
             </Row.Value>
           </Row>
-          <Row variant='vertical'>
-            <Row.Label>
-              <Text translation={'transactionRow.to'} />
-            </Row.Label>
-            <Row.Value>
-              <Link
-                isExternal
-                color='blue.500'
-                href={`${txDetails.explorerAddressLink}${txDetails.ensTo ?? txDetails.to}`}
-              >
-                <MiddleEllipsis address={txDetails.ensTo ?? txDetails.to} />
-              </Link>
-            </Row.Value>
-          </Row>
+          {
+            toAddress && <Row variant='vertical'>
+              <Row.Label>
+                <Text translation={'transactionRow.to'} />
+              </Row.Label>
+              <Row.Value>
+                <Link
+                  isExternal
+                  color='blue.500'
+                  href={`${txDetails.explorerAddressLink}${toAddress}`}
+                >
+                  <MiddleEllipsis address={toAddress} />
+                </Link>
+              </Row.Value>
+            </Row>
+          }
         </SimpleGrid>
       </Collapse>
     </>

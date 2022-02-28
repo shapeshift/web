@@ -92,9 +92,9 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
-  const explorerTxLink = standardAsset?.explorerTxLink ?? tradeAsset?.explorerTxLink ?? ''
+  const explorerTxLink = standardAsset?.explorerTxLink ?? tradeAsset?.explorerTxLink ?? feeAsset.explorerTxLink ?? ''
   const explorerAddressLink =
-    standardAsset?.explorerAddressLink ?? tradeAsset?.explorerAddressLink ?? ''
+    standardAsset?.explorerAddressLink ?? tradeAsset?.explorerAddressLink ?? feeAsset.explorerAddressLink ?? ''
 
   return {
     tx,

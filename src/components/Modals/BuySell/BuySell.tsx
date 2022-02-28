@@ -14,7 +14,52 @@ export enum BuySellAction {
   Sell = 'sell'
 }
 
-export type BuySellAsset = {
+export enum InstitutionType {
+  Coinify = 'coinify',
+  Wyre = 'wyre'
+}
+
+export enum TransactionDirection {
+  BankToBlockchain = 'bank_blockchain',
+  CardToBlockchain = 'card_blockchain',
+  BlockchainToBank = 'card_blockchain'
+}
+
+export type CurrencyFee = {
+  additional: string | null
+  additional_currency: string | null
+  default: boolean
+  percentage: number
+  subtype: string
+  type: string
+}
+
+export type Medium = {
+  Blockchain: 'blockchain'
+  Bank: 'bank'
+}
+
+export type SupportedCurrency = {
+  destination: {
+    currencies: CurrencyAsset[]
+    medium: Medium
+    minimums?: { [x: string]: number }
+  }
+  fees: CurrencyFee[]
+  institution_id: 'coinify' | 'wyre'
+  resolved_destination_currency_count: number
+  resolved_source_currency_count: number
+  source: {
+    currencies: CurrencyAsset[]
+    medium: Medium
+    minimums?: { [x: string]: number }
+  }
+  supported_destination_currency_count: number
+  supported_source_currency_count: number
+  transaction_direction: TransactionDirection
+}
+
+export type CurrencyAsset = {
   created_at: string
   external_id: string
   gem_asset_id: string

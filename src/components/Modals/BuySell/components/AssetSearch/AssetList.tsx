@@ -1,13 +1,13 @@
 import { ListProps } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
+import { CurrencyAsset } from '../../BuySell'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
-  handleClick: (asset: Asset) => void
-  assets: Asset[]
+  handleClick: (asset: CurrencyAsset) => void
+  assets: CurrencyAsset[]
 } & ListProps
 
 export const AssetList = ({ assets, handleClick }: AssetListProps) => {

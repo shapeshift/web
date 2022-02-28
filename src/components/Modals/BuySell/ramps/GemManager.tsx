@@ -21,7 +21,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
-import { BuySellAction, BuySellAsset } from '../BuySell'
+import { BuySellAction, CurrencyAsset } from '../BuySell'
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
 import { BuySellActionButtons } from '../components/BuySellActionButtons'
@@ -38,11 +38,11 @@ export const GemManager = () => {
   const toast = useToast()
   const { buysell } = useModal()
 
-  const [asset, setAsset] = useState<BuySellAsset | null>()
+  const [asset, setAsset] = useState<CurrencyAsset | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
   const [verified, setVerified] = useState<boolean | null>(null)
 
-  const onSelectAsset = (data: BuySellAsset) => {
+  const onSelectAsset = (data: CurrencyAsset) => {
     setIsSelectingAsset(false)
     setAsset(data)
   }

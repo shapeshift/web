@@ -1,6 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Center, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { concat, flatten, uniqBy } from 'lodash'
@@ -8,17 +7,22 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
-import { BuySellAction } from '../../BuySell'
+import {
+  BuySellAction,
+  CurrencyAsset,
+  SupportedCurrency,
+  TransactionDirection
+} from '../../BuySell'
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm'
 
 type AssetSearchProps = {
-  onClick: (asset: any) => void
+  onClick: (asset: CurrencyAsset) => void
   type: BuySellAction
 }
 
 export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchProps) => {
-  const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
+  const [filteredAssets, setFilteredAssets] = useState<CurrencyAsset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
@@ -30,9 +34,9 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
   const searching = useMemo(() => searchString.length > 0, [searchString])
 
   const [loading, setLoading] = useState(false)
-  const [currentAssets, setCurrentAssets] = useState<any[]>([])
+  const [currentAssets, setCurrentAssets] = useState<CurrencyAsset[]>([])
 
-  const getCoinifySupportedCurrencies = async () => {
+  const getCoinifySupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
       return data
@@ -41,7 +45,7 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
     }
   }
 
-  const getWyreSupportedCurrencies = async () => {
+  const getWyreSupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
       return data
@@ -49,31 +53,31 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
       console.error(e)
     }
   }
-  //Filter for the assets you can buy
-  const buyFilter = (asset: { transaction_direction: string }) =>
-    asset.transaction_direction === 'bank_blockchain' ||
-    asset.transaction_direction === 'card_blockchain'
 
-  // Filter for the assets you can sell
-  const sellFilter = (asset: { transaction_direction: string }) =>
-    asset.transaction_direction === 'blockchain_bank'
+  const buyFilter = (currency: SupportedCurrency) =>
+    currency.transaction_direction === TransactionDirection.BankToBlockchain ||
+    currency.transaction_direction === TransactionDirection.CardToBlockchain
 
-  //Filter and merge function
+  const sellFilter = (currency: SupportedCurrency) =>
+    currency.transaction_direction === TransactionDirection.BlockchainToBank
+
   const filterAndMerge = useMemo(
-    () => (coinifyList: any[], wyreList: any[], key: string | number, filter: any) => {
-      const list1 = coinifyList
-        .filter(filter)
-        .map((list: { [x: string]: { currencies: any } }) => list[key].currencies)
-      const list2 = wyreList
-        .filter(filter)
-        .map((list: { [x: string]: { currencies: any } }) => list[key].currencies)
-      const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
-      return results
-    },
+    () =>
+      (
+        coinifyList: SupportedCurrency[],
+        wyreList: SupportedCurrency[],
+        key: 'destination' | 'source',
+        filter: (currency: SupportedCurrency) => boolean
+      ): CurrencyAsset[] => {
+        const list1 = coinifyList.filter(filter).map(list => list[key].currencies)
+        const list2 = wyreList.filter(filter).map(list => list[key].currencies)
+        const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
+        return results
+      },
     []
   )
 
-  const fetchSupportedCoins = async () => {
+  const fetchSupportedCurrencies = async () => {
     setLoading(true)
 
     try {
@@ -94,7 +98,7 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
   }
 
   useEffect(() => {
-    fetchSupportedCoins()
+    fetchSupportedCurrencies()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

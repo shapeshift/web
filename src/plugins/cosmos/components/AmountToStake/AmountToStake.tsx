@@ -36,9 +36,9 @@ export const AmountToStake = ({
       _hover={{ color: 'gray.400', transition: '.2s color ease' }}
     >
       {isCryptoField ? (
-        <Amount.Fiat value={values?.fiatAmount || ''} />
+        <Amount.Fiat value={values?.fiatAmount ?? ''} />
       ) : (
-        <Amount.Crypto value={values?.cryptoAmount || ''} symbol={asset.symbol} />
+        <Amount.Crypto value={values?.cryptoAmount ?? ''} symbol={asset.symbol} />
       )}
     </Box>
   </Flex>

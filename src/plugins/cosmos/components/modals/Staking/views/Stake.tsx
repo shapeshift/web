@@ -82,7 +82,7 @@ export const Stake = ({
   const values = useWatch({ control })
   const cryptoError = get(errors, 'cryptoAmount.message', null)
   const fiatError = get(errors, 'fiatAmount.message', null)
-  const fieldError = cryptoError || fiatError
+  const fieldError = cryptoError ?? fiatError
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
 
@@ -235,7 +235,7 @@ export const Stake = ({
           type='submit'
           width='full'
         >
-          <Text translation={fieldError || 'common.continue'} />
+          <Text translation={fieldError ?? 'common.continue'} />
         </Button>
         <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
           <Text translation='common.cancel' />

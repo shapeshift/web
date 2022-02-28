@@ -114,6 +114,7 @@ export type TxFee = {
 export enum TxType {
   Send = 'send',
   Receive = 'receive',
+  Contract = 'contract',
   Unknown = 'unknown'
 }
 

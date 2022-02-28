@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.25.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.24.0...@shapeshiftoss/types-v1.25.0) (2022-02-28)
+
+
+### Features
+
+* add "Contract" TxType ([#405](https://github.com/shapeshift/lib/issues/405)) ([df0d303](https://github.com/shapeshift/lib/commit/df0d3038a516fb8164181f26a838b6fcecfd0c60))
+
 # [@shapeshiftoss/types-v1.24.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.23.1...@shapeshiftoss/types-v1.24.0) (2022-02-25)
 
 

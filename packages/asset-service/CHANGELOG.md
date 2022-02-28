@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.21.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.20.1...@shapeshiftoss/asset-service-v1.21.0) (2022-02-28)
+
+
+### Features
+
+* asset service blacklist ([#402](https://github.com/shapeshift/lib/issues/402)) ([c3f53ad](https://github.com/shapeshift/lib/commit/c3f53ad61847e7bb7245d07c9fff462b152bf9d9))
+
 # [@shapeshiftoss/asset-service-v1.20.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.20.0...@shapeshiftoss/asset-service-v1.20.1) (2022-02-28)
 
 # [@shapeshiftoss/asset-service-v1.20.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.19.3...@shapeshiftoss/asset-service-v1.20.0) (2022-02-25)

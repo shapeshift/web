@@ -165,8 +165,8 @@ export const TransactionContract = ({
               )}
             </Row.Value>
           </Row>
-          {
-            toAddress && <Row variant='vertical'>
+          {toAddress && (
+            <Row variant='vertical'>
               <Row.Label>
                 <Text translation={'transactionRow.to'} />
               </Row.Label>
@@ -180,7 +180,7 @@ export const TransactionContract = ({
                 </Link>
               </Row.Value>
             </Row>
-          }
+          )}
         </SimpleGrid>
       </Collapse>
     </>

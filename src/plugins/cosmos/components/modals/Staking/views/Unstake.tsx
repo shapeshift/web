@@ -181,7 +181,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
               mt='25px'
               justifyContent='space-between'
               alignItems='flex-start'
-              isUnstake
+              isStake={false}
               values={values}
               isCryptoField={activeField === InputType.Crypto}
               asset={asset}

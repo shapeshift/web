@@ -6,7 +6,7 @@ import { Text } from 'components/Text'
 
 type AmountToStakeProps = {
   asset: Asset
-  isUnstake?: boolean
+  isStake?: boolean
   isCryptoField: boolean
   onInputToggle: () => void
   values: {
@@ -15,7 +15,7 @@ type AmountToStakeProps = {
   }
 }
 export const AmountToStake = ({
-  isUnstake,
+  isStake = true,
   onInputToggle,
   isCryptoField,
   values,
@@ -24,7 +24,7 @@ export const AmountToStake = ({
 }: AmountToStakeProps & FlexProps) => (
   <Flex justifyContent='space-between' alignItems='flex-start' {...styleProps}>
     <FormLabel lineHeight={1} color='gray.500'>
-      <Text translation={isUnstake ? 'defi.amountToUnstake' : 'defi.amountToStake'} />
+      <Text translation={isStake ? 'defi.amountToStake' : 'defi.amountToUnstake'} />
     </FormLabel>
     <Box
       as='button'

@@ -22,7 +22,7 @@ export enum InstitutionType {
 export enum TransactionDirection {
   BankToBlockchain = 'bank_blockchain',
   CardToBlockchain = 'card_blockchain',
-  BlockchainToBank = 'card_blockchain'
+  BlockchainToBank = 'blockchain_bank'
 }
 
 export type CurrencyFee = {

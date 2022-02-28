@@ -10,8 +10,7 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/ethereum/EthereumChainAdapter'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -45,9 +44,6 @@ export const Address = () => {
   if (!(asset?.chain && asset?.name)) return null
 
   const adapter = chainAdapters.byChain(asset.chain)
-  const isEthereumChainAdapter = (
-    adapter: ChainAdapter<ChainTypes>
-  ): adapter is ChainAdapter<ChainTypes.Ethereum> => adapter.getType() === ChainTypes.Ethereum
 
   const handleNext = () => history.push(SendRoutes.Details)
 
@@ -87,7 +83,7 @@ export const Address = () => {
               validate: {
                 validateAddress: async (value: string) => {
                   const validAddress = await adapter.validateAddress(value)
-                  if (isEthereumChainAdapter(adapter)) {
+                  if (adapter instanceof EthereumChainAdapter) {
                     const validEnsAddress = await adapter.validateEnsAddress(value)
                     if (validEnsAddress.valid) {
                       // Verify that the ENS name resolves to an address

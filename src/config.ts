@@ -8,22 +8,12 @@ const { cleanEnv, str, url } = envalid
 // add validators for each .env variable
 // note env vars must be prefixed with REACT_APP_
 const validators = {
-  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: url({
-    devDefault: 'https://dev-api.ethereum.shapeshift.com'
-  }),
-  REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url({
-    devDefault: 'wss://dev-api.ethereum.shapeshift.com'
-  }),
-  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url({
-    devDefault: 'https://dev-api.bitcoin.shapeshift.com'
-  }),
-  REACT_APP_UNCHAINED_BITCOIN_WS_URL: url({
-    devDefault: 'wss://dev-api.bitcoin.shapeshift.com'
-  }),
-  REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url({
-    devDefault: 'http://api.cosmos.localhost'
-  }),
-  REACT_APP_UNCHAINED_COSMOS_WS_URL: url({ devDefault: 'ws://api.cosmos.localhost' }),
+  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_ETHEREUM_WS_URL: url(),
+  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
+  REACT_APP_UNCHAINED_COSMOS_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   REACT_APP_PORTIS_DAPP_ID: str({ devDefault: 'fakePortisId' }),
   REACT_APP_HIDE_SPLASH: bool({ default: false }),

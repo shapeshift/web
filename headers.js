@@ -40,7 +40,9 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
     process.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-    process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
+    process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL,
+    process.env.REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+    process.env.REACT_APP_UNCHAINED_COSMOS_WS_URL
   ],
   'frame-src': [
     'https://fwd.metamask.io/',

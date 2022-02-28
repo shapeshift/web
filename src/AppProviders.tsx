@@ -1,5 +1,6 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { UnchainedUrls } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
@@ -30,13 +31,17 @@ type ProvidersProps = {
 }
 
 const unchainedUrls: UnchainedUrls = {
-  ethereum: {
+  [ChainTypes.Ethereum]: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
   },
-  bitcoin: {
+  [ChainTypes.Bitcoin]: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
+  },
+  [ChainTypes.Cosmos]: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
   }
 }
 

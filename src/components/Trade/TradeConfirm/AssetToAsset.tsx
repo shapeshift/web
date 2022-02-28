@@ -40,15 +40,15 @@ export const AssetToAsset = ({
 
   const renderIcon = () => {
     return status === chainAdapters.TxStatus.Confirmed ? (
-      <Circle bg={green} w='100%' h='100%'>
+      <Circle bg={green} size='100%'>
         <CheckIcon />
       </Circle>
     ) : status === chainAdapters.TxStatus.Failed ? (
-      <Circle bg={red} w='100%' h='100%'>
+      <Circle bg={red} size='100%'>
         <CloseIcon p={1} />
       </Circle>
     ) : (
-      <Circle bg={gray} w='100%' h='100%'>
+      <Circle bg={gray} size='100%'>
         <ArrowForwardIcon />
       </Circle>
     )

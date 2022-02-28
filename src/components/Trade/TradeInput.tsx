@@ -306,7 +306,6 @@ export const TradeInput = ({ history }: RouterProps) => {
                 alignItems='center'
                 color='gray.500'
                 fontSize='sm'
-                spacing='24px'
                 data-test='trade-rate-quote'
               >
                 {!quote || action || error ? (

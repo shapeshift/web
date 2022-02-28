@@ -3,40 +3,10 @@ import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useSelector } from 'react-redux'
+import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiManagerProvider'
-import { useYearn } from '../contexts/YearnProvider/YearnProvider'
-
-// return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
-//   const network = NetworkTypes.MAINNET
-//   const contractType = ContractTypes.ERC20
-//   // asset
-//   const assetCAIP19 = caip19.toCAIP19({
-//     chain: vault.chain,
-//     network,
-//     contractType,
-//     tokenId: vault.tokenAddress
-//   })
-//   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-
-//   const data = {
-//     type: vault.type,
-//     provider: vault.provider,
-//     version: vault.version,
-//     contractAddress: vault.vaultAddress,
-//     tokenAddress: vault.tokenAddress,
-//     tvl: bnOrZero(vault.underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString(),
-//     apy: vault.metadata.apy?.net_apy,
-//     expired: vault.expired,
-//     chain: vault.chain
-//   }
-//   if (asset) {
-//     acc.push(data)
-//   }
-
-//   return acc
-// }, [])
 
 export type EarnOpportunityType = {
   type?: string
@@ -44,23 +14,29 @@ export type EarnOpportunityType = {
   version: string
   contractAddress: string
   tokenAddress: string
-  apy?: number
+  apy?: number | string
   tvl: string
-  assetId?: CAIP19
-  fiatAmount?: string
-  cryptoAmount?: string
+  assetId: CAIP19
+  fiatAmount: string
+  cryptoAmount: string
   expired?: boolean
   chain: ChainTypes
 }
 
 const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[] => {
   const assetIds = useSelector(selectAssetIds)
-  const { yearn } = useYearn()
+
+  const network = NetworkTypes.MAINNET
+  const contractType = ContractTypes.ERC20
+  const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
-    if (!yearn) return acc
-    const _vault = yearn.findByVaultTokenId(vault.vaultAddress)
-    const network = NetworkTypes.MAINNET
-    const contractType = ContractTypes.ERC20
+    let fiatAmount = '0'
+    let cryptoAmount = '0'
+    if (vaultsWithBalances[vault.vaultAddress]) {
+      const balances = vaultsWithBalances[vault.vaultAddress]
+      cryptoAmount = balances.cryptoAmount
+      fiatAmount = balances.fiatAmount
+    }
     const assetCAIP19 = caip19.toCAIP19({
       chain: vault.chain,
       network,
@@ -77,12 +53,14 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       apy: vault.metadata.apy?.net_apy,
       expired: vault.expired,
       chain: vault.chain,
-      assetId: assetCAIP19
+      assetId: assetCAIP19,
+      fiatAmount,
+      cryptoAmount
     }
-    if (assetIds.includes(assetCAIP19) && _vault) {
+    const hasZeroBalanceAndApy =
+      bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
+    if (assetIds.includes(assetCAIP19) && !hasZeroBalanceAndApy) {
       acc.push(data)
-    } else {
-      console.info('exclude', data)
     }
     return acc
   }, [])
@@ -97,9 +75,12 @@ const transformFoxy = (foxies: any[]): EarnOpportunityType[] => {
       contractAddress: foxy.contractAddress,
       tokenAddress: foxy.tokenAddress,
       tvl: '100',
-      apy: 100,
+      apy: 0.1,
       expired: false,
-      chain: ChainTypes.Ethereum
+      chain: ChainTypes.Ethereum,
+      assetId: '222',
+      fiatAmount: '100',
+      cryptoAmount: '0'
     }
   })
 }
@@ -109,7 +90,7 @@ type NoramlizeEarnOpportunitiesProps = {
   foxyArray: any[]
 }
 
-export const NoramlizeEarnOpportunities = ({
+export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray
 }: NoramlizeEarnOpportunitiesProps): EarnOpportunityType[] => {

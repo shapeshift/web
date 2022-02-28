@@ -2,6 +2,7 @@ import { Button } from '@chakra-ui/button'
 import { Box, Link, Stack } from '@chakra-ui/layout'
 import { ModalBody, ModalFooter } from '@chakra-ui/modal'
 import { CircularProgressLabel } from '@chakra-ui/progress'
+import { Flex } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -21,6 +22,7 @@ type ApproveProps = {
   loading: boolean
   loadingText?: string
   preFooter?: React.ReactNode
+  leftSide?: React.ReactNode
   onConfirm(): Promise<void>
   onCancel(): void
 }
@@ -34,29 +36,37 @@ export const Approve = ({
   loading,
   loadingText,
   preFooter,
+  leftSide,
   onCancel,
   onConfirm
 }: ApproveProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>
-      <ModalBody width='full' textAlign='center'>
-        <CircularProgress size='120px' thickness='4px' mt={8} mb={4} isIndeterminate={loading}>
-          <CircularProgressLabel>
-            <AssetIcon src={asset.icon} boxSize='90px' />
-          </CircularProgressLabel>
-        </CircularProgress>
-        <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
-        <Text
-          color='gray.500'
-          mb={6}
-          translation={['modals.approve.body', { asset: asset.name }]}
-        />
-        <Link color='blue.500' href={learnMoreLink} isExternal>
-          {translate('modals.approve.learnMore')}
-        </Link>
+      <ModalBody
+        width='full'
+        textAlign='center'
+        display='flex'
+        py={6}
+        flexDir={{ base: 'column', md: 'row' }}
+      >
+        {leftSide && leftSide}
+        <Stack flex={1} spacing={4}>
+          <Box>
+            <CircularProgress size='120px' thickness='4px' mt={8} mb={4} isIndeterminate={loading}>
+              <CircularProgressLabel>
+                <AssetIcon src={asset.icon} boxSize='90px' />
+              </CircularProgressLabel>
+            </CircularProgress>
+          </Box>
+          <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
+          <Text color='gray.500' translation={['modals.approve.body', { asset: asset.name }]} />
+          <Link color='blue.500' href={learnMoreLink} isExternal>
+            {translate('modals.approve.learnMore')}
+          </Link>
+        </Stack>
       </ModalBody>
-      <ModalFooter flexDir='column' mt={8}>
+      <ModalFooter mt={8}>
         <Stack width='full'>
           <Row pb={2}>
             <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
@@ -72,19 +82,20 @@ export const Approve = ({
             </Row.Value>
           </Row>
           {preFooter}
-          <Button
-            onClick={onConfirm}
-            width='full'
-            size='lg'
-            colorScheme='blue'
-            isLoading={loading}
-            loadingText={loadingText}
-          >
-            {translate('modals.approve.confirm')}
-          </Button>
-          <Button onClick={onCancel} width='full' size='lg' variant='ghost'>
-            {translate('modals.approve.reject')}
-          </Button>
+          <Flex width='full' justifyContent='space-between'>
+            <Button onClick={onCancel} size='lg' variant='ghost'>
+              {translate('modals.approve.reject')}
+            </Button>
+            <Button
+              onClick={onConfirm}
+              size='lg'
+              colorScheme='blue'
+              isLoading={loading}
+              loadingText={loadingText}
+            >
+              {translate('modals.approve.confirm')}
+            </Button>
+          </Flex>
         </Stack>
       </ModalFooter>
     </SlideTransition>

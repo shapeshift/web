@@ -26,20 +26,10 @@ export const YearnRouteSteps = ({ routes }: YearnRouteStepsProps) => {
   const stepperBorder = useColorModeValue('gray.100', 'gray.750')
 
   return (
-    <Box
-      bg={stepperBg}
-      px={4}
-      py={6}
-      flex={1}
-      borderRightWidth={{ base: 0, lg: 1 }}
-      borderBottomWidth={{ base: 1, lg: 0 }}
-      borderColor={stepperBorder}
-      borderTopLeftRadius='xl'
-      borderTopRightRadius={{ base: 'xl', lg: 'none' }}
-      borderBottomLeftRadius={{ base: 'none', lg: 'xl' }}
-      minWidth='250px'
-    >
-      <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
+    <Box flex={1} minWidth='200px' maxWidth='200px' mr={{ base: 0, md: 4 }} mb={{ base: 4, md: 0 }}>
+      <Box bg={stepperBg} p={4} borderRadius='xl' borderColor={stepperBorder} borderWidth={1}>
+        <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
+      </Box>
     </Box>
   )
 }

@@ -67,7 +67,7 @@ export const routes = [
   { step: 0, path: DepositPath.Deposit, label: 'Deposit' },
   { step: 1, path: DepositPath.Approve, label: 'Approve' },
   { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
-  { step: 2, path: DepositPath.Confirm, label: 'Confirm Deposit' },
+  { step: 2, path: DepositPath.Confirm, label: 'Confirm' },
   { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
   { step: 3, path: DepositPath.Status, label: 'Status' }
 ]
@@ -373,6 +373,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
+            leftSide={<YearnRouteSteps routes={routes} />}
           />
         )
       case DepositPath.Approve:
@@ -401,6 +402,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
             }
             onCancel={handleCancel}
             onConfirm={handleApprove}
+            leftSide={<YearnRouteSteps routes={routes} />}
           />
         )
       case DepositPath.Confirm:
@@ -628,13 +630,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      <YearnRouteSteps routes={routes} />
-      <Flex
-        flexDir='column'
-        width='full'
-        minWidth={{ base: 'auto', lg: '450px' }}
-        maxWidth={{ base: 'auto', lg: '450px' }}
-      >
+      <Flex flexDir='column' width='full'>
         <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>

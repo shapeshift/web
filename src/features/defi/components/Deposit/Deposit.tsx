@@ -22,6 +22,7 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  Stack,
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
@@ -60,6 +61,8 @@ type DepositProps = {
   marketData: MarketData
   // Array of the % options
   percentOptions: number[]
+  // For rendering things like the stepper
+  leftSide?: React.ReactNode
   onContinue(values: DepositValues): void
   onCancel(): void
 }
@@ -111,6 +114,7 @@ export const Deposit = ({
   fiatAmountAvailable,
   fiatInputValidation,
   enableSlippage = true,
+  leftSide,
   onContinue,
   onCancel,
   percentOptions
@@ -196,212 +200,216 @@ export const Deposit = ({
 
   return (
     <SlideTransition>
-      <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
-        <ModalBody>
-          <Card size='sm' width='full' variant='group' my={6}>
-            <Card.Body>
-              <Flex alignItems='center'>
-                <AssetIcon src={asset.icon} boxSize='40px' />
-                <Box ml={2}>
-                  <RawText fontWeight='bold' lineHeight='1' mb={1}>
-                    {asset.name}
-                  </RawText>
-                  <RawText color='gray.500' lineHeight='1'>
-                    {asset.symbol}
-                  </RawText>
-                </Box>
-                <Box ml='auto' textAlign='right'>
-                  <Amount.Fiat
-                    fontWeight='bold'
-                    lineHeight='1'
-                    mb={1}
-                    value={fiatAmountAvailable}
-                  />
-                  <Amount.Crypto
-                    color='gray.500'
-                    lineHeight='1'
-                    symbol={asset.symbol}
-                    value={cryptoAmountAvailable}
-                  />
-                </Box>
-              </Flex>
-            </Card.Body>
-          </Card>
-          <FormControl mb={6}>
-            <Box display='flex' alignItems='center' justifyContent='space-between'>
-              <FormLabel color='gray.500'>{translate('modals.deposit.amountToDeposit')}</FormLabel>
-              <FormHelperText
-                mt={0}
-                mr={3}
-                mb={2}
-                as='button'
-                type='button'
-                color='gray.500'
-                onClick={handleInputToggle}
-                textTransform='uppercase'
-                _hover={{ color: 'gray.400', transition: '.2s color ease' }}
-              >
-                {/* This should display the opposite field */}
-                {cryptoField ? (
-                  <Amount.Fiat value={values?.fiatAmount || ''} />
-                ) : (
-                  <Amount.Crypto value={values?.cryptoAmount || ''} symbol={asset.symbol} />
-                )}
-              </FormHelperText>
-            </Box>
-            <VStack
-              bg={bgColor}
-              borderRadius='xl'
-              borderWidth={1}
-              borderColor={borderColor}
-              divider={<Divider />}
-              spacing={0}
-            >
-              <InputGroup size='lg'>
-                <InputLeftElement pos='relative' ml={1} width='auto'>
-                  <Button
-                    ml={1}
-                    size='sm'
-                    variant='ghost'
-                    textTransform='uppercase'
-                    onClick={handleInputToggle}
-                    width='full'
-                  >
-                    {cryptoField ? asset.symbol : 'USD'}
-                  </Button>
-                </InputLeftElement>
-                {cryptoField && (
-                  <Controller
-                    render={({ field: { onChange, value } }) => {
-                      return (
-                        <NumberFormat
-                          customInput={CryptoInput}
-                          isNumericString={true}
-                          decimalSeparator={localeParts.decimal}
-                          inputMode='decimal'
-                          thousandSeparator={localeParts.group}
-                          value={value}
-                          onChange={e => {
-                            onChange(amountRef.current)
-                            handleInputChange(amountRef.current as string)
-                            amountRef.current = null
-                          }}
-                          onValueChange={e => {
-                            amountRef.current = e.value
-                          }}
-                        />
-                      )
-                    }}
-                    name={Field.CryptoAmount}
-                    control={control}
-                    rules={cryptoInputValidation}
-                  />
-                )}
-                {!cryptoField && (
-                  <Controller
-                    render={({ field: { onChange, value } }) => {
-                      return (
-                        <NumberFormat
-                          customInput={CryptoInput}
-                          isNumericString={true}
-                          decimalSeparator={localeParts.decimal}
-                          inputMode='decimal'
-                          thousandSeparator={localeParts.group}
-                          value={bnOrZero(value).toFixed(2)}
-                          onChange={e => {
-                            onChange(amountRef.current)
-                            handleInputChange(amountRef.current as string)
-                            amountRef.current = null
-                          }}
-                          onValueChange={e => {
-                            amountRef.current = e.value
-                          }}
-                        />
-                      )
-                    }}
-                    name={Field.FiatAmount}
-                    control={control}
-                    rules={fiatInputValidation}
-                  />
-                )}
-                {enableSlippage && (
-                  <InputRightElement>
-                    <Popover>
-                      <PopoverTrigger>
-                        <IconButton
-                          size='sm'
-                          aria-label='Slippage Settings'
-                          variant='ghost'
-                          icon={<SliderIcon />}
-                        />
-                      </PopoverTrigger>
-                      <PopoverContent width='sm'>
-                        <PopoverArrow />
-                        <PopoverCloseButton />
-                        <PopoverHeader>
-                          <Text fontSize='sm' translation='modals.deposit.slippageSettings' />
-                        </PopoverHeader>
-                        <PopoverBody>
-                          <Slippage
-                            onChange={handleSlippageChange}
-                            value={values?.slippage || DEFAULT_SLIPPAGE}
-                          />
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Popover>
-                  </InputRightElement>
-                )}
-              </InputGroup>
-              <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
-                {percentOptions.map(option => (
-                  <Button
-                    isActive={option === percent}
-                    key={option}
-                    variant='ghost'
-                    colorScheme='blue'
-                    onClick={() => handlePercentClick(option)}
-                  >
-                    {option === 1 ? (
-                      'Max'
-                    ) : (
-                      <Amount.Percent
-                        value={option}
-                        options={{
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
-                        }}
-                      />
-                    )}
-                  </Button>
-                ))}
-              </ButtonGroup>
-              <Row px={4} py={4}>
-                <Row.Label>{translate('modals.deposit.estimatedReturns')}</Row.Label>
-                <Row.Value>
-                  <Box textAlign='right'>
-                    <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
+      <Box as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
+        <ModalBody display='flex' py={6} flexDir={{ base: 'column', md: 'row' }}>
+          {leftSide && leftSide}
+          <Stack flex={1} spacing={6}>
+            <Card size='sm' width='full' variant='group'>
+              <Card.Body>
+                <Flex alignItems='center'>
+                  <AssetIcon src={asset.icon} boxSize='40px' />
+                  <Box ml={2}>
+                    <RawText fontWeight='bold' lineHeight='1' mb={1}>
+                      {asset.name}
+                    </RawText>
+                    <RawText color='gray.500' lineHeight='1'>
+                      {asset.symbol}
+                    </RawText>
+                  </Box>
+                  <Box ml='auto' textAlign='right'>
+                    <Amount.Fiat
+                      fontWeight='bold'
+                      lineHeight='1'
+                      mb={1}
+                      value={fiatAmountAvailable}
+                    />
                     <Amount.Crypto
-                      value={cryptoYield}
-                      symbol={asset.symbol}
                       color='gray.500'
                       lineHeight='1'
+                      symbol={asset.symbol}
+                      value={cryptoAmountAvailable}
                     />
                   </Box>
-                </Row.Value>
-              </Row>
-              <FormHelperText pb={2}>
-                {translate('modals.deposit.estimateDisclaimer')}
-              </FormHelperText>
-            </VStack>
-          </FormControl>
+                </Flex>
+              </Card.Body>
+            </Card>
+            <FormControl mb={6}>
+              <Box display='flex' alignItems='center' justifyContent='space-between'>
+                <FormLabel color='gray.500'>
+                  {translate('modals.deposit.amountToDeposit')}
+                </FormLabel>
+                <FormHelperText
+                  mt={0}
+                  mr={3}
+                  mb={2}
+                  as='button'
+                  type='button'
+                  color='gray.500'
+                  onClick={handleInputToggle}
+                  textTransform='uppercase'
+                  _hover={{ color: 'gray.400', transition: '.2s color ease' }}
+                >
+                  {/* This should display the opposite field */}
+                  {cryptoField ? (
+                    <Amount.Fiat value={values?.fiatAmount || ''} />
+                  ) : (
+                    <Amount.Crypto value={values?.cryptoAmount || ''} symbol={asset.symbol} />
+                  )}
+                </FormHelperText>
+              </Box>
+              <VStack
+                bg={bgColor}
+                borderRadius='xl'
+                borderWidth={1}
+                borderColor={borderColor}
+                divider={<Divider />}
+                spacing={0}
+              >
+                <InputGroup size='lg'>
+                  <InputLeftElement pos='relative' ml={1} width='auto'>
+                    <Button
+                      ml={1}
+                      size='sm'
+                      variant='ghost'
+                      textTransform='uppercase'
+                      onClick={handleInputToggle}
+                      width='full'
+                    >
+                      {cryptoField ? asset.symbol : 'USD'}
+                    </Button>
+                  </InputLeftElement>
+                  {cryptoField && (
+                    <Controller
+                      render={({ field: { onChange, value } }) => {
+                        return (
+                          <NumberFormat
+                            customInput={CryptoInput}
+                            isNumericString={true}
+                            decimalSeparator={localeParts.decimal}
+                            inputMode='decimal'
+                            thousandSeparator={localeParts.group}
+                            value={value}
+                            onChange={e => {
+                              onChange(amountRef.current)
+                              handleInputChange(amountRef.current as string)
+                              amountRef.current = null
+                            }}
+                            onValueChange={e => {
+                              amountRef.current = e.value
+                            }}
+                          />
+                        )
+                      }}
+                      name={Field.CryptoAmount}
+                      control={control}
+                      rules={cryptoInputValidation}
+                    />
+                  )}
+                  {!cryptoField && (
+                    <Controller
+                      render={({ field: { onChange, value } }) => {
+                        return (
+                          <NumberFormat
+                            customInput={CryptoInput}
+                            isNumericString={true}
+                            decimalSeparator={localeParts.decimal}
+                            inputMode='decimal'
+                            thousandSeparator={localeParts.group}
+                            value={bnOrZero(value).toFixed(2)}
+                            onChange={e => {
+                              onChange(amountRef.current)
+                              handleInputChange(amountRef.current as string)
+                              amountRef.current = null
+                            }}
+                            onValueChange={e => {
+                              amountRef.current = e.value
+                            }}
+                          />
+                        )
+                      }}
+                      name={Field.FiatAmount}
+                      control={control}
+                      rules={fiatInputValidation}
+                    />
+                  )}
+                  {enableSlippage && (
+                    <InputRightElement>
+                      <Popover>
+                        <PopoverTrigger>
+                          <IconButton
+                            size='sm'
+                            aria-label='Slippage Settings'
+                            variant='ghost'
+                            icon={<SliderIcon />}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent width='sm'>
+                          <PopoverArrow />
+                          <PopoverCloseButton />
+                          <PopoverHeader>
+                            <Text fontSize='sm' translation='modals.deposit.slippageSettings' />
+                          </PopoverHeader>
+                          <PopoverBody>
+                            <Slippage
+                              onChange={handleSlippageChange}
+                              value={values?.slippage || DEFAULT_SLIPPAGE}
+                            />
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Popover>
+                    </InputRightElement>
+                  )}
+                </InputGroup>
+                <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
+                  {percentOptions.map(option => (
+                    <Button
+                      isActive={option === percent}
+                      key={option}
+                      variant='ghost'
+                      colorScheme='blue'
+                      onClick={() => handlePercentClick(option)}
+                    >
+                      {option === 1 ? (
+                        'Max'
+                      ) : (
+                        <Amount.Percent
+                          value={option}
+                          options={{
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                          }}
+                        />
+                      )}
+                    </Button>
+                  ))}
+                </ButtonGroup>
+                <Row px={4} py={4}>
+                  <Row.Label>{translate('modals.deposit.estimatedReturns')}</Row.Label>
+                  <Row.Value>
+                    <Box textAlign='right'>
+                      <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
+                      <Amount.Crypto
+                        value={cryptoYield}
+                        symbol={asset.symbol}
+                        color='gray.500'
+                        lineHeight='1'
+                      />
+                    </Box>
+                  </Row.Value>
+                </Row>
+                <FormHelperText pb={2}>
+                  {translate('modals.deposit.estimateDisclaimer')}
+                </FormHelperText>
+              </VStack>
+            </FormControl>
+          </Stack>
         </ModalBody>
-        <ModalFooter flexDir='column'>
+        <ModalFooter>
           <Text
             fontSize='sm'
             color='gray.500'
             mb={2}
             width='full'
-            textAlign='center'
             translation='modals.deposit.footerDisclaimer'
           />
           <Button
@@ -410,12 +418,8 @@ export const Deposit = ({
             mb={2}
             size='lg'
             type='submit'
-            width='full'
           >
             {translate(fieldError || 'common.continue')}
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            {translate('common.cancel')}
           </Button>
         </ModalFooter>
       </Box>

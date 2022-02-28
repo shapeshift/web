@@ -1,18 +1,23 @@
-import { Box, Flex, Table, Tbody } from '@chakra-ui/react'
+import { Box, Tag } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { FeatureFlag } from 'constants/FeatureFlag'
-import { DefiType } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
-import { NoramlizeEarnOpportunities } from 'features/defi/helpers/normalizeOpportunity'
-import { FoxyOpportunityRow } from 'features/defi/providers/foxy/components/FoxyOpporunityRow'
-import { YearnVaultRow } from 'features/defi/providers/yearn/components/YearnVaultRow'
+import {
+  EarnOpportunityType,
+  useNormalizeOpportunities
+} from 'features/defi/helpers/normalizeOpportunity'
+import qs from 'qs'
 import { useMemo } from 'react'
+import { useHistory, useLocation } from 'react-router'
+import { Column } from 'react-table'
+import { Amount } from 'components/Amount/Amount'
 import { Card } from 'components/Card/Card'
-import { IconCircle } from 'components/IconCircle'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { EarnTableHeader } from './EarnTableHeader'
+import { AssetCell } from './Cells'
+import { StakingTable } from './StakingTable'
 
 const testFoxy = [
   {
@@ -23,48 +28,88 @@ const testFoxy = [
   }
 ]
 
-{
-  /* <YearnVaultRow
-{...opportunity}
-index={index + 1}
-key={opportunity.contractAddress}
-isLoaded={!!opportunity}
-showTeaser
-/> */
-}
-
 export const AllEarnOpportunities = () => {
+  const history = useHistory()
+  const location = useLocation()
+  const {
+    state: { isConnected },
+    dispatch
+  } = useWallet()
   const earnFeature = FeatureFlag.Yearn
   const sortedVaults = useSortedYearnVaults()
-  const allRows = NoramlizeEarnOpportunities({ vaultArray: sortedVaults, foxyArray: testFoxy })
-  const vaultRows = useMemo(() => {
-    return allRows
-      .filter(opportunity => !opportunity.expired)
-      .map((opportunity, index) => {
-        switch (opportunity.type) {
-          case DefiType.TokenStaking:
-            return (
-              <FoxyOpportunityRow
-                {...opportunity}
-                index={index + 1}
-                key={opportunity.contractAddress}
-                isLoaded={!!opportunity}
-                showTeaser
-              />
-            )
-          default:
-            return (
-              <YearnVaultRow
-                {...opportunity}
-                index={index + 1}
-                key={opportunity.contractAddress}
-                isLoaded={!!opportunity}
-                showTeaser
-              />
-            )
-        }
+  const allRows = useNormalizeOpportunities({
+    vaultArray: sortedVaults,
+    foxyArray: testFoxy
+  })
+
+  const columns: Column[] = useMemo(
+    () => [
+      {
+        Header: '#',
+        Cell: ({ row }: { row: any }) => <RawText>{row.index}</RawText>
+      },
+      {
+        Header: 'Asset',
+        accessor: 'assetId',
+        Cell: ({ row }: { row: any }) => (
+          <AssetCell assetId={row.original.assetId} provider={row.original.provider} />
+        )
+      },
+      {
+        Header: 'Type',
+        accessor: 'type',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value }: { value: string }) => <Tag>{value}</Tag>
+      },
+      {
+        Header: 'APY',
+        accessor: 'apy',
+        isNumeric: true,
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value }: { value: string }) => (
+          <Tag colorScheme='green'>
+            <Amount.Percent value={value} />
+          </Tag>
+        ),
+        sortType: (a: any, b: any) =>
+          bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1
+      },
+      {
+        Header: 'TVL',
+        accessor: 'tvl',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value }: { value: string }) => <Amount.Fiat value={value} />
+      },
+      {
+        Header: 'Balance',
+        accessor: 'fiatAmount',
+        Cell: ({ value }: { value: string }) =>
+          bnOrZero(value).gt(0) ? (
+            <Amount.Fiat value={value} color='green.500' />
+          ) : (
+            <RawText>-</RawText>
+          )
+      }
+    ],
+    []
+  )
+
+  const handleClick = (opportunity: EarnOpportunityType) => {
+    const { type, provider, contractAddress, chain, tokenAddress } = opportunity
+    if (isConnected) {
+      history.push({
+        pathname: `/defi/${type}/${provider}/deposit`,
+        search: qs.stringify({
+          chain,
+          contractAddress,
+          tokenId: tokenAddress
+        }),
+        state: { background: location }
       })
-  }, [allRows])
+    } else {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    }
+  }
 
   if (!earnFeature) return null
 
@@ -79,31 +124,7 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        {vaultRows.length > 0 ? (
-          <Box>
-            <Table variant='clickable'>
-              <EarnTableHeader />
-              <Tbody>{vaultRows}</Tbody>
-            </Table>
-          </Box>
-        ) : (
-          <Card textAlign='center' py={6} boxShadow='none' border={0}>
-            <Card.Body>
-              <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>
-                <IconCircle fontSize='2xl' boxSize='16'>
-                  <FoxIcon />
-                </IconCircle>
-              </Flex>
-              <Text
-                fontWeight='medium'
-                fontSize='lg'
-                mb={2}
-                color='gray.500'
-                translation='defi.emptyEarn'
-              />
-            </Card.Body>
-          </Card>
-        )}
+        <StakingTable columns={columns} data={allRows} onClick={handleClick} />
       </Card.Body>
     </Card>
   )

@@ -4,7 +4,7 @@ import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { Page } from 'components/Layout/Page'
-import { TxHistory } from 'components/TxHistory'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 type AssetDetailsProps = {
@@ -26,7 +26,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           <AssetHeader assetId={caip19} accountId={accountId} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
-          <TxHistory assetId={caip19} accountId={accountId} />
+          <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
       </Flex>
     </Page>

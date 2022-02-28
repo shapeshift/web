@@ -90,6 +90,7 @@ export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
   `${accountId}-${tx.txid}-${tx.address}`
 
 const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
+  console.info('=====', txHistory, tx, accountSpecifier)
   const txid = makeUniqueTxId(tx, accountSpecifier)
 
   const isNew = !txHistory.byId[txid]

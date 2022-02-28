@@ -2,7 +2,7 @@ import { Flex, Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import { Page } from 'components/Layout/Page'
-import { TxHistory } from 'components/TxHistory'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -35,7 +35,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetails
           <EarnOpportunities assetId={caip19} accountId={accountId} />
           {cosmosInverstorFlag && <StakingOpportunities assetId={caip19} accountId={accountId} />}
           <UnderlyingToken assetId={caip19} accountId={accountId} />
-          <TxHistory assetId={caip19} accountId={accountId} />
+          <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
       </Flex>
     </Page>

@@ -7,7 +7,7 @@ export const NavBar = (props: StackProps) => {
   const translate = useTranslate()
 
   return (
-    <HStack spacing={12} ml='auto' mr='auto' alignSelf='center' {...props}>
+    <HStack spacing={[8, 10, 12]} ml='auto' mr='auto' alignSelf='center' {...props}>
       {routes
         .filter(route => !route.disable)
         .map(item => (

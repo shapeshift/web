@@ -1,5 +1,6 @@
 import union from 'lodash/union'
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
+import { MdHistory } from 'react-icons/md'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -21,6 +22,7 @@ import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
 import { NotFound } from 'pages/NotFound/NotFound'
+import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
@@ -108,6 +110,12 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
+  },
+  {
+    path: '/transaction-history',
+    label: 'navBar.transactionHistory',
+    icon: <MdHistory size='1.5em' />,
+    main: <TransactionHistory />
   }
 ]
 

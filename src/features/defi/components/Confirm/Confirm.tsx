@@ -11,6 +11,7 @@ type ConfirmProps = {
   onCancel(): void
   onConfirm(): Promise<void>
   headerText: string
+  leftSide?: React.ReactNode
   prefooter?: React.ReactNode
   children?: React.ReactNode
 } & AssetToAssetProps
@@ -21,16 +22,20 @@ export const Confirm = ({
   children,
   prefooter,
   headerText,
+  leftSide,
   ...rest
 }: ConfirmProps) => {
   const translate = useTranslate()
   return (
     <SlideTransition>
       <ModalHeader textAlign='center'>{translate(headerText)}</ModalHeader>
-      <ModalBody>
-        <AssetToAsset {...rest} />
-        <Divider my={4} />
-        {children}
+      <ModalBody display='flex' py={6} flexDir={{ base: 'column', md: 'row' }}>
+        {leftSide && leftSide}
+        <Stack>
+          <AssetToAsset {...rest} />
+          <Divider my={4} />
+          {children}
+        </Stack>
       </ModalBody>
       <ModalFooter flexDir='column' textAlign='center' mt={6}>
         <Stack width='full'>

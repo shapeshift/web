@@ -412,6 +412,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
             onConfirm={handleDeposit}
             headerText='modals.confirm.deposit.header'
             prefooter={<Text color='gray.500' translation='modals.confirm.deposit.preFooter' />}
+            leftSide={<YearnRouteSteps routes={routes} />}
             assets={[
               {
                 ...asset,

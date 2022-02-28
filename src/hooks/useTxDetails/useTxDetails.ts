@@ -7,6 +7,7 @@ import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
+// Adding a new supported method? Also update transactionRow.parser translations accordingly
 const SUPPORTED_CONTRACT_METHODS = new Set([
   'deposit',
   'approve',

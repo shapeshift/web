@@ -1,8 +1,9 @@
-import { ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, Link, SimpleGrid, Tag } from '@chakra-ui/react'
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { FaSignature } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
@@ -22,6 +23,22 @@ export const TransactionContract = ({
   const toggleOpen = () => setIsOpen(!isOpen)
 
   const toAddress = txDetails.ensTo || txDetails.to || undefined
+  const transactionDirection = (() => {
+    if (txDetails.tx.address === txDetails.to) return 'inbound'
+    else if (txDetails.tx.address === txDetails.from) return 'outbound'
+    else return 'in-place'
+  })()
+
+  const transactionIcon = (() => {
+    switch (transactionDirection) {
+      case 'inbound':
+        return <ArrowDownIcon />
+      case 'outbound':
+        return <ArrowUpIcon />
+      default:
+        return <FaSignature />
+    }
+  })()
 
   return (
     <>
@@ -36,9 +53,7 @@ export const TransactionContract = ({
         onClick={toggleOpen}
       >
         <Flex alignItems='center' width='full'>
-          <IconCircle mr={3}>
-            <ArrowUpIcon />
-          </IconCircle>
+          <IconCircle mr={3}>{transactionIcon}</IconCircle>
 
           <Flex justifyContent='flex-start' flex={1} alignItems='center'>
             <Box flex={1}>

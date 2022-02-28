@@ -161,7 +161,7 @@
     "accountDetails": "Account Details",
     "earn": "Earn",
     "defi": "DeFi",
-    "tradeHistory": "Trade History",
+    "transactionHistory": "Transaction History",
     "foxToken": "FOX Token"
   },
   "transactionRow": {
@@ -575,5 +575,34 @@
   "accounts": {
     "accounts": "Accounts"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "Transaction History",
+    "filter": "Filter",
+    "filters": {
+      "filters": "Filters",
+      "resetFilters": "Reset Filters",
+      "to": "to",
+      "categories": "Categories",
+      "dayRange": "Day Range",
+      "10days": "10 days",
+      "30days": "30 days",
+      "90days": "90 days",
+      "sent": "Sent",
+      "trade": "Trade",
+      "received": "Received",
+      "apply": "Apply"
+    },
+    "downloadCSV": "Download CSV",
+    "assets": "Assets",
+    "viewOnChain": "View on chain",
+    "txid": "TX ID",
+    "youSent": "You Sent",
+    "youReceived": "You Received",
+    "sentTo": "Sent to",
+    "receivedFrom": "Received From",
+    "orderRoute": "Order Route",
+    "transactionType": "Transaction Type",
+    "minerFee": "Miner Fee"
+  }
 }

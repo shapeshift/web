@@ -16,6 +16,7 @@ export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
 
 const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
+const selectTxIdsParam = (_state: ReduxState, txIds: TxId[]) => txIds
 
 export const selectTxsByAccountIds = createSelector(
   selectTxs,
@@ -53,6 +54,10 @@ export const selectTxById = createSelector(
   (state: ReduxState) => state.txHistory.byId,
   (_state: ReduxState, txId: string) => txId,
   (txsById, txId) => txsById[txId]
+)
+
+export const selectTxDateByIds = createSelector(selectTxIdsParam, selectTxs, (txIds: TxId[], txs) =>
+  txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
 )
 
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId

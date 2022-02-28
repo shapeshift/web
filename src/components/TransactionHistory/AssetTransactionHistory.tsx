@@ -1,13 +1,9 @@
-import { Center } from '@chakra-ui/layout'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import InfiniteScroll from 'react-infinite-scroller'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { TransactionRow } from 'components/Transactions/TransactionRow'
+import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -17,12 +13,15 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type TxHistoryProps = {
+type AssetTransactionHistoryProps = {
   assetId: CAIP19
   accountId?: AccountSpecifier
 }
 
-export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
+export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
+  assetId,
+  accountId
+}) => {
   const translate = useTranslate()
   const {
     state: { wallet }
@@ -42,15 +41,6 @@ export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
 
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
-  const { next, data, hasMore } = useInfiniteScroll(txIds)
-
-  const txRows = useMemo(() => {
-    if (!asset.caip19) return null
-    return data?.map((txId: string) => (
-      <TransactionRow key={txId} txId={txId} activeAsset={asset} />
-    ))
-  }, [asset, data])
-
   if (!walletSupportsChain) return null
 
   return (
@@ -60,22 +50,7 @@ export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
           {translate('assets.assetDetails.assetHistory.transactionHistory')}
         </Card.Heading>
       </Card.Header>
-      {data?.length ? (
-        <Card.Body px={2} pt={0}>
-          <InfiniteScroll
-            pageStart={0}
-            loadMore={next}
-            hasMore={hasMore}
-            loader={
-              <Center key={0}>
-                <CircularProgress isIndeterminate />
-              </Center>
-            }
-          >
-            {txRows}
-          </InfiniteScroll>
-        </Card.Body>
-      ) : null}
+      <TransactionHistoryList txIds={txIds} useCompactMode />
     </Card>
   )
 }

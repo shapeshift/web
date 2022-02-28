@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v1.26.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.25.0...@shapeshiftoss/types-v1.26.0) (2022-02-28)
+
+
+### Features
+
+* add Cosmos based chain adapters ([#397](https://github.com/shapeshift/lib/issues/397)) ([a0690d7](https://github.com/shapeshift/lib/commit/a0690d700f924d5ff095cfeae072d204e4016708)), closes [#291](https://github.com/shapeshift/lib/issues/291)
+
 # [@shapeshiftoss/types-v1.25.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.24.0...@shapeshiftoss/types-v1.25.0) (2022-02-28)
 
 

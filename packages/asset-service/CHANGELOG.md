@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v1.21.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.21.0...@shapeshiftoss/asset-service-v1.21.1) (2022-02-28)
+
+
+### Bug Fixes
+
+* fixed precision on cosmos and a bug with osmosis namespace ([#407](https://github.com/shapeshift/lib/issues/407)) ([a402f94](https://github.com/shapeshift/lib/commit/a402f94b50050f96f404cb4e2c61a6dc0cac858b))
+
 # [@shapeshiftoss/asset-service-v1.21.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.20.1...@shapeshiftoss/asset-service-v1.21.0) (2022-02-28)
 
 

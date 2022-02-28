@@ -229,6 +229,7 @@
     "@testing-library/user-event": "^13.2.1",
     "@types/auto-launch": "^5.0.2",
     "@types/bignumber.js": "^5.0.0",
+    "@types/cors": "^2.8.12",
     "@types/crypto-js": "^4.0.2",
     "@types/d3-array": "^3.0.1",
     "@types/d3-time-format": "^4.0.0",

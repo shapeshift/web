@@ -35,7 +35,6 @@ export interface TxDetails {
   precision: number
   explorerTxLink: string
   explorerAddressLink: string
-  valueExchanged: boolean
   direction: 'in-place' | 'outbound' | 'inbound'
 }
 
@@ -52,8 +51,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const standardTx = getStandardTx(tx)
   const buyTx = getBuyTx(tx)
   const sellTx = getSellTx(tx)
-
-  const valueExchanged = tx.transfers.length > 0
 
   const direction = (() => {
     switch (method) {
@@ -133,7 +130,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     precision,
     explorerTxLink,
     explorerAddressLink,
-    valueExchanged,
     direction
   }
 }

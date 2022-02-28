@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, Link, SimpleGrid, Tag } from '@chakra-ui/react'
-import { Asset, chainAdapters } from '@shapeshiftoss/types'
+import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { FaSignature, FaStickyNote } from 'react-icons/fa'
@@ -13,12 +13,7 @@ import { RawText, Text } from 'components/Text'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
-export const TransactionContract = ({
-  txDetails
-}: {
-  txDetails: TxDetails
-  activeAsset?: Asset
-}) => {
+export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
 
@@ -74,7 +69,7 @@ export const TransactionContract = ({
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              {txDetails.valueExchanged && (
+              {txDetails.direction !== 'in-place' && (
                 <Amount.Crypto
                   {...(txDetails.direction === 'inbound'
                     ? { color: 'green.500' }
@@ -136,21 +131,19 @@ export const TransactionContract = ({
             </Row.Value>
           </Row>
 
-          <Row variant='vertical'>
+          <Row variant='vertical' hidden={!(txDetails.tx?.fee && txDetails.feeAsset)}>
             <Row.Label>
               <Text translation='transactionRow.fee' />
             </Row.Label>
             <Row.Value>
-              {txDetails.tx?.fee && txDetails.feeAsset && (
-                <Amount.Crypto
-                  value={fromBaseUnit(
-                    txDetails.tx?.fee?.value ?? '0',
-                    txDetails.feeAsset?.precision ?? 18
-                  )}
-                  symbol={txDetails.feeAsset.symbol}
-                  maximumFractionDigits={6}
-                />
-              )}
+              <Amount.Crypto
+                value={fromBaseUnit(
+                  txDetails.tx?.fee?.value ?? '0',
+                  txDetails.feeAsset?.precision ?? 18
+                )}
+                symbol={txDetails.feeAsset.symbol}
+                maximumFractionDigits={6}
+              />
             </Row.Value>
           </Row>
           <Row variant='vertical'>

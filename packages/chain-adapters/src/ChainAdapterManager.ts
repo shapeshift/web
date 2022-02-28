@@ -1,10 +1,10 @@
-import type { CAIP2 } from '@shapeshiftoss/caip'
-import { caip2 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2 } from '@shapeshiftoss/caip'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapter } from './api'
 import * as bitcoin from './bitcoin'
+import * as cosmos from './cosmossdk/cosmos'
 import * as ethereum from './ethereum'
 
 export type UnchainedUrl = {
@@ -39,6 +39,16 @@ export class ChainAdapterManager {
             return this.addChain(
               type,
               () => new bitcoin.ChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })
+            )
+          }
+
+          case ChainTypes.Cosmos: {
+            const http = new unchained.cosmos.api.V1Api(
+              new unchained.cosmos.api.Configuration({ basePath: httpUrl })
+            )
+            return this.addChain(
+              type,
+              () => new cosmos.ChainAdapter({ providers: { http }, coinName: 'Cosmos' })
             )
           }
           default:

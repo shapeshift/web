@@ -19,7 +19,8 @@ export enum AssetNamespace {
 export enum AssetReference {
   Bitcoin = 0,
   Ethereum = 60,
-  Cosmos = 118
+  Cosmos = 118,
+  Osmosis = 118
 }
 
 type ToCAIP19Args = {

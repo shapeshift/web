@@ -44,8 +44,8 @@
   },
   "devDependencies": {
     "@shapeshiftoss/caip": "^1.11.0",
-    "@shapeshiftoss/hdwallet-core": "^1.18.2",
-    "@shapeshiftoss/hdwallet-native": "^1.18.2",
+    "@shapeshiftoss/hdwallet-core": "^1.19.0",
+    "@shapeshiftoss/hdwallet-native": "^1.19.0",
     "@shapeshiftoss/types": "^1.23.0",
     "@shapeshiftoss/unchained-client": "^5.2.0",
     "@shapeshiftoss/unchained-tx-parser": "^5.2.0",

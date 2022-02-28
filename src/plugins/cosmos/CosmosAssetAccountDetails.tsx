@@ -4,7 +4,6 @@ import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { Main } from 'components/Layout/Main'
-import { Page } from 'components/Layout/Page'
 import { TxHistory } from 'components/TxHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 

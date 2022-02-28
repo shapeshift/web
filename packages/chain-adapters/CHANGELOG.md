@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v1.36.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.35.1...@shapeshiftoss/chain-adapters-v1.36.0) (2022-02-28)
+
+
+### Features
+
+* add Cosmos based chain adapters ([#397](https://github.com/shapeshift/lib/issues/397)) ([a0690d7](https://github.com/shapeshift/lib/commit/a0690d700f924d5ff095cfeae072d204e4016708)), closes [#291](https://github.com/shapeshift/lib/issues/291)
+
 # [@shapeshiftoss/chain-adapters-v1.35.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.35.0...@shapeshiftoss/chain-adapters-v1.35.1) (2022-02-25)
 
 # [@shapeshiftoss/chain-adapters-v1.35.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v1.34.0...@shapeshiftoss/chain-adapters-v1.35.0) (2022-02-25)

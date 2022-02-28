@@ -3,7 +3,7 @@ import { Box, Collapse, Flex, Link, SimpleGrid, Tag } from '@chakra-ui/react'
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FaSignature } from 'react-icons/fa'
+import { FaSignature, FaStickyNote } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
@@ -23,20 +23,17 @@ export const TransactionContract = ({
   const toggleOpen = () => setIsOpen(!isOpen)
 
   const toAddress = txDetails.ensTo || txDetails.to || undefined
-  const transactionDirection = (() => {
-    if (txDetails.tx.address === txDetails.to) return 'inbound'
-    else if (txDetails.tx.address === txDetails.from) return 'outbound'
-    else return 'in-place'
-  })()
 
   const transactionIcon = (() => {
-    switch (transactionDirection) {
-      case 'inbound':
-        return <ArrowDownIcon />
+    switch (txDetails.direction) {
+      case 'in-place':
+        return <FaSignature />
       case 'outbound':
         return <ArrowUpIcon />
+      case 'inbound':
+        return <ArrowDownIcon color='green.500' />
       default:
-        return <FaSignature />
+        return <FaStickyNote />
     }
   })()
 
@@ -79,11 +76,12 @@ export const TransactionContract = ({
             <Flex flexDir='column' ml='auto' textAlign='right'>
               {txDetails.valueExchanged && (
                 <Amount.Crypto
-                  color='inherit'
+                  {...(txDetails.direction === 'inbound'
+                    ? { color: 'green.500' }
+                    : { color: 'inherit', prefix: '-' })}
                   value={fromBaseUnit(txDetails.value, txDetails.precision)}
                   symbol={txDetails.symbol}
                   maximumFractionDigits={6}
-                  prefix='-'
                 />
               )}
             </Flex>

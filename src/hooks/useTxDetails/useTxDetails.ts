@@ -36,6 +36,7 @@ export interface TxDetails {
   explorerTxLink: string
   explorerAddressLink: string
   valueExchanged: boolean
+  direction: 'in-place' | 'outbound' | 'inbound'
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
@@ -44,16 +45,29 @@ export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdap
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
+  const method = tx.data?.method
 
-  const isSupportedContract = tx.data?.method
-    ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method)
-    : false
+  const isSupportedContract = method ? SUPPORTED_CONTRACT_METHODS.has(method) : false
 
   const standardTx = getStandardTx(tx)
   const buyTx = getBuyTx(tx)
   const sellTx = getSellTx(tx)
 
   const valueExchanged = tx.transfers.length > 0
+
+  const direction = (() => {
+    switch (method) {
+      case 'deposit':
+      case 'addLiquidityETH':
+      case 'transferOut':
+        return 'outbound'
+      case 'withdraw':
+      case 'removeLiquidityETH':
+        return 'inbound'
+      default:
+        return 'in-place'
+    }
+  })()
 
   const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
 
@@ -119,6 +133,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     precision,
     explorerTxLink,
     explorerAddressLink,
-    valueExchanged
+    valueExchanged,
+    direction
   }
 }

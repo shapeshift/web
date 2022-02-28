@@ -1,5 +1,6 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import React, { useRef } from 'react'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
@@ -7,7 +8,7 @@ import { GetStarted } from './views/GetStarted'
 import { LearnMore } from './views/LearnMore'
 
 type GetStartedModalProps = {
-  assetId: string
+  assetId: CAIP19
 }
 
 export enum GetStartedModalRoutes {

@@ -108,6 +108,14 @@
         }
       }
     },
+    "staked": "Staked",
+    "assetStaking": "%{assetName} Staking",
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "claim": "Claim",
+    "rewards": "Rewards",
+    "unstaking": "Unstaking",
+    "available": "Available %{unbondingEnd}",
     "earn": "Earn",
     "asset": "Asset",
     "category": "Category",

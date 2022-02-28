@@ -3,7 +3,7 @@ import { Box, Collapse, Flex, Link, SimpleGrid, Tag } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FaSignature, FaStickyNote } from 'react-icons/fa'
+import { FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
@@ -22,7 +22,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
   const transactionIcon = (() => {
     switch (txDetails.direction) {
       case 'in-place':
-        return <FaSignature />
+        return <FaThumbsUp />
       case 'outbound':
         return <ArrowUpIcon />
       case 'inbound':

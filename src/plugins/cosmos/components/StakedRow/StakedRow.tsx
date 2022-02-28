@@ -1,6 +1,6 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Text as CText } from '@chakra-ui/react'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
@@ -23,8 +23,12 @@ export const StakedRow = ({
       <AprTag height='20px' percentage={apr.toPrecision()} />
     </Flex>
     <Flex direction='column' alignItems='flex-end'>
-      <CText fontWeight='semibold'>{`$${cryptoStakedAmount.times(fiatRate).toPrecision()}`}</CText>
-      <CText color='gray.500'>{cryptoStakedAmount + ' ' + assetSymbol}</CText>
+      <Amount.Fiat fontWeight='semibold' value={cryptoStakedAmount.times(fiatRate).toPrecision()} />
+      <Amount.Crypto
+        color='gray.500'
+        value={cryptoStakedAmount.toPrecision()}
+        symbol={assetSymbol}
+      />
     </Flex>
   </Flex>
 )

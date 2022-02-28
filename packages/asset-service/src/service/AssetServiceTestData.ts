@@ -9,58 +9,80 @@ import {
 
 import { IndexedAssetData } from '..'
 
+export const ETHMockedAsset: BaseAsset = {
+  caip19: 'eip155:1/slip44:60',
+  caip2: 'eip155:1',
+  chain: ChainTypes.Ethereum,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.MAINNET,
+  symbol: 'ETH',
+  name: 'Ethereum',
+  precision: 18,
+  slip44: 60,
+  color: '#FFFFFF',
+  secondaryColor: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+  explorer: 'https://etherscan.io',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  sendSupport: true,
+  receiveSupport: true,
+  tokens: [
+    {
+      caip19: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+      caip2: 'eip155:1',
+      name: 'Aave',
+      precision: 18,
+      tokenId: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+      contractType: ContractTypes.ERC20,
+      color: '#FFFFFF',
+      dataSource: AssetDataSource.CoinGecko,
+      secondaryColor: '#FFFFFF',
+      icon: 'https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png?1601374110',
+      sendSupport: true,
+      receiveSupport: true,
+      symbol: 'AAVE'
+    },
+    {
+      caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      caip2: 'eip155:1',
+      name: 'Fox',
+      precision: 18,
+      tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+      contractType: ContractTypes.ERC20,
+      color: '#FFFFFF',
+      dataSource: AssetDataSource.CoinGecko,
+      secondaryColor: '#FFFFFF',
+      icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
+      sendSupport: true,
+      receiveSupport: true,
+      symbol: 'FOX'
+    }
+  ]
+}
+
+export const BTCMockedAsset: BaseAsset = {
+  caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  caip2: 'bip122:000000000019d6689c085ae165831e93',
+  chain: ChainTypes.Bitcoin,
+  dataSource: AssetDataSource.CoinGecko,
+  network: NetworkTypes.MAINNET,
+  symbol: 'BTC',
+  name: 'Bitcoin',
+  precision: 8,
+  slip44: 0,
+  color: '#FFFFFF',
+  secondaryColor: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
+  explorer: 'https://live.blockcypher.com',
+  explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+  explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
+  sendSupport: false,
+  receiveSupport: false
+}
+
 export const mockBaseAssets: BaseAsset[] = [
-  {
-    caip19: 'eip155:1/slip44:60',
-    caip2: 'eip155:1',
-    chain: ChainTypes.Ethereum,
-    dataSource: AssetDataSource.CoinGecko,
-    network: NetworkTypes.MAINNET,
-    symbol: 'ETH',
-    name: 'Ethereum',
-    precision: 18,
-    slip44: 60,
-    color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
-    icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
-    explorer: 'https://etherscan.io',
-    explorerTxLink: 'https://etherscan.io/tx/',
-    explorerAddressLink: 'https://etherscan.io/address/',
-    sendSupport: true,
-    receiveSupport: true,
-    tokens: [
-      {
-        caip19: 'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-        caip2: 'eip155:1',
-        name: 'Aave',
-        precision: 18,
-        tokenId: '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-        contractType: ContractTypes.ERC20,
-        color: '#FFFFFF',
-        dataSource: AssetDataSource.CoinGecko,
-        secondaryColor: '#FFFFFF',
-        icon: 'https://assets.coingecko.com/coins/images/12645/thumb/AAVE.png?1601374110',
-        sendSupport: true,
-        receiveSupport: true,
-        symbol: 'AAVE'
-      },
-      {
-        caip19: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        caip2: 'eip155:1',
-        name: 'Fox',
-        precision: 18,
-        tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        contractType: ContractTypes.ERC20,
-        color: '#FFFFFF',
-        dataSource: AssetDataSource.CoinGecko,
-        secondaryColor: '#FFFFFF',
-        icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
-        sendSupport: true,
-        receiveSupport: true,
-        symbol: 'FOX'
-      }
-    ]
-  },
+  ETHMockedAsset,
   {
     caip19: 'eip155:3/slip44:60',
     caip2: 'eip155:3',
@@ -97,25 +119,7 @@ export const mockBaseAssets: BaseAsset[] = [
       }
     ]
   },
-  {
-    caip19: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    caip2: 'bip122:000000000019d6689c085ae165831e93',
-    chain: ChainTypes.Bitcoin,
-    dataSource: AssetDataSource.CoinGecko,
-    network: NetworkTypes.MAINNET,
-    symbol: 'BTC',
-    name: 'Bitcoin',
-    precision: 8,
-    slip44: 0,
-    color: '#FFFFFF',
-    secondaryColor: '#FFFFFF',
-    icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
-    explorer: 'https://live.blockcypher.com',
-    explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
-    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
-    sendSupport: false,
-    receiveSupport: false
-  },
+  BTCMockedAsset,
   {
     caip19: 'bip122:000000000933ea01ad0ee984209779ba/slip44:0',
     caip2: 'bip122:000000000933ea01ad0ee984209779ba',

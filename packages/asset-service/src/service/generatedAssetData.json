@@ -24608,21 +24608,6 @@
         "symbol": "STR"
       },
       {
-        "caip19": "eip155:1/erc20:0x426ca1ea2406c07d75db9585f22781c096e3d0e0",
-        "caip2": "eip155:1",
-        "dataSource": "coingecko",
-        "name": "Minereum",
-        "precision": 8,
-        "tokenId": "0x426ca1ea2406c07d75db9585f22781c096e3d0e0",
-        "contractType": "ERC20",
-        "color": "#FFFFFF",
-        "secondaryColor": "#FFFFFF",
-        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x426CA1eA2406c07d75Db9585F22781c096e3d0E0/logo.png",
-        "sendSupport": true,
-        "receiveSupport": true,
-        "symbol": "MNE"
-      },
-      {
         "caip19": "eip155:1/erc20:0x426fc8be95573230f6e6bc4af91873f0c67b21b4",
         "caip2": "eip155:1",
         "dataSource": "coingecko",
@@ -62936,7 +62921,7 @@
         "color": "#7057F5",
         "contractType": "ERC20",
         "dataSource": "yearnfinance",
-        "icon": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xB0BFB1E2F72511cF8b4D004852E2054d7b9a76e1/logo.png",
+        "icon": "https://assets.yearn.network/tokens/ethereum/0xb0bfb1e2f72511cf8b4d004852e2054d7b9a76e1.png",
         "name": "MIXS",
         "precision": 18,
         "receiveSupport": true,

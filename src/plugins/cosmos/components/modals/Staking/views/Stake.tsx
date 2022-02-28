@@ -91,14 +91,19 @@ export const Stake = ({
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const { cosmosStaking } = useModal()
+  const { cosmosStaking, cosmosStakingConfirm } = useModal()
 
   const onSubmit = (_: any) => {
-    // TODO: onContinue()
+    cosmosStakingConfirm.open({
+      cryptoAmount: bnOrZero(values.cryptoAmount),
+      assetId,
+      fiatRate: bnOrZero(marketData.price),
+      apr
+    })
   }
 
   const cryptoYield = calculateYearlyYield(apr, values.cryptoAmount)
-  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
+  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toPrecision()
 
   const translate = useTranslate()
 

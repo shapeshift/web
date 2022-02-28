@@ -113,11 +113,21 @@
         "byContinuing": "By continuing, you are accepting the",
         "risks": "risks",
         "ofParticipating": "of participating in this feature and agreeing to the",
-        "terms": "terms"
+        "terms": "terms",
+        "tooltip": {
+          "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
+          "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
+        }
       }
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
+    "confirmDetails": "Confirm Details",
+    "validator": "Validator",
+    "gasFee": "Gas Fee",
+    "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
+    "averageApr": "Average APR",
+    "estimatedYearlyRewards": "Estimated Yearly Rewards",
     "staked": "Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
@@ -133,6 +143,7 @@
     "category": "Category",
     "tvl": "TVL",
     "apy": "APY",
+    "apr": "APR",
     "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
@@ -280,6 +291,13 @@
           "length": "Your password must be at least %{length} characters",
           "maxLength": "Nickname must be %{length} characters maximum"
         }
+      }
+    },
+    "stake": {
+      "txFees": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
       }
     },
     "send": {

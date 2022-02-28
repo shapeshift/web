@@ -154,13 +154,12 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
             width='100%'
             px='6px'
             py='6px'
-            bgColor='gray.850'
             borderRadius='12px'
           />
           <CText color='gray.500' my='25px'>
             {translate('staking.itWillTake')}
             <span> </span>
-            <Box as='span' fontWeight='semibold' color='white'>
+            <Box as='span' fontWeight='semibold'>
               {`${UNBONDING_DURATION} ${translate('common.days')}`}
             </Box>
             <span> </span>

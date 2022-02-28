@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.4...@shapeshiftoss/caip-v1.12.0) (2022-02-28)
+
+
+### Features
+
+* add Cosmos based chain adapters ([#397](https://github.com/shapeshift/lib/issues/397)) ([a0690d7](https://github.com/shapeshift/lib/commit/a0690d700f924d5ff095cfeae072d204e4016708)), closes [#291](https://github.com/shapeshift/lib/issues/291)
+
 # [@shapeshiftoss/caip-v1.11.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.3...@shapeshiftoss/caip-v1.11.4) (2022-02-25)
 
 

@@ -69,7 +69,7 @@ import { isWin, isLinux, isMac } from './constants'
 
 //DB persistence
 
-const dbDirPath = path.join(__dirname, '../.KeepKey')
+const dbDirPath = isDev ? path.join(__dirname, '../.KeepKey') : path.join(app.getPath('userData'), './.KeepKey')
 const dbPath = path.join(dbDirPath, './db')
 
 if (!fs.existsSync(dbPath)) {
@@ -96,6 +96,7 @@ let skipUpdateTimeout: NodeJS.Timeout
 let windowShowInterval: NodeJS.Timeout
 let shouldShowWindow = false;
 
+
 export const windows: {
     mainWindow: undefined | BrowserWindow,
     splash: undefined | BrowserWindow
@@ -103,6 +104,10 @@ export const windows: {
     mainWindow: undefined,
     splash: undefined
 }
+
+const kkAutoLauncher = new AutoLaunch({
+    name: 'KeepKey Client'
+})
 
 /*
     Electron Settings
@@ -130,10 +135,7 @@ function createWindow() {
     log.info('Creating window!')
 
     //Auto launch on startup
-    let kkAutoLauncher = new AutoLaunch({
-        name: 'keepkey-client',
-        path: '/Applications/kkAutoLauncher.app'
-    })
+
     kkAutoLauncher.enable()
     kkAutoLauncher
         .isEnabled()
@@ -397,26 +399,6 @@ const createSplashWindow = () => {
         path.join(__dirname, "../resources/splash/splash-screen.html")
     );
 }
-
-
-
-/*
- 
-  KeepKey Status codes
- 
-  state : status
-  ---------------
-     -1 : error
-      0 : preInit
-      1 : no devices
-      2 : device connected
-      3 : bridge online
- 
- 
- */
-
-
-
 
 
 ipcMain.on('onStopBridge', async event => {

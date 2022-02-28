@@ -23,8 +23,7 @@ const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json')
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 const adapter = NodeWebUSBKeepKeyAdapter.useKeyring(new Keyring())
 
-let STATE = 0
-let STATUS = 'preInit'
+
 let USERNAME
 let server: Server
 
@@ -33,6 +32,24 @@ let sleep = wait.sleep;
 
 export let bridgeRunning = false
 
+/*
+ 
+  KeepKey Status codes
+ 
+  state : status
+  ---------------
+     -1 : error
+      0 : preInit
+      1 : no devices
+      2 : device connected
+      3 : bridge online
+ 
+ 
+ */
+
+
+let STATE = 0
+let STATUS = 'preInit'
 
 export const start_bridge = async function (event) {
     let tag = " | start_bridge | "

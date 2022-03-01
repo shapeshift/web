@@ -228,7 +228,7 @@ export const TermsOfService = () => {
             <RawText as='strong'>Promotions:</RawText> We may run various promotions or giveaways
             (each, a &quot;<RawText as='strong'>Promotion</RawText>&quot;) in connection with the
             Platform. These promotions will be communicated through official ShapeShift DAO
-            communication mediums, including email, social media, andthe ShapeShift DAO Discord
+            communication mediums, including email, social media, and the ShapeShift DAO Discord
             server and all applicable details, including any qualification periods, entry procedures
             or requirements, award or selection criteria, and notification procedures will be
             contained therein. We are the sponsor for each Promotion, and Promotions are void where

@@ -1,6 +1,11 @@
 name: Cypress Tests
 
-on: workflow_dispatch
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - releases/**
 
 env:
   ESLINT_NO_DEV_ERRORS: true

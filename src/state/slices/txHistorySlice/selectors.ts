@@ -60,6 +60,69 @@ export const selectTxDateByIds = createSelector(selectTxIdsParam, selectTxs, (tx
   txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
 )
 
+type TxHistoryPageFilter = {
+  fromDate?: number
+  toDate?: number
+  types?: string[]
+  matchingAssets: CAIP19[]
+}
+
+const selectDateParamFromFilter = (
+  _state: ReduxState,
+  { fromDate, toDate }: TxHistoryPageFilter
+) => ({ fromDate, toDate })
+
+const selectTransactionTypesParamFromFilter = (
+  _state: ReduxState,
+  { types }: TxHistoryPageFilter
+) => types ?? []
+
+const selectMatchingAssetsParamFromFilter = (
+  _state: ReduxState,
+  { matchingAssets }: TxHistoryPageFilter
+) => matchingAssets
+
+export const selectTxIdsBasedOnSearchTermAndFilters = createSelector(
+  selectTxs,
+  selectTxIds,
+  selectMatchingAssetsParamFromFilter,
+  selectDateParamFromFilter,
+  selectTransactionTypesParamFromFilter,
+  (txs, txIds, matchingAssets, { fromDate, toDate }, types): TxId[] => {
+    console.info(
+      !matchingAssets.length && !fromDate && !toDate && !types.length,
+      !matchingAssets.length,
+      !fromDate,
+      !toDate,
+      !types.length
+    )
+    console.info(txIds)
+    if (!matchingAssets.length && !fromDate && !toDate && !types.length) return txIds
+    const transactions = Object.values(txs)
+    const filteredBasedOnFromDate = fromDate
+      ? transactions.filter(tx => tx.blockTime > fromDate).map(tx => tx.txid)
+      : txIds
+    const filteredBasedOnToDate = toDate
+      ? transactions.filter(tx => tx.blockTime < toDate).map(tx => tx.txid)
+      : txIds
+    const filteredBasedOnMatchingAssets = matchingAssets
+      ? transactions
+          .filter(tx => !!tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19)))
+          .map(tx => tx.txid)
+      : txIds
+    // const filteredBasedOnType = types.length
+    //   ? transactions.filter(tx => tx.blockTime < toDate).map(tx => tx.txid)
+    //   : txIds
+    console.info(filteredBasedOnFromDate, filteredBasedOnToDate, filteredBasedOnMatchingAssets)
+    return intersection(
+      filteredBasedOnFromDate,
+      filteredBasedOnToDate,
+      filteredBasedOnMatchingAssets
+      // filteredBasedOnType
+    )
+  }
+)
+
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId
 
 const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId

@@ -14,9 +14,9 @@ import { shared } from './shared'
 import { updateMenu } from './tray'
 
 const appExpress = express()
-appExpress.use(cors())
+appExpress.use(cors)
 appExpress.use(bodyParser.urlencoded({ extended: false }))
-appExpress.use(bodyParser.json())
+appExpress.use(bodyParser.json)
 
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json'))

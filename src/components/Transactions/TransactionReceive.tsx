@@ -19,8 +19,9 @@ export const TransactionReceive = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
-  const price = useAppSelector(state => selectMarketDataById(state, txDetails.tx.caip2))
-  console.info(price, txDetails)
+  const marketData = useAppSelector(state =>
+    selectMarketDataById(state, txDetails.tx.transfers[0].caip19)
+  )
   return (
     <>
       <Flex alignItems='center' flex={1} as='button' w='full' py={4} onClick={toggleOpen}>
@@ -32,7 +33,8 @@ export const TransactionReceive = ({
             {
               symbol: txDetails.symbol,
               amount: txDetails.value,
-              precision: txDetails.precision
+              precision: txDetails.precision,
+              currentPrice: marketData.price
             }
           ]}
           fee={{
@@ -41,7 +43,9 @@ export const TransactionReceive = ({
               txDetails.tx.fee && txDetails.feeAsset
                 ? fromBaseUnit(txDetails.tx.fee.value, txDetails.feeAsset.precision)
                 : '0',
-            precision: txDetails.feeAsset?.precision
+            precision: txDetails.feeAsset?.precision,
+            // Receive does not have 'fee'
+            currentPrice: '0'
           }}
           explorerTxLink={txDetails.explorerTxLink}
           txid={txDetails.tx.txid}

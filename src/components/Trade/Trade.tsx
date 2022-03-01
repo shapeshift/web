@@ -26,6 +26,7 @@ export type TradeState<C extends ChainTypes, S extends SwapperType> = {
   action?: TradeActions
   fiatAmount?: string
   quote?: Quote<C, S>
+  estimatedGasFees?: string
 }
 
 export const Trade = () => {

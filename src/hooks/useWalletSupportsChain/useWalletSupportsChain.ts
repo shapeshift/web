@@ -22,7 +22,7 @@ export const walletSupportChain: UseWalletSupportsChain = ({ chainId, wallet }) 
   })
 
   const osmosisCaip2 = caip2.toCAIP2({
-    chain: ChainTypes.Cosmos,
+    chain: ChainTypes.Osmosis,
     network: NetworkTypes.OSMOSIS_MAINNET
   })
   switch (chainId) {

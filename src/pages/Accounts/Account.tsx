@@ -1,7 +1,6 @@
-import { Flex } from '@chakra-ui/react'
 import { useParams } from 'react-router-dom'
+import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
-import { Page } from 'components/Layout/Page'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
@@ -12,16 +11,12 @@ export type MatchParams = {
   assetId?: string
 }
 
-export const Account = () => {
+export const Account = ({ route }: { route?: Route }) => {
   const { accountId } = useParams<MatchParams>()
   const parsedAccountId = decodeURIComponent(accountId)
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   return !feeAsset ? null : (
-    <Page style={{ flex: 1 }} key={feeAsset?.tokenId}>
-      <Flex role='main' flex={1} height='100%'>
-        <AssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} />
-      </Flex>
-    </Page>
+    <AssetAccountDetails assetId={feeAsset.caip19} accountId={accountId} route={route} />
   )
 }

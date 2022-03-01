@@ -11,6 +11,7 @@
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
+    "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
@@ -21,6 +22,8 @@
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
     "darkMode": "Dark Mode",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
     "rename": "Rename",
     "forget": "Forget?",
     "available": "available",
@@ -110,6 +113,14 @@
         }
       }
     },
+    "staked": "Staked",
+    "assetStaking": "%{assetName} Staking",
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "claim": "Claim",
+    "rewards": "Rewards",
+    "unstaking": "Unstaking",
+    "available": "Available %{unbondingEnd}",
     "earn": "Earn",
     "asset": "Asset",
     "category": "Category",
@@ -135,7 +146,7 @@
     "currentAPY": "Current APY",
     "currentAPR": "Current APR",
     "yearn": "Yearn Finance",
-    "emptyEarn": "Earn opporuntities will appear here.",
+    "emptyEarn": "Earn opportunities will appear here.",
     "empty": {
       "farming": {
         "body": "You are not currently farming anything.",
@@ -163,6 +174,8 @@
     "accountDetails": "Account Details",
     "earn": "Earn",
     "defi": "DeFi",
+    "overview": "Overview",
+    "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token"
   },
@@ -213,7 +226,7 @@
       "invalidMax": "Invalid Amount. The maximum trade amount for this pair is %{maxLimit}.",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
       "transactionRejected": "User has rejected the transaction",
-      "broadcastFailed": "An error occured while broadcasting the transaction",
+      "broadcastFailed": "An error occurred while broadcasting the transaction",
       "insufficientFundsForLimit": "Insufficient funds. The minimum trade amount for this pair is %{minLimit}",
       "insufficientFundsForAmount": "Insufficient funds. Your %{symbol} balance is less than the selected amount",
       "noLiquidityError": "Not enough liquidity available",
@@ -226,9 +239,9 @@
       "sellAmountRequired": "Cannot execute a quote without an amount to sell",
       "depositAddressRequired": "Cannot execute an ETH quote without a DEX address",
       "sellAssetNetworkAndSymbolRequired": "Both asset network and symbol are required to execute a quote",
-      "hdwalletInvalidConfig": "An error occured communicating with your hardware wallet",
+      "hdwalletInvalidConfig": "An error occurred communicating with your hardware wallet",
       "signing": {
-        "failed": "An error occured signing the transaction",
+        "failed": "An error occurred signing the transaction",
         "required": "A signed transaction is required"
       }
     }
@@ -385,7 +398,8 @@
       "continue": "View Transaction",
       "position": "View Position",
       "viewAsset": "View Asset",
-      "close": "Close"
+      "close": "Close",
+      "viewExplorer": "View in Explorer"
     },
     "connect": {
       "loadingText": "Pairing Wallet"
@@ -563,7 +577,9 @@
         "showLess": "Show Less"
       },
       "assetHistory": {
-        "transactionHistory": "Transaction History"
+        "transactionHistory": "Transaction History",
+        "recentTransactions": "Recent Transactions",
+        "emptyTransactions": "Transactions will appear here."
       },
       "assetAccounts": {
         "account": "Account",

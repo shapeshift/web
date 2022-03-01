@@ -22,6 +22,8 @@
     "noWallet": "No Wallet Connected",
     "seeAll": "See All",
     "darkMode": "Dark Mode",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
     "rename": "Rename",
     "forget": "Forget?",
     "available": "available",

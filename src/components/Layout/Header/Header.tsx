@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useHistory } from 'react-router'
+import { Link } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
@@ -52,7 +53,9 @@ export const Header = ({ route }: { route: Route }) => {
             />
           </Box>
           <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
-            <FoxIcon boxSize='7' />
+            <Link to='/'>
+              <FoxIcon boxSize='7' />
+            </Link>
           </Flex>
           <HStack
             width='100%'

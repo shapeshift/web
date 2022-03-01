@@ -1,4 +1,4 @@
-import { ChatIcon } from '@chakra-ui/icons'
+import { ChatIcon, SunIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -6,7 +6,6 @@ import {
   FlexProps,
   Link,
   Stack,
-  Switch,
   useColorMode,
   useColorModeValue
 } from '@chakra-ui/react'
@@ -57,10 +56,9 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
           isFullWidth
           onClick={toggleColorMode}
           justifyContent='space-between'
-          leftIcon={<FaMoon />}
-          rightIcon={<Switch isChecked={isActive} />}
+          leftIcon={isActive ? <SunIcon /> : <FaMoon />}
         >
-          <Text mr='auto' translation='common.darkMode' />
+          <Text mr='auto' translation={isActive ? 'common.lightTheme' : 'common.darkTheme'} />
         </Button>
         <Button
           leftIcon={<ChatIcon />}

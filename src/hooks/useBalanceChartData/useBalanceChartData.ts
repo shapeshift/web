@@ -98,7 +98,7 @@ export const makeBuckets: MakeBuckets = args => {
 
   // current asset balances, we iterate over this later and adjust on each tx
   const assetBalances = assetIds.reduce<CryptoBalance>((acc, cur) => {
-    acc[cur] = bnOrZero(balances[cur])
+    acc[cur] = bnOrZero(balances?.[cur])
     return acc
   }, {})
 

@@ -3,6 +3,9 @@ import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakedModal } from 'plugins/cosmos/components/modals/Staked/Staked'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
+import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
+import { InitializeModal } from 'components/Modals/Initialize/Initialize'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
@@ -10,9 +13,6 @@ import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
-import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
-import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
-import { InitializeModal } from 'components/Modals/Initialize/Initialize'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
@@ -27,7 +27,7 @@ const MODALS = {
   pair: PairModal,
   firmware: FirmwareModal,
   bootloader: BootloaderModal,
-  initialize:InitializeModal,
+  initialize: InitializeModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaked: StakedModal
 }

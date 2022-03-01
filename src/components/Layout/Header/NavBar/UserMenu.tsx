@@ -7,7 +7,7 @@ import {
   WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import { Button, Flex, HStack, useColorModeValue, Link } from '@chakra-ui/react'
+import { Button, Flex, HStack, Link, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -176,11 +176,11 @@ export const UserMenu = () => {
           <NoWallet onClick={handleConnect} />
         )}
         <MenuItem
-            icon={<ExternalLinkIcon />}
-            as={Link}
-            isExternal
-            _hover={{ textDecoration: 'none' }}
-            href='http://localhost:1646/docs'
+          icon={<ExternalLinkIcon />}
+          as={Link}
+          isExternal
+          _hover={{ textDecoration: 'none' }}
+          href='http://localhost:1646/docs'
         >
           <Text translation='common.devTools' />
         </MenuItem>

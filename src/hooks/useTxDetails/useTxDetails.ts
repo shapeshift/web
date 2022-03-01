@@ -42,11 +42,12 @@ export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfe
 export const getBuyTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Receive)
 export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Send)
 
+export const isSupportedContract = (tx: Tx) =>
+  tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
+
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
-
-  const isSupportedContract = method ? SUPPORTED_CONTRACT_METHODS.has(method) : false
 
   const standardTx = getStandardTx(tx)
   const buyTx = getBuyTx(tx)
@@ -99,7 +100,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
   }, [from, to])
-  const type = isSupportedContract
+  const type = isSupportedContract(tx)
     ? TxType.Contract
     : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''

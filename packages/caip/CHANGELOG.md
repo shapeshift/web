@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.12.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.12.0...@shapeshiftoss/caip-v1.12.1) (2022-03-01)
+
+
+### Bug Fixes
+
+* support slip44 for Cosmos in toCAIP2 ([#409](https://github.com/shapeshift/lib/issues/409)) ([370a8d6](https://github.com/shapeshift/lib/commit/370a8d6530262d78c74cf490fba8061d2fd1331b))
+
 # [@shapeshiftoss/caip-v1.12.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.11.4...@shapeshiftoss/caip-v1.12.0) (2022-02-28)
 
 

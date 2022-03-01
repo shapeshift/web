@@ -96,11 +96,16 @@ enum Field {
   WithdrawType = 'withdrawType'
 }
 
+enum WithdrawType {
+  Instant = 'instantUnstake',
+  Delayed = 'unstake'
+}
+
 export type WithdrawValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
   [Field.Slippage]: string
-  [Field.WithdrawType]: string
+  [Field.WithdrawType]: WithdrawType
 }
 
 const DEFAULT_SLIPPAGE = '0.5'
@@ -139,7 +144,7 @@ export const Withdraw = ({
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
       [Field.Slippage]: DEFAULT_SLIPPAGE,
-      [Field.WithdrawType]: 'instant'
+      [Field.WithdrawType]: WithdrawType.Instant
     }
   })
 
@@ -378,54 +383,56 @@ export const Withdraw = ({
               </ButtonGroup>
             </VStack>
           </FormControl>
-          <FormControl>
-            <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
-            <ButtonGroup colorScheme='blue' width='full' variant='input'>
-              <Button
-                isFullWidth
-                flexDir='column'
-                height='auto'
-                py={4}
-                onClick={() => setValue(Field.WithdrawType, 'instant')}
-                isActive={values.withdrawType === 'instant'}
-              >
-                <Stack alignItems='center' spacing={1}>
-                  <FaBolt size='30px' />
-                  <RawText>{translate('modals.withdraw.instant')}</RawText>
-                  <RawText color='gray.500' fontSize='sm'>
-                    {translate('modals.withdraw.fee', { feeAmount: '20' })}
-                  </RawText>
-                </Stack>
-              </Button>
-              <Button
-                isFullWidth
-                flexDir='column'
-                height='auto'
-                onClick={() => setValue(Field.WithdrawType, 'delayed')}
-                isActive={values.withdrawType === 'delayed'}
-              >
-                <HelperTooltip
-                  label='Blah blah blah'
-                  flexProps={{ position: 'absolute', right: 2, top: 2 }}
-                />
-                <Stack alignItems='center' spacing={1}>
-                  <FaClock size='30px' />
-                  <RawText>{translate('modals.withdraw.delayed')}</RawText>
-                  <RawText color='gray.500' fontSize='sm'>
-                    {translate('modals.withdraw.noFee')}
-                  </RawText>
-                </Stack>
-              </Button>
-            </ButtonGroup>
-            {values.withdrawType === 'delayed' && (
-              <Alert status='info' borderRadius='lg' mt={4}>
-                <AlertIcon />
-                <AlertDescription>
-                  Once the time has elapsed you will be able to claim your withdraw amount.
-                </AlertDescription>
-              </Alert>
-            )}
-          </FormControl>
+          {enableWithdrawType && (
+            <FormControl>
+              <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
+              <ButtonGroup colorScheme='blue' width='full' variant='input'>
+                <Button
+                  isFullWidth
+                  flexDir='column'
+                  height='auto'
+                  py={4}
+                  onClick={() => setValue(Field.WithdrawType, WithdrawType.Instant)}
+                  isActive={values.withdrawType === WithdrawType.Instant}
+                >
+                  <Stack alignItems='center' spacing={1}>
+                    <FaBolt size='30px' />
+                    <RawText>{translate('modals.withdraw.instant')}</RawText>
+                    <RawText color='gray.500' fontSize='sm'>
+                      {translate('modals.withdraw.fee', { feeAmount: '20' })}
+                    </RawText>
+                  </Stack>
+                </Button>
+                <Button
+                  isFullWidth
+                  flexDir='column'
+                  height='auto'
+                  onClick={() => setValue(Field.WithdrawType, WithdrawType.Delayed)}
+                  isActive={values.withdrawType === WithdrawType.Delayed}
+                >
+                  <HelperTooltip
+                    label='Blah blah blah'
+                    flexProps={{ position: 'absolute', right: 2, top: 2 }}
+                  />
+                  <Stack alignItems='center' spacing={1}>
+                    <FaClock size='30px' />
+                    <RawText>{translate('modals.withdraw.delayed')}</RawText>
+                    <RawText color='gray.500' fontSize='sm'>
+                      {translate('modals.withdraw.noFee')}
+                    </RawText>
+                  </Stack>
+                </Button>
+              </ButtonGroup>
+              {values.withdrawType === WithdrawType.Delayed && (
+                <Alert status='info' borderRadius='lg' mt={4}>
+                  <AlertIcon />
+                  <AlertDescription>
+                    Once the time has elapsed you will be able to claim your withdraw amount.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </FormControl>
+          )}
         </ModalBody>
         <ModalFooter as={HStack} direction='horziontal' spacing={4}>
           <Text
@@ -441,7 +448,7 @@ export const Withdraw = ({
             type='submit'
           >
             {translate(
-              fieldError || values.withdrawType === 'delayed'
+              fieldError || values.withdrawType === WithdrawType.Delayed
                 ? 'modals.withdraw.requestWithdraw'
                 : 'common.continue'
             )}

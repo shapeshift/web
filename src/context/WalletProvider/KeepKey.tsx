@@ -102,20 +102,6 @@ export class KeepKeyService {
   async pairWallet(walletType: string, HDWallet: any): Promise<any> {
     try {
       this.HDWallet = HDWallet
-      // @ts-ignore
-      let features = await HDWallet.getFeatures()
-      console.log("pairWallet: features:",features)
-      if(!features.initilized){
-        console.log("KeepKey NOT initialized!")
-        this.initialize.open()
-      } else {
-        console.log("KeepKey initialized!")
-      }
-
-      //get latest firmware
-
-      //if behind offer update
-
     } catch (e) {
       console.error(e)
     }

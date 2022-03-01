@@ -1,18 +1,14 @@
 import { translations } from 'assets/translations'
 
-import { wallet } from '../../cypress/fixtures/wallet'
-
 const baseUrl = Cypress.config().baseUrl
 const seed = Cypress.env('testSeed')
 const password = Cypress.env('testPassword')
 
-beforeEach(() => {
-  // Cypress already automatically clears localStorage, cookies, sessions, etc. before each test
-  // We do, however, need to manually clear indexedDB to clear any saved wallet data
-  cy.clearIndexedDB()
-})
-
 describe('The Dashboard', () => {
+  before(() => {
+    cy.clearIndexedDB()
+  })
+
   it('supports log in via an imported Native wallet', () => {
     cy.visit('')
 
@@ -58,29 +54,26 @@ describe('The Dashboard', () => {
     cy.url().should('equal', `${baseUrl}dashboard`)
   })
 
+  it('supports login via locally stored Native wallet', () => {
+    // This will use the wallet created in `supports log in via an imported Native wallet`
+    cy.visit('')
+    cy.getBySel('connect-wallet-button').click()
+    cy.getBySel('wallet-native-button').click()
+    cy.getBySel('wallet-native-load-button').click()
+    cy.getBySel('native-saved-wallet').should('have.length', 1)
+    cy.getBySel('native-saved-wallet-name').should('have.text', 'cypress-test')
+    cy.getBySel('native-saved-wallet-button').click()
+    cy.getBySel('wallet-password-input').type(password)
+    cy.getBySel('wallet-password-submit-button').click()
+    cy.url().should('equal', `${baseUrl}dashboard`)
+  })
+
   it('cannot login natively when no local Native wallets', () => {
     cy.clearIndexedDB().then(() => {
       cy.visit('')
       cy.getBySel('connect-wallet-button').click()
       cy.getBySel('wallet-native-button').click()
       cy.getBySel('wallet-native-load-button').should('be.disabled')
-    })
-  })
-
-  it('supports login via locally stored Native wallet', () => {
-    cy.clearIndexedDB().then(() => {
-      cy.addWallet(wallet).then(() => {
-        cy.visit('')
-        cy.getBySel('connect-wallet-button').click()
-        cy.getBySel('wallet-native-button').click()
-        cy.getBySel('wallet-native-load-button').click()
-        cy.getBySel('native-saved-wallet').should('have.length', 1)
-        cy.getBySel('native-saved-wallet-name').should('have.text', 'cypress-test')
-        cy.getBySel('native-saved-wallet-button').click()
-        cy.getBySel('wallet-password-input').type(password)
-        cy.getBySel('wallet-password-submit-button').click()
-        cy.url().should('equal', `${baseUrl}dashboard`)
-      })
     })
   })
 

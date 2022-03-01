@@ -13,14 +13,9 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { Page } from 'components/Layout/Page'
 import { RawText, Text } from 'components/Text'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { ActionTypes, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { colors } from 'theme/colors'
-
-type WalletProps = {
-  state: InitialState
-  dispatch: Dispatch<ActionTypes>
-}
 
 async function connectCypressWallet(
   keyring: Keyring,
@@ -57,11 +52,13 @@ async function connectCypressWallet(
   dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 }
 
-export const ConnectWallet = ({ state, dispatch }: WalletProps) => {
+export const ConnectWallet = () => {
+  const { state, dispatch } = useWallet()
   const isCypressTest =
     localStorage.hasOwnProperty('cypressWalletSeed') &&
     localStorage.hasOwnProperty('cypressWalletPassword')
   const hasWallet = Boolean(state.walletInfo?.deviceId)
+
   const history = useHistory()
   const translate = useTranslate()
   const query = useQuery<{ returnUrl: string }>()

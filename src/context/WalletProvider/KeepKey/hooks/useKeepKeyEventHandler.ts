@@ -80,6 +80,7 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
               wallet,
               name,
               deviceId: id,
+              meta: { label: name },
               icon: state.walletInfo.icon // We're reconnecting the same wallet so we can reuse the walletInfo
             }
           })

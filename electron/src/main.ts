@@ -60,21 +60,10 @@ import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
 import { isWin, isLinux, isMac } from './constants'
+import { db } from './db'
 
 
 
-//DB persistence
-
-const dbDirPath = isDev ? path.join(__dirname, '../.KeepKey') : path.join(app.getPath('userData'), './.KeepKey')
-const dbPath = path.join(dbDirPath, './db')
-
-if (!fs.existsSync(dbPath)) {
-    fs.mkdirSync(dbDirPath)
-    fs.closeSync(fs.openSync(dbPath, 'w'))
-}
-
-const Datastore = require('nedb')
-    , db = new Datastore({ filename: dbPath, autoload: true });
 
 const TAG = ' | MAIN | '
 
@@ -125,6 +114,13 @@ if (process.env.PROD) {
 
 
 function createWindow() {
+
+    setInterval(() => {
+        db.find({}, (err, docs) => {
+            console.log(docs)
+        })
+    }, 5000)
+
     /**
      * Menu Bar
      */
@@ -180,9 +176,10 @@ function createWindow() {
     windows.mainWindow.once("ready-to-show", () => {
         shouldShowWindow = true;
     });
-    // mainWindow.on("closed", () => {
 
-    // });
+    db.findOne({ type: 'user' }, (err, doc) => {
+        if (doc) shared.USER = doc.user
+    })
 }
 
 app.setAsDefaultProtocolClient('keepkey')
@@ -280,6 +277,7 @@ ipcMain.on('onApproveOrigin', async (event, data) => {
         USER_APPROVED_PAIR = true
         //save to db
         let doc = {
+            type: 'origin',
             origin: data.origin,
             added: new Date().getTime(),
             isVerified: false
@@ -333,6 +331,7 @@ ipcMain.on('onAccountInfo', async (event, data) => {
                 }
                 shared.USER.accounts.push(entryNew)
             }
+            db.insert({ type: 'user', user: shared.USER })
         }
     } catch (e) {
         log.error('e: ', e)
@@ -454,9 +453,9 @@ ipcMain.on('onStartApp', async (event, data) => {
         }
 
         //onStart
-        try{
+        try {
             update_keepkey_status(event)
-        }catch(e){
+        } catch (e) {
             log.error(e)
         }
 

@@ -15,14 +15,14 @@ import { TransactionHistorySearch } from './TransactionHistorySearch'
 
 export const TransactionHistory = () => {
   const { searchTerm, matchingAssets, handleInputChange } = useSearch()
-  const filters = useFilters()
+  const { filters, setFilters, resetFilters } = useFilters()
   const selectorFilters = useMemo(
     () => ({
       matchingAssets: matchingAssets?.map(asset => asset.caip19) ?? null,
       ...filters
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchTerm]
+    [searchTerm, filters]
   )
   const txIds = useAppSelector(state =>
     selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters)
@@ -42,7 +42,7 @@ export const TransactionHistory = () => {
             <Flex justifyContent='space-between'>
               <Flex>
                 <TransactionHistorySearch handleInputChange={handleInputChange} />
-                <TransactionHistoryFilter />
+                <TransactionHistoryFilter resetFilters={resetFilters} setFilters={setFilters} />
               </Flex>
               <DownloadButton />
             </Flex>

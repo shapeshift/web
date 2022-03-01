@@ -5,15 +5,32 @@ import {
   CheckboxGroup,
   Collapse,
   Icon,
+  Radio,
+  RadioGroup,
   useColorModeValue
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
 
-export const FilterGroup = ({ title, options }: { title: string; options: string[] }) => {
+type Option = [string, number | string]
+
+export const FilterGroup = ({
+  title,
+  options,
+  allowMultipleOptions = false,
+  name,
+  ...props
+}: {
+  title: string
+  options: Option[]
+  allowMultipleOptions?: boolean
+  name: string
+}) => {
   const [isOpen, setOpen] = useState(false)
   const toggleDayRange = () => setOpen(open => !open)
+  const GroupComponent = allowMultipleOptions ? CheckboxGroup : RadioGroup
+  const Component = allowMultipleOptions ? Checkbox : Radio
   return (
     <Box px={2}>
       <Button
@@ -38,15 +55,15 @@ export const FilterGroup = ({ title, options }: { title: string; options: string
       </Button>
       <Collapse in={isOpen} unmountOnExit>
         <Box px={2} mb={2}>
-          <CheckboxGroup>
-            {options.map(option => (
-              <Box key={option} py={1}>
-                <Checkbox>
-                  <Text translation={option} fontWeight='300' />
-                </Checkbox>
+          <GroupComponent {...props}>
+            {options.map(([title, value]) => (
+              <Box key={value} py={1}>
+                <Component name={name} value={value}>
+                  <Text translation={title} fontWeight='300' />
+                </Component>
               </Box>
             ))}
-          </CheckboxGroup>
+          </GroupComponent>
         </Box>
       </Collapse>
     </Box>

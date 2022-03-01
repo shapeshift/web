@@ -61,9 +61,9 @@ export const selectTxDateByIds = createSelector(selectTxIdsParam, selectTxs, (tx
 )
 
 type TxHistoryPageFilter = {
-  fromDate?: number
-  toDate?: number
-  types?: string[]
+  fromDate: number | null
+  toDate: number | null
+  types: string[] | null
   matchingAssets: CAIP19[] | null
 }
 

@@ -33,6 +33,30 @@ describe('caip19', () => {
       expect(result).toEqual('cosmos:cosmoshub-4/slip44:118')
     })
 
+    it('can make Cosmos caip19 identifier on CosmosHub mainnet with slip44 reference', () => {
+      const chain = ChainTypes.Cosmos
+      const network = NetworkTypes.COSMOSHUB_MAINNET
+      const result = toCAIP19({
+        chain,
+        network,
+        assetNamespace: AssetNamespace.Slip44,
+        assetReference: '118'
+      })
+      expect(result).toEqual('cosmos:cosmoshub-4/slip44:118')
+    })
+
+    it('can make Osmosis caip19 identifier on Osmosis mainnet with slip44 reference', () => {
+      const chain = ChainTypes.Osmosis
+      const network = NetworkTypes.OSMOSIS_MAINNET
+      const result = toCAIP19({
+        chain,
+        network,
+        assetNamespace: AssetNamespace.Slip44,
+        assetReference: '118'
+      })
+      expect(result).toEqual('cosmos:osmosis-1/slip44:118')
+    })
+
     it('can return ibc asset caip 19 for osmosis', () => {
       const chain = ChainTypes.Osmosis
       const network = NetworkTypes.OSMOSIS_MAINNET
@@ -83,6 +107,15 @@ describe('caip19', () => {
       const network = NetworkTypes.TESTNET
       expect(() => toCAIP19({ chain, network })).toThrow(
         'toCAIP2: unsupported cosmos network: TESTNET'
+      )
+    })
+
+    it('throws with invalid Cosmos slip44 reference', () => {
+      const chain = ChainTypes.Cosmos
+      const network = NetworkTypes.COSMOSHUB_MAINNET
+      const assetNamespace = AssetNamespace.Slip44
+      expect(() => toCAIP19({ chain, network, assetNamespace, assetReference: 'bad' })).toThrow(
+        'Could not construct CAIP19'
       )
     })
 

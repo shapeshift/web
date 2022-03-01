@@ -32,6 +32,17 @@ type ToCAIP19Args = {
   assetReference?: string
 }
 
+/**
+ * validate that a value is a string slip44 value
+ * @see https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+ * @param {string} value - possible slip44 value
+ */
+const isValidSlip44 = (value: string) => {
+  const n = Number(value)
+  // slip44 has a max value of an unsigned 32-bit integer
+  return !isNaN(n) && n >= 0 && n < 4294967296
+}
+
 type ToCAIP19 = (args: ToCAIP19Args) => string
 
 export const toCAIP19: ToCAIP19 = ({
@@ -58,12 +69,13 @@ export const toCAIP19: ToCAIP19 = ({
         case AssetNamespace.IBC:
         case AssetNamespace.NATIVE:
           return `${caip2}/${assetNamespace}:${assetReference}`
-        default: {
-          throw new Error(
-            `Could not construct CAIP19 chain: ${chain}, network: ${network}, assetNamespace: ${assetNamespace}, assetReference: ${assetReference}`
-          )
-        }
+        case AssetNamespace.Slip44:
+          if (isValidSlip44(assetReference)) return `${caip2}/${assetNamespace}:${assetReference}`
       }
+
+      throw new Error(
+        `Could not construct CAIP19 chain: ${chain}, network: ${network}, assetNamespace: ${assetNamespace}, assetReference: ${assetReference}`
+      )
     }
     case ChainTypes.Ethereum: {
       tokenId = tokenId?.toLowerCase()

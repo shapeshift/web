@@ -10,6 +10,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
 import { TransactionDate } from 'components/Transactions/TransactionDate'
 import { TransactionTime } from 'components/Transactions/TransactionTime'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
@@ -30,6 +31,7 @@ type TransactionRowAsset = {
   symbol: string
   amount: string
   precision: number
+  currentPrice?: string
 }
 
 type TransactionGenericRowType = {
@@ -94,7 +96,16 @@ export const TransactionGenericRow = ({
                     symbol={asset.symbol}
                     maximumFractionDigits={6}
                   />
-                  <TransactionTime blockTime={blockTime} />
+                  {asset.currentPrice && (
+                    <Amount.Fiat
+                      color='gray.500'
+                      fontSize='sm'
+                      lineHeight='1'
+                      value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
+                        .times(asset.currentPrice)
+                        .toString()}
+                    />
+                  )}
                 </Box>
               </Flex>
               {index !== assets.length - 1 && (
@@ -122,7 +133,14 @@ export const TransactionGenericRow = ({
               symbol={fee.symbol}
               maximumFractionDigits={6}
             />
-            <TransactionTime blockTime={blockTime} />
+            {fee.currentPrice && (
+              <Amount.Fiat
+                color='gray.500'
+                fontSize='sm'
+                lineHeight='1'
+                value={bnOrZero(fee.amount).times(fee.currentPrice).toString()}
+              />
+            )}
           </Box>
         </Flex>
       </Flex>

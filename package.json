@@ -181,7 +181,7 @@
     "@types/react-virtualized-auto-sizer": "^1.0.1",
     "@types/react-window": "^1.8.5",
     "babel-plugin-react-remove-properties": "^0.3.0",
-    "cypress": "9.4.1",
+    "cypress": "9.5.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",

@@ -18,14 +18,17 @@ export const StakingTable = ({ data, onClick }: StakingTableProps) => {
     () => [
       {
         Header: '#',
-        Cell: ({ row }: { row: any }) => <RawText>{row.index + 1}</RawText>
+        Cell: ({ row, flatRows }: { row: any; flatRows: any }) => (
+          <RawText>{flatRows.indexOf(row) + 1}</RawText>
+        )
       },
       {
         Header: 'Asset',
         accessor: 'assetId',
         Cell: ({ row }: { row: any }) => (
           <AssetCell assetId={row.original.assetId} provider={row.original.provider} />
-        )
+        ),
+        disableSortBy: true
       },
       {
         Header: 'Type',

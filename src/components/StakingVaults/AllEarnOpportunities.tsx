@@ -1,11 +1,11 @@
 import { Box } from '@chakra-ui/react'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { FeatureFlag } from 'constants/FeatureFlag'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -13,15 +13,6 @@ import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 
 import { StakingTable } from './StakingTable'
-
-export const testFoxy = [
-  {
-    tokenAddress: '0x49849c98ae39fff122806c06791fa73784fb3675',
-    contractAddress: '0x49849c98ae39fff122806c06791fa73784fb3675',
-    chain: ChainTypes.Ethereum,
-    type: 'token-staking'
-  }
-]
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
@@ -34,7 +25,7 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedYearnVaults()
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: testFoxy
+    foxyArray: []
   })
 
   const handleClick = (opportunity: EarnOpportunityType) => {
@@ -54,10 +45,14 @@ export const AllEarnOpportunities = () => {
     }
   }
 
-  if (!earnFeature) return null
+  useEffect(() => {
+    console.info(sortedVaults)
+  }, [sortedVaults])
+
+  if (!earnFeature && sortedVaults.length > 0) return null
 
   return (
-    <Card variant='outline' my={6}>
+    <Card variant='outline'>
       <Card.Header flexDir='row' display='flex'>
         <Box>
           <Card.Heading>

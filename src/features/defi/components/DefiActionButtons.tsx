@@ -30,13 +30,6 @@ export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) =
   return (
     <ButtonGroup variant='ghost' colorScheme='blue'>
       <Button
-        isActive={match?.params?.action === DefiAction.Overview}
-        onClick={() => handleClick(DefiAction.Overview)}
-        isDisabled={vaultExpired}
-      >
-        {translate('common.overview')}
-      </Button>
-      <Button
         isActive={match?.params?.action === DefiAction.Deposit}
         onClick={() => handleClick(DefiAction.Deposit)}
         isDisabled={vaultExpired}

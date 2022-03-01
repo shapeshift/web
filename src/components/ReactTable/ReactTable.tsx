@@ -1,5 +1,5 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
+import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
 import { Column, useSortBy, useTable } from 'react-table'
 
 type StakingTableProps = {
@@ -9,6 +9,7 @@ type StakingTableProps = {
 }
 
 export const ReactTable = ({ columns, data, onClick }: StakingTableProps) => {
+  const hoverColor = useColorModeValue('black', 'white')
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
@@ -26,7 +27,7 @@ export const ReactTable = ({ columns, data, onClick }: StakingTableProps) => {
                 {...column.getHeaderProps(column.getSortByToggleProps())}
                 color='gray.500'
                 display={column.display}
-                _hover={{ color: 'white' }}
+                _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
               >
                 <Flex>
                   {column.render('Header')}

@@ -16,7 +16,6 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { testFoxy } from './AllEarnOpportunities'
 import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
@@ -40,7 +39,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: testFoxy
+    foxyArray: []
   }).filter(e => e.tokenAddress === asset.tokenId)
 
   const handleClick = (opportunity: EarnOpportunityType) => {

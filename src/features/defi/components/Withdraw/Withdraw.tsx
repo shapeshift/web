@@ -96,7 +96,7 @@ enum Field {
   WithdrawType = 'withdrawType'
 }
 
-enum WithdrawType {
+export enum WithdrawType {
   Instant = 'instantUnstake',
   Delayed = 'unstake'
 }

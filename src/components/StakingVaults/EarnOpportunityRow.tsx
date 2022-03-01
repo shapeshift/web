@@ -94,7 +94,7 @@ export const EarnOpportunityRow = ({
                   overflow='hidden'
                   height='20px'
                   width='full'
-                  title={`${metadata.displayName} (${version})`}
+                  title={`${asset.name} (${version})`}
                   _after={{
                     content: 'attr(title)',
                     overflow: 'hidden',

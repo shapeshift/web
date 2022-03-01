@@ -1,6 +1,6 @@
 import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { WithdrawType, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
 type EstimatedGas = {
   estimatedGasCrypto?: string
@@ -69,7 +69,7 @@ export const initialState: YearnWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: 'instant'
+    withdrawType: WithdrawType.Instant
   }
 }
 

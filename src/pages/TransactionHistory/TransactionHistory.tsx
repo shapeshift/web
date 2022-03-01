@@ -16,10 +16,9 @@ import { TransactionHistorySearch } from './TransactionHistorySearch'
 export const TransactionHistory = () => {
   const { searchTerm, matchingAssets, handleInputChange } = useSearch()
   const filters = useFilters()
-  console.info(matchingAssets)
   const selectorFilters = useMemo(
     () => ({
-      matchingAssets: matchingAssets.map(asset => asset.caip19),
+      matchingAssets: matchingAssets?.map(asset => asset.caip19) ?? null,
       ...filters
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,7 +27,6 @@ export const TransactionHistory = () => {
   const txIds = useAppSelector(state =>
     selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters)
   )
-  console.info(txIds)
   return (
     <Page style={{ flex: 1 }}>
       <Flex role='main' flex={1} flexDir='column' maxWidth='6xl' mx='auto' px={4}>

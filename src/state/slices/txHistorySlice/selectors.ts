@@ -64,7 +64,7 @@ type TxHistoryPageFilter = {
   fromDate?: number
   toDate?: number
   types?: string[]
-  matchingAssets: CAIP19[]
+  matchingAssets: CAIP19[] | null
 }
 
 const selectDateParamFromFilter = (
@@ -89,36 +89,35 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createSelector(
   selectDateParamFromFilter,
   selectTransactionTypesParamFromFilter,
   (txs, txIds, matchingAssets, { fromDate, toDate }, types): TxId[] => {
-    console.info(
-      !matchingAssets.length && !fromDate && !toDate && !types.length,
-      !matchingAssets.length,
-      !fromDate,
-      !toDate,
-      !types.length
-    )
-    console.info(txIds)
-    if (!matchingAssets.length && !fromDate && !toDate && !types.length) return txIds
-    const transactions = Object.values(txs)
+    if (!matchingAssets && !fromDate && !toDate && !types.length) return txIds
+    const transactions = Object.entries(txs)
     const filteredBasedOnFromDate = fromDate
-      ? transactions.filter(tx => tx.blockTime > fromDate).map(tx => tx.txid)
+      ? transactions.filter(([, tx]) => tx.blockTime > fromDate).map(([txId]) => txId)
       : txIds
     const filteredBasedOnToDate = toDate
-      ? transactions.filter(tx => tx.blockTime < toDate).map(tx => tx.txid)
+      ? transactions.filter(([, tx]) => tx.blockTime < toDate).map(([txId]) => txId)
       : txIds
     const filteredBasedOnMatchingAssets = matchingAssets
       ? transactions
-          .filter(tx => !!tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19)))
-          .map(tx => tx.txid)
+          .filter(([, tx]) =>
+            tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19))
+          )
+          .map(([txId]) => txId)
       : txIds
-    // const filteredBasedOnType = types.length
-    //   ? transactions.filter(tx => tx.blockTime < toDate).map(tx => tx.txid)
-    //   : txIds
-    console.info(filteredBasedOnFromDate, filteredBasedOnToDate, filteredBasedOnMatchingAssets)
+    const filteredBasedOnType = types.length
+      ? transactions
+          .filter(([, tx]) => {
+            if (tx.transfers.length === 1) return types.includes(tx.transfers[0].type)
+            if (tx.tradeDetails) return types.includes(tx.tradeDetails.type)
+            return false
+          })
+          .map(([txId]) => txId)
+      : txIds
     return intersection(
       filteredBasedOnFromDate,
       filteredBasedOnToDate,
-      filteredBasedOnMatchingAssets
-      // filteredBasedOnType
+      filteredBasedOnMatchingAssets,
+      filteredBasedOnType
     )
   }
 )

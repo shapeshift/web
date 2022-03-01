@@ -49,7 +49,7 @@ export const TransactionDetails = ({
                 <Text color='gray.600' translation='transactionHistory.transactionType' />
               </Flex>
               <Flex flex={1}>
-                <RawText>DEX</RawText>
+                <RawText>{txDetails.tx.tradeDetails?.dexName}</RawText>
               </Flex>
             </Row>
             <Row hidden={!!txDetails.tradeTx}>

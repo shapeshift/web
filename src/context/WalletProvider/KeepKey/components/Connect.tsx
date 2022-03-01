@@ -11,13 +11,13 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
 
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 import { FailureType, MessageType } from '../KeepKeyTypes'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { ipcRenderer } from 'electron'
 
 export interface KeepKeySetupProps
@@ -87,10 +87,8 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions
         let features = await wallet.getFeatures()
-        console.log("features: ",features)
         ipcRenderer.send('onKeepKeyInfo', features)
-        if(!features.initialized){
-          console.log("KEEPKEY NOT INITIALIZED")
+        if (!features.initialized) {
           initialize.open({})
         } else {
           // Show the label from the wallet instead of a generic name

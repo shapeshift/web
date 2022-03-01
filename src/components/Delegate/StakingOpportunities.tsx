@@ -44,5 +44,5 @@ export const StakingOpportunities = ({ assetId: caip19 }: StakingOpportunitiesPr
     </Card>
   )
 
-  return useRenderForChains([ChainTypes.Ethereum], cosmosStaking)
+  return useRenderForChains([ChainTypes.Cosmos], cosmosStaking)
 }

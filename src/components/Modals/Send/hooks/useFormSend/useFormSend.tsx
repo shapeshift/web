@@ -84,7 +84,7 @@ export const useFormSend = () => {
 
         if (wallet.supportsOfflineSigning()) {
           const signedTx = await adapter.signTransaction({ txToSign, wallet })
-          await adapter.broadcastTransaction(signedTx)
+          broadcastTXID = await adapter.broadcastTransaction(signedTx)
         } else if (wallet.supportsBroadcast()) {
           /**
            * signAndBroadcastTransaction is an optional method on the HDWallet interface.

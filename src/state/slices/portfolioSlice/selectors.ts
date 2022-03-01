@@ -196,6 +196,16 @@ export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
 )
 
+export const selectPortfolioCryptoHumanBalanceBySymbol = createSelector(
+  selectAssets,
+  selectPortfolioAssetBalances,
+  (assets, balances) =>
+    Object.entries(balances).reduce<{ [k: CAIP19]: string }>((acc, [assetId, balance]) => {
+      acc[assets[assetId].symbol] = fromBaseUnit(bnOrZero(balance), assets[assetId]?.precision ?? 0)
+      return acc
+    }, {})
+)
+
 export const selectPortfolioAssets = createSelector(
   selectAssets,
   selectPortfolioAssetIds,

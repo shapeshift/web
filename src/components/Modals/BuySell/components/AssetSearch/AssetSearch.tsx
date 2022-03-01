@@ -5,7 +5,9 @@ import { getConfig } from 'config'
 import { concat, flatten, uniqBy } from 'lodash'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useSelector } from 'react-redux'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { selectPortfolioCryptoHumanBalanceBySymbol } from 'state/slices/selectors'
 
 import {
   BuySellAction,
@@ -35,7 +37,7 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
 
   const [loading, setLoading] = useState(false)
   const [currentAssets, setCurrentAssets] = useState<CurrencyAsset[]>([])
-
+  const balances = useSelector(selectPortfolioCryptoHumanBalanceBySymbol)
   const getCoinifySupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
@@ -72,9 +74,11 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
         const list1 = coinifyList.filter(filter).map(list => list[key].currencies)
         const list2 = wyreList.filter(filter).map(list => list[key].currencies)
         const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
+          .map(result => ({ ...result, balance: Number(balances[result.ticker]) || 0 }))
+          .sort((a, b) => b.balance - a.balance)
         return results
       },
-    []
+    [balances]
   )
 
   const fetchSupportedCurrencies = async () => {
@@ -137,6 +141,7 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
         ) : (
           <AssetList
             mb='10'
+            type={type}
             assets={searching ? filteredAssets : currentAssets}
             handleClick={onClick}
           />

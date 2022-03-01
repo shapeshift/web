@@ -51,7 +51,7 @@ describe('The Dashboard', () => {
     cy.navigateToDashboard()
     cy.getBySel('account-row-asset-crypto-LINK').click()
     cy.url().should('equal', `${baseUrl}assets/${linkContract}`)
-    cy.getBySel('asset-action-send').click()
+    cy.getBySel('asset-action-send').click({ force: true }) // TODO - Find a better solution
     cy.getBySel('send-address-input').type('0xabadbabe')
     cy.getBySel('send-address-next-button')
       .should('be.disabled')
@@ -75,7 +75,7 @@ describe('The Dashboard', () => {
     cy.navigateToDashboard()
     cy.getBySel('account-row-asset-crypto-LINK').click()
     cy.url().should('equal', `${baseUrl}assets/${linkContract}`)
-    cy.getBySel('asset-action-receive').click()
+    cy.getBySel('asset-action-receive').click({ force: true }) // TODO - Find a better solution
     cy.getBySel('receive-qr-code').should('exist')
     cy.getBySel('receive-address-label').should('have.text', '0xfDCa...fCde')
     cy.backdropDismiss()

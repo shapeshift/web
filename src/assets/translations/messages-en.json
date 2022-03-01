@@ -317,6 +317,12 @@
     },
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
+      "withdrawType": "Withdraw Type",
+      "requestWithdraw": "Request Withdraw",
+      "instant": "Instant",
+      "delayed": "~7 days",
+      "noFee": "No fee",
+      "fee": "%{feeAmount}% fee",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
       "slippageSettings": "Slippage Settings"
     },

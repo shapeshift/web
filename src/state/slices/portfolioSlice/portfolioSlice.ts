@@ -20,7 +20,8 @@ export const supportedAccountTypes = {
     UtxoAccountType.P2pkh
   ],
   [ChainTypes.Ethereum]: undefined,
-  [ChainTypes.Cosmos]: undefined
+  [ChainTypes.Cosmos]: undefined,
+  [ChainTypes.Osmosis]: undefined
 }
 
 /*

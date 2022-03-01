@@ -19,6 +19,7 @@
     "@formatjs/intl-numberformat": "^7.4.2",
     "@formatjs/intl-pluralrules": "^4.3.2",
     "@metamask/detect-provider": "^1.2.0",
+    "@keepkey/keepkey-hardware-hid": "8.1.18",
     "@reduxjs/toolkit": "^1.7.2",
     "@shapeshiftoss/asset-service": "^1.19.0",
     "@shapeshiftoss/caip": "^1.11.4",

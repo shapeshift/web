@@ -10,6 +10,9 @@ import { PairModal } from 'components/Modals/Pair/Pair'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
+import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
+import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
+import { InitializeModal } from 'components/Modals/Initialize/Initialize'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
@@ -22,6 +25,9 @@ const MODALS = {
   send: SendModal,
   sign: SignModal,
   pair: PairModal,
+  firmware: FirmwareModal,
+  bootloader: BootloaderModal,
+  initialize:InitializeModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaked: StakedModal
 }
@@ -146,6 +152,7 @@ export function createModalProvider<M>({
         return { ...acc, [cur]: { open, close } }
       }, state)
       const result = merge(state, fns)
+
       return result
     }, [state, closeFactory, openFactory])
 

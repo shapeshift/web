@@ -184,23 +184,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 
 const WalletContext = createContext<IWalletContext | null>(null)
 
-// const getInitialState = () => {
-//   const localWalletType = getLocalWalletType()
-//   const localWalletDeviceId = getLocalWalletDeviceId()
-//   if (localWalletType && localWalletDeviceId) {
-//     /**
-//      * set isLoadingLocalWallet->true to bypass splash screen
-//      */
-//     return {
-//       ...initialState,
-//       isLoadingLocalWallet: true
-//     }
-//   }
-//   return initialState
-// }
-
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  const { sign, pair } = useModal()
+  const { sign, pair, firmware, bootloader } = useModal()
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -289,6 +274,38 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('approveOrigin', (event: any, data: any) => {
       pair.open(data)
+    })
+
+    ipcRenderer.on('loadKeepKeyInfo', (event, data) => {
+      keepkey.updateFeatures(data.payload)
+    })
+
+    ipcRenderer.on('setUpdaterMode', (event, data) => {
+      keepkey.setUpdaterMode(data.payload)
+    })
+
+    ipcRenderer.on('setNeedsBootloaderUpdate', (event, data) => {
+      keepkey.setNeedsBootloaderUpdate(true)
+    })
+
+    ipcRenderer.on('loadKeepKeyFirmwareLatest', (event, data) => {
+      keepkey.updateKeepKeyFirmwareLatest(data.payload)
+    })
+
+    ipcRenderer.on('onCompleteBootloaderUpload', (event, data) => {
+      keepkey.setNeedsBootloaderUpdate(false)
+    })
+
+    ipcRenderer.on('onCompleteFirmwareUpload', (event, data) => {
+      firmware.close()
+    })
+
+    ipcRenderer.on('openFirmwareUpdate', (event, data) => {
+      firmware.open({})
+    })
+
+    ipcRenderer.on('openBootloaderUpdate', (event, data) => {
+      bootloader.open({})
     })
 
     ipcRenderer.on('setDevice', (event, data) => {})

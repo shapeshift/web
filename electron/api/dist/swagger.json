@@ -11,9 +11,6 @@
 					"success": {
 						"type": "boolean"
 					},
-					"username": {
-						"type": "string"
-					},
 					"status": {
 						"type": "string"
 					},
@@ -24,7 +21,6 @@
 				},
 				"required": [
 					"success",
-					"username",
 					"status",
 					"state"
 				],
@@ -47,6 +43,22 @@
 					"success",
 					"username",
 					"code"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"User": {
+				"properties": {
+					"online": {
+						"type": "boolean"
+					},
+					"accounts": {},
+					"balances": {}
+				},
+				"required": [
+					"online",
+					"accounts",
+					"balances"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -129,6 +141,28 @@
 				"parameters": []
 			}
 		},
+		"/device": {
+			"get": {
+				"operationId": "Device",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Status"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
 		"/pair/{code}": {
 			"get": {
 				"operationId": "Pair",
@@ -159,7 +193,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/User"
+								}
 							}
 						}
 					}

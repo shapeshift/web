@@ -42,24 +42,20 @@ import { app, Menu, Tray, BrowserWindow, nativeTheme, ipcMain, nativeImage } fro
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
 
-
 log.transports.file.level = "debug";
 autoUpdater.logger = log;
-
-//core libs
-let {
-    getPaths
-} = require('@pioneer-sdk/coins')
 
 let {
     getConfig,
     innitConfig,
-    getWallets
+    getWallets,
 } = require("keepkey-config")
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
 import fs from 'fs'
+//Modules
+import { KEEPKEY_FEATURES, update_keepkey_status } from './keepkey'
 import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
@@ -80,7 +76,7 @@ if (!fs.existsSync(dbPath)) {
 const Datastore = require('nedb')
     , db = new Datastore({ filename: dbPath, autoload: true });
 
-const TAG = ' | KK-MAIN | '
+const TAG = ' | MAIN | '
 
 
 
@@ -458,26 +454,9 @@ ipcMain.on('onStartApp', async (event, data) => {
         }
 
         //onStart
-        try {
-            let allDevices = await usb.getDeviceList()
-            log.info(tag, "allDevices: ", allDevices)
-
-            let resultWebUsb = await usb.findByIds(11044, 2)
-            if (resultWebUsb) {
-                log.info(tag, "KeepKey connected in webusb!")
-                //get version
-            }
-
-            let resultPreWebUsb = await usb.findByIds(11044, 1)
-            if (resultPreWebUsb) {
-                log.info(tag, "update required!")
-            }
-
-            let resultUpdater = await usb.findByIds(11044, 1)
-            if (resultUpdater) {
-                log.info(tag, "UPDATER MODE DETECTED!")
-            }
-        } catch (e) {
+        try{
+            update_keepkey_status(event)
+        }catch(e){
             log.error(e)
         }
 
@@ -496,12 +475,14 @@ ipcMain.on('onStartApp', async (event, data) => {
             log.info('attach device: ', device)
             event.sender.send('attach', { device })
             if (!bridgeRunning) start_bridge(event)
+            update_keepkey_status(event)
         })
 
         usb.on('detach', function (device) {
             log.info('detach device: ', device)
             event.sender.send('detach', { device })
             //stop_bridge(event)
+            update_keepkey_status(event)
         })
     } catch (e) {
         log.error('e: ', e)

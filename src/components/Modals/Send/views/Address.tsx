@@ -88,6 +88,7 @@ export const Address = () => {
                 validateAddress: async (value: string) => {
                   const validAddress = await adapter.validateAddress(value)
                   if (isEthereumChainAdapter(adapter)) {
+                    // @ts-ignore
                     const validEnsAddress = await adapter.validateEnsAddress(value)
                     if (validEnsAddress.valid) {
                       // Verify that the ENS name resolves to an address

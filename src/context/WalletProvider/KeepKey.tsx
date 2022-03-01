@@ -4,14 +4,23 @@
 */
 import cryptoTools from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
-// const keccak256 = require('keccak256')
 
 export class KeepKeyService {
   public queryKey: string
   public isInitialized: boolean = false
   public username: string | undefined
   public HDWallet: any
+  public bootloaderVersion: string | undefined
+  public firmwareVersion: string | undefined
+  public latestBootloaderVersion: string | undefined
+  public latestFirmareVersion: string | undefined
+  public isInUpdaterMode: boolean
+  public needsBootloaderUpdate: boolean | undefined
+  public needsFirmwareUpdate: boolean | undefined
+  public skippedFirmwareUpdate: boolean | undefined
+  public initialize: any
   constructor() {
+    this.isInUpdaterMode = false
     let queryKey: string | null = localStorage.getItem('queryKey')
     let username: string | null = localStorage.getItem('username')
     if (!queryKey) {
@@ -45,16 +54,54 @@ export class KeepKeyService {
     return true
   }
 
+  async setUpdaterMode(status: any): Promise<any> {
+    try {
+      this.isInUpdaterMode = true
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async setNeedsBootloaderUpdate(status: any): Promise<any> {
+    try {
+      this.needsBootloaderUpdate = status
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async updateKeepKeyFirmwareLatest(features: any): Promise<any> {
+    try {
+      //
+      console.log("features: ",features)
+      this.latestBootloaderVersion = features.bootloaderVersion
+      this.latestFirmareVersion = features.latestFirmareVersion
+
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async updateFeatures(features: any): Promise<any> {
+    try {
+      //
+      this.bootloaderVersion = features.bootloaderVersion
+      this.firmwareVersion = features.firmwareVersion
+
+      //get latest firmware save in memory
+
+
+      //if not on latest
+      //prompt user to enter bootloader mode
+      //allow skip
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   async pairWallet(walletType: string, HDWallet: any): Promise<any> {
     try {
       this.HDWallet = HDWallet
-      // @ts-ignore
-      // let features = await HDWallet.getFeatures()
-      // console.log('features:', features)
-
-      //get latest firmware
-
-      //if behind offer update
     } catch (e) {
       console.error(e)
     }

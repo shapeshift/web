@@ -17,6 +17,7 @@ import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wall
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 export interface KeepKeySetupProps
   extends RouteComponentProps<
@@ -48,7 +49,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
+  const { initialize } = useModal()
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
@@ -84,29 +85,34 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       try {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions
-        await wallet.getFeatures()
-        // Show the label from the wallet instead of a generic name
-        const label = (await wallet.getLabel()) || name
-        state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
-          if (e[1].message_enum === MessageType.FAILURE) {
-            setErrorLoading(translateError(e[1]))
-          }
-        })
+        let features = await wallet.getFeatures()
+        console.log("features: ",features)
+        if(!features.initialized){
+          console.log("KEEPKEY NOT INITIALIZED")
+          initialize.open({})
+        } else {
+          // Show the label from the wallet instead of a generic name
+          const label = (await wallet.getLabel()) || name
+          state.keyring.on(['KeepKey', deviceId, '*'], (e: [deviceId: string, event: Event]) => {
+            if (e[1].message_enum === MessageType.FAILURE) {
+              setErrorLoading(translateError(e[1]))
+            }
+          })
+          await wallet.initialize()
 
-        await wallet.initialize()
-
-        dispatch({
-          type: WalletActions.SET_WALLET,
-          payload: { wallet, name: label, icon, deviceId, meta: { label } }
-        })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        /**
-         * The real deviceId of KeepKey wallet could be different from the
-         * deviceId recieved from the wallet, so we need to keep
-         * aliases[deviceId] in the local wallet storage.
-         */
-        setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.aliases[deviceId])
-        history.push('/keepkey/success')
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name: label, icon, deviceId, meta: { label } }
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          /**
+           * The real deviceId of KeepKey wallet could be different from the
+           * deviceId recieved from the wallet, so we need to keep
+           * aliases[deviceId] in the local wallet storage.
+           */
+          setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.aliases[deviceId])
+          history.push('/keepkey/success')
+        }
       } catch (e) {
         console.error('KeepKey Connect: There was an error initializing the wallet', e)
         setErrorLoading('walletProvider.keepKey.errors.unknown')

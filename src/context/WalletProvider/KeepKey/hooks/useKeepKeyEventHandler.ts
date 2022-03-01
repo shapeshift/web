@@ -4,6 +4,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
+import {ipcRenderer} from "electron";
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
@@ -65,6 +66,7 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
         if (wallet && id === state.walletInfo?.deviceId) {
           // This gets the firmware version needed for some KeepKey "supportsX" functions
           let features = await wallet.getFeatures()
+          ipcRenderer.send('onKeepKeyInfo',features)
           console.log("features: ",features)
           if(!features.initialized){
             console.log("KEEPKEY NOT INITIALIZED")

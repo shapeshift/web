@@ -9,9 +9,7 @@ import {
   useColorMode,
   useColorModeValue
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import { FaMoon } from 'react-icons/fa'
-import { useHistory } from 'react-router'
 import { Route } from 'Routes/helpers'
 import { Text } from 'components/Text'
 
@@ -26,13 +24,6 @@ type HeaderContentProps = {
 export const SideNavContent = ({ route }: HeaderContentProps) => {
   const { toggleColorMode } = useColorMode()
   const isActive = useColorModeValue(false, true)
-  const history = useHistory()
-  const onClick = (asset: Asset) => {
-    // CAIP19 has a `/` separator so the router will have to parse 2 variables
-    // e.g., /assets/:chainId/:assetSubId
-    const url = `/assets/${asset.caip19}`
-    history.push(url)
-  }
   return (
     <Flex
       width='full'
@@ -47,7 +38,7 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
         <UserMenu />
       </Flex>
       <Box mt={12} width='full' display={{ base: 'block', md: 'none' }}>
-        <AutoCompleteSearch onClick={onClick} />
+        <AutoCompleteSearch />
       </Box>
       <NavBar mt={6} />
       <Stack width='full'>

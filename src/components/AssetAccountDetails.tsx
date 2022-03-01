@@ -42,7 +42,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <TxHistory assetId={caip19} accountId={accountId} />
         </Stack>
-        <Stack flex='1 1 0%' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
+        <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard />
           <AssetMarketData assetId={caip19} />
           <AssetDescription assetId={caip19} />

@@ -10,7 +10,6 @@ import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
@@ -151,77 +150,11 @@ export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
-  const history = useHistory()
-
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
-  const handleTerms = () => {
-    history.push('/legal/terms-of-service')
-  }
-
-  const handlePrivacy = () => {
-    history.push('/legal/privacy-policy')
-  }
-
   return (
-<<<<<<< HEAD
-    <ButtonGroup isAttached colorScheme='blue' variant='ghost-filled'>
-      {isLargerThanMd && (
-        <WalletButton
-          onConnect={handleConnect}
-          walletInfo={walletInfo}
-          isConnected={isConnected}
-          isLoadingLocalWallet={state.isLoadingLocalWallet}
-        />
-      )}
-      <Menu>
-        <MenuButton as={IconButton} isRound={!isLargerThanMd}>
-          <HamburgerIcon />
-        </MenuButton>
-        <MenuList width={{ base: '100vw', md: '300px' }} maxWidth='100%' minWidth={0}>
-          {hasWallet ? (
-            <WalletConnected
-              isConnected={isConnected}
-              walletInfo={walletInfo}
-              onDisconnect={disconnect}
-              onSwitchProvider={handleConnect}
-            />
-          ) : (
-            <NoWallet onClick={handleConnect} />
-          )}
-          <MenuDivider />
-          <MenuItem
-            icon={<ChatIcon />}
-            as={Link}
-            isExternal
-            _hover={{ textDecoration: 'none' }}
-            href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
-          >
-            <Text translation='common.submitFeedback' />
-          </MenuItem>
-          <MenuItem
-            icon={<MoonIcon />}
-            closeOnSelect={false}
-            justifyContent='space-between'
-            onClick={toggleColorMode}
-          >
-            <Flex justifyContent='space-between' alignItems='center'>
-              <Text translation='common.darkMode' />
-              <Switch isChecked={isActive} />
-            </Flex>
-          </MenuItem>
-          <MenuItem onClick={handleTerms}>
-            <Text color='gray.500' translation={'common.terms'} />
-          </MenuItem>
-          <MenuItem onClick={handlePrivacy}>
-            <Text color='gray.500' translation={'common.privacy'} />
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    </ButtonGroup>
-=======
     <Menu>
       <WalletButton
         onConnect={handleConnect}
@@ -242,6 +175,5 @@ export const UserMenu = () => {
         )}
       </MenuList>
     </Menu>
->>>>>>> develop
   )
 }

@@ -170,7 +170,7 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
           route={{
             path: '/legal/terms-of-service',
             label: 'Terms of Service',
-            main: <TermsOfService />
+            main: TermsOfService
           }}
         />
       </Route>
@@ -179,7 +179,7 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
           route={{
             path: '/legal/privacy-policy',
             label: 'Privacy Policy',
-            main: <PrivacyPolicy />
+            main: PrivacyPolicy
           }}
         />
       </Route>

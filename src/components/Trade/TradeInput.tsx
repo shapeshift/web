@@ -21,7 +21,7 @@ import {
 import { TradeState } from 'components/Trade/Trade'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import {
   selectAssetByCAIP19,
@@ -253,11 +253,9 @@ export const TradeInput = ({ history }: RouterProps) => {
                 disabled={isSendMaxLoading}
                 rules={{ required: true }}
                 onInputChange={(amount: string) => {
-                  if (!bn(amount).eq(bnOrZero(sellAsset.amount))) {
-                    const action = amount ? TradeActions.SELL : undefined
-                    action ? setValue('action', action) : reset()
-                    getQuote({ amount, sellAsset, buyAsset, feeAsset, action })
-                  }
+                  const action = amount ? TradeActions.SELL : undefined
+                  action ? setValue('action', action) : reset()
+                  getQuote({ amount, sellAsset, buyAsset, feeAsset, action })
                 }}
                 inputLeftElement={
                   <TokenButton

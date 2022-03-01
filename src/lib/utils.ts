@@ -5,3 +5,7 @@ export const upsertArray = <T extends unknown>(arr: T[], item: T): T[] =>
 export const isEthAddress = (address: string) => {
   return /^0x[0-9A-Fa-f]{40}$/.test(address)
 }
+
+export const markdownLinkToHTML = (markdown: string): string => {
+  return markdown.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+}

@@ -19,3 +19,12 @@
 .sanitized-tooltip:hover .sanitized-tooltiptext {
     visibility: visible;
 }
+
+.sanitized-link {
+    color: #7F99FB !important;
+    text-decoration: none;
+}
+
+.sanitized-link:hover {
+    text-decoration: underline;
+}

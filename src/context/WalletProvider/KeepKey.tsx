@@ -64,7 +64,7 @@ export class KeepKeyService {
 
   async setNeedsBootloaderUpdate(status: any): Promise<any> {
     try {
-      this.needsBootloaderUpdate = true
+      this.needsBootloaderUpdate = status
     } catch (e) {
       console.error(e)
     }

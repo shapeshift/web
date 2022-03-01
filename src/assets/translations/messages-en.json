@@ -217,7 +217,9 @@
       "restore": "Restore KeepKey from seed"
     },
     "firmware": {
-        "header": "Update Required Your KeepKey!",
+        "header": "Update Required for Your KeepKey!",
+        "bootloaderUpdate": "Updating your devices BootLoader",
+        "FirmwareUpdate": "Updating your devices Firmware",
         "update": "check KeepKey Status",
         "continue": "approve and continue",
         "bootloaderNeeded": "to continue you must updater your bootloader!",

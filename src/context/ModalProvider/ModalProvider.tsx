@@ -9,6 +9,7 @@ import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
 import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
+import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
 import { InitializeModal } from 'components/Modals/Initialize/Initialize'
 
 // to add new modals, add a new key: value pair below
@@ -23,6 +24,7 @@ const MODALS = {
   sign: SignModal,
   pair: PairModal,
   firmware: FirmwareModal,
+  bootloader: BootloaderModal,
   initialize:InitializeModal
 }
 
@@ -146,6 +148,7 @@ export function createModalProvider<M>({
         return { ...acc, [cur]: { open, close } }
       }, state)
       const result = merge(state, fns)
+
       return result
     }, [state, closeFactory, openFactory])
 

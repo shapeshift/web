@@ -67,7 +67,8 @@ let {
 let {
     getConfig,
     innitConfig,
-    getWallets
+    getWallets,
+    updateConfig
 } = require("keepkey-config")
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -834,15 +835,15 @@ ipcMain.on('onUpdateFirmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
         let result = await Hardware.getLatestFirmwareData()
+        await updateConfig({attemptUpdateFirmware:true})
         let firmware = await Hardware.downloadFirmware(result.firmware.url)
         const updateResponse = await Hardware.loadFirmware(firmware)
-        console.log("updateResponse: ",updateResponse)
-
+        log.info(tag,"updateResponse: ",updateResponse)
+        await updateConfig({updatedFirmware:true})
         event.sender.send('onCompleteFirmwareUpload', {
             bootloader:true,
             success:true
         })
-
     } catch (e) {
         log.error(tag, e)
     }
@@ -853,17 +854,15 @@ ipcMain.on('onUpdateBootloader', async event => {
     try {
         log.info(tag,"checkpoint: ")
         let result = await Hardware.getLatestFirmwareData()
-        log.info(tag,"result: ",result)
-        log.info(tag,"result: ",result.bootloader.url)
+        await updateConfig({attemptUpdateBootlder:true})
         let firmware = await Hardware.downloadFirmware(result.bootloader.url)
         const updateResponse = await Hardware.loadFirmware(firmware)
-        console.log("updateResponse: ",updateResponse)
-
+        log.info(tag,"updateResponse: ",updateResponse)
+        await updateConfig({updatedBootloader:true})
         event.sender.send('onCompleteBootloaderUpload', {
             bootloader:true,
             success:true
         })
-
     } catch (e) {
         log.error(tag, e)
     }
@@ -872,6 +871,7 @@ ipcMain.on('onUpdateBootloader', async event => {
 const update_keepkey_status = async function (event) {
     let tag = " | update_keepkey_status | "
     try {
+        let config = getConfig()
         //
         let firmwareInfo = await Hardware.getLatestFirmwareData()
         log.info(tag,"firmwareInfo: ",firmwareInfo)
@@ -885,10 +885,15 @@ const update_keepkey_status = async function (event) {
         if(resultInit && resultInit.success && resultInit.wallet){
             KEEPKEY_FEATURES = resultInit
             event.sender.send('loadKeepKeyInfo', { payload: resultInit })
-            event.sender.send('openFirmwareUpdate', { })
             //if not latest bootloader, set need bootloader update
-            if(resultInit.bootloaderVersion !== "v1.1.0"){
+            if(resultInit.bootloaderVersion !== "v1.1.0" && !config.updatedBootloader){
+                event.sender.send('openBootloaderUpdate', { })
+                await updateConfig({isNewDevice:true})
                 event.sender.send('setUpdaterMode', { payload: true })
+            }
+            if(config.updatedBootloader){
+                //update firmware next
+                event.sender.send('openFirmwareUpdate', { })
             }
         }
         log.info(tag,"resultInit: ",resultInit)
@@ -899,6 +904,8 @@ const update_keepkey_status = async function (event) {
         let resultWebUsb = await usb.findByIds(11044,2)
         if(resultWebUsb){
             log.info(tag,"KeepKey connected in webusb!")
+            //TODO only trigger if firmware modal open
+            event.sender.send('onCompleteFirmwareUpload', { })
             //get version
         }
 

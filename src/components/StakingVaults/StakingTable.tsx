@@ -1,7 +1,8 @@
 import { Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { useMemo } from 'react'
-import { Column } from 'react-table'
+import { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
@@ -13,19 +14,21 @@ type StakingTableProps = {
   onClick: (arg: any) => void
 }
 
+type RowProps = Row<EarnOpportunityType>
+
 export const StakingTable = ({ data, onClick }: StakingTableProps) => {
   const columns: Column[] = useMemo(
     () => [
       {
         Header: '#',
-        Cell: ({ row, flatRows }: { row: any; flatRows: any }) => (
+        Cell: ({ row, flatRows }: { row: RowProps; flatRows: any }) => (
           <RawText>{flatRows.indexOf(row) + 1}</RawText>
         )
       },
       {
         Header: 'Asset',
         accessor: 'assetId',
-        Cell: ({ row }: { row: any }) => (
+        Cell: ({ row }: { row: RowProps }) => (
           <AssetCell assetId={row.original.assetId} provider={row.original.provider} />
         ),
         disableSortBy: true
@@ -41,7 +44,7 @@ export const StakingTable = ({ data, onClick }: StakingTableProps) => {
         accessor: 'apy',
         isNumeric: true,
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: any }) => (
+        Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
             <Amount.Percent value={value} />
           </Tag>

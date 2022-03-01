@@ -5,7 +5,6 @@ import {
   useNormalizeOpportunities
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
-import { useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -44,10 +43,6 @@ export const AllEarnOpportunities = () => {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     }
   }
-
-  useEffect(() => {
-    console.info(sortedVaults)
-  }, [sortedVaults])
 
   if (!earnFeature && sortedVaults.length > 0) return null
 

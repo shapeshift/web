@@ -1,10 +1,11 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import { Column, useSortBy, useTable } from 'react-table'
 
 type StakingTableProps = {
   columns: Column[]
-  data: any[]
+  data: EarnOpportunityType[]
   onClick: (arg: any) => void
 }
 

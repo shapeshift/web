@@ -14,11 +14,11 @@ ipcMain.on('onUpdateFirmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
         let result = await Hardware.getLatestFirmwareData()
-        await updateConfig({ attemptUpdateFirmware: true })
+        updateConfig({ attemptUpdateFirmware: true })
         let firmware = await Hardware.downloadFirmware(result.firmware.url)
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
-        await updateConfig({ updatedFirmware: true })
+        updateConfig({ updatedFirmware: true })
         event.sender.send('onCompleteFirmwareUpload', {
             bootloader: true,
             success: true
@@ -33,11 +33,11 @@ ipcMain.on('onUpdateBootloader', async event => {
     try {
         log.info(tag, "checkpoint: ")
         let result = await Hardware.getLatestFirmwareData()
-        await updateConfig({ attemptUpdateBootlder: true })
+        updateConfig({ attemptUpdateBootlder: true })
         let firmware = await Hardware.downloadFirmware(result.bootloader.url)
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
-        await updateConfig({ updatedBootloader: true })
+        updateConfig({ updatedBootloader: true })
         event.sender.send('onCompleteBootloaderUpload', {
             bootloader: true,
             success: true
@@ -46,7 +46,7 @@ ipcMain.on('onUpdateBootloader', async event => {
         log.error(tag, e)
     }
 })
-console.log('burger')
+
 ipcMain.on('onKeepKeyInfo', async (event, data) => {
     const tag = TAG + ' | onKeepKeyInfo | '
     try {
@@ -77,7 +77,7 @@ export const update_keepkey_status = async function (event) {
             //if not latest bootloader, set need bootloader update
             if (resultInit.bootloaderVersion !== "v1.1.0" && !config.updatedBootloader) {
                 event.sender.send('openBootloaderUpdate', {})
-                await updateConfig({ isNewDevice: true })
+                updateConfig({ isNewDevice: true })
                 event.sender.send('setUpdaterMode', { payload: true })
             }
             if (config.updatedBootloader) {
@@ -87,10 +87,10 @@ export const update_keepkey_status = async function (event) {
         }
         log.info(tag, "resultInit: ", resultInit)
 
-        let allDevices = await usb.getDeviceList()
+        let allDevices = usb.getDeviceList()
         log.info(tag, "allDevices: ", allDevices)
 
-        let resultWebUsb = await usb.findByIds(11044, 2)
+        let resultWebUsb = usb.findByIds(11044, 2)
         if (resultWebUsb) {
             log.info(tag, "KeepKey connected in webusb!")
             //TODO only trigger if firmware modal open
@@ -98,12 +98,12 @@ export const update_keepkey_status = async function (event) {
             //get version
         }
 
-        let resultPreWebUsb = await usb.findByIds(11044, 1)
+        let resultPreWebUsb = usb.findByIds(11044, 1)
         if (resultPreWebUsb) {
             log.info(tag, "update required!")
         }
 
-        let resultUpdater = await usb.findByIds(11044, 1)
+        let resultUpdater = usb.findByIds(11044, 1)
         if (resultUpdater) {
             log.info(tag, "UPDATER MODE DETECTED!")
         }

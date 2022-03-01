@@ -8,7 +8,8 @@ export const shared: {
         balances: any[]
     },
     SIGNED_TX: any,
-    eventIPC: {}
+    eventIPC: {},
+    KEEPKEY_FEATURES: any
 } = {
     USER: {
         online: false,
@@ -16,5 +17,6 @@ export const shared: {
         balances: []
     },
     SIGNED_TX: null,
-    eventIPC: {}
+    eventIPC: {}, 
+    KEEPKEY_FEATURES: {}
 }

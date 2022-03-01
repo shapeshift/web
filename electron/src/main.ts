@@ -55,7 +55,7 @@ let {
 
 import fs from 'fs'
 //Modules
-import { KEEPKEY_FEATURES, update_keepkey_status } from './keepkey'
+import { update_keepkey_status } from './keepkey'
 import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
@@ -114,13 +114,6 @@ if (process.env.PROD) {
 
 
 function createWindow() {
-
-    setInterval(() => {
-        db.find({}, (err, docs) => {
-            console.log(docs)
-        })
-    }, 5000)
-
     /**
      * Menu Bar
      */

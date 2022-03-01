@@ -23,7 +23,6 @@ const swaggerDocument = require(path.join(__dirname, '../api/dist/swagger.json')
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 const adapter = NodeWebUSBKeepKeyAdapter.useKeyring(new Keyring())
 
-import { KEEPKEY_FEATURES } from './keepkey'
 
 let USERNAME
 let server: Server
@@ -120,7 +119,7 @@ export const start_bridge = async function (event) {
         appExpress.all('/device', async function (req, res, next) {
             try {
                 if (req.method === 'GET') {
-                    res.status(200).json(KEEPKEY_FEATURES)
+                    res.status(200).json(shared.KEEPKEY_FEATURES)
                 }
                 next()
             } catch (e) {
@@ -162,7 +161,7 @@ export const start_bridge = async function (event) {
                         let output = {
                             data: Buffer.from(resp).toString('hex')
                         }
-                        log.info('output: ', output)
+                        // log.info('output: ', output)
                         EVENT_LOG.push({ read: output })
                         event.sender.send('dataSent', { output })
                         if (res.status) res.status(200).json(output)

@@ -10,10 +10,8 @@ export const AccountLabel = ({ accountId }: { accountId: AccountSpecifier }) => 
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   return (
-    <HStack fontSize='small' fontWeight='bold' spacing={1}>
-      <RawText color='gray.500' textTransform='uppercase' lineHeight='shorter'>
-        {feeAsset.name}
-      </RawText>
+    <HStack fontSize='small' spacing={1}>
+      <RawText>{feeAsset.name}</RawText>
       <Tag
         whiteSpace='nowrap'
         colorScheme='blue'
@@ -22,6 +20,7 @@ export const AccountLabel = ({ accountId }: { accountId: AccountSpecifier }) => 
         minHeight='auto'
         lineHeight='shorter'
         py={1}
+        textDecoration='none'
       >
         <TagLabel>{label}</TagLabel>
       </Tag>

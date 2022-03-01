@@ -10,8 +10,6 @@ import {
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
-import { useHistory } from 'react-router'
 import { Link } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -24,13 +22,7 @@ export const Header = ({ route }: { route: Route }) => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const history = useHistory()
-  const onClick = (asset: Asset) => {
-    // CAIP19 has a `/` separator so the router will have to parse 2 variables
-    // e.g., /assets/:chainId/:assetSubId
-    const url = `/assets/${asset.caip19}`
-    history.push(url)
-  }
+
   return (
     <>
       <Flex
@@ -63,7 +55,7 @@ export const Header = ({ route }: { route: Route }) => {
             justifyContent='center'
             display={{ base: 'none', md: 'block' }}
           >
-            <AutoCompleteSearch onClick={onClick} />
+            <AutoCompleteSearch />
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
             <Box display={{ base: 'none', md: 'block' }}>

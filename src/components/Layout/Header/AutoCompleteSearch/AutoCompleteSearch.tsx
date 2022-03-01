@@ -5,18 +5,19 @@ import { debounce } from 'lodash'
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
+import { useHistory } from 'react-router'
 import { AssetList } from 'components/AssetSearch/AssetList'
 import { filterAssetsBySearchTerm } from 'components/AssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { Card } from 'components/Card/Card'
 import { selectAssetsByMarketCap } from 'state/slices/selectors'
 
 type AssetSearchProps = {
-  onClick: (asset: any) => void
   filterBy?: (asset: Asset[]) => Asset[]
 }
 
-export const AutoCompleteSearch = ({ onClick, filterBy }: AssetSearchProps) => {
+export const AutoCompleteSearch = ({ filterBy }: AssetSearchProps) => {
   const [isFocused, setIsFocused] = useState(false)
+  const history = useHistory()
   const assets = useSelector(selectAssetsByMarketCap)
   const currentAssets = useMemo(() => (filterBy ? filterBy(assets) : assets), [assets, filterBy])
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
@@ -37,7 +38,15 @@ export const AutoCompleteSearch = ({ onClick, filterBy }: AssetSearchProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchString])
 
-  const debounceBlur = debounce(() => setIsFocused(false), 100)
+  const debounceBlur = debounce(() => setIsFocused(false), 150)
+
+  const handleClick = (asset: Asset) => {
+    // CAIP19 has a `/` separator so the router will have to parse 2 variables
+    // e.g., /assets/:chainId/:assetSubId
+    const url = `/assets/${asset.caip19}`
+    history.push(url)
+    setIsFocused(false)
+  }
 
   return (
     <Box position='relative' maxWidth='xl'>
@@ -70,7 +79,7 @@ export const AutoCompleteSearch = ({ onClick, filterBy }: AssetSearchProps) => {
                 <AssetList
                   mb='10'
                   assets={searching ? filteredAssets : currentAssets}
-                  handleClick={onClick}
+                  handleClick={handleClick}
                 />
               </Box>
             </Card.Body>

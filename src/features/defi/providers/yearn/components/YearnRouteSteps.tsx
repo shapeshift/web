@@ -27,7 +27,7 @@ export const YearnRouteSteps = ({ routes, location }: YearnRouteStepsProps) => {
   if (!location) return null
 
   return (
-    <Box flex={1} bg={stepperBg} borderBottomWidth={1} borderColor={stepperBorder} px={6} py={4}>
+    <Box flex={1} bg={stepperBg} borderBottomWidth={1} borderColor={stepperBorder} px={6} pb={4}>
       <Box>
         <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
       </Box>

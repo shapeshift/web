@@ -19,7 +19,7 @@ type YearnRouteProps = {
 
 const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) => {
   const { yearn } = useYearn()
-  const headerBg = useColorModeValue('gray.100', 'gray.800')
+  const headerBg = useColorModeValue('gray.50', 'gray.800')
   if (!yearn)
     return (
       <Center minW='350px' minH='350px'>

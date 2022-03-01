@@ -68,7 +68,8 @@ export const initialState: YearnWithdrawState = {
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: ''
+    usedGasFee: '',
+    withdrawType: 'instant'
   }
 }
 

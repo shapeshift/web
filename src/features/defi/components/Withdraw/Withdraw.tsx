@@ -372,8 +372,8 @@ export const Withdraw = ({
             </VStack>
           </FormControl>
           <FormControl>
-            <FormLabel color='gray.500'>Withdraw Speed</FormLabel>
-            <ButtonGroup width='full' variant='outline'>
+            <FormLabel color='gray.500'>Withdraw Type</FormLabel>
+            <ButtonGroup colorScheme='blue' width='full' variant='input'>
               <Button
                 isFullWidth
                 flexDir='column'
@@ -382,10 +382,12 @@ export const Withdraw = ({
                 onClick={() => setValue(Field.WithdrawType, 'instant')}
                 isActive={values.withdrawType === 'instant'}
               >
-                <Stack alignItems='center'>
+                <Stack alignItems='center' spacing={1}>
                   <FaBolt size='30px' />
                   <RawText>Instant</RawText>
-                  <RawText color='gray.500'>20% fee</RawText>
+                  <RawText color='gray.500' fontSize='sm'>
+                    20% fee
+                  </RawText>
                 </Stack>
               </Button>
               <Button
@@ -395,10 +397,12 @@ export const Withdraw = ({
                 onClick={() => setValue(Field.WithdrawType, 'delayed')}
                 isActive={values.withdrawType === 'delayed'}
               >
-                <Stack alignItems='center'>
+                <Stack alignItems='center' spacing={1}>
                   <FaClock size='30px' />
                   <RawText>~ 7 Days</RawText>
-                  <RawText color='gray.500'>No fee</RawText>
+                  <RawText color='gray.500' fontSize='sm'>
+                    No fee
+                  </RawText>
                 </Stack>
               </Button>
             </ButtonGroup>

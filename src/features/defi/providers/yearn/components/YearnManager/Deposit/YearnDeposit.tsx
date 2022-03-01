@@ -24,7 +24,6 @@ import {
   DefiQueryParams
 } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
-import { History, Location } from 'history'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'

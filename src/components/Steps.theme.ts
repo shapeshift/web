@@ -13,7 +13,7 @@ export const StepsStyle = {
       labelContainer: {
         ...StepsStyleConfig.baseStyle(props).labelContainer,
         '& span': {
-          color: mode('gray.100', 'gray.500')(props)
+          color: 'gray.500'
         },
         _highlighted: {
           '& span': {

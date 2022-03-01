@@ -4,7 +4,6 @@ import { caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import {
@@ -12,11 +11,10 @@ import {
   DefiQueryParams
 } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
-import { History, Location } from 'history'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -82,9 +80,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { state: walletState } = useWallet()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
   const loading = useSelector(selectPortfolioLoading)
-
-  // navigation
-  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
 
   useEffect(() => {
     ;(async () => {

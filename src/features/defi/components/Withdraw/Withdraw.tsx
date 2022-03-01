@@ -7,6 +7,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  HStack,
   IconButton,
   Input,
   InputGroup,
@@ -22,12 +23,14 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  Stack,
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import { useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
+import { FaBolt, FaClock } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -83,13 +86,15 @@ enum InputType {
 enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
-  Slippage = 'slippage'
+  Slippage = 'slippage',
+  WithdrawType = 'withdrawType'
 }
 
 export type WithdrawValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
   [Field.Slippage]: string
+  [Field.WithdrawType]: string
 }
 
 const DEFAULT_SLIPPAGE = '0.5'
@@ -126,7 +131,8 @@ export const Withdraw = ({
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: DEFAULT_SLIPPAGE
+      [Field.Slippage]: DEFAULT_SLIPPAGE,
+      [Field.WithdrawType]: 'instant'
     }
   })
 
@@ -183,8 +189,8 @@ export const Withdraw = ({
   return (
     <SlideTransition>
       <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
-        <ModalBody>
-          <Card size='sm' width='full' variant='group' my={6}>
+        <ModalBody py={6}>
+          <Card size='sm' width='full' variant='group' mb={6}>
             <Card.Body>
               <Flex alignItems='center'>
                 <AssetIcon src={asset.icon} boxSize='40px' />
@@ -365,28 +371,53 @@ export const Withdraw = ({
               </ButtonGroup>
             </VStack>
           </FormControl>
+          <FormControl>
+            <FormLabel color='gray.500'>Withdraw Speed</FormLabel>
+            <ButtonGroup width='full' variant='outline'>
+              <Button
+                isFullWidth
+                flexDir='column'
+                height='auto'
+                py={4}
+                onClick={() => setValue(Field.WithdrawType, 'instant')}
+                isActive={values.withdrawType === 'instant'}
+              >
+                <Stack alignItems='center'>
+                  <FaBolt size='30px' />
+                  <RawText>Instant</RawText>
+                  <RawText color='gray.500'>20% fee</RawText>
+                </Stack>
+              </Button>
+              <Button
+                isFullWidth
+                flexDir='column'
+                height='auto'
+                onClick={() => setValue(Field.WithdrawType, 'delayed')}
+                isActive={values.withdrawType === 'delayed'}
+              >
+                <Stack alignItems='center'>
+                  <FaClock size='30px' />
+                  <RawText>~ 7 Days</RawText>
+                  <RawText color='gray.500'>No fee</RawText>
+                </Stack>
+              </Button>
+            </ButtonGroup>
+          </FormControl>
         </ModalBody>
-        <ModalFooter flexDir='column'>
+        <ModalFooter as={HStack} direction='horziontal' spacing={4}>
           <Text
             fontSize='sm'
             color='gray.500'
-            mb={2}
             width='full'
-            textAlign='center'
             translation='modals.withdraw.footerDisclaimer'
           />
           <Button
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}
-            mb={2}
             size='lg'
             type='submit'
-            width='full'
           >
             {translate(fieldError || 'common.continue')}
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            {translate('common.cancel')}
           </Button>
         </ModalFooter>
       </Box>

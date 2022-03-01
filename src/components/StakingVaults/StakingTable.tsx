@@ -1,64 +1,70 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
-import { Column, useSortBy, useTable } from 'react-table'
+import { Tag } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { useMemo } from 'react'
+import { Column } from 'react-table'
+import { Amount } from 'components/Amount/Amount'
+import { ReactTable } from 'components/ReactTable/ReactTable'
+import { RawText } from 'components/Text'
+
+import { AssetCell } from './Cells'
 
 type StakingTableProps = {
-  columns: Column[]
   data: any[]
   onClick: (arg: any) => void
 }
 
-export const StakingTable = ({ columns, data, onClick }: StakingTableProps) => {
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data
-    },
-    useSortBy
-  )
-  return (
-    <Table variant='clickable' {...getTableProps()}>
-      <Thead>
-        {headerGroups.map(headerGroup => (
-          <Tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <Th
-                {...column.getHeaderProps(column.getSortByToggleProps())}
-                color='gray.500'
-                display={column.display}
-                _hover={{ color: 'white' }}
-              >
-                <Flex>
-                  {column.render('Header')}
-                  <Flex ml={2}>
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <ArrowDownIcon aria-label='sorted descending' />
-                      ) : (
-                        <ArrowUpIcon aria-label='sorted ascending' />
-                      )
-                    ) : null}
-                  </Flex>
-                </Flex>
-              </Th>
-            ))}
-          </Tr>
-        ))}
-      </Thead>
-      <Tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row)
-          return (
-            <Tr {...row.getRowProps()} onClick={() => onClick(row.original)}>
-              {row.cells.map(cell => (
-                <Td {...cell.getCellProps()} display={cell.column.display}>
-                  {cell.render('Cell')}
-                </Td>
-              ))}
-            </Tr>
+export const StakingTable = ({ data, onClick }: StakingTableProps) => {
+  const columns: Column[] = useMemo(
+    () => [
+      {
+        Header: '#',
+        Cell: ({ row }: { row: any }) => <RawText>{row.index + 1}</RawText>
+      },
+      {
+        Header: 'Asset',
+        accessor: 'assetId',
+        Cell: ({ row }: { row: any }) => (
+          <AssetCell assetId={row.original.assetId} provider={row.original.provider} />
+        )
+      },
+      {
+        Header: 'Type',
+        accessor: 'type',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value }: { value: string }) => <Tag textTransform='capitalize'>{value}</Tag>
+      },
+      {
+        Header: 'APY',
+        accessor: 'apy',
+        isNumeric: true,
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value, row }: { value: string; row: any }) => (
+          <Tag colorScheme={row.original.expired ? 'red' : 'green'}>
+            <Amount.Percent value={value} />
+          </Tag>
+        ),
+        sortType: (a: any, b: any) =>
+          bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1
+      },
+      {
+        Header: 'TVL',
+        accessor: 'tvl',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value }: { value: string }) => <Amount.Fiat value={value} />
+      },
+      {
+        Header: 'Balance',
+        accessor: 'fiatAmount',
+        Cell: ({ value }: { value: string }) =>
+          bnOrZero(value).gt(0) ? (
+            <Amount.Fiat value={value} color='green.500' />
+          ) : (
+            <RawText>-</RawText>
           )
-        })}
-      </Tbody>
-    </Table>
+      }
+    ],
+    []
   )
+
+  return <ReactTable onClick={onClick} data={data} columns={columns} />
 }

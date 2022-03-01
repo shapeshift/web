@@ -2,6 +2,7 @@ import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
+  AlertIcon,
   Box,
   Center,
   Flex,
@@ -16,7 +17,6 @@ import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import {
@@ -30,7 +30,7 @@ import { useEffect, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -74,12 +74,12 @@ export const routes = [
 
 export type YearnDepositProps = {
   api: YearnVaultApi
-  location: Location
-  history: History
 }
 
-export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
+export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const location = useLocation()
+  const history = useHistory()
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -104,9 +104,6 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
   const { state: walletState } = useWallet()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
   const loading = useSelector(selectPortfolioLoading)
-
-  // navigation
-  const depositRoute = matchPath(location.pathname, { path: DepositPath.Deposit, exact: true })
 
   // notify
   const toast = useToast()
@@ -373,7 +370,6 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
-            leftSide={<YearnRouteSteps routes={routes} />}
           />
         )
       case DepositPath.Approve:
@@ -393,16 +389,15 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
             loadingText='Approve on Wallet'
             learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
             preFooter={
-              <Alert status='info' borderRadius='lg' mt={4} color='blue.500'>
+              <Alert status='info' borderRadius='lg' color='blue.500'>
                 <FaGasPump />
                 <AlertDescription textAlign='left' ml={3} color={alertText}>
                   {translate('modals.approve.depositFee')}
                 </AlertDescription>
               </Alert>
             }
-            onCancel={handleCancel}
+            onCancel={() => history.push('/')}
             onConfirm={handleApprove}
-            leftSide={<YearnRouteSteps routes={routes} />}
           />
         )
       case DepositPath.Confirm:
@@ -411,8 +406,6 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
             onCancel={handleCancel}
             onConfirm={handleDeposit}
             headerText='modals.confirm.deposit.header'
-            prefooter={<Text color='gray.500' translation='modals.confirm.deposit.preFooter' />}
-            leftSide={<YearnRouteSteps routes={routes} />}
             assets={[
               {
                 ...asset,
@@ -430,7 +423,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
               }
             ]}
           >
-            <Stack spacing={6}>
+            <Stack spacing={4}>
               <Row>
                 <Row.Label>
                   <Text translation='modals.confirm.withdrawFrom' />
@@ -493,6 +486,10 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
                   </Box>
                 </Row.Value>
               </Row>
+              <Alert status='info' borderRadius='lg'>
+                <AlertIcon />
+                <Text translation='modals.confirm.deposit.preFooter' />
+              </Alert>
             </Stack>
           </Confirm>
         )
@@ -521,7 +518,7 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
               }
             ]}
           >
-            <Stack spacing={6}>
+            <Stack spacing={4}>
               <Row>
                 <Row.Label>
                   <Text translation='modals.status.transactionId' />
@@ -610,9 +607,6 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
         throw new Error('Route does not exist')
     }
   }
-  useEffect(() => {
-    console.info(location)
-  }, [location])
 
   if (loading || !asset || !marketData) {
     return (
@@ -632,7 +626,8 @@ export const YearnDeposit = ({ api, location, history }: YearnDepositProps) => {
       flexDir={{ base: 'column', lg: 'row' }}
     >
       <Flex flexDir='column' width='full'>
-        <Flex direction='column' minWidth='400px'>
+        <YearnRouteSteps routes={routes} location={location} />
+        <Flex direction='column' minWidth='500px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>
               {routes.map(route => {

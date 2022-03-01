@@ -22,6 +22,7 @@ export enum DefiProvider {
 }
 
 export enum DefiAction {
+  Overview = 'overview',
   Deposit = 'deposit',
   Withdraw = 'withdraw',
   GetStarted = 'get-started'

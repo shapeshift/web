@@ -57,10 +57,17 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       fiatAmount,
       cryptoAmount
     }
-    const hasZeroBalanceAndApy =
-      bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) && bnOrZero(cryptoAmount).isEqualTo(0)
-    if (assetIds.includes(assetCAIP19) && !hasZeroBalanceAndApy) {
-      acc.push(data)
+    // show vaults that are expired but have a balance
+    // show vaults that don't have an APY but have a balance
+    // don't show vaults that don't have a balance and don't have an APY
+    if (assetIds.includes(assetCAIP19)) {
+      if (vault.expired || bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0)) {
+        if (bnOrZero(cryptoAmount).gt(0)) {
+          acc.push(data)
+        }
+      } else {
+        acc.push(data)
+      }
     }
     return acc
   }, [])

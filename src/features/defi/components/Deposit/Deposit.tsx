@@ -61,8 +61,6 @@ type DepositProps = {
   marketData: MarketData
   // Array of the % options
   percentOptions: number[]
-  // For rendering things like the stepper
-  leftSide?: React.ReactNode
   onContinue(values: DepositValues): void
   onCancel(): void
 }
@@ -114,7 +112,6 @@ export const Deposit = ({
   fiatAmountAvailable,
   fiatInputValidation,
   enableSlippage = true,
-  leftSide,
   onContinue,
   onCancel,
   percentOptions
@@ -202,7 +199,6 @@ export const Deposit = ({
     <SlideTransition>
       <Box as='form' width='full' onSubmit={handleSubmit(onSubmit)}>
         <ModalBody display='flex' py={6} flexDir={{ base: 'column', md: 'row' }}>
-          {leftSide && leftSide}
           <Stack flex={1} spacing={6}>
             <Card size='sm' width='full' variant='group'>
               <Card.Body>

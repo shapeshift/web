@@ -15,6 +15,7 @@
     "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
+    "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
     "connectedWallet": "Connected Wallet",

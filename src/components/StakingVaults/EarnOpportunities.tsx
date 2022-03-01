@@ -1,18 +1,23 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack, Table, Tbody } from '@chakra-ui/react'
+import { Box, Button, HStack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlag } from 'constants/FeatureFlag'
-import { YearnVaultRow } from 'features/defi/providers/yearn/components/YearnVaultRow'
-import { useMemo } from 'react'
-import { NavLink } from 'react-router-dom'
+import {
+  EarnOpportunityType,
+  useNormalizeOpportunities
+} from 'features/defi/helpers/normalizeOpportunity'
+import qs from 'qs'
+import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { EarnTableHeader } from './EarnTableHeader'
+import { testFoxy } from './AllEarnOpportunities'
+import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
   tokenId?: string
@@ -23,28 +28,39 @@ type EarnOpportunitiesProps = {
 
 export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
   const earnFeature = FeatureFlag.Yearn
+  const history = useHistory()
+  const location = useLocation()
+  const {
+    state: { isConnected },
+    dispatch
+  } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
   const vaults = useYearnVaults()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
 
-  const vaultRows = useMemo(
-    () =>
-      vaults
-        .filter(vault => vault.tokenAddress === asset.tokenId)
-        .map((vault, index) => {
-          return (
-            <YearnVaultRow
-              {...vault}
-              key={vault.vaultAddress}
-              index={index + 1}
-              isLoaded={!!vault}
-            />
-          )
-        }),
-    [asset.tokenId, vaults]
-  )
+  const allRows = useNormalizeOpportunities({
+    vaultArray: vaults,
+    foxyArray: testFoxy
+  }).filter(e => e.tokenAddress === asset.tokenId)
 
-  if (!earnFeature || !vaultRows?.length) return null
+  const handleClick = (opportunity: EarnOpportunityType) => {
+    const { type, provider, contractAddress, chain, tokenAddress } = opportunity
+    if (isConnected) {
+      history.push({
+        pathname: `/defi/${type}/${provider}/deposit`,
+        search: qs.stringify({
+          chain,
+          contractAddress,
+          tokenId: tokenAddress
+        }),
+        state: { background: location }
+      })
+    } else {
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    }
+  }
+
+  if (!earnFeature || !allRows?.length) return null
 
   return (
     <Card>
@@ -71,10 +87,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
         </HStack>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        <Table variant='clickable'>
-          <EarnTableHeader />
-          <Tbody>{vaultRows}</Tbody>
-        </Table>
+        <StakingTable data={allRows} onClick={handleClick} />
       </Card.Body>
     </Card>
   )

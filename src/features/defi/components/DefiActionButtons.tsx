@@ -19,15 +19,23 @@ export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) =
   const handleClick = (action: DefiAction) => {
     if (match?.params) {
       const { earnType, provider } = match.params
+      console.info(location)
       history.replace({
         ...location,
-        pathname: `/defi/${earnType}/${provider}/${action}`
+        pathname: `/defi/${earnType}/${provider}/${action}/`
       })
     }
   }
 
   return (
     <ButtonGroup variant='ghost' colorScheme='blue'>
+      <Button
+        isActive={match?.params?.action === DefiAction.Overview}
+        onClick={() => handleClick(DefiAction.Overview)}
+        isDisabled={vaultExpired}
+      >
+        {translate('common.overview')}
+      </Button>
       <Button
         isActive={match?.params?.action === DefiAction.Deposit}
         onClick={() => handleClick(DefiAction.Deposit)}

@@ -16,7 +16,7 @@ import { History, Location } from 'history'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch } from 'react-router-dom'
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -47,20 +47,20 @@ enum WithdrawPath {
 }
 
 export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Withdrawal Amount' },
-  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm Withdraw' },
+  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
+  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
   { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
   { step: 2, path: WithdrawPath.Status, label: 'Status' }
 ]
 
 type YearnWithdrawProps = {
   api: YearnVaultApi
-  location: Location
-  history: History
 }
 
-export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) => {
+export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const location = useLocation()
+  const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
@@ -420,6 +420,10 @@ export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) =>
     }
   }
 
+  useEffect(() => {
+    console.info(location)
+  }, [location])
+
   if (loading || !asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>
@@ -428,13 +432,9 @@ export const YearnWithdraw = ({ api, history, location }: YearnWithdrawProps) =>
     )
 
   return (
-    <Flex
-      width='full'
-      minWidth={{ base: '100%', xl: '500px' }}
-      flexDir={{ base: 'column', lg: 'row' }}
-    >
-      <YearnRouteSteps routes={routes} />
-      <Flex flexDir='column' width='full' minWidth='400px'>
+    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+      <YearnRouteSteps routes={routes} location={location} />
+      <Flex flexDir='column' width='full' minWidth='500px'>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

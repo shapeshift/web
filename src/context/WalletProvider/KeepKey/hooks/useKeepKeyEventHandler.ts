@@ -1,10 +1,10 @@
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
+import { ipcRenderer } from 'electron'
 import { Dispatch, useEffect } from 'react'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
-import {ipcRenderer} from "electron";
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
@@ -66,10 +66,8 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
         if (wallet && id === state.walletInfo?.deviceId) {
           // This gets the firmware version needed for some KeepKey "supportsX" functions
           let features = await wallet.getFeatures()
-          ipcRenderer.send('onKeepKeyInfo',features)
-          console.log("features: ",features)
-          if(!features.initialized){
-            console.log("KEEPKEY NOT INITIALIZED")
+          ipcRenderer.send('onKeepKeyInfo', features)
+          if (!features.initialized) {
             initialize.open({})
           }
           // Show the label from the wallet instead of a generic name

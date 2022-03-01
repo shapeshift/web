@@ -21,6 +21,7 @@ export class KeepKeyService {
   public initialize: any
   constructor() {
     this.isInUpdaterMode = false
+    this.skippedFirmwareUpdate = false
     let queryKey: string | null = localStorage.getItem('queryKey')
     let username: string | null = localStorage.getItem('username')
     if (!queryKey) {
@@ -72,11 +73,8 @@ export class KeepKeyService {
 
   async updateKeepKeyFirmwareLatest(features: any): Promise<any> {
     try {
-      //
-      console.log("features: ",features)
       this.latestBootloaderVersion = features.bootloaderVersion
       this.latestFirmareVersion = features.latestFirmareVersion
-
     } catch (e) {
       console.error(e)
     }
@@ -89,7 +87,6 @@ export class KeepKeyService {
       this.firmwareVersion = features.firmwareVersion
 
       //get latest firmware save in memory
-
 
       //if not on latest
       //prompt user to enter bootloader mode

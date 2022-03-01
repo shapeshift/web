@@ -27,7 +27,7 @@ export const PrivacyPolicy = () => {
             change this notice, we will update the date at the top of this page. Prior versions of
             this notice can be found{' '}
             <Link href='#0'>
-              <RawText as='strong'>here</RawText>
+              <RawText as='strong'>here</RawText>.
             </Link>{' '}
             Your continued use of the Platform after any change to this notice constitutes your
             acceptance of such change. If you do not agree to any portion of this notice, then you
@@ -45,35 +45,18 @@ export const PrivacyPolicy = () => {
           </RawText>
           <RawText as='dl' display={'flex'} flexDirection={'column'} rowGap={4}>
             <RawText as='dt'>
-              <RawText as='strong'>Data we collect:</RawText> Simply put, except as specified in the
-              next subsection on the Alpha, the Platform itself does not collect any of your
-              personal information. All of your data is either retained locally by you or your
-              wallet software or stored on the respective blockchain. Please note that the Platform
-              is simply an interface to other third-party services or smart contracts, and these
-              services or contracts may collect differently from us. Please check with the
-              respective third-party or smart contract to see their data collection practices before
-              connecting to or confirming a transaction on such service or contract. Technically,
-              the Platform does not utilize cookie technology, rather we use a technology called
-              IndexedDB, which may store data on your computer to enable a better experience on the
-              Platform, but does not send any information back to us or the Platform. Lastly, when
-              you interact with the Platform, you may be revealing your IP address to the site's
-              host, however, we do not receive your IP address.
-            </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
-              <RawText as='strong'>The Alpha Platform:</RawText> The alternative version of the
-              Platform that we refer to as &quot;<RawText as='strong'>Alpha</RawText>&quot; will
-              track your usage of or behavior on the Alpha, but <em>only</em> in an anonymized way.
-              We track usage metrics of our users through a service called{' '}
-              <Link href='http://www.pendo.io/'>
-                <RawText as='strong'>Pendo</RawText>
-              </Link>
-              . You can see Pendo's data privacy and security practices{' '}
-              <Link href='https://www.pendo.io/data-privacy-security/'>
-                <RawText as='strong'>here</RawText>
-              </Link>
-              . The Alpha is an opt-in version of the Platform, and your use of the Alpha
-              constitutes your opt-in to the data collection practices outlined in this subsection.
-              Any data processing of user data on the Alpha is thus based on your consent.
+              <RawText as='strong'>Data we collect:</RawText> Simply put, the Platform itself does
+              not collect any of your personal information. All of your data is either retained
+              locally by you or your wallet software or stored on the respective blockchain. Please
+              note that the Platform is simply an interface to other third-party services or smart
+              contracts, and these services or contracts may collect differently from us. Please
+              check with the respective third-party or smart contract to see their data collection
+              practices before connecting to or confirming a transaction on such service or
+              contract. Technically, the Platform does not utilize cookie technology, rather we use
+              a technology called IndexedDB, which may store data on your computer to enable a
+              better experience on the Platform, but does not send any information back to us or the
+              Platform. Lastly, when you interact with the Platform, you may be revealing your IP
+              address to the site's host, however, we do not receive your IP address.
             </RawText>
           </RawText>
           <RawText as='p'>
@@ -88,7 +71,7 @@ export const PrivacyPolicy = () => {
             services can be found{' '}
             <Link href='https://www.zendesk.com/company/customers-partners/privacy-policy/'>
               <RawText as='strong'>here</RawText>
-            </Link>
+            </Link>{' '}
             and Zendeks's cookie policy can be found{' '}
             <Link href='https://www.zendesk.com/company/customers-partners/cookie-policy/'>
               <RawText as='strong'>here</RawText>

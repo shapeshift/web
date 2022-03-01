@@ -15,7 +15,7 @@ export const TermsOfService = () => {
           <RawText as='p'>WELCOME TO THE DECENTRALIZED SHAPESHIFT PLATFORM!</RawText>
           <RawText as='p'>
             THESE TERMS CONSTITUTE A LEGALLY BINDING AGREEMENT BETWEEN YOU AND THE SHAPESHIFT
-            DECENTRALIZED AUTONOMOUS ORGANIZATION (WHO WE REFER TO IN HE FIRST PERSON IN THESE
+            DECENTRALIZED AUTONOMOUS ORGANIZATION (WHO WE REFER TO IN THE FIRST PERSON IN THESE
             TERMS).{' '}
             <RawText as='strong'>
               WE ARE NOT AFFILIATED WITH SHAPESHIFT AG (OR ANY OF ITS AFFILIATES), THE PRIOR OWNER
@@ -68,7 +68,7 @@ export const TermsOfService = () => {
             volatile. All this is to say that: THE RISK OF LOSS IN BUYING OR SELLING ANY
             CRYPTOCURRENCY CAN BE SUBSTANTIAL, THEREFORE YOU SHOULD CAREFULLY CONSIDER WHETHER
             BUYING OR SELLING CRYPTOCURRENCY IS SUITABLE FOR YOU IN LIGHT OF YOUR FINANCIAL
-            CONDITION BEFORE BUYING OR SELLING SUCH CRYPTOCURRENCY. Ok…thanks for bearing with us
+            CONDITION BEFORE BUYING OR SELLING SUCH CRYPTOCURRENCY. Ok… thanks for bearing with us
             while we went through that.
           </RawText>
           <RawText as='h2'>THE PLATFORM</RawText>
@@ -139,7 +139,7 @@ export const TermsOfService = () => {
               </RawText>{' '}
               Because the Platform pulls pricing information from external, publicly available
               sources, we make no guarantees that this pricing information will actually materialize
-              into such value as is listed on the Platform.YOU ARE RESPONSIBLE FOR CONFIRMING AN
+              into such value as is listed on the Platform. YOU ARE RESPONSIBLE FOR CONFIRMING AN
               ACCEPTABLE PRICE FOR THE TRADING, BUYING, OR SELLING OF ANY CRYPTOCURRENCY.
             </RawText>
           </RawText>
@@ -214,76 +214,7 @@ export const TermsOfService = () => {
               third-party who maintains the applicable smart contract.
             </RawText>
           </RawText>
-          <RawText as='p'>
-            <RawText as='strong'>Alpha Platform:</RawText> We have made available an alternate
-            version of our Platform called &quot;<RawText as='strong'>Alpha</RawText>&quot;, which
-            is where we will introduce new features for the Platform prior to their actual launch on
-            the Platform. Alpha is available at{' '}
-            <Link href='http://alpha.shapeshift.com/'>
-              <RawText as='strong'>alpha.shapeshift.com</RawText>
-            </Link>
-            . Please note that since Alpha will include additional and often times experimental
-            features, if you use Alpha, you acknowledge that any use of Alpha carries heightened
-            risks—yes, even beyond the risks we pointed out above! In exchange for your use of
-            Alpha, you consent to our collection of certain additional data on your use of Alpha.
-            For more details on this, please refer to our Privacy Policy. All references to the
-            Platform in these terms is deemed to include Alpha as well.
-          </RawText>
-          <RawText as='dl' display={'flex'} flexDirection={'column'} rowGap={4}>
-            <RawText as='dt'>
-              <RawText as='strong'>Mobile App:</RawText> If you use a mobile application version of
-              the Platform (the &quot;<RawText as='strong'>App</RawText>&quot;), these same terms
-              apply.
-            </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
-              <RawText as='p'>
-                <RawText as='strong'>Additional Apple App Store Terms:</RawText> This section
-                applies to all users who obtain our App from Apple's App Store. You and we
-                acknowledge that: (i) these terms are solely between you and us; (ii) Apple, Inc.
-                and its affiliates or subsidiaries (&quot;
-                <RawText as='strong'>Apple</RawText>&quot;) are not a party to these terms; and
-                (iii) Apple has no responsibility for our App or its related content. Your use of
-                the App must comply with the applicable Apple's App Store terms of service or use.
-                If a conflict arises between Apple's App Store terms and these terms, then Apple's
-                App Store terms of service or use will prevail. The App License is limited to use on
-                Apple-branded Products that you own or control and as permitted by the Usage Rules
-                set forth in the App Store Terms of Service, except that the App may be accessed and
-                used by other Accounts associated with you via &quot;Family Sharing&quot; or volume
-                purchasing. You and we acknowledge that Apple has no obligation to provide you with
-                any maintenance and support services with respect to the App. We are solely
-                responsible for any product warranties of the App (which as you'll see below, do not
-                exist as we fully disclaim them), whether express or implied by law, to the extent
-                not effectively disclaimed elsewhere in these terms. In the event of any failure of
-                the App to conform to any applicable warranty, you may notify Apple, and Apple will
-                refund the purchase price for the App to you. To the maximum extent permitted by
-                applicable law, Apple will have no other warranty obligation with respect to the
-                App, and any other claims, losses, liabilities, damages, costs, or expenses
-                attributable to any failure to conform to any warranty will be solely our
-                responsibility. You acknowledge that Apple is not responsible for addressing any
-                claims of you or any third-party relating to the App and your possession or use of
-                the App, including: (iv) product liability claims; (v) any claim that the App fails
-                to conform to any applicable legal or regulatory requirement; and (vi) claims
-                arising under consumer protection, privacy, or similar legislation. You and we
-                acknowledge that, if any third-party claim that the App or your possession and use
-                of the App infringes that third-party's intellectual property rights, we, not Apple,
-                will be solely responsible for the investigation, defense, settlement, and discharge
-                of any such intellectual property infringement claim to the extent required by these
-                terms. You shall comply with any applicable third-party terms of agreement when
-                using the App. You and we acknowledge that Apple is a third-party beneficiary of
-                these terms as relates to your license of the App, and that, upon your acceptance of
-                these terms, Apple will have the right (and will be deemed to have accepted the
-                right) to enforce these terms as relates to your license of the App against you as a
-                third-party beneficiary of these terms.
-              </RawText>
-            </RawText>
-            <RawText as='dd' marginInlineStart={{ base: 2, lg: 4 }}>
-              <RawText as='p'>
-                <RawText as='strong'>Google Play Store Terms:</RawText> If you downloaded the App
-                from Google's Play Store and a conflict arises between Google's Play Store terms and
-                these terms, then you acknowledge that Google's Play Store terms will prevail.
-              </RawText>
-            </RawText>
-          </RawText>
+
           <RawText as='p'>
             <RawText as='strong'>Support of the Platform:</RawText> We have no duty to support the
             Platform, but will try our best to do so. You can contact support by opening a support
@@ -310,13 +241,13 @@ export const TermsOfService = () => {
             accessed through most wallets that support Ethereum called the FOX token (each a &quot;
             <RawText as='strong'>FOX Token</RawText>&quot;). In spring 2021, ShapeShift AG
             airdropped the majority of its FOX Tokens to prior users, members of various DAOs,
-            shareholders, employees, and to fund us as a DAO. FOX Tokens used as governance tokens
-            for the Platform. Neither we nor ShapeShift AG have ever sold FOX Tokens. To learn more
-            about how FOX Token holders can participate in governance of the Platform, please join
-            or discord server{' '}
+            shareholders, employees, and to fund us as a DAO. FOX Tokens are used as governance
+            tokens for the Platform. Neither we nor ShapeShift AG have ever sold FOX Tokens. To
+            learn more about how FOX Token holders can participate in governance of the Platform,
+            please join or discord server{' '}
             <Link href='https://discord.com/invite/shapeshift'>
               <RawText as='strong'>here</RawText>
-            </Link>
+            </Link>{' '}
             and see the channel titled &quot;governance&quot;. The smart contract for the FOX Tokens
             can be found{' '}
             <Link href='https://etherscan.io/token/0xc770eefad204b5180df6a14ee197d99d808ee52d'>
@@ -326,7 +257,7 @@ export const TermsOfService = () => {
           </RawText>
           <RawText as='h2'>LEGAL STUFF</RawText>
           <RawText as='p'>
-            <RawText as='strong'>Disclaimer of Warranties:</RawText> As we pointed out,the Platform
+            <RawText as='strong'>Disclaimer of Warranties:</RawText> As we pointed out, the Platform
             is being licensed to you for free, on an as-is basis, as a public good with a fully
             open-sourced codebase. In exchange for this, and because you can evaluate the Platform's
             codebase yourself (find it{' '}

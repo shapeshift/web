@@ -18,6 +18,7 @@ import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wall
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 import { FailureType, MessageType } from '../KeepKeyTypes'
+import { ipcRenderer } from 'electron'
 
 export interface KeepKeySetupProps
   extends RouteComponentProps<
@@ -86,6 +87,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions
         let features = await wallet.getFeatures()
+        ipcRenderer.send('onKeepKeyInfo', features)
         if (!features.initialized) {
           initialize.open({})
         } else {

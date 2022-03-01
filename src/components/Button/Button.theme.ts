@@ -220,6 +220,32 @@ function variantLink(props: Record<string, any>) {
   }
 }
 
+function variantTab(props: Record<string, any>) {
+  const { colorScheme: c } = props
+  return {
+    py: 4,
+    px: 2,
+    height: 'auto',
+    lineHeight: 'normal',
+    verticalAlign: 'baseline',
+    borderBottomWidth: '2px',
+    marginBottom: '-1px;',
+    borderColor: 'transparent',
+    borderRadius: 0,
+    color: 'gray.500',
+    _hover: {
+      borderColor: 'gray.500'
+    },
+    _active: {
+      color: mode(`${c}.500`, `${c}.200`)(props),
+      borderColor: mode(`${c}.500`, `${c}.200`)(props)
+    },
+    _checked: {
+      color: mode(`${c}.700`, `${c}.500`)(props)
+    }
+  }
+}
+
 const variantUnstyled = {
   bg: 'none',
   color: 'inherit',
@@ -236,7 +262,8 @@ const variants = {
   solid: variantSolid,
   link: variantLink,
   input: variantInput,
-  unstyled: variantUnstyled
+  unstyled: variantUnstyled,
+  tab: variantTab
 }
 
 const sizes = {

@@ -3560,17 +3560,17 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.6.1":
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.1.tgz#3b81f4c8973b4d9af635256e2abbf993aa577eac"
-  integrity sha512-8Cqn/4tqpNJDL6RHD2duQGe2U289I0A7gGp7bPQGMbtvy7cr5LIwo5nrPIuYfZUl2h1hvpyoVFkjkGWGMiqdRA==
+"@shapeshiftoss/caip@^1.11.4", "@shapeshiftoss/caip@^1.6.1":
+  version "1.11.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.4.tgz#0b03d549203d5dd38aa7b801a1d7c9ff4fe801f6"
+  integrity sha512-hnAul43Rt4AZrTT5bBaSv3bvNAH5szDPssY8l3ZjNxc4MGKGpry+f8PFJ2M5i+BnQBosbFPoQWJKzt78DRq/YQ==
 
-"@shapeshiftoss/chain-adapters@^1.31.1", "@shapeshiftoss/chain-adapters@^1.33.1":
-  version "1.33.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.33.1.tgz#c9559ebd8d41615737db4335e0c46135401659c5"
-  integrity sha512-sufF4S4oB0AdD4H0VKgpY/j9NXUa1P46rcFKf+kgseDjDjyGHJZ0AKj8HSk9acGJnDhw+z/Ld12gmfgYMV2hJA==
+"@shapeshiftoss/chain-adapters@^1.31.1", "@shapeshiftoss/chain-adapters@^1.35.1":
+  version "1.35.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-1.35.1.tgz#981ceb778b3ad5f6b9a03629441de36a153f0682"
+  integrity sha512-lGHk23QW1G0Var7ydY+yNXhedog+UtJiS0YjHYMgjy1dPye/1Ks8mzf6JSgAbuKvRFAE4kU7UO648R2ix76JrA==
   dependencies:
-    axios "^0.21.2"
+    axios "^0.26.0"
     bignumber.js "^9.0.1"
     bitcoinjs-lib "^5.2.0"
     coinselect "^3.1.12"
@@ -3768,10 +3768,10 @@
     bignumber.js "^9.0.1"
     ethers "^5.5.3"
 
-"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.23.0":
-  version "1.23.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.23.0.tgz#d9d542616fa927244591ebe8d405006ebb2fe5db"
-  integrity sha512-itqM2tN5/2ZlQEYbZMHGVYzwb6eYWDp9FnNUUuRAljkTG8OFRhNoQtg97K+d+t4NwZT486RA/D6PD+B8MHd72g==
+"@shapeshiftoss/types@^1.17.0", "@shapeshiftoss/types@^1.21.0", "@shapeshiftoss/types@^1.24.0":
+  version "1.24.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-1.24.0.tgz#3454dd1e190902d9a3eab9eb084c28ff88e30149"
+  integrity sha512-tnC7ymkCx8w+LMqImI8o+P51GxfbFWY/ffE5gHLgNddR03ygy70ZSwDDpWX5X/88P1n0wrfZ8CHxfgSFY2Ln0w==
 
 "@shapeshiftoss/unchained-client@^5.1.1":
   version "5.1.1"
@@ -6877,6 +6877,13 @@ axios@^0.24.0:
   dependencies:
     follow-redirects "^1.14.4"
 
+axios@^0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.0.tgz#9a318f1c69ec108f8cd5f3c3d390366635e13928"
+  integrity sha512-lKoGLMYtHvFrPVt3r+RBMp9nh34N0M8zEfCWqdWZx6phynIEhQqAdydpyBAAG211zlhX9Rgu08cOamy6XjE5Og==
+  dependencies:
+    follow-redirects "^1.14.8"
+
 axobject-query@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/axobject-query/-/axobject-query-2.2.0.tgz#943d47e10c0b704aa42275e20edf3722648989be"
@@ -9095,10 +9102,10 @@ cyclist@^1.0.1:
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
-cypress@9.4.1:
-  version "9.4.1"
-  resolved "https://registry.yarnpkg.com/cypress/-/cypress-9.4.1.tgz#1a4ba706435829c24b7edf350c2b059e05da9084"
-  integrity sha512-+JgMG9uT+QFx97JU9kOHE3jO3+0UdkQ9H1oCBiC7A74qme7Jkdy2sYDBCPjjGczutnWnGUTMRlwiNMP/Uq6LrQ==
+cypress@9.5.1:
+  version "9.5.1"
+  resolved "https://registry.yarnpkg.com/cypress/-/cypress-9.5.1.tgz#51162f3688cedf5ffce311b914ef49a7c1ece076"
+  integrity sha512-H7lUWB3Svr44gz1rNnj941xmdsCljXoJa2cDneAltjI9leKLMQLm30x6jLlpQ730tiVtIbW5HdUmBzPzwzfUQg==
   dependencies:
     "@cypress/request" "^2.88.10"
     "@cypress/xvfb" "^1.2.4"
@@ -11375,10 +11382,10 @@ follow-redirects@1.5.10:
   dependencies:
     debug "=3.1.0"
 
-follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.0, follow-redirects@^1.14.4:
-  version "1.14.5"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.5.tgz#f09a5848981d3c772b5392309778523f8d85c381"
-  integrity sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==
+follow-redirects@^1.0.0, follow-redirects@^1.10.0, follow-redirects@^1.14.0, follow-redirects@^1.14.4, follow-redirects@^1.14.8:
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
+  integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -17667,6 +17674,11 @@ react-remove-scroll@2.4.1:
     tslib "^1.0.0"
     use-callback-ref "^1.2.3"
     use-sidecar "^1.0.1"
+
+react-router-breadcrumbs-hoc@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/react-router-breadcrumbs-hoc/-/react-router-breadcrumbs-hoc-4.1.0.tgz#d0c7628cd645c13c7b931ba5fb9a8481000a9c76"
+  integrity sha512-HZn352JkMzi/1Mp9H6v78V9f7sjnWRf/dXeFVLDDbxEUK7QJCj1JUBJuEHC+B3tq1+uRCASNm3ofEOaG33tAKw==
 
 react-router-dom@^5.2.0:
   version "5.3.0"

@@ -286,6 +286,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           fieldName === SendFormFields.FiatAmount
             ? bnOrZero(bn(inputValue).div(price)).toString()
             : bnOrZero(bn(inputValue).times(price)).toString()
+
         setValue(key, amount)
 
         let estimatedFees

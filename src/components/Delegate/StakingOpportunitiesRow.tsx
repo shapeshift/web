@@ -1,6 +1,7 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
@@ -9,10 +10,15 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
-  const { cosmosGetStarted } = useModal()
+  const { cosmosGetStarted, cosmosStaked } = useModal()
 
-  const handleGetStartedClick = () => {
+  const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
+    e.stopPropagation()
+  }
+
+  const handleStakedClick = () => {
+    cosmosStaked.open({ assetId: 'cosmoshub-4/slip44:118' })
   }
 
   return (
@@ -23,6 +29,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
       variant='ghost'
       fontWeight='normal'
       py={2}
+      onClick={handleStakedClick}
     >
       <Flex alignItems='center'>
         <Flex mr={4}>

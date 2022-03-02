@@ -151,39 +151,36 @@ Cypress.Commands.add('mockAllRequests', () => {
 })
 
 // @ts-ignore
-Cypress.Commands.add(
-  'mockWebSocketRequest',
-  (method: string, data: Object, response: Array<any>) => {
-    const options = {
-      takeWhileFn: (message: IMessage) => message?.method !== 'end',
-      startUpMessage: {
-        method: method,
-        data: data
-      }
+Cypress.Commands.add('mockWebSocketRequest', (method: string, data: Object, response: any) => {
+  const options = {
+    takeWhileFn: (message: IMessage) => message?.method !== 'end',
+    startUpMessage: {
+      method: method,
+      data: data
     }
-
-    cy.wrap(null, { timeout: 10000 }).then(() =>
-      cy.streamRequest(wsConfig, options).then(results => {
-        const connectionResult = results?.[0]
-
-        // eslint-disable-next-line
-      expect(connectionResult).to.not.be.undefined
-        expect(connectionResult).to.have.property('method', 'connect')
-        expect(connectionResult).to.have.property('data', 'connect success')
-
-        expect(results?.length).to.eq(response.length + 2) // 'connection success' + response + 'end'
-
-        const result = results?.[1]
-
-        // eslint-disable-next-line
-      expect(result).to.not.be.undefined
-        expect(result).to.have.property('method', method)
-        expect(result).to.have.property('data')
-        expect(result?.data).to.deep.eq(response?.[0])
-      })
-    )
   }
-)
+
+  cy.wrap(null, { timeout: 10000 }).then(() =>
+    cy.streamRequest(wsConfig, options).then(results => {
+      const connectionResult = results?.[0]
+
+      // eslint-disable-next-line
+      expect(connectionResult).to.not.be.undefined
+      expect(connectionResult).to.have.property('method', 'connect')
+      expect(connectionResult).to.have.property('data', 'connect success')
+
+      expect(results?.length).to.eq(response.length + 2) // 'connection success' + response + 'end'
+
+      const result = results?.[1]
+
+      // eslint-disable-next-line
+      expect(result).to.not.be.undefined
+      expect(result).to.have.property('method', method)
+      expect(result).to.have.property('data')
+      expect(result?.data).to.deep.eq(response?.[0])
+    })
+  )
+})
 
 // @ts-ignore
 Cypress.Commands.add('mockAllWebSocketRequests', () => {

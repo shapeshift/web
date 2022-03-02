@@ -14,7 +14,15 @@ export const PercentOptionsRow = ({
 }: PercentOptionsRowProps & ButtonGroupProps) => {
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   return (
-    <ButtonGroup width='100%' bgColor={bgColor} py='5px' borderRadius='12px' {...styleProps}>
+    <ButtonGroup
+      variant='ghost'
+      colorScheme='blue'
+      width='100%'
+      bgColor={bgColor}
+      py='5px'
+      borderRadius='12px'
+      {...styleProps}
+    >
       {PERCENT_OPTIONS.map(option => (
         <Button
           isActive={option === percent}

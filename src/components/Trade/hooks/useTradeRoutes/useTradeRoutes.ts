@@ -18,6 +18,7 @@ export const useTradeRoutes = (): {
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
+  const feeAsset = assets['eip155:1/slip44:60']
 
   const setDefaultAssets = useCallback(async () => {
     try {
@@ -34,13 +35,14 @@ export const useTradeRoutes = (): {
         getQuote({
           amount: '0',
           sellAsset: { currency: sellAsset },
-          buyAsset: { currency: buyAsset }
+          buyAsset: { currency: buyAsset },
+          feeAsset
         })
       }
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, getQuote, getDefaultPair, getBestSwapper])
+  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper])
 
   useEffect(() => {
     setDefaultAssets()
@@ -57,14 +59,20 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({ amount: sellAsset.amount ?? '0', sellAsset, buyAsset, action })
+        getQuote({
+          amount: sellAsset.amount ?? '0',
+          sellAsset,
+          buyAsset,
+          feeAsset,
+          action
+        })
       } catch (e) {
         console.warn(e)
       } finally {
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote]
   )
 
   const handleBuyClick = useCallback(
@@ -78,14 +86,20 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({ amount: buyAsset.amount ?? '0', sellAsset, buyAsset, action })
+        getQuote({
+          amount: buyAsset.amount ?? '0',
+          sellAsset,
+          buyAsset,
+          feeAsset,
+          action
+        })
       } catch (e) {
         console.warn(e)
       } finally {
         history.push('/trade/input')
       }
     },
-    [buyAsset, sellAsset, history, setValue, getBestSwapper, getQuote]
+    [buyAsset, sellAsset, feeAsset, history, setValue, getBestSwapper, getQuote]
   )
 
   return { handleSellClick, handleBuyClick }

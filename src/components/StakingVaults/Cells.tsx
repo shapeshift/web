@@ -46,7 +46,7 @@ export const AssetCell = ({ assetId, provider, showTeaser, version, onClick }: A
           {showPopover && <AssetTeaser assetId={assetId} />}
         </Popover>
       )}
-      <HStack onClick={onClick} flex={1}>
+      <HStack onClick={onClick} flex={1} cursor='pointer'>
         <SkeletonCircle isLoaded={!!asset}>
           <AssetIcon src={asset.icon} boxSize='8' />
         </SkeletonCircle>

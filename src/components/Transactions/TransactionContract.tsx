@@ -1,15 +1,14 @@
-import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Box, Collapse, Flex, Link, SimpleGrid, Tag } from '@chakra-ui/react'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { Box, Collapse, Flex, Link, SimpleGrid } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { TransactionStatus } from 'components/Transactions/TransactionStatus'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
@@ -146,31 +145,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
               />
             </Row.Value>
           </Row>
-          <Row variant='vertical'>
-            <Row.Label>
-              <Text translation='transactionRow.status' />
-            </Row.Label>
-            <Row.Value textAlign='left'>
-              {txDetails.tx.status === chainAdapters.TxStatus.Confirmed && (
-                <Tag colorScheme='green' size='lg'>
-                  <CheckCircleIcon mr={2} />
-                  <Text translation='transactionRow.confirmed' />
-                </Tag>
-              )}
-              {txDetails.tx.status === chainAdapters.TxStatus.Pending && (
-                <Tag colorScheme='blue' size='lg'>
-                  <CircularProgress mr={2} size='5' />
-                  <Text translation='transactionRow.pending' />
-                </Tag>
-              )}
-              {txDetails.tx.status === chainAdapters.TxStatus.Failed && (
-                <Tag colorScheme='red' size='lg'>
-                  <WarningTwoIcon mr={2} />
-                  <Text translation='transactionRow.failed' />
-                </Tag>
-              )}
-            </Row.Value>
-          </Row>
+          <TransactionStatus txStatus={txDetails.tx.status} />
           {toAddress && (
             <Row variant='vertical'>
               <Row.Label>

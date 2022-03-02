@@ -10,7 +10,7 @@ import { shared } from "./shared";
 
 let Hardware = require("@keepkey/keepkey-hardware-hid")
 
-ipcMain.on('@keepkey/updateFirmware', async event => {
+ipcMain.on('@keepkey/update-firmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
         let result = await Hardware.getLatestFirmwareData()
@@ -28,7 +28,7 @@ ipcMain.on('@keepkey/updateFirmware', async event => {
     }
 })
 
-ipcMain.on('@keepkey/updateBootloader', async event => {
+ipcMain.on('@keepkey/update-bootloader', async event => {
     const tag = TAG + ' | onUpdateBootloader | '
     try {
         log.info(tag, "checkpoint: ")

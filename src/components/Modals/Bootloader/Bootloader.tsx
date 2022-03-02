@@ -27,7 +27,7 @@ export const BootloaderModal = () => {
 
   const HandleUpdateBootloader = async () => {
     setLoading(true)
-    ipcRenderer.send('@keepkey/updateBootloader', {})
+    ipcRenderer.send('@keepkey/update-bootloader', {})
   }
 
   return (

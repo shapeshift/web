@@ -61,5 +61,6 @@ export const App = () => {
       toastIdRef.current = toastId
     }
   }, [shouldUpdate, toast, translate])
+
   return <Routes additionalRoutes={pluginRoutes} />
 }

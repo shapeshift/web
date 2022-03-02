@@ -8,7 +8,7 @@ describe('generateAppRoutes', () => {
       {
         path: '/',
         label: 'Home',
-        main: <TestComp />
+        main: () => <TestComp />
       }
     ]
     const flattenedRoutes = generateAppRoutes(routes)
@@ -20,17 +20,17 @@ describe('generateAppRoutes', () => {
       {
         path: '/',
         label: 'Home',
-        main: <TestComp />,
+        main: () => <TestComp />,
         routes: [
           {
             path: '/child',
             label: 'Child Route',
-            main: <TestComp />
+            main: () => <TestComp />
           },
           {
             path: '/child',
             label: 'Child Route',
-            main: <TestComp />
+            main: () => <TestComp />
           }
         ]
       }
@@ -43,17 +43,17 @@ describe('generateAppRoutes', () => {
       {
         path: '/',
         label: 'Home',
-        main: <TestComp />,
+        main: () => <TestComp />,
         routes: [
           {
             path: '/child1',
             label: 'Child Route',
-            main: <TestComp />
+            main: () => <TestComp />
           },
           {
             path: '/child2',
             label: 'Child Route',
-            main: <TestComp />
+            main: () => <TestComp />
           }
         ]
       }

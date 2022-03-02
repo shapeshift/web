@@ -1,10 +1,15 @@
 import { Box, Flex, Heading, Image, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { useMemo } from 'react'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAccountIdsByAssetId, selectAssetByCAIP19, selectMarketDataById, selectPortfolioCryptoHumanBalanceByFilter } from 'state/slices/selectors'
+import {
+  selectAccountIdsByAssetId,
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectPortfolioCryptoHumanBalanceByFilter
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'

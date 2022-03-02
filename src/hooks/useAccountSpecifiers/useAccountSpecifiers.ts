@@ -109,6 +109,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
      */
     if (!isEqual(acc, accountSpecifiers)) setAccountSpecifiers(acc)
     // this is called by the effect below with the right logic to only call once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, chainAdapter, assetsById])
 
   useEffect(() => {

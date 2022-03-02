@@ -3745,10 +3745,10 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.12.0":
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.12.0.tgz#19d7419fdb7f762412e1eebae2de8bddb3e2bbe9"
-  integrity sha512-2WVd7ROF7EX+2a8ByOyrtXxRktIFLJPaoLdxkslS9Pzkn71OKI4A5wqdx2vgplkz0tqIXx/oW1n6eIu53iKsiA==
+"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.12.1":
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.12.1.tgz#03f194f40dd21072ba62594651e7c33e3b6214f7"
+  integrity sha512-+9138FvojAW9RvtfFLjDWnRdgC5dZfos4zcxs9tmVwZhIxcl5GypHOpMuoTLID2kia/7tfS1PauIlVip2beRaA==
 
 "@shapeshiftoss/chain-adapters@^1.36.0":
   version "1.36.0"
@@ -3899,10 +3899,10 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-yearn@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.4.0.tgz#cf847e8464a0188fdcc1c778edcf2d22f30a4559"
-  integrity sha512-/dueNSIqxWI9x+KIEY87jzZnlCqtMNXpiC/6B/JQ5qYMJ7N3d5lbJ6s6PvmfaC5OcjjiDe5uxf6torGoaYoD8w==
+"@shapeshiftoss/investor-yearn@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.4.1.tgz#62321c08bb9f132956e31ac920a72616b727ace8"
+  integrity sha512-XHXt0CDPotPh2M9046o+jW7AYsh1FL8jzOsdSoyEzrJvZsVAbe6fg+JPMp+UDZbMLJFTxc0hfmFhhHar7/YywQ==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     "@yfi/sdk" "^1.0.29"

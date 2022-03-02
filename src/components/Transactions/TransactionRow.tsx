@@ -5,26 +5,24 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useRef } from 'react'
-import { TransactionReceive } from 'components/Transactions/TransactionReceive'
-import { TransactionSend } from 'components/Transactions/TransactionSend'
-import { TransactionTrade } from 'components/Transactions/TransactionTrade'
 import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+
+import { TransactionReceive } from './TransactionReceive'
+import { TransactionSend } from './TransactionSend'
+import { TransactionTrade } from './TransactionTrade'
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-const renderTransactionType = (
-  txDetails: TxDetails,
-  showDateAndGuide: boolean
-): JSX.Element | null => {
+const renderTransactionType = (txDetails: TxDetails): JSX.Element | null => {
   return (() => {
     switch (txDetails.type) {
       case TxType.Send:
-        return <TransactionSend txDetails={txDetails} showDateAndGuide={showDateAndGuide} />
+        return <TransactionSend txDetails={txDetails} />
       case TxType.Receive:
-        return <TransactionReceive txDetails={txDetails} showDateAndGuide={showDateAndGuide} />
+        return <TransactionReceive txDetails={txDetails} />
       case TradeType.Trade:
-        return <TransactionTrade txDetails={txDetails} showDateAndGuide={showDateAndGuide} />
+        return <TransactionTrade txDetails={txDetails} />
       default:
         // Unhandled transaction type - don't render anything
         return null
@@ -32,18 +30,10 @@ const renderTransactionType = (
   })()
 }
 
-export const TransactionRow = ({
-  txId,
-  activeAsset,
-  showDateAndGuide = false
-}: {
-  txId: string
-  activeAsset?: Asset
-  showDateAndGuide?: boolean
-}) => {
+export const TransactionRow = ({ txId, activeAsset }: { txId: string; activeAsset?: Asset }) => {
   const ref = useRef<HTMLHeadingElement>(null)
 
-  const rowHover = useColorModeValue('gray.100', 'gray.750')
+  const bg = useColorModeValue('gray.50', 'whiteAlpha.100')
   const txDetails = useTxDetails(txId, activeAsset)
 
   // TODO(0xdef1cafe): support yearn vault deposit withdrawals
@@ -54,8 +44,8 @@ export const TransactionRow = ({
   }
 
   return (
-    <Box ref={ref} width='full' px={4} rounded='lg' _hover={{ bg: rowHover }}>
-      {renderTransactionType(txDetails, showDateAndGuide)}
+    <Box ref={ref} width='full' pl={3} pr={4} rounded='lg' _hover={{ bg }}>
+      {renderTransactionType(txDetails)}
     </Box>
   )
 }

@@ -67,10 +67,15 @@ export const EarnOpportunityRow = ({
   const location = useLocation()
 
   const network = NetworkTypes.MAINNET
-  const contractType = AssetNamespace.ERC20
+  const assetNamespace = AssetNamespace.ERC20
   const TVL = bnOrZero(underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString()
   // asset
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const assetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: tokenAddress
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
 

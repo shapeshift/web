@@ -30,14 +30,14 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
     const vaultCaip19 = caip19.toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
-      contractType: AssetNamespace.ERC20,
-      tokenId: vault.vaultAddress
+      assetNamespace: AssetNamespace.ERC20,
+      assetReference: vault.vaultAddress
     })
     const tokenCaip19 = caip19.toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
-      contractType: AssetNamespace.ERC20,
-      tokenId: vault.tokenAddress
+      assetNamespace: AssetNamespace.ERC20,
+      assetReference: vault.tokenAddress
     })
     const balance = balances[vaultCaip19]
 

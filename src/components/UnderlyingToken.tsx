@@ -50,9 +50,9 @@ export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) =>
         const token = await yearn.token({ vaultAddress: asset.tokenId! })
         const chain = asset.chain
         const network = NetworkTypes.MAINNET
-        const contractType = AssetNamespace.ERC20
-        const tokenId = toLower(token)
-        setUnderlyingCAIP19(caip19.toCAIP19({ chain, network, contractType, tokenId }))
+        const assetNamespace = AssetNamespace.ERC20
+        const assetReference = toLower(token)
+        setUnderlyingCAIP19(caip19.toCAIP19({ chain, network, assetNamespace, assetReference }))
       } catch (error) {
         console.error(error)
       }

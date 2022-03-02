@@ -45,8 +45,13 @@ export const StakingCard = ({
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const network = NetworkTypes.MAINNET
-  const contractType = AssetNamespace.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const assetNamespace = AssetNamespace.ERC20
+  const assetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: tokenAddress
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
 
   const {

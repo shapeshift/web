@@ -1,6 +1,6 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
@@ -62,14 +62,29 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const contractType = AssetNamespace.ERC20
+  const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+  const underlyingAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: tokenId
+  })
   const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const assetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: vaultAddress
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
-  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const feeAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace: AssetNamespace.Slip44,
+    assetReference: AssetReference.Ethereum
+  })
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 

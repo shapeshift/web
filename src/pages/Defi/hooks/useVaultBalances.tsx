@@ -1,10 +1,10 @@
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
   getSupportedVaults,
   SupportedYearnVault,
   YearnVaultApi
 } from '@shapeshiftoss/investor-yearn'
-import { chainAdapters, ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -30,13 +30,13 @@ async function getYearnVaults(balances: PortfolioBalancesById, yearn: YearnVault
     const vaultCaip19 = caip19.toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
-      contractType: ContractTypes.ERC20,
+      contractType: AssetNamespace.ERC20,
       tokenId: vault.vaultAddress
     })
     const tokenCaip19 = caip19.toCAIP19({
       chain: vault.chain,
       network: NetworkTypes.MAINNET,
-      contractType: ContractTypes.ERC20,
+      contractType: AssetNamespace.ERC20,
       tokenId: vault.tokenAddress
     })
     const balance = balances[vaultCaip19]

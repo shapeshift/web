@@ -1,5 +1,6 @@
 import { Box, Button, FormControl, FormErrorMessage, IconButton, useToast } from '@chakra-ui/react'
-import { ChainTypes, ContractTypes, SwapperType } from '@shapeshiftoss/types'
+import { AssetNamespace } from '@shapeshiftoss/caip'
+import { ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaArrowsAltV } from 'react-icons/fa'
@@ -90,7 +91,7 @@ export const TradeInput = ({ history }: RouterProps) => {
   const onSubmit = async () => {
     if (!wallet) return
     if (!(quote?.sellAsset && quote?.buyAsset && sellAsset.amount)) return
-    const isERC20 = sellAsset.currency.contractType === ContractTypes.ERC20
+    const isERC20 = sellAsset.currency.contractType === AssetNamespace.ERC20
 
     try {
       const fiatRate = await getFiatRate({ symbol: isERC20 ? 'ETH' : sellAsset.currency.symbol })

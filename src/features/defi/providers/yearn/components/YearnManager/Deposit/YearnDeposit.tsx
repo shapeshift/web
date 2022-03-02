@@ -11,9 +11,9 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
@@ -84,7 +84,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const alertText = useColorModeValue('blue.800', 'white')
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
+  const contractType = AssetNamespace.ERC20
   const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
   const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))

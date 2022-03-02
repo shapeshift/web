@@ -1,8 +1,8 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -62,7 +62,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
+  const contractType = AssetNamespace.ERC20
   // Asset info
   const underlyingAssetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
   const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))

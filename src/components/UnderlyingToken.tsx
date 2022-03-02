@@ -1,7 +1,7 @@
 import { Box, Grid, Stack } from '@chakra-ui/react'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import toLower from 'lodash/toLower'
 import { useEffect, useMemo, useState } from 'react'
@@ -50,7 +50,7 @@ export const UnderlyingToken = ({ assetId, accountId }: UnderlyingTokenProps) =>
         const token = await yearn.token({ vaultAddress: asset.tokenId! })
         const chain = asset.chain
         const network = NetworkTypes.MAINNET
-        const contractType = ContractTypes.ERC20
+        const contractType = AssetNamespace.ERC20
         const tokenId = toLower(token)
         setUnderlyingCAIP19(caip19.toCAIP19({ chain, network, contractType, tokenId }))
       } catch (error) {

@@ -57,7 +57,7 @@ export const selectTxById = createSelector(
 )
 
 export const selectTxDateByIds = createSelector(selectTxIdsParam, selectTxs, (txIds: TxId[], txs) =>
-  txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
+  txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime })).sort((a, b) => b.date - a.date)
 )
 
 type TxHistoryPageFilter = {

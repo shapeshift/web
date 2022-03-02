@@ -10,27 +10,32 @@ import {
   useColorModeValue
 } from '@chakra-ui/react'
 import { useState } from 'react'
+import { Control, useController } from 'react-hook-form'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
 
-type Option = [string, number | string]
+type Option = [string, string]
 
 export const FilterGroup = ({
   title,
   options,
   allowMultipleOptions = false,
   name,
-  ...props
+  control
 }: {
   title: string
   options: Option[]
   allowMultipleOptions?: boolean
   name: string
+  control: Control
 }) => {
   const [isOpen, setOpen] = useState(false)
   const toggleDayRange = () => setOpen(open => !open)
+  const {
+    field: { onChange, value }
+  } = useController({ control, name })
   const GroupComponent = allowMultipleOptions ? CheckboxGroup : RadioGroup
-  const Component = allowMultipleOptions ? Checkbox : Radio
+  const InputComponent = allowMultipleOptions ? Checkbox : Radio
   return (
     <Box px={2}>
       <Button
@@ -55,12 +60,12 @@ export const FilterGroup = ({
       </Button>
       <Collapse in={isOpen} unmountOnExit>
         <Box px={2} mb={2}>
-          <GroupComponent {...props}>
-            {options.map(([title, value]) => (
-              <Box key={value} py={1}>
-                <Component name={name} value={value}>
+          <GroupComponent value={value || []} onChange={onChange} name={name}>
+            {options.map(([title, optionValue]) => (
+              <Box key={optionValue} py={1}>
+                <InputComponent value={optionValue}>
                   <Text translation={title} fontWeight='300' />
-                </Component>
+                </InputComponent>
               </Box>
             ))}
           </GroupComponent>

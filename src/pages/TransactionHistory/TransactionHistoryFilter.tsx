@@ -2,6 +2,7 @@ import {
   Button,
   Divider,
   Flex,
+  HStack,
   Icon,
   Popover,
   PopoverBody,
@@ -10,12 +11,28 @@ import {
   useColorModeValue
 } from '@chakra-ui/react'
 import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import dayjs from 'dayjs'
+import { useEffect } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
 import { IoOptionsOutline } from 'react-icons/io5'
 import { Text } from 'components/Text'
 
 import { DatePicker } from './components/DatePicker'
 import { FilterGroup } from './components/FilterGroup'
+
+export enum FilterFormFields {
+  FromDate = 'fromDate',
+  ToDate = 'toDate',
+  DayRange = 'dayRange',
+  Types = 'types'
+}
+
+export type FilterFormFieldsType = {
+  [FilterFormFields.FromDate]: string
+  [FilterFormFields.ToDate]: string
+  [FilterFormFields.DayRange]: string
+  [FilterFormFields.Types]: string[]
+}
 
 type TransactionHistoryFilterProps = {
   setFilters: Function
@@ -27,78 +44,138 @@ export const TransactionHistoryFilter = ({
   resetFilters
 }: TransactionHistoryFilterProps) => {
   const {
+    control,
     handleSubmit,
-    register,
+    watch,
+    reset,
+    setValue,
+    getValues,
     formState: { isSubmitting }
   } = useForm({ mode: 'onChange' })
   const onSubmit = (values: FieldValues) => {
-    const newFilters = values
-    setFilters(newFilters)
+    const { fromDate, toDate, dayRange, types } = values
+    console.info(fromDate, toDate)
+    let filterSet = {
+      fromDate,
+      toDate,
+      dayRange,
+      types
+    }
+    if (!!dayRange) {
+      const today = dayjs().endOf('day')
+      filterSet.fromDate = today.subtract(dayRange, 'day').unix()
+      filterSet.toDate = today.unix()
+    }
+    if (fromDate) {
+      filterSet.fromDate = dayjs(fromDate, 'YYYY-MM-DD').startOf('day').unix()
+    }
+    if (toDate) {
+      filterSet.toDate = dayjs(toDate, 'YYYY-MM-DD').endOf('day').unix()
+    }
+    setFilters(filterSet)
   }
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      if (type === 'change' && name === FilterFormFields.DayRange && !!value) {
+        const [fromDate, toDate] = getValues([FilterFormFields.FromDate, FilterFormFields.ToDate])
+        if (fromDate || toDate) {
+          setValue(FilterFormFields.FromDate, '')
+          setValue(FilterFormFields.ToDate, '')
+        }
+      }
+      if (
+        type === 'change' &&
+        (name === FilterFormFields.FromDate || name === FilterFormFields.ToDate) &&
+        !!value
+      ) {
+        const dayRange = getValues(FilterFormFields.DayRange)
+        if (dayRange) {
+          setValue(FilterFormFields.DayRange, '')
+        }
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [getValues, setValue, watch])
+  const popoverContentBg = useColorModeValue('gray.100', 'gray.700')
   return (
-    <Popover>
-      <PopoverTrigger>
-        <Button
-          colorScheme='blue'
-          variant='ghost-filled'
-          rightIcon={<Icon as={IoOptionsOutline} />}
-        >
-          <Text translation='transactionHistory.filter' />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent bg={useColorModeValue('gray.200', 'gray.700')} boxShadow='lg'>
-        <PopoverBody p={0}>
-          <Flex px={4} justifyContent='space-between' alignItems='center'>
-            <Text translation='transactionHistory.filter' />
+    <Popover size='xl'>
+      {({ onClose }) => (
+        <>
+          <PopoverTrigger>
             <Button
-              variant='ghost'
-              p={2}
               colorScheme='blue'
-              _hover={{ bg: 'transparent' }}
-              onClick={e => resetFilters()}
+              variant='ghost-filled'
+              rightIcon={<Icon as={IoOptionsOutline} />}
             >
-              <Text translation='transactionHistory.filters.resetFilters' />
+              <Text translation='transactionHistory.filter' />
             </Button>
-          </Flex>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Flex px={4} my={2} alignItems='center'>
-              <DatePicker {...register('fromDate')} />
-              <Text
-                fontWeight='300'
-                px={3}
-                color={'gray.500'}
-                translation='transactionHistory.filters.to'
-              />
-              <DatePicker {...register('fromDate')} />
-            </Flex>
-            <FilterGroup
-              {...register('dayRange')}
-              title='transactionHistory.filters.dayRange'
-              options={[
-                ['transactionHistory.filters.10days', 10],
-                ['transactionHistory.filters.30days', 30],
-                ['transactionHistory.filters.90days', 90]
-              ]}
-            />
-            <Divider />
-            <FilterGroup
-              {...register('types')}
-              title='transactionHistory.filters.categories'
-              allowMultipleOptions
-              options={[
-                ['transactionHistory.filters.sent', TxType.Send],
-                ['transactionHistory.filters.trade', TradeType.Trade],
-                ['transactionHistory.filters.received', TxType.Receive]
-              ]}
-            />
-            <Flex justifyContent='center' alignItems='center'>
-              <Button colorScheme='blue' my={4} isLoading={isSubmitting} type='submit'>
-                <Text translation='transactionHistory.filters.apply' />
-              </Button>
-            </Flex>
-          </form>
-        </PopoverBody>
-      </PopoverContent>
+          </PopoverTrigger>
+          <PopoverContent bg={popoverContentBg} boxShadow='lg'>
+            <PopoverBody p={0}>
+              <Flex px={2} justifyContent='space-between' alignItems='center'>
+                <Text px={2} translation='transactionHistory.filter' />
+                <Button
+                  variant='ghost'
+                  p={2}
+                  colorScheme='blue'
+                  _hover={{ bg: 'transparent' }}
+                  onClick={() => {
+                    reset()
+                    resetFilters()
+                  }}
+                >
+                  <Text translation='transactionHistory.filters.resetFilters' />
+                </Button>
+              </Flex>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <HStack px={4} my={2} alignItems='center'>
+                  <DatePicker name={FilterFormFields.FromDate} control={control} />
+                  <Text
+                    fontWeight='300'
+                    px={3}
+                    color={'gray.500'}
+                    translation='transactionHistory.filters.to'
+                  />
+                  <DatePicker name={FilterFormFields.ToDate} control={control} />
+                </HStack>
+                <FilterGroup
+                  name={FilterFormFields.DayRange}
+                  control={control}
+                  title='transactionHistory.filters.dayRange'
+                  options={[
+                    ['transactionHistory.filters.10days', '10'],
+                    ['transactionHistory.filters.30days', '30'],
+                    ['transactionHistory.filters.90days', '90']
+                  ]}
+                />
+                <Divider />
+                <FilterGroup
+                  name={FilterFormFields.Types}
+                  control={control}
+                  title='transactionHistory.filters.categories'
+                  allowMultipleOptions
+                  options={[
+                    ['transactionHistory.filters.sent', TxType.Send],
+                    ['transactionHistory.filters.trade', TradeType.Trade],
+                    ['transactionHistory.filters.received', TxType.Receive]
+                  ]}
+                />
+                <Flex justifyContent='center' alignItems='center'>
+                  <Button
+                    colorScheme='blue'
+                    my={4}
+                    isLoading={isSubmitting}
+                    type='submit'
+                    onClick={onClose}
+                  >
+                    <Text translation='transactionHistory.filters.apply' />
+                  </Button>
+                </Flex>
+              </form>
+            </PopoverBody>
+          </PopoverContent>
+        </>
+      )}
     </Popover>
   )
 }

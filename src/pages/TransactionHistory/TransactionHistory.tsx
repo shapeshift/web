@@ -44,7 +44,7 @@ export const TransactionHistory = () => {
                 <TransactionHistorySearch handleInputChange={handleInputChange} />
                 <TransactionHistoryFilter resetFilters={resetFilters} setFilters={setFilters} />
               </Flex>
-              <DownloadButton />
+              <DownloadButton txIds={txIds} />
             </Flex>
           </Card.Heading>
           <TransactionHistoryList txIds={txIds} />

@@ -21,7 +21,11 @@ export const PopoverStyle = {
     }
   }),
   // Styles for the size variations
-  sizes: {},
+  sizes: {
+    xl: {
+      w: 550
+    }
+  },
   // Styles for the visual style variations
   variants: {},
   // The default `size` or `variant` values

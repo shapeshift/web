@@ -1,30 +1,28 @@
-import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import { BuySellIcon } from 'components/Icons/Buysell'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { breakpoints } from 'theme/theme'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 export const BuySell = () => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { buysell } = useModal()
-
-  return isLargerThanMd ? (
+  const {
+    state: { isConnected },
+    dispatch
+  } = useWallet()
+  const handleWalletModalOpen = () =>
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  const handleModalOpen = () => (isConnected ? buysell.open({}) : handleWalletModalOpen())
+  return (
     <Button
       leftIcon={<BuySellIcon color='inherit' />}
       colorScheme='blue'
-      onClick={buysell.open}
+      width='full'
+      onClick={handleModalOpen}
       variant='ghost'
       mr={2}
     >
       <Text translation='buysell.headerLabel' />
     </Button>
-  ) : (
-    <IconButton
-      icon={<BuySellIcon color='inherit' />}
-      aria-label='buysell.headerLabel'
-      onClick={buysell.open}
-      rounded='full'
-      mr={2}
-    />
   )
 }

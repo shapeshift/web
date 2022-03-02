@@ -127,8 +127,8 @@ export const selectPortfolioFiatBalanceByFilter = createSelector(
   selectAssetIdParamFromFilterOptional,
   selectAccountIdParamFromFilterOptional,
   (portfolioAssetFiatBalances, portfolioAccountFiatbalances, assetId, accountId): string => {
-    if (assetId && !accountId) return portfolioAssetFiatBalances[assetId]
-    if (assetId && accountId) return portfolioAccountFiatbalances[accountId][assetId]
+    if (assetId && !accountId) return portfolioAssetFiatBalances?.[assetId] ?? '0'
+    if (assetId && accountId) return portfolioAccountFiatbalances?.[accountId]?.[assetId] ?? '0'
     if (!assetId && accountId) {
       const accountBalances = portfolioAccountFiatbalances[accountId]
       const totalAccountBalances = Object.values(accountBalances).reduce(
@@ -158,7 +158,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
       return fromBaseUnit(
-        bnOrZero(accountBalances[accountId][assetId]),
+        bnOrZero(accountBalances?.[accountId]?.[assetId]),
         assets[assetId].precision ?? 0
       )
     }
@@ -176,14 +176,13 @@ export const selectPortfolioCryptoBalancesByAccountId = createSelector(
 )
 
 export const selectPortfolioCryptoBalanceByFilter = createSelector(
-  selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
   selectAccountIdParamFromFilterOptional,
   selectAssetIdParamFromFilterOptional,
-  (assets, accountBalances, assetBalances, accountId, assetId): string => {
+  (accountBalances, assetBalances, accountId, assetId): string => {
     if (accountId && assetId) {
-      return accountBalances[accountId][assetId] ?? '0'
+      return accountBalances?.[accountId]?.[assetId] ?? '0'
     }
     return assetBalances[assetId] ?? '0'
   }
@@ -346,7 +345,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectAccountIdParam,
   selectAssets,
   (accountAssets, accountId, assets) => {
-    const assetsByAccountIds = accountAssets[accountId]
+    const assetsByAccountIds = accountAssets?.[accountId] ?? {}
     return Object.keys(assetsByAccountIds).filter(
       assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId]
     )

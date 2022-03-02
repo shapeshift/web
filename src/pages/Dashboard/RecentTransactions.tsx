@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { TransactionRow } from 'components/TransactionsCompact/TransactionRow'
+import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { ReduxState } from 'state/reducer'
 import { selectLastNTxIds } from 'state/slices/selectors'
 

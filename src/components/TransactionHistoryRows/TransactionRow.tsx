@@ -5,9 +5,9 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useRef } from 'react'
-import { TransactionReceive } from 'components/Transactions/TransactionReceive'
-import { TransactionSend } from 'components/Transactions/TransactionSend'
-import { TransactionTrade } from 'components/Transactions/TransactionTrade'
+import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
+import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
+import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
 import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
 dayjs.extend(relativeTime)

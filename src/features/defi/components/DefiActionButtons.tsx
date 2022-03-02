@@ -19,7 +19,6 @@ export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) =
   const handleClick = (action: DefiAction) => {
     if (match?.params) {
       const { earnType, provider } = match.params
-      console.info(location)
       history.replace({
         ...location,
         pathname: `/defi/${earnType}/${provider}/${action}/`

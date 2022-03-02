@@ -37,6 +37,9 @@
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
+    "copied": "Copied to clipboard.",
+    "copyFailed": "Failed to copy to clipboard",
+    "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset"
   },
   "updateToast": {
@@ -61,6 +64,25 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     }
+  },
+  "buysell": {
+    "routeTitle": "Buy or Sell",
+    "routeTitleForGem": "Gem on Ramp",
+    "title": "Buy or Sell Crypto",
+    "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
+    "gem": "GEM",
+    "gemMessage": "Buy or Sell Crypto with Gem",
+    "onJuno": "OnJuno",
+    "comingSoon": "Coming Soon ...",
+    "buy": "Buy",
+    "sell": "Sell",
+    "assetToBuy": "Asset to Buy",
+    "selectAnAssetToBuy": "Select an asset to buy",
+    "assetToSell": "Asset to Sell",
+    "selectAnAssetToSell": "Select an asset to sell",
+    "fundsTo": "Funds will be sent to",
+    "fundsFrom": "Funds will be sent from",
+    "headerLabel": "Buy/Sell Crypto"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

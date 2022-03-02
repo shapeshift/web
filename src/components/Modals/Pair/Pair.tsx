@@ -22,12 +22,12 @@ export const PairModal = (input: any) => {
   const { close, isOpen } = pair
 
   const HandleSubmit = async () => {
-    ipcRenderer.send('onApproveOrigin', input)
+    ipcRenderer.send('@bridge/approve-origin', input)
     close()
   }
 
   const HandleReject = async () => {
-    ipcRenderer.send('onRejectOrigin', input)
+    ipcRenderer.send('@bridge/reject-origin', input)
     close()
   }
 

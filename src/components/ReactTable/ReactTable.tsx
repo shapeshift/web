@@ -6,10 +6,9 @@ import { Column, useSortBy, useTable } from 'react-table'
 type StakingTableProps = {
   columns: Column[]
   data: EarnOpportunityType[]
-  onClick: (arg: any) => void
 }
 
-export const ReactTable = ({ columns, data, onClick }: StakingTableProps) => {
+export const ReactTable = ({ columns, data }: StakingTableProps) => {
   const hoverColor = useColorModeValue('black', 'white')
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
@@ -51,7 +50,7 @@ export const ReactTable = ({ columns, data, onClick }: StakingTableProps) => {
         {rows.map(row => {
           prepareRow(row)
           return (
-            <Tr {...row.getRowProps()} onClick={() => onClick(row.original)}>
+            <Tr {...row.getRowProps()} tabIndex={row.index}>
               {row.cells.map(cell => (
                 <Td {...cell.getCellProps()} display={cell.column.display}>
                   {cell.render('Cell')}

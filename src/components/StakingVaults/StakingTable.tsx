@@ -10,13 +10,14 @@ import { RawText } from 'components/Text'
 import { AssetCell } from './Cells'
 
 type StakingTableProps = {
-  data: any[]
-  onClick: (arg: any) => void
+  data: EarnOpportunityType[]
+  onClick: (arg: EarnOpportunityType) => void
+  showTeaser?: boolean
 }
 
 type RowProps = Row<EarnOpportunityType>
 
-export const StakingTable = ({ data, onClick }: StakingTableProps) => {
+export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
   const columns: Column[] = useMemo(
     () => [
       {
@@ -29,7 +30,13 @@ export const StakingTable = ({ data, onClick }: StakingTableProps) => {
         Header: 'Asset',
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => (
-          <AssetCell assetId={row.original.assetId} provider={row.original.provider} />
+          <AssetCell
+            assetId={row.original.assetId}
+            provider={row.original.provider}
+            showTeaser={showTeaser}
+            version={row.original.version}
+            onClick={() => onClick(row.original)}
+          />
         ),
         disableSortBy: true
       },
@@ -69,8 +76,9 @@ export const StakingTable = ({ data, onClick }: StakingTableProps) => {
           )
       }
     ],
-    []
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showTeaser]
   )
 
-  return <ReactTable onClick={onClick} data={data} columns={columns} />
+  return <ReactTable data={data} columns={columns} />
 }

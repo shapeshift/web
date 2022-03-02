@@ -415,10 +415,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     }
   }
 
-  useEffect(() => {
-    console.info(location)
-  }, [location])
-
   if (loading || !asset || !marketData)
     return (
       <Center minW='350px' minH='350px'>

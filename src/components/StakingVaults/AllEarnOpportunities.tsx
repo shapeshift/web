@@ -44,7 +44,7 @@ export const AllEarnOpportunities = () => {
     }
   }
 
-  if (!earnFeature && sortedVaults.length > 0) return null
+  if (!earnFeature || sortedVaults.length === 0) return null
 
   return (
     <Card variant='outline'>
@@ -57,7 +57,7 @@ export const AllEarnOpportunities = () => {
         </Box>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        <StakingTable data={allRows} onClick={handleClick} />
+        <StakingTable data={allRows} onClick={handleClick} showTeaser />
       </Card.Body>
     </Card>
   )

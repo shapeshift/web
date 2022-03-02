@@ -16,6 +16,7 @@ import { Route } from 'Routes/helpers'
 import { RawText, Text } from 'components/Text'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
+import { BuySell } from './NavBar/BuySell'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
@@ -38,6 +39,9 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
     >
       <Flex width='full' display={{ base: 'block', md: 'none' }}>
         <UserMenu />
+      </Flex>
+      <Flex width='full' display={{ base: 'block', md: 'none' }}>
+        <BuySell />
       </Flex>
       <Box mt={12} width='full' display={{ base: 'block', md: 'none' }}>
         <AutoCompleteSearch />

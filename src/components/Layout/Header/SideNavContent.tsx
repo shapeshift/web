@@ -4,14 +4,16 @@ import {
   Button,
   Flex,
   FlexProps,
+  HStack,
   Link,
   Stack,
   useColorMode,
   useColorModeValue
 } from '@chakra-ui/react'
 import { FaMoon } from 'react-icons/fa'
+import { Link as RouterLink } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { NavBar } from './NavBar/NavBar'
@@ -61,6 +63,14 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
         >
           <Text translation='common.submitFeedback' />
         </Button>
+        <HStack divider={<RawText mx={1}>•</RawText>} fontSize='sm' px={4} mt={4} color='gray.500'>
+          <Link as={RouterLink} justifyContent='flex-start' to='/legal/terms-of-service'>
+            <Text translation='common.terms' />
+          </Link>
+          <Link as={RouterLink} to='/legal/privacy-policy'>
+            <Text translation='common.privacy' />
+          </Link>
+        </HStack>
       </Stack>
     </Flex>
   )

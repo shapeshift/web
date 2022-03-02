@@ -35,6 +35,8 @@
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
     "viewAsset": "View Asset"
   },
   "updateToast": {

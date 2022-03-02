@@ -10,7 +10,13 @@ describe('The Dashboard', () => {
   before(() => {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
+    cy.mockAllWebSocketRequests()
     cy.login()
+  })
+
+  it('displays recent transactions', () => {
+    cy.getBySel('transaction-receive').should('have.length', 3)
+    cy.getBySel('transaction-send').should('have.length', 3)
   })
 
   it('nav bar works', () => {

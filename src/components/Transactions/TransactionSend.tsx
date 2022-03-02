@@ -26,6 +26,7 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
         as='button'
         w='full'
         py={4}
+        data-test='transaction-send'
         onClick={toggleOpen}
       >
         <Flex alignItems='center' width='full'>

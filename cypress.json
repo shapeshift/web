@@ -6,6 +6,7 @@
   "viewportHeight": 1920,
   "defaultCommandTimeout": 25000,
   "env": {
+    "wsUrl": "ws://localhost:8080/",
     "testPublicKey": "0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde",
     "testSeed": "attract alcohol strike orphan decline flush option goat path offer sense know",
     "testPassword": "tnj7!NNY@#ep",

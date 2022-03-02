@@ -27,6 +27,7 @@ export const TransactionTrade = ({ txDetails }: { txDetails: TxDetails }) => {
         as='button'
         w='full'
         py={4}
+        data-test='transaction-trade'
         onClick={toggleOpen}
       >
         <Flex alignItems='center' width='full'>

@@ -1,4 +1,4 @@
-import * as localforage from 'localforage'
+import localforage from 'localforage'
 
 export const getWalletDbInstance = (): LocalForage => {
   const walletIndexedDbName = Cypress.env('walletIndexedDbName')

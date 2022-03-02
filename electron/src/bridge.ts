@@ -8,10 +8,11 @@ import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewe
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
 import { windows } from './main'
-import { app } from 'electron'
+import { app, ipcMain } from 'electron'
 import wait from 'wait-promise'
 import { shared } from './shared'
 import { updateMenu } from './tray'
+import { uniqueId } from 'lodash'
 
 const appExpress = express()
 appExpress.use(cors())
@@ -129,6 +130,25 @@ export const start_bridge = async function (event) {
 
         appExpress.get('/pair', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+
+            const nonce = uniqueId()
+
+            windows.mainWindow.webContents.send('@modal/pair', { appname: 'Burger Gang', publicKey: '', nonce })
+            if (windows.mainWindow.focusable) windows.mainWindow.focus()
+
+            ipcMain.once(`@bridge/approve-origin-${nonce}`, (event, data) => {
+                if (data.nonce = nonce) {
+                    ipcMain.removeAllListeners(`@bridge/approve-origin-${nonce}`)
+                    res.send({ success: true })
+                }
+            })
+            ipcMain.once(`@bridge/reject-origin-${nonce}`, (event, data) => {
+                if (data.nonce = nonce) {
+                    ipcMain.removeAllListeners(`@bridge/reject-origin-${nonce}`)
+                    res.send({ success: false })
+                }
+            })
+            return res
         })
 
         /*

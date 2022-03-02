@@ -1,13 +1,10 @@
-import { Center } from '@chakra-ui/layout'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import InfiniteScroll from 'react-infinite-scroller'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { Text } from 'components/Text'
 import { TransactionRow } from 'components/Transactions/TransactionRow'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -42,14 +39,12 @@ export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
 
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
 
-  const { next, data, hasMore } = useInfiniteScroll(txIds)
-
   const txRows = useMemo(() => {
     if (!asset.caip19) return null
-    return data?.map((txId: string) => (
-      <TransactionRow key={txId} txId={txId} activeAsset={asset} />
-    ))
-  }, [asset, data])
+    return txIds
+      ?.map((txId: string) => <TransactionRow key={txId} txId={txId} activeAsset={asset} />)
+      .slice(0, 10)
+  }, [asset, txIds])
 
   if (!walletSupportsChain) return null
 
@@ -57,25 +52,18 @@ export const TxHistory: React.FC<TxHistoryProps> = ({ assetId, accountId }) => {
     <Card>
       <Card.Header>
         <Card.Heading>
-          {translate('assets.assetDetails.assetHistory.transactionHistory')}
+          {translate('assets.assetDetails.assetHistory.recentTransactions')}
         </Card.Heading>
       </Card.Header>
-      {data?.length ? (
+      {txIds?.length ? (
         <Card.Body px={2} pt={0}>
-          <InfiniteScroll
-            pageStart={0}
-            loadMore={next}
-            hasMore={hasMore}
-            loader={
-              <Center key={0}>
-                <CircularProgress isIndeterminate />
-              </Center>
-            }
-          >
-            {txRows}
-          </InfiniteScroll>
+          {txRows}
         </Card.Body>
-      ) : null}
+      ) : (
+        <Card.Body>
+          <Text color='gray.500' translation='assets.assetDetails.assetHistory.emptyTransactions' />
+        </Card.Body>
+      )}
     </Card>
   )
 }

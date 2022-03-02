@@ -274,6 +274,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           fieldName !== SendFormFields.FiatAmount
             ? SendFormFields.FiatAmount
             : SendFormFields.CryptoAmount
+        if (inputValue === '') {
+          // Don't show an error message when the input is empty
+          setValue(SendFormFields.AmountFieldError, '')
+          setLoading(false)
+          // Set value of the other input to an empty string as well
+          setValue(key, '')
+          return
+        }
         const amount =
           fieldName === SendFormFields.FiatAmount
             ? bnOrZero(bn(inputValue).div(price)).toString()
@@ -307,6 +315,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol }
           ])
+        } else {
+          // Remove existing error messages because the send amount is valid
+          setValue(SendFormFields.AmountFieldError, '')
         }
         setLoading(false)
       },

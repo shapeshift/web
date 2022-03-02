@@ -7,6 +7,7 @@ import {
   ModalHeader
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
+import { ipcRenderer } from 'electron'
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -18,7 +19,6 @@ import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wall
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
 import { FailureType, MessageType } from '../KeepKeyTypes'
-import { ipcRenderer } from 'electron'
 
 export interface KeepKeySetupProps
   extends RouteComponentProps<

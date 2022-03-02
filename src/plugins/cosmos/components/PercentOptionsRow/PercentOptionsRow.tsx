@@ -12,13 +12,19 @@ export const PercentOptionsRow = ({
   onPercentClick,
   ...styleProps
 }: PercentOptionsRowProps & ButtonGroupProps) => (
-  <ButtonGroup width='100%' bgColor='gray.850' py='5px' borderRadius='12px' {...styleProps}>
+  <ButtonGroup
+    variant='ghost'
+    colorScheme='blue'
+    width='100%'
+    bgColor='gray.850'
+    py='5px'
+    borderRadius='12px'
+    {...styleProps}
+  >
     {PERCENT_OPTIONS.map(option => (
       <Button
         isActive={option === percent}
         key={option}
-        variant='ghost'
-        colorScheme='blue'
         onClick={() => onPercentClick(option)}
         flexGrow={1}
         height='35px'

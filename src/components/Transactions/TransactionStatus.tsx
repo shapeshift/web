@@ -26,6 +26,7 @@ export const TransactionStatus = ({ txStatus }: { txStatus: chainAdapters.TxStat
             </Tag>
           </>
         )
+      case chainAdapters.TxStatus.Failed:
       default:
         return (
           <>

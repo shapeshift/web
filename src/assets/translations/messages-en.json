@@ -36,6 +36,8 @@
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
     "viewAsset": "View Asset"
   },
   "updateToast": {
@@ -195,7 +197,21 @@
     "from": "From",
     "trade": "Trade",
     "amount": "Amount",
-    "for": "for"
+    "for": "for",
+    "parser": {
+      "yearn": {
+        "deposit": "Deposit",
+        "approve": "Approve",
+        "withdraw": "Withdraw"
+      },
+      "uniV2": {
+        "addLiquidityETH": "Add liquidity",
+        "removeLiquidityETH": "Remove liquidity"
+      },
+      "thor": {
+        "transferOut": "Transfer out"
+      }
+    }
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

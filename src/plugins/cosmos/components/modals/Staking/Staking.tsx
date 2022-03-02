@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Stake } from './views/Stake'
+import { Unstake } from './views/Unstake'
 
 type StakingModalProps = {
   assetId: CAIP19
@@ -49,7 +50,17 @@ export const StakingModal = ({ assetId, action }: StakingModalProps) => {
                   }}
                 />
               ) : (
-                <div>TODO</div>
+                <Unstake
+                  assetId={assetId}
+                  apr='1.25'
+                  cryptoAmountStaked='4242'
+                  marketData={{
+                    price: '25',
+                    marketCap: '999999',
+                    volume: '1000',
+                    changePercent24Hr: 2
+                  }}
+                />
               )}
             </Route>
           </Switch>

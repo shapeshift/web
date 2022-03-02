@@ -100,7 +100,7 @@ export const start_bridge = async function (event) {
         appExpress.use('/spec', express.static(path.join(__dirname, '../api/dist')));
 
         //status
-        appExpress.all('/status', async function (req, res, next) {
+        appExpress.all('/status', async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json({
@@ -116,7 +116,7 @@ export const start_bridge = async function (event) {
             }
         })
 
-        appExpress.all('/device', async function (req, res, next) {
+        appExpress.all('/device', async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json(shared.KEEPKEY_FEATURES)
@@ -125,6 +125,10 @@ export const start_bridge = async function (event) {
             } catch (e) {
                 throw e
             }
+        })
+
+        appExpress.get('/pair', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
         })
 
         /*
@@ -154,7 +158,7 @@ export const start_bridge = async function (event) {
         // appExpress.use(authChecker);
 
         if (device) {
-            appExpress.all('/exchange/device', async function (req, res, next) {
+            appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
                     if (req.method === 'GET') {
                         let resp = await transport.readChunk()
@@ -182,7 +186,7 @@ export const start_bridge = async function (event) {
                 }
             })
         } else {
-            appExpress.all('/exchange/device', async function (req, res, next) {
+            appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
                     res.status(200).json({
                         success: false,
@@ -197,7 +201,7 @@ export const start_bridge = async function (event) {
 
 
         //userInfo
-        appExpress.all('/user', async function (req, res, next) {
+        appExpress.all('/user', async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json(shared.USER)
@@ -209,7 +213,7 @@ export const start_bridge = async function (event) {
         })
 
         //sign
-        appExpress.all('/sign', async function (req, res, next) {
+        appExpress.all('/sign', async (req, res, next) => {
 
             try {
                 console.log("checkpoint1: ")

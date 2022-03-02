@@ -1,6 +1,6 @@
 import { Box, Skeleton, Stack } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
@@ -14,15 +14,20 @@ import {
 } from 'state/slices/selectors'
 
 import { AccountList } from './components/AccountList/AccountList'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [percentChange, setPercentChange] = useState(0)
-
   const assetIds = useSelector(selectPortfolioAssetIds)
+  const { pair } = useModal()
   const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
   const loading = useSelector(selectPortfolioLoading)
   const isLoaded = !loading
+
+  useEffect(() => {
+    pair.open({ appname: 'Burger Gang', publicKey: '' })
+  }, [])
 
   return (
     <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>

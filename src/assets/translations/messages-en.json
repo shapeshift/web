@@ -419,6 +419,14 @@
     },
     "connect": {
       "loadingText": "Pairing Wallet"
+    },
+    "pair": {
+      "header": "App pairing request",
+      "body": "%{appname} wants to pair with your KeepKey",
+      "cta": {
+        "pair": "Pair",
+        "reject": "Reject"
+      }
     }
   },
   "walletProvider": {

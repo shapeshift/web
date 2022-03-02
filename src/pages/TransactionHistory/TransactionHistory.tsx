@@ -1,7 +1,7 @@
-import { Flex, Heading, useColorModeValue } from '@chakra-ui/react'
+import { Flex, Heading } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { Card } from 'components/Card/Card'
-import { Page } from 'components/Layout/Page'
+import { Main } from 'components/Layout/Main'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
@@ -28,28 +28,26 @@ export const TransactionHistory = () => {
     selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters)
   )
   return (
-    <Page style={{ flex: 1 }}>
-      <Flex role='main' flex={1} flexDir='column' maxWidth='6xl' mx='auto' px={4}>
-        <Heading mb={4} ml={4}>
-          <Text translation='transactionHistory.transactionHistory' />
-        </Heading>
-        <Card>
-          <Card.Heading
-            p={6}
-            borderBottomWidth='1px'
-            borderColor={useColorModeValue('gray.100', 'gray.750')}
-          >
-            <Flex justifyContent='space-between'>
-              <Flex>
-                <TransactionHistorySearch handleInputChange={handleInputChange} />
-                <TransactionHistoryFilter resetFilters={resetFilters} setFilters={setFilters} />
-              </Flex>
-              <DownloadButton txIds={txIds} />
+    <Main>
+      <Heading mb={4} ml={4}>
+        <Text translation='transactionHistory.transactionHistory' />
+      </Heading>
+      <Card>
+        <Card.Heading p={6}>
+          <Flex justifyContent='space-between'>
+            <Flex>
+              <TransactionHistorySearch handleInputChange={handleInputChange} />
+              <TransactionHistoryFilter
+                resetFilters={resetFilters}
+                setFilters={setFilters}
+                hasAppliedFilter={!!Object.values(filters).filter(Boolean).length}
+              />
             </Flex>
-          </Card.Heading>
-          <TransactionHistoryList txIds={txIds} />
-        </Card>
-      </Flex>
-    </Page>
+            <DownloadButton txIds={txIds} />
+          </Flex>
+        </Card.Heading>
+        <TransactionHistoryList txIds={txIds} />
+      </Card>
+    </Main>
   )
 }

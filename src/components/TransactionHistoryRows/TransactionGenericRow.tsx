@@ -56,124 +56,131 @@ export const TransactionGenericRow = ({
   explorerTxLink
 }: TransactionGenericRowType) => {
   return (
-    <Flex width='full' justifyContent='space-between' textAlign='left'>
-      <Flex alignItems='flex-start' flex={1} flexDir='column'>
-        {showDateAndGuide && <TransactionDate blockTime={blockTime} />}
-        <Flex alignItems='center' width='full'>
-          <IconCircle mr={3}>
-            <TransactionIcon type={type} />
-          </IconCircle>
-          <Box flex={1}>
-            <Text
-              fontWeight='bold'
-              overflow='hidden'
-              flex={1}
-              textOverflow='ellipsis'
-              maxWidth='60%'
-              lineHeight='1'
-              whiteSpace='nowrap'
-              mb={1}
-              translation={[`transactionRow.${type.toLowerCase()}`, { symbol: '' }]}
-            />
-            <TransactionTime blockTime={blockTime} />
-          </Box>
+    <>
+      <Flex width='full' justifyContent='space-between' textAlign='left'>
+        <Flex alignItems='flex-start' flex={1} flexDir='column'>
+          {showDateAndGuide && <TransactionDate blockTime={blockTime} />}
+          <Flex alignItems='center' width='full'>
+            <IconCircle mr={3}>
+              <TransactionIcon type={type} />
+            </IconCircle>
+            <Box flex={1}>
+              <Text
+                fontWeight='bold'
+                overflow='hidden'
+                flex={1}
+                textOverflow='ellipsis'
+                maxWidth='60%'
+                lineHeight='1'
+                whiteSpace='nowrap'
+                mb={1}
+                translation={[`transactionRow.${type.toLowerCase()}`, { symbol: '' }]}
+              />
+              <TransactionTime blockTime={blockTime} />
+            </Box>
+          </Flex>
         </Flex>
-      </Flex>
-      <Flex alignItems='flex-start' flex={2} flexDir='column'>
-        {showDateAndGuide && (
-          <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionHistory.assets'} />
-        )}
-        <Flex alignItems='center' width='full'>
-          {assets.map((asset, index) => (
-            <>
-              <Flex alignItems='center'>
-                <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
-                <Box flex={1}>
-                  <Amount.Crypto
-                    color='inherit'
-                    fontWeight='bold'
-                    value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
-                    symbol={asset.symbol}
-                    maximumFractionDigits={6}
-                  />
-                  {asset.currentPrice && (
-                    <Amount.Fiat
-                      color='gray.500'
-                      fontSize='sm'
-                      lineHeight='1'
-                      value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
-                        .times(asset.currentPrice)
-                        .toString()}
+        <Flex alignItems='flex-start' flex={2} flexDir='column'>
+          {showDateAndGuide && (
+            <Text
+              mb={6}
+              lineHeight={1}
+              color='gray.600'
+              translation={'transactionHistory.assets'}
+            />
+          )}
+          <Flex alignItems='center' width='full'>
+            {assets.map((asset, index) => (
+              <>
+                <Flex alignItems='center'>
+                  <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
+                  <Box flex={1}>
+                    <Amount.Crypto
+                      color='inherit'
+                      fontWeight='bold'
+                      value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
+                      symbol={asset.symbol}
+                      maximumFractionDigits={6}
                     />
-                  )}
-                </Box>
-              </Flex>
-              {index !== assets.length - 1 && (
-                <Flex flex={1} justifyContent='center' alignItems='center'>
-                  <Box color='gray.600'>
-                    <IoIosArrowRoundForward size='2em' />
+                    {asset.currentPrice && (
+                      <Amount.Fiat
+                        color='gray.500'
+                        fontSize='sm'
+                        lineHeight='1'
+                        value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
+                          .times(asset.currentPrice)
+                          .toString()}
+                      />
+                    )}
                   </Box>
                 </Flex>
-              )}
-            </>
-          ))}
+                {index !== assets.length - 1 && (
+                  <Flex flex={1} justifyContent='center' alignItems='center'>
+                    <Box color='gray.600'>
+                      <IoIosArrowRoundForward size='2em' />
+                    </Box>
+                  </Flex>
+                )}
+              </>
+            ))}
+          </Flex>
         </Flex>
-      </Flex>
-      <Flex flex={0.5} />
-      <Flex alignItems='flex-start' flex={1} flexDir='column'>
-        {showDateAndGuide && (
-          <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionRow.fee'} />
-        )}
-        <Flex alignItems='center' width='full'>
-          <Box flex={1}>
-            <Amount.Crypto
-              color='inherit'
-              fontWeight='bold'
-              value={fee.amount}
-              symbol={fee.symbol}
-              maximumFractionDigits={6}
-            />
-            {fee.currentPrice && (
-              <Amount.Fiat
-                color='gray.500'
-                fontSize='sm'
-                lineHeight='1'
-                value={bnOrZero(fee.amount).times(fee.currentPrice).toString()}
+        <Flex flex={0.5} />
+        <Flex alignItems='flex-start' flex={1} flexDir='column'>
+          {showDateAndGuide && (
+            <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionRow.fee'} />
+          )}
+          <Flex alignItems='center' width='full'>
+            <Box flex={1}>
+              <Amount.Crypto
+                color='inherit'
+                fontWeight='bold'
+                value={fee.amount}
+                symbol={fee.symbol}
+                maximumFractionDigits={6}
               />
-            )}
-          </Box>
+              {fee.currentPrice && (
+                <Amount.Fiat
+                  color='gray.500'
+                  fontSize='sm'
+                  lineHeight='1'
+                  value={bnOrZero(fee.amount).times(fee.currentPrice).toString()}
+                />
+              )}
+            </Box>
+          </Flex>
         </Flex>
-      </Flex>
-      <Flex flex={0} flexDir='column'>
-        {showDateAndGuide && (
-          <Text
-            mb={6}
-            lineHeight={1}
-            color='gray.600'
-            translation={'transactionHistory.viewOnChain'}
-          />
-        )}
-        <Flex justifyContent='flex-start' alignItems='center'>
-          <Link
-            isExternal
-            color={useColorModeValue('blue.400', 'blue.200')}
-            _hover={{ textDecoration: 'none' }}
-            href={`${explorerTxLink}${txid}`}
-            onClick={e => {
-              // don't trigger parent onClick
-              e.stopPropagation()
-            }}
-          >
-            <Button
-              bg={useColorModeValue('gray.200', 'gray.900')}
-              fontWeight='normal'
-              _hover={{ bg: useColorModeValue('gray.300', 'gray.800') }}
+        <Flex flex={0} flexDir='column'>
+          {showDateAndGuide && (
+            <Text
+              mb={6}
+              lineHeight={1}
+              color='gray.600'
+              translation={'transactionHistory.viewOnChain'}
+            />
+          )}
+          <Flex justifyContent='flex-start' alignItems='center'>
+            <Link
+              isExternal
+              color={useColorModeValue('blue.400', 'blue.200')}
+              _hover={{ textDecoration: 'none' }}
+              href={`${explorerTxLink}${txid}`}
+              onClick={e => {
+                // don't trigger parent onClick
+                e.stopPropagation()
+              }}
             >
-              <MiddleEllipsis address={txid} />
-            </Button>
-          </Link>
+              <Button
+                bg={useColorModeValue('gray.200', 'gray.900')}
+                fontWeight='normal'
+                _hover={{ bg: useColorModeValue('gray.300', 'gray.800') }}
+              >
+                <MiddleEllipsis address={txid} />
+              </Button>
+            </Link>
+          </Flex>
         </Flex>
       </Flex>
-    </Flex>
+    </>
   )
 }

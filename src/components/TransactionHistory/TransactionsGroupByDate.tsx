@@ -1,5 +1,6 @@
+import { Box, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { TransactionRow as TransactionCompactRow } from 'components/Transactions/TransactionRow'
 import { selectTxDateByIds } from 'state/slices/selectors'
@@ -21,7 +22,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
   useCompactMode = false
 }) => {
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
-  console.info(transactions)
+  const borderTopColor = useColorModeValue('gray.100', 'gray.750')
   const txRows = useMemo(() => {
     const groups: TransactionGroup[] = []
     for (let index = 0; index < transactions.length; index++) {
@@ -37,13 +38,14 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
       }
     }
     return groups.map((group: TransactionGroup) => (
-      <>
+      <Fragment key={group.date}>
+        <Box borderTopWidth={1} borderColor={borderTopColor} mx={-2} />
         {group.txIds?.map((txId: TxId, index: number) => (
           <TransactionRow key={txId} txId={txId} showDateAndGuide={index === 0} />
         ))}
-      </>
+      </Fragment>
     ))
-  }, [transactions])
+  }, [borderTopColor, transactions])
 
   const txCompactRows = useMemo(() => {
     return (

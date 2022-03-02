@@ -2,6 +2,7 @@ import { Center } from '@chakra-ui/layout'
 import InfiniteScroll from 'react-infinite-scroller'
 import { Card } from 'components/Card/Card'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -32,5 +33,13 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
         <TransactionsGroupByDate txIds={txIds} useCompactMode={useCompactMode} />
       </InfiniteScroll>
     </Card.Body>
-  ) : null
+  ) : (
+    <Card.Body>
+      <Text
+        textAlign='center'
+        color='gray.500'
+        translation='assets.assetDetails.assetHistory.emptyTransactions'
+      />
+    </Card.Body>
+  )
 }

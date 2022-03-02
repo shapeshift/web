@@ -11,10 +11,10 @@ export const StakingButtons = (styleProps?: FlexProps) => (
     {...styleProps}
   >
     <Button width={{ base: '100%', sm: '180px' }}>
-      <Text translation={'defi.stake'} fontWeight='bold' color='white' />
+      <Text translation={'defi.stake'} fontWeight='bold' />
     </Button>
     <Button width={{ base: '100%', sm: '180px' }}>
-      <Text translation={'defi.unstake'} fontWeight='bold' color='white' />
+      <Text translation={'defi.unstake'} fontWeight='bold' />
     </Button>
   </Flex>
 )

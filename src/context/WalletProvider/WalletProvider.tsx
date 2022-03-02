@@ -224,7 +224,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   //onStart()
   useEffect(() => {
     if (!state.wallet) {
-      ipcRenderer.send('onStartApp', {
+      ipcRenderer.send('@app/start', {
         username: keepkey.username,
         queryKey: keepkey.queryKey,
         spec: process.env.REACT_APP_URL_PIONEER_SPEC

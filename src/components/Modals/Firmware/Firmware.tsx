@@ -27,7 +27,7 @@ export const FirmwareModal = () => {
 
   const HandleUpdateFirmware = async () => {
     setLoading(true)
-    ipcRenderer.send('onUpdateFirmware', {})
+    ipcRenderer.send('@keepkey/update-firmware', {})
   }
 
   return (
@@ -35,7 +35,7 @@ export const FirmwareModal = () => {
       isOpen={isOpen}
       onClose={() => {
         ipcRenderer.send('unlockWindow', {})
-        ipcRenderer.send('onCloseModal', {})
+        ipcRenderer.send('@modal/close', {})
         close()
       }}
       isCentered

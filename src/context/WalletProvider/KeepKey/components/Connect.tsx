@@ -87,7 +87,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions
         let features = await wallet.getFeatures()
-        ipcRenderer.send('onKeepKeyInfo', features)
+        ipcRenderer.send('@keepkey/info', features)
         if (!features.initialized) {
           initialize.open({})
         } else {

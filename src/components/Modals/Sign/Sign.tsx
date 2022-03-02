@@ -42,9 +42,9 @@ export const SignModal = (input: any) => {
     setIsApproved(true)
     //show sign
     let signedTx = await keepkey.signTx(input.invocation.unsignedTx)
-    ipcRenderer.send('onSignedTx', signedTx)
+    ipcRenderer.send('@account/tx-signed', signedTx)
     //onCloseModal
-    ipcRenderer.send('onCloseModal', {})
+    ipcRenderer.send('@modal/close', {})
     close()
   }
 
@@ -52,7 +52,7 @@ export const SignModal = (input: any) => {
     //show sign
     ipcRenderer.send('unlockWindow', {})
     //onCloseModal
-    ipcRenderer.send('onCloseModal', {})
+    ipcRenderer.send('@modal/close', {})
     close()
   }
 
@@ -64,7 +64,7 @@ export const SignModal = (input: any) => {
       isOpen={isOpen}
       onClose={() => {
         ipcRenderer.send('unlockWindow', {})
-        ipcRenderer.send('onCloseModal', {})
+        ipcRenderer.send('@modal/close', {})
         close()
       }}
       isCentered

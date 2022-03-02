@@ -248,7 +248,7 @@ autoUpdater.on("error", () => {
 });
 
 
-ipcMain.on('onSignedTx', async (event, data) => {
+ipcMain.on('@account/tx-signed', async (event, data) => {
     const tag = TAG + ' | onSignedTx | '
     try {
         log.info(tag, 'event: onSignedTx: ', data)
@@ -260,7 +260,7 @@ ipcMain.on('onSignedTx', async (event, data) => {
     }
 })
 
-ipcMain.on('onApproveOrigin', async (event, data) => {
+ipcMain.on('@bridge/approve-origin', async (event, data) => {
     const tag = TAG + ' | onApproveOrigin | '
     try {
         log.info(tag, "data: ", data)
@@ -285,7 +285,7 @@ ipcMain.on('onApproveOrigin', async (event, data) => {
     }
 })
 
-ipcMain.on('onRejectOrigin', async (event, data) => {
+ipcMain.on('@bridge/reject-origin', async (event, data) => {
     const tag = TAG + ' | onRejectOrigin | '
     try {
         log.info(tag, "data: ", data)
@@ -297,7 +297,7 @@ ipcMain.on('onRejectOrigin', async (event, data) => {
     }
 })
 
-ipcMain.on('onCloseModal', async (event, data) => {
+ipcMain.on('@modal/close', async (event, data) => {
     if (!windows.mainWindow) return
     const tag = TAG + ' | onCloseModal | '
     try {
@@ -308,7 +308,7 @@ ipcMain.on('onCloseModal', async (event, data) => {
     }
 })
 
-ipcMain.on('onAccountInfo', async (event, data) => {
+ipcMain.on('@account/info', async (event, data) => {
     const tag = TAG + ' | onAccountInfo | '
     try {
         console.log("data: ", data)
@@ -332,7 +332,7 @@ ipcMain.on('onAccountInfo', async (event, data) => {
     }
 })
 
-ipcMain.on('onBalanceInfo', async (event, data) => {
+ipcMain.on('@account/balance', async (event, data) => {
     const tag = TAG + ' | onBalanceInfo | '
     try {
         console.log("data: ", data)
@@ -389,7 +389,7 @@ const createSplashWindow = () => {
 }
 
 
-ipcMain.on('onStopBridge', async event => {
+ipcMain.on('@bridge/stop', async event => {
     const tag = TAG + ' | onStartBridge | '
     try {
         stop_bridge(event)
@@ -398,7 +398,7 @@ ipcMain.on('onStopBridge', async event => {
     }
 })
 
-ipcMain.on('onStartBridge', async event => {
+ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
     try {
         if (!bridgeRunning) start_bridge(event)
@@ -407,7 +407,7 @@ ipcMain.on('onStartBridge', async event => {
     }
 })
 
-ipcMain.on('onStartApp', async (event, data) => {
+ipcMain.on('@app/start', async (event, data) => {
     const tag = TAG + ' | onStartApp | '
     try {
         log.info(tag, 'event: onStartApp: ', data)

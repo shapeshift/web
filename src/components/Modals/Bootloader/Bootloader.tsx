@@ -27,7 +27,7 @@ export const BootloaderModal = () => {
 
   const HandleUpdateBootloader = async () => {
     setLoading(true)
-    ipcRenderer.send('onUpdateBootloader', {})
+    ipcRenderer.send('@keepkey/update-bootloader', {})
   }
 
   return (
@@ -35,7 +35,7 @@ export const BootloaderModal = () => {
       isOpen={isOpen}
       onClose={() => {
         ipcRenderer.send('unlockWindow', {})
-        ipcRenderer.send('onCloseModal', {})
+        ipcRenderer.send('@modal/close', {})
         close()
       }}
       isCentered

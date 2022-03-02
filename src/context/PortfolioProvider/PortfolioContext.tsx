@@ -29,7 +29,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // and covers most assets users will have
   useFindAllQuery()
   const accountSpecifiers = useAccountSpecifiers()
-  ipcRenderer.send('onAccountInfo', accountSpecifiers)
+  ipcRenderer.send('@account/info', accountSpecifiers)
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination

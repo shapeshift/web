@@ -32,7 +32,7 @@ import { breakpoints } from 'theme/theme'
 
 type AssetAccountRowProps = {
   accountId: AccountSpecifier
-  assetId: CAIP19
+  assetId?: CAIP19
   showAllocation?: boolean
   isCompact?: boolean
 } & SimpleGridProps
@@ -47,17 +47,21 @@ export const AssetAccountRow = ({
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const rowAssetId = assetId ? assetId : feeAssetId
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, rowAssetId))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
-  const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
+  const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
   const fiatBalance = useAppSelector(state => selectPortfolioFiatBalanceByFilter(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
     selectPortfolioCryptoHumanBalanceByFilter(state, filter)
   )
   const allocation = useAppSelector(state =>
-    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId })
+    selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId })
   )
-  const path = generatePath('/accounts/:accountId/:assetId', filter)
+  const path = generatePath(
+    assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
+    filter
+  )
   const label = accountIdToLabel(accountId)
 
   if (!asset) return null

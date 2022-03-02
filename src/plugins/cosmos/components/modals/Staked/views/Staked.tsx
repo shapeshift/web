@@ -1,5 +1,5 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { Button, ModalCloseButton } from '@chakra-ui/react'
+import { Button, ModalCloseButton, useColorModeValue } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
@@ -22,6 +22,8 @@ export const Staked = ({ assetId }: StakedProps) => {
     name: 'Osmosis',
     symbol: 'OSMO'
   }))(assetId) as Asset
+  const claimButtonColorScheme = useColorModeValue('green', 'darkTeal')
+  const claimTextColor = useColorModeValue('white', '#00cd98')
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Box pt='38px' pb='70px' px='34px'>
@@ -62,8 +64,8 @@ export const Staked = ({ assetId }: StakedProps) => {
             fiatRate={bnOrZero('8.47')}
             cryptoRewardsAmount={bnOrZero('23.24')}
           />
-          <Button width='100%' bg='#144241' _hover={{ bg: '#3F6D6C' }}>
-            <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />
+          <Button width='100%' colorScheme={claimButtonColorScheme}>
+            <Text translation={'defi.claim'} color={claimTextColor} fontWeight='bold' />
           </Button>
         </Flex>
       </Box>

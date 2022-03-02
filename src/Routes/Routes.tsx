@@ -28,6 +28,18 @@ import { PrivateRoute } from './PrivateRoute'
 
 export const routes: Array<NestedRoute> = [
   {
+    path: '/legal/privacy-policy',
+    hide: true,
+    label: 'Privacy Policy',
+    main: PrivacyPolicy
+  },
+  {
+    path: '/legal/terms-of-service',
+    label: 'Terms of Service',
+    main: TermsOfService,
+    hide: true
+  },
+  {
     path: '/dashboard',
     label: 'navBar.dashboard',
     icon: <DashboardIcon />,
@@ -164,24 +176,6 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
       })}
       <Route path='/connect-wallet'>
         <ConnectWallet />
-      </Route>
-      <Route path={'/legal/terms-of-service'}>
-        <Layout
-          route={{
-            path: '/legal/terms-of-service',
-            label: 'Terms of Service',
-            main: TermsOfService
-          }}
-        />
-      </Route>
-      <Route path={'/legal/privacy-policy'}>
-        <Layout
-          route={{
-            path: '/legal/privacy-policy',
-            label: 'Privacy Policy',
-            main: PrivacyPolicy
-          }}
-        />
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

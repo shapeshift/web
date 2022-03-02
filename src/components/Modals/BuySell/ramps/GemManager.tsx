@@ -11,6 +11,7 @@ import {
   Text as RawText,
   useToast
 } from '@chakra-ui/react'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import queryString from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
@@ -18,8 +19,10 @@ import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { ensReverseLookup } from 'lib/ens'
 
 import { BuySellAction, CurrencyAsset } from '../BuySell'
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
@@ -41,16 +44,19 @@ export const GemManager = () => {
   const [asset, setAsset] = useState<CurrencyAsset | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
   const [verified, setVerified] = useState<boolean | null>(null)
+  const [action, setAction] = useState<BuySellAction>(BuySellAction.Buy)
+  const [address, setAddress] = useState<string>('')
+  const [ensAddress, setEnsAddress] = useState<string>('')
+  const { state } = useWallet()
+  const wallet = state?.wallet
+  const chain = ChainTypes.Ethereum
+  const chainAdapterManager = useChainAdapters()
+  const chainAdapter = chainAdapterManager.byChain(chain)
 
   const onSelectAsset = (data: CurrencyAsset) => {
     setIsSelectingAsset(false)
     setAsset(data)
   }
-  const [action, setAction] = useState<BuySellAction>(BuySellAction.Buy)
-  const { state } = useWallet()
-  const address = state?.walletInfo?.meta?.address
-  const wallet = state?.wallet
-
   useEffect(() => setAsset(null), [action])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
@@ -95,8 +101,26 @@ export const GemManager = () => {
     }
   }
 
+  useEffect(() => {
+    ;(async () => {
+      if (!(wallet && chainAdapter)) return
+      const selectedAccountAddress = await chainAdapter.getAddress({
+        wallet
+      })
+      setAddress(selectedAccountAddress)
+      const reverseSelectedAccountAddressLookup = await ensReverseLookup(selectedAccountAddress)
+      !reverseSelectedAccountAddressLookup.error &&
+        setEnsAddress(reverseSelectedAccountAddressLookup.name)
+    })()
+  }, [setAddress, setEnsAddress, wallet, chainAdapter, chain])
+
   const handleVerify = async () => {
-    setVerified(true)
+    if (!(wallet && chainAdapter && address)) return
+    const deviceAddress = await chainAdapter.getAddress({
+      wallet,
+      showOnDevice: true
+    })
+    setVerified(Boolean(deviceAddress) && deviceAddress !== address)
   }
 
   return (
@@ -148,7 +172,11 @@ export const GemManager = () => {
               <Flex flexDirection='column'>
                 <Text translation={fundsTranslation} color='gray.500'></Text>
                 <InputGroup size='md'>
-                  <Input pr='4.5rem' value={middleEllipsis(address as string, 11)} readOnly />
+                  <Input
+                    pr='4.5rem'
+                    value={middleEllipsis((ensAddress || address) as string, 11)}
+                    readOnly
+                  />
                   <InputRightElement width='4.5rem'>
                     <IconButton
                       icon={<CopyIcon />}

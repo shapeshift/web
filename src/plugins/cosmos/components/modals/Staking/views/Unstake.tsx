@@ -131,7 +131,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
     symbol: 'OSMO'
   }))(assetId) as Asset
   return (
-    <SlideTransition exitBeforeEnter initial={false}>
+    <SlideTransition>
       <Box
         as='form'
         pt='22px'

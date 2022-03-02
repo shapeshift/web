@@ -11,14 +11,14 @@ describe('getStandardTx', () => {
 describe('getBuyTx', () => {
   it('returns the expected values', () => {
     expect(getBuyTx(EthSend)).toEqual(undefined)
-    expect(getBuyTx(EthReceive)).toEqual(undefined)
+    expect(getBuyTx(EthReceive)).toEqual(EthReceive.transfers[0])
     expect(getBuyTx(TradeTx)).toEqual(TradeTx.transfers[0])
   })
 })
 
 describe('getSellTx', () => {
   it('returns the expected values', () => {
-    expect(getSellTx(EthSend)).toEqual(undefined)
+    expect(getSellTx(EthSend)).toEqual(EthSend.transfers[0])
     expect(getSellTx(EthReceive)).toEqual(undefined)
     expect(getSellTx(TradeTx)).toEqual(TradeTx.transfers[1])
   })

@@ -5,11 +5,11 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useRef } from 'react'
+import { TransactionContract } from 'components/Transactions/TransactionContract'
+import { TransactionReceive } from 'components/Transactions/TransactionReceive'
+import { TransactionSend } from 'components/Transactions/TransactionSend'
+import { TransactionTrade } from 'components/Transactions/TransactionTrade'
 import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
-
-import { TransactionReceive } from './TransactionReceive'
-import { TransactionSend } from './TransactionSend'
-import { TransactionTrade } from './TransactionTrade'
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
@@ -23,6 +23,8 @@ const renderTransactionType = (txDetails: TxDetails): JSX.Element | null => {
         return <TransactionReceive txDetails={txDetails} />
       case TradeType.Trade:
         return <TransactionTrade txDetails={txDetails} />
+      case TxType.Contract:
+        return <TransactionContract txDetails={txDetails} />
       default:
         // Unhandled transaction type - don't render anything
         return null

@@ -3,7 +3,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
-import { Page } from 'components/Layout/Page'
+import { Main } from 'components/Layout/Main'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
@@ -14,7 +14,7 @@ type AssetDetailsProps = {
 
 export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   return (
-    <Page style={{ width: '100%' }}>
+    <Main>
       <Flex flexGrow={1} zIndex={2} flexDir={{ base: 'column', lg: 'row' }}>
         <Stack
           spacing='1.5rem'
@@ -29,6 +29,6 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
       </Flex>
-    </Page>
+    </Main>
   )
 }

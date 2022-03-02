@@ -20,7 +20,8 @@ import { SlideTransition } from 'components/SlideTransition'
 
 export type PairingProps = {
   appname: string,
-  publicKey: string
+  publicKey: string,
+  nonce: string
 }
 
 export const PairModal = (input: PairingProps) => {
@@ -30,12 +31,12 @@ export const PairModal = (input: PairingProps) => {
   const { close, isOpen } = pair
 
   const HandleSubmit = async () => {
-    ipcRenderer.send('@bridge/approve-origin', input)
+    ipcRenderer.send(`@bridge/approve-origin-${input.nonce}`, input)
     close()
   }
 
   const HandleReject = async () => {
-    ipcRenderer.send('@bridge/reject-origin', input)
+    ipcRenderer.send(`@bridge/reject-origin-${input.nonce}`, input)
     close()
   }
 

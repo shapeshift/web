@@ -114,5 +114,5 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
     }
-  }, [dispatch, keepkeyPassphrase, keepkeyPin, keyring, state.walletInfo])
+  }, [dispatch, keepkeyPassphrase, keepkeyPin, keyring, state.walletInfo, initialize])
 }

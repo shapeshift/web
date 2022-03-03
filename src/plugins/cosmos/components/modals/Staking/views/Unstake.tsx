@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, MarketData } from '@shapeshiftoss/types'
+import { AnimatePresence } from 'framer-motion'
 import get from 'lodash/get'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
@@ -18,7 +19,6 @@ import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -131,7 +131,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
     symbol: 'OSMO'
   }))(assetId) as Asset
   return (
-    <SlideTransition>
+    <AnimatePresence exitBeforeEnter initial={false}>
       <Box
         as='form'
         pt='22px'
@@ -160,7 +160,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
           <CText color='gray.500' my='25px'>
             {translate('staking.itWillTake')}
             <span> </span>
-            <Box as='span' fontWeight='semibold' color='white'>
+            <Box as='span' fontWeight='semibold'>
               {`${UNBONDING_DURATION} ${translate('common.days')}`}
             </Box>
             <span> </span>
@@ -232,6 +232,6 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
           </Box>
         </Flex>
       </Box>
-    </SlideTransition>
+    </AnimatePresence>
   )
 }

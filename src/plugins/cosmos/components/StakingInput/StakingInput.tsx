@@ -1,5 +1,5 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Input, InputLeftElement, Tag } from '@chakra-ui/react'
+import { Input, InputLeftElement, Tag, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/views/Stake'
 import { Control, Controller } from 'react-hook-form'
@@ -62,10 +62,19 @@ export const StakingInput = ({
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
+  const wrapperBgColor = useColorModeValue('gray.50', 'gray.850')
+  const tagBgColor = useColorModeValue('gray.200', 'gray.700')
   return (
-    <Flex bgColor='gray.850' borderRadius='12px' alignItems='center' {...styleProps}>
+    <Flex bgColor={wrapperBgColor} borderRadius='12px' alignItems='center' {...styleProps}>
       <InputLeftElement pos='relative' ml={1} width='auto'>
-        <Tag as='button' onClick={onInputToggle} color='gray.500' bgColor='gray.700' mr='12px'>
+        <Tag
+          as='button'
+          type='button'
+          onClick={onInputToggle}
+          color='gray.500'
+          bgColor={tagBgColor}
+          mr='12px'
+        >
           {isCryptoField ? asset.symbol : 'USD'}
         </Tag>
       </InputLeftElement>
@@ -106,7 +115,7 @@ export const StakingInput = ({
                 decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
                 thousandSeparator={localeParts.group}
-                value={bnOrZero(value).toFixed(2)}
+                value={value.length ? bnOrZero(value).toPrecision() : undefined}
                 onChange={e => {
                   onChange(amountRef)
                   onInputChange(amountRef as string)

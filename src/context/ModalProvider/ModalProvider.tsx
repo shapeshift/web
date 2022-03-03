@@ -3,6 +3,7 @@ import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakedModal } from 'plugins/cosmos/components/modals/Staked/Staked'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingConfirmModal } from 'plugins/cosmos/components/modals/StakingConfirm/StakingConfirm'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
@@ -21,7 +22,8 @@ const MODALS = {
   send: SendModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaked: StakedModal,
-  cosmosStaking: StakingModal
+  cosmosStaking: StakingModal,
+  cosmosStakingConfirm: StakingConfirmModal
 }
 
 // state

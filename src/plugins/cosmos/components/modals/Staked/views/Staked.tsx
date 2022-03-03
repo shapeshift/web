@@ -38,7 +38,7 @@ export const Staked = ({ assetId }: StakedProps) => {
             assetSymbol={asset.symbol}
             fiatRate={bnOrZero('8.47')}
             cryptoStakedAmount={bnOrZero('708.00')}
-            apr={bnOrZero('1.25')}
+            apr={bnOrZero('0.12')}
           />
           <StakingButtons assetId={assetId} />
           <Box width='100%' mt='20px'>

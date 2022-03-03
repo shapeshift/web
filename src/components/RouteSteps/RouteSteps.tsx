@@ -1,5 +1,6 @@
-import { Box, useColorModeValue } from '@chakra-ui/react'
+import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
 import { useLocation } from 'react-router'
+import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 
 export type RouteConfig = {
@@ -14,9 +15,9 @@ export enum StatusTextEnum {
   failed = 'modals.status.header.failed'
 }
 
-type YearnRouteStepsProps = { routes: RouteConfig[] }
+type RouteStepsProps = { routes: RouteConfig[]; assetSymbol?: string }
 
-export const YearnRouteSteps = ({ routes }: YearnRouteStepsProps) => {
+export const RouteSteps = ({ routes, assetSymbol, ...styleProps }: RouteStepsProps & BoxProps) => {
   const location = useLocation()
   const steps = routes.filter(route => route.hasOwnProperty('step'))
   const activeStep = steps.find(step => step.path === location.pathname)
@@ -28,8 +29,6 @@ export const YearnRouteSteps = ({ routes }: YearnRouteStepsProps) => {
   return (
     <Box
       bg={stepperBg}
-      px={4}
-      py={6}
       flex={1}
       borderRightWidth={{ base: 0, lg: 1 }}
       borderBottomWidth={{ base: 1, lg: 0 }}
@@ -38,7 +37,11 @@ export const YearnRouteSteps = ({ routes }: YearnRouteStepsProps) => {
       borderTopRightRadius={{ base: 'xl', lg: 'none' }}
       borderBottomLeftRadius={{ base: 'none', lg: 'xl' }}
       minWidth='250px'
+      {...styleProps}
     >
+      {assetSymbol && (
+        <Text mb={30} fontWeight='bold' translation={['defi.stakeAsset', { assetSymbol }]} />
+      )}
       <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
     </Box>
   )

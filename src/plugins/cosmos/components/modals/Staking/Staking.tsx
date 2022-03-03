@@ -1,0 +1,71 @@
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
+import { useRef } from 'react'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+
+import { Stake } from './views/Stake'
+import { Unstake } from './views/Unstake'
+
+type StakingModalProps = {
+  assetId: CAIP19
+  action: StakingAction
+}
+
+export enum StakingModalRoutes {
+  Stake = '/plugins/cosmos/stake',
+  Unstake = '/plugins/cosmos/unstake'
+}
+
+export enum StakingAction {
+  Stake = 'stake',
+  Unstake = 'unstake'
+}
+
+export const entries = [StakingModalRoutes.Stake, StakingModalRoutes.Unstake]
+
+export const StakingModal = ({ assetId, action }: StakingModalProps) => {
+  const initialRef = useRef<HTMLInputElement>(null)
+  const { cosmosStaking } = useModal()
+  const { close, isOpen } = cosmosStaking
+
+  return (
+    <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef}>
+      <ModalOverlay />
+      <ModalContent>
+        <MemoryRouter initialEntries={entries}>
+          <Switch>
+            <Route path='/'>
+              {action === StakingAction.Stake ? (
+                <Stake
+                  assetId={assetId}
+                  apr='1.25'
+                  cryptoAmountAvailable='4242'
+                  fiatAmountAvailable='100'
+                  marketData={{
+                    price: '25',
+                    marketCap: '999999',
+                    volume: '1000',
+                    changePercent24Hr: 2
+                  }}
+                />
+              ) : (
+                <Unstake
+                  assetId={assetId}
+                  apr='1.25'
+                  cryptoAmountStaked='4242'
+                  marketData={{
+                    price: '25',
+                    marketCap: '999999',
+                    volume: '1000',
+                    changePercent24Hr: 2
+                  }}
+                />
+              )}
+            </Route>
+          </Switch>
+        </MemoryRouter>
+      </ModalContent>
+    </Modal>
+  )
+}

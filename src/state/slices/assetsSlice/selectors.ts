@@ -45,8 +45,9 @@ const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): 
   if (chain === ChainTypes.Cosmos) {
     if (network === NetworkTypes.COSMOSHUB_MAINNET) return AssetReference.Cosmos
     if (network === NetworkTypes.OSMOSIS_MAINNET) return AssetReference.Osmosis
+    throw new Error(`Network ${network} on ${chain} not supported.`)
   }
-  throw new Error('Chain not supported')
+  throw new Error(`Chain ${chain} not supported.`)
 }
 
 export const selectFeeAssetById = createSelector(

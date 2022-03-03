@@ -1,3 +1,43 @@
+# [@shapeshiftoss/asset-service-v2.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.21.1...@shapeshiftoss/asset-service-v2.0.0) (2022-03-03)
+
+
+### Code Refactoring
+
+* remove contract types and  make assetnamespace and assetreference required fields ([#410](https://github.com/shapeshift/lib/issues/410)) ([b12bbf3](https://github.com/shapeshift/lib/commit/b12bbf39f55e5d87775def96c2ca7ce05abff2ee))
+
+
+### BREAKING CHANGES
+
+* remove ContractTypes
+
+For CAIP19 we will use AssetNamespace instead
+
+* refactor(swapper): use AssetNamespace instead of ContractTypes
+
+* feat(caip): caip19 requires assetNamespace and assetReference
+* removed contractType and tokenId
+
+assetNamespace and assetReference are used instead and are required
+
+* refactor(asset-service): use AssetNamespace instead of ContractTypes
+
+* refactor(chain-adapters): use assetNamespace and assetReference
+
+For CAIP19, stop relying on default assets
+
+* refactor(swapper): use assetReference instead of tokenId
+
+* refactor(market-data): use assetReference instead of tokenId
+
+* Update packages/caip/README.md
+
+Co-authored-by: 0xdef1cafe <88504456+0xdef1cafe@users.noreply.github.com>
+
+* refactor(asset-service): updated ERC20 strings to lowercase
+
+Co-authored-by: Chris Thompson <chris@thompson-web.org>
+Co-authored-by: 0xdef1cafe <88504456+0xdef1cafe@users.noreply.github.com>
+
 # [@shapeshiftoss/asset-service-v1.21.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v1.21.0...@shapeshiftoss/asset-service-v1.21.1) (2022-02-28)
 
 

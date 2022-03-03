@@ -2,7 +2,6 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
-import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -17,11 +16,13 @@ import { useAppSelector } from 'state/store'
 type AssetTransactionHistoryProps = {
   assetId: CAIP19
   accountId?: AccountSpecifier
+  useCompactMode?: boolean
 }
 
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,
-  accountId
+  accountId,
+  useCompactMode = true
 }) => {
   const translate = useTranslate()
   const {
@@ -45,21 +46,11 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   if (!walletSupportsChain) return null
 
   return (
-    <Card>
+    <Card px={0}>
       <Card.Header>
-        <Card.Heading>
-          {translate('assets.assetDetails.assetHistory.recentTransactions')}
-        </Card.Heading>
+        <Card.Heading>{translate('transactionHistory.transactionHistory')}</Card.Heading>
       </Card.Header>
-      {txIds?.length ? (
-        <Card.Body px={2} pt={0}>
-          <TransactionHistoryList txIds={txIds} useCompactMode />
-        </Card.Body>
-      ) : (
-        <Card.Body>
-          <Text color='gray.500' translation='assets.assetDetails.assetHistory.emptyTransactions' />
-        </Card.Body>
-      )}
+      <TransactionHistoryList txIds={txIds} useCompactMode={useCompactMode} />
     </Card>
   )
 }

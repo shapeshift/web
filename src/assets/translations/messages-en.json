@@ -655,6 +655,7 @@
     "sentTo": "Sent to",
     "receivedFrom": "Received From",
     "orderRoute": "Order Route",
+    "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee"
   }

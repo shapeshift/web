@@ -6,7 +6,12 @@ import { fromBaseUnit } from 'lib/math'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { TransactionDetails } from './TransactionDetails'
+import { Address } from './TransactionDetails/Address'
+import { Amount } from './TransactionDetails/Amount'
+import { TransactionDetailsContainer } from './TransactionDetails/Container'
+import { Row } from './TransactionDetails/Row'
+import { Status } from './TransactionDetails/Status'
+import { TransactionId } from './TransactionDetails/TransactionId'
 import { TransactionGenericRow } from './TransactionGenericRow'
 
 export const TransactionReceive = ({
@@ -52,7 +57,33 @@ export const TransactionReceive = ({
           showDateAndGuide={showDateAndGuide}
         />
       </Flex>
-      <TransactionDetails isOpen={isOpen} txDetails={txDetails} />
+      <TransactionDetailsContainer isOpen={isOpen}>
+        <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+        <Row title='youReceived'>
+          <Amount
+            value={txDetails.value}
+            precision={txDetails.precision}
+            symbol={txDetails.symbol}
+          />
+        </Row>
+        <Row title='receivedFrom'>
+          <Address
+            explorerTxLink={txDetails.explorerTxLink}
+            address={txDetails.from}
+            ens={txDetails.ensFrom}
+          />
+        </Row>
+        <Row title='minerFee'>
+          <Amount
+            value={txDetails.tx.fee?.value ?? '0'}
+            precision={txDetails.feeAsset?.precision}
+            symbol={txDetails.feeAsset?.symbol}
+          />
+        </Row>
+        <Row title='status'>
+          <Status status={txDetails.tx.status} />
+        </Row>
+      </TransactionDetailsContainer>
     </>
   )
 }

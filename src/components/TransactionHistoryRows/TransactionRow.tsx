@@ -48,10 +48,11 @@ export const TransactionRow = ({
 
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const txDetails = useTxDetails(txId, activeAsset)
+  console.info(txDetails)
   // TODO(0xdef1cafe): support yearn vault deposit withdrawals
   // log what transactions we are currently not parsing so we can update accordingly
   if (!txDetails.type) {
-    console.warn('unsupported transaction:', txDetails)
+    // console.warn('unsupported transaction:', txDetails)
     return null
   }
 

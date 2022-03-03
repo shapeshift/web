@@ -17,7 +17,7 @@ type ReportRow = {
 
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [isLargerThanSm] = useMediaQuery(`(min-width: ${breakpoints['sm']})`)
+  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const allTxs = useAppSelector(selectTxs)
   const { saveAsCsv } = useJsonToCsv()
   const translate = useTranslate()
@@ -55,7 +55,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     }
   }
 
-  return isLargerThanSm ? (
+  return isLargerThanLg ? (
     <Button
       ml={[3, 3, 6]}
       colorScheme='blue'

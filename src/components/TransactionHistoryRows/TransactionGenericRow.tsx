@@ -53,16 +53,17 @@ export const TransactionGenericRow = ({
   fee,
   txid,
   blockTime,
-  symbol,
   explorerTxLink
 }: TransactionGenericRowType) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
+  const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
   return (
     <>
       <Flex width='full' justifyContent='space-between' textAlign='left' alignItems='flex-end'>
         <Flex alignItems='flex-start' flex={1} mr={3} flexDir='column'>
           {showDateAndGuide && <TransactionDate blockTime={blockTime} />}
-          <Flex alignItems='center' width='full'>
+          <Flex alignItems={{ base: 'flex-end', md: 'center' }} width='full'>
             <IconCircle mr={3}>
               <TransactionIcon type={type} />
             </IconCircle>
@@ -79,11 +80,11 @@ export const TransactionGenericRow = ({
           </Flex>
         </Flex>
         <Flex
-          alignItems={isLargerThanMd ? 'flex-start' : 'flex-end'}
-          flex={isLargerThanMd ? 2 : 1}
+          alignItems={isLargerThanLg ? 'flex-start' : 'flex-end'}
+          flex={isLargerThanLg ? 2 : 1}
           flexDir='column'
         >
-          {showDateAndGuide && isLargerThanMd && (
+          {showDateAndGuide && isLargerThanXl && (
             <Text
               mb={6}
               lineHeight={1}
@@ -100,7 +101,7 @@ export const TransactionGenericRow = ({
             {assets.map((asset, index) => (
               <>
                 <Flex alignItems='center'>
-                  {isLargerThanMd && (
+                  {isLargerThanLg && (
                     <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
                   )}
                   <Box flex={1}>
@@ -146,8 +147,8 @@ export const TransactionGenericRow = ({
             ))}
           </Flex>
         </Flex>
-        {isLargerThanMd && <Flex flex={0.5} />}
-        {isLargerThanMd && (
+        {isLargerThanXl && <Flex flex={0.2} />}
+        {isLargerThanXl && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
             {showDateAndGuide && (
               <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionRow.fee'} />
@@ -173,7 +174,7 @@ export const TransactionGenericRow = ({
             </Flex>
           </Flex>
         )}
-        {isLargerThanMd && (
+        {isLargerThanXl && (
           <Flex flex={0} flexDir='column'>
             {showDateAndGuide && (
               <Text

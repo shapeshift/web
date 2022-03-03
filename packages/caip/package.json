@@ -23,7 +23,8 @@
     "generate-coingecko": "yarn build && node dist/adapters/coingecko/generate.js",
     "generate-coincap": "yarn build && node dist/adapters/coincap/generate.js",
     "generate-yearn": "yarn build && node dist/adapters/yearn/generate.js",
-    "generate": "yarn build && node dist/adapters/coingecko/generate.js && node dist/adapters/coincap/generate.js && node dist/adapters/yearn/generate.js",
+    "generate-osmosis": "yarn build && node dist/adapters/osmosis/generate.js",
+    "generate": "yarn build && node dist/adapters/coingecko/generate.js && node dist/adapters/coincap/generate.js && node dist/adapters/yearn/generate.js && node dist/adapters/osmosis/generate.js",
     "test": "jest test",
     "type-check": "tsc --project ./tsconfig.json --noEmit"
   },

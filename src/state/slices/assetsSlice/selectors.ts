@@ -37,6 +37,8 @@ export const selectAssetsByMarketCap = createSelector(
   }
 )
 
+// @TODO figure out a better way to do this mapping. This is a stop gap to make selectFeeAssetById
+// work with the update to the toCAIP19 function where assetNamespace and assetReference are now required.
 const chainIdFeeAssetReferenceMap = (chain: ChainTypes, network: NetworkTypes): AssetReference => {
   if (chain === ChainTypes.Bitcoin) return AssetReference.Bitcoin
   if (chain === ChainTypes.Ethereum) return AssetReference.Ethereum

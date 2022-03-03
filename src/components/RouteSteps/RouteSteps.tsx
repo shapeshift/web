@@ -1,4 +1,5 @@
 import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
+import { Location } from 'history'
 import { useLocation } from 'react-router'
 import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
@@ -15,10 +16,14 @@ export enum StatusTextEnum {
   failed = 'modals.status.header.failed'
 }
 
-type RouteStepsProps = { routes: RouteConfig[]; assetSymbol?: string }
+type RouteStepsProps = { routes: RouteConfig[]; assetSymbol?: string; location: Location }
 
-export const RouteSteps = ({ routes, assetSymbol, ...styleProps }: RouteStepsProps & BoxProps) => {
-  const location = useLocation()
+export const RouteSteps = ({
+  routes,
+  assetSymbol,
+  location,
+  ...styleProps
+}: RouteStepsProps & BoxProps) => {
   const steps = routes.filter(route => route.hasOwnProperty('step'))
   const activeStep = steps.find(step => step.path === location.pathname)
 
@@ -30,15 +35,12 @@ export const RouteSteps = ({ routes, assetSymbol, ...styleProps }: RouteStepsPro
 
   return (
     <Box
-      bg={stepperBg}
       flex={1}
-      borderRightWidth={{ base: 0, lg: 1 }}
-      borderBottomWidth={{ base: 1, lg: 0 }}
+      bg={stepperBg}
+      borderBottomWidth={1}
       borderColor={stepperBorder}
-      borderTopLeftRadius='xl'
-      borderTopRightRadius={{ base: 'xl', lg: 'none' }}
-      borderBottomLeftRadius={{ base: 'none', lg: 'xl' }}
-      minWidth='250px'
+      px={6}
+      pb={4}
       {...styleProps}
     >
       {assetSymbol && (

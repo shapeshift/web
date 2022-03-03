@@ -49,7 +49,7 @@ export const Approve = ({
       >
         <Stack flex={1} spacing={4}>
           <Box>
-            <CircularProgress size='120px' thickness='4px' mt={8} mb={4} isIndeterminate={loading}>
+            <CircularProgress size='120px' thickness='4px' mb={4} isIndeterminate={loading}>
               <CircularProgressLabel>
                 <AssetIcon src={asset.icon} boxSize='90px' />
               </CircularProgressLabel>

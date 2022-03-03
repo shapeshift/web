@@ -620,35 +620,18 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   return (
-    <Flex
-      width='full'
-      minWidth={{ base: '100%', xl: '500px' }}
-      flexDir={{ base: 'column', lg: 'row' }}
-    >
-      <RouteSteps px={4} py={6} routes={routes} />
-      <Flex
-        flexDir='column'
-        width='full'
-        minWidth={{ base: 'auto', lg: '450px' }}
-        maxWidth={{ base: 'auto', lg: '450px' }}
-      >
-        <DefiActionButtons vaultExpired={state.vault.expired} />
-        <Flex direction='column' minWidth='400px'>
-          <AnimatePresence exitBeforeEnter initial={false}>
-            <Switch location={location} key={location.key}>
-              {routes.map(route => {
-                return (
-                  <Route
-                    exact
-                    key={route.path}
-                    render={() => renderRoute(route)}
-                    path={route.path}
-                  />
-                )
-              })}
-            </Switch>
-          </AnimatePresence>
-        </Flex>
+    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+      <RouteSteps routes={routes} location={location} />
+      <Flex flexDir='column' width='full' minWidth='500px'>
+        <AnimatePresence exitBeforeEnter initial={false}>
+          <Switch location={location} key={location.key}>
+            {routes.map(route => {
+              return (
+                <Route exact key={route.path} render={() => renderRoute(route)} path={route.path} />
+              )
+            })}
+          </Switch>
+        </AnimatePresence>
       </Flex>
     </Flex>
   )

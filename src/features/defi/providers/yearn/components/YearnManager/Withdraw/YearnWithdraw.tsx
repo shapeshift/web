@@ -424,14 +424,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     )
 
   return (
-    <Flex
-      width='full'
-      minWidth={{ base: '100%', xl: '500px' }}
-      flexDir={{ base: 'column', lg: 'row' }}
-    >
-      <RouteSteps px={4} py={6} routes={routes} />
+    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+      <RouteSteps routes={routes} location={location} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        <DefiActionButtons vaultExpired={state.vault.expired} />
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

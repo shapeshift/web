@@ -1,4 +1,4 @@
-import { IconButton, IconButtonProps, Tooltip } from '@chakra-ui/react'
+import { Button, IconButtonProps } from '@chakra-ui/react'
 import { memo } from 'react'
 import { Link as ReactRouterLink, NavLinkProps, useLocation } from 'react-router-dom'
 
@@ -15,18 +15,29 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
   const location = useLocation()
   const active = location?.pathname.includes(href ?? '')
   return (
-    <Tooltip label={label} fontSize='md' px={4} hasArrow>
-      <IconButton
-        icon={icon}
-        as={ReactRouterLink}
-        rounded='full'
-        isActive={active}
-        _active={{
-          bg: 'blue.500',
-          color: 'white'
-        }}
-        {...props}
-      />
-    </Tooltip>
+    <Button
+      as={ReactRouterLink}
+      {...props}
+      leftIcon={icon}
+      width='full'
+      justifyContent='flex-start'
+      variant='ghost'
+      isActive={active}
+    >
+      {label}
+    </Button>
+    // <Tooltip label={label} fontSize='md' px={4} hasArrow>
+    //   <IconButton
+    //     icon={icon}
+    //     as={ReactRouterLink}
+    //     rounded='full'
+    //     isActive={active}
+    //     _active={{
+    //       bg: 'blue.500',
+    //       color: 'white'
+    //     }}
+    //     {...props}
+    //   />
+    // </Tooltip>
   )
 })

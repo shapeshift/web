@@ -1,6 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import { AnimatePresence, HTMLMotionProps } from 'framer-motion'
 import { ReactNode } from 'react'
+import { Route } from 'Routes/helpers'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 
@@ -12,6 +13,7 @@ type PageProps = {
   error?: boolean
   renderError(): JSX.Element
   renderLoading(): JSX.Element
+  route?: Route
 } & HTMLMotionProps<'div'>
 
 export const Page = ({
@@ -20,14 +22,17 @@ export const Page = ({
   error,
   renderLoading,
   renderError,
+  route,
   ...rest
-}: PageProps) => (
-  <AnimatePresence exitBeforeEnter initial>
-    <PageTransition {...rest}>
-      {error && !loading ? renderError() : loading ? renderLoading() : children}
-    </PageTransition>
-  </AnimatePresence>
-)
+}: PageProps) => {
+  return (
+    <AnimatePresence exitBeforeEnter initial>
+      <PageTransition style={{ flex: 1 }} {...rest}>
+        {error && !loading ? renderError() : loading ? renderLoading() : children}
+      </PageTransition>
+    </AnimatePresence>
+  )
+}
 
 Page.defaultProps = {
   renderLoading: () => (

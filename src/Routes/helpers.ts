@@ -19,9 +19,11 @@ export type Route = {
   leftSidebar?: React.ReactNode
   rightSidebar?: React.ReactNode
   parent?: Route | null
-  routes?: Omit<Route, 'routes'>[]
+  routes?: Route[]
   icon?: JSX.Element
   disable?: boolean
+  hide?: boolean
+  breadcrumb?: string | React.ReactNode
 }
 
 const combinePaths = (parent: string, child: string): string =>

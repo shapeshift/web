@@ -1,24 +1,12 @@
 import {
-  ChatIcon,
+  ChevronDownIcon,
   ChevronRightIcon,
   CloseIcon,
-  HamburgerIcon,
-  MoonIcon,
   RepeatIcon,
   WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
-import {
-  Button,
-  ButtonGroup,
-  Flex,
-  IconButton,
-  Link,
-  Switch,
-  useColorMode,
-  useColorModeValue,
-  useMediaQuery
-} from '@chakra-ui/react'
+import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -26,14 +14,13 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
-import { breakpoints } from 'theme/theme'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 
 export const WalletImage = ({ walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon
   if (Icon) {
-    return <Icon width='18px' height='auto' />
+    return <Icon width='6' height='auto' />
   }
   return null
 }
@@ -123,27 +110,35 @@ const WalletButton: FC<WalletButtonProps> = ({
   }, [walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (
-    <Button
-      onClick={onConnect}
-      leftIcon={<WalletImage walletInfo={walletInfo} />}
-      rightIcon={isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+    <MenuButton
+      as={Button}
+      width={{ base: '100%', lg: 'auto' }}
       isLoading={isLoadingLocalWallet}
+      leftIcon={
+        <HStack>
+          {isConnected ? undefined : <WarningTwoIcon ml={2} w={3} h={3} color='yellow.500' />}
+          <WalletImage walletInfo={walletInfo} />
+        </HStack>
+      }
+      rightIcon={<ChevronDownIcon />}
     >
-      {walletLabel ? (
-        <MiddleEllipsis
-          rounded='lg'
-          fontSize='sm'
-          p='1'
-          pl='2'
-          pr='2'
-          shouldShorten={shouldShorten}
-          bgColor={bgColor}
-          address={walletLabel}
-        />
-      ) : (
-        <RawText>{walletInfo?.name}</RawText>
-      )}
-    </Button>
+      <Flex>
+        {walletLabel ? (
+          <MiddleEllipsis
+            rounded='lg'
+            fontSize='sm'
+            p='1'
+            pl='2'
+            pr='2'
+            shouldShorten={shouldShorten}
+            bgColor={bgColor}
+            address={walletLabel}
+          />
+        ) : (
+          <RawText>{walletInfo?.name}</RawText>
+        )}
+      </Flex>
+    </MenuButton>
   ) : (
     <Button onClick={onConnect} leftIcon={<FaWallet />}>
       <Text translation='common.connectWallet' />
@@ -152,65 +147,33 @@ const WalletButton: FC<WalletButtonProps> = ({
 }
 
 export const UserMenu = () => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const { toggleColorMode } = useColorMode()
-  const isActive = useColorModeValue(false, true)
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
-
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
 
   return (
-    <ButtonGroup isAttached colorScheme='blue' variant='ghost-filled'>
-      {isLargerThanMd && (
-        <WalletButton
-          onConnect={handleConnect}
-          walletInfo={walletInfo}
-          isConnected={isConnected}
-          isLoadingLocalWallet={state.isLoadingLocalWallet}
-        />
-      )}
-      <Menu>
-        <MenuButton as={IconButton} isRound={!isLargerThanMd}>
-          <HamburgerIcon />
-        </MenuButton>
-        <MenuList width={{ base: '100vw', md: '300px' }} maxWidth='100%' minWidth={0}>
-          {hasWallet ? (
-            <WalletConnected
-              isConnected={isConnected}
-              walletInfo={walletInfo}
-              onDisconnect={disconnect}
-              onSwitchProvider={handleConnect}
-            />
-          ) : (
-            <NoWallet onClick={handleConnect} />
-          )}
-          <MenuDivider />
-          <MenuItem
-            icon={<ChatIcon />}
-            as={Link}
-            isExternal
-            _hover={{ textDecoration: 'none' }}
-            href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
-          >
-            <Text translation='common.submitFeedback' />
-          </MenuItem>
-          <MenuItem
-            icon={<MoonIcon />}
-            closeOnSelect={false}
-            justifyContent='space-between'
-            onClick={toggleColorMode}
-          >
-            <Flex justifyContent='space-between' alignItems='center'>
-              <Text translation='common.darkMode' />
-              <Switch isChecked={isActive} />
-            </Flex>
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    </ButtonGroup>
+    <Menu>
+      <WalletButton
+        onConnect={handleConnect}
+        walletInfo={walletInfo}
+        isConnected={isConnected}
+        isLoadingLocalWallet={state.isLoadingLocalWallet}
+      />
+      <MenuList maxWidth='100%' minWidth={0}>
+        {hasWallet ? (
+          <WalletConnected
+            isConnected={isConnected}
+            walletInfo={walletInfo}
+            onDisconnect={disconnect}
+            onSwitchProvider={handleConnect}
+          />
+        ) : (
+          <NoWallet onClick={handleConnect} />
+        )}
+      </MenuList>
+    </Menu>
   )
 }

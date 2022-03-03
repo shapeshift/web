@@ -1,5 +1,5 @@
-const baseUrl = Cypress.config().baseUrl
-const linkContract = Cypress.env('linkContract')
+// const baseUrl = Cypress.config().baseUrl
+// const linkContract = Cypress.env('linkContract')
 
 beforeEach(() => {
   // Intercept all account requests relating to our test wallet

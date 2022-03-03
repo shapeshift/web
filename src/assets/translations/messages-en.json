@@ -111,12 +111,22 @@
           "startStaking": "Start Staking",
           "learnMore": "Learn More"
         }
+      },
+      "staking": {
+        "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
+        "byContinuing": "By continuing, you are accepting the",
+        "risks": "risks",
+        "ofParticipating": "of participating in this feature and agreeing to the",
+        "terms": "terms"
       }
     },
+    "amountToStake": "Amount to Stake",
     "staked": "Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
     "unstake": "Unstake",
+    "stakeAsset": "Stake %{assetSymbol}",
+    "unstakeAsset": "Unstake %{assetSymbol}",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",

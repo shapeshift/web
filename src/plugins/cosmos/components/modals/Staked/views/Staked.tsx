@@ -1,5 +1,5 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { Button, ModalCloseButton, useColorModeValue } from '@chakra-ui/react'
+import { Button, ModalCloseButton } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
@@ -40,7 +40,7 @@ export const Staked = ({ assetId }: StakedProps) => {
             cryptoStakedAmount={bnOrZero('708.00')}
             apr={bnOrZero('1.25')}
           />
-          <StakingButtons />
+          <StakingButtons assetId={assetId} />
           <Box width='100%' mt='20px'>
             {
               /* TODO: use real unbonds data */
@@ -63,7 +63,7 @@ export const Staked = ({ assetId }: StakedProps) => {
             cryptoRewardsAmount={bnOrZero('23.24')}
           />
           <Button width='100%' colorScheme='green'>
-            <Text translation={'defi.claim'} fontWeight='bold' />
+            <Text translation={'defi.claim'} color='green' fontWeight='bold' />
           </Button>
         </Flex>
       </Box>

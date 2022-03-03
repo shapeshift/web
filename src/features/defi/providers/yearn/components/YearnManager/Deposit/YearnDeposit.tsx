@@ -11,9 +11,9 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
@@ -84,15 +84,25 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const alertText = useColorModeValue('blue.800', 'white')
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const assetNamespace = AssetNamespace.ERC20
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace: AssetNamespace.Slip44,
+    assetReference: AssetReference.Ethereum
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
-  const vaultCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const vaultCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: vaultAddress
+  })
   const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
 
   // user info

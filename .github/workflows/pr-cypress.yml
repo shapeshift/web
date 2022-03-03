@@ -57,14 +57,13 @@ jobs:
           restore-keys: |
             cypress-${{ runner.os }}-cypress-${{ github.ref }}-${{ hashFiles('**/package.json') }}
 
-      # Cache local node_modules to pass to testing jobs
-      - name: Cache local node_modules
+      - name: Cache dependencies
         uses: actions/cache@v2
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/package-lock.json') }}
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
 
       - name: install dependencies and verify Cypress
         env:

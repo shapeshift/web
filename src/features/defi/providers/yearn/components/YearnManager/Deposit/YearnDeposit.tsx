@@ -17,6 +17,7 @@ import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
+import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import {
@@ -34,6 +35,7 @@ import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -50,7 +52,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
 enum DepositPath {
@@ -624,9 +625,15 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      <Flex flexDir='column' width='full'>
-        <YearnRouteSteps routes={routes} location={location} />
-        <Flex direction='column' minWidth='500px'>
+      <RouteSteps px={4} py={6} routes={routes} />
+      <Flex
+        flexDir='column'
+        width='full'
+        minWidth={{ base: 'auto', lg: '450px' }}
+        maxWidth={{ base: 'auto', lg: '450px' }}
+      >
+        <DefiActionButtons vaultExpired={state.vault.expired} />
+        <Flex direction='column' minWidth='400px'>
           <AnimatePresence exitBeforeEnter initial={false}>
             <Switch location={location} key={location.key}>
               {routes.map(route => {

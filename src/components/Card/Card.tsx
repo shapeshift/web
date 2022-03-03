@@ -7,7 +7,7 @@ import {
   useStyles
 } from '@chakra-ui/react'
 
-type CardProps = BoxProps & ThemingProps
+export type CardProps = BoxProps & ThemingProps
 
 export const Card = (props: CardProps) => {
   const { size, variant, children, ...rest } = props

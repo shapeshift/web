@@ -143,7 +143,7 @@ export const routes: Array<NestedRoute> = [
   {
     path: '/transaction-history',
     label: 'navBar.transactionHistory',
-    icon: <MdHistory size='1.5em' />,
+    icon: <MdHistory size='1.2em' />,
     main: TransactionHistory
   }
 ]

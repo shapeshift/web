@@ -8,40 +8,28 @@ import {
   ModalFooter,
   ModalHeader
 } from '@chakra-ui/react'
-import {lazy, Suspense, useState} from 'react'
-import {useFormContext} from 'react-hook-form'
-import {useTranslate} from 'react-polyglot'
-import {useHistory} from 'react-router-dom'
-import {SlideTransition} from 'components/SlideTransition'
-import {Text} from 'components/Text'
+import { lazy, Suspense, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
+import { Text } from 'components/Text'
 
-import {SendFormFields, SendInput} from '../Form'
-import {SendRoutes} from '../Send'
+import { SendFormFields, SendInput } from '../Form'
+import { SendRoutes } from '../Send'
 
 const PermissionError = 'Permission denied'
-
-enum ErrorMessages {
-  permissions = 'modals.send.errors.qrPermissions',
-  generic = 'modals.send.errors.generic'
-}
 
 const QrReader = lazy(() => import('react-qr-reader'))
 
 export const QrCodeScanner = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const {setValue} = useFormContext<SendInput>()
-  const [hasError, setError] = useState<boolean>(false)
-  const [errorMessage, setErrorMessage] = useState<string>()
+  const { setValue } = useFormContext<SendInput>()
+  const [error, setError] = useState<DOMException | null>(null)
 
   const handleError = (error: DOMException) => {
-    setError(true)
-
-    if (error.message === PermissionError) {
-      setErrorMessage(ErrorMessages.permissions)
-    } else {
-      setErrorMessage(ErrorMessages.generic)
-    }
+    setError(error)
   }
 
   const handleScan = (value: string | null) => {
@@ -57,14 +45,20 @@ export const QrCodeScanner = () => {
         <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
         <ModalCloseButton borderRadius='full' />
         <ModalBody>
-          {hasError && errorMessage ? (
+          {error ? (
             <Flex justifyContent='center' alignItems='center' flexDirection='column'>
               <Alert status='error' borderRadius='xl'>
                 <AlertIcon />
-                <Text translation={errorMessage} />
+                <Text
+                  translation={
+                    error.message === PermissionError
+                      ? 'modals.send.errors.qrPermissions'
+                      : 'modals.send.errors.generic'
+                  }
+                />
               </Alert>
-              {errorMessage === ErrorMessages.permissions && (
-                <Button colorScheme='green' mt='5' size='sm' onClick={() => setError(false)}>
+              {error.message === PermissionError && (
+                <Button colorScheme='green' mt='5' size='sm' onClick={() => setError(null)}>
                   {translate('modals.send.permissionsButton')}
                 </Button>
               )}
@@ -74,7 +68,7 @@ export const QrCodeScanner = () => {
               delay={100}
               onError={handleError}
               onScan={handleScan}
-              style={{width: '100%', overflow: 'hidden', borderRadius: '1rem'}}
+              style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
             />
           )}
         </ModalBody>

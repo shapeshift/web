@@ -18,7 +18,7 @@ import { Text } from 'components/Text'
 import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
-const PermissionError = 'Permission denied'
+const PERMISSION_ERROR = 'Permission denied'
 
 const QrReader = lazy(() => import('react-qr-reader'))
 
@@ -51,14 +51,14 @@ export const QrCodeScanner = () => {
                 <AlertIcon />
                 <Text
                   translation={
-                    error.message === PermissionError
+                    error.message === PERMISSION_ERROR
                       ? 'modals.send.errors.qrPermissions'
                       : 'modals.send.errors.generic'
                   }
                 />
               </Alert>
-              {error.message === PermissionError && (
-                <Button colorScheme='green' mt='5' size='sm' onClick={() => setError(null)}>
+              {error.message === PERMISSION_ERROR && (
+                <Button colorScheme='blue' mt='5' size='sm' onClick={() => setError(null)}>
                   {translate('modals.send.permissionsButton')}
                 </Button>
               )}

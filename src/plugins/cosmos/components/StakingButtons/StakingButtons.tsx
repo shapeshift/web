@@ -22,10 +22,10 @@ export const StakingButtons = ({ assetId, ...styleProps }: StakingButtonsProps &
   return (
     <Flex justifyContent='space-between' flexWrap='wrap' width='100%' {...styleProps}>
       <Button onClick={handleStakingClick} width={{ base: '100%', sm: '48%' }}>
-        <Text translation={'defi.stake'} fontWeight='bold' color='white' />
+        <Text translation={'defi.stake'} fontWeight='bold' />
       </Button>
       <Button onClick={handleUnstakingClick} width={{ base: '100%', sm: '48%' }}>
-        <Text translation={'defi.unstake'} fontWeight='bold' color='white' />
+        <Text translation={'defi.unstake'} fontWeight='bold' />
       </Button>
     </Flex>
   )

@@ -1,11 +1,7 @@
 name: Commitlint, Lint, Type Check, Test & Build
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
-      - releases/**
+  workflow_call:
 
 jobs:
   commitlint-lint-typecheck-test-build:

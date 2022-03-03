@@ -1,11 +1,7 @@
 name: Cypress Tests
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
-      - releases/**
+  workflow_call:
 
 env:
   ESLINT_NO_DEV_ERRORS: true
@@ -68,7 +64,7 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-${{ github.ref }}-
+            ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: install dependencies and verify Cypress
         env:

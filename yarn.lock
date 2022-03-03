@@ -3743,10 +3743,10 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.11.4":
-  version "1.11.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.11.4.tgz#0b03d549203d5dd38aa7b801a1d7c9ff4fe801f6"
-  integrity sha512-hnAul43Rt4AZrTT5bBaSv3bvNAH5szDPssY8l3ZjNxc4MGKGpry+f8PFJ2M5i+BnQBosbFPoQWJKzt78DRq/YQ==
+"@shapeshiftoss/caip@^1.11.1", "@shapeshiftoss/caip@^1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-1.13.0.tgz#8c9b2d07223cb2e94e5b9f2b5cec49b77d606cfd"
+  integrity sha512-dvp+DFrl05PA0J2VmuuH7rjTMz6HREIVinWzL4pKRDkZ2zrt9nuqAbSehQoiJOd1XZzTd2viSu6LmogFUQdSFg==
 
 "@shapeshiftoss/chain-adapters@^1.35.1":
   version "1.35.1"
@@ -3910,16 +3910,18 @@
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/market-service@^1.11.1":
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.11.1.tgz#abccb44aa815b0fd682aa8ba6698e0ad87b01dd1"
-  integrity sha512-NkxuVfcr0fGElx7KKrNejpwPHcG2PkA/BzQm7MoIIepH/nYitelXBMV7ZJOwHFxCzGGM8vWIds8wgQrdU+N5GA==
+"@shapeshiftoss/market-service@^1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-1.13.0.tgz#bf904674768a924d0f0b75a115bec7685aed69d5"
+  integrity sha512-bzbYdBVGQRidPFz6hSwgGPhe0KxlQ0xXm4KJfDE7fEVjesPDkz1uU535PZPX4p8gAMFz34D0Pz8XP73ULv+pqw==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
-    "@yfi/sdk" "^1.0.27"
-    axios "^0.21.2"
+    "@yfi/sdk" "^1.0.29"
+    axios "^0.26.0"
+    axios-rate-limit "^1.3.0"
     bignumber.js "^9.0.1"
     dayjs "^1.10.6"
+    p-ratelimit "^1.0.1"
 
 "@shapeshiftoss/proto-tx-builder@^0.1.3":
   version "0.1.3"
@@ -6356,7 +6358,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.27", "@yfi/sdk@^1.0.29":
+"@yfi/sdk@^1.0.29":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.1.1.tgz#237899a175fe177e13b1f98111811027da01602d"
   integrity sha512-UObLdc6T3DJpp7rUKLqM7eit62v4CBMRI2pcXgFLJ2PJraCLlpG+pUSxxwFFZLLgTavfqwleMvo8xML3gnnsbg==
@@ -7032,6 +7034,11 @@ axe-core@^4.3.5:
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.5.tgz#78d6911ba317a8262bfee292aeafcc1e04b49cc5"
   integrity sha512-WKTW1+xAzhMS5dJsxWkliixlO/PqC4VhmO9T4juNYcaTg9jzWiJsou6m5pxWYGfigWbwzJWeFY6z47a+4neRXA==
+
+axios-rate-limit@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/axios-rate-limit/-/axios-rate-limit-1.3.0.tgz#03241d24c231c47432dab6e8234cfde819253c2e"
+  integrity sha512-cKR5wTbU/CeeyF1xVl5hl6FlYsmzDVqxlN4rGtfO5x7J83UxKDckudsW0yW21/ZJRcO0Qrfm3fUFbhEbWTLayw==
 
 axios@0.21.1:
   version "0.21.1"
@@ -16215,6 +16222,11 @@ p-map@^4.0.0:
   integrity sha512-/bjOqmgETBYB5BoEeGVea8dmvHb2m9GLy1E9W43yeyfP6QQCZGFNa+XRceJEuDB6zqr+gKpIAmlLebMpykw/MQ==
   dependencies:
     aggregate-error "^3.0.0"
+
+p-ratelimit@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/p-ratelimit/-/p-ratelimit-1.0.1.tgz#a07fb2419f9811feb99fb687f97e00aa0244ac3e"
+  integrity sha512-tKBGoow6aWRH68K2eQx+qc1gSegjd5VLirZYc1Yms9pPFsYQ9TFI6aMn0vJH2vmvzjNpjlWZOFft4aPUen2w0A==
 
 p-retry@^4.5.0:
   version "4.6.1"

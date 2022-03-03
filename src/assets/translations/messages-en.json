@@ -332,7 +332,8 @@
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
-        "transactionRejected": "User has rejected the transaction"
+        "transactionRejected": "User has rejected the transaction",
+        "qrPermissions": "You need to give the camera access permission to the camera if you want to use the QR Code Reader feature."
       },
       "confirm": {
         "sendAsset": "Send %{asset}",

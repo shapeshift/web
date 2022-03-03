@@ -22,6 +22,7 @@ import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
 import { QrCodeScanner } from './views/QrCodeScanner'
+import { PermissionError } from './views/PermissionError'
 
 export enum SendFormFields {
   Address = 'address',
@@ -118,6 +119,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
             <Route path={SendRoutes.Address} component={Address} />
             <Route path={SendRoutes.Details} component={Details} />
             <Route path={SendRoutes.Scan} component={QrCodeScanner} />
+            <Route path={SendRoutes.PermissionError} component={PermissionError} />
             <Route path={SendRoutes.Confirm} component={Confirm} />
             <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>

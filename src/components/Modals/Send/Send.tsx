@@ -12,7 +12,8 @@ export enum SendRoutes {
   Address = '/send/address',
   Details = '/send/details',
   Confirm = '/send/confirm',
-  Scan = '/send/scan'
+  Scan = '/send/scan',
+  PermissionError = '/send/permission-error'
 }
 
 export const entries = [
@@ -20,6 +21,7 @@ export const entries = [
   SendRoutes.Details,
   SendRoutes.Confirm,
   SendRoutes.Scan,
+  SendRoutes.PermissionError,
   SendRoutes.Select
 ]
 

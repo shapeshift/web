@@ -83,8 +83,8 @@ export enum BuySellRoutes {
 export const entries = [BuySellRoutes.Select, BuySellRoutes.Gem]
 
 const BuySell = () => {
-  const { buysell } = useModal()
-  const { close, isOpen } = buysell
+  const { buySell } = useModal()
+  const { close, isOpen } = buySell
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered>
       <ModalOverlay />

@@ -36,7 +36,7 @@ export const BuySellRamps = () => {
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                 <AssetIcon src={gemlogo} />
                 <Box textAlign='left' ml={2}>
-                  <Text fontWeight='bold' color='white' translation='buysell.gem' />
+                  <Text fontWeight='bold' translation='buysell.gem' />
                   <Text translation='buysell.gemMessage' />
                 </Box>
               </Flex>
@@ -58,7 +58,7 @@ export const BuySellRamps = () => {
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                 <AssetIcon src={onjunologo} />
                 <Box textAlign='left' ml={2}>
-                  <Text fontWeight='bold' color='white' translation='buysell.onJuno' />
+                  <Text fontWeight='bold' translation='buysell.onJuno' />
                   <Text translation='buysell.comingSoon' />
                 </Box>
               </Flex>

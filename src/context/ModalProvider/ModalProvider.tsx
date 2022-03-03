@@ -20,7 +20,7 @@ const MODALS = {
   keepkeyPassphrase: PassphraseModal,
   receive: ReceiveModal,
   send: SendModal,
-  buysell: BuySellModal,
+  buySell: BuySellModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaked: StakedModal,
   cosmosStaking: StakingModal

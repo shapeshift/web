@@ -12,7 +12,6 @@ export const BuySellRouter = () => {
       <Switch location={location} key={location.key}>
         <Route path={BuySellRoutes.Select} component={BuySellRamps} />
         <Route path={BuySellRoutes.Gem} component={GemManager} />
-        <Route exact path='/' component={BuySellRamps} />
       </Switch>
     </AnimatePresence>
   )

@@ -12,7 +12,7 @@ type AssetListProps = {
 } & ListProps
 
 export const AssetList = ({ assets, type, handleClick }: AssetListProps) => {
-  return assets?.length === 0 ? (
+  return !assets.length ? (
     <Text translation='common.noResultsFound' />
   ) : (
     <FixedSizeList

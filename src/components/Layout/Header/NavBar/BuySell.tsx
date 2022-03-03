@@ -5,14 +5,14 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 export const BuySell = () => {
-  const { buysell } = useModal()
+  const { buySell } = useModal()
   const {
     state: { isConnected },
     dispatch
   } = useWallet()
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleModalOpen = () => (isConnected ? buysell.open({}) : handleWalletModalOpen())
+  const handleModalOpen = () => (isConnected ? buySell.open({}) : handleWalletModalOpen())
   return (
     <Button
       leftIcon={<BuySellIcon color='inherit' />}

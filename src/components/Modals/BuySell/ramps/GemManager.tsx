@@ -39,7 +39,7 @@ const GEM_URL = getConfig().REACT_APP_GEM_URL
 export const GemManager = () => {
   const translate = useTranslate()
   const toast = useToast()
-  const { buysell } = useModal()
+  const { buySell } = useModal()
 
   const [asset, setAsset] = useState<CurrencyAsset | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
@@ -174,7 +174,7 @@ export const GemManager = () => {
                 <InputGroup size='md'>
                   <Input
                     pr='4.5rem'
-                    value={middleEllipsis((ensAddress || address) as string, 11)}
+                    value={ensAddress || middleEllipsis(address as string, 11)}
                     readOnly
                   />
                   <InputRightElement width='4.5rem'>
@@ -186,17 +186,15 @@ export const GemManager = () => {
                       variant='ghost'
                       onClick={copyHandler}
                     />
-                    {!(wallet?.getVendor() === 'Native') ? (
-                      <IconButton
-                        icon={verified ? <CheckIcon /> : <ViewIcon />}
-                        onClick={handleVerify}
-                        aria-label='check-icon'
-                        size='sm'
-                        color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
-                        isRound
-                        variant='ghost'
-                      />
-                    ) : undefined}
+                    <IconButton
+                      icon={verified ? <CheckIcon /> : <ViewIcon />}
+                      onClick={handleVerify}
+                      aria-label='check-icon'
+                      size='sm'
+                      color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                      isRound
+                      variant='ghost'
+                    />
                   </InputRightElement>
                 </InputGroup>
               </Flex>
@@ -211,7 +209,7 @@ export const GemManager = () => {
             >
               <Text translation='common.continue' />
             </Button>
-            <Button width='full' variant='ghost' onClick={buysell.close}>
+            <Button width='full' variant='ghost' onClick={buySell.close}>
               <Text translation='common.cancel' />
             </Button>
           </Stack>

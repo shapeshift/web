@@ -51,7 +51,7 @@ export const TransactionRow = ({
   // TODO(0xdef1cafe): support yearn vault deposit withdrawals
   // log what transactions we are currently not parsing so we can update accordingly
   if (!txDetails.type) {
-    // console.warn('unsupported transaction:', tx.txid)
+    console.warn('unsupported transaction:', txDetails)
     return null
   }
 

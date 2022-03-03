@@ -50,7 +50,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
   const txCompactRows = useMemo(() => {
     return (
       <>
-        {txIds?.map((txId: TxId, index: number) => (
+        {txIds?.map((txId: TxId) => (
           <TransactionCompactRow key={txId} txId={txId} />
         ))}
       </>

@@ -29,11 +29,11 @@ export const TransactionHistory = () => {
   )
   return (
     <Main>
-      <Heading mb={4} ml={4}>
+      <Heading mb={{ base: 1, md: 4 }} ml={4} fontSize={['md', 'lg', '3xl']}>
         <Text translation='transactionHistory.transactionHistory' />
       </Heading>
       <Card>
-        <Card.Heading p={6}>
+        <Card.Heading p={[2, 3, 6]}>
           <Flex justifyContent='space-between'>
             <Flex>
               <TransactionHistorySearch handleInputChange={handleInputChange} />

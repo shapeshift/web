@@ -7,7 +7,7 @@ export const TransactionHistorySearch = ({
   handleInputChange: Function
 }) => {
   return (
-    <InputGroup mr={6}>
+    <InputGroup mr={[3, 3, 6]}>
       <InputLeftElement pointerEvents='none'>
         <SearchIcon color={useColorModeValue('gray.300', 'gray.750')} />
       </InputLeftElement>

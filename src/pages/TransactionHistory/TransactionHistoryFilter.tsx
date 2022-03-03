@@ -107,7 +107,7 @@ export const TransactionHistoryFilter = ({
     resetFilters()
   }
   return (
-    <Popover size='xl'>
+    <Popover>
       {({ onClose }) => (
         <>
           <PopoverTrigger>

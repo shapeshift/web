@@ -46,7 +46,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   if (!walletSupportsChain) return null
 
   return (
-    <Card px={0}>
+    <Card>
       <Card.Header>
         <Card.Heading>{translate('transactionHistory.transactionHistory')}</Card.Heading>
       </Card.Header>

@@ -626,6 +626,12 @@
       "apply": "Apply"
     },
     "downloadCSV": "Download CSV",
+    "csv": {
+      "fileName": "ShapeShift Transactions History",
+      "txid": "TX ID",
+      "timestamp": "Timestamp",
+      "status": "Status"
+    },
     "assets": "Assets",
     "viewOnChain": "View on chain",
     "txid": "TX ID",

@@ -1,18 +1,19 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, Link, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
 import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { FaExchangeAlt } from 'react-icons/fa'
 import { IoIosArrowRoundForward } from 'react-icons/io'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { breakpoints } from 'theme/theme'
 
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
@@ -55,10 +56,11 @@ export const TransactionGenericRow = ({
   symbol,
   explorerTxLink
 }: TransactionGenericRowType) => {
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   return (
     <>
-      <Flex width='full' justifyContent='space-between' textAlign='left'>
-        <Flex alignItems='flex-start' flex={1} flexDir='column'>
+      <Flex width='full' justifyContent='space-between' textAlign='left' alignItems='flex-end'>
+        <Flex alignItems='flex-start' flex={1} mr={3} flexDir='column'>
           {showDateAndGuide && <TransactionDate blockTime={blockTime} />}
           <Flex alignItems='center' width='full'>
             <IconCircle mr={3}>
@@ -67,12 +69,8 @@ export const TransactionGenericRow = ({
             <Box flex={1}>
               <Text
                 fontWeight='bold'
-                overflow='hidden'
                 flex={1}
-                textOverflow='ellipsis'
-                maxWidth='60%'
                 lineHeight='1'
-                whiteSpace='nowrap'
                 mb={1}
                 translation={[`transactionRow.${type.toLowerCase()}`, { symbol: '' }]}
               />
@@ -80,8 +78,12 @@ export const TransactionGenericRow = ({
             </Box>
           </Flex>
         </Flex>
-        <Flex alignItems='flex-start' flex={2} flexDir='column'>
-          {showDateAndGuide && (
+        <Flex
+          alignItems={isLargerThanMd ? 'flex-start' : 'flex-end'}
+          flex={isLargerThanMd ? 2 : 1}
+          flexDir='column'
+        >
+          {showDateAndGuide && isLargerThanMd && (
             <Text
               mb={6}
               lineHeight={1}
@@ -89,11 +91,18 @@ export const TransactionGenericRow = ({
               translation={'transactionHistory.assets'}
             />
           )}
-          <Flex alignItems='center' width='full'>
+          <Flex
+            alignItems={isLargerThanMd ? 'center' : 'flex-start'}
+            width='full'
+            flexDir='row'
+            flexWrap='wrap'
+          >
             {assets.map((asset, index) => (
               <>
                 <Flex alignItems='center'>
-                  <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
+                  {isLargerThanMd && (
+                    <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
+                  )}
                   <Box flex={1}>
                     <Amount.Crypto
                       color='inherit'
@@ -113,8 +122,20 @@ export const TransactionGenericRow = ({
                       />
                     )}
                   </Box>
+                  {!isLargerThanMd && index !== assets.length - 1 && (
+                    <Flex
+                      flex={0}
+                      justifyContent='center'
+                      alignItems='center'
+                      mb={isLargerThanMd ? 0 : 2}
+                    >
+                      <Box color='gray.600'>
+                        <IoIosArrowRoundForward size='2em' />
+                      </Box>
+                    </Flex>
+                  )}
                 </Flex>
-                {index !== assets.length - 1 && (
+                {isLargerThanMd && index !== assets.length - 1 && (
                   <Flex flex={1} justifyContent='center' alignItems='center'>
                     <Box color='gray.600'>
                       <IoIosArrowRoundForward size='2em' />
@@ -125,61 +146,48 @@ export const TransactionGenericRow = ({
             ))}
           </Flex>
         </Flex>
-        <Flex flex={0.5} />
-        <Flex alignItems='flex-start' flex={1} flexDir='column'>
-          {showDateAndGuide && (
-            <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionRow.fee'} />
-          )}
-          <Flex alignItems='center' width='full'>
-            <Box flex={1}>
-              <Amount.Crypto
-                color='inherit'
-                fontWeight='bold'
-                value={fee.amount}
-                symbol={fee.symbol}
-                maximumFractionDigits={6}
-              />
-              {fee.currentPrice && (
-                <Amount.Fiat
-                  color='gray.500'
-                  fontSize='sm'
-                  lineHeight='1'
-                  value={bnOrZero(fee.amount).times(fee.currentPrice).toString()}
+        {isLargerThanMd && <Flex flex={0.5} />}
+        {isLargerThanMd && (
+          <Flex alignItems='flex-start' flex={1} flexDir='column'>
+            {showDateAndGuide && (
+              <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionRow.fee'} />
+            )}
+            <Flex alignItems='center' width='full'>
+              <Box flex={1}>
+                <Amount.Crypto
+                  color='inherit'
+                  fontWeight='bold'
+                  value={fee.amount}
+                  symbol={fee.symbol}
+                  maximumFractionDigits={6}
                 />
-              )}
-            </Box>
+                {fee.currentPrice && (
+                  <Amount.Fiat
+                    color='gray.500'
+                    fontSize='sm'
+                    lineHeight='1'
+                    value={bnOrZero(fee.amount).times(fee.currentPrice).toString()}
+                  />
+                )}
+              </Box>
+            </Flex>
           </Flex>
-        </Flex>
-        <Flex flex={0} flexDir='column'>
-          {showDateAndGuide && (
-            <Text
-              mb={6}
-              lineHeight={1}
-              color='gray.600'
-              translation={'transactionHistory.viewOnChain'}
-            />
-          )}
-          <Flex justifyContent='flex-start' alignItems='center'>
-            <Link
-              isExternal
-              color={useColorModeValue('blue.400', 'blue.200')}
-              _hover={{ textDecoration: 'none' }}
-              href={`${explorerTxLink}${txid}`}
-              onClick={e => {
-                // don't trigger parent onClick
-                e.stopPropagation()
-              }}
-            >
-              <Button
-                bg={useColorModeValue('gray.200', 'gray.900')}
-                fontWeight='normal'
-                _hover={{ bg: useColorModeValue('gray.300', 'gray.800') }}
-              >
-                <MiddleEllipsis address={txid} />
-              </Button>
-            </Link>
+        )}
+        {isLargerThanMd && (
+          <Flex flex={0} flexDir='column'>
+            {showDateAndGuide && (
+              <Text
+                mb={6}
+                lineHeight={1}
+                color='gray.600'
+                translation={'transactionHistory.viewOnChain'}
+              />
+            )}
+            <Flex justifyContent='flex-start' alignItems='center'>
+              <TransactionLink txid={txid} explorerTxLink={explorerTxLink} />
+            </Flex>
           </Flex>
-        </Flex>
+        )}
       </Flex>
     </>
   )

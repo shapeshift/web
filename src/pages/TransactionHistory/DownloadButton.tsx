@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react'
+import { Button, useMediaQuery } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useJsonToCsv } from 'react-json-csv'
@@ -7,6 +7,7 @@ import { Text } from 'components/Text'
 import { selectTxs } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 type ReportRow = {
   txid: TxId
@@ -16,13 +17,14 @@ type ReportRow = {
 
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
+  const [isLargerThanSm] = useMediaQuery(`(min-width: ${breakpoints['sm']})`)
   const allTxs = useAppSelector(selectTxs)
   const { saveAsCsv } = useJsonToCsv()
   const translate = useTranslate()
   const fields = {
-    txid: translate('TX ID'),
-    status: translate('Status'),
-    timestamp: translate('Timestamp')
+    txid: translate('transactionHistory.csv.txid'),
+    status: translate('transactionHistory.csv.status'),
+    timestamp: translate('transactionHistory.csv.timestamp')
   }
 
   const generateCSV = () => {
@@ -42,7 +44,9 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       saveAsCsv({
         data: report,
         fields,
-        filename: `ShapeShift Transactions History - ${dayjs().format('HH:mm A, MMMM DD, YYYY')}`
+        filename: `${translate('transactionHistory.csv.fileName')} - ${dayjs().format(
+          'HH:mm A, MMMM DD, YYYY'
+        )}`
       })
     } catch (error) {
       console.error(error)
@@ -51,9 +55,15 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     }
   }
 
-  return (
-    <Button colorScheme='blue' variant='ghost-filled' isLoading={isLoading} onClick={generateCSV}>
+  return isLargerThanSm ? (
+    <Button
+      ml={[3, 3, 6]}
+      colorScheme='blue'
+      variant='ghost-filled'
+      isLoading={isLoading}
+      onClick={generateCSV}
+    >
       <Text translation='transactionHistory.downloadCSV' />
     </Button>
-  )
+  ) : null
 }

@@ -18,6 +18,13 @@ import {Text} from 'components/Text'
 import {SendFormFields, SendInput} from '../Form'
 import {SendRoutes} from '../Send'
 
+const PermissionError = 'Permission denied'
+
+enum ErrorMessages {
+  permissions = 'modals.send.errors.qrPermissions',
+  generic = 'modals.send.errors.generic'
+}
+
 const QrReader = lazy(() => import('react-qr-reader'))
 
 export const QrCodeScanner = () => {
@@ -25,9 +32,16 @@ export const QrCodeScanner = () => {
   const translate = useTranslate()
   const {setValue} = useFormContext<SendInput>()
   const [hasError, setError] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string>()
 
-  const handleError = () => {
+  const handleError = (error: DOMException) => {
     setError(true)
+
+    if (error.message === PermissionError) {
+      setErrorMessage(ErrorMessages.permissions)
+    } else {
+      setErrorMessage(ErrorMessages.generic)
+    }
   }
 
   const handleScan = (value: string | null) => {
@@ -43,15 +57,17 @@ export const QrCodeScanner = () => {
         <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
         <ModalCloseButton borderRadius='full' />
         <ModalBody>
-          {hasError ? (
+          {hasError && errorMessage ? (
             <Flex justifyContent='center' alignItems='center' flexDirection='column'>
               <Alert status='error' borderRadius='xl'>
                 <AlertIcon />
-                <Text translation='modals.send.errors.qrPermissions' />
+                <Text translation={errorMessage} />
               </Alert>
-              <Button colorScheme='green' mt='5' size='sm' onClick={() => setError(false)}>
-                {translate('modals.send.permissionsButton')}
-              </Button>
+              {errorMessage === ErrorMessages.permissions && (
+                <Button colorScheme='green' mt='5' size='sm' onClick={() => setError(false)}>
+                  {translate('modals.send.permissionsButton')}
+                </Button>
+              )}
             </Flex>
           ) : (
             <QrReader

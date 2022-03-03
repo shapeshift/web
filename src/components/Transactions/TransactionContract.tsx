@@ -1,8 +1,8 @@
-import { ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, Link, SimpleGrid } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -12,9 +12,24 @@ import { TransactionStatus } from 'components/Transactions/TransactionStatus'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
-export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAsset?: Asset }) => {
+export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
+
+  const toAddress = txDetails.ensTo || txDetails.to || undefined
+
+  const transactionIcon = (() => {
+    switch (txDetails.direction) {
+      case 'in-place':
+        return <FaThumbsUp />
+      case 'outbound':
+        return <ArrowUpIcon />
+      case 'inbound':
+        return <ArrowDownIcon color='green.500' />
+      default:
+        return <FaStickyNote />
+    }
+  })()
 
   return (
     <>
@@ -29,9 +44,7 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
         onClick={toggleOpen}
       >
         <Flex alignItems='center' width='full'>
-          <IconCircle mr={3}>
-            <ArrowUpIcon />
-          </IconCircle>
+          <IconCircle mr={3}>{transactionIcon}</IconCircle>
 
           <Flex justifyContent='flex-start' flex={1} alignItems='center'>
             <Box flex={1}>
@@ -44,7 +57,10 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
                 lineHeight='1'
                 whiteSpace='nowrap'
                 mb={2}
-                translation={[`transactionRow.${txDetails.type.toLowerCase()}`, { symbol: '' }]}
+                translation={[
+                  `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.tx.data?.method}`,
+                  { symbol: '' }
+                ]}
               />
               <RawText color='gray.500' fontSize='sm' lineHeight='1'>
                 {dayjs(txDetails.tx.blockTime * 1000).fromNow()}
@@ -52,13 +68,16 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              <Amount.Crypto
-                color='inherit'
-                value={fromBaseUnit(txDetails.value, txDetails.precision)}
-                symbol={txDetails.symbol}
-                maximumFractionDigits={6}
-                prefix='-'
-              />
+              {txDetails.direction !== 'in-place' && (
+                <Amount.Crypto
+                  {...(txDetails.direction === 'inbound'
+                    ? { color: 'green.500' }
+                    : { color: 'inherit', prefix: '-' })}
+                  value={fromBaseUnit(txDetails.value, txDetails.precision)}
+                  symbol={txDetails.symbol}
+                  maximumFractionDigits={6}
+                />
+              )}
             </Flex>
           </Flex>
         </Flex>
@@ -111,38 +130,38 @@ export const TransactionSend = ({ txDetails }: { txDetails: TxDetails; activeAss
             </Row.Value>
           </Row>
 
-          <Row variant='vertical'>
+          <Row variant='vertical' hidden={!(txDetails.tx?.fee && txDetails.feeAsset)}>
             <Row.Label>
               <Text translation='transactionRow.fee' />
             </Row.Label>
             <Row.Value>
-              {txDetails.tx?.fee && txDetails.feeAsset && (
-                <Amount.Crypto
-                  value={fromBaseUnit(
-                    txDetails.tx?.fee?.value ?? '0',
-                    txDetails.feeAsset?.precision ?? 18
-                  )}
-                  symbol={txDetails.feeAsset.symbol}
-                  maximumFractionDigits={6}
-                />
-              )}
+              <Amount.Crypto
+                value={fromBaseUnit(
+                  txDetails.tx?.fee?.value ?? '0',
+                  txDetails.feeAsset?.precision ?? 18
+                )}
+                symbol={txDetails.feeAsset.symbol}
+                maximumFractionDigits={6}
+              />
             </Row.Value>
           </Row>
           <TransactionStatus txStatus={txDetails.tx.status} />
-          <Row variant='vertical'>
-            <Row.Label>
-              <Text translation={'transactionRow.to'} />
-            </Row.Label>
-            <Row.Value>
-              <Link
-                isExternal
-                color='blue.500'
-                href={`${txDetails.explorerAddressLink}${txDetails.ensTo ?? txDetails.to}`}
-              >
-                <MiddleEllipsis address={txDetails.ensTo ?? txDetails.to} />
-              </Link>
-            </Row.Value>
-          </Row>
+          {toAddress && (
+            <Row variant='vertical'>
+              <Row.Label>
+                <Text translation={'transactionRow.to'} />
+              </Row.Label>
+              <Row.Value>
+                <Link
+                  isExternal
+                  color='blue.500'
+                  href={`${txDetails.explorerAddressLink}${toAddress}`}
+                >
+                  <MiddleEllipsis address={toAddress} />
+                </Link>
+              </Row.Value>
+            </Row>
+          )}
         </SimpleGrid>
       </Collapse>
     </>

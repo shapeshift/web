@@ -1,6 +1,5 @@
 import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
 import { Location } from 'history'
-import { useLocation } from 'react-router'
 import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 

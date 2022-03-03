@@ -4,7 +4,6 @@ import { caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import {

@@ -328,6 +328,7 @@
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "Token Address",
       "scanQrCode": "Scan QR Code",
+      "permissionsButton": "I gave the access permissions",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {

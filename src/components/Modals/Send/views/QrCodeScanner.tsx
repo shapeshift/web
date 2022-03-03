@@ -1,24 +1,33 @@
-import { Button, ModalBody, ModalCloseButton, ModalFooter, ModalHeader } from '@chakra-ui/react'
-import { lazy, Suspense } from 'react'
-import { useFormContext } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
-import { SlideTransition } from 'components/SlideTransition'
-import { Text } from 'components/Text'
+import {
+  Alert,
+  AlertIcon,
+  Button,
+  Flex,
+  ModalBody,
+  ModalCloseButton,
+  ModalFooter,
+  ModalHeader
+} from '@chakra-ui/react'
+import {lazy, Suspense, useState} from 'react'
+import {useFormContext} from 'react-hook-form'
+import {useTranslate} from 'react-polyglot'
+import {useHistory} from 'react-router-dom'
+import {SlideTransition} from 'components/SlideTransition'
+import {Text} from 'components/Text'
 
-import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import {SendFormFields, SendInput} from '../Form'
+import {SendRoutes} from '../Send'
 
 const QrReader = lazy(() => import('react-qr-reader'))
 
 export const QrCodeScanner = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const { setValue } = useFormContext<SendInput>()
+  const {setValue} = useFormContext<SendInput>()
+  const [hasError, setError] = useState<boolean>(false)
 
   const handleError = () => {
-    /** @todo render error to user */
-    history.push(SendRoutes.PermissionError)
+    setError(true)
   }
 
   const handleScan = (value: string | null) => {
@@ -34,22 +43,33 @@ export const QrCodeScanner = () => {
         <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
         <ModalCloseButton borderRadius='full' />
         <ModalBody>
-          <QrReader
-            delay={100}
-            onError={handleError}
-            onScan={handleScan}
-            style={{ width: '100%', overflow: 'hidden', borderRadius: '1rem' }}
-          />
+          {hasError ? (
+            <Flex justifyContent='center' alignItems='center' flexDirection='column'>
+              <Alert status='error' borderRadius='xl'>
+                <AlertIcon />
+                <Text translation='modals.send.errors.qrPermissions' />
+              </Alert>
+              <Button colorScheme='green' mt='5' size='sm' onClick={() => setError(false)}>
+                {translate('modals.send.permissionsButton')}
+              </Button>
+            </Flex>
+          ) : (
+            <QrReader
+              delay={100}
+              onError={handleError}
+              onScan={handleScan}
+              style={{width: '100%', overflow: 'hidden', borderRadius: '1rem'}}
+            />
+          )}
         </ModalBody>
         <ModalFooter>
           <Button
             isFullWidth
             variant='ghost'
             size='lg'
-            mr={3}
             onClick={() => history.push(SendRoutes.Address)}
           >
-            <Text translation='common.cancel' />
+            <Text translation='common.back' />
           </Button>
         </ModalFooter>
       </SlideTransition>

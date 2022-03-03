@@ -1,8 +1,8 @@
-import { Asset, ChainTypes } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
-import React, { useEffect } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import {Asset, ChainTypes} from '@shapeshiftoss/types'
+import {chainAdapters} from '@shapeshiftoss/types'
+import {AnimatePresence} from 'framer-motion'
+import React, {useEffect} from 'react'
+import {FormProvider, useForm} from 'react-hook-form'
 import {
   Redirect,
   Route,
@@ -11,18 +11,17 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {SelectAssetRouter, SelectAssetRoutes} from 'components/SelectAssets/SelectAssetRouter'
+import {AccountSpecifier} from 'state/slices/portfolioSlice/portfolioSlice'
+import {selectMarketDataById} from 'state/slices/selectors'
+import {useAppSelector} from 'state/store'
 
-import { useFormSend } from './hooks/useFormSend/useFormSend'
-import { SendRoutes } from './Send'
-import { Address } from './views/Address'
-import { Confirm } from './views/Confirm'
-import { Details } from './views/Details'
-import { QrCodeScanner } from './views/QrCodeScanner'
-import { PermissionError } from './views/PermissionError'
+import {useFormSend} from './hooks/useFormSend/useFormSend'
+import {SendRoutes} from './Send'
+import {Address} from './views/Address'
+import {Confirm} from './views/Confirm'
+import {Details} from './views/Details'
+import {QrCodeScanner} from './views/QrCodeScanner'
 
 export enum SendFormFields {
   Address = 'address',
@@ -43,7 +42,7 @@ export type SendInput = {
   [SendFormFields.Address]: string
   [SendFormFields.EnsName]?: string
   [SendFormFields.AccountId]: AccountSpecifier
-  [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
+  [SendFormFields.AmountFieldError]: string | [string, {asset: string}]
   [SendFormFields.Asset]: Asset
   [SendFormFields.FeeType]: chainAdapters.FeeDataKey
   [SendFormFields.EstimatedFees]: chainAdapters.FeeDataEstimate<ChainTypes>
@@ -59,10 +58,10 @@ type SendFormProps = {
   accountId?: AccountSpecifier
 }
 
-export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
+export const Form = ({asset: initialAsset, accountId}: SendFormProps) => {
   const location = useLocation()
   const history = useHistory()
-  const { handleSend } = useFormSend()
+  const {handleSend} = useFormSend()
   const marketData = useAppSelector(state => selectMarketDataById(state, initialAsset.caip19))
 
   const methods = useForm<SendInput>({
@@ -81,7 +80,7 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
   })
 
   const handleAssetSelect = async (asset: Asset, accountId: AccountSpecifier) => {
-    methods.setValue(SendFormFields.Asset, { ...asset, ...marketData })
+    methods.setValue(SendFormFields.Asset, {...asset, ...marketData})
     methods.setValue(SendFormFields.CryptoAmount, '')
     methods.setValue(SendFormFields.CryptoSymbol, asset.symbol)
     methods.setValue(SendFormFields.FiatAmount, '')
@@ -119,7 +118,6 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
             <Route path={SendRoutes.Address} component={Address} />
             <Route path={SendRoutes.Details} component={Details} />
             <Route path={SendRoutes.Scan} component={QrCodeScanner} />
-            <Route path={SendRoutes.PermissionError} component={PermissionError} />
             <Route path={SendRoutes.Confirm} component={Confirm} />
             <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>

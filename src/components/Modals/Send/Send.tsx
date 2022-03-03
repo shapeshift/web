@@ -1,11 +1,11 @@
-import {Modal, ModalContent, ModalOverlay} from '@chakra-ui/react'
-import {Asset} from '@shapeshiftoss/types'
-import {useRef} from 'react'
-import {MemoryRouter, Route, RouteComponentProps, Switch} from 'react-router-dom'
-import {useModal} from 'context/ModalProvider/ModalProvider'
-import {AccountSpecifier} from 'state/slices/portfolioSlice/portfolioSlice'
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
+import { useRef } from 'react'
+import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
-import {Form} from './Form'
+import { Form } from './Form'
 
 export enum SendRoutes {
   Select = '/send/select',
@@ -28,10 +28,10 @@ type SendModalProps = {
   accountId?: AccountSpecifier
 }
 
-export const SendModal = ({asset, accountId}: SendModalProps) => {
+export const SendModal = ({ asset, accountId }: SendModalProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
-  const {send} = useModal()
-  const {close, isOpen} = send
+  const { send } = useModal()
+  const { close, isOpen } = send
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef}>

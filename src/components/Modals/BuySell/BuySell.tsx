@@ -72,7 +72,8 @@ export type CurrencyAsset = {
   ticker: string
   transaction_fields: Record<string, never>
   updated_at: string
-  balance?: number
+  cryptoBalance?: number
+  fiatBalance?: number
 }
 
 export enum BuySellRoutes {

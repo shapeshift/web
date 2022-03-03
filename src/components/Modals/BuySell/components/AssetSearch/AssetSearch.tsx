@@ -74,8 +74,12 @@ export const AssetSearch = ({ onClick, type = BuySellAction.Buy }: AssetSearchPr
         const list1 = coinifyList.filter(filter).map(list => list[key].currencies)
         const list2 = wyreList.filter(filter).map(list => list[key].currencies)
         const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
-          .map(result => ({ ...result, balance: Number(balances[result.ticker]) || 0 }))
-          .sort((a, b) => b.balance - a.balance)
+          .map(result => ({
+            ...result,
+            cryptoBalance: Number(balances[result.ticker]?.crypto) || 0,
+            fiatBalance: Number(balances[result.ticker]?.fiat) || 0
+          }))
+          .sort((a, b) => b.fiatBalance - a.fiatBalance)
         return results
       },
     [balances]

@@ -35,7 +35,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
       </Box>
       {type === BuySellAction.Sell && (
         <Box>
-          <Text lineHeight={1}>{asset.balance}</Text>
+          <Text lineHeight={1}>{asset.cryptoBalance}</Text>
         </Box>
       )}
     </Button>

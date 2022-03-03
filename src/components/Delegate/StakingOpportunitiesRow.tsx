@@ -44,7 +44,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
           <RawText size='lg' fontWeight='bold'>{`${name}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
-          <AprTag percentage='1.25' />
+          <AprTag percentage='0.12' showAprSuffix />
         </Skeleton>
       </Flex>
       <Flex>

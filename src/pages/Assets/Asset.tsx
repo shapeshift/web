@@ -1,6 +1,7 @@
 import { Flex } from '@chakra-ui/react'
 import type { CAIP2 } from '@shapeshiftoss/caip'
-import { Route, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { Page } from 'components/Layout/Page'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -42,11 +43,13 @@ export const useAsset = () => {
 export const Asset = ({ route }: { route: Route }) => {
   const { asset, marketData } = useAsset()
 
-  return (
-    <Page style={{ flex: 1 }} key={asset?.tokenId}>
+  return !(asset && marketData) ? (
+    <Page key={asset?.tokenId}>
       <Flex role='main' flex={1} height='100%'>
-        {asset && marketData ? <AssetAccountDetails assetId={asset.caip19} /> : <LoadingAsset />}
+        <LoadingAsset />
       </Flex>
     </Page>
+  ) : (
+    <AssetAccountDetails assetId={asset.caip19} key={asset?.tokenId} route={route} />
   )
 }

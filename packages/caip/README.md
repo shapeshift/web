@@ -41,7 +41,9 @@ Ether
 ```ts
 const chain = ChainTypes.Ethereum
 const network = NetworkTypes.MAINNET
-const result = toCAIP19({ chain, network })
+const assetNamespace = AssetNamespace.Slip44
+const assetReference = AssetReference.Ethereum
+const result = toCAIP19({ chain, network, assetNamespace, assetReference })
 expect(result).toEqual('eip155:1/slip44:60')
 ```
 
@@ -50,7 +52,7 @@ ERC20 token
 ```ts
 const chain = ChainTypes.Ethereum
 const network = NetworkTypes.MAINNET
-const contractType = ContractTypes.ERC20
+const contractType = AssetNamespace.ERC20
 const tokenId = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const result = toCAIP19({ chain, network, contractType, tokenId })
 expect(result).toEqual('eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d')
@@ -65,8 +67,8 @@ const caip19 = 'eip155:1/slip44:60'
 const { chain, network, contractType, tokenId } = fromCAIP19(caip19)
 expect(chain).toEqual(ChainTypes.Ethereum)
 expect(network).toEqual(NetworkTypes.MAINNET)
-expect(contractType).toBeUndefined()
-expect(tokenId).toBeUndefined()
+expect(contractType).toEqual(AssetNamespace.Slip44)
+expect(tokenId).toEqual(AssetReference.Ethereum)
 ```
 
 ERC20 token
@@ -76,7 +78,7 @@ const caip19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const { chain, network, contractType, tokenId } = fromCAIP19(caip19)
 expect(chain).toEqual(ChainTypes.Ethereum)
 expect(network).toEqual(NetworkTypes.MAINNET)
-expect(contractType).toEqual(ContractTypes.ERC20)
+expect(contractType).toEqual(AssetNamespace.ERC20)
 expect(tokenId).toEqual('0xc770eefad204b5180df6a14ee197d99d808ee52d')
 ```
 

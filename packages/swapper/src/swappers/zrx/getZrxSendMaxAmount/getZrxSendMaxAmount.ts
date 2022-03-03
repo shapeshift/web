@@ -16,7 +16,7 @@ export async function getZrxSendMaxAmount(
     feeEstimateKey = chainAdapters.FeeDataKey.Average
   }: SendMaxAmountInput
 ): Promise<string> {
-  const adapter = adapterManager.byChain(ChainTypes.Ethereum)
+  const adapter = adapterManager.byChain<ChainTypes.Ethereum>(ChainTypes.Ethereum)
   const bip44Params = adapter.buildBIP44Params({
     accountNumber: bnOrZero(sellAssetAccountId).toNumber()
   })
@@ -33,7 +33,7 @@ export async function getZrxSendMaxAmount(
   let balance: string | undefined
   if (tokenId) {
     balance = account.chainSpecific.tokens?.find((token: chainAdapters.AssetBalance) => {
-      return caip19.fromCAIP19(token.caip19).tokenId === tokenId.toLowerCase()
+      return caip19.fromCAIP19(token.caip19).assetReference === tokenId.toLowerCase()
     })?.balance
   } else {
     balance = account.balance

@@ -1,10 +1,5 @@
-import {
-  AssetDataSource,
-  BaseAsset,
-  ChainTypes,
-  ContractTypes,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { AssetNamespace } from '@shapeshiftoss/caip'
+import { AssetDataSource, BaseAsset, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const ethereum: BaseAsset = {
   caip19: 'eip155:1/slip44:60',
@@ -91,7 +86,7 @@ export const tEthereum: BaseAsset = {
       name: 'Test Token',
       precision: 18,
       tokenId: '0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
-      contractType: ContractTypes.ERC20,
+      contractType: AssetNamespace.ERC20,
       color: '#FFFFFF',
       dataSource: AssetDataSource.CoinGecko,
       secondaryColor: '#FFFFFF',

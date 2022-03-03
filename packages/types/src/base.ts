@@ -12,13 +12,6 @@ export type BIP44Params = {
   index?: number
 }
 
-export enum ContractTypes {
-  ERC20 = 'ERC20',
-  ERC721 = 'ERC721',
-  OTHER = 'OTHER',
-  NONE = 'NONE'
-}
-
 export enum ChainTypes {
   Ethereum = 'ethereum',
   Bitcoin = 'bitcoin',
@@ -83,7 +76,7 @@ type OmittedTokenAssetFields =
   | 'explorerAddressLink'
 type TokenAssetFields = {
   tokenId: string
-  contractType: ContractTypes
+  contractType: 'erc20' | 'erc721' // Don't want to import caip here to prevent circular dependencies
 }
 export type TokenAsset = Omit<AbstractAsset, OmittedTokenAssetFields> & TokenAssetFields
 export type BaseAsset = AbstractAsset & { tokens?: TokenAsset[] }

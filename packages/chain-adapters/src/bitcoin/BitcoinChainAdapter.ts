@@ -1,4 +1,4 @@
-import { CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   BTCOutputAddressType,
@@ -127,7 +127,12 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Bitcoin> {
         balance: balance.toString(),
         chain: ChainTypes.Bitcoin,
         caip2: caip,
-        caip19: caip19.toCAIP19({ chain, network }),
+        caip19: caip19.toCAIP19({
+          chain,
+          network,
+          assetNamespace: AssetNamespace.Slip44,
+          assetReference: AssetReference.Bitcoin
+        }),
         chainSpecific: {
           addresses: data.addresses,
           nextChangeAddressIndex: data.nextChangeAddressIndex,

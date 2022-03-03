@@ -1,11 +1,5 @@
-import { caip2, caip19 } from '@shapeshiftoss/caip'
-import {
-  AssetDataSource,
-  ChainTypes,
-  ContractTypes,
-  NetworkTypes,
-  TokenAsset
-} from '@shapeshiftoss/types'
+import { AssetNamespace, caip2, caip19 } from '@shapeshiftoss/caip'
+import { AssetDataSource, ChainTypes, NetworkTypes, TokenAsset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import lodash from 'lodash'
 
@@ -35,9 +29,9 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
 
   const chain = ChainTypes.Ethereum
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
+  const assetNamespace = AssetNamespace.ERC20
 
-  const tokens = uniswapTokenData.tokens.reduce<TokenAsset[]>((acc, token) => {
+  return uniswapTokenData.tokens.reduce<TokenAsset[]>((acc, token) => {
     const overrideToken: TokenAsset | undefined = lodash.find(
       tokensToOverride,
       (override: TokenAsset) => override.tokenId === token.address
@@ -48,20 +42,20 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
       return acc
     }
 
-    const tokenId = token.address.toLowerCase()
+    const assetReference = token.address.toLowerCase()
 
-    if (!tokenId) {
+    if (!assetReference) {
       // if no token address, we can't deal with this asset.
       return acc
     }
     const result: TokenAsset = {
-      caip19: caip19.toCAIP19({ chain, network, contractType, tokenId }),
+      caip19: caip19.toCAIP19({ chain, network, assetNamespace, assetReference }),
       caip2: caip2.toCAIP2({ chain, network }),
       dataSource: AssetDataSource.CoinGecko,
       name: token.name,
       precision: token.decimals,
-      tokenId,
-      contractType: ContractTypes.ERC20,
+      tokenId: assetReference,
+      contractType: assetNamespace,
       color: '#FFFFFF', // TODO
       secondaryColor: '#FFFFFF', // TODO
       icon: token.logoURI,
@@ -72,6 +66,4 @@ export async function getUniswapTokens(): Promise<TokenAsset[]> {
     acc.push(result)
     return acc
   }, [])
-
-  return tokens
 }

@@ -117,7 +117,7 @@ describe('getZrxSendMaxAmount', () => {
       })
     })
 
-    expect(await getZrxSendMaxAmount(deps, args)).toEqual(erc20Balance)
+    await expect(getZrxSendMaxAmount(deps, args)).resolves.toEqual(erc20Balance)
   })
 
   it('should return max ETH balance in wei (balance minus txFee)', async () => {
@@ -139,7 +139,7 @@ describe('getZrxSendMaxAmount', () => {
       })
     })
 
-    expect(await getZrxSendMaxAmount(deps, args)).toEqual(
+    await expect(getZrxSendMaxAmount(deps, args)).resolves.toEqual(
       new BigNumber(ethBalance).minus(paddedFee).toString()
     )
   })
@@ -164,7 +164,7 @@ describe('getZrxSendMaxAmount', () => {
       })
     })
 
-    expect(await getZrxSendMaxAmount(deps, args)).toEqual(
+    await expect(getZrxSendMaxAmount(deps, args)).resolves.toEqual(
       new BigNumber(ethBalance).minus(paddedFee).toString()
     )
   })

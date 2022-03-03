@@ -191,33 +191,35 @@ jest.mock('fs', () => ({
   }
 }))
 
-describe('parseEthData', () => {
-  it('can parse eth data', async () => {
-    const result = parseEthData([vault1, vault2, vault3])
-    const expected = {
-      [`eip155:1/erc20:${toLower(vault1.address)}`]: vault1.address,
-      [`eip155:1/erc20:${toLower(vault2.address)}`]: vault2.address,
-      [`eip155:1/erc20:${toLower(vault3.address)}`]: vault3.address
-    }
-    expect(result).toEqual(expected)
-  })
-})
-
-describe('writeFiles', () => {
-  it('can writeFiles', async () => {
-    const data = {
-      foo: {
-        caip19abc: 'bitcorn',
-        caip19def: 'efferium'
+describe('adapters:yearn:utils', () => {
+  describe('yearn: parseEthData', () => {
+    it('can parse eth data', async () => {
+      const result = parseEthData([vault1, vault2, vault3])
+      const expected = {
+        [`eip155:1/erc20:${toLower(vault1.address)}`]: vault1.address,
+        [`eip155:1/erc20:${toLower(vault2.address)}`]: vault2.address,
+        [`eip155:1/erc20:${toLower(vault3.address)}`]: vault3.address
       }
-    }
-    const fooCaips = JSON.stringify(data.foo)
-    console.info = jest.fn()
-    await writeFiles(data)
-    expect(realFs.promises.writeFile).toBeCalledWith(
-      './src/adapters/yearn/generated/foo/adapter.json',
-      fooCaips
-    )
-    expect(console.info).toBeCalledWith('Generated Yearn CAIP19 adapter data.')
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('writeFiles', () => {
+    it('can writeFiles', async () => {
+      const data = {
+        foo: {
+          caip19abc: 'bitcorn',
+          caip19def: 'efferium'
+        }
+      }
+      const fooCaips = JSON.stringify(data.foo)
+      console.info = jest.fn()
+      await writeFiles(data)
+      expect(realFs.promises.writeFile).toBeCalledWith(
+        './src/adapters/yearn/generated/foo/adapter.json',
+        fooCaips
+      )
+      expect(console.info).toBeCalledWith('Generated Yearn CAIP19 adapter data.')
+    })
   })
 })

@@ -1,16 +1,15 @@
-import { chainAdapters, ContractTypes } from '@shapeshiftoss/types'
+import { AssetNamespace } from '@shapeshiftoss/caip'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { Status, TransferType } from '@shapeshiftoss/unchained-tx-parser'
 
 export * from './bip44'
 export * from './utxoUtils'
 export * from './bignumber'
 
-export const getContractType = (type?: string): ContractTypes => {
-  if (!type) return ContractTypes.NONE
-  if (type === 'ERC20') return ContractTypes.ERC20
-  if (type === 'ERC721') return ContractTypes.ERC721
-
-  return ContractTypes.OTHER
+export const getAssetNamespace = (type: string): AssetNamespace => {
+  if (type === 'ERC20') return AssetNamespace.ERC20
+  if (type === 'ERC721') return AssetNamespace.ERC721
+  throw new Error(`Unknown asset namespace. type: ${type}`)
 }
 
 export const getStatus = (status: Status): chainAdapters.TxStatus => {

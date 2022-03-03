@@ -27,7 +27,7 @@ export enum ChainReference {
 
 type ToCAIP2Args = {
   chain: ChainTypes
-  network: NetworkTypes
+  network: NetworkTypes | ChainReference
 }
 
 const shapeShiftToCAIP2 = Object.freeze({

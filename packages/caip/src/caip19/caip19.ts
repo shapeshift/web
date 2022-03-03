@@ -1,8 +1,7 @@
 // https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-19.md
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
-
-import { fromCAIP2, toCAIP2 } from '../caip2/caip2'
+import { ChainNamespace, ChainReference, toCAIP2 } from '../caip2/caip2'
 
 export type CAIP19 = string
 
@@ -17,19 +16,60 @@ export enum AssetNamespace {
 }
 
 export enum AssetReference {
-  Bitcoin = 0,
-  Ethereum = 60,
-  Cosmos = 118,
-  Osmosis = 118
+  Bitcoin = '0',
+  Ethereum = '60',
+  Cosmos = '118',
+  Osmosis = '118'
 }
 
 type ToCAIP19Args = {
   chain: ChainTypes
-  network: NetworkTypes
-  contractType?: ContractTypes
-  tokenId?: string
-  assetNamespace?: AssetNamespace
-  assetReference?: string
+  network: NetworkTypes | ChainReference
+  assetNamespace: AssetNamespace
+  assetReference: AssetReference | string
+}
+
+const validAssetNamespaces = Object.freeze({
+  [ChainTypes.Bitcoin]: [AssetNamespace.Slip44],
+  [ChainTypes.Ethereum]: [AssetNamespace.Slip44, AssetNamespace.ERC20, AssetNamespace.ERC721],
+  [ChainTypes.Cosmos]: [
+    AssetNamespace.CW20,
+    AssetNamespace.CW721,
+    AssetNamespace.IBC,
+    AssetNamespace.NATIVE,
+    AssetNamespace.Slip44
+  ],
+  [ChainTypes.Osmosis]: [
+    AssetNamespace.CW20,
+    AssetNamespace.CW721,
+    AssetNamespace.IBC,
+    AssetNamespace.NATIVE,
+    AssetNamespace.Slip44
+  ]
+})
+
+const chainReferenceToNetworkType: Record<string, NetworkTypes> = Object.freeze({
+  [ChainReference.BitcoinMainnet]: NetworkTypes.MAINNET,
+  [ChainReference.BitcoinTestnet]: NetworkTypes.TESTNET,
+  [ChainReference.EthereumMainnet]: NetworkTypes.MAINNET,
+  [ChainReference.EthereumRopsten]: NetworkTypes.ETH_ROPSTEN,
+  [ChainReference.EthereumRinkeby]: NetworkTypes.ETH_RINKEBY,
+  [ChainReference.CosmosHubMainnet]: NetworkTypes.COSMOSHUB_MAINNET,
+  [ChainReference.CosmosHubVega]: NetworkTypes.COSMOSHUB_VEGA,
+  [ChainReference.OsmosisMainnet]: NetworkTypes.OSMOSIS_MAINNET,
+  [ChainReference.OsmosisTestnet]: NetworkTypes.OSMOSIS_TESTNET
+})
+
+const chainNamespaceToChainType: Record<string, ChainTypes> = Object.freeze({
+  [ChainNamespace.Bitcoin]: ChainTypes.Bitcoin,
+  [ChainNamespace.Ethereum]: ChainTypes.Ethereum,
+  [ChainNamespace.Cosmos]: ChainTypes.Cosmos
+})
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function stringToEnum<T>(obj: any, item: string): T | undefined {
+  const found = Object.entries(obj).find((i) => i.includes(item))?.[0]
+  return found ? obj[found as keyof T] : undefined
 }
 
 /**
@@ -45,207 +85,76 @@ const isValidSlip44 = (value: string) => {
 
 type ToCAIP19 = (args: ToCAIP19Args) => string
 
-export const toCAIP19: ToCAIP19 = ({
-  chain,
-  network,
-  contractType,
-  tokenId,
-  assetNamespace,
-  assetReference
-}): string => {
+export const toCAIP19: ToCAIP19 = (args: ToCAIP19Args): string => {
+  const { chain, network, assetNamespace } = args
+  let { assetReference } = args
+  if (!chain) throw new Error('toCAIP19: No chain provided')
+  if (!network) throw new Error('toCAIP19: No chainReference Provided')
+  if (!assetNamespace) throw new Error('toCAIP19: No assetNamespace provided')
+  if (!assetReference) throw new Error('toCAIP19: No assetReference provided')
+
   const caip2 = toCAIP2({ chain, network })
 
-  switch (chain) {
-    // TODO: There is no chain-level fungible token standard in Cosmos SDK, but CosmWasm chains have CW20/CW721
-    // This should be implemented when we want to support tokens for Cosmos SDK chains
-    case ChainTypes.Cosmos:
-    case ChainTypes.Osmosis: {
-      if (!assetNamespace || !assetReference) {
-        return `${caip2}/${AssetNamespace.Slip44}:${AssetReference.Cosmos}`
-      }
-      switch (assetNamespace) {
-        case AssetNamespace.CW20:
-        case AssetNamespace.CW721:
-        case AssetNamespace.IBC:
-        case AssetNamespace.NATIVE:
-          return `${caip2}/${assetNamespace}:${assetReference}`
-        case AssetNamespace.Slip44:
-          if (isValidSlip44(assetReference)) return `${caip2}/${assetNamespace}:${assetReference}`
-      }
+  if (!validAssetNamespaces[chain].includes(assetNamespace)) {
+    throw new Error(`toCAIP19: Asset Namespace ${assetNamespace} not supported for chain ${chain}`)
+  }
 
+  if (assetNamespace === AssetNamespace.Slip44 && !isValidSlip44(String(assetReference))) {
+    throw new Error(`Invalid reference for namespace slip44`)
+  }
+
+  if ([AssetNamespace.ERC20, AssetNamespace.ERC721].includes(assetNamespace)) {
+    if (!assetReference.startsWith('0x')) {
+      throw new Error(`toCAIP19: assetReference must start with 0x: ${assetReference}`)
+    }
+    if (assetReference.length !== 42) {
       throw new Error(
-        `Could not construct CAIP19 chain: ${chain}, network: ${network}, assetNamespace: ${assetNamespace}, assetReference: ${assetReference}`
+        `toCAIP19: assetReference length must be 42, length: ${assetReference.length}`
       )
     }
-    case ChainTypes.Ethereum: {
-      tokenId = tokenId?.toLowerCase()
 
-      if (contractType) {
-        if (!tokenId) {
-          throw new Error(`toCAIP19: no tokenId provided with contract type ${contractType}`)
-        }
-        const shapeShiftToCAIP19Namespace = {
-          [ChainTypes.Ethereum]: {
-            [ContractTypes.ERC20]: AssetNamespace.ERC20,
-            [ContractTypes.ERC721]: AssetNamespace.ERC721
-          }
-        } as const
-        switch (contractType) {
-          case ContractTypes.ERC20:
-          case ContractTypes.ERC721: {
-            const namespace = shapeShiftToCAIP19Namespace[chain][contractType]
-            if (!tokenId.startsWith('0x')) {
-              throw new Error(`toCAIP19: tokenId must start with 0x: ${tokenId}`)
-            }
-            if (tokenId.length !== 42) {
-              throw new Error(`toCAIP19: tokenId length must be 42, length: ${tokenId.length}`)
-            }
-            return `${caip2}/${namespace}:${tokenId}`
-          }
-          default: {
-            throw new Error(`toCAIP19: unsupported contractType ${contractType} on chain ${chain}`)
-          }
-        }
-      } else {
-        if (tokenId) {
-          throw new Error(`toCAIP19: tokenId provided without contract type`)
-        }
-        return `${caip2}/${AssetNamespace.Slip44}:${AssetReference.Ethereum}`
-      }
-    }
-    case ChainTypes.Bitcoin: {
-      return `${caip2}/${AssetNamespace.Slip44}:${AssetReference.Bitcoin}`
-    }
-    default: {
-      throw new Error(`Chain type not supported: ${chain}`)
-    }
+    // We make Eth contract addresses lower case to simplify comparisons
+    assetReference = assetReference.toLowerCase()
   }
+
+  return `${caip2}/${assetNamespace}:${assetReference}`
 }
 
 type FromCAIP19Return = {
   chain: ChainTypes
   network: NetworkTypes
-  contractType?: ContractTypes
-  tokenId?: string
-  assetNamespace?: AssetNamespace
-  assetReference?: string
+  assetNamespace: AssetNamespace
+  assetReference: AssetReference | string
 }
 
-type FromCAIP19 = (caip19: string) => FromCAIP19Return
+const parseCaip19RegExp = /([-a-z\d]{3,8}):([-a-zA-Z\d]{1,32})\/([-a-z\d]{3,8}):([-a-zA-Z\d]+)/
 
-export const fromCAIP19: FromCAIP19 = (caip19) => {
-  const [caip2, namespaceAndReference] = caip19.split('/')
-  if (!(caip2 && namespaceAndReference)) {
-    throw new Error(
-      `fromCAIP19: error parsing caip19, caip2: ${caip2}, namespaceAndReference: ${namespaceAndReference}`
-    )
-  }
+export const fromCAIP19 = (caip19: string): FromCAIP19Return => {
+  const matches = parseCaip19RegExp.exec(caip19) ?? []
 
-  const [namespace, referenceString] = namespaceAndReference.split(':')
-  if (!(namespace && referenceString)) {
-    throw new Error(
-      `fromCAIP19: error parsing namespace and reference, namespace: ${namespace}, reference: ${referenceString}`
-    )
-  }
+  // We're okay casting these strings to enums because we check to make sure
+  // they are valid enum values
+  let chain: ChainTypes = chainNamespaceToChainType[matches[1]]
+  const network = chainReferenceToNetworkType[matches[2]]
+  const assetNamespace = stringToEnum<AssetNamespace>(AssetNamespace, matches[3])
+  let assetReference = matches[4]
 
-  const reference = Number(referenceString)
+  if (chain && network && assetNamespace && assetReference) {
+    switch (network) {
+      case NetworkTypes.OSMOSIS_MAINNET:
+      case NetworkTypes.OSMOSIS_TESTNET:
+        chain = ChainTypes.Osmosis
+    }
 
-  const { chain, network } = fromCAIP2(caip2)
-
-  switch (chain) {
-    case ChainTypes.Bitcoin: {
-      switch (namespace) {
-        case AssetNamespace.Slip44: {
-          switch (reference) {
-            case AssetReference.Bitcoin: {
-              return { chain, network }
-            }
-            default: {
-              throw new Error(`fromCAIP19: invalid asset reference ${reference} on chain ${chain}`)
-            }
-          }
-        }
-        default: {
-          throw new Error(`fromCAIP19: invalid asset namespace ${namespace} on chain ${chain}`)
-        }
+    switch (assetNamespace) {
+      case AssetNamespace.ERC20:
+      case AssetNamespace.ERC721: {
+        assetReference = assetReference.toLowerCase()
       }
     }
-    case ChainTypes.Ethereum: {
-      switch (namespace) {
-        case AssetNamespace.Slip44: {
-          switch (reference) {
-            case AssetReference.Ethereum: {
-              return { chain, network }
-            }
-            default: {
-              throw new Error(`fromCAIP19: invalid asset reference ${reference} on chain ${chain}`)
-            }
-          }
-        }
-        case AssetNamespace.ERC20: {
-          const contractType = ContractTypes.ERC20
-          const tokenId = referenceString.toLowerCase()
-          return { chain, network, contractType, tokenId }
-        }
-        case AssetNamespace.ERC721: {
-          const contractType = ContractTypes.ERC721
-          const tokenId = referenceString.toLowerCase()
-          return { chain, network, contractType, tokenId }
-        }
-        default: {
-          throw new Error(`fromCAIP19: invalid asset namespace ${namespace} on chain ${chain}`)
-        }
-      }
-    }
-    case ChainTypes.Osmosis:
-    case ChainTypes.Cosmos: {
-      switch (namespace) {
-        case AssetNamespace.Slip44: {
-          switch (reference) {
-            case AssetReference.Cosmos: {
-              return { chain, network }
-            }
-            case AssetReference.Ethereum:
-            case AssetReference.Bitcoin:
-            default: {
-              throw new Error(`fromCAIP19: invalid asset namespace ${namespace} on chain ${chain}`)
-            }
-          }
-        }
-        case AssetNamespace.CW20:
-          return {
-            chain,
-            network,
-            assetNamespace: AssetNamespace.CW20,
-            assetReference: referenceString
-          }
-        case AssetNamespace.CW721:
-          return {
-            chain,
-            network,
-            assetNamespace: AssetNamespace.CW721,
-            assetReference: referenceString
-          }
-        case AssetNamespace.IBC:
-          return {
-            chain,
-            network,
-            assetNamespace: AssetNamespace.IBC,
-            assetReference: referenceString
-          }
-        case AssetNamespace.NATIVE:
-          return {
-            chain,
-            network,
-            assetNamespace: AssetNamespace.NATIVE,
-            assetReference: referenceString
-          }
-        default: {
-          throw new Error(`fromCAIP19: invalid asset namespace ${namespace} on chain ${chain}`)
-        }
-      }
-    }
+
+    return { chain, network, assetNamespace, assetReference }
   }
 
-  throw new Error(`fromCAIP19: error parsing caip19: ${caip19}`)
+  throw new Error(`fromCAIP19: invalid CAIP19: ${caip19}`)
 }

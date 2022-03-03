@@ -90,90 +90,92 @@ jest.mock('fs', () => ({
   }
 }))
 
-describe('parseEthData', () => {
-  it('can parse eth data', async () => {
-    const result = parseEthData([makeEthMockCoincapResponse(), makeFoxMockCoincapResponse()])
-    const expected = {
-      'eip155:1/slip44:60': 'ethereum',
-      'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'fox-token'
-    }
-    expect(result).toEqual(expected)
-  })
-
-  it('can parse btc data', async () => {
-    const result = makeBtcData()
-    const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
-    expect(result).toEqual(expected)
-  })
-
-  it('can parse cosmos data', async () => {
-    const result = makeCosmosHubData()
-    const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
-    expect(result).toEqual(expected)
-  })
-
-  it('can parse osmosis data', async () => {
-    const result = makeOsmosisData()
-    const expected = {
-      'cosmos:osmosis-1/slip44:118': 'osmosis'
-    }
-    expect(result).toEqual(expected)
-  })
-})
-
-describe('parseData', () => {
-  it('can parse all data', async () => {
-    const result = parseData([
-      makeEthMockCoincapResponse(),
-      makeFoxMockCoincapResponse(),
-      makeBtcMockCoincapResponse(),
-      makeCosmosMockCoincapResponse(),
-      makeOsmosisMockCoincapResponse()
-    ])
-    const expected = {
-      'bip122:000000000019d6689c085ae165831e93': {
-        'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin'
-      },
-      'cosmos:cosmoshub-4': {
-        'cosmos:cosmoshub-4/slip44:118': 'cosmos'
-      },
-
-      'cosmos:osmosis-1': {
-        'cosmos:osmosis-1/slip44:118': 'osmosis'
-      },
-      'eip155:1': {
+describe('adapters:coincap:utils', () => {
+  describe('parseEthData', () => {
+    it('can parse eth data', async () => {
+      const result = parseEthData([makeEthMockCoincapResponse(), makeFoxMockCoincapResponse()])
+      const expected = {
         'eip155:1/slip44:60': 'ethereum',
         'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'fox-token'
       }
-    }
-    expect(result).toEqual(expected)
-  })
-})
+      expect(result).toEqual(expected)
+    })
 
-describe('writeFiles', () => {
-  it('can writeFiles', async () => {
-    const data = {
-      foo: {
-        caip19abc: 'bitcorn',
-        caip19def: 'efferium'
-      },
-      bar: {
-        caip19ghi: 'fox',
-        caip19jkl: 'shib'
+    it('can parse btc data', async () => {
+      const result = makeBtcData()
+      const expected = { 'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin' }
+      expect(result).toEqual(expected)
+    })
+
+    it('can parse cosmos data', async () => {
+      const result = makeCosmosHubData()
+      const expected = { 'cosmos:cosmoshub-4/slip44:118': 'cosmos' }
+      expect(result).toEqual(expected)
+    })
+
+    it('can parse osmosis data', async () => {
+      const result = makeOsmosisData()
+      const expected = {
+        'cosmos:osmosis-1/slip44:118': 'osmosis'
       }
-    }
-    const fooCaips = JSON.stringify(data.foo)
-    const barCaips = JSON.stringify(data.bar)
-    console.info = jest.fn()
-    await writeFiles(data)
-    expect(realFs.promises.writeFile).toBeCalledWith(
-      './src/adapters/coincap/generated/foo/adapter.json',
-      fooCaips
-    )
-    expect(realFs.promises.writeFile).toBeCalledWith(
-      './src/adapters/coincap/generated/bar/adapter.json',
-      barCaips
-    )
-    expect(console.info).toBeCalledWith('Generated CoinCap CAIP19 adapter data.')
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('parseData', () => {
+    it('can parse all data', async () => {
+      const result = parseData([
+        makeEthMockCoincapResponse(),
+        makeFoxMockCoincapResponse(),
+        makeBtcMockCoincapResponse(),
+        makeCosmosMockCoincapResponse(),
+        makeOsmosisMockCoincapResponse()
+      ])
+      const expected = {
+        'bip122:000000000019d6689c085ae165831e93': {
+          'bip122:000000000019d6689c085ae165831e93/slip44:0': 'bitcoin'
+        },
+        'cosmos:cosmoshub-4': {
+          'cosmos:cosmoshub-4/slip44:118': 'cosmos'
+        },
+
+        'cosmos:osmosis-1': {
+          'cosmos:osmosis-1/slip44:118': 'osmosis'
+        },
+        'eip155:1': {
+          'eip155:1/slip44:60': 'ethereum',
+          'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': 'fox-token'
+        }
+      }
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('writeFiles', () => {
+    it('can writeFiles', async () => {
+      const data = {
+        foo: {
+          caip19abc: 'bitcorn',
+          caip19def: 'efferium'
+        },
+        bar: {
+          caip19ghi: 'fox',
+          caip19jkl: 'shib'
+        }
+      }
+      const fooCaips = JSON.stringify(data.foo)
+      const barCaips = JSON.stringify(data.bar)
+      console.info = jest.fn()
+      await writeFiles(data)
+      expect(realFs.promises.writeFile).toBeCalledWith(
+        './src/adapters/coincap/generated/foo/adapter.json',
+        fooCaips
+      )
+      expect(realFs.promises.writeFile).toBeCalledWith(
+        './src/adapters/coincap/generated/bar/adapter.json',
+        barCaips
+      )
+      expect(console.info).toBeCalledWith('Generated CoinCap CAIP19 adapter data.')
+    })
   })
 })

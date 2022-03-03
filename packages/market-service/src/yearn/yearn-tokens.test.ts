@@ -1,5 +1,5 @@
-import { toCAIP19 } from '@shapeshiftoss/caip/dist/caip19/caip19'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 import { YearnTokenMarketCapService } from './yearn-tokens'
 import { mockYearnTokenRestData } from './yearnMockData'
@@ -68,17 +68,17 @@ describe('yearn token market service', () => {
 
     it('can map yearn to caip ids', async () => {
       const result = await yearnTokenMarketCapService.findAll()
-      const yvBtcCaip19 = toCAIP19({
+      const yvBtcCaip19 = caip19.toCAIP19({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
-        contractType: ContractTypes.ERC20,
-        tokenId: mockYearnTokenRestData[0].address.toLowerCase()
+        assetNamespace: AssetNamespace.ERC20,
+        assetReference: mockYearnTokenRestData[0].address.toLowerCase()
       })
-      const yvDaiCaip19 = toCAIP19({
+      const yvDaiCaip19 = caip19.toCAIP19({
         chain: ChainTypes.Ethereum,
         network: NetworkTypes.MAINNET,
-        contractType: ContractTypes.ERC20,
-        tokenId: mockYearnTokenRestData[1].address.toLowerCase()
+        assetNamespace: AssetNamespace.ERC20,
+        assetReference: mockYearnTokenRestData[1].address.toLowerCase()
       })
       const [yvBtcKey, yvDaiKey] = Object.keys(result)
       console.log({ result })

@@ -90,10 +90,10 @@ export class CoinGeckoMarketService implements MarketService {
   findByCaip19 = async ({ caip19 }: MarketDataArgs): Promise<MarketData | null> => {
     try {
       if (!adapters.CAIP19ToCoingecko(caip19)) return null
-      const { tokenId } = fromCAIP19(caip19)
-      const isToken = !!tokenId
+      const { chain, assetReference } = fromCAIP19(caip19)
+      const isToken = chain === ChainTypes.Ethereum && assetReference.startsWith('0x')
       const id = isToken ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
-      const contractUrl = isToken ? `/contract/${tokenId}` : ''
+      const contractUrl = isToken ? `/contract/${assetReference}` : ''
 
       const { data }: { data: CoinGeckoAssetData } = await axios.get(
         `${this.baseUrl}/coins/${id}${contractUrl}`
@@ -120,8 +120,10 @@ export class CoinGeckoMarketService implements MarketService {
   }: PriceHistoryArgs): Promise<HistoryData[]> => {
     if (!adapters.CAIP19ToCoingecko(caip19)) return []
     try {
-      const { tokenId } = fromCAIP19(caip19)
-      const id = tokenId ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
+      const { chain, assetReference } = fromCAIP19(caip19)
+      const isToken = chain === ChainTypes.Ethereum && assetReference.startsWith('0x')
+      const id = isToken ? 'ethereum' : adapters.CAIP19ToCoingecko(caip19)
+      const contract = isToken ? `/contract/${assetReference}` : ''
 
       const end = dayjs().startOf('minute')
       let start
@@ -150,7 +152,6 @@ export class CoinGeckoMarketService implements MarketService {
 
       const from = start.valueOf() / 1000
       const to = end.valueOf() / 1000
-      const contract = tokenId ? `/contract/${tokenId}` : ''
       const url = `${this.baseUrl}/coins/${id}${contract}`
       type CoinGeckoHistoryData = {
         prices: [number, number][]

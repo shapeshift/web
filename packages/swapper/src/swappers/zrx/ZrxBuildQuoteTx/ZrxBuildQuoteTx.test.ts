@@ -1,3 +1,4 @@
+import { AssetNamespace } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, GetQuoteInput } from '@shapeshiftoss/types'
@@ -47,7 +48,7 @@ const mockQuoteResponse = {
     caip2: 'eip155:1',
     chain: 'ethereum',
     color: '#FFFFFF',
-    contractType: 'ERC20',
+    contractType: AssetNamespace.ERC20,
     dataSource: 'coingecko',
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
@@ -83,7 +84,7 @@ const mockQuoteResponse = {
     caip2: 'eip155:1',
     chain: 'ethereum',
     color: '#FFFFFF',
-    contractType: 'ERC20',
+    contractType: AssetNamespace.ERC20,
     dataSource: 'coingecko',
     icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
     name: 'FOX',

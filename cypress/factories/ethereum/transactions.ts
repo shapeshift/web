@@ -2,7 +2,7 @@ import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 const test1: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0xc2f42f9dfbeb1c600ecd13dbcd624af1ea70631e13ad4d972b83a2a7c805360c',
   blockHeight: 1,
   blockTime: 1637201790,
@@ -18,7 +18,7 @@ const test1: Tx = {
   transfers: [
     {
       caip19: 'eip155:1/slip44:60',
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       to: '0x67ffc0d460c38CeEe3a29A94def9Ff828E92E165',
       value: '230757160394687',
       type: chainAdapters.TxType.Send
@@ -27,7 +27,7 @@ const test1: Tx = {
 }
 
 const test2: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0x2761caf9c664bb0dc9b59b18f24e7a29974c867b1181cbcefd415f881801a16e',
   blockHeight: 2,
   blockTime: 1637201791,
@@ -43,7 +43,7 @@ const test2: Tx = {
   transfers: [
     {
       caip19: 'eip155:1/slip44:60',
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       to: '0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741',
       value: '11746823071700259',
       type: chainAdapters.TxType.Send
@@ -52,7 +52,7 @@ const test2: Tx = {
 }
 
 const test3: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0xe594af3d97c1ee001ab72a16671a0e05edf1ae50201eb6645dd4e5fd406e48a7',
   blockHeight: 3,
   blockTime: 1637201792,
@@ -65,7 +65,7 @@ const test3: Tx = {
     {
       caip19: 'eip155:1/slip44:60',
       from: '0x2ee5e455454d0ba78C337a918C6E5ff80345c1e0',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      to: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       value: '8559800000000000',
       type: chainAdapters.TxType.Receive
     }
@@ -73,7 +73,7 @@ const test3: Tx = {
 }
 
 const test4: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0x4e427bef8984df1c1cffcd88bbc4b3f5a62c51a3f0a315cf2c49d8783d0c7603',
   blockHeight: 4,
   blockTime: 1637201793,
@@ -89,7 +89,7 @@ const test4: Tx = {
   transfers: [
     {
       caip19: 'eip155:1/slip44:60',
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       to: '0xf9F6c86877C2Cf13f93B29FDa3c66d361A463Ab5',
       value: '70000000000000000',
       type: chainAdapters.TxType.Send
@@ -98,7 +98,7 @@ const test4: Tx = {
 }
 
 const test5: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0x238168ad84a353e0245399f779ee20ef352ce303ef78681c70c5c269574375e9',
   blockHeight: 5,
   blockTime: 1637201794,
@@ -111,7 +111,7 @@ const test5: Tx = {
     {
       caip19: 'eip155:1/slip44:60',
       from: '0xD3273EBa07248020bf98A8B560ec1576a612102F',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      to: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       value: '100000000000000000',
       type: chainAdapters.TxType.Receive
     }
@@ -119,7 +119,7 @@ const test5: Tx = {
 }
 
 const test6: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0xe6c0ce54e78c22c2297fe8d058ba3cf944b35185016a2047974532cfe0627d17',
   blockHeight: 6,
   blockTime: 1637201795,
@@ -132,7 +132,7 @@ const test6: Tx = {
     {
       caip19: 'eip155:1/slip44:60',
       from: '0x563b377A956c80d77A7c613a9343699Ad6123911',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      to: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       value: '42000000000000000',
       type: chainAdapters.TxType.Receive
     }
@@ -141,7 +141,7 @@ const test6: Tx = {
 
 // THIS IS THE NAUGHTY ONE
 const test7: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  address: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
   blockHash: '0x9f24e77cfe543625ca98539f73d3f2a60d475b715a759bb5dc43334d0fa660dd',
   blockHeight: 7,
   blockTime: 1637201796,
@@ -157,15 +157,15 @@ const test7: Tx = {
   transfers: [
     {
       caip19: 'eip155:1/slip44:60',
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
+      to: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       value: '900000000000000000000',
       type: chainAdapters.TxType.Send
     },
     {
       caip19: 'eip155:1/slip44:60',
-      from: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
-      to: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+      from: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
+      to: '0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde',
       value: '900000000000000000000',
       type: chainAdapters.TxType.Receive
     }

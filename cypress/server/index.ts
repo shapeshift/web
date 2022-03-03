@@ -4,6 +4,9 @@ import { makeEthTxHistory } from '../factories/ethereum/transactions'
 const wss = new WebSocket.Server({ port: 8080 })
 
 const ethTransactions = makeEthTxHistory()
+enum TopicTypes {
+  Transactions = 'txs'
+}
 
 wss.on('connection', (ws: WebSocket) => {
   const loginReply = JSON.stringify({
@@ -23,20 +26,22 @@ wss.on('connection', (ws: WebSocket) => {
       const jsonMessage = JSON.parse(message)
 
       const method = jsonMessage?.method
+      const topic = jsonMessage?.topic
+      const data = jsonMessage?.data
 
       switch (method) {
         case 'subscribe':
-          ethTransactions.forEach(ethTransaction => {
-            const transactionReply = JSON.stringify({
-              method: 'subscribe',
-              subscriptionId: jsonMessage.subscriptionId,
-              data: ethTransaction
+          if (topic === TopicTypes.Transactions || data?.topic === TopicTypes.Transactions) {
+            ethTransactions.forEach(ethTransaction => {
+              const transactionReply = JSON.stringify({
+                method: 'subscribe',
+                topic: topic,
+                subscriptionId: jsonMessage.subscriptionId,
+                data: ethTransaction
+              })
+              ws.send(transactionReply)
             })
-            ws.send(transactionReply)
-          })
-
-          ws.send(endReply)
-
+          }
           break
         case 'unsubscribe':
           ws.send({
@@ -49,6 +54,7 @@ wss.on('connection', (ws: WebSocket) => {
         default:
           break
       }
+      ws.send(endReply)
     } catch (error) {}
   })
 })

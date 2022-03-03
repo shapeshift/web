@@ -15,6 +15,8 @@ describe('The Dashboard', () => {
   })
 
   it('displays recent transactions', () => {
+    cy.getBySel('account-row-asset-crypto-ETH').should('exist')
+    cy.getBySel('account-row-asset-crypto-ETH').click()
     cy.getBySel('transaction-receive').should('have.length', 3)
     cy.getBySel('transaction-send').should('have.length', 3)
   })

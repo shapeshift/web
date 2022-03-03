@@ -1,0 +1,8 @@
+.parsed-link {
+    color: #7F99FB !important;
+    text-decoration: none;
+}
+
+.parsed-link:hover {
+    text-decoration: underline;
+}

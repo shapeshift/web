@@ -23,6 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { Card } from 'components/Card/Card'
 import { TimeControls } from 'components/Graph/TimeControls'
+import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { RawText, Text } from 'components/Text'
@@ -222,11 +223,12 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Skeleton>
           <Collapse startingHeight={70} in={showDescription}>
             <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
-              <SanitizedHtml
-                color='gray.500'
-                dirtyHtml={markdownLinkToHTML(description)}
-                isTrusted={isTrustedDescription}
-              />
+              {isTrustedDescription && (
+                <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />
+              )}
+              {!isTrustedDescription && (
+                <SanitizedHtml color='gray.500' dirtyHtml={markdownLinkToHTML(description)} />
+              )}
             </SkeletonText>
           </Collapse>
           <Button size='sm' onClick={handleToggle} mt='1rem'>

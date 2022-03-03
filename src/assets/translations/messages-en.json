@@ -131,6 +131,7 @@
     "validator": "Validator",
     "gasFee": "Gas Fee",
     "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
+    "confirmAndBroadcast": "Confirm & broadcast",
     "averageApr": "Average APR",
     "estimatedYearlyRewards": "Estimated Yearly Rewards",
     "staked": "Staked",

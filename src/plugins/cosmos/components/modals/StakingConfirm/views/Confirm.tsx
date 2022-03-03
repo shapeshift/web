@@ -103,7 +103,7 @@ export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProp
               <Amount.Crypto
                 color='gray.500'
                 value={cryptoStakeAmount.toPrecision()}
-                symbol={'OSMO'}
+                symbol={asset.symbol}
               />
             </Flex>
           </Flex>
@@ -124,7 +124,7 @@ export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProp
           <Flex width='100%' mb='13px' justifyContent='space-between'>
             <Text translation={'defi.estimatedYearlyRewards'} color='gray.500' />
             <Flex direction='column' alignItems='flex-end'>
-              <Amount.Crypto value={cryptoYield} symbol={'OSMO'} />
+              <Amount.Crypto value={cryptoYield} symbol={asset.symbol} />
               <Amount.Fiat color='gray.500' value={fiatYield} />
             </Flex>
           </Flex>
@@ -133,7 +133,9 @@ export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProp
               {translate('defi.gasFee')}
               &nbsp;
               <Tooltip
-                label={translate('defi.modals.staking.tooltip.gasFees', { networkName: 'Osmosis' })}
+                label={translate('defi.modals.staking.tooltip.gasFees', {
+                  networkName: asset.name
+                })}
               >
                 <InfoOutlineIcon />
               </Tooltip>
@@ -167,7 +169,7 @@ export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProp
             mb='18px'
           />
           <Button colorScheme={'blue'} mb={2} size='lg' type='submit' width='full'>
-            <Text translation={'Confirm & Broadcast'} />
+            <Text translation={'defi.confirmAndBroadcast'} />
           </Button>
           <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
             <Text translation='common.cancel' />

@@ -18,7 +18,7 @@ type StakingTableProps = {
 type RowProps = Row<EarnOpportunityType>
 
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
-  const columns: Column[] = useMemo(
+  const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
       {
         Header: '#',
@@ -56,7 +56,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
             <Amount.Percent value={value} />
           </Tag>
         ),
-        sortType: (a: any, b: any) =>
+        sortType: (a: RowProps, b: RowProps): number =>
           bnOrZero(a.original.apy).gt(bnOrZero(b.original.apy)) ? -1 : 1
       },
       {

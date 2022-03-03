@@ -1,6 +1,7 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace } from '@shapeshiftoss/caip/dist/caip19/caip19'
 import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useSelector } from 'react-redux'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
@@ -27,7 +28,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
   const assetIds = useSelector(selectAssetIds)
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
+  const assetNamespace = AssetNamespace.ERC20
   const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
     let fiatAmount = '0'
@@ -40,8 +41,8 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
     const assetCAIP19 = caip19.toCAIP19({
       chain: vault.chain,
       network,
-      contractType,
-      tokenId: vault.tokenAddress
+      assetNamespace,
+      assetReference: vault.tokenAddress
     })
     const data = {
       type: vault.type,

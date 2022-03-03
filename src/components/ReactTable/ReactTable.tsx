@@ -1,14 +1,14 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
-import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
+import { useMemo } from 'react'
 import { Column, useSortBy, useTable } from 'react-table'
 
-type StakingTableProps = {
-  columns: Column[]
-  data: EarnOpportunityType[]
+type ReactTableProps = {
+  columns: Column<any>[]
+  data: any[]
 }
 
-export const ReactTable = ({ columns, data }: StakingTableProps) => {
+export const ReactTable = ({ columns, data }: ReactTableProps) => {
   const hoverColor = useColorModeValue('black', 'white')
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
@@ -17,6 +17,21 @@ export const ReactTable = ({ columns, data }: StakingTableProps) => {
     },
     useSortBy
   )
+  const renderRows = useMemo(() => {
+    return rows.map(row => {
+      prepareRow(row)
+      return (
+        <Tr {...row.getRowProps()} tabIndex={row.index}>
+          {row.cells.map(cell => (
+            <Td {...cell.getCellProps()} display={cell.column.display}>
+              {cell.render('Cell')}
+            </Td>
+          ))}
+        </Tr>
+      )
+    })
+  }, [prepareRow, rows])
+
   return (
     <Table variant='clickable' {...getTableProps()}>
       <Thead>
@@ -46,20 +61,7 @@ export const ReactTable = ({ columns, data }: StakingTableProps) => {
           </Tr>
         ))}
       </Thead>
-      <Tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row)
-          return (
-            <Tr {...row.getRowProps()} tabIndex={row.index}>
-              {row.cells.map(cell => (
-                <Td {...cell.getCellProps()} display={cell.column.display}>
-                  {cell.render('Cell')}
-                </Td>
-              ))}
-            </Tr>
-          )
-        })}
-      </Tbody>
+      <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
     </Table>
   )
 }

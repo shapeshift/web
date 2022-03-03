@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v1.13.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.12.1...@shapeshiftoss/caip-v1.13.0) (2022-03-03)
+
+
+### Features
+
+* osmosis market service ([#394](https://github.com/shapeshift/lib/issues/394)) ([cd613e1](https://github.com/shapeshift/lib/commit/cd613e133f76c00324b5d35fe75ba1ee164f82d7))
+
 # [@shapeshiftoss/caip-v1.12.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v1.12.0...@shapeshiftoss/caip-v1.12.1) (2022-03-01)
 
 

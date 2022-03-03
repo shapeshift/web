@@ -93,7 +93,7 @@ const transformFoxy = (foxies: any[]): EarnOpportunityType[] => {
   })
 }
 
-type NoramlizeEarnOpportunitiesProps = {
+type NormalizeEarnOpportunitiesProps = {
   vaultArray: SupportedYearnVault[]
   foxyArray: any[]
 }

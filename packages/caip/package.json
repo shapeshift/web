@@ -30,10 +30,10 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@shapeshiftoss/types": "^1.23.0"
+    "@shapeshiftoss/types": "^2.0.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/types": "^1.23.0",
+    "@shapeshiftoss/types": "^2.0.0",
     "@yfi/sdk": "^1.0.27",
     "axios": "^0.26.0"
   }

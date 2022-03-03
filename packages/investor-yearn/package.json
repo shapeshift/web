@@ -34,13 +34,13 @@
     "web3-utils": "^1.7.0"
   },
   "peerDependencies": {
-    "@shapeshiftoss/chain-adapters": "^1.35.1",
+    "@shapeshiftoss/chain-adapters": "^2.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.18.4",
-    "@shapeshiftoss/types": "^1.24.0"
+    "@shapeshiftoss/types": "^2.0.0"
   },
   "devDependencies": {
-    "@shapeshiftoss/chain-adapters": "^1.33.0",
+    "@shapeshiftoss/chain-adapters": "^2.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",
-    "@shapeshiftoss/types": "^1.24.0"
+    "@shapeshiftoss/types": "^2.0.0"
   }
 }

@@ -27,7 +27,7 @@ const renderTransactionType = (txDetails: TxDetails): JSX.Element | null => {
       case TxType.Contract:
         return <TransactionContract txDetails={txDetails} />
       default:
-        // Unhandled transaction type - render what a generic row
+        // Unhandled transaction type - render a generic row
         return <TransactionGeneric txDetails={txDetails} />
     }
   })()

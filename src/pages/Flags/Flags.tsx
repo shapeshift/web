@@ -14,7 +14,7 @@ const FlagHeader = () => {
   return (
     <Stack pb={4}>
       <Heading>Flags</Heading>
-      <RawText color='gray.500'>Turn on and off flags, but toggling the switch.</RawText>
+      <RawText color='gray.500'>Turn on and off flags, by toggling the switch.</RawText>
     </Stack>
   )
 }

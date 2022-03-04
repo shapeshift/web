@@ -3,9 +3,11 @@ import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type GetStartedProps = {
   assetId: CAIP19
@@ -17,6 +19,7 @@ const ASSET_ID_TO_MAX_APR = {
 }
 
 export const GetStarted = ({ assetId }: GetStartedProps) => {
+  const { cosmosGetStarted, cosmosStaking } = useModal()
   const history = useHistory()
   const location = useLocation()
   const handleLearnMoreClick = () => {
@@ -25,9 +28,14 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
       state: { background: location }
     })
   }
+
+  const handleStartStakingClick = () => {
+    cosmosStaking.open({ assetId, action: StakingAction.Stake })
+    cosmosGetStarted.close()
+  }
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
-    name: 'Osmo'
+    name: 'Osmosis'
   }))(assetId)
   const maxApr = ASSET_ID_TO_MAX_APR['cosmoshub-4/slip44:118']
   return (
@@ -68,7 +76,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
                 zIndex={1}
                 width='100%'
                 colorScheme='blue'
-                onClick={() => 'Start Staking'}
+                onClick={handleStartStakingClick}
               >
                 <Text translation='defi.modals.getStarted.cta.startStaking' />
               </Button>

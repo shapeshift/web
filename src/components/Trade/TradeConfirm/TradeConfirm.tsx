@@ -1,6 +1,6 @@
 import { Box, Button, Divider, Link, Stack, useToast } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
-import { ChainTypes, ContractTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { ChainTypes, NetworkTypes, SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -50,9 +50,11 @@ export const TradeConfirm = ({ history }: RouterProps) => {
   } = useWallet()
   const { chain, tokenId } = sellAsset.currency
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
-  const extra = { contractType, tokenId }
-  const caip = caip19.toCAIP19({ chain, network, ...(tokenId ? extra : undefined) })
+  const assetNamespace = AssetNamespace.ERC20
+  const extra = tokenId
+    ? { assetNamespace, assetReference: tokenId }
+    : { assetNamespace: AssetNamespace.Slip44, assetReference: AssetReference.Ethereum }
+  const caip = caip19.toCAIP19({ chain, network, ...extra })
 
   const status = useAppSelector(state => selectLastTxStatusByAssetId(state, caip))
 

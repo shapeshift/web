@@ -11,9 +11,9 @@ import {
   useMediaQuery
 } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
-import { caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
-import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { debounce } from 'lodash'
@@ -67,10 +67,15 @@ export const EarnOpportunityRow = ({
   const location = useLocation()
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
+  const assetNamespace = AssetNamespace.ERC20
   const TVL = bnOrZero(underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString()
   // asset
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const assetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: tokenAddress
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
 

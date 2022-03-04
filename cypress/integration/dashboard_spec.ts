@@ -47,7 +47,8 @@ describe('The Dashboard', () => {
     // TODO - We are now at the approval screen - test the rest of the flow
   })
 
-  it('supports send transaction setup', () => {
+  // Flakey - fix and unskip
+  it.skip('supports send transaction setup', () => {
     cy.navigateToDashboard()
     cy.getBySel('account-row-asset-crypto-LINK').click()
     cy.url().should('equal', `${baseUrl}assets/${linkContract}`)
@@ -71,7 +72,8 @@ describe('The Dashboard', () => {
     cy.backdropDismiss()
   })
 
-  it('supports receive transaction setup', () => {
+  // Flakey - fix and unskip
+  it.skip('supports receive transaction setup', () => {
     cy.navigateToDashboard()
     cy.getBySel('account-row-asset-crypto-LINK').click()
     cy.url().should('equal', `${baseUrl}assets/${linkContract}`)

@@ -17,6 +17,12 @@ const SUPPORTED_CONTRACT_METHODS = new Set([
   'transferOut'
 ])
 
+enum Direction {
+  InPlace = 'in-place',
+  Outbound = 'outbound',
+  Inbound = 'inbound'
+}
+
 export interface TxDetails {
   tx: Tx
   buyTx: TxTransfer | undefined
@@ -35,7 +41,7 @@ export interface TxDetails {
   precision: number
   explorerTxLink: string
   explorerAddressLink: string
-  direction: 'in-place' | 'outbound' | 'inbound'
+  direction: Direction
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
@@ -53,17 +59,17 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const buyTx = getBuyTx(tx)
   const sellTx = getSellTx(tx)
 
-  const direction = (() => {
+  const direction: Direction = (() => {
     switch (method) {
       case 'deposit':
       case 'addLiquidityETH':
       case 'transferOut':
-        return 'outbound'
+        return Direction.Outbound
       case 'withdraw':
       case 'removeLiquidityETH':
-        return 'inbound'
+        return Direction.Inbound
       default:
-        return 'in-place'
+        return Direction.InPlace
     }
   })()
 

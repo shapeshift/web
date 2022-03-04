@@ -205,7 +205,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
             if (wallet === 'keepkey') {
-              keepkey.checkAndPairService()
+              const serviceKey = keepkey.getServiceKey()
+              // TODO: add ability to pass serviceKey to adapter
               await adapter.pairDevice('http://localhost:1646')
               adapters.set(wallet, adapter)
             } else {
@@ -346,7 +347,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if (type === 'keepkey') {
         const adapter = SUPPORTED_WALLETS['keepkey'].adapter.useKeyring(state.keyring)
         try {
-          keepkey.checkAndPairService()
+          const serviceKey = keepkey.getServiceKey()
+          // TODO: add ability to pass serviceKey to adapter
           await adapter.pairDevice('http://localhost:1646')
           const adapters: Adapters = new Map()
           adapters.set('keepkey' as KeyManager, adapter)

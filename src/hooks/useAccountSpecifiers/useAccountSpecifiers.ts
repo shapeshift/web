@@ -1,4 +1,4 @@
-import { CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -51,7 +51,12 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
         }
         case ChainTypes.Bitcoin: {
           if (!supportsBTC(wallet)) continue
-          const CAIP19 = caip19.toCAIP19({ chain, network })
+          const CAIP19 = caip19.toCAIP19({
+            chain,
+            network,
+            assetNamespace: AssetNamespace.Slip44,
+            assetReference: AssetReference.Bitcoin
+          })
           const bitcoin = assetsById[CAIP19]
 
           if (!bitcoin) continue

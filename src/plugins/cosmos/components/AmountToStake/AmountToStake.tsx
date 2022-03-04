@@ -28,6 +28,7 @@ export const AmountToStake = ({
     </FormLabel>
     <Box
       as='button'
+      type='button'
       lineHeight={1}
       mt={0}
       color='gray.500'

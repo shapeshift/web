@@ -1,8 +1,8 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -20,6 +20,7 @@ import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -35,7 +36,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
 enum WithdrawPath {
@@ -62,14 +62,29 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
+  const assetNamespace = AssetNamespace.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
+  const underlyingAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: tokenId
+  })
   const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const assetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: vaultAddress
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
-  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const feeAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace: AssetNamespace.Slip44,
+    assetReference: AssetReference.Ethereum
+  })
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
@@ -433,7 +448,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      <YearnRouteSteps routes={routes} />
+      <RouteSteps px={4} py={6} routes={routes} />
       <Flex flexDir='column' width='full' minWidth='400px'>
         {withdrawRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <AnimatePresence exitBeforeEnter initial={false}>

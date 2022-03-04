@@ -1,11 +1,7 @@
 name: Commitlint, Lint, Type Check, Test & Build
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
-      - releases/**
+  workflow_call:
 
 jobs:
   commitlint-lint-typecheck-test-build:
@@ -28,6 +24,13 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+      - name: Cache build folder
+        uses: actions/cache@v2
+        with:
+          path: build
+          key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ github.ref }}-
       - name: Install
         run: yarn install --frozen-lockfile
       # needs to run after install
@@ -41,5 +44,3 @@ jobs:
         run: yarn type-check
       - name: Test
         run: yarn test
-      - name: Build
-        run: yarn build

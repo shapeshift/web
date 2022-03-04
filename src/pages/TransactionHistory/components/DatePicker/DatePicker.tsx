@@ -1,4 +1,8 @@
+import 'react-datepicker/dist/react-datepicker.css'
+import './DatePicker.css'
+
 import { Input, InputGroup, InputLeftElement, useColorModeValue } from '@chakra-ui/react'
+import ReactDatePicker from 'react-datepicker'
 import { Control, useController } from 'react-hook-form'
 import { FaCalendarAlt } from 'react-icons/fa'
 
@@ -7,19 +11,20 @@ export const DatePicker = ({ control, name }: { control: Control; name: string }
     field: { onChange, value }
   } = useController({ control, name })
   return (
-    <InputGroup>
+    <InputGroup p={0} className={useColorModeValue('light-theme', 'dark-theme')}>
       <InputLeftElement pointerEvents='none' color={useColorModeValue('blue.300', 'blue.200')}>
         <FaCalendarAlt />
       </InputLeftElement>
       <Input
-        pl={10}
-        placeholder='00/00/0000'
+        as={ReactDatePicker}
+        selected={value || ''}
+        onChange={onChange}
         bg={useColorModeValue('gray.300', 'gray.750')}
         color={useColorModeValue('blue.300', 'blue.200')}
         name={name}
-        value={value || ''}
-        onChange={onChange}
-        type='date'
+        placeholderText='00/00/0000'
+        autoComplete='off'
+        showPopperArrow={false}
       />
     </InputGroup>
   )

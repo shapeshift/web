@@ -20,7 +20,7 @@ import { IoOptionsOutline } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 
-import { DatePicker } from './components/DatePicker'
+import { DatePicker } from './components/DatePicker/DatePicker'
 import { FilterGroup } from './components/FilterGroup'
 
 export enum FilterFormFields {
@@ -72,10 +72,10 @@ export const TransactionHistoryFilter = ({
       filterSet.toDate = today.unix()
     }
     if (fromDate) {
-      filterSet.fromDate = dayjs(fromDate, 'YYYY-MM-DD').startOf('day').unix()
+      filterSet.fromDate = dayjs(fromDate).startOf('day').unix()
     }
     if (toDate) {
-      filterSet.toDate = dayjs(toDate, 'YYYY-MM-DD').endOf('day').unix()
+      filterSet.toDate = dayjs(toDate).endOf('day').unix()
     }
     setFilters(filterSet)
   }

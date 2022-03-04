@@ -104,7 +104,7 @@ export const StakingCard = ({
             </Skeleton>
             <Skeleton isLoaded={isLoaded}>
               <StatNumber>
-                <Amount.Fiat color={expired ? 'red.500' : 'white'} value={fiatAmount} />
+                <Amount.Fiat color={expired ? 'red.500' : ''} value={fiatAmount} />
               </StatNumber>
             </Skeleton>
           </Stat>

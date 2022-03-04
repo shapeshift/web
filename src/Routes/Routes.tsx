@@ -19,6 +19,7 @@ import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
+import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -27,18 +28,6 @@ import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
 export const routes: Array<NestedRoute> = [
-  {
-    path: '/legal/privacy-policy',
-    hide: true,
-    label: 'Privacy Policy',
-    main: PrivacyPolicy
-  },
-  {
-    path: '/legal/terms-of-service',
-    label: 'Terms of Service',
-    main: TermsOfService,
-    hide: true
-  },
   {
     path: '/dashboard',
     label: 'navBar.dashboard',
@@ -176,6 +165,33 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
       })}
       <Route path='/connect-wallet'>
         <ConnectWallet />
+      </Route>
+      <Route path={'/legal/terms-of-service'}>
+        <Layout
+          route={{
+            path: '/legal/terms-of-service',
+            label: 'Terms of Service',
+            main: TermsOfService
+          }}
+        />
+      </Route>
+      <Route path={'/legal/privacy-policy'}>
+        <Layout
+          route={{
+            path: '/legal/privacy-policy',
+            label: 'Privacy Policy',
+            main: PrivacyPolicy
+          }}
+        />
+      </Route>
+      <Route path='/flags'>
+        <Layout
+          route={{
+            path: '/flags',
+            label: 'Flags',
+            main: Flags
+          }}
+        />
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

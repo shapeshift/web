@@ -1,11 +1,7 @@
 name: Cypress Tests
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
-      - releases/**
+  workflow_call:
 
 env:
   ESLINT_NO_DEV_ERRORS: true
@@ -74,6 +70,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.ref }}-
 
+      - name: Cache build folder
+        uses: actions/cache@v2
+        with:
+          path: build
+          key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ github.ref }}-
+
       - name: install dependencies and verify Cypress
         env:
           # Make sure every Cypress install prints minimal information
@@ -90,8 +94,8 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          install: false
           record: true
-          build: yarn run build
           start: yarn dev
           parallel: true
           wait-on: 'http://localhost:3000'

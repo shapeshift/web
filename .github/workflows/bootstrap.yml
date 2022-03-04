@@ -1,11 +1,6 @@
 name: Bootstrap
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - releases/**
   pull_request:
     branches:
       - main

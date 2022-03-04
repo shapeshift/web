@@ -152,9 +152,9 @@ export function createModalProvider<M>({
     return (
       <InstanceModalContext.Provider value={value}>
         {children}
-        {Object.values(value).map(
-          (Modal, key) => Modal.isOpen && <Modal.Component key={key} {...Modal.props} />
-        )}
+        {Object.values(value).map((Modal, key) => (
+          <Modal.Component key={key} {...Modal.props} />
+        ))}
       </InstanceModalContext.Provider>
     )
   }

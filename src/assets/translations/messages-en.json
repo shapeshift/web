@@ -664,7 +664,15 @@
       "fileName": "ShapeShift Transactions History",
       "txid": "TX ID",
       "timestamp": "Timestamp",
-      "status": "Status"
+      "status": "Status",
+      "minerFee": "Miner fee",
+      "minerFeeCurrency": "Miner fee currency",
+      "inputAmount": "Input amount",
+      "inputCurrency": "Input currency",
+      "inputAddress": "Input address",
+      "outputAmount": "Output amount",
+      "outputCurrency": "Output currency",
+      "outputAddress": "Output address"
     },
     "assets": "Assets",
     "viewOnChain": "View on chain",

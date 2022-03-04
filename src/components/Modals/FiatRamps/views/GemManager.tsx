@@ -28,10 +28,15 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
 import { selectPortfolioCryptoHumanBalanceBySymbol } from 'state/slices/selectors'
 
-import { BuySellAction, CurrencyAsset, SupportedCurrency, TransactionDirection } from '../BuySell'
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
-import { BuySellActionButtons } from '../components/BuySellActionButtons'
+import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
+import {
+  CurrencyAsset,
+  FiatRampAction,
+  SupportedCurrency,
+  TransactionDirection
+} from '../FiatRamps'
 
 const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
@@ -43,12 +48,12 @@ const GEM_URL = getConfig().REACT_APP_GEM_URL
 export const GemManager = () => {
   const translate = useTranslate()
   const toast = useToast()
-  const { buySell } = useModal()
+  const { fiatRamps } = useModal()
 
   const [asset, setAsset] = useState<CurrencyAsset | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
   const [verified, setVerified] = useState<boolean | null>(null)
-  const [action, setAction] = useState<BuySellAction>(BuySellAction.Buy)
+  const [action, setAction] = useState<FiatRampAction>(FiatRampAction.Buy)
   const [address, setAddress] = useState<string>('')
   const [ensAddress, setEnsAddress] = useState<string>('')
   const { state } = useWallet()
@@ -141,7 +146,7 @@ export const GemManager = () => {
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
-      action === BuySellAction.Buy
+      action === FiatRampAction.Buy
         ? ['buysell.selectAnAssetToBuy', 'buysell.assetToBuy', 'buysell.fundsTo']
         : ['buysell.selectAnAssetToSell', 'buysell.assetToSell', 'buysell.fundsFrom'],
     [action]
@@ -223,13 +228,13 @@ export const GemManager = () => {
             <AssetSearch
               onClick={onSelectAsset}
               type={action}
-              assets={action === BuySellAction.Buy ? buyList : sellList}
+              assets={action === FiatRampAction.Buy ? buyList : sellList}
               loading={loading}
             />
           </Stack>
         ) : (
           <Stack spacing={4}>
-            <BuySellActionButtons action={action} setAction={setAction} />
+            <FiatRampActionButtons action={action} setAction={setAction} />
             <Text translation={assetTranslation} color='gray.500' />
             <Button
               width='full'
@@ -291,7 +296,7 @@ export const GemManager = () => {
             >
               <Text translation='common.continue' />
             </Button>
-            <Button width='full' size='lg' variant='ghost' onClick={buySell.close}>
+            <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
               <Text translation='common.cancel' />
             </Button>
           </Stack>

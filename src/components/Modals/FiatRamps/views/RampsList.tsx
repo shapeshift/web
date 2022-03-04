@@ -7,9 +7,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-import { BuySellRoutes } from '../BuySell'
+import { BuySellRoutes } from '../FiatRamps'
 
-export const BuySellRamps = () => {
+export const RampsList = () => {
   const history = useHistory()
 
   return (

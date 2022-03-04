@@ -2,14 +2,14 @@ import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/
 import { MemoryRouter, Route } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
-import { BuySellRouter } from './BuySellRouter'
+import { FiatRampsRouter } from './FiatRampsRouter'
 
 export enum BuySellRamp {
   Gem = 'gem',
   OnJuno = 'onjuno'
 }
 
-export enum BuySellAction {
+export enum FiatRampAction {
   Buy = 'buy',
   Sell = 'sell'
 }
@@ -83,9 +83,9 @@ export enum BuySellRoutes {
 
 export const entries = [BuySellRoutes.Select, BuySellRoutes.Gem]
 
-const BuySell = () => {
-  const { buySell } = useModal()
-  const { close, isOpen } = buySell
+export const FiatRampsModal = () => {
+  const { fiatRamps } = useModal()
+  const { close, isOpen } = fiatRamps
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
       <ModalOverlay />
@@ -93,11 +93,10 @@ const BuySell = () => {
         <ModalCloseButton />
         <MemoryRouter initialEntries={entries}>
           <Route path='/'>
-            <BuySellRouter />
+            <FiatRampsRouter />
           </Route>
         </MemoryRouter>
       </ModalContent>
     </Modal>
   )
 }
-export const BuySellModal = BuySell

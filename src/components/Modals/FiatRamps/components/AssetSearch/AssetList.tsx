@@ -2,7 +2,7 @@ import { ListProps } from '@chakra-ui/react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
-import { BuySellAction, CurrencyAsset } from '../../BuySell'
+import { BuySellAction, CurrencyAsset } from '../../FiatRamps'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {

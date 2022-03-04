@@ -1,14 +1,14 @@
 import { Button, ButtonGroup } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
-import { BuySellAction } from '../BuySell'
+import { FiatRampAction } from '../FiatRamps'
 
-export const BuySellActionButtons = ({
+export const FiatRampActionButtons = ({
   action,
   setAction
 }: {
-  action: BuySellAction
-  setAction: (action: BuySellAction) => void
+  action: FiatRampAction
+  setAction: (action: FiatRampAction) => void
 }) => {
   const translate = useTranslate()
 
@@ -19,8 +19,8 @@ export const BuySellActionButtons = ({
         pb={4}
         pl={10}
         pr={10}
-        isActive={action === BuySellAction.Buy}
-        onClick={() => setAction(BuySellAction.Buy)}
+        isActive={action === FiatRampAction.Buy}
+        onClick={() => setAction(FiatRampAction.Buy)}
       >
         {translate('buysell.buy')}
       </Button>
@@ -29,8 +29,8 @@ export const BuySellActionButtons = ({
         pb={4}
         pl={10}
         pr={10}
-        isActive={action === BuySellAction.Sell}
-        onClick={() => setAction(BuySellAction.Sell)}
+        isActive={action === FiatRampAction.Sell}
+        onClick={() => setAction(FiatRampAction.Sell)}
       >
         {translate('buysell.sell')}
       </Button>

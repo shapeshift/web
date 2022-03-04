@@ -4,20 +4,20 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
-import { BuySellAction, CurrencyAsset } from '../../BuySell'
+import { CurrencyAsset, FiatRampAction } from '../../FiatRamps'
 import { AssetList } from './AssetList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm'
 
 type AssetSearchProps = {
   onClick: (asset: CurrencyAsset) => void
-  type: BuySellAction
+  type: FiatRampAction
   assets: CurrencyAsset[]
   loading: boolean
 }
 
 export const AssetSearch = ({
   onClick,
-  type = BuySellAction.Buy,
+  type = FiatRampAction.Buy,
   assets,
   loading
 }: AssetSearchProps) => {

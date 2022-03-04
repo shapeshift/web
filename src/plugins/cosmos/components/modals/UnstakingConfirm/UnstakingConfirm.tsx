@@ -12,32 +12,30 @@ import { BigNumber } from 'lib/bignumber/bignumber'
 import { StakingAction } from '../Staking/Staking'
 import { Confirm } from './views/Confirm'
 
-type StakingConfirmProps = {
+type UnstakingConfirmProps = {
   cryptoAmount: BigNumber
   assetId: CAIP19
   fiatRate: BigNumber
-  apr: string
 }
 
-export enum StakingPath {
-  Confirm = '/staking/confirm',
-  Broadcast = '/staking/broadcast'
+export enum UnstakingPath {
+  Confirm = '/unstaking/confirm',
+  Broadcast = '/unstaking/broadcast'
 }
 
 export const depositRoutes = [
-  { step: 0, path: StakingPath.Confirm, label: 'Confirm Details' },
-  { step: 1, path: StakingPath.Broadcast, label: 'Broadcast TX' }
+  { step: 0, path: UnstakingPath.Confirm, label: 'Confirm Details' },
+  { step: 1, path: UnstakingPath.Broadcast, label: 'Broadcast TX' }
 ]
 
-type StakingLocationProps = {
+type UnstakingLocationProps = {
   cryptoAmount: BigNumber
   assetId: string
   fiatRate: BigNumber
-  apr: string
 }
 //
-const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLocationProps) => {
-  const location = useLocation<StakingLocationProps>()
+const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLocationProps) => {
+  const location = useLocation<UnstakingLocationProps>()
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
@@ -52,7 +50,7 @@ const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLo
         <Flex minWidth={{ base: '100%', xl: '500px' }} flexDir={{ base: 'column', lg: 'row' }}>
           <RouteSteps
             assetSymbol={asset.symbol}
-            action={StakingAction.Stake}
+            action={StakingAction.Unstake}
             px={23}
             py={43}
             routes={depositRoutes}
@@ -64,16 +62,11 @@ const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLo
             maxWidth={{ base: 'auto', lg: '450px' }}
           >
             <Flex direction='column' minWidth='400px'>
-              <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
-                <Confirm
-                  apr={apr}
-                  cryptoStakeAmount={cryptoAmount}
-                  assetId={assetId}
-                  fiatRate={fiatRate}
-                />
+              <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
+                <Confirm cryptoUnstakeAmount={cryptoAmount} assetId={assetId} fiatRate={fiatRate} />
               </Route>
-              <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
-                TODO Staking Broadcast component
+              <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
+                TODO Unstaking Broadcast component
               </Route>
             </Flex>
           </Flex>
@@ -83,10 +76,10 @@ const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLo
   )
 }
 
-export const StakingConfirmModal = (props: StakingConfirmProps) => {
+export const UnstakingConfirmModal = (props: UnstakingConfirmProps) => {
   const initialRef = useRef<HTMLInputElement>(null)
-  const { cosmosStakingConfirm } = useModal()
-  const { close, isOpen } = cosmosStakingConfirm
+  const { cosmosUnstakingConfirm } = useModal()
+  const { close, isOpen } = cosmosUnstakingConfirm
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef} variant='fluid'>
@@ -97,7 +90,7 @@ export const StakingConfirmModal = (props: StakingConfirmProps) => {
           initialIndex={0}
           initialEntries={depositRoutes.map(route => route.path)}
         >
-          <CosmosStakingRouter {...props} />
+          <CosmosUnstakingRouter {...props} />
         </MemoryRouter>
       </ModalContent>
     </Modal>

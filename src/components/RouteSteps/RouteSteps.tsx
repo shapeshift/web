@@ -1,4 +1,5 @@
 import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { useLocation } from 'react-router'
 import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
@@ -15,9 +16,14 @@ export enum StatusTextEnum {
   failed = 'modals.status.header.failed'
 }
 
-type RouteStepsProps = { routes: RouteConfig[]; assetSymbol?: string }
+type RouteStepsProps = { routes: RouteConfig[]; assetSymbol?: string; action?: StakingAction }
 
-export const RouteSteps = ({ routes, assetSymbol, ...styleProps }: RouteStepsProps & BoxProps) => {
+export const RouteSteps = ({
+  routes,
+  assetSymbol,
+  action,
+  ...styleProps
+}: RouteStepsProps & BoxProps) => {
   const location = useLocation()
   const steps = routes.filter(route => route.hasOwnProperty('step'))
   const activeStep = steps.find(step => step.path === location.pathname)
@@ -39,8 +45,8 @@ export const RouteSteps = ({ routes, assetSymbol, ...styleProps }: RouteStepsPro
       minWidth='250px'
       {...styleProps}
     >
-      {assetSymbol && (
-        <Text mb={30} fontWeight='bold' translation={['defi.stakeAsset', { assetSymbol }]} />
+      {assetSymbol && action && (
+        <Text mb={30} fontWeight='bold' translation={[`defi.${action}Asset`, { assetSymbol }]} />
       )}
       <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
     </Box>

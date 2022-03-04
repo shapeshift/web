@@ -78,10 +78,14 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const { cosmosStaking } = useModal()
+  const { cosmosStaking, cosmosUnstakingConfirm } = useModal()
 
   const onSubmit = (_: any) => {
-    // TODO: onContinue()
+    cosmosUnstakingConfirm.open({
+      cryptoAmount: bnOrZero(values.cryptoAmount),
+      assetId,
+      fiatRate: bnOrZero(marketData.price)
+    })
   }
 
   const translate = useTranslate()

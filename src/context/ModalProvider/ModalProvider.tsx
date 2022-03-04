@@ -4,6 +4,7 @@ import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/Get
 import { StakedModal } from 'plugins/cosmos/components/modals/Staked/Staked'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { StakingConfirmModal } from 'plugins/cosmos/components/modals/StakingConfirm/StakingConfirm'
+import { UnstakingConfirmModal } from 'plugins/cosmos/components/modals/UnstakingConfirm/UnstakingConfirm'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
@@ -23,7 +24,8 @@ const MODALS = {
   cosmosGetStarted: GetStartedModal,
   cosmosStaked: StakedModal,
   cosmosStaking: StakingModal,
-  cosmosStakingConfirm: StakingConfirmModal
+  cosmosStakingConfirm: StakingConfirmModal,
+  cosmosUnstakingConfirm: UnstakingConfirmModal
 }
 
 // state

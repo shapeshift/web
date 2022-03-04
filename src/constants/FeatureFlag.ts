@@ -10,6 +10,3 @@ export const FeatureFlag = {
     Cosmos: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS
   }
 }
-
-// @ts-ignore
-globalThis.FeatureFlags = FeatureFlag

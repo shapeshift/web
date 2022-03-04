@@ -55,13 +55,14 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
           </Skeleton>
         </Box>
       </Flex>
-      <AssetActions
-        isDisabled={!walletSupportsChain}
-        isLoaded={isLoaded}
-        assetId={assetId}
-        accountId={accountId ? accountId : singleAccount}
-        cryptoBalance={cryptoBalance}
-      />
+      {walletSupportsChain ? (
+        <AssetActions
+          isLoaded={isLoaded}
+          assetId={assetId}
+          accountId={accountId ? accountId : singleAccount}
+          cryptoBalance={cryptoBalance}
+        />
+      ) : null}
     </Flex>
   )
 }

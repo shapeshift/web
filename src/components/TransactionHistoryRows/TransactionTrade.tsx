@@ -1,4 +1,5 @@
 import { Flex } from '@chakra-ui/react'
+import { SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { selectMarketDataById } from 'state/slices/selectors'
@@ -29,7 +30,7 @@ export const TransactionTrade = ({
     selectMarketDataById(state, txDetails.tradeTx?.caip19 ?? '')
   )
   const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.tradeTx?.caip19 ?? '')
+    selectMarketDataById(state, txDetails.tx.fee?.caip19 ?? '')
   )
   return (
     <>
@@ -65,15 +66,20 @@ export const TransactionTrade = ({
       </Flex>
       <TransactionDetailsContainer isOpen={isOpen}>
         <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
-        <Row title='orderRoute'>
-          <Text
-            // TODO: show real order route
-            value='0x'
-          />
-        </Row>
-        <Row title='transactionType'>
-          <Text value={txDetails.tx.tradeDetails?.dexName ?? ''} />
-        </Row>
+        {txDetails.tx.tradeDetails && (
+          <Row title='orderRoute'>
+            <Text
+              value={
+                txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'Thorchain' : '0x'
+              }
+            />
+          </Row>
+        )}
+        {txDetails.tx.tradeDetails && (
+          <Row title='transactionType'>
+            <Text value={txDetails.tx.tradeDetails.dexName} />
+          </Row>
+        )}
         <Row title='youSent'>
           <Amount
             value={txDetails.sellTx?.value ?? '0'}

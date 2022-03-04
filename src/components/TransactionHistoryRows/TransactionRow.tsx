@@ -3,14 +3,12 @@ import { Asset } from '@shapeshiftoss/types'
 import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
 import { Direction, TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
-dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
 const renderTransactionType = (

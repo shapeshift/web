@@ -669,6 +669,7 @@
     "assets": "Assets",
     "viewOnChain": "View on chain",
     "txid": "TX ID",
+    "fee": "Fee",
     "youSent": "You Sent",
     "youReceived": "You Received",
     "sentTo": "Sent to",

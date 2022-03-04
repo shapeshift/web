@@ -85,7 +85,7 @@ export const TransactionGenericRow = ({
                 flex={1}
                 lineHeight='1'
                 mb={1}
-                translation={`transactionRow.${title ?? type.toLowerCase()}`}
+                translation={[`transactionRow.${title ?? type.toLowerCase()}`, { symbol: '' }]}
               />
               <TransactionTime blockTime={blockTime} />
             </Box>
@@ -170,7 +170,9 @@ export const TransactionGenericRow = ({
                     color='gray.500'
                     fontSize='sm'
                     lineHeight='1'
-                    value={bnOrZero(fee.amount).times(fee.currentPrice).toString()}
+                    value={bnOrZero(fromBaseUnit(fee.amount, fee.precision))
+                      .times(fee.currentPrice)
+                      .toString()}
                   />
                 )}
               </Box>

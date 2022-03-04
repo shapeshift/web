@@ -1,4 +1,5 @@
 import { Flex } from '@chakra-ui/react'
+import { SwapperType } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { selectMarketDataById } from 'state/slices/selectors'
@@ -29,7 +30,7 @@ export const TransactionContract = ({
     selectMarketDataById(state, txDetails.tradeTx?.caip19 ?? '')
   )
   const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.tradeTx?.caip19 ?? '')
+    selectMarketDataById(state, txDetails.tx.fee?.caip19 ?? '')
   )
   return (
     <>
@@ -44,20 +45,20 @@ export const TransactionContract = ({
               symbol: txDetails.sellAsset.symbol,
               amount: txDetails.sellTx?.value ?? '0',
               precision: txDetails.sellAsset.precision,
-              currentPrice: sourceMarketData.price
+              currentPrice: sourceMarketData?.price
             },
             txDetails.buyAsset && {
               symbol: txDetails.buyAsset.symbol,
               amount: txDetails.buyTx?.value ?? '0',
               precision: txDetails.buyAsset.precision,
-              currentPrice: destinationMarketData.price
+              currentPrice: destinationMarketData?.price
             }
           ].filter(Boolean)}
           fee={{
             symbol: txDetails.feeAsset?.symbol ?? '',
             amount: txDetails.tx.fee?.value ?? '0',
             precision: txDetails.feeAsset?.precision,
-            currentPrice: feeAssetMarketData.price
+            currentPrice: feeAssetMarketData?.price
           }}
           explorerTxLink={txDetails.explorerTxLink}
           txid={txDetails.tx.txid}
@@ -66,15 +67,20 @@ export const TransactionContract = ({
       </Flex>
       <TransactionDetailsContainer isOpen={isOpen}>
         <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
-        <Row title='orderRoute'>
-          <Text
-            // TODO: show real order route
-            value='0x'
-          />
-        </Row>
-        <Row title='transactionType'>
-          <Text value={txDetails.tx.tradeDetails?.dexName ?? ''} />
-        </Row>
+        {txDetails.tx.tradeDetails && (
+          <Row title='orderRoute'>
+            <Text
+              value={
+                txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'Thorchain' : '0x'
+              }
+            />
+          </Row>
+        )}
+        {txDetails.tx.tradeDetails && (
+          <Row title='transactionType'>
+            <Text value={txDetails.tx.tradeDetails.dexName} />
+          </Row>
+        )}
         {txDetails.sellAsset && (
           <Row title='youSent'>
             <Amount

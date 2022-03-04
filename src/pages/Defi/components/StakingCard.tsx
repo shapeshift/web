@@ -10,8 +10,8 @@ import {
   StatNumber,
   useColorModeValue
 } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
-import { ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -45,8 +45,13 @@ export const StakingCard = ({
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: tokenAddress })
+  const assetNamespace = AssetNamespace.ERC20
+  const assetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: tokenAddress
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
 
   const {

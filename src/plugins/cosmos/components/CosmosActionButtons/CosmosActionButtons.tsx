@@ -1,5 +1,5 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
-import { Button } from '@chakra-ui/react'
+import { Button, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { Text } from 'components/Text'
@@ -24,8 +24,9 @@ export const CosmosActionButtons = ({
     cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Stake })
   }
 
+  const bgColor = useColorModeValue('gray.50', 'gray.850')
   return (
-    <Flex width='100%' bgColor='gray.850' borderRadius='12px' {...styleProps}>
+    <Flex width='100%' bgColor={bgColor} borderRadius='12px' {...styleProps}>
       <Button
         flexGrow={1}
         colorScheme='blue'
@@ -34,11 +35,7 @@ export const CosmosActionButtons = ({
         onClick={handleStakeClick}
         isDisabled={false}
       >
-        <Text
-          translation={['defi.stakeAsset', { assetSymbol: asset.symbol }]}
-          fontWeight='bold'
-          color='white'
-        />
+        <Text translation={['defi.stakeAsset', { assetSymbol: asset.symbol }]} fontWeight='bold' />
       </Button>
       <Button
         isActive={activeAction === StakingAction.Unstake}
@@ -50,7 +47,6 @@ export const CosmosActionButtons = ({
         <Text
           translation={['defi.unstakeAsset', { assetSymbol: asset.symbol }]}
           fontWeight='bold'
-          color='white'
         />
       </Button>
     </Flex>

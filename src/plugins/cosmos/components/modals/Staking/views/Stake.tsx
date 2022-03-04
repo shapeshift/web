@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, MarketData } from '@shapeshiftoss/types'
+import { AnimatePresence } from 'framer-motion'
 import get from 'lodash/get'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
@@ -21,7 +22,6 @@ import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInpu
 import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -91,14 +91,19 @@ export const Stake = ({
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const { cosmosStaking } = useModal()
+  const { cosmosStaking, cosmosStakingConfirm } = useModal()
 
   const onSubmit = (_: any) => {
-    // TODO: onContinue()
+    cosmosStakingConfirm.open({
+      cryptoAmount: bnOrZero(values.cryptoAmount),
+      assetId,
+      fiatRate: bnOrZero(marketData.price),
+      apr
+    })
   }
 
   const cryptoYield = calculateYearlyYield(apr, values.cryptoAmount)
-  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
+  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toPrecision()
 
   const translate = useTranslate()
 
@@ -148,7 +153,7 @@ export const Stake = ({
     caip19: assetId
   }))(assetId) as Asset
   return (
-    <SlideTransition>
+    <AnimatePresence exitBeforeEnter initial={false}>
       <Flex
         as='form'
         pt='22px'
@@ -241,6 +246,6 @@ export const Stake = ({
           <Text translation='common.cancel' />
         </Button>
       </Flex>
-    </SlideTransition>
+    </AnimatePresence>
   )
 }

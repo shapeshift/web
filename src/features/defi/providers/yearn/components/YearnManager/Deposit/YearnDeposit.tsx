@@ -11,9 +11,9 @@ import {
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
-import { caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
@@ -34,6 +34,7 @@ import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -50,7 +51,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { StatusTextEnum, YearnRouteSteps } from '../../YearnRouteSteps'
 import { initialState, reducer, YearnDepositActionType } from './DepositReducer'
 
 enum DepositPath {
@@ -84,15 +84,25 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
   const alertText = useColorModeValue('blue.800', 'white')
 
   const network = NetworkTypes.MAINNET
-  const contractType = ContractTypes.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
-  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
+  const assetNamespace = AssetNamespace.ERC20
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace: AssetNamespace.Slip44,
+    assetReference: AssetReference.Ethereum
+  })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
-  const vaultCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
+  const vaultCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: vaultAddress
+  })
   const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
 
   // user info
@@ -624,7 +634,7 @@ export const YearnDeposit = ({ api }: YearnDepositProps) => {
       minWidth={{ base: '100%', xl: '500px' }}
       flexDir={{ base: 'column', lg: 'row' }}
     >
-      <YearnRouteSteps routes={routes} />
+      <RouteSteps px={4} py={6} routes={routes} />
       <Flex
         flexDir='column'
         width='full'

@@ -15,7 +15,7 @@ describe('The Dashboard', () => {
 
   it('nav bar works', () => {
     // A proxy to understand if the Dashboard has initialised
-    cy.getBySel('account-row').should('have.length', 7)
+    cy.getBySel('account-row').should('have.length.gt', 5)
 
     cy.navigateToAccounts()
     cy.navigateToAssets()
@@ -24,7 +24,7 @@ describe('The Dashboard', () => {
   })
 
   it('displays the expected account rows', () => {
-    cy.getBySel('account-row').should('have.length', 7)
+    cy.getBySel('account-row').should('have.length.gt', 5)
 
     // Check LINK - one asset is enough. Test all and our tests become brittle.
     // TODO - Mock API response and test account row name

@@ -1,10 +1,9 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
-import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { caip19 } from '@shapeshiftoss/caip'
 import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, ContractTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
-import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import {
@@ -15,7 +14,7 @@ import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
 import { useSelector } from 'react-redux'
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -39,15 +38,15 @@ import { useAppSelector } from 'state/store'
 import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
 
 enum WithdrawPath {
-  Withdraw = '/withdraw',
-  Confirm = '/withdraw/confirm',
-  ConfirmSettings = '/withdraw/confirm/settings',
-  Status = '/withdraw/status'
+  Withdraw = '/',
+  Confirm = '/confirm',
+  ConfirmSettings = '/confirm/settings',
+  Status = '/status'
 }
 
 export const routes = [
-  { step: 0, path: WithdrawPath.Withdraw, label: 'Withdrawal Amount' },
-  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm Withdraw' },
+  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
+  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
   { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
   { step: 2, path: WithdrawPath.Status, label: 'Status' }
 ]
@@ -58,33 +57,20 @@ type YearnWithdrawProps = {
 
 export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const location = useLocation()
+  const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress: vaultAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const contractType = ContractTypes.ERC20
   // Asset info
-  const underlyingAssetCAIP19 = caip19.toCAIP19({
-    chain,
-    network,
-    assetNamespace,
-    assetReference: tokenId
-  })
+  const underlyingAssetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId })
   const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))
-  const assetCAIP19 = caip19.toCAIP19({
-    chain,
-    network,
-    assetNamespace,
-    assetReference: vaultAddress
-  })
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, contractType, tokenId: vaultAddress })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
-  const feeAssetCAIP19 = caip19.toCAIP19({
-    chain,
-    network,
-    assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
-  })
+  const feeAssetCAIP19 = caip19.toCAIP19({ chain, network })
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
@@ -94,11 +80,6 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const { state: walletState } = useWallet()
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
   const loading = useSelector(selectPortfolioLoading)
-
-  // navigation
-  const memoryHistory = useHistory()
-  const location = useLocation()
-  const withdrawRoute = matchPath(location.pathname, { path: WithdrawPath.Withdraw, exact: true })
 
   useEffect(() => {
     ;(async () => {
@@ -155,8 +136,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
       type: YearnWithdrawActionType.SET_WITHDRAW,
       payload: { estimatedGasCrypto }
     })
-
-    memoryHistory.push(WithdrawPath.Confirm)
+    history.push(WithdrawPath.Confirm)
   }
 
   const handleConfirm = async () => {
@@ -176,7 +156,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         api.getGasPrice()
       ])
       dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
-      memoryHistory.push(WithdrawPath.Status)
+      history.push(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -443,14 +423,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     )
 
   return (
-    <Flex
-      width='full'
-      minWidth={{ base: '100%', xl: '500px' }}
-      flexDir={{ base: 'column', lg: 'row' }}
-    >
-      <RouteSteps px={4} py={6} routes={routes} />
+    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+      <RouteSteps routes={routes} location={location} />
       <Flex flexDir='column' width='full' minWidth='400px'>
-        {withdrawRoute && <DefiActionButtons vaultExpired={state.vault.expired} />}
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

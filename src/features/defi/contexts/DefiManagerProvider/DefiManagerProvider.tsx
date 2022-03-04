@@ -11,7 +11,8 @@ export enum DefiType {
   Pool = 'pool',
   Vault = 'vault',
   Staking = 'staking',
-  Farming = 'farming'
+  Farming = 'farming',
+  TokenStaking = 'token staking'
 }
 
 export enum DefiProvider {
@@ -19,6 +20,7 @@ export enum DefiProvider {
 }
 
 export enum DefiAction {
+  Overview = 'overview',
   Deposit = 'deposit',
   Withdraw = 'withdraw',
   GetStarted = 'get-started'
@@ -33,7 +35,7 @@ export type DefiParams = {
 export type DefiQueryParams = {
   chain: ChainTypes
   contractAddress: string
-  tokenId: string
+  tokenId?: string
 }
 
 type DefiManagerProviderProps = {
@@ -61,7 +63,7 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
         {children}
         {background && (
           <Route
-            path='/defi/:earnType/:provider/:action'
+            path='/defi/:earnType/:provider'
             render={({ match: { params } }) => {
               const { provider } = params
               const Module = DefiModules[provider as DefiProvider]

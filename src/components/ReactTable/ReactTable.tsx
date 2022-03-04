@@ -5,7 +5,7 @@ import { Column, useSortBy, useTable } from 'react-table'
 
 type ReactTableProps = {
   columns: Column<any>[]
-  data: any[]
+  data: object[]
 }
 
 export const ReactTable = ({ columns, data }: ReactTableProps) => {

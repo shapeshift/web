@@ -13,6 +13,12 @@ import { RawText } from 'components/Text'
 import { YearnDeposit } from './Deposit/YearnDeposit'
 import { YearnWithdraw } from './Withdraw/YearnWithdraw'
 
+enum YearnPath {
+  Deposit = '/defi/vault/yearn/deposit',
+  Withdraw = '/defi/vault/yearn/withdraw',
+  Overview = `/defi/vault/yearn/overview`
+}
+
 type YearnRouteProps = {
   parentLocation: Location
 } & DefiParams
@@ -38,21 +44,21 @@ const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) =>
       </ModalHeader>
       <AnimatePresence exitBeforeEnter initial={false}>
         <Switch location={parentLocation} key={parentLocation.key}>
-          <Route path={`/defi/vault/yearn/deposit`}>
+          <Route path={YearnPath.Deposit}>
             <MemoryRouter>
               <SlideTransition>
                 <YearnDeposit api={yearn} />
               </SlideTransition>
             </MemoryRouter>
           </Route>
-          <Route path={`/defi/vault/yearn/withdraw`}>
+          <Route path={YearnPath.Withdraw}>
             <MemoryRouter>
               <SlideTransition>
                 <YearnWithdraw api={yearn} />
               </SlideTransition>
             </MemoryRouter>
           </Route>
-          <Route path={`/defi/vault/yearn/overview`}>
+          <Route path={YearnPath.Overview}>
             <RawText>Overview</RawText>
           </Route>
         </Switch>

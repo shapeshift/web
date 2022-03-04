@@ -30,7 +30,6 @@ export const AssetCell = ({ assetId, provider, showTeaser, version, onClick }: A
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  console.log({ asset, assetId })
   const rowTitle = version ? `${asset.name} (${version})` : asset.name
 
   if (!asset) return null

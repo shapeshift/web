@@ -43,6 +43,34 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"AuthFailedResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"reason"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"AuthVerifyResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"User": {
 				"properties": {
 					"online": {
@@ -196,6 +224,38 @@
 						"type": "string"
 					}
 				}
+			}
+		},
+		"/auth/verify": {
+			"get": {
+				"operationId": "VerifyAuthentication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthVerifyResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorised",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthFailedResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
 			}
 		},
 		"/user": {

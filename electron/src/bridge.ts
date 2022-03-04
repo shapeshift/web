@@ -245,6 +245,11 @@ export const start_bridge = async function (event) {
             })
         };
 
+        appExpress.all('/auth/verify', authChecker, (req, res, next) => {
+            res.statusCode = 200
+            res.send({ success: true })
+        })
+
 
         //userInfo
         appExpress.all('/user', authChecker, async (req, res, next) => {

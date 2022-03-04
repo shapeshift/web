@@ -1,18 +1,19 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, HStack, Table, Tbody } from '@chakra-ui/react'
+import { Box, Button, HStack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { FeatureFlag } from 'constants/FeatureFlag'
-import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
+import {
+  useNormalizeOpportunities
+} from 'features/defi/helpers/normalizeOpportunity'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { EarnOpportunityRow } from './EarnOpportunityRow'
-import { EarnTableHeader } from './EarnTableHeader'
+import { StakingTable } from './StakingTable'
 
 type EarnOpportunitiesProps = {
   tokenId?: string
@@ -27,24 +28,12 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
   const vaults = useYearnVaults()
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
 
-  const vaultRows = useMemo(
-    () =>
-      vaults
-        .filter(vault => vault.tokenAddress === asset.tokenId)
-        .map((vault, index) => {
-          return (
-            <EarnOpportunityRow
-              {...vault}
-              key={vault.vaultAddress}
-              index={index + 1}
-              isLoaded={!!vault}
-            />
-          )
-        }),
-    [asset.tokenId, vaults]
-  )
+  const allRows = useNormalizeOpportunities({
+    vaultArray: vaults,
+    foxyArray: []
+  }).filter(vault => vault.tokenAddress === asset.tokenId)
 
-  if (!earnFeature || !vaultRows?.length) return null
+  if (!earnFeature || !allRows?.length) return null
 
   return (
     <Card>
@@ -71,10 +60,7 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
         </HStack>
       </Card.Header>
       <Card.Body pt={0} px={2}>
-        <Table variant='clickable'>
-          <EarnTableHeader />
-          <Tbody>{vaultRows}</Tbody>
-        </Table>
+        <StakingTable data={allRows} onClick={() => console.info('clicked')} />
       </Card.Body>
     </Card>
   )

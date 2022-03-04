@@ -10,6 +10,9 @@ import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 
 import { Route } from './Routes/helpers'
+import { useModal } from 'context/ModalProvider/ModalProvider'
+import { ipcRenderer } from 'electron'
+import { PairingProps } from 'components/Modals/Pair/Pair'
 
 export const App = () => {
   const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
@@ -18,6 +21,7 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
+  const { pair } = useModal()
 
   useEffect(() => {
     registerPlugins()
@@ -29,6 +33,12 @@ export const App = () => {
         setPluginRoutes([])
       })
   }, [setPluginRoutes])
+
+  useEffect(() => {
+    ipcRenderer.on('@modal/pair', (event, data: PairingProps) => {
+      pair.open(data)
+    })
+  }, [])
 
   useEffect(() => {
     if (shouldUpdate && !toast.isActive(updateId)) {

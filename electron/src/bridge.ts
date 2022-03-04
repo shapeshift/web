@@ -1,5 +1,5 @@
 import swaggerUi from 'swagger-ui-express'
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
@@ -8,10 +8,12 @@ import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewe
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
 import { windows } from './main'
-import { app } from 'electron'
+import { app, ipcMain } from 'electron'
 import wait from 'wait-promise'
 import { shared } from './shared'
 import { updateMenu } from './tray'
+import { uniqueId } from 'lodash'
+import { db } from './db'
 
 const appExpress = express()
 appExpress.use(cors())
@@ -100,7 +102,7 @@ export const start_bridge = async function (event) {
         appExpress.use('/spec', express.static(path.join(__dirname, '../api/dist')));
 
         //status
-        appExpress.all('/status', async function (req, res, next) {
+        appExpress.all('/status', async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json({
@@ -116,7 +118,7 @@ export const start_bridge = async function (event) {
             }
         })
 
-        appExpress.all('/device', async function (req, res, next) {
+        appExpress.all('/device', async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json(shared.KEEPKEY_FEATURES)
@@ -127,34 +129,8 @@ export const start_bridge = async function (event) {
             }
         })
 
-        /*
-            Protected endpoint middleware
-            Only allow approved applications collect data
-    
-            all routes below are protected
-         */
-        //TODO
-        // let authChecker = (req, res, next) => {
-        //   console.log("header: ",req.headers);
-        //   const host = req.headers.host;
-        //   let origin = req.headers.origin;
-        //   const referer = req.headers.referer;
-        //   if(!origin) origin = referer
-        //   console.log("origin: ",origin);
-        //   console.log("host: ",host);
-        //   if(!origin) {
-        //     res.status(400).json("Unable to determine origin!")
-        //   } else if(APPROVED_ORIGINS.indexOf(origin) >= 0){
-        //     console.log("Approved origin!")
-        //     next();
-        //   } else {
-        //     event.sender.send('approveOrigin', { origin })
-        //   }
-        // };
-        // appExpress.use(authChecker);
-
         if (device) {
-            appExpress.all('/exchange/device', async function (req, res, next) {
+            appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
                     if (req.method === 'GET') {
                         let resp = await transport.readChunk()
@@ -182,7 +158,7 @@ export const start_bridge = async function (event) {
                 }
             })
         } else {
-            appExpress.all('/exchange/device', async function (req, res, next) {
+            appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
                     res.status(200).json({
                         success: false,
@@ -195,9 +171,83 @@ export const start_bridge = async function (event) {
             })
         }
 
+        // used only for implicitly pairing the KeepKey web app
+        ipcMain.on(`@bridge/add-service`, (event, data) => {
+            db.insert({
+                type: 'service',
+                addedOn: Date.now(),
+                ...data
+            })
+        })
+
+        appExpress.post('/pair', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+
+            const nonce = uniqueId()
+
+            const serviceName = req.body.serviceName
+            const serviceImageUrl = req.body.serviceImageUrl
+            const serviceKey = req.headers.authorization
+
+            windows.mainWindow.webContents.send('@modal/pair', { serviceName, serviceImageUrl, nonce })
+            if (windows.mainWindow.focusable) windows.mainWindow.focus()
+
+            ipcMain.once(`@bridge/approve-service-${nonce}`, (event, data) => {
+                if (data.nonce = nonce) {
+                    ipcMain.removeAllListeners(`@bridge/approve-service-${nonce}`)
+                    db.insert({
+                        type: 'service',
+                        addedOn: Date.now(),
+                        serviceName,
+                        serviceImageUrl,
+                        serviceKey
+                    })
+                    res.statusCode = 200
+                    res.send({ success: true, reason: '' })
+                }
+            })
+
+            ipcMain.once(`@bridge/reject-service-${nonce}`, (event, data) => {
+                if (data.nonce = nonce) {
+                    ipcMain.removeAllListeners(`@bridge/reject-service-${nonce}`)
+                    res.statusCode = 401
+                    res.send({ success: false, reason: 'Pairing was rejected by user' })
+                }
+            })
+
+            return res
+        })
+
+
+
+
+        /*
+            Protected endpoint middleware
+            Only allow approved applications collect data
+    
+            all routes below are protected
+        */
+        const authChecker = (req: Request, res: Response, next: NextFunction) => {
+            const serviceKey = req.headers.authorization
+
+            if (!serviceKey) {
+                res.statusCode = 401
+                return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+            }
+
+            db.findOne({ type: 'service', serviceKey }, (err, doc) => {
+                if (!doc) {
+                    res.statusCode = 401
+                    return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+                } else {
+                    next()
+                }
+            })
+        };
+
 
         //userInfo
-        appExpress.all('/user', async function (req, res, next) {
+        appExpress.all('/user', authChecker, async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json(shared.USER)
@@ -209,7 +259,7 @@ export const start_bridge = async function (event) {
         })
 
         //sign
-        appExpress.all('/sign', async function (req, res, next) {
+        appExpress.all('/sign', authChecker, async (req, res, next) => {
 
             try {
                 console.log("checkpoint1: ")
@@ -237,6 +287,7 @@ export const start_bridge = async function (event) {
             }
         })
 
+
         //catchall
         appExpress.use((req, res, next) => {
             const status = 500, message = 'something went wrong. ', data = {}
@@ -245,6 +296,7 @@ export const start_bridge = async function (event) {
                 res.status(status).json({ message, data })
             } catch (e) { }
         })
+
 
         //port
         try {

@@ -18,7 +18,6 @@ import { AccountList } from './components/AccountList/AccountList'
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const [percentChange, setPercentChange] = useState(0)
-
   const assetIds = useSelector(selectPortfolioAssetIds)
   const totalBalance = useSelector(selectPortfolioTotalFiatBalance)
   const loading = useSelector(selectPortfolioLoading)

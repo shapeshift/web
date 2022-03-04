@@ -17,7 +17,7 @@ const SUPPORTED_CONTRACT_METHODS = new Set([
   'transferOut'
 ])
 
-enum Direction {
+export enum Direction {
   InPlace = 'in-place',
   Outbound = 'outbound',
   Inbound = 'inbound'

@@ -1,7 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
 import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
-import { FaExchangeAlt } from 'react-icons/fa'
+import { BsQuestion } from 'react-icons/bs'
+import { FaExchangeAlt, FaThumbsUp } from 'react-icons/fa'
 import { IoIosArrowRoundForward } from 'react-icons/io'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -10,6 +11,7 @@ import { Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
+import { Direction } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -18,13 +20,17 @@ import { breakpoints } from 'theme/theme'
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
     case TxType.Send:
+    case Direction.Outbound:
       return <ArrowUpIcon />
     case TxType.Receive:
+    case Direction.Inbound:
       return <ArrowDownIcon color='green.500' />
     case TradeType.Trade:
       return <FaExchangeAlt />
+    case Direction.InPlace:
+      return <FaThumbsUp />
     default:
-      return null
+      return <BsQuestion />
   }
 }
 
@@ -37,6 +43,7 @@ type TransactionRowAsset = {
 
 type TransactionGenericRowType = {
   type: string
+  title?: string
   symbol: string
   showDateAndGuide?: boolean
   assets: TransactionRowAsset[]
@@ -46,8 +53,13 @@ type TransactionGenericRowType = {
   explorerTxLink: string
 }
 
+const Guide = ({ title }: { title: string }) => (
+  <Text mb={6} lineHeight={1} color='gray.600' translation={`transactionHistory.${title}`} />
+)
+
 export const TransactionGenericRow = ({
   type,
+  title,
   showDateAndGuide,
   assets,
   fee,
@@ -73,7 +85,7 @@ export const TransactionGenericRow = ({
                 flex={1}
                 lineHeight='1'
                 mb={1}
-                translation={[`transactionRow.${type.toLowerCase()}`, { symbol: '' }]}
+                translation={`transactionRow.${title ?? type.toLowerCase()}`}
               />
               <TransactionTime blockTime={blockTime} />
             </Box>
@@ -84,14 +96,7 @@ export const TransactionGenericRow = ({
           flex={isLargerThanLg ? 2 : 1}
           flexDir='column'
         >
-          {showDateAndGuide && isLargerThanXl && (
-            <Text
-              mb={6}
-              lineHeight={1}
-              color='gray.600'
-              translation={'transactionHistory.assets'}
-            />
-          )}
+          {showDateAndGuide && isLargerThanXl && <Guide title='assets' />}
           <Flex
             alignItems={isLargerThanMd ? 'center' : 'flex-start'}
             width='full'
@@ -150,9 +155,7 @@ export const TransactionGenericRow = ({
         {isLargerThanXl && <Flex flex={0.2} />}
         {isLargerThanXl && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
-            {showDateAndGuide && (
-              <Text mb={6} lineHeight={1} color='gray.600' translation={'transactionRow.fee'} />
-            )}
+            {showDateAndGuide && <Guide title='fee' />}
             <Flex alignItems='center' width='full'>
               <Box flex={1}>
                 <Amount.Crypto
@@ -176,14 +179,7 @@ export const TransactionGenericRow = ({
         )}
         {isLargerThanXl && (
           <Flex flex={0} flexDir='column'>
-            {showDateAndGuide && (
-              <Text
-                mb={6}
-                lineHeight={1}
-                color='gray.600'
-                translation={'transactionHistory.viewOnChain'}
-              />
-            )}
+            {showDateAndGuide && <Guide title='viewOnChain' />}
             <Flex justifyContent='flex-start' alignItems='center'>
               <TransactionLink txid={txid} explorerTxLink={explorerTxLink} />
             </Flex>

@@ -35,27 +35,28 @@ export const TransactionContract = ({
     <>
       <Flex alignItems='center' flex={1} as='button' w='full' py={4} onClick={toggleOpen}>
         <TransactionGenericRow
-          type={txDetails.type}
+          type={txDetails.direction}
+          title={txDetails.tx.data?.method}
           blockTime={txDetails.tx.blockTime}
           symbol={txDetails.symbol}
           assets={[
-            {
+            txDetails.sellAsset && {
               symbol: txDetails.sellAsset.symbol,
               amount: txDetails.sellTx?.value ?? '0',
               precision: txDetails.sellAsset.precision,
               currentPrice: sourceMarketData.price
             },
-            {
+            txDetails.buyAsset && {
               symbol: txDetails.buyAsset.symbol,
               amount: txDetails.buyTx?.value ?? '0',
               precision: txDetails.buyAsset.precision,
               currentPrice: destinationMarketData.price
             }
-          ]}
+          ].filter(Boolean)}
           fee={{
             symbol: txDetails.feeAsset?.symbol ?? '',
             amount: txDetails.tx.fee?.value ?? '0',
-            precision: txDetails.feeAsset.precision,
+            precision: txDetails.feeAsset?.precision,
             currentPrice: feeAssetMarketData.price
           }}
           explorerTxLink={txDetails.explorerTxLink}
@@ -74,41 +75,51 @@ export const TransactionContract = ({
         <Row title='transactionType'>
           <Text value={txDetails.tx.tradeDetails?.dexName ?? ''} />
         </Row>
-        <Row title='youSent'>
-          <Amount
-            value={txDetails.sellTx?.value ?? '0'}
-            precision={txDetails.sellAsset.precision}
-            symbol={txDetails.sellAsset.symbol}
-          />
-        </Row>
-        <Row title='sentTo'>
-          <Address
-            explorerTxLink={txDetails.explorerTxLink}
-            address={txDetails.to}
-            ens={txDetails.ensTo}
-          />
-        </Row>
-        <Row title='minerFee'>
-          <Amount
-            value={txDetails.tx.fee?.value ?? '0'}
-            precision={txDetails.feeAsset.precision}
-            symbol={txDetails.feeAsset.symbol}
-          />
-        </Row>
-        <Row title='youReceived'>
-          <Amount
-            value={txDetails.buyTx?.value ?? '0'}
-            precision={txDetails.buyAsset.precision}
-            symbol={txDetails.buyAsset.symbol}
-          />
-        </Row>
-        <Row title='receivedFrom'>
-          <Address
-            explorerTxLink={txDetails.explorerTxLink}
-            address={txDetails.from}
-            ens={txDetails.ensFrom}
-          />
-        </Row>
+        {txDetails.sellAsset && (
+          <Row title='youSent'>
+            <Amount
+              value={txDetails.sellTx?.value ?? '0'}
+              precision={txDetails.sellAsset.precision}
+              symbol={txDetails.sellAsset.symbol}
+            />
+          </Row>
+        )}
+        {txDetails.to && (
+          <Row title='sentTo'>
+            <Address
+              explorerTxLink={txDetails.explorerTxLink}
+              address={txDetails.to}
+              ens={txDetails.ensTo}
+            />
+          </Row>
+        )}
+        {txDetails.tx.fee && (
+          <Row title='minerFee'>
+            <Amount
+              value={txDetails.tx.fee?.value ?? '0'}
+              precision={txDetails.feeAsset.precision}
+              symbol={txDetails.feeAsset.symbol}
+            />
+          </Row>
+        )}
+        {txDetails.buyAsset && (
+          <Row title='youReceived'>
+            <Amount
+              value={txDetails.buyTx?.value ?? '0'}
+              precision={txDetails.buyAsset.precision}
+              symbol={txDetails.buyAsset.symbol}
+            />
+          </Row>
+        )}
+        {txDetails.from && (
+          <Row title='receivedFrom'>
+            <Address
+              explorerTxLink={txDetails.explorerTxLink}
+              address={txDetails.from}
+              ens={txDetails.ensFrom}
+            />
+          </Row>
+        )}
         <Row title='status'>
           <Status status={txDetails.tx.status} />
         </Row>

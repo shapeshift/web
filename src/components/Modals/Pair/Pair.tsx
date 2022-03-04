@@ -2,27 +2,26 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Box,
   Button,
+  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Stack,
-  Image,
-  Box
+  Stack
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useState } from 'react'
+import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { SlideTransition } from 'components/SlideTransition'
-
 
 export type PairingProps = {
-  serviceName: string,
-  serviceImageUrl: string,
+  serviceName: string
+  serviceImageUrl: string
   nonce: string
 }
 
@@ -62,9 +61,12 @@ export const PairModal = (input: PairingProps) => {
           </ModalHeader>
           <ModalBody>
             <Stack spacing={4} mb={4}>
-              <Box display="inline-flex" justifyContent={'center'} alignItems='center'>
-                <Image src={input.serviceImageUrl} borderRadius="full" height="10" width="10" />
-                <Text translation={['modals.pair.body', { serviceName: input.serviceName }]} pl='2' />
+              <Box display='inline-flex' justifyContent={'center'} alignItems='center'>
+                <Image src={input.serviceImageUrl} borderRadius='full' height='10' width='10' />
+                <Text
+                  translation={['modals.pair.body', { serviceName: input.serviceName }]}
+                  pl='2'
+                />
               </Box>
               {error && (
                 <Alert status='error'>

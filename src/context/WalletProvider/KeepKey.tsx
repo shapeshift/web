@@ -47,7 +47,11 @@ export class KeepKeyService {
     if (!serviceKey) {
       serviceKey = uuidv4()
       localStorage.setItem('@bridge/service-key', serviceKey)
-      ipcRenderer.send('@bridge/add-service', { serviceKey, serviceName: 'ShapeShift', serviceKeyImageUrl: 'https://app.shapeshift.com/icon-512x512.png' })
+      ipcRenderer.send('@bridge/add-service', {
+        serviceKey,
+        serviceName: 'ShapeShift',
+        serviceKeyImageUrl: 'https://app.shapeshift.com/icon-512x512.png'
+      })
     }
     return serviceKey
   }

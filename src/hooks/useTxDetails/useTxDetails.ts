@@ -41,7 +41,7 @@ export interface TxDetails {
   precision: number
   explorerTxLink: string
   explorerAddressLink: string
-  direction: Direction
+  direction?: Direction
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
@@ -59,7 +59,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const buyTx = getBuyTx(tx)
   const sellTx = getSellTx(tx)
 
-  const direction: Direction = (() => {
+  const direction: Direction | undefined = (() => {
     switch (method) {
       case 'deposit':
       case 'addLiquidityETH':
@@ -68,8 +68,10 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       case 'withdraw':
       case 'removeLiquidityETH':
         return Direction.Inbound
-      default:
+      case 'approve':
         return Direction.InPlace
+      default:
+        return undefined
     }
   })()
 

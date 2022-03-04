@@ -239,7 +239,8 @@
       "thor": {
         "transferOut": "Transfer out"
       }
-    }
+    },
+    "unknown": "Unknown transaction"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

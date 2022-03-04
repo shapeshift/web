@@ -38,7 +38,7 @@ import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
-import { app, Menu, Tray, BrowserWindow, nativeTheme, ipcMain, nativeImage } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
 
@@ -120,19 +120,20 @@ function createWindow() {
     log.info('Creating window!')
 
     //Auto launch on startup
-
-    kkAutoLauncher.enable()
-    kkAutoLauncher
-        .isEnabled()
-        .then(function (isEnabled) {
-            if (isEnabled) {
-                return
-            }
-            kkAutoLauncher.enable()
-        })
-        .catch(function (e) {
-            log.error('failed to enable auto launch: ', e)
-        })
+    if (!isDev) {
+        kkAutoLauncher.enable()
+        kkAutoLauncher
+            .isEnabled()
+            .then(function (isEnabled) {
+                if (isEnabled) {
+                    return
+                }
+                kkAutoLauncher.enable()
+            })
+            .catch(function (e) {
+                log.error('failed to enable auto launch: ', e)
+            })
+    }
 
     /**
      * Initial window options

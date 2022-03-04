@@ -171,15 +171,6 @@ export const start_bridge = async function (event) {
             })
         }
 
-        //catchall
-        appExpress.use((req, res, next) => {
-            const status = 500, message = 'something went wrong. ', data = {}
-            //log.info(req.body, { status: status, message: message, data: data })
-            try {
-                res.status(status).json({ message, data })
-            } catch (e) { }
-        })
-
         // used only for implicitly pairing the KeepKey web app
         ipcMain.on(`@bridge/add-service`, (event, data) => {
             db.insert({
@@ -236,7 +227,6 @@ export const start_bridge = async function (event) {
     
             all routes below are protected
         */
-
         const authChecker = (req: Request, res: Response, next: NextFunction) => {
             const serviceKey = req.headers.authorization
 
@@ -255,10 +245,9 @@ export const start_bridge = async function (event) {
             })
         };
 
-        appExpress.use(authChecker);
 
         //userInfo
-        appExpress.all('/user', async (req, res, next) => {
+        appExpress.all('/user', authChecker, async (req, res, next) => {
             try {
                 if (req.method === 'GET') {
                     res.status(200).json(shared.USER)
@@ -270,7 +259,7 @@ export const start_bridge = async function (event) {
         })
 
         //sign
-        appExpress.all('/sign', async (req, res, next) => {
+        appExpress.all('/sign', authChecker, async (req, res, next) => {
 
             try {
                 console.log("checkpoint1: ")
@@ -298,6 +287,15 @@ export const start_bridge = async function (event) {
             }
         })
 
+
+        //catchall
+        appExpress.use((req, res, next) => {
+            const status = 500, message = 'something went wrong. ', data = {}
+            //log.info(req.body, { status: status, message: message, data: data })
+            try {
+                res.status(status).json({ message, data })
+            } catch (e) { }
+        })
 
 
         //port

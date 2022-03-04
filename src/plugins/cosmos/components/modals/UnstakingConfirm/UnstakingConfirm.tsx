@@ -61,7 +61,7 @@ const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLoc
             minWidth={{ base: 'auto', lg: '450px' }}
             maxWidth={{ base: 'auto', lg: '450px' }}
           >
-            <Flex direction='column' minWidth='400px'>
+            <Flex flexDirection='column' minWidth='400px'>
               <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
                 <Confirm cryptoUnstakeAmount={cryptoAmount} assetId={assetId} fiatRate={fiatRate} />
               </Route>

@@ -77,14 +77,14 @@ export const Confirm = ({ assetId, cryptoUnstakeAmount, fiatRate }: UnstakeProps
           pb='18px'
           px='30px'
           onSubmit={handleSubmit(onSubmit)}
-          direction='column'
+          flexDirection='column'
           alignItems='center'
           justifyContent='space-between'
         >
           <ModalHeader textAlign='center'>{translate('defi.confirmDetails')}</ModalHeader>
           <Flex width='100%' mb='20px' justifyContent='space-between'>
             <Text color='gray.500' translation={'defi.unstake'} />
-            <Flex direction='column' alignItems='flex-end'>
+            <Flex flexDirection='column' alignItems='flex-end'>
               <Amount.Fiat
                 fontWeight='semibold'
                 value={cryptoUnstakeAmount.times(fiatRate).toPrecision()}

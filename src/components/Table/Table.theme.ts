@@ -30,7 +30,6 @@ export const TableStyle = {
         tr: {
           ...ButtonStyle.baseStyle,
           ...ButtonStyle.variants.ghost({ colorScheme: 'gray', ...parentProps }),
-          cursor: 'pointer',
           _disabled: {
             ...ButtonStyle.baseStyle._disabled,
             pointerEvents: 'none'

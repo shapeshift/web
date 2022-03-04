@@ -35,7 +35,7 @@ export type DefiParams = {
 export type DefiQueryParams = {
   chain: ChainTypes
   contractAddress: string
-  tokenId?: string
+  tokenId: string
 }
 
 type DefiManagerProviderProps = {

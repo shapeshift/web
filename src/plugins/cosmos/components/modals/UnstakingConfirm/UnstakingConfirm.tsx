@@ -23,7 +23,7 @@ export enum UnstakingPath {
   Broadcast = '/unstaking/broadcast'
 }
 
-export const depositRoutes = [
+export const withdrawRoutes = [
   { step: 0, path: UnstakingPath.Confirm, label: 'Confirm Details' },
   { step: 1, path: UnstakingPath.Broadcast, label: 'Broadcast TX' }
 ]
@@ -53,7 +53,7 @@ const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLoc
             action={StakingAction.Unstake}
             px={23}
             py={43}
-            routes={depositRoutes}
+            routes={withdrawRoutes}
           />
           <Flex
             flexDir='column'
@@ -88,7 +88,7 @@ export const UnstakingConfirmModal = (props: UnstakingConfirmProps) => {
         <MemoryRouter
           key='stake'
           initialIndex={0}
-          initialEntries={depositRoutes.map(route => route.path)}
+          initialEntries={withdrawRoutes.map(route => route.path)}
         >
           <CosmosUnstakingRouter {...props} />
         </MemoryRouter>

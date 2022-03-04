@@ -188,7 +188,7 @@
 			}
 		},
 		"/pair": {
-			"get": {
+			"post": {
 				"operationId": "Pair",
 				"responses": {
 					"200": {
@@ -216,13 +216,21 @@
 					"Client Endpoints"
 				],
 				"security": [],
-				"parameters": {
-					"serviceName": {
-						"type": "string"
+				"parameters": [],
+				"requestBody": {
+					"type": "object",
+					"properties": {
+						"serviceName": {
+							"type": "string"
+						},
+						"serviceImageUrl": {
+							"type": "string"
+						}
 					},
-					"serviceImageUrl": {
-						"type": "string"
-					}
+					"required": [
+						"serviceName",
+						"serviceImageUrl"
+					]
 				}
 			}
 		},

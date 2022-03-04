@@ -1,7 +1,6 @@
 import { Flex } from '@chakra-ui/react'
 import { useState } from 'react'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { fromBaseUnit } from 'lib/math'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,10 +54,7 @@ export const TransactionTrade = ({
           ]}
           fee={{
             symbol: txDetails.feeAsset?.symbol ?? '',
-            amount:
-              txDetails.tx.fee && txDetails.feeAsset
-                ? fromBaseUnit(txDetails.tx.fee.value, txDetails.feeAsset.precision)
-                : '0',
+            amount: txDetails.tx.fee?.value ?? '0',
             precision: txDetails.feeAsset.precision,
             currentPrice: feeAssetMarketData.price
           }}

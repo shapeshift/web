@@ -2,7 +2,6 @@ import { Flex } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
-import { fromBaseUnit } from 'lib/math'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -44,12 +43,9 @@ export const TransactionReceive = ({
           ]}
           fee={{
             symbol: txDetails.feeAsset?.symbol ?? '',
-            amount:
-              txDetails.tx.fee && txDetails.feeAsset
-                ? fromBaseUnit(txDetails.tx.fee.value, txDetails.feeAsset.precision)
-                : '0',
+            amount: txDetails.tx.fee?.value ?? '0',
             precision: txDetails.feeAsset?.precision,
-            // Receive does not have 'fee'
+            // receive type does not have fee
             currentPrice: '0'
           }}
           explorerTxLink={txDetails.explorerTxLink}

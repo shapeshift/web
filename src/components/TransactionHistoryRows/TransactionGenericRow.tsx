@@ -158,7 +158,7 @@ export const TransactionGenericRow = ({
                 <Amount.Crypto
                   color='inherit'
                   fontWeight='bold'
-                  value={fee.amount}
+                  value={fromBaseUnit(fee.amount, fee.precision)}
                   symbol={fee.symbol}
                   maximumFractionDigits={6}
                 />

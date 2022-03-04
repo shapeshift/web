@@ -108,7 +108,7 @@ export const GemManager = () => {
             cryptoBalance: Number(balances[result.ticker]?.crypto) || 0,
             fiatBalance: Number(balances[result.ticker]?.fiat) || 0
           }))
-          .sort((a, b) => b.fiatBalance - a.fiatBalance)
+          .sort(key === 'source' ? (a, b) => b.fiatBalance - a.fiatBalance : undefined)
         return results
       },
     [balances]

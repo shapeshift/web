@@ -12,10 +12,13 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { ChainTypes } from '@shapeshiftoss/types'
+import axios from 'axios'
 import { getConfig } from 'config'
+import { concat, flatten, uniqBy } from 'lodash'
 import queryString from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -23,8 +26,9 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
+import { selectPortfolioCryptoHumanBalanceBySymbol } from 'state/slices/selectors'
 
-import { BuySellAction, CurrencyAsset } from '../BuySell'
+import { BuySellAction, CurrencyAsset, SupportedCurrency, TransactionDirection } from '../BuySell'
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
 import { BuySellActionButtons } from '../components/BuySellActionButtons'
@@ -52,6 +56,82 @@ export const GemManager = () => {
   const chain = ChainTypes.Ethereum
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(chain)
+
+  const [loading, setLoading] = useState(false)
+  const [buyList, setBuyList] = useState<CurrencyAsset[]>([])
+  const [sellList, setSellList] = useState<CurrencyAsset[]>([])
+
+  const balances = useSelector(selectPortfolioCryptoHumanBalanceBySymbol)
+  const getCoinifySupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
+    try {
+      const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
+      return data
+    } catch (e: any) {
+      console.error(e)
+    }
+  }
+
+  const getWyreSupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
+    try {
+      const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
+      return data
+    } catch (e: any) {
+      console.error(e)
+    }
+  }
+
+  const buyFilter = (currency: SupportedCurrency) =>
+    currency.transaction_direction === TransactionDirection.BankToBlockchain ||
+    currency.transaction_direction === TransactionDirection.CardToBlockchain
+
+  const sellFilter = (currency: SupportedCurrency) =>
+    currency.transaction_direction === TransactionDirection.BlockchainToBank
+
+  const filterAndMerge = useMemo(
+    () =>
+      (
+        coinifyList: SupportedCurrency[],
+        wyreList: SupportedCurrency[],
+        key: 'destination' | 'source',
+        filter: (currency: SupportedCurrency) => boolean
+      ): CurrencyAsset[] => {
+        const list1 = coinifyList.filter(filter).map(list => list[key].currencies)
+        const list2 = wyreList.filter(filter).map(list => list[key].currencies)
+        const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
+          .map(result => ({
+            ...result,
+            cryptoBalance: Number(balances[result.ticker]?.crypto) || 0,
+            fiatBalance: Number(balances[result.ticker]?.fiat) || 0
+          }))
+          .sort((a, b) => b.fiatBalance - a.fiatBalance)
+        return results
+      },
+    [balances]
+  )
+
+  const fetchSupportedCurrencies = async () => {
+    setLoading(true)
+
+    try {
+      const coinifyList = await getCoinifySupportedCurrencies()
+      const wyreList = await getWyreSupportedCurrencies()
+      const buyList = filterAndMerge(coinifyList, wyreList, 'destination', buyFilter)
+      const sellList = filterAndMerge(coinifyList, wyreList, 'source', sellFilter)
+      setBuyList(buyList)
+      setSellList(sellList)
+      setLoading(false)
+    } catch (e) {
+      console.error(e)
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    ;(async () => {
+      await fetchSupportedCurrencies()
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const onSelectAsset = (data: CurrencyAsset) => {
     setIsSelectingAsset(false)
@@ -120,12 +200,12 @@ export const GemManager = () => {
       wallet,
       showOnDevice: true
     })
-    setVerified(Boolean(deviceAddress) && deviceAddress !== address)
+    setVerified(Boolean(deviceAddress) && deviceAddress === address)
   }
 
   return (
     <SlideTransition>
-      <Box minWidth='370px' maxWidth='500px' m={4}>
+      <Box m={4} width={'24rem'}>
         {isSelectingAsset ? (
           <Stack>
             <Flex>
@@ -140,10 +220,15 @@ export const GemManager = () => {
               />
               <Text alignSelf='center' translation={selectAssetTranslation} />
             </Flex>
-            <AssetSearch onClick={onSelectAsset} type={action} />
+            <AssetSearch
+              onClick={onSelectAsset}
+              type={action}
+              assets={action === BuySellAction.Buy ? buyList : sellList}
+              loading={loading}
+            />
           </Stack>
         ) : (
-          <Stack spacing={4} mt={2}>
+          <Stack spacing={4}>
             <BuySellActionButtons action={action} setAction={setAction} />
             <Text translation={assetTranslation} color='gray.500' />
             <Button
@@ -172,11 +257,7 @@ export const GemManager = () => {
               <Flex flexDirection='column'>
                 <Text translation={fundsTranslation} color='gray.500'></Text>
                 <InputGroup size='md'>
-                  <Input
-                    pr='4.5rem'
-                    value={ensAddress || middleEllipsis(address as string, 11)}
-                    readOnly
-                  />
+                  <Input pr='4.5rem' value={ensAddress || middleEllipsis(address, 11)} readOnly />
                   <InputRightElement width='4.5rem'>
                     <IconButton
                       icon={<CopyIcon />}
@@ -201,6 +282,7 @@ export const GemManager = () => {
             )}
             <Button
               width='full'
+              size='lg'
               colorScheme='blue'
               disabled={!asset}
               as='a'
@@ -209,7 +291,7 @@ export const GemManager = () => {
             >
               <Text translation='common.continue' />
             </Button>
-            <Button width='full' variant='ghost' onClick={buySell.close}>
+            <Button width='full' size='lg' variant='ghost' onClick={buySell.close}>
               <Text translation='common.cancel' />
             </Button>
           </Stack>

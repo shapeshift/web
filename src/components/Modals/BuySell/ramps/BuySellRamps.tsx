@@ -13,8 +13,8 @@ export const BuySellRamps = () => {
   const history = useHistory()
 
   return (
-    <Flex justifyContent='center' alignItems='center'>
-      <Card boxShadow='none' borderWidth={0} maxWidth='500px'>
+    <Flex justifyContent='center' alignItems='center' width={'32rem'}>
+      <Card boxShadow='none' borderWidth={0}>
         <Card.Header>
           <Card.Heading>
             <Text translation='buysell.title' />
@@ -33,19 +33,23 @@ export const BuySellRamps = () => {
               onClick={() => history.push(BuySellRoutes.Gem)}
               rightIcon={<ChevronRightIcon boxSize={6} />}
             >
-              <Flex flexDirection='row' justifyContent='center' alignItems='center'>
-                <AssetIcon src={gemlogo} />
-                <Box textAlign='left' ml={2}>
-                  <Text fontWeight='bold' translation='buysell.gem' />
-                  <Text translation='buysell.gemMessage' />
+              <Flex flex={1} flexDirection='row' justifyContent='space-between' alignItems='center'>
+                <Flex flexDirection='row' justifyContent='center' alignItems='center'>
+                  <AssetIcon src={gemlogo} />
+                  <Box textAlign='left' ml={2}>
+                    <Text fontWeight='bold' translation='buysell.gem' />
+                    <Text translation='buysell.gemMessage' />
+                  </Box>
+                </Flex>
+                <Box>
+                  <Tag colorScheme='green' mr={2}>
+                    <Text translation='buysell.buy' style={{ textTransform: 'uppercase' }} />
+                  </Tag>
+                  <Tag colorScheme='gray'>
+                    <Text translation='buysell.sell' style={{ textTransform: 'uppercase' }} />
+                  </Tag>
                 </Box>
               </Flex>
-              <Tag colorScheme='green'>
-                <Text translation='buysell.buy' style={{ textTransform: 'uppercase' }} />
-              </Tag>
-              <Tag colorScheme='gray'>
-                <Text translation='buysell.sell' style={{ textTransform: 'uppercase' }} />
-              </Tag>
             </Button>
             <Button
               width='full'

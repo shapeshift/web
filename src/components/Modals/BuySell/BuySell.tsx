@@ -1,5 +1,5 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/modal'
-import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { MemoryRouter, Route } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { BuySellRouter } from './BuySellRouter'
@@ -87,16 +87,14 @@ const BuySell = () => {
   const { buySell } = useModal()
   const { close, isOpen } = buySell
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered>
+    <Modal isOpen={isOpen} onClose={close} isCentered variant='fluid'>
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
         <MemoryRouter initialEntries={entries}>
-          <Switch>
-            <Route path='/'>
-              <BuySellRouter />
-            </Route>
-          </Switch>
+          <Route path='/'>
+            <BuySellRouter />
+          </Route>
         </MemoryRouter>
       </ModalContent>
     </Modal>

@@ -13,11 +13,22 @@ export const BuySellActionButtons = ({
   const translate = useTranslate()
 
   return (
-    <ButtonGroup variant='ghost' colorScheme='blue' pt={6}>
-      <Button isActive={action === BuySellAction.Buy} onClick={() => setAction(BuySellAction.Buy)}>
+    <ButtonGroup variant='ghost' colorScheme='blue'>
+      <Button
+        pt={4}
+        pb={4}
+        pl={10}
+        pr={10}
+        isActive={action === BuySellAction.Buy}
+        onClick={() => setAction(BuySellAction.Buy)}
+      >
         {translate('buysell.buy')}
       </Button>
       <Button
+        pt={4}
+        pb={4}
+        pl={10}
+        pr={10}
         isActive={action === BuySellAction.Sell}
         onClick={() => setAction(BuySellAction.Sell)}
       >

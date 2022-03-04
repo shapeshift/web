@@ -3,6 +3,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Card } from 'components/Card/Card'
+import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { markdownLinkToHTML } from 'lib/utils'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
@@ -32,11 +33,12 @@ export const AssetDescription = ({ assetId }: AssetDescriptionProps) => {
         </Skeleton>
         <Collapse startingHeight={70} in={showDescription}>
           <SkeletonText isLoaded={isLoaded} noOfLines={4} spacing={2} skeletonHeight='20px'>
-            <SanitizedHtml
-              color='gray.500'
-              dirtyHtml={markdownLinkToHTML(description)}
-              isTrusted={isTrustedDescription}
-            />
+            {isTrustedDescription && (
+              <ParsedHtml color='gray.500' innerHtml={markdownLinkToHTML(description)} />
+            )}
+            {!isTrustedDescription && (
+              <SanitizedHtml color='gray.500' dirtyHtml={markdownLinkToHTML(description)} />
+            )}
           </SkeletonText>
         </Collapse>
         <Button size='sm' onClick={handleToggle} mt='1rem'>

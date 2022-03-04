@@ -2,19 +2,19 @@ import { ListProps } from '@chakra-ui/react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
-import { BuySellAction, CurrencyAsset } from '../../FiatRamps'
+import { CurrencyAsset, FiatRampAction } from '../../FiatRamps'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {
   handleClick: (asset: CurrencyAsset) => void
   assets: CurrencyAsset[]
-  type: BuySellAction
+  type: FiatRampAction
 } & ListProps
 
 export const AssetList = ({ assets, type, handleClick }: AssetListProps) => {
-  return !assets.length ? (
-    <Text translation='common.noResultsFound' />
-  ) : (
+  if (!assets.length) return <Text translation='common.noResultsFound' />
+
+  return (
     <FixedSizeList
       itemSize={60}
       height={250}

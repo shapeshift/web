@@ -15,7 +15,7 @@ import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
-import { BuySell } from './NavBar/BuySell'
+import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
@@ -60,7 +60,7 @@ export const Header = ({ route }: { route: Route }) => {
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
             <Box display={{ base: 'none', md: 'block' }}>
-              <BuySell />
+              <FiatRamps />
             </Box>
             <Box display={{ base: 'none', md: 'block' }}>
               <UserMenu />

@@ -4,7 +4,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
-export const BuySell = () => {
+export const FiatRamps = () => {
   const { fiatRamps } = useModal()
   const {
     state: { isConnected },
@@ -12,17 +12,17 @@ export const BuySell = () => {
   } = useWallet()
   const handleWalletModalOpen = () =>
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  const handleModalOpen = () => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())
+
   return (
     <Button
       leftIcon={<BuySellIcon color='inherit' />}
       colorScheme='blue'
       width='full'
-      onClick={handleModalOpen}
+      onClick={() => (isConnected ? fiatRamps.open({}) : handleWalletModalOpen())}
       variant='ghost'
       mr={2}
     >
-      <Text translation='buysell.headerLabel' />
+      <Text translation='fiatRamps.headerLabel' />
     </Button>
   )
 }

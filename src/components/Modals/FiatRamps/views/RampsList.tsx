@@ -7,7 +7,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-import { BuySellRoutes } from '../FiatRamps'
+import { FiatRampsRoutes } from '../FiatRamps'
 
 export const RampsList = () => {
   const history = useHistory()
@@ -17,11 +17,11 @@ export const RampsList = () => {
       <Card boxShadow='none' borderWidth={0}>
         <Card.Header>
           <Card.Heading>
-            <Text translation='buysell.title' />
+            <Text translation='fiatRamps.title' />
           </Card.Heading>
         </Card.Header>
         <Card.Body>
-          <Text lineHeight={1.2} color='gray.500' translation='buysell.titleMessage' />
+          <Text lineHeight={1.2} color='gray.500' translation='fiatRamps.titleMessage' />
           <Stack spacing={2} mt={2} mx={-4}>
             <Button
               width='full'
@@ -30,23 +30,23 @@ export const RampsList = () => {
               variant='ghost'
               fontWeight='normal'
               py={2}
-              onClick={() => history.push(BuySellRoutes.Gem)}
+              onClick={() => history.push(FiatRampsRoutes.Gem)}
               rightIcon={<ChevronRightIcon boxSize={6} />}
             >
               <Flex flex={1} flexDirection='row' justifyContent='space-between' alignItems='center'>
                 <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                   <AssetIcon src={gemlogo} />
                   <Box textAlign='left' ml={2}>
-                    <Text fontWeight='bold' translation='buysell.gem' />
-                    <Text translation='buysell.gemMessage' />
+                    <Text fontWeight='bold' translation='fiatRamps.gem' />
+                    <Text translation='fiatRamps.gemMessage' />
                   </Box>
                 </Flex>
                 <Box>
                   <Tag colorScheme='green' mr={2}>
-                    <Text translation='buysell.buy' style={{ textTransform: 'uppercase' }} />
+                    <Text translation='fiatRamps.buy' style={{ textTransform: 'uppercase' }} />
                   </Tag>
                   <Tag colorScheme='gray'>
-                    <Text translation='buysell.sell' style={{ textTransform: 'uppercase' }} />
+                    <Text translation='fiatRamps.sell' style={{ textTransform: 'uppercase' }} />
                   </Tag>
                 </Box>
               </Flex>
@@ -62,8 +62,8 @@ export const RampsList = () => {
               <Flex flexDirection='row' justifyContent='center' alignItems='center'>
                 <AssetIcon src={onjunologo} />
                 <Box textAlign='left' ml={2}>
-                  <Text fontWeight='bold' translation='buysell.onJuno' />
-                  <Text translation='buysell.comingSoon' />
+                  <Text fontWeight='bold' translation='fiatRamps.onJuno' />
+                  <Text translation='fiatRamps.comingSoon' />
                 </Box>
               </Flex>
             </Button>

@@ -76,12 +76,12 @@ export type CurrencyAsset = {
   fiatBalance?: number
 }
 
-export enum BuySellRoutes {
-  Select = '/buysell/select',
-  Gem = '/buysell/gem'
+export enum FiatRampsRoutes {
+  Select = '/fiat-ramp/select',
+  Gem = '/fiat-ramp/gem'
 }
 
-export const entries = [BuySellRoutes.Select, BuySellRoutes.Gem]
+export const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Gem]
 
 export const FiatRampsModal = () => {
   const { fiatRamps } = useModal()

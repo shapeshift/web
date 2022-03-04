@@ -22,7 +22,7 @@ export const FiatRampActionButtons = ({
         isActive={action === FiatRampAction.Buy}
         onClick={() => setAction(FiatRampAction.Buy)}
       >
-        {translate('buysell.buy')}
+        {translate('fiatRamps.buy')}
       </Button>
       <Button
         pt={4}
@@ -32,7 +32,7 @@ export const FiatRampActionButtons = ({
         isActive={action === FiatRampAction.Sell}
         onClick={() => setAction(FiatRampAction.Sell)}
       >
-        {translate('buysell.sell')}
+        {translate('fiatRamps.sell')}
       </Button>
     </ButtonGroup>
   )

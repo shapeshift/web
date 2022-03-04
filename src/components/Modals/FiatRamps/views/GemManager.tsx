@@ -26,7 +26,7 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
-import { selectPortfolioCryptoHumanBalanceBySymbol } from 'state/slices/selectors'
+import { selectPortfolioCryptoHumanBalancesBySymbol } from 'state/slices/selectors'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
@@ -66,7 +66,7 @@ export const GemManager = () => {
   const [buyList, setBuyList] = useState<CurrencyAsset[]>([])
   const [sellList, setSellList] = useState<CurrencyAsset[]>([])
 
-  const balances = useSelector(selectPortfolioCryptoHumanBalanceBySymbol)
+  const balances = useSelector(selectPortfolioCryptoHumanBalancesBySymbol)
   const getCoinifySupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
@@ -147,8 +147,8 @@ export const GemManager = () => {
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
       action === FiatRampAction.Buy
-        ? ['buysell.selectAnAssetToBuy', 'buysell.assetToBuy', 'buysell.fundsTo']
-        : ['buysell.selectAnAssetToSell', 'buysell.assetToSell', 'buysell.fundsFrom'],
+        ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.assetToBuy', 'fiatRamps.fundsTo']
+        : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.assetToSell', 'fiatRamps.fundsFrom'],
     [action]
   )
 

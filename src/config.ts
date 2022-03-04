@@ -17,7 +17,6 @@ const validators = {
   REACT_APP_HIDE_SPLASH: bool({ default: false }),
   REACT_APP_GEM_COINIFY_SUPPORTED_COINS: url(),
   REACT_APP_GEM_WYRE_SUPPORTED_COINS: url(),
-  REACT_APP_GEM_ASSET_LOGO: url(),
   REACT_APP_GEM_ENV: str(),
   REACT_APP_GEM_API_KEY: str(),
   REACT_APP_GEM_URL: url(),

@@ -260,43 +260,6 @@ ipcMain.on('@account/tx-signed', async (event, data) => {
     }
 })
 
-ipcMain.on('@bridge/approve-origin', async (event, data) => {
-    const tag = TAG + ' | onApproveOrigin | '
-    try {
-        log.info(tag, "data: ", data)
-
-        //Approve Origin
-        APPROVED_ORIGINS.push(data.origin)
-        USER_APPROVED_PAIR = true
-        //save to db
-        let doc = {
-            type: 'origin',
-            origin: data.origin,
-            added: new Date().getTime(),
-            isVerified: false
-        }
-        db.insert(doc, function (err, resp) {
-            if (err) log.error("err: ", err)
-            log.info("saved origin: ", resp)
-        })
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
-
-ipcMain.on('@bridge/reject-origin', async (event, data) => {
-    const tag = TAG + ' | onRejectOrigin | '
-    try {
-        log.info(tag, "data: ", data)
-
-        USER_REJECT_PAIR = true
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
-
 ipcMain.on('@modal/close', async (event, data) => {
     if (!windows.mainWindow) return
     const tag = TAG + ' | onCloseModal | '

@@ -49,19 +49,7 @@ const cspMeta = Object.entries({
     'https://widget.portis.io'
   ],
   'img-src': [
-    "'self'",
-    'data:',
-    'blob:',
-    'filesystem:',
-    'https://assets.coincap.io/assets/icons/',
-    'https://static.coincap.io/assets/icons/',
-    'https://assets.coingecko.com/coins/images/',
-    'https://raw.githack.com/trustwallet/assets/',
-    'https://rawcdn.githack.com/yearn/yearn-assets/',
-    'https://raw.githack.com/yearn/yearn-assets/',
-    'https://assets.yearn.network/tokens/',
-    'https://raw.githubusercontent.com/yearn/yearn-assets/',
-    'https://rawcdn.githack.com/trustwallet/assets/'
+    "*"
   ],
   'script-src': [
     "'self'",

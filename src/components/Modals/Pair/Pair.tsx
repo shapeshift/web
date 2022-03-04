@@ -9,7 +9,9 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Stack
+  Stack,
+  Image,
+  Box
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useState } from 'react'
@@ -19,8 +21,8 @@ import { SlideTransition } from 'components/SlideTransition'
 
 
 export type PairingProps = {
-  appname: string,
-  publicKey: string,
+  serviceName: string,
+  serviceImageUrl: string,
   nonce: string
 }
 
@@ -31,12 +33,12 @@ export const PairModal = (input: PairingProps) => {
   const { close, isOpen } = pair
 
   const HandleSubmit = async () => {
-    ipcRenderer.send(`@bridge/approve-origin-${input.nonce}`, input)
+    ipcRenderer.send(`@bridge/approve-service-${input.nonce}`, input)
     close()
   }
 
   const HandleReject = async () => {
-    ipcRenderer.send(`@bridge/reject-origin-${input.nonce}`, input)
+    ipcRenderer.send(`@bridge/reject-service-${input.nonce}`, input)
     close()
   }
 
@@ -60,7 +62,10 @@ export const PairModal = (input: PairingProps) => {
           </ModalHeader>
           <ModalBody>
             <Stack spacing={4} mb={4}>
-              <Text translation={['modals.pair.body', { appname: input.appname }]} />
+              <Box display="inline-flex" justifyContent={'center'} alignItems='center'>
+                <Image src={input.serviceImageUrl} borderRadius="full" height="10" width="10" />
+                <Text translation={['modals.pair.body', { serviceName: input.serviceName }]} pl='2' />
+              </Box>
               {error && (
                 <Alert status='error'>
                   <AlertIcon />

@@ -3,6 +3,7 @@
 
 */
 import cryptoTools from 'crypto'
+import { ipcRenderer } from 'electron'
 import { v4 as uuidv4 } from 'uuid'
 
 export class KeepKeyService {
@@ -38,6 +39,15 @@ export class KeepKeyService {
       this.username = username
     } else {
       this.username = username
+    }
+  }
+
+  checkAndPairService() {
+    let serviceKey = localStorage.getItem('@bridge/service-key')
+    if (!serviceKey) {
+      serviceKey = uuidv4()
+      localStorage.setItem('@bridge/service-key', serviceKey)
+      ipcRenderer.send('@bridge/add-service', { serviceKey, serviceName: 'ShapeShift', serviceKeyImageUrl: 'https://app.shapeshift.com/icon-512x512.png' })
     }
   }
 

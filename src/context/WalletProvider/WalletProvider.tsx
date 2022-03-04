@@ -108,15 +108,15 @@ function playSound(type: any) {
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
   | {
-      type: WalletActions.SET_WALLET
-      payload: {
-        wallet: HDWallet | null
-        name: string
-        icon: ComponentWithAs<'svg', IconProps>
-        deviceId: string
-        meta?: { label: string }
-      }
+    type: WalletActions.SET_WALLET
+    payload: {
+      wallet: HDWallet | null
+      name: string
+      icon: ComponentWithAs<'svg', IconProps>
+      deviceId: string
+      meta?: { label: string }
     }
+  }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
@@ -193,7 +193,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useEffect(() => {
     if (state.keyring) {
-      ;(async () => {
+      ; (async () => {
         const adapters: Adapters = new Map()
         let options: undefined | { portisAppId: string }
         for (const wallet of Object.values(KeyManager)) {
@@ -205,6 +205,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
             if (wallet === 'keepkey') {
+              keepkey.checkAndPairService()
               await adapter.pairDevice('http://localhost:1646')
               adapters.set(wallet, adapter)
             } else {
@@ -249,7 +250,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('playSound', (event, data) => {})
+    ipcRenderer.on('playSound', (event, data) => { })
 
     ipcRenderer.on('attach', (event, data) => {
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
@@ -308,7 +309,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       bootloader.open({})
     })
 
-    ipcRenderer.on('setDevice', (event, data) => {})
+    ipcRenderer.on('setDevice', (event, data) => { })
 
     ipcRenderer.on('signTx', async (event: any, data: any) => {
       let unsignedTx = data.payload.data
@@ -345,6 +346,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if (type === 'keepkey') {
         const adapter = SUPPORTED_WALLETS['keepkey'].adapter.useKeyring(state.keyring)
         try {
+          keepkey.checkAndPairService()
           await adapter.pairDevice('http://localhost:1646')
           const adapters: Adapters = new Map()
           adapters.set('keepkey' as KeyManager, adapter)
@@ -395,7 +397,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
     if (localWalletType && localWalletDeviceId && state.adapters) {
-      ;(async () => {
+      ; (async () => {
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
             case KeyManager.Native:

@@ -1,5 +1,5 @@
 import swaggerUi from 'swagger-ui-express'
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
@@ -13,6 +13,7 @@ import wait from 'wait-promise'
 import { shared } from './shared'
 import { updateMenu } from './tray'
 import { uniqueId } from 'lodash'
+import { db } from './db'
 
 const appExpress = express()
 appExpress.use(cors())
@@ -128,55 +129,6 @@ export const start_bridge = async function (event) {
             }
         })
 
-        appExpress.get('/pair', async (req, res, next) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
-
-            const nonce = uniqueId()
-
-            windows.mainWindow.webContents.send('@modal/pair', { appname: 'Burger Gang', publicKey: '', nonce })
-            if (windows.mainWindow.focusable) windows.mainWindow.focus()
-
-            ipcMain.once(`@bridge/approve-origin-${nonce}`, (event, data) => {
-                if (data.nonce = nonce) {
-                    ipcMain.removeAllListeners(`@bridge/approve-origin-${nonce}`)
-                    res.send({ success: true })
-                }
-            })
-            ipcMain.once(`@bridge/reject-origin-${nonce}`, (event, data) => {
-                if (data.nonce = nonce) {
-                    ipcMain.removeAllListeners(`@bridge/reject-origin-${nonce}`)
-                    res.send({ success: false })
-                }
-            })
-            return res
-        })
-
-        /*
-            Protected endpoint middleware
-            Only allow approved applications collect data
-    
-            all routes below are protected
-         */
-        //TODO
-        // let authChecker = (req, res, next) => {
-        //   console.log("header: ",req.headers);
-        //   const host = req.headers.host;
-        //   let origin = req.headers.origin;
-        //   const referer = req.headers.referer;
-        //   if(!origin) origin = referer
-        //   console.log("origin: ",origin);
-        //   console.log("host: ",host);
-        //   if(!origin) {
-        //     res.status(400).json("Unable to determine origin!")
-        //   } else if(APPROVED_ORIGINS.indexOf(origin) >= 0){
-        //     console.log("Approved origin!")
-        //     next();
-        //   } else {
-        //     event.sender.send('approveOrigin', { origin })
-        //   }
-        // };
-        // appExpress.use(authChecker);
-
         if (device) {
             appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
@@ -219,6 +171,91 @@ export const start_bridge = async function (event) {
             })
         }
 
+        //catchall
+        appExpress.use((req, res, next) => {
+            const status = 500, message = 'something went wrong. ', data = {}
+            //log.info(req.body, { status: status, message: message, data: data })
+            try {
+                res.status(status).json({ message, data })
+            } catch (e) { }
+        })
+
+        // used only for implicitly pairing the KeepKey web app
+        ipcMain.on(`@bridge/add-service`, (event, data) => {
+            db.insert({
+                type: 'service',
+                addedOn: Date.now(),
+                ...data
+            })
+        })
+
+        appExpress.post('/pair', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+
+            const nonce = uniqueId()
+
+            const serviceName = req.body.serviceName
+            const serviceImageUrl = req.body.serviceImageUrl
+            const serviceKey = req.headers.authorization
+
+            windows.mainWindow.webContents.send('@modal/pair', { serviceName, serviceImageUrl, nonce })
+            if (windows.mainWindow.focusable) windows.mainWindow.focus()
+
+            ipcMain.once(`@bridge/approve-service-${nonce}`, (event, data) => {
+                if (data.nonce = nonce) {
+                    ipcMain.removeAllListeners(`@bridge/approve-service-${nonce}`)
+                    db.insert({
+                        type: 'service',
+                        addedOn: Date.now(),
+                        serviceName,
+                        serviceImageUrl,
+                        serviceKey
+                    })
+                    res.statusCode = 200
+                    res.send({ success: true, reason: '' })
+                }
+            })
+
+            ipcMain.once(`@bridge/reject-service-${nonce}`, (event, data) => {
+                if (data.nonce = nonce) {
+                    ipcMain.removeAllListeners(`@bridge/reject-service-${nonce}`)
+                    res.statusCode = 401
+                    res.send({ success: false, reason: 'Pairing was rejected by user' })
+                }
+            })
+
+            return res
+        })
+
+
+
+
+        /*
+            Protected endpoint middleware
+            Only allow approved applications collect data
+    
+            all routes below are protected
+        */
+
+        const authChecker = (req: Request, res: Response, next: NextFunction) => {
+            const serviceKey = req.headers.authorization
+
+            if (!serviceKey) {
+                res.statusCode = 401
+                return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+            }
+
+            db.findOne({ type: 'service', serviceKey }, (err, doc) => {
+                if (!doc) {
+                    res.statusCode = 401
+                    return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+                } else {
+                    next()
+                }
+            })
+        };
+
+        appExpress.use(authChecker);
 
         //userInfo
         appExpress.all('/user', async (req, res, next) => {
@@ -261,14 +298,7 @@ export const start_bridge = async function (event) {
             }
         })
 
-        //catchall
-        appExpress.use((req, res, next) => {
-            const status = 500, message = 'something went wrong. ', data = {}
-            //log.info(req.body, { status: status, message: message, data: data })
-            try {
-                res.status(status).json({ message, data })
-            } catch (e) { }
-        })
+
 
         //port
         try {

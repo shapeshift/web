@@ -32,17 +32,13 @@
 					"success": {
 						"type": "boolean"
 					},
-					"username": {
-						"type": "string"
-					},
-					"code": {
+					"reason": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"success",
-					"username",
-					"code"
+					"reason"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -163,12 +159,22 @@
 				"parameters": []
 			}
 		},
-		"/pair/{code}": {
+		"/pair": {
 			"get": {
 				"operationId": "Pair",
 				"responses": {
 					"200": {
 						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PairResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorised",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -182,7 +188,14 @@
 					"Client Endpoints"
 				],
 				"security": [],
-				"parameters": []
+				"parameters": {
+					"serviceName": {
+						"type": "string"
+					},
+					"serviceImageUrl": {
+						"type": "string"
+					}
+				}
 			}
 		},
 		"/user": {

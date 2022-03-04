@@ -36,9 +36,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/yarn
-          key: ${{ runner.os }}-node-${{ github.ref }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-${{ github.ref }}-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-node-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
 
       # We use the exact restore key to avoid Cypress binary snowballing
       # https://glebbahmutov.com/blog/do-not-let-cypress-cache-snowball/
@@ -63,7 +63,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.ref }}-
             

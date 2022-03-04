@@ -1,18 +1,18 @@
 import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
 import { ToastId, useToast } from '@chakra-ui/toast'
+import { ipcRenderer } from 'electron'
 import { pluginManager, registerPlugins } from 'plugins'
 import { useEffect, useRef, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
+import { PairingProps } from 'components/Modals/Pair/Pair'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 
 import { Route } from './Routes/helpers'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { ipcRenderer } from 'electron'
-import { PairingProps } from 'components/Modals/Pair/Pair'
 
 export const App = () => {
   const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
@@ -38,7 +38,7 @@ export const App = () => {
     ipcRenderer.on('@modal/pair', (event, data: PairingProps) => {
       pair.open(data)
     })
-  }, [])
+  }, [pair])
 
   useEffect(() => {
     if (shouldUpdate && !toast.isActive(updateId)) {

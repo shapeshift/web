@@ -1,9 +1,11 @@
 import { Heading, Stack, StackDivider } from '@chakra-ui/react'
+import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
 import { Card } from 'components/Card/Card'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
 
+import { selectFeatureFlags } from '../../state/slices/preferencesSlice/selectors'
 import { FlagRow } from './FlagRow'
 
 type FlagsPageProps = {
@@ -19,15 +21,14 @@ const FlagHeader = () => {
   )
 }
 
-const example = ['one', 'two', 'three']
-
 export const Flags = ({ route }: FlagsPageProps) => {
+  const featureFlags = Object.keys(useSelector(selectFeatureFlags))
   return (
     <Main route={route} titleComponent={<FlagHeader />}>
       <Card>
         <Card.Body>
           <Stack divider={<StackDivider />}>
-            {example.map(flag => (
+            {featureFlags.map(flag => (
               <FlagRow flag={flag} />
             ))}
           </Stack>

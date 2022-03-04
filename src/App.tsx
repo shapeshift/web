@@ -8,8 +8,10 @@ import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
+import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { Route } from './Routes/helpers'
+import { useAppSelector } from './state/store'
 
 export const App = () => {
   const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
@@ -18,6 +20,7 @@ export const App = () => {
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
   useEffect(() => {
     registerPlugins()
@@ -28,7 +31,7 @@ export const App = () => {
         console.error('RegisterPlugins', e)
         setPluginRoutes([])
       })
-  }, [setPluginRoutes])
+  }, [setPluginRoutes, featureFlags])
 
   useEffect(() => {
     if (shouldUpdate && !toast.isActive(updateId)) {

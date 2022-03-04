@@ -66,6 +66,14 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node-modules-${{ github.ref }}-
+
+      - name: Cache build folder
+        uses: actions/cache@v2
+        with:
+          path: build
+          key: ${{ runner.os }}-build-${{ github.ref }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ github.ref }}-
             
       - name: install dependencies and verify Cypress
         env:
@@ -77,6 +85,10 @@ jobs:
           npx cypress cache list
           npx cypress verify
           npx cypress info
+
+      - name: build
+        run: yarn run build
+
   call-pr-workflow:
     uses: ./.github/workflows/pr.yml
     needs: [install-and-cache]

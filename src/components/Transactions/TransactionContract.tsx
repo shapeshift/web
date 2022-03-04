@@ -68,7 +68,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              {txDetails.direction !== 'in-place' && (
+              {txDetails.direction !== 'in-place' && txDetails.value && (
                 <Amount.Crypto
                   {...(txDetails.direction === 'inbound'
                     ? { color: 'green.500' }

@@ -31,7 +31,7 @@ export interface TxDetails {
   feeAsset?: Asset
   buyAsset?: Asset
   sellAsset?: Asset
-  value: string
+  value?: string
   to: string
   ensTo?: string
   from: string
@@ -86,7 +86,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTx?.caip19 ?? ''))
   const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTx?.caip19 ?? ''))
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
-  const value = standardTx?.value ?? tradeTx?.value ?? '0'
+
+  const value = standardTx?.value ?? tradeTx?.value ?? undefined
   const to = standardTx?.to ?? tradeTx?.to ?? ''
   const from = standardTx?.from ?? tradeTx?.from ?? ''
 

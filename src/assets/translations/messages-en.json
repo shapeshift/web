@@ -240,7 +240,7 @@
         "transferOut": "Transfer out"
       }
     },
-    "unknown": "Unknown transaction"
+    "unknown": "Transaction"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

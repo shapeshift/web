@@ -51,13 +51,15 @@ export const TransactionTrade = ({ txDetails }: { txDetails: TxDetails }) => {
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              <Amount.Crypto
-                color='inherit'
-                value={fromBaseUnit(txDetails.value, txDetails.precision)}
-                symbol={txDetails.symbol}
-                maximumFractionDigits={6}
-                prefix=''
-              />
+              {txDetails.value && (
+                <Amount.Crypto
+                  color='inherit'
+                  value={fromBaseUnit(txDetails.value, txDetails.precision)}
+                  symbol={txDetails.symbol}
+                  maximumFractionDigits={6}
+                  prefix=''
+                />
+              )}
             </Flex>
           </Flex>
         </Flex>

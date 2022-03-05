@@ -67,29 +67,31 @@ export const GemManager = () => {
   const [sellList, setSellList] = useState<CurrencyAsset[]>([])
 
   const balances = useSelector(selectPortfolioCryptoHumanBalancesBySymbol)
-  const getCoinifySupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
+  const fetchCoinifySupportedCurrencies = async (): Promise<SupportedCurrency[]> => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
       return data
     } catch (e: any) {
       console.error(e)
+      return []
     }
   }
 
-  const getWyreSupportedCurrencies: () => Promise<SupportedCurrency[]> = async () => {
+  const fetchWyreSupportedCurrencies = async (): Promise<SupportedCurrency[]> => {
     try {
       const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
       return data
     } catch (e: any) {
       console.error(e)
+      return []
     }
   }
 
-  const buyFilter = (currency: SupportedCurrency) =>
+  const isBuyAsset = (currency: SupportedCurrency) =>
     currency.transaction_direction === TransactionDirection.BankToBlockchain ||
     currency.transaction_direction === TransactionDirection.CardToBlockchain
 
-  const sellFilter = (currency: SupportedCurrency) =>
+  const isSellAsset = (currency: SupportedCurrency) =>
     currency.transaction_direction === TransactionDirection.BlockchainToBank
 
   const filterAndMerge = useMemo(
@@ -100,9 +102,12 @@ export const GemManager = () => {
         key: 'destination' | 'source',
         filter: (currency: SupportedCurrency) => boolean
       ): CurrencyAsset[] => {
-        const list1 = coinifyList.filter(filter).map(list => list[key].currencies)
-        const list2 = wyreList.filter(filter).map(list => list[key].currencies)
-        const results = uniqBy(flatten(concat(list1, list2)), 'gem_asset_id')
+        const filteredCoinifyList = coinifyList.filter(filter).map(list => list[key].currencies)
+        const filteredWyreList = wyreList.filter(filter).map(list => list[key].currencies)
+        const results = uniqBy(
+          flatten(concat(filteredCoinifyList, filteredWyreList)),
+          'gem_asset_id'
+        )
           .map(result => ({
             ...result,
             cryptoBalance: Number(balances[result.ticker]?.crypto) || 0,
@@ -118,12 +123,12 @@ export const GemManager = () => {
     setLoading(true)
 
     try {
-      const coinifyList = await getCoinifySupportedCurrencies()
-      const wyreList = await getWyreSupportedCurrencies()
-      const buyList = filterAndMerge(coinifyList, wyreList, 'destination', buyFilter)
-      const sellList = filterAndMerge(coinifyList, wyreList, 'source', sellFilter)
-      setBuyList(buyList)
-      setSellList(sellList)
+      const coinifyList = await fetchCoinifySupportedCurrencies()
+      const wyreList = await fetchWyreSupportedCurrencies()
+      const filteredBuyList = filterAndMerge(coinifyList, wyreList, 'destination', isBuyAsset)
+      const filteredSellList = filterAndMerge(coinifyList, wyreList, 'source', isSellAsset)
+      setBuyList(filteredBuyList)
+      setSellList(filteredSellList)
       setLoading(false)
     } catch (e) {
       console.error(e)
@@ -152,7 +157,7 @@ export const GemManager = () => {
     [action]
   )
 
-  const gemUrl = useMemo(() => {
+  const gemPartnerUrl = useMemo(() => {
     const onrampConfig = {
       partnerName: 'ShapeShift',
       environment: GEM_ENV,
@@ -168,7 +173,7 @@ export const GemManager = () => {
     return `${GEM_URL}?${queryConfig}`
   }, [address, action, asset])
 
-  const copyHandler = async () => {
+  const handleCopyClick = async () => {
     const duration = 2500
     const isClosable = true
     const toastPayload = { duration, isClosable }
@@ -270,7 +275,7 @@ export const GemManager = () => {
                       size='sm'
                       isRound
                       variant='ghost'
-                      onClick={copyHandler}
+                      onClick={handleCopyClick}
                     />
                     <IconButton
                       icon={verified ? <CheckIcon /> : <ViewIcon />}
@@ -291,7 +296,7 @@ export const GemManager = () => {
               colorScheme='blue'
               disabled={!asset}
               as='a'
-              href={gemUrl}
+              href={gemPartnerUrl}
               target='_blank'
             >
               <Text translation='common.continue' />

@@ -4,19 +4,9 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { FiatRampsRouter } from './FiatRampsRouter'
 
-export enum BuySellRamp {
-  Gem = 'gem',
-  OnJuno = 'onjuno'
-}
-
 export enum FiatRampAction {
   Buy = 'buy',
   Sell = 'sell'
-}
-
-export enum InstitutionType {
-  Coinify = 'coinify',
-  Wyre = 'wyre'
 }
 
 export enum TransactionDirection {
@@ -34,44 +24,23 @@ export type CurrencyFee = {
   type: string
 }
 
-export type Medium = {
-  Blockchain: 'blockchain'
-  Bank: 'bank'
-}
-
 export type SupportedCurrency = {
   destination: {
     currencies: CurrencyAsset[]
-    medium: Medium
-    minimums?: { [x: string]: number }
   }
-  fees: CurrencyFee[]
-  institution_id: 'coinify' | 'wyre'
-  resolved_destination_currency_count: number
-  resolved_source_currency_count: number
   source: {
     currencies: CurrencyAsset[]
-    medium: Medium
-    minimums?: { [x: string]: number }
   }
-  supported_destination_currency_count: number
-  supported_source_currency_count: number
+  institution_id: 'coinify' | 'wyre'
   transaction_direction: TransactionDirection
 }
 
+// Non-exhaustive typings. We do not want to keep this a 1/1 mapping to an external API
+// There could be breaking changes with other fields and that's fine, these are the only ones we need
 export type CurrencyAsset = {
-  created_at: string
-  external_id: string
   gem_asset_id: string
-  mapping_id: string
   name: string
-  primary_color: string
-  rank: number
-  resolved: boolean
-  source: string
   ticker: string
-  transaction_fields: Record<string, never>
-  updated_at: string
   cryptoBalance?: number
   fiatBalance?: number
 }

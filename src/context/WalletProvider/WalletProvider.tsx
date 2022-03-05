@@ -206,8 +206,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             // useKeyring returns the instance of the adapter. We'll keep it for future reference.
             if (wallet === 'keepkey') {
               // TODO: add ability to pass serviceKey to adapter
-              const serviceKey = keepkey.getServiceKey()
-              await adapter.pairDevice({ url: 'http://localhost:1646', headers: { Authorization: serviceKey } })
+              // const serviceKey = keepkey.getServiceKey()
+              await adapter.pairDevice('http://localhost:1646')
               adapters.set(wallet, adapter)
             } else {
               await adapter.initialize()
@@ -314,84 +314,84 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
       let paths = data.paths
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.getPublicKeys(paths)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/btcGetAddress', async (event, data) => {
       let params = data.params
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.btcGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/ethGetAddress', async (event, data) => {
       let params = data.params
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.ethGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/thorchainGetAddress', async (event, data) => {
       let params = data.params
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/osmosisGetAddress', async (event, data) => {
       let params = data.params
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/binanceGetAddress', async (event, data) => {
       let params = data.params
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.binanceGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/cosmosGetAddress', async (event, data) => {
       let params = data.params
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.cosmosGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
@@ -399,60 +399,60 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('@hdwallet/btcSignTx', async (event, data) => {
       let HDwalletPayload = data.HDwalletPayload
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.btcSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/thorchainSignTx', async (event, data) => {
       let HDwalletPayload = data.HDwalletPayload
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/cosmosSignTx', async (event, data) => {
       let HDwalletPayload = data.HDwalletPayload
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/osmosisSignTx', async (event, data) => {
       let HDwalletPayload = data.HDwalletPayload
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/ethSignTx', async (event, data) => {
       let HDwalletPayload = data.HDwalletPayload
       if (state.wallet) {
-        console.log("state.wallet: ", state.wallet)
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.ethSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', { error: "wallet not online!" })
+        ipcRenderer.send('@hdwallet/response', { error: 'wallet not online!' })
       }
     })
 
@@ -496,8 +496,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         const adapter = SUPPORTED_WALLETS['keepkey'].adapter.useKeyring(state.keyring)
         try {
           // TODO: add ability to pass serviceKey to adapter
-          const serviceKey = keepkey.getServiceKey()
-          await adapter.pairDevice({ url: 'http://localhost:1646', headers: { Authorization: serviceKey } })
+          // const serviceKey = keepkey.getServiceKey()
+          await adapter.pairDevice('http://localhost:1646')
           const adapters: Adapters = new Map()
           adapters.set('keepkey' as KeyManager, adapter)
           dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })

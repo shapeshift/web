@@ -376,7 +376,7 @@ export const start_bridge = async function (event) {
         };
 
         if (device) {
-            appExpress.all('/exchange/device', checkAuth, async (req, res, next) => {
+            appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
                     if (req.method === 'GET') {
                         let resp = await transport.readChunk()
@@ -404,7 +404,7 @@ export const start_bridge = async function (event) {
                 }
             })
         } else {
-            appExpress.all('/exchange/device', checkAuth, async (req, res, next) => {
+            appExpress.all('/exchange/device', async (req, res, next) => {
                 try {
                     res.status(200).json({
                         success: false,

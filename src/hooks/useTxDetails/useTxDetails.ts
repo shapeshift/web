@@ -80,13 +80,13 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   )
 
   // stables need precision of eth (18) rather than 10
-  const feeAsset = useSelector((state: ReduxState) =>
+  const feeAsset: Asset | undefined = useSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, tx.fee?.caip19 ?? '')
   )
-  const buyAsset = useSelector((state: ReduxState) =>
+  const buyAsset: Asset | undefined = useSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, buyTx?.caip19 ?? '')
   )
-  const sellAsset = useSelector((state: ReduxState) =>
+  const sellAsset: Asset | undefined = useSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, sellTx?.caip19 ?? '')
   )
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset

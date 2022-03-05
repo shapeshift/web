@@ -17,12 +17,14 @@ type AssetTransactionHistoryProps = {
   assetId: CAIP19
   accountId?: AccountSpecifier
   useCompactMode?: boolean
+  limit?: number
 }
 
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,
   accountId,
-  useCompactMode = true
+  useCompactMode = true,
+  limit
 }) => {
   const translate = useTranslate()
   const {
@@ -48,9 +50,18 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
   return (
     <Card>
       <Card.Header>
-        <Card.Heading>{translate('transactionHistory.transactionHistory')}</Card.Heading>
+        <Card.Heading>
+          {translate(
+            useCompactMode
+              ? 'transactionHistory.recentTransactions'
+              : 'transactionHistory.transactionHistory'
+          )}
+        </Card.Heading>
       </Card.Header>
-      <TransactionHistoryList txIds={txIds} useCompactMode={useCompactMode} />
+      <TransactionHistoryList
+        txIds={limit ? txIds.slice(0, limit) : txIds}
+        useCompactMode={useCompactMode}
+      />
     </Card>
   )
 }

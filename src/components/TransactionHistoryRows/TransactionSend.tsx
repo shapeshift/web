@@ -1,5 +1,4 @@
 import { Flex } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { selectMarketDataById } from 'state/slices/selectors'
@@ -15,11 +14,12 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 
 export const TransactionSend = ({
   txDetails,
-  showDateAndGuide
+  showDateAndGuide,
+  compactMode
 }: {
   txDetails: TxDetails
-  activeAsset?: Asset
   showDateAndGuide?: boolean
+  compactMode?: boolean
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
@@ -34,6 +34,7 @@ export const TransactionSend = ({
       <Flex alignItems='center' flex={1} as='button' w='full' py={4} onClick={toggleOpen}>
         <TransactionGenericRow
           type={txDetails.type}
+          compactMode={compactMode}
           blockTime={txDetails.tx.blockTime}
           symbol={txDetails.symbol}
           assets={[

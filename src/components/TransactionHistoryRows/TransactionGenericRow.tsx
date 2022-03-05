@@ -46,6 +46,7 @@ type TransactionGenericRowType = {
   title?: string
   symbol: string
   showDateAndGuide?: boolean
+  compactMode?: boolean
   assets: TransactionRowAsset[]
   fee: TransactionRowAsset
   txid: TxId
@@ -65,7 +66,8 @@ export const TransactionGenericRow = ({
   fee,
   txid,
   blockTime,
-  explorerTxLink
+  explorerTxLink,
+  compactMode = false
 }: TransactionGenericRowType) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
@@ -93,10 +95,10 @@ export const TransactionGenericRow = ({
         </Flex>
         <Flex
           alignItems={isLargerThanLg ? 'flex-start' : 'flex-end'}
-          flex={isLargerThanLg ? 2 : 1}
+          flex={!compactMode && isLargerThanLg ? 2 : 1}
           flexDir='column'
         >
-          {showDateAndGuide && isLargerThanXl && <Guide title='assets' />}
+          {!compactMode && showDateAndGuide && isLargerThanXl && <Guide title='assets' />}
           <Flex
             alignItems={isLargerThanMd ? 'center' : 'flex-start'}
             width='full'
@@ -106,7 +108,7 @@ export const TransactionGenericRow = ({
             {assets.map((asset, index) => (
               <>
                 <Flex alignItems='center'>
-                  {isLargerThanLg && (
+                  {!compactMode && isLargerThanLg && (
                     <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
                   )}
                   <Box flex={1}>
@@ -129,12 +131,7 @@ export const TransactionGenericRow = ({
                     )}
                   </Box>
                   {!isLargerThanMd && index !== assets.length - 1 && (
-                    <Flex
-                      flex={0}
-                      justifyContent='center'
-                      alignItems='center'
-                      mb={isLargerThanMd ? 0 : 2}
-                    >
+                    <Flex flex={0} justifyContent='center' alignItems='center' mb={2}>
                       <Box color='gray.600'>
                         <IoIosArrowRoundForward size='2em' />
                       </Box>
@@ -152,8 +149,8 @@ export const TransactionGenericRow = ({
             ))}
           </Flex>
         </Flex>
-        {isLargerThanXl && <Flex flex={0.2} />}
-        {isLargerThanXl && (
+        {!compactMode && isLargerThanXl && <Flex flex={0.2} />}
+        {!compactMode && isLargerThanXl && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
             {showDateAndGuide && <Guide title='fee' />}
             <Flex alignItems='center' width='full'>
@@ -179,7 +176,7 @@ export const TransactionGenericRow = ({
             </Flex>
           </Flex>
         )}
-        {isLargerThanXl && (
+        {!compactMode && isLargerThanXl && (
           <Flex flex={0} flexDir='column'>
             {showDateAndGuide && <Guide title='viewOnChain' />}
             <Flex justifyContent='flex-start' alignItems='center'>

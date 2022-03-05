@@ -16,10 +16,12 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 
 export const TransactionTrade = ({
   txDetails,
-  showDateAndGuide
+  showDateAndGuide,
+  compactMode
 }: {
   txDetails: TxDetails
   showDateAndGuide?: boolean
+  compactMode?: boolean
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
@@ -37,6 +39,7 @@ export const TransactionTrade = ({
       <Flex alignItems='center' flex={1} as='button' w='full' py={4} onClick={toggleOpen}>
         <TransactionGenericRow
           type={txDetails.type}
+          compactMode={compactMode}
           blockTime={txDetails.tx.blockTime}
           symbol={txDetails.symbol}
           assets={[

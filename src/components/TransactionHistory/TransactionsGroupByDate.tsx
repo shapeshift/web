@@ -2,7 +2,6 @@ import { Box, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { Fragment, useMemo } from 'react'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
-import { TransactionRow as TransactionCompactRow } from 'components/Transactions/TransactionRow'
 import { selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -41,21 +40,16 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
       <Fragment key={group.date}>
         <Box borderTopWidth={1} borderColor={borderTopColor} mx={-2} />
         {group.txIds?.map((txId: TxId, index: number) => (
-          <TransactionRow key={txId} txId={txId} showDateAndGuide={index === 0} />
+          <TransactionRow
+            key={txId}
+            txId={txId}
+            useCompactMode={useCompactMode}
+            showDateAndGuide={index === 0}
+          />
         ))}
       </Fragment>
     ))
-  }, [borderTopColor, transactions])
+  }, [borderTopColor, transactions, useCompactMode])
 
-  const txCompactRows = useMemo(() => {
-    return (
-      <>
-        {txIds?.map((txId: TxId) => (
-          <TransactionCompactRow key={txId} txId={txId} />
-        ))}
-      </>
-    )
-  }, [txIds])
-
-  return <>{useCompactMode ? txCompactRows : txRows}</>
+  return <>{txRows}</>
 }

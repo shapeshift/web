@@ -11,7 +11,7 @@ export const DatePicker = ({ control, name }: { control: Control; name: string }
     field: { onChange, value }
   } = useController({ control, name })
   return (
-    <InputGroup p={0} className={useColorModeValue('light-theme', 'dark-theme')}>
+    <InputGroup className={useColorModeValue('light-theme', 'dark-theme')}>
       <InputLeftElement pointerEvents='none' color={useColorModeValue('blue.300', 'blue.200')}>
         <FaCalendarAlt />
       </InputLeftElement>

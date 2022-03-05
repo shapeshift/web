@@ -40,7 +40,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           <EarnOpportunities assetId={caip19} accountId={accountId} />
           {cosmosInverstorFlag && <StakingOpportunities assetId={caip19} accountId={accountId} />}
           <UnderlyingToken assetId={caip19} accountId={accountId} />
-          <AssetTransactionHistory assetId={caip19} accountId={accountId} />
+          <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard />

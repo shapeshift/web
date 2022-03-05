@@ -30,7 +30,9 @@
     "transactionFailedBody": "Échec de la transaction",
     "submitFeedback": "Envoyer un commentaire",
     "send": "Envoyer",
-    "receive": "Recevoir"
+    "receive": "Recevoir",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation"
   },
   "updateToast": {
     "body": "Une nouvelle version de l'app est disponible",

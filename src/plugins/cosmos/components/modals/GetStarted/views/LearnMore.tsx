@@ -78,7 +78,6 @@ export const LearnMore = ({ assetId }: LearnMoreProps) => {
     <>
       <IconButton
         variant='ghost'
-        color='white'
         icon={<ArrowBackIcon />}
         aria-label={'common.back'}
         position='absolute'

@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/button'
 import { DarkMode } from '@chakra-ui/color-mode'
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Badge, Center, Circle, Flex } from '@chakra-ui/layout'
+import { Badge, Center, Circle, Flex, Link } from '@chakra-ui/layout'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import * as native from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -83,14 +83,16 @@ export const ConnectWallet = () => {
   return (
     <Page>
       <Flex
+        direction={'column'}
+        gap={4}
         width='full'
         bg='gray.900'
         position='fixed'
+        zIndex={3}
         py={3}
         px={4}
-        alignItems='center'
         bottom={0}
-        justifyContent='center'
+        alignItems={'center'}
       >
         <DarkMode>
           <Text color='white' fontWeight='bold' translation='connectWalletPage.keepkey' />

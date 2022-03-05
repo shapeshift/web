@@ -35,6 +35,9 @@
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "days": "Days",
     "devTools": "Developer Tools",
     "viewAsset": "View Asset"
   },
@@ -111,12 +114,23 @@
           "startStaking": "Start Staking",
           "learnMore": "Learn More"
         }
+      },
+      "staking": {
+        "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
+        "byContinuing": "By continuing, you are accepting the",
+        "risks": "risks",
+        "ofParticipating": "of participating in this feature and agreeing to the",
+        "terms": "terms"
       }
     },
+    "amountToStake": "Amount to Stake",
+    "amountToUnstake": "Amount to Unstake",
     "staked": "Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
     "unstake": "Unstake",
+    "stakeAsset": "Stake %{assetSymbol}",
+    "unstakeAsset": "Unstake %{assetSymbol}",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",
@@ -163,7 +177,10 @@
     }
   },
   "staking": {
-    "staking": "Staking"
+    "staking": "Staking",
+    "itWillTake": "It will take",
+    "toUnlock": "to unlock your Osmo after you unstake. Staking rewards will need to withdrawn separately.",
+    "assetStakingBalance": "%{assetName} Staking Balance"
   },
   "navBar": {
     "dashboard": "Dashboard",
@@ -196,7 +213,21 @@
     "from": "From",
     "trade": "Trade",
     "amount": "Amount",
-    "for": "for"
+    "for": "for",
+    "parser": {
+      "yearn": {
+        "deposit": "Deposit",
+        "approve": "Approve",
+        "withdraw": "Withdraw"
+      },
+      "uniV2": {
+        "addLiquidityETH": "Add liquidity",
+        "removeLiquidityETH": "Remove liquidity"
+      },
+      "thor": {
+        "transferOut": "Transfer out"
+      }
+    }
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

@@ -30,7 +30,9 @@
     "transactionFailedBody": "거래 실패",
     "submitFeedback": "의견 제출",
     "send": "보내기",
-    "receive": "받기"
+    "receive": "받기",
+    "privacy": "개인 정보 보호 정책",
+    "terms": "서비스 약관"
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",

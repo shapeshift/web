@@ -270,6 +270,7 @@
     "msw": "^0.36.5",
     "msw-storybook-addon": "^1.6.0",
     "multiformats": "^9.6.3",
+    "path-browserify": "^1.0.1",
     "prettier": "^2.3.2",
     "react-app-rewired": "^2.1.9",
     "reselect-tools": "^0.0.7",

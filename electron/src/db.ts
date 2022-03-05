@@ -1,13 +1,12 @@
 import fs from 'fs'
 import path from 'path'
-import { app } from 'electron'
-import isDev from 'electron-is-dev'
 import nedb from 'nedb'
+const homedir = require("os").homedir();
 
-const dbDirPath = isDev ? path.join(__dirname, '../.KeepKey') : path.join(app.getPath('userData'), './.KeepKey')
+const dbDirPath = path.join(homedir, ".keepkey");
 const dbPath = path.join(dbDirPath, './db')
 
-if (!fs.existsSync(dbPath)) {
+if (!fs.existsSync(dbDirPath)) {
     fs.mkdirSync(dbDirPath)
     fs.closeSync(fs.openSync(dbPath, 'w'))
 }

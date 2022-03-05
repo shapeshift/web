@@ -151,7 +151,6 @@ export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
-
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }

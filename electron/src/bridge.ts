@@ -218,8 +218,164 @@ export const start_bridge = async function (event) {
             return res
         })
 
+        //HDwallet API
+        //TODO moveme?
+        appExpress.post('/getPublicKeys', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
 
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
 
+        appExpress.post('/btcGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/ethGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/ethGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/btcGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/thorchainGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/thorchainGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/osmosisGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/osmosisGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/binanceGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/binanceGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/cosmosGetAddress', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/cosmosGetAddress', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/btcSignTx', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/btcSignTx', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/thorchainSignTx', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/thorchainSignTx', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/cosmosSignTx', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/cosmosSignTx', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/osmosisSignTx', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/osmosisSignTx', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
+
+        appExpress.post('/ethSignTx', async (req, res, next) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
+            //send
+            let pubkeys = req.body
+            console.log("pubkeys: ",pubkeys)
+            windows.mainWindow.webContents.send('@hdwallet/ethSignTx', { pubkeys })
+            //paths in
+            ipcMain.once(`@hdwallet/response`, (event, data) => {
+                res.send(data)
+            })
+        })
 
         /*
             Protected endpoint middleware
@@ -227,6 +383,7 @@ export const start_bridge = async function (event) {
     
             all routes below are protected
         */
+        //TODO fix auth key adder in swagger tools
         const authChecker = (req: Request, res: Response, next: NextFunction) => {
             const serviceKey = req.headers.authorization
 
@@ -243,6 +400,7 @@ export const start_bridge = async function (event) {
                     next()
                 }
             })
+            // next()
         };
 
         appExpress.all('/auth/verify', authChecker, (req, res, next) => {

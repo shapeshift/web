@@ -387,20 +387,20 @@ export const start_bridge = async function (event) {
         const authChecker = (req: Request, res: Response, next: NextFunction) => {
             const serviceKey = req.headers.authorization
 
-            // if (!serviceKey) {
-            //     res.statusCode = 401
-            //     return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
-            // }
+            if (!serviceKey) {
+                res.statusCode = 401
+                return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+            }
 
-            // db.findOne({ type: 'service', serviceKey }, (err, doc) => {
-            //     if (!doc) {
-            //         res.statusCode = 401
-            //         return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
-            //     } else {
-            //         next()
-            //     }
-            // })
-            next()
+            db.findOne({ type: 'service', serviceKey }, (err, doc) => {
+                if (!doc) {
+                    res.statusCode = 401
+                    return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+                } else {
+                    next()
+                }
+            })
+            // next()
         };
 
         appExpress.all('/auth/verify', authChecker, (req, res, next) => {

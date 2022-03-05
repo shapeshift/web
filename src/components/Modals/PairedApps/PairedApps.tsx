@@ -1,7 +1,4 @@
 import {
-    Alert,
-    AlertDescription,
-    AlertIcon,
     Box,
     Button,
     Image,
@@ -11,13 +8,15 @@ import {
     ModalContent,
     ModalHeader,
     ModalOverlay,
-    Stack
+    Stack,
+    Text as ChakraText
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect, useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import dayjs from 'dayjs'
 
 export type PairedAppProps = {
     addedOn: number,
@@ -75,6 +74,11 @@ export const PairedAppsModal = () => {
                                     <Image src={app.serviceImageUrl} borderRadius='full' height='10' width='10' />
                                     <Box display='flex' flexDirection='row' flexGrow={1} alignItems='center' >
                                         <p>{app.serviceName}</p>
+                                    </Box>
+                                    <Box>
+                                        <ChakraText color='gray.500' fontSize='xs'>
+                                            {dayjs(app.addedOn).format('DD/MM/YYYY - HH:mm')}
+                                        </ChakraText>
                                     </Box>
                                     <Box>
                                         <Button

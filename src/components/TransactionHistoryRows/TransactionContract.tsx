@@ -40,7 +40,7 @@ export const TransactionContract = ({
         <TransactionGenericRow
           type={txDetails.direction}
           compactMode={compactMode}
-          title={txDetails.tx.data?.method}
+          unknown={!txDetails.tx.data?.method ?? true}
           blockTime={txDetails.tx.blockTime}
           symbol={txDetails.symbol}
           assets={[

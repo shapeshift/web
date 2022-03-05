@@ -43,7 +43,7 @@ type TransactionRowAsset = {
 
 type TransactionGenericRowType = {
   type: string
-  title?: string
+  unknown?: boolean
   symbol: string
   showDateAndGuide?: boolean
   compactMode?: boolean
@@ -60,7 +60,7 @@ const Guide = ({ title }: { title: string }) => (
 
 export const TransactionGenericRow = ({
   type,
-  title,
+  unknown,
   showDateAndGuide,
   assets,
   fee,
@@ -87,7 +87,11 @@ export const TransactionGenericRow = ({
                 flex={1}
                 lineHeight='1'
                 mb={1}
-                translation={[`transactionRow.${title ?? type.toLowerCase()}`, { symbol: '' }]}
+                translation={
+                  unknown
+                    ? 'transactionHistory.unknownType'
+                    : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
+                }
               />
               <TransactionTime blockTime={blockTime} />
             </Box>

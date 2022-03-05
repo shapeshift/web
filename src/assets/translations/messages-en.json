@@ -686,6 +686,7 @@
     "orderRoute": "Order Route",
     "status": "Status",
     "transactionType": "Transaction Type",
-    "minerFee": "Miner Fee"
+    "minerFee": "Miner Fee",
+    "unknownType": "Transaction"
   }
 }

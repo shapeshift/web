@@ -27,7 +27,7 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"GenricResponse": {
+			"GenericResponse": {
 				"properties": {
 					"success": {
 						"type": "boolean"
@@ -180,7 +180,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/GenricResponse"
+									"$ref": "#/components/schemas/GenericResponse"
 								}
 							}
 						}
@@ -252,7 +252,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/GenricResponse"
+									"$ref": "#/components/schemas/GenericResponse"
 								}
 							}
 						}

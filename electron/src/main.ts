@@ -282,9 +282,16 @@ ipcMain.on('@account/info', async (event, data) => {
                 let entry = data[i]
                 let caip = Object.keys(entry)
                 let pubkey = entry[caip[0]]
-                let entryNew = {
+                let entryNew:any = {
                     pubkey,
                     caip: caip[0]
+                }
+                //TODO parse this better
+                if(entryNew.caip === 'eip155:1'){
+                    entryNew.network = "ETH"
+                }
+                if(entryNew.caip === 'bip122:000000000019d6689c085ae165831e93'){
+                    entryNew.network = "BTC"
                 }
                 shared.USER.accounts.push(entryNew)
             }

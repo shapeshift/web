@@ -32,41 +32,17 @@
 					"success": {
 						"type": "boolean"
 					},
-					"reason": {
+					"username": {
 						"type": "string"
-					}
-				},
-				"required": [
-					"success",
-					"reason"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"AuthFailedResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
 					},
-					"reason": {
+					"code": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"success",
-					"reason"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"AuthVerifyResponse": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					}
-				},
-				"required": [
-					"success"
+					"username",
+					"code"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -187,8 +163,8 @@
 				"parameters": []
 			}
 		},
-		"/pair": {
-			"post": {
+		"/pair/{code}": {
+			"get": {
 				"operationId": "Pair",
 				"responses": {
 					"200": {
@@ -197,63 +173,6 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/PairResponse"
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Unauthorised",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/PairResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [],
-				"requestBody": {
-					"type": "object",
-					"properties": {
-						"serviceName": {
-							"type": "string"
-						},
-						"serviceImageUrl": {
-							"type": "string"
-						}
-					},
-					"required": [
-						"serviceName",
-						"serviceImageUrl"
-					]
-				}
-			}
-		},
-		"/auth/verify": {
-			"get": {
-				"operationId": "VerifyAuthentication",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/AuthVerifyResponse"
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "Unauthorised",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/AuthFailedResponse"
 								}
 							}
 						}
@@ -305,6 +224,326 @@
 				},
 				"tags": [
 					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/applyPolicy": {
+			"post": {
+				"operationId": "WriteDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/applySettings": {
+			"post": {
+				"operationId": "ApplySettings",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/changePin": {
+			"post": {
+				"operationId": "ChangePin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/removePin": {
+			"post": {
+				"operationId": "RemovePin",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/getPublicKeys": {
+			"post": {
+				"operationId": "GetPublicKeys",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/btcGetAddress": {
+			"post": {
+				"operationId": "BtcGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/ethGetAddress": {
+			"post": {
+				"operationId": "EthGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/thorchainGetAddress": {
+			"post": {
+				"operationId": "ThorchainGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/osmosisGetAddress": {
+			"post": {
+				"operationId": "OsmosisGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/binanceGetAddress": {
+			"post": {
+				"operationId": "BinanceGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/cosmosGetAddress": {
+			"post": {
+				"operationId": "CosmosGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/btcSignTx": {
+			"post": {
+				"operationId": "BtcSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/thorchainSignTx": {
+			"post": {
+				"operationId": "ThorchainSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/cosmosSignTx": {
+			"post": {
+				"operationId": "CosmosSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/osmosisSignTx": {
+			"post": {
+				"operationId": "OsmosisSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/ethSignTx": {
+			"post": {
+				"operationId": "EthSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"KeepKey device API"
 				],
 				"security": [],
 				"parameters": []

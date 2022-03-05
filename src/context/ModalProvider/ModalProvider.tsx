@@ -2,6 +2,7 @@ import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakedModal } from 'plugins/cosmos/components/modals/Staked/Staked'
+import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
 import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
@@ -31,7 +32,8 @@ const MODALS = {
   bootloader: BootloaderModal,
   initialize: InitializeModal,
   cosmosGetStarted: GetStartedModal,
-  cosmosStaked: StakedModal
+  cosmosStaked: StakedModal,
+  cosmosStaking: StakingModal
 }
 
 // state

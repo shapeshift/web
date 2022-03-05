@@ -314,12 +314,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
       let paths = data.paths
       if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+        // console.log("state.wallet: ",state.wallet)
+        console.log("paths: ",paths.paths)
         // @ts-ignore
-        let pubkeys = await state.wallet.getPublicKeys(paths)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        let pubkeys = await state.wallet.getPublicKeys(paths.paths)
+        console.log("pubkeys: ",pubkeys)
+        ipcRenderer.send('@hdwallet/response/getPublicKeys', pubkeys)
       }
     })
 
@@ -329,9 +329,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.btcGetAddress(params)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        console.log("pubkeys: ",pubkeys)
+        ipcRenderer.send('@hdwallet/response/btcGetAddress', pubkeys)
       }
     })
 
@@ -341,9 +340,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.ethGetAddress(params)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/ethGetAddress', pubkeys)
       }
     })
 
@@ -353,9 +350,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainGetAddress(params)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/thorchainGetAddress', pubkeys)
       }
     })
 
@@ -365,9 +360,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisGetAddress(params)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/osmosisGetAddress', pubkeys)
       }
     })
 
@@ -379,7 +372,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         let pubkeys = await state.wallet.binanceGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/binanceGetAddress', {error:"wallet not online!"})
       }
     })
 
@@ -391,7 +384,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         let pubkeys = await state.wallet.cosmosGetAddress(params)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/cosmosGetAddress', {error:"wallet not online!"})
       }
     })
 
@@ -402,9 +395,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.btcSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/btcSignTx', pubkeys)
       }
     })
 
@@ -414,9 +405,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/thorchainSignTx', pubkeys)
       }
     })
 
@@ -426,9 +415,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/cosmosSignTx', pubkeys)
       }
     })
 
@@ -438,9 +425,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/osmosisSignTx', pubkeys)
       }
     })
 
@@ -450,9 +435,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         console.log("state.wallet: ",state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.ethSignTx(HDwalletPayload)
-        ipcRenderer.send('@hdwallet/response', pubkeys)
-      } else {
-        ipcRenderer.send('@hdwallet/response', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/ethSignTx', pubkeys)
       }
     })
 

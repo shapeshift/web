@@ -224,11 +224,11 @@ export const start_bridge = async function (event) {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
 
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ",pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { pubkeys })
+            let paths = req.body
+            console.log("paths: ",paths)
+            windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { paths })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/getPublicKeys`, (event, data) => {
                 res.send(data)
             })
         })
@@ -240,7 +240,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/btcGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -252,7 +252,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/ethGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/ethGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -264,7 +264,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/btcGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -276,7 +276,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/thorchainGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/thorchainGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -288,7 +288,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/osmosisGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/osmosisGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -300,7 +300,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/binanceGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/binanceGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -312,7 +312,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/cosmosGetAddress', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/cosmosGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -324,7 +324,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/btcSignTx', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/btcSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -336,7 +336,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/thorchainSignTx', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/thorchainSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -348,7 +348,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/cosmosSignTx', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/cosmosSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -360,7 +360,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/osmosisSignTx', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/osmosisSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -372,7 +372,7 @@ export const start_bridge = async function (event) {
             console.log("pubkeys: ",pubkeys)
             windows.mainWindow.webContents.send('@hdwallet/ethSignTx', { pubkeys })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/ethSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -387,20 +387,20 @@ export const start_bridge = async function (event) {
         const authChecker = (req: Request, res: Response, next: NextFunction) => {
             const serviceKey = req.headers.authorization
 
-            if (!serviceKey) {
-                res.statusCode = 401
-                return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
-            }
-
-            db.findOne({ type: 'service', serviceKey }, (err, doc) => {
-                if (!doc) {
-                    res.statusCode = 401
-                    return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
-                } else {
-                    next()
-                }
-            })
-            // next()
+            // if (!serviceKey) {
+            //     res.statusCode = 401
+            //     return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+            // }
+            //
+            // db.findOne({ type: 'service', serviceKey }, (err, doc) => {
+            //     if (!doc) {
+            //         res.statusCode = 401
+            //         return res.send({ success: false, reason: 'Please provice a valid serviceKey' })
+            //     } else {
+            //         next()
+            //     }
+            // })
+            next()
         };
 
         appExpress.all('/auth/verify', authChecker, (req, res, next) => {

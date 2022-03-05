@@ -40,7 +40,7 @@ export const Staked = ({ assetId }: StakedProps) => {
             cryptoStakedAmount={bnOrZero('708.00')}
             apr={bnOrZero('1.25')}
           />
-          <StakingButtons />
+          <StakingButtons assetId={assetId} />
           <Box width='100%' mt='20px'>
             {
               /* TODO: use real unbonds data */
@@ -62,8 +62,8 @@ export const Staked = ({ assetId }: StakedProps) => {
             fiatRate={bnOrZero('8.47')}
             cryptoRewardsAmount={bnOrZero('23.24')}
           />
-          <Button width='100%' bg='#144241' _hover={{ bg: '#3F6D6C' }}>
-            <Text translation={'defi.claim'} fontWeight='bold' color='#00cd98' />
+          <Button width='100%' colorScheme='green'>
+            <Text translation={'defi.claim'} color='green' fontWeight='bold' />
           </Button>
         </Flex>
       </Box>

@@ -7,6 +7,22 @@ import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
+// Adding a new supported method? Also update transactionRow.parser translations accordingly
+const SUPPORTED_CONTRACT_METHODS = new Set([
+  'deposit',
+  'approve',
+  'withdraw',
+  'addLiquidityETH',
+  'removeLiquidityETH',
+  'transferOut'
+])
+
+enum Direction {
+  InPlace = 'in-place',
+  Outbound = 'outbound',
+  Inbound = 'inbound'
+}
+
 export interface TxDetails {
   tx: Tx
   buyTx: TxTransfer | undefined
@@ -25,20 +41,37 @@ export interface TxDetails {
   precision: number
   explorerTxLink: string
   explorerAddressLink: string
+  direction: Direction
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getBuyTx = (tx: Tx) =>
-  !!tx.tradeDetails ? tx.transfers.find(t => t.type === chainAdapters.TxType.Receive) : undefined
-export const getSellTx = (tx: Tx) =>
-  !!tx.tradeDetails ? tx.transfers.find(t => t.type === chainAdapters.TxType.Send) : undefined
+export const getBuyTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Receive)
+export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Send)
+
+export const isSupportedContract = (tx: Tx) =>
+  tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
+  const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
   const buyTx = getBuyTx(tx)
   const sellTx = getSellTx(tx)
+
+  const direction: Direction = (() => {
+    switch (method) {
+      case 'deposit':
+      case 'addLiquidityETH':
+      case 'transferOut':
+        return Direction.Outbound
+      case 'withdraw':
+      case 'removeLiquidityETH':
+        return Direction.Inbound
+      default:
+        return Direction.InPlace
+    }
+  })()
 
   const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
 
@@ -73,12 +106,18 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
   }, [from, to])
-  const type = standardTx?.type ?? tx.tradeDetails?.type ?? ''
+  const type = isSupportedContract(tx)
+    ? TxType.Contract
+    : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
-  const explorerTxLink = standardAsset?.explorerTxLink ?? tradeAsset?.explorerTxLink ?? ''
+  const explorerTxLink =
+    standardAsset?.explorerTxLink ?? tradeAsset?.explorerTxLink ?? feeAsset.explorerTxLink ?? ''
   const explorerAddressLink =
-    standardAsset?.explorerAddressLink ?? tradeAsset?.explorerAddressLink ?? ''
+    standardAsset?.explorerAddressLink ??
+    tradeAsset?.explorerAddressLink ??
+    feeAsset.explorerAddressLink ??
+    ''
 
   return {
     tx,
@@ -97,6 +136,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     symbol,
     precision,
     explorerTxLink,
-    explorerAddressLink
+    explorerAddressLink,
+    direction
   }
 }

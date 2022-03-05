@@ -36,6 +36,7 @@
     "send": "Send",
     "receive": "Receive",
     "devTools": "Developer Tools",
+    "pairedApps": "View Paired Apps",
     "viewAsset": "View Asset"
   },
   "updateToast": {
@@ -426,6 +427,14 @@
       "cta": {
         "pair": "Pair",
         "reject": "Reject"
+      }
+    },
+    "pairedApps": {
+      "header": "Paired Apps",
+      "body": "List of all the apps that have been paired with your KeepKey",
+      "noApps": "There are currently no paired apps",
+      "cta": {
+        "unpair": "Unpair App"
       }
     }
   },

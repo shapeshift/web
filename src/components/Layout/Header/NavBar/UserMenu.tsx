@@ -9,12 +9,13 @@ import {
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, Flex, HStack, Link, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
-import { FaWallet } from 'react-icons/fa'
+import { FaPuzzlePiece, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 
@@ -152,6 +153,8 @@ export const UserMenu = () => {
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
 
+  const { pairedApps } = useModal()
+
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }
@@ -179,10 +182,16 @@ export const UserMenu = () => {
           icon={<ExternalLinkIcon />}
           as={Link}
           isExternal
-          _hover={{ textDecoration: 'none' }}
+          _hover={{ textDecoration: 'none', outline: 'none' }}
           href='http://localhost:1646/docs'
         >
           <Text translation='common.devTools' />
+        </MenuItem>
+        <MenuItem
+          icon={<FaPuzzlePiece />}
+          onClick={(() => pairedApps.open({}))}
+        >
+          <Text translation='common.pairedApps' />
         </MenuItem>
       </MenuList>
     </Menu>

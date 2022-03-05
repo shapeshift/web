@@ -83,6 +83,27 @@ export const start_bridge = async function (event) {
 
         let API_PORT = process.env['API_PORT_BRIDGE'] || '1646'
 
+        // send paired apps when requested
+        ipcMain.on('@bridge/paired-apps', (event) => {
+            db.find({ type: 'service' }, (err, docs) => {
+                event.sender.send('@bridge/paired-apps', docs)
+            })
+        })
+
+        // used only for implicitly pairing the KeepKey web app
+        ipcMain.on(`@bridge/add-service`, (event, data) => {
+            db.insert({
+                type: 'service',
+                addedOn: Date.now(),
+                ...data
+            })
+        })
+
+        // used for unpairing apps
+        ipcMain.on(`@bridge/remove-service`, (event, data) => {
+            db.remove({ ...data })
+        })
+
         /*
             KeepKey bridge
     
@@ -171,14 +192,6 @@ export const start_bridge = async function (event) {
             })
         }
 
-        // used only for implicitly pairing the KeepKey web app
-        ipcMain.on(`@bridge/add-service`, (event, data) => {
-            db.insert({
-                type: 'service',
-                addedOn: Date.now(),
-                ...data
-            })
-        })
 
         appExpress.post('/pair', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)

@@ -61,7 +61,7 @@ export const PairModal = (input: PairingProps) => {
           </ModalHeader>
           <ModalBody>
             <Stack spacing={4} mb={4}>
-              <Box display='inline-flex' justifyContent={'center'} alignItems='center'>
+              <Box display='inline-flex' justifyContent='center' alignItems='center'>
                 <Image src={input.serviceImageUrl} borderRadius='full' height='10' width='10' />
                 <Text
                   translation={['modals.pair.body', { serviceName: input.serviceName }]}

@@ -50,7 +50,7 @@ export class KeepKeyService {
       ipcRenderer.send('@bridge/add-service', {
         serviceKey,
         serviceName: 'ShapeShift',
-        serviceKeyImageUrl: 'https://app.shapeshift.com/icon-512x512.png'
+        serviceImageUrl: 'https://app.shapeshift.com/icon-512x512.png'
       })
     }
     return serviceKey

@@ -11,6 +11,7 @@ import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphr
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
 import { PairModal } from 'components/Modals/Pair/Pair'
+import { PairedAppsModal } from 'components/Modals/PairedApps/PairedApps'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
@@ -26,6 +27,7 @@ const MODALS = {
   send: SendModal,
   sign: SignModal,
   pair: PairModal,
+  pairedApps: PairedAppsModal,
   firmware: FirmwareModal,
   bootloader: BootloaderModal,
   initialize: InitializeModal,

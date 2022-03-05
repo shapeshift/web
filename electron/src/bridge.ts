@@ -150,48 +150,6 @@ export const start_bridge = async function (event) {
             }
         })
 
-        if (device) {
-            appExpress.all('/exchange/device', async (req, res, next) => {
-                try {
-                    if (req.method === 'GET') {
-                        let resp = await transport.readChunk()
-                        let output = {
-                            data: Buffer.from(resp).toString('hex')
-                        }
-                        // log.info('output: ', output)
-                        EVENT_LOG.push({ read: output })
-                        event.sender.send('dataSent', { output })
-                        if (res.status) res.status(200).json(output)
-                    } else if (req.method === 'POST') {
-                        let body = req.body
-                        let msg = Buffer.from(body.data, 'hex')
-                        transport.writeChunk(msg)
-                        log.info('input: ', msg.toString('hex'))
-                        // EVENT_LOG.push({ write: output })
-                        event.sender.send('dataReceive', { output: msg })
-                        res.status(200).json({})
-                    } else {
-                        throw Error('unhandled')
-                    }
-                    next()
-                } catch (e) {
-                    throw e
-                }
-            })
-        } else {
-            appExpress.all('/exchange/device', async (req, res, next) => {
-                try {
-                    res.status(200).json({
-                        success: false,
-                        msg: "Device not connected!"
-                    })
-                    next()
-                } catch (e) {
-                    throw e
-                }
-            })
-        }
-
 
         appExpress.post('/pair', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
@@ -257,6 +215,49 @@ export const start_bridge = async function (event) {
                 }
             })
         };
+
+        if (device) {
+            appExpress.all('/exchange/device', authChecker, async (req, res, next) => {
+                try {
+                    if (req.method === 'GET') {
+                        let resp = await transport.readChunk()
+                        let output = {
+                            data: Buffer.from(resp).toString('hex')
+                        }
+                        // log.info('output: ', output)
+                        EVENT_LOG.push({ read: output })
+                        event.sender.send('dataSent', { output })
+                        if (res.status) res.status(200).json(output)
+                    } else if (req.method === 'POST') {
+                        let body = req.body
+                        let msg = Buffer.from(body.data, 'hex')
+                        transport.writeChunk(msg)
+                        log.info('input: ', msg.toString('hex'))
+                        // EVENT_LOG.push({ write: output })
+                        event.sender.send('dataReceive', { output: msg })
+                        res.status(200).json({})
+                    } else {
+                        throw Error('unhandled')
+                    }
+                    next()
+                } catch (e) {
+                    throw e
+                }
+            })
+        } else {
+            appExpress.all('/exchange/device', authChecker, async (req, res, next) => {
+                try {
+                    res.status(200).json({
+                        success: false,
+                        msg: "Device not connected!"
+                    })
+                    next()
+                } catch (e) {
+                    throw e
+                }
+            })
+        }
+
 
         appExpress.all('/auth/verify', authChecker, (req, res, next) => {
             res.statusCode = 200

@@ -27,22 +27,30 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"PairResponse": {
+			"GenricResponse": {
 				"properties": {
 					"success": {
 						"type": "boolean"
-					},
-					"username": {
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PairBody": {
+				"properties": {
+					"serviceName": {
 						"type": "string"
 					},
-					"code": {
+					"serviceImageUrl": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"success",
-					"username",
-					"code"
+					"serviceName",
+					"serviceImageUrl"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -163,8 +171,8 @@
 				"parameters": []
 			}
 		},
-		"/pair/{code}": {
-			"get": {
+		"/pair": {
+			"post": {
 				"operationId": "Pair",
 				"responses": {
 					"200": {
@@ -172,7 +180,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PairResponse"
+									"$ref": "#/components/schemas/GenricResponse"
 								}
 							}
 						}
@@ -182,7 +190,26 @@
 					"Client Endpoints"
 				],
 				"security": [],
-				"parameters": []
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PairBody"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/user": {
@@ -204,7 +231,47 @@
 					"Client Endpoints"
 				],
 				"security": [],
-				"parameters": []
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/auth/verify": {
+			"get": {
+				"operationId": "VerifyAuth",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenricResponse"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/sign": {
@@ -226,12 +293,21 @@
 					"Client Endpoints"
 				],
 				"security": [],
-				"parameters": []
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
 			}
 		},
 		"/applyPolicy": {
 			"post": {
-				"operationId": "WriteDevice",
+				"operationId": "ApplyPolicy",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -326,7 +402,24 @@
 					"KeepKey device API"
 				],
 				"security": [],
-				"parameters": []
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
 			}
 		},
 		"/btcGetAddress": {

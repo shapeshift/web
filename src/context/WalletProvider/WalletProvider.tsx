@@ -312,12 +312,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     //HDwallet API
     //TODO moveme into own file
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
-      let paths = data.paths
+      let payload = data.paths
       if(state.wallet){
         // console.log("state.wallet: ",state.wallet)
-        console.log("paths: ",paths.paths)
+        console.log("paths: ",payload.paths)
         // @ts-ignore
-        let pubkeys = await state.wallet.getPublicKeys(paths.paths)
+        let pubkeys = await state.wallet.getPublicKeys(paths.payload)
         console.log("pubkeys: ",pubkeys)
         ipcRenderer.send('@hdwallet/response/getPublicKeys', pubkeys)
       }

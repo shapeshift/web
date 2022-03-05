@@ -110,7 +110,7 @@ export const start_bridge = async function (event) {
             endpoints:
               raw i/o keepkey bridge:
               status:
-              pubkeys:
+              payload:
               sign:
     
     
@@ -195,9 +195,9 @@ export const start_bridge = async function (event) {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
 
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -207,9 +207,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/btcGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -219,9 +219,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/ethGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/ethGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/ethGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -231,9 +231,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/btcGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -243,9 +243,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/thorchainGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/thorchainGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/thorchainGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -255,9 +255,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/osmosisGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/osmosisGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/osmosisGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -267,9 +267,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/binanceGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/binanceGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/binanceGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -279,9 +279,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/cosmosGetAddress', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/cosmosGetAddress', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/cosmosGetAddress', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -291,9 +291,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/btcSignTx', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/btcSignTx', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/btcSignTx', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -303,9 +303,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/thorchainSignTx', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/thorchainSignTx', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/thorchainSignTx', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -315,9 +315,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/cosmosSignTx', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/cosmosSignTx', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/cosmosSignTx', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -327,9 +327,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/osmosisSignTx', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/osmosisSignTx', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/osmosisSignTx', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)
@@ -339,9 +339,9 @@ export const start_bridge = async function (event) {
         appExpress.post('/ethSignTx', async (req, res, next) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return res.status(500)
             //send
-            let pubkeys = req.body
-            console.log("pubkeys: ", pubkeys)
-            windows.mainWindow.webContents.send('@hdwallet/ethSignTx', { pubkeys })
+            let payload = req.body
+            console.log("payload: ", payload)
+            windows.mainWindow.webContents.send('@hdwallet/ethSignTx', { payload })
             //paths in
             ipcMain.once(`@hdwallet/response`, (event, data) => {
                 res.send(data)

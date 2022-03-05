@@ -199,7 +199,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/getPublicKeys`, (event, data) => {
                 res.send(data)
             })
         })
@@ -211,7 +211,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/btcGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -223,7 +223,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/ethGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/ethGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -235,7 +235,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/btcGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -247,7 +247,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/thorchainGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/thorchainGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -259,7 +259,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/osmosisGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/osmosisGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -271,7 +271,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/binanceGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/binanceGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -283,7 +283,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/cosmosGetAddress', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/cosmosGetAddress`, (event, data) => {
                 res.send(data)
             })
         })
@@ -295,7 +295,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/btcSignTx', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/btcSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -307,7 +307,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/thorchainSignTx', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/thorchainSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -319,7 +319,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/cosmosSignTx', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/cosmosSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -331,7 +331,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/osmosisSignTx', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/osmosisSignTx`, (event, data) => {
                 res.send(data)
             })
         })
@@ -343,7 +343,7 @@ export const start_bridge = async function (event) {
             console.log("payload: ", payload)
             windows.mainWindow.webContents.send('@hdwallet/ethSignTx', { payload })
             //paths in
-            ipcMain.once(`@hdwallet/response`, (event, data) => {
+            ipcMain.once(`@hdwallet/response/ethSignTx`, (event, data) => {
                 res.send(data)
             })
         })

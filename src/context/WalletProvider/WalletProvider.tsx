@@ -108,15 +108,15 @@ function playSound(type: any) {
 export type ActionTypes =
   | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
   | {
-    type: WalletActions.SET_WALLET
-    payload: {
-      wallet: HDWallet | null
-      name: string
-      icon: ComponentWithAs<'svg', IconProps>
-      deviceId: string
-      meta?: { label: string }
+      type: WalletActions.SET_WALLET
+      payload: {
+        wallet: HDWallet | null
+        name: string
+        icon: ComponentWithAs<'svg', IconProps>
+        deviceId: string
+        meta?: { label: string }
+      }
     }
-  }
   | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
   | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
   | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
@@ -193,7 +193,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
   useEffect(() => {
     if (state.keyring) {
-      ; (async () => {
+      ;(async () => {
         const adapters: Adapters = new Map()
         let options: undefined | { portisAppId: string }
         for (const wallet of Object.values(KeyManager)) {
@@ -251,7 +251,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       }
     })
 
-    ipcRenderer.on('playSound', (event, data) => { })
+    ipcRenderer.on('playSound', (event, data) => {})
 
     ipcRenderer.on('attach', (event, data) => {
       dispatch({ type: WalletActions.SET_KEEPKEY_STATE, payload: data.state })
@@ -314,8 +314,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
       let payload = data.paths
       if(state.wallet){
-        // console.log("state.wallet: ",state.wallet)
-        console.log("paths: ",payload.paths)
         // @ts-ignore
         let pubkeys = await state.wallet.getPublicKeys(paths.payload)
         console.log("pubkeys: ",pubkeys)
@@ -325,9 +323,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/btcGetAddress', async (event, data) => {
       let payload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
-        console.log("payload: ",payload)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        console.info('payload: ', payload)
         // @ts-ignore
         let pubkeys = await state.wallet.btcGetAddress(payload)
         ipcRenderer.send('@hdwallet/response/btcGetAddress', pubkeys)
@@ -336,9 +334,9 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/ethGetAddress', async (event, data) => {
       let payload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
-        console.log("payload: ",payload)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
+        console.info('payload: ', payload)
         // @ts-ignore
         let pubkeys = await state.wallet.ethGetAddress(payload)
         ipcRenderer.send('@hdwallet/response/ethGetAddress', pubkeys)
@@ -347,8 +345,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/thorchainGetAddress', async (event, data) => {
       let payload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainGetAddress(payload)
         ipcRenderer.send('@hdwallet/response/thorchainGetAddress', pubkeys)
@@ -357,8 +355,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/osmosisGetAddress', async (event, data) => {
       let payload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisGetAddress(payload)
         ipcRenderer.send('@hdwallet/response/osmosisGetAddress', pubkeys)
@@ -367,33 +365,33 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/binanceGetAddress', async (event, data) => {
       let payload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.binanceGetAddress(payload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response/binanceGetAddress', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/binanceGetAddress', { error: 'wallet not online!' })
       }
     })
 
     ipcRenderer.on('@hdwallet/cosmosGetAddress', async (event, data) => {
       let payload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.cosmosGetAddress(payload)
         ipcRenderer.send('@hdwallet/response', pubkeys)
       } else {
-        ipcRenderer.send('@hdwallet/response/cosmosGetAddress', {error:"wallet not online!"})
+        ipcRenderer.send('@hdwallet/response/cosmosGetAddress', { error: 'wallet not online!' })
       }
     })
 
     //signTx
     ipcRenderer.on('@hdwallet/btcSignTx', async (event, data) => {
       let HDwalletPayload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.btcSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response/btcSignTx', pubkeys)
@@ -402,8 +400,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/thorchainSignTx', async (event, data) => {
       let HDwalletPayload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response/thorchainSignTx', pubkeys)
@@ -412,8 +410,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/cosmosSignTx', async (event, data) => {
       let HDwalletPayload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.thorchainSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/cosmosSignTx', pubkeys)
@@ -422,8 +420,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/osmosisSignTx', async (event, data) => {
       let HDwalletPayload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.osmosisSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response/osmosisSignTx', pubkeys)
@@ -432,8 +430,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@hdwallet/ethSignTx', async (event, data) => {
       let HDwalletPayload = data.payload
-      if(state.wallet){
-        console.log("state.wallet: ",state.wallet)
+      if (state.wallet) {
+        console.info('state.wallet: ', state.wallet)
         // @ts-ignore
         let pubkeys = await state.wallet.ethSignTx(HDwalletPayload)
         ipcRenderer.send('@hdwallet/response/ethSignTx', pubkeys)
@@ -442,7 +440,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     //END HDwallet API
 
-    ipcRenderer.on('setDevice', (event, data) => { })
+    ipcRenderer.on('setDevice', (event, data) => {})
 
     ipcRenderer.on('signTx', async (event: any, data: any) => {
       let unsignedTx = data.payload.data

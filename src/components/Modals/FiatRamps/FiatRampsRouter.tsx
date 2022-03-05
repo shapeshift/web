@@ -10,8 +10,8 @@ export const FiatRampsRouter = () => {
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
-        <Route path={FiatRampsRoutes.Select} component={RampsList} />
-        <Route path={FiatRampsRoutes.Gem} component={GemManager} />
+        <Route exact path={FiatRampsRoutes.Select} component={RampsList} />
+        <Route exact path={FiatRampsRoutes.Gem} component={GemManager} />
       </Switch>
     </AnimatePresence>
   )

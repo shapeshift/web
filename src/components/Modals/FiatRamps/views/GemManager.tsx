@@ -31,12 +31,7 @@ import { selectPortfolioCryptoHumanBalancesBySymbol } from 'state/slices/selecto
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { getAssetLogoUrl } from '../components/AssetSearch/helpers/getAssetLogoUrl'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import {
-  CurrencyAsset,
-  FiatRampAction,
-  SupportedCurrency,
-  TransactionDirection
-} from '../FiatRamps'
+import { FiatRampAction, GemCurrency, SupportedCurrency, TransactionDirection } from '../FiatRamps'
 
 const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
@@ -50,7 +45,7 @@ export const GemManager = () => {
   const toast = useToast()
   const { fiatRamps } = useModal()
 
-  const [asset, setAsset] = useState<CurrencyAsset | null>()
+  const [asset, setAsset] = useState<GemCurrency | null>()
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
   const [verified, setVerified] = useState<boolean | null>(null)
   const [action, setAction] = useState<FiatRampAction>(FiatRampAction.Buy)
@@ -63,8 +58,8 @@ export const GemManager = () => {
   const chainAdapter = chainAdapterManager.byChain(chain)
 
   const [loading, setLoading] = useState(false)
-  const [buyList, setBuyList] = useState<CurrencyAsset[]>([])
-  const [sellList, setSellList] = useState<CurrencyAsset[]>([])
+  const [buyList, setBuyList] = useState<GemCurrency[]>([])
+  const [sellList, setSellList] = useState<GemCurrency[]>([])
 
   const balances = useSelector(selectPortfolioCryptoHumanBalancesBySymbol)
   const fetchCoinifySupportedCurrencies = async (): Promise<SupportedCurrency[]> => {
@@ -101,7 +96,7 @@ export const GemManager = () => {
         wyreList: SupportedCurrency[],
         key: 'destination' | 'source',
         filter: (currency: SupportedCurrency) => boolean
-      ): CurrencyAsset[] => {
+      ): GemCurrency[] => {
         const filteredCoinifyList = coinifyList.filter(filter).map(list => list[key].currencies)
         const filteredWyreList = wyreList.filter(filter).map(list => list[key].currencies)
         const results = uniqBy(
@@ -143,7 +138,7 @@ export const GemManager = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const onSelectAsset = (data: CurrencyAsset) => {
+  const onSelectAsset = (data: GemCurrency) => {
     setIsSelectingAsset(false)
     setAsset(data)
   }

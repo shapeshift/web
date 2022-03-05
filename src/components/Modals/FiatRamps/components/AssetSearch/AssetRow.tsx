@@ -2,11 +2,11 @@ import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
 import { ListChildComponentProps } from 'react-window'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { CurrencyAsset, FiatRampAction } from '../../FiatRamps'
+import { FiatRampAction, GemCurrency } from '../../FiatRamps'
 import { getAssetLogoUrl } from './helpers/getAssetLogoUrl'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
-  const asset: CurrencyAsset = data.items[index]
+  const asset: GemCurrency = data.items[index]
 
   const { type, handleClick } = data
   const color = useColorModeValue('gray.500', 'whiteAlpha.500')

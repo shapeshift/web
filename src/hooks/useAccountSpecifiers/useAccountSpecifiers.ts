@@ -4,7 +4,13 @@ import {
   toRootDerivationPath,
   utxoAccountParams
 } from '@shapeshiftoss/chain-adapters'
-import { bip32ToAddressNList, supportsBTC, supportsETH } from '@shapeshiftoss/hdwallet-core'
+import {
+  bip32ToAddressNList,
+  supportsBTC,
+  supportsCosmos,
+  supportsETH,
+  supportsOsmosis
+} from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useState } from 'react'
@@ -36,16 +42,14 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     for (const getAdapter of supportedAdapters) {
       const adapter = getAdapter()
       const chain = adapter.getType()
-      const network = NetworkTypes.MAINNET
 
-      let pubkey
       switch (chain) {
         // TODO: Handle Cosmos ChainType here
         case ChainTypes.Ethereum: {
           if (!supportsETH(wallet)) continue
-          pubkey = await adapter.getAddress({ wallet })
+          const pubkey = await adapter.getAddress({ wallet })
           if (!pubkey) continue
-          const CAIP2 = caip2.toCAIP2({ chain, network })
+          const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
           acc.push({ [CAIP2]: pubkey })
           break
         }
@@ -53,7 +57,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
           if (!supportsBTC(wallet)) continue
           const CAIP19 = caip19.toCAIP19({
             chain,
-            network,
+            network: NetworkTypes.MAINNET,
             assetNamespace: AssetNamespace.Slip44,
             assetReference: AssetReference.Bitcoin
           })
@@ -74,12 +78,28 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
             if (!pubkeys?.[0]?.xpub) {
               throw new Error(`usePubkeys: error getting bitcoin xpub`)
             }
-            pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
+            const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
 
             if (!pubkey) continue
-            const CAIP2 = caip2.toCAIP2({ chain, network })
+            const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
             acc.push({ [CAIP2]: pubkey })
           }
+          break
+        }
+        case ChainTypes.Cosmos: {
+          if (!supportsCosmos(wallet)) continue
+          const pubkey = await adapter.getAddress({ wallet })
+          if (!pubkey) continue
+          const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
+          acc.push({ [CAIP2]: pubkey })
+          break
+        }
+        case ChainTypes.Osmosis: {
+          if (!supportsOsmosis(wallet)) continue
+          const pubkey = await adapter.getAddress({ wallet })
+          if (!pubkey) continue
+          const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
+          acc.push({ [CAIP2]: pubkey })
           break
         }
         default:
@@ -95,7 +115,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     if (!isEqual(acc, accountSpecifiers)) setAccountSpecifiers(acc)
     // this is called by the effect below with the right logic to only call once
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, assetsById])
+  }, [wallet, chainAdapter, assetsById])
 
   useEffect(() => {
     if (!wallet || !walletInfo?.deviceId) return
@@ -104,8 +124,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     // once the asset ids are loaded, the asset data we need is in the store
     // the asset data may change as we lazily load descriptions later,
     // so don't include the assetsById as a dependency
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletInfo?.deviceId, assetIds])
+  }, [walletInfo?.deviceId, assetIds, wallet, getAccountSpecifiers])
 
   return accountSpecifiers
 }

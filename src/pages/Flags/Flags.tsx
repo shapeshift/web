@@ -7,7 +7,7 @@ import { RawText } from 'components/Text'
 import { FlagRow } from './FlagRow'
 
 type FlagsPageProps = {
-  route: Route
+  route?: Route
 }
 
 const FlagHeader = () => {

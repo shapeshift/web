@@ -18,7 +18,7 @@ const DefiHeader = () => {
   )
 }
 
-export const Overview = ({ route }: { route: Route }) => {
+export const Overview = ({ route }: { route?: Route }) => {
   const balances = useEarnBalances()
   const walletBalance = useSelector(selectPortfolioTotalFiatBalance)
   return (

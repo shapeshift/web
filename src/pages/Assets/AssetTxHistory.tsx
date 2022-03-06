@@ -7,7 +7,7 @@ import { AllTransactions } from 'components/Transactions/AllTransactions'
 import { MatchParams } from './Asset'
 
 type AssetTransactionProps = {
-  route: Route
+  route?: Route
 }
 
 export const AssetTxHistory: React.FC<AssetTransactionProps> = ({ route }) => {

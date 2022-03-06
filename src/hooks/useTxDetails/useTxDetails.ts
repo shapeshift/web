@@ -1,11 +1,11 @@
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
 const SUPPORTED_CONTRACT_METHODS = new Set([
@@ -25,12 +25,12 @@ enum Direction {
 
 export interface TxDetails {
   tx: Tx
-  buyTx: TxTransfer | undefined
-  sellTx: TxTransfer | undefined
-  tradeTx: TxTransfer | undefined
-  feeAsset: Asset
-  buyAsset: Asset
-  sellAsset: Asset
+  buyTx?: TxTransfer
+  sellTx?: TxTransfer
+  tradeTx?: TxTransfer
+  feeAsset?: Asset
+  buyAsset?: Asset
+  sellAsset?: Asset
   value: string
   to: string
   ensTo?: string
@@ -52,7 +52,7 @@ export const isSupportedContract = (tx: Tx) =>
   tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
-  const tx = useSelector((state: ReduxState) => selectTxById(state, txId))
+  const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
@@ -75,18 +75,18 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
 
   const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
 
-  const standardAsset = useSelector((state: ReduxState) =>
+  const standardAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, standardTx?.caip19 ?? '')
   )
 
   // stables need precision of eth (18) rather than 10
-  const feeAsset: Asset | undefined = useSelector((state: ReduxState) =>
+  const feeAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, tx.fee?.caip19 ?? '')
   )
-  const buyAsset: Asset | undefined = useSelector((state: ReduxState) =>
+  const buyAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, buyTx?.caip19 ?? '')
   )
-  const sellAsset: Asset | undefined = useSelector((state: ReduxState) =>
+  const sellAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, sellTx?.caip19 ?? '')
   )
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset

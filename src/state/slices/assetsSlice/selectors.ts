@@ -9,10 +9,12 @@ import { selectMarketDataIds } from 'state/slices/selectors'
 export const selectAssetByCAIP19 = createSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, CAIP19: CAIP19) => CAIP19,
-  (byId, CAIP19) => byId[CAIP19]
+  (byId, CAIP19) => (CAIP19 !== '' ? byId[CAIP19] : undefined)
 )
 
-export const selectAssetNameById = createSelector(selectAssetByCAIP19, ({ name }) => name)
+export const selectAssetNameById = createSelector(selectAssetByCAIP19, asset =>
+  asset ? asset.name : undefined
+)
 
 export const selectAssets = (state: ReduxState) => state.assets.byId
 export const selectAssetIds = (state: ReduxState) => state.assets.ids

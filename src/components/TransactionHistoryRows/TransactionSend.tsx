@@ -1,6 +1,3 @@
-import { Flex } from '@chakra-ui/react'
-import { useState } from 'react'
-import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -11,18 +8,15 @@ import { Row } from './TransactionDetails/Row'
 import { Status } from './TransactionDetails/Status'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { TransactionGenericRow } from './TransactionGenericRow'
+import { TransactionRowProps } from './TransactionRow'
 
 export const TransactionSend = ({
   txDetails,
   showDateAndGuide,
-  compactMode
-}: {
-  txDetails: TxDetails
-  showDateAndGuide?: boolean
-  compactMode?: boolean
-}) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const toggleOpen = () => setIsOpen(!isOpen)
+  compactMode,
+  isOpen,
+  toggleOpen
+}: TransactionRowProps) => {
   const marketData = useAppSelector(state =>
     selectMarketDataById(state, txDetails.tx.transfers[0].caip19)
   )
@@ -31,31 +25,30 @@ export const TransactionSend = ({
   )
   return (
     <>
-      <Flex alignItems='center' flex={1} as='button' w='full' py={4} onClick={toggleOpen}>
-        <TransactionGenericRow
-          type={txDetails.type}
-          compactMode={compactMode}
-          blockTime={txDetails.tx.blockTime}
-          symbol={txDetails.symbol}
-          assets={[
-            {
-              symbol: txDetails.symbol,
-              amount: txDetails.value,
-              precision: txDetails.precision,
-              currentPrice: marketData.price
-            }
-          ]}
-          fee={{
-            symbol: txDetails.feeAsset?.symbol ?? '',
-            amount: txDetails.tx.fee?.value ?? '0',
-            precision: txDetails.feeAsset.precision,
-            currentPrice: feeAssetMarketData.price
-          }}
-          explorerTxLink={txDetails.explorerTxLink}
-          txid={txDetails.tx.txid}
-          showDateAndGuide={showDateAndGuide}
-        />
-      </Flex>
+      <TransactionGenericRow
+        type={txDetails.type}
+        toggleOpen={toggleOpen}
+        compactMode={compactMode}
+        blockTime={txDetails.tx.blockTime}
+        symbol={txDetails.symbol}
+        assets={[
+          {
+            symbol: txDetails.symbol,
+            amount: txDetails.value,
+            precision: txDetails.precision,
+            currentPrice: marketData.price
+          }
+        ]}
+        fee={{
+          symbol: txDetails.feeAsset?.symbol ?? '',
+          amount: txDetails.tx.fee?.value ?? '0',
+          precision: txDetails.feeAsset.precision,
+          currentPrice: feeAssetMarketData.price
+        }}
+        explorerTxLink={txDetails.explorerTxLink}
+        txid={txDetails.tx.txid}
+        showDateAndGuide={showDateAndGuide}
+      />
       <TransactionDetailsContainer isOpen={isOpen}>
         <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
         <Row title='youSent'>

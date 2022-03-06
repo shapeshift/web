@@ -4,6 +4,7 @@ import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import { useState } from 'react'
 import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
@@ -13,16 +14,40 @@ import { Direction, TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDeta
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-const renderTransactionType = (
-  txDetails: TxDetails,
-  showDateAndGuide: boolean,
-  useCompactMode: boolean
-): JSX.Element | null => {
-  return (() => {
-    const props = {
+export type TransactionRowProps = {
+  txDetails: TxDetails
+  showDateAndGuide?: boolean
+  compactMode?: boolean
+  isOpen: boolean
+  toggleOpen: Function
+}
+
+export const TransactionRow = ({
+  txId,
+  activeAsset,
+  showDateAndGuide = false,
+  useCompactMode = false
+}: {
+  txId: string
+  activeAsset?: Asset
+  showDateAndGuide?: boolean
+  useCompactMode?: boolean
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const toggleOpen = () => setIsOpen(!isOpen)
+  const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
+  const txDetails = useTxDetails(txId, activeAsset)
+  const renderTransactionType = (
+    txDetails: TxDetails,
+    showDateAndGuide: boolean,
+    useCompactMode: boolean
+  ): JSX.Element => {
+    const props: TransactionRowProps = {
       txDetails,
       showDateAndGuide,
-      compactMode: useCompactMode
+      compactMode: useCompactMode,
+      toggleOpen,
+      isOpen
     }
     switch (txDetails.type || txDetails.direction) {
       case TxType.Send:
@@ -37,23 +62,7 @@ const renderTransactionType = (
       default:
         return <TransactionContract {...props} />
     }
-  })()
-}
-
-export const TransactionRow = ({
-  txId,
-  activeAsset,
-  showDateAndGuide = false,
-  useCompactMode = false
-}: {
-  txId: string
-  activeAsset?: Asset
-  showDateAndGuide?: boolean
-  useCompactMode?: boolean
-}) => {
-  const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
-  const txDetails = useTxDetails(txId, activeAsset)
-
+  }
   return (
     <Box width='full' px={4} rounded='lg' _hover={{ bg: rowHoverBg }}>
       {renderTransactionType(txDetails, showDateAndGuide, useCompactMode)}

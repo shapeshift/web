@@ -1,7 +1,4 @@
-import { Flex } from '@chakra-ui/react'
 import { SwapperType } from '@shapeshiftoss/types'
-import { useState } from 'react'
-import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -13,18 +10,15 @@ import { Status } from './TransactionDetails/Status'
 import { Text } from './TransactionDetails/Text'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { TransactionGenericRow } from './TransactionGenericRow'
+import { TransactionRowProps } from './TransactionRow'
 
 export const TransactionTrade = ({
   txDetails,
   showDateAndGuide,
-  compactMode
-}: {
-  txDetails: TxDetails
-  showDateAndGuide?: boolean
-  compactMode?: boolean
-}) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const toggleOpen = () => setIsOpen(!isOpen)
+  compactMode,
+  isOpen,
+  toggleOpen
+}: TransactionRowProps) => {
   const sourceMarketData = useAppSelector(state =>
     selectMarketDataById(state, txDetails.sellTx?.caip19 ?? '')
   )
@@ -36,37 +30,36 @@ export const TransactionTrade = ({
   )
   return (
     <>
-      <Flex alignItems='center' flex={1} as='button' w='full' py={4} onClick={toggleOpen}>
-        <TransactionGenericRow
-          type={txDetails.type}
-          compactMode={compactMode}
-          blockTime={txDetails.tx.blockTime}
-          symbol={txDetails.symbol}
-          assets={[
-            {
-              symbol: txDetails.sellAsset.symbol,
-              amount: txDetails.sellTx?.value ?? '0',
-              precision: txDetails.sellAsset.precision,
-              currentPrice: sourceMarketData.price
-            },
-            {
-              symbol: txDetails.buyAsset.symbol,
-              amount: txDetails.buyTx?.value ?? '0',
-              precision: txDetails.buyAsset.precision,
-              currentPrice: destinationMarketData.price
-            }
-          ]}
-          fee={{
-            symbol: txDetails.feeAsset?.symbol ?? '',
-            amount: txDetails.tx.fee?.value ?? '0',
-            precision: txDetails.feeAsset.precision,
-            currentPrice: feeAssetMarketData.price
-          }}
-          explorerTxLink={txDetails.explorerTxLink}
-          txid={txDetails.tx.txid}
-          showDateAndGuide={showDateAndGuide}
-        />
-      </Flex>
+      <TransactionGenericRow
+        type={txDetails.type}
+        toggleOpen={toggleOpen}
+        compactMode={compactMode}
+        blockTime={txDetails.tx.blockTime}
+        symbol={txDetails.symbol}
+        assets={[
+          {
+            symbol: txDetails.sellAsset.symbol,
+            amount: txDetails.sellTx?.value ?? '0',
+            precision: txDetails.sellAsset.precision,
+            currentPrice: sourceMarketData.price
+          },
+          {
+            symbol: txDetails.buyAsset.symbol,
+            amount: txDetails.buyTx?.value ?? '0',
+            precision: txDetails.buyAsset.precision,
+            currentPrice: destinationMarketData.price
+          }
+        ]}
+        fee={{
+          symbol: txDetails.feeAsset?.symbol ?? '',
+          amount: txDetails.tx.fee?.value ?? '0',
+          precision: txDetails.feeAsset.precision,
+          currentPrice: feeAssetMarketData.price
+        }}
+        explorerTxLink={txDetails.explorerTxLink}
+        txid={txDetails.tx.txid}
+        showDateAndGuide={showDateAndGuide}
+      />
       <TransactionDetailsContainer isOpen={isOpen}>
         <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
         {txDetails.tx.tradeDetails && (

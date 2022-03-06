@@ -41,7 +41,7 @@ type TransactionRowAsset = {
   currentPrice?: string
 }
 
-type TransactionGenericRowType = {
+type TransactionGenericRowProps = {
   type: string
   unknown?: boolean
   symbol: string
@@ -52,6 +52,7 @@ type TransactionGenericRowType = {
   txid: TxId
   blockTime: number
   explorerTxLink: string
+  toggleOpen: Function
 }
 
 const Guide = ({ title }: { title: string }) => (
@@ -67,13 +68,14 @@ export const TransactionGenericRow = ({
   txid,
   blockTime,
   explorerTxLink,
-  compactMode = false
-}: TransactionGenericRowType) => {
+  compactMode = false,
+  toggleOpen
+}: TransactionGenericRowProps) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
   return (
-    <>
+    <Box as='button' w='full' py={4} onClick={() => toggleOpen()}>
       <Flex width='full' justifyContent='space-between' textAlign='left' alignItems='flex-end'>
         <Flex alignItems='flex-start' flex={1} mr={3} flexDir='column'>
           {showDateAndGuide && <TransactionDate blockTime={blockTime} />}
@@ -189,6 +191,6 @@ export const TransactionGenericRow = ({
           </Flex>
         )}
       </Flex>
-    </>
+    </Box>
   )
 }

@@ -312,11 +312,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     //HDwallet API
     //TODO moveme into own file
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
-      let payload = data.paths
-      if(state.wallet){
+      if (state.wallet) {
         // @ts-ignore
         let pubkeys = await state.wallet.getPublicKeys(paths.payload)
-        console.log("pubkeys: ",pubkeys)
+        console.info('pubkeys: ', pubkeys)
         ipcRenderer.send('@hdwallet/response/getPublicKeys', pubkeys)
       }
     })
@@ -529,7 +528,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
     if (localWalletType && localWalletDeviceId && state.adapters) {
-      ; (async () => {
+      ;(async () => {
         if (state.adapters?.has(localWalletType)) {
           switch (localWalletType) {
             case KeyManager.Native:

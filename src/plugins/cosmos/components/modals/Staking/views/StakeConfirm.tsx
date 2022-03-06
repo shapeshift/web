@@ -9,12 +9,12 @@ import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { Confirm } from './Confirm'
 
-type StakingConfirmProps = {
+export type StakingConfirmProps = {
   cryptoAmount: BigNumber
   assetId: CAIP19
   fiatRate: BigNumber
   apr: string
-  onCancel: any
+  onCancel: () => void
 }
 
 export enum StakingPath {

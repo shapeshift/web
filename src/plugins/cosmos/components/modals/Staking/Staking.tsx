@@ -8,7 +8,6 @@ import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
 import { StakeConfirm } from './views/StakeConfirm'
 import { Unstake } from './views/Unstake'
-// import { Unstake } from './views/Unstake'
 
 export enum StakingAction {
   Stake = 'stake',
@@ -36,7 +35,7 @@ export const entries = [
 ]
 
 const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
-  const location = useLocation<{ cryptoAmount: any; assetId: any; fiatRate: any; apr: string }>()
+  const location = useLocation<StakingConfirmProps>()
   const history = useHistory()
   const isConfirmStep = matchPath<any>(location.pathname, {
     path: StakeRoutes.StakeConfirm,
@@ -52,7 +51,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   }
 
   const handleClose = () => {
-    handleCancel()
+    history.goBack()
     close()
   }
 
@@ -87,29 +86,25 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
       )
     if (action === StakingAction.Unstake)
       return (
-        <>
-          <Route path='/'>
-            <Unstake
-              assetId={assetId}
-              apr='0.12'
-              cryptoAmountStaked='4242'
-              marketData={{
-                price: '25',
-                marketCap: '999999',
-                volume: '1000',
-                changePercent24Hr: 2
-              }}
-            />
-          </Route>
-        </>
+        <Route path='/'>
+          <Unstake
+            assetId={assetId}
+            apr='0.12'
+            cryptoAmountStaked='4242'
+            marketData={{
+              price: '25',
+              marketCap: '999999',
+              volume: '1000',
+              changePercent24Hr: 2
+            }}
+          />
+        </Route>
       )
     if (action === StakingAction.Overview)
       return (
-        <>
-          <Route path='/'>
-            <Overview assetId={assetId} />
-          </Route>
-        </>
+        <Route path='/'>
+          <Overview assetId={assetId} />
+        </Route>
       )
   }
 

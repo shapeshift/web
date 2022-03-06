@@ -6,6 +6,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
+import { StakingConfirmProps } from './views/StakeConfirm'
 import { StakeConfirm } from './views/StakeConfirm'
 import { Unstake } from './views/Unstake'
 

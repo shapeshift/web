@@ -70,7 +70,11 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     return () => {
       chainAdapter.getSupportedAdapters().forEach(getAdapter => {
         dispatch(txHistory.actions.clear())
-        getAdapter().unsubscribeTxs()
+        try {
+          getAdapter().unsubscribeTxs()
+        } catch (e) {
+          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
+        }
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

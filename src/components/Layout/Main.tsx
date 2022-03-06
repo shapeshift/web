@@ -24,36 +24,34 @@ export const Main: React.FC<MainProps> = ({ children, titleComponent, route, ...
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])
   return (
-    <>
-      <Page>
-        {titleComponent && (
-          <Box
-            width='full'
-            transition='box-shadow 0.2s, background-color 0.2s'
-            as='header'
-            borderBottomWidth={1}
-            bg={bg}
-            borderColor={borderColor}
-            ref={ref}
-            top='4.5rem'
-            zIndex='sticky'
-            shadow={y > height ? 'sm' : undefined}
-          >
-            <Container maxW='container.xl' pt={4}>
-              <Stack>
-                <HStack width='full' justifyContent='space-between'>
-                  <Breadcrumbs />
-                </HStack>
-                {titleComponent}
-              </Stack>
-            </Container>
-            {route && <NestedMenu route={route} />}
-          </Box>
-        )}
-        <Container maxW='container.xl' py={8} px={{ base: 0, xl: 4 }} {...rest}>
-          {children}
-        </Container>
-      </Page>
-    </>
+    <Page>
+      {titleComponent && (
+        <Box
+          width='full'
+          transition='box-shadow 0.2s, background-color 0.2s'
+          as='header'
+          borderBottomWidth={1}
+          bg={bg}
+          borderColor={borderColor}
+          ref={ref}
+          top='4.5rem'
+          zIndex='sticky'
+          shadow={y > height ? 'sm' : undefined}
+        >
+          <Container maxW='container.xl' pt={4}>
+            <Stack>
+              <HStack width='full' justifyContent='space-between'>
+                <Breadcrumbs />
+              </HStack>
+              {titleComponent}
+            </Stack>
+          </Container>
+          {route && <NestedMenu route={route} />}
+        </Box>
+      )}
+      <Container maxW='container.xl' py={8} px={{ base: 0, xl: 4 }} {...rest}>
+        {children}
+      </Container>
+    </Page>
   )
 }

@@ -329,11 +329,14 @@
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "Token Address",
       "scanQrCode": "Scan QR Code",
+      "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
+        "generic": "An error occured.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
-        "transactionRejected": "User has rejected the transaction"
+        "transactionRejected": "User has rejected the transaction",
+        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
       },
       "confirm": {
         "sendAsset": "Send %{asset}",

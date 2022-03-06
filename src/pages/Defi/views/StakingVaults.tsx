@@ -13,7 +13,7 @@ const DefiHeader = () => {
   )
 }
 
-export const StakingVaults = ({ route }: { route: Route }) => {
+export const StakingVaults = ({ route }: { route?: Route }) => {
   return (
     <Main route={route} titleComponent={<DefiHeader />}>
       <AllEarnOpportunities />

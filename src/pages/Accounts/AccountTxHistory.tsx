@@ -10,7 +10,7 @@ import { useAppSelector } from 'state/store'
 import { MatchParams } from './Account'
 
 type AssetTransactionProps = {
-  route: Route
+  route?: Route
 }
 
 export const AccountTxHistory: React.FC<AssetTransactionProps> = ({ route }) => {

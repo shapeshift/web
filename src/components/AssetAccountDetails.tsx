@@ -1,6 +1,5 @@
 import { Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
@@ -12,7 +11,6 @@ import { AssetChart } from './AssetHeader/AssetChart'
 import { AssetDescription } from './AssetHeader/AssetDescription'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetMarketData } from './AssetHeader/AssetMarketData'
-import { StakingOpportunities } from './Delegate/StakingOpportunities'
 import { Main } from './Layout/Main'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 import { UnderlyingToken } from './UnderlyingToken'
@@ -24,7 +22,6 @@ type AssetDetailsProps = {
 }
 
 export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: AssetDetailsProps) => {
-  const cosmosInverstorFlag = FeatureFlag.CosmosInvestor
   return (
     <Main route={route} titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -38,7 +35,6 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
           <EarnOpportunities assetId={caip19} accountId={accountId} />
-          {cosmosInverstorFlag && <StakingOpportunities assetId={caip19} accountId={accountId} />}
           <UnderlyingToken assetId={caip19} accountId={accountId} />
           <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
         </Stack>

@@ -1,7 +1,6 @@
 import { extendTheme } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
 import { createBreakpoints } from '@chakra-ui/theme-tools'
-import { StepsStyleConfig as Steps } from 'chakra-ui-steps'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
 import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
@@ -16,6 +15,7 @@ import { RowStyle as Row } from 'components/Row/Row.theme'
 import { SkeletonStyle as Skeleton } from 'components/Skeleton/Skeleton.theme'
 import { SpinnerStyle as Spinner } from 'components/Spinner/Spinner.theme'
 import { StatStyle as Stat } from 'components/Stat/Stat.theme'
+import { StepsStyle as CustomSteps } from 'components/Steps.theme'
 import { TableStyle as Table } from 'components/Table/Table.theme'
 import { TabsStyle as Tabs } from 'components/Tabs/Tabs.theme'
 import { TextareaStyle as Textarea } from 'components/Textarea/Textarea.theme'
@@ -111,7 +111,7 @@ export const theme = extendTheme({
     Tooltip,
     Table,
     Skeleton,
-    Steps,
+    Steps: CustomSteps,
     Popover
   },
   shadows: {

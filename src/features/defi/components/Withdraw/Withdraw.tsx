@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
   Button,
   ButtonGroup,
@@ -7,6 +10,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  HStack,
   IconButton,
   Input,
   InputGroup,
@@ -22,17 +26,20 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  Stack,
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
 import { Asset, MarketData } from '@shapeshiftoss/types'
 import { useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
+import { FaBolt, FaClock } from 'react-icons/fa'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SliderIcon } from 'components/Icons/Slider'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
@@ -56,6 +63,8 @@ type WithdrawProps = {
   marketData: MarketData
   // Array of the % options
   percentOptions: number[]
+  // Show withdraw types
+  enableWithdrawType?: boolean
   onContinue(values: WithdrawValues): void
   onCancel(): void
 }
@@ -83,13 +92,20 @@ enum InputType {
 enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
-  Slippage = 'slippage'
+  Slippage = 'slippage',
+  WithdrawType = 'withdrawType'
+}
+
+export enum WithdrawType {
+  Instant = 'instantUnstake',
+  Delayed = 'unstake'
 }
 
 export type WithdrawValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
   [Field.Slippage]: string
+  [Field.WithdrawType]: WithdrawType
 }
 
 const DEFAULT_SLIPPAGE = '0.5'
@@ -100,6 +116,7 @@ export const Withdraw = ({
   cryptoAmountAvailable,
   cryptoInputValidation,
   enableSlippage = true,
+  enableWithdrawType = false,
   fiatAmountAvailable,
   fiatInputValidation,
   onContinue,
@@ -126,7 +143,8 @@ export const Withdraw = ({
     defaultValues: {
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
-      [Field.Slippage]: DEFAULT_SLIPPAGE
+      [Field.Slippage]: DEFAULT_SLIPPAGE,
+      [Field.WithdrawType]: WithdrawType.Instant
     }
   })
 
@@ -183,8 +201,8 @@ export const Withdraw = ({
   return (
     <SlideTransition>
       <Box as='form' maxWidth='lg' width='full' onSubmit={handleSubmit(onSubmit)}>
-        <ModalBody>
-          <Card size='sm' width='full' variant='group' my={6}>
+        <ModalBody py={6}>
+          <Card size='sm' width='full' variant='group' mb={6}>
             <Card.Body>
               <Flex alignItems='center'>
                 <AssetIcon src={asset.icon} boxSize='40px' />
@@ -365,28 +383,75 @@ export const Withdraw = ({
               </ButtonGroup>
             </VStack>
           </FormControl>
+          {enableWithdrawType && (
+            <FormControl>
+              <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
+              <ButtonGroup colorScheme='blue' width='full' variant='input'>
+                <Button
+                  isFullWidth
+                  flexDir='column'
+                  height='auto'
+                  py={4}
+                  onClick={() => setValue(Field.WithdrawType, WithdrawType.Instant)}
+                  isActive={values.withdrawType === WithdrawType.Instant}
+                >
+                  <Stack alignItems='center' spacing={1}>
+                    <FaBolt size='30px' />
+                    <RawText>{translate('modals.withdraw.instant')}</RawText>
+                    <RawText color='gray.500' fontSize='sm'>
+                      {translate('modals.withdraw.fee', { feeAmount: '20' })}
+                    </RawText>
+                  </Stack>
+                </Button>
+                <Button
+                  isFullWidth
+                  flexDir='column'
+                  height='auto'
+                  onClick={() => setValue(Field.WithdrawType, WithdrawType.Delayed)}
+                  isActive={values.withdrawType === WithdrawType.Delayed}
+                >
+                  <HelperTooltip
+                    label='Blah blah blah'
+                    flexProps={{ position: 'absolute', right: 2, top: 2 }}
+                  />
+                  <Stack alignItems='center' spacing={1}>
+                    <FaClock size='30px' />
+                    <RawText>{translate('modals.withdraw.delayed')}</RawText>
+                    <RawText color='gray.500' fontSize='sm'>
+                      {translate('modals.withdraw.noFee')}
+                    </RawText>
+                  </Stack>
+                </Button>
+              </ButtonGroup>
+              {values.withdrawType === WithdrawType.Delayed && (
+                <Alert status='info' borderRadius='lg' mt={4}>
+                  <AlertIcon />
+                  <AlertDescription>
+                    Once the time has elapsed you will be able to claim your withdraw amount.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </FormControl>
+          )}
         </ModalBody>
-        <ModalFooter flexDir='column'>
+        <ModalFooter as={HStack} direction='horziontal' spacing={4}>
           <Text
+            flex={1}
             fontSize='sm'
             color='gray.500'
-            mb={2}
-            width='full'
-            textAlign='center'
             translation='modals.withdraw.footerDisclaimer'
           />
           <Button
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}
-            mb={2}
             size='lg'
             type='submit'
-            width='full'
           >
-            {translate(fieldError || 'common.continue')}
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            {translate('common.cancel')}
+            {translate(
+              fieldError || values.withdrawType === WithdrawType.Delayed
+                ? 'modals.withdraw.requestWithdraw'
+                : 'common.continue'
+            )}
           </Button>
         </ModalFooter>
       </Box>

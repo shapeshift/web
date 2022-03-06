@@ -1,21 +1,20 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/layout'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { useRef } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { Confirm } from './views/Confirm'
+import { Confirm } from './Confirm'
 
 type StakingConfirmProps = {
   cryptoAmount: BigNumber
   assetId: CAIP19
   fiatRate: BigNumber
   apr: string
+  onCancel: any
 }
 
 export enum StakingPath {
@@ -23,20 +22,19 @@ export enum StakingPath {
   Broadcast = '/staking/broadcast'
 }
 
-export const depositRoutes = [
+export const stakeConfirmRoutes = [
   { step: 0, path: StakingPath.Confirm, label: 'Confirm Details' },
   { step: 1, path: StakingPath.Broadcast, label: 'Broadcast TX' }
 ]
 
-type StakingLocationProps = {
-  cryptoAmount: BigNumber
-  assetId: string
-  fiatRate: BigNumber
-  apr: string
-}
-//
-const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLocationProps) => {
-  const location = useLocation<StakingLocationProps>()
+const CosmosStakingRouter = ({
+  cryptoAmount,
+  onCancel,
+  assetId,
+  fiatRate,
+  apr
+}: StakingConfirmProps) => {
+  const location = useLocation<StakingConfirmProps>()
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
@@ -53,7 +51,7 @@ const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLo
             assetSymbol={asset.symbol}
             px={23}
             py={43}
-            routes={depositRoutes}
+            routes={stakeConfirmRoutes}
             location={location}
           />
           <Flex
@@ -69,6 +67,7 @@ const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLo
                   cryptoStakeAmount={cryptoAmount}
                   assetId={assetId}
                   fiatRate={fiatRate}
+                  onCancel={onCancel}
                 />
               </Route>
               <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
@@ -82,23 +81,14 @@ const CosmosStakingRouter = ({ cryptoAmount, assetId, fiatRate, apr }: StakingLo
   )
 }
 
-export const StakingConfirmModal = (props: StakingConfirmProps) => {
-  const initialRef = useRef<HTMLInputElement>(null)
-  const { cosmosStakingConfirm } = useModal()
-  const { close, isOpen } = cosmosStakingConfirm
-
-  return (
-    <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef} variant='fluid'>
-      <ModalOverlay />
-      <ModalContent>
-        <MemoryRouter
-          key='stake'
-          initialIndex={0}
-          initialEntries={depositRoutes.map(route => route.path)}
-        >
-          <CosmosStakingRouter {...props} />
-        </MemoryRouter>
-      </ModalContent>
-    </Modal>
-  )
-}
+export const StakeConfirm = (props: StakingConfirmProps) => (
+  <SlideTransition>
+    <MemoryRouter
+      key='stake'
+      initialIndex={0}
+      initialEntries={stakeConfirmRoutes.map(route => route.path)}
+    >
+      <CosmosStakingRouter {...props} />
+    </MemoryRouter>
+  </SlideTransition>
+)

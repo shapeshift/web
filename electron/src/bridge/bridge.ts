@@ -4,16 +4,17 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
 import log from 'electron-log'
-import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
+import { Device, NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
-import { windows } from './main'
+import { windows } from '../main'
 import { app, ipcMain } from 'electron'
 import wait from 'wait-promise'
-import { shared } from './shared'
-import { updateMenu } from './tray'
+import { shared } from '../shared'
+import { updateMenu } from '../tray'
 import { uniqueId } from 'lodash'
-import { db } from './db'
+import { db } from '../db'
+import { TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 
 const appExpress = express()
 appExpress.use(cors())
@@ -26,7 +27,6 @@ if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 const adapter = NodeWebUSBKeepKeyAdapter.useKeyring(new Keyring())
 
 
-let USERNAME
 let server: Server
 
 const EVENT_LOG: Array<{ read: { data: string } }> = []
@@ -56,7 +56,7 @@ let STATUS = 'preInit'
 export const start_bridge = async function (event) {
     let tag = " | start_bridge | "
     try {
-        let device
+        let device: Device
         try {
             device = await adapter.getDevice()
             log.info(tag, "device: ", device)
@@ -65,11 +65,13 @@ export const start_bridge = async function (event) {
             STATUS = `no devices`
             event.sender.send('setKeepKeyState', { state: STATE })
             event.sender.send('setKeepKeyStatus', { status: STATUS })
+            return
         }
 
         let transport
         if (device) {
             transport = await adapter.getTransportDelegate(device)
+            if (!transport) return
             await transport.connect?.()
             log.info(tag, "transport: ", transport)
 
@@ -128,7 +130,6 @@ export const start_bridge = async function (event) {
                 if (req.method === 'GET') {
                     res.status(200).json({
                         success: true,
-                        username: USERNAME,
                         status: STATUS,
                         state: STATE
                     })

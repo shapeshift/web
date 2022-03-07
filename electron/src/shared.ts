@@ -9,7 +9,7 @@ export const shared: {
     },
     SIGNED_TX: any,
     eventIPC: {},
-    KEEPKEY_FEATURES: any
+    KEEPKEY_FEATURES: Record<string, unknown>
 } = {
     USER: {
         online: false,

@@ -6,6 +6,18 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"GenericResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"success"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Status": {
 				"properties": {
 					"success": {
@@ -27,14 +39,23 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"GenericResponse": {
+			"Record_string.unknown_": {
+				"properties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"PairResponse": {
 				"properties": {
 					"success": {
 						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
 					}
 				},
 				"required": [
-					"success"
+					"success",
+					"reason"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -54,82 +75,58 @@
 				],
 				"type": "object",
 				"additionalProperties": false
-			},
-			"User": {
-				"properties": {
-					"online": {
-						"type": "boolean"
-					},
-					"accounts": {},
-					"balances": {}
-				},
-				"required": [
-					"online",
-					"accounts",
-					"balances"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"SignedTx": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"status": {
-						"type": "string"
-					},
-					"signedTx": {}
-				},
-				"required": [
-					"success",
-					"status",
-					"signedTx"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"Read": {
-				"properties": {
-					"data": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"data"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"Write": {
-				"properties": {
-					"output": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"output"
-				],
-				"type": "object",
-				"additionalProperties": false
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"api_key": {
+				"type": "apiKey",
+				"name": "serviceKey",
+				"in": "headers"
+			}
+		}
 	},
 	"info": {
-		"title": "@KeepKey/keepkey-bridge",
-		"version": "0.0.12",
-		"description": "A REST interface for the KeepKey",
+		"title": "keepkey-desktop",
+		"version": "0.1.32",
 		"contact": {
-			"name": "highlander ",
-			"email": "highlander@keepkey.com"
+			"name": "Highlander ",
+			"email": "bithighlander@gmail.com"
 		}
 	},
 	"openapi": "3.0.0",
 	"paths": {
+		"/auth/verify": {
+			"get": {
+				"operationId": "VerifyAuth",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Please provice a valid serviceKey"
+					}
+				},
+				"tags": [
+					"Client Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/status": {
 			"get": {
-				"operationId": "Health",
+				"operationId": "Status",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -158,7 +155,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Status"
+									"$ref": "#/components/schemas/Record_string.unknown_"
 								}
 							}
 						}
@@ -180,7 +177,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/GenericResponse"
+									"$ref": "#/components/schemas/PairResponse"
 								}
 							}
 						}
@@ -210,577 +207,6 @@
 						}
 					}
 				}
-			}
-		},
-		"/user": {
-			"get": {
-				"operationId": "User",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/User"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/auth/verify": {
-			"get": {
-				"operationId": "VerifyAuth",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GenericResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/sign": {
-			"post": {
-				"operationId": "SignTransaction",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/SignedTx"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/applyPolicy": {
-			"post": {
-				"operationId": "ApplyPolicy",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/applySettings": {
-			"post": {
-				"operationId": "ApplySettings",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/changePin": {
-			"post": {
-				"operationId": "ChangePin",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/removePin": {
-			"post": {
-				"operationId": "RemovePin",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/getPublicKeys": {
-			"post": {
-				"operationId": "GetPublicKeys",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {}
-						}
-					}
-				}
-			}
-		},
-		"/btcGetAddress": {
-			"post": {
-				"operationId": "BtcGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/ethGetAddress": {
-			"post": {
-				"operationId": "EthGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/thorchainGetAddress": {
-			"post": {
-				"operationId": "ThorchainGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/osmosisGetAddress": {
-			"post": {
-				"operationId": "OsmosisGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/binanceGetAddress": {
-			"post": {
-				"operationId": "BinanceGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/cosmosGetAddress": {
-			"post": {
-				"operationId": "CosmosGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/btcSignTx": {
-			"post": {
-				"operationId": "BtcSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/thorchainSignTx": {
-			"post": {
-				"operationId": "ThorchainSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/cosmosSignTx": {
-			"post": {
-				"operationId": "CosmosSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/osmosisSignTx": {
-			"post": {
-				"operationId": "OsmosisSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/ethSignTx": {
-			"post": {
-				"operationId": "EthSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/exchange/device": {
-			"get": {
-				"operationId": "ReadDevice",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Read"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Raw KeepKey Device I/0"
-				],
-				"security": [],
-				"parameters": []
-			},
-			"post": {
-				"operationId": "WriteDevice",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Write"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Raw KeepKey Device I/0"
-				],
-				"security": [],
-				"parameters": []
 			}
 		}
 	},

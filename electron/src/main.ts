@@ -116,77 +116,77 @@ if (process.env.PROD) {
 
 
 function createWindow() {
-    const keyring = new Keyring()
-    getDevice(keyring).then((wallet) => {
-        if (wallet instanceof Error) return
-        // @ts-ignore
-        wallet.btcGetAddress({
-            addressNList: [2147483732, 2147483648, 2147483648, 0, 0],
-            coin: 'Bitcoin',
-            scriptType: 'p2wpkh',
-            showDisplay: false
-        }).then(console.log)
+    // const keyring = new Keyring()
+    // getDevice(keyring).then((wallet) => {
+    //     if (wallet instanceof Error) return
+    //     // @ts-ignore
+    //     wallet.btcGetAddress({
+    //         addressNList: [2147483732, 2147483648, 2147483648, 0, 0],
+    //         coin: 'Bitcoin',
+    //         scriptType: 'p2wpkh',
+    //         showDisplay: false
+    //     }).then(console.log)
+    // })
+    /**
+     * Menu Bar
+     */
+    log.info('Creating window!')
+
+    //Auto launch on startup
+    if (!isDev) {
+        kkAutoLauncher.enable()
+        kkAutoLauncher
+            .isEnabled()
+            .then(function (isEnabled) {
+                if (isEnabled) {
+                    return
+                }
+                kkAutoLauncher.enable()
+            })
+            .catch(function (e) {
+                log.error('failed to enable auto launch: ', e)
+            })
+    }
+
+    /**
+     * Initial window options
+     *
+     * more options: https://www.electronjs.org/docs/api/browser-window
+     */
+    windows.mainWindow = new BrowserWindow({
+        width: isDev ? 960 : 460,
+        height: 780,
+        show: false,
+        backgroundColor: 'white',
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+            devTools: true
+        }
     })
-    // /**
-    //  * Menu Bar
-    //  */
-    // log.info('Creating window!')
 
-    // //Auto launch on startup
-    // if (!isDev) {
-    //     kkAutoLauncher.enable()
-    //     kkAutoLauncher
-    //         .isEnabled()
-    //         .then(function (isEnabled) {
-    //             if (isEnabled) {
-    //                 return
-    //             }
-    //             kkAutoLauncher.enable()
-    //         })
-    //         .catch(function (e) {
-    //             log.error('failed to enable auto launch: ', e)
-    //         })
-    // }
+    //TODO remove/ flag on dev
+    if (isDev) windows.mainWindow.webContents.openDevTools()
 
-    // /**
-    //  * Initial window options
-    //  *
-    //  * more options: https://www.electronjs.org/docs/api/browser-window
-    //  */
-    // windows.mainWindow = new BrowserWindow({
-    //     width: isDev ? 960 : 460,
-    //     height: 780,
-    //     show: false,
-    //     backgroundColor: 'white',
-    //     webPreferences: {
-    //         nodeIntegration: true,
-    //         contextIsolation: false,
-    //         devTools: true
-    //     }
-    // })
+    const startURL = isDev
+        ? 'http://localhost:3000'
+        : `file://${path.join(__dirname, '../../build/index.html')}`
+    log.info('startURL: ', startURL)
 
-    // //TODO remove/ flag on dev
-    // if (isDev) windows.mainWindow.webContents.openDevTools()
+    windows.mainWindow.loadURL(startURL)
 
-    // const startURL = isDev
-    //     ? 'http://localhost:3000'
-    //     : `file://${path.join(__dirname, '../../build/index.html')}`
-    // log.info('startURL: ', startURL)
+    windows.mainWindow.on('closed', (event) => {
+        if (windows.mainWindow) windows.mainWindow.destroy()
+        stop_bridge(shared.eventIPC)
+    })
 
-    // windows.mainWindow.loadURL(startURL)
+    windows.mainWindow.once("ready-to-show", () => {
+        shouldShowWindow = true;
+    });
 
-    // windows.mainWindow.on('closed', (event) => {
-    //     if (windows.mainWindow) windows.mainWindow.destroy()
-    //     stop_bridge(shared.eventIPC)
-    // })
-
-    // windows.mainWindow.once("ready-to-show", () => {
-    //     shouldShowWindow = true;
-    // });
-
-    // db.findOne({ type: 'user' }, (err, doc) => {
-    //     if (doc) shared.USER = doc.user
-    // })
+    db.findOne({ type: 'user' }, (err, doc) => {
+        if (doc) shared.USER = doc.user
+    })
 }
 
 app.setAsDefaultProtocolClient('keepkey')

@@ -12,11 +12,10 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakingPath } from '../StakingConfirm'
+import { StakingPath } from './StakeConfirm'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -36,6 +35,7 @@ type StakeProps = {
   apr: string
   fiatRate: BigNumber
   cryptoStakeAmount: BigNumber
+  onCancel: () => void
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -46,7 +46,7 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 const DEFAULT_VALIDATOR_NAME = 'Shapeshift Validator'
 
 // TODO: Wire up the whole component with staked data
-export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProps) => {
+export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate, onCancel }: StakeProps) => {
   const methods = useForm<StakingValues>({
     mode: 'onChange',
     defaultValues: {
@@ -55,8 +55,6 @@ export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProp
   })
 
   const { handleSubmit } = methods
-
-  const { cosmosStakingConfirm } = useModal()
 
   const memoryHistory = useHistory()
   const onSubmit = (_: any) => {
@@ -69,7 +67,7 @@ export const Confirm = ({ apr, assetId, cryptoStakeAmount, fiatRate }: StakeProp
   const translate = useTranslate()
 
   const handleCancel = () => {
-    cosmosStakingConfirm.close()
+    onCancel()
   }
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this

@@ -5,7 +5,8 @@ import {
   PopoverTrigger,
   SkeletonCircle,
   SkeletonText,
-  Stack
+  Stack,
+  useColorModeValue
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { debounce } from 'lodash'
@@ -20,17 +21,18 @@ import { AssetTeaser } from './AssetTeaser'
 
 type AssetCellProps = {
   assetId: CAIP19
-  provider: string
-  version?: string
+  subText?: string
+  postFix?: string
   showTeaser?: boolean
   onClick: () => void
 }
-export const AssetCell = ({ assetId, provider, showTeaser, version, onClick }: AssetCellProps) => {
+export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: AssetCellProps) => {
   const [showPopover, setShowPopover] = useState(false)
+  const linkColor = useColorModeValue('black', 'white')
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const rowTitle = version ? `${asset.name} (${version})` : asset.name
+  const rowTitle = postFix ? `${asset.name} ${postFix}` : asset.name
 
   if (!asset) return null
 
@@ -67,21 +69,24 @@ export const AssetCell = ({ assetId, provider, showTeaser, version, onClick }: A
                 }}
               >
                 <RawText
-                  fontWeight='bold'
+                  fontWeight='medium'
                   as='span'
                   position='absolute'
                   lineHeight='shorter'
                   isTruncated
                   display='block'
                   maxWidth='100%'
+                  color={linkColor}
                 >
                   {rowTitle}
                 </RawText>
               </Box>
             </HStack>
-            <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
-              {provider}
-            </RawText>
+            {subText && (
+              <RawText fontSize='sm' color='gray.500' lineHeight='shorter'>
+                {subText}
+              </RawText>
+            )}
           </Stack>
         </SkeletonText>
       </HStack>

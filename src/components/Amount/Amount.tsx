@@ -137,12 +137,12 @@ const Percent = ({ value, options, ...props }: PercentAmountProps) => {
   const color = useMemo(() => {
     const roundedValue = parseFloat(formattedNumber)
     if (roundedValue === 0) {
-      return 'text.secondary'
+      return 'gray.500'
     }
     if (roundedValue > 0) {
-      return 'success.main'
+      return 'green.500'
     }
-    return 'error.main'
+    return 'red.500'
   }, [formattedNumber])
 
   return (

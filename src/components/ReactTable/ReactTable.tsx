@@ -1,19 +1,21 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Column, useSortBy, useTable } from 'react-table'
+import { Column, TableState, useSortBy, useTable } from 'react-table'
 
 type ReactTableProps = {
   columns: Column<any>[]
   data: object[]
+  initialState?: Partial<TableState<object>>
 }
 
-export const ReactTable = ({ columns, data }: ReactTableProps) => {
+export const ReactTable = ({ columns, data, initialState }: ReactTableProps) => {
   const hoverColor = useColorModeValue('black', 'white')
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
-      data
+      data,
+      initialState
     },
     useSortBy
   )
@@ -41,10 +43,11 @@ export const ReactTable = ({ columns, data }: ReactTableProps) => {
               <Th
                 {...column.getHeaderProps(column.getSortByToggleProps())}
                 color='gray.500'
+                textAlign={column.textAlign}
                 display={column.display}
                 _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
               >
-                <Flex>
+                <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
                   {column.render('Header')}
                   <Flex ml={2}>
                     {column.isSorted ? (

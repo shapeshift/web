@@ -13,7 +13,7 @@ import {
   selectPortfolioTotalFiatBalance
 } from 'state/slices/selectors'
 
-import { AccountList } from './components/AccountList/AccountList'
+import { AccountTable } from './components/AccountList/AccountTable'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
@@ -66,7 +66,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <AccountList />
+          <AccountTable />
         </Card.Body>
       </Card>
     </Stack>

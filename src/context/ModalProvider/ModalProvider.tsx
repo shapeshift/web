@@ -1,10 +1,7 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
-import { StakedModal } from 'plugins/cosmos/components/modals/Staked/Staked'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
-import { StakingConfirmModal } from 'plugins/cosmos/components/modals/StakingConfirm/StakingConfirm'
-import { UnstakingConfirmModal } from 'plugins/cosmos/components/modals/UnstakingConfirm/UnstakingConfirm'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
@@ -22,10 +19,7 @@ const MODALS = {
   receive: ReceiveModal,
   send: SendModal,
   cosmosGetStarted: GetStartedModal,
-  cosmosStaked: StakedModal,
-  cosmosStaking: StakingModal,
-  cosmosStakingConfirm: StakingConfirmModal,
-  cosmosUnstakingConfirm: UnstakingConfirmModal
+  cosmosStaking: StakingModal
 }
 
 // state
@@ -154,9 +148,9 @@ export function createModalProvider<M>({
     return (
       <InstanceModalContext.Provider value={value}>
         {children}
-        {Object.values(value).map(
-          (Modal, key) => Modal.isOpen && <Modal.Component key={key} {...Modal.props} />
-        )}
+        {Object.values(value).map((Modal, key) => (
+          <Modal.Component key={key} {...Modal.props} />
+        ))}
       </InstanceModalContext.Provider>
     )
   }

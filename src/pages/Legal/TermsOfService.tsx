@@ -1,10 +1,10 @@
 import { Center, DarkMode, Flex, Link } from '@chakra-ui/react'
-import { Page } from 'components/Layout/Page'
+import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 
 export const TermsOfService = () => {
   return (
-    <Page>
+    <Main>
       <Flex px={{ base: 2, lg: 4 }} py={{ base: 4, lg: 8 }} direction={'column'} rowGap={4}>
         <DarkMode>
           <Center flexDirection={'column'}>
@@ -326,6 +326,6 @@ export const TermsOfService = () => {
           </RawText>
         </DarkMode>
       </Flex>
-    </Page>
+    </Main>
   )
 }

@@ -105,6 +105,29 @@ function variantOutline(props: Record<string, any>) {
   }
 }
 
+function variantInput(props: Record<string, any>) {
+  const { colorScheme: c } = props
+  const borderColor = mode(`gray.200`, `gray.750`)(props)
+  const bg = mode('gray.50', 'gray.850')(props)
+  return {
+    border: '1px solid',
+    bg,
+    borderColor: borderColor,
+    transition: 'color fill border-color .5s ease-in-out',
+    color: 'gray.500',
+    _active: {
+      borderColor: `${c}.500`,
+      color: mode('black', 'white')(props),
+      svg: {
+        fill: `${c}.500`
+      }
+    },
+    _hover: {
+      borderColor: mode('gray.300', 'gray.700')(props)
+    }
+  }
+}
+
 type AccessibleColor = {
   bg?: string
   color?: string
@@ -238,6 +261,7 @@ const variants = {
   outline: variantOutline,
   solid: variantSolid,
   link: variantLink,
+  input: variantInput,
   unstyled: variantUnstyled,
   tab: variantTab
 }

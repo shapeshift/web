@@ -19,6 +19,7 @@ import { Farming } from 'pages/Defi/views/Farming'
 import { LiquidityPools } from 'pages/Defi/views/LiquidityPools'
 import { Overview } from 'pages/Defi/views/Overview'
 import { StakingVaults } from 'pages/Defi/views/StakingVaults'
+import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -180,6 +181,15 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
             path: '/legal/privacy-policy',
             label: 'Privacy Policy',
             main: PrivacyPolicy
+          }}
+        />
+      </Route>
+      <Route path='/flags'>
+        <Layout
+          route={{
+            path: '/flags',
+            label: 'Flags',
+            main: Flags
           }}
         />
       </Route>

@@ -1,21 +1,20 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { useRef } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { StakingAction } from '../Staking/Staking'
-import { Confirm } from './views/Confirm'
+import { StakingAction } from '../Staking'
+import { UnstakeConfirm } from './UnstakeConfirm'
 
 type UnstakingConfirmProps = {
   cryptoAmount: BigNumber
   assetId: CAIP19
   fiatRate: BigNumber
+  onCancel: () => void
 }
 
 export enum UnstakingPath {
@@ -28,14 +27,13 @@ export const withdrawRoutes = [
   { step: 1, path: UnstakingPath.Broadcast, label: 'Broadcast TX' }
 ]
 
-type UnstakingLocationProps = {
-  cryptoAmount: BigNumber
-  assetId: string
-  fiatRate: BigNumber
-}
-//
-const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLocationProps) => {
-  const location = useLocation<UnstakingLocationProps>()
+const CosmosUnstakingRouter = ({
+  cryptoAmount,
+  assetId,
+  fiatRate,
+  onCancel
+}: UnstakingConfirmProps) => {
+  const location = useLocation<UnstakingConfirmProps>()
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
@@ -54,6 +52,7 @@ const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLoc
             px={23}
             py={43}
             routes={withdrawRoutes}
+            location={location}
           />
           <Flex
             flexDir='column'
@@ -63,7 +62,12 @@ const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLoc
           >
             <Flex flexDirection='column' minWidth='400px'>
               <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
-                <Confirm cryptoUnstakeAmount={cryptoAmount} assetId={assetId} fiatRate={fiatRate} />
+                <UnstakeConfirm
+                  cryptoUnstakeAmount={cryptoAmount}
+                  assetId={assetId}
+                  fiatRate={fiatRate}
+                  onCancel={onCancel}
+                />
               </Route>
               <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
                 TODO Unstaking Broadcast component
@@ -76,23 +80,16 @@ const CosmosUnstakingRouter = ({ cryptoAmount, assetId, fiatRate }: UnstakingLoc
   )
 }
 
-export const UnstakingConfirmModal = (props: UnstakingConfirmProps) => {
-  const initialRef = useRef<HTMLInputElement>(null)
-  const { cosmosUnstakingConfirm } = useModal()
-  const { close, isOpen } = cosmosUnstakingConfirm
-
+export const UnstakeConfirmRouter = (props: UnstakingConfirmProps) => {
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef} variant='fluid'>
-      <ModalOverlay />
-      <ModalContent>
-        <MemoryRouter
-          key='stake'
-          initialIndex={0}
-          initialEntries={withdrawRoutes.map(route => route.path)}
-        >
-          <CosmosUnstakingRouter {...props} />
-        </MemoryRouter>
-      </ModalContent>
-    </Modal>
+    <SlideTransition>
+      <MemoryRouter
+        key='stake'
+        initialIndex={0}
+        initialEntries={withdrawRoutes.map(route => route.path)}
+      >
+        <CosmosUnstakingRouter {...props} />
+      </MemoryRouter>
+    </SlideTransition>
   )
 }

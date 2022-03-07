@@ -5,16 +5,17 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { BigNumber } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { UnstakingPath } from '../UnstakingConfirm'
+import { StakingPath } from './StakeConfirmRouter'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -25,21 +26,34 @@ export enum Field {
   FeeType = 'feeType'
 }
 
-export type UnstakingValues = {
+export type StakingValues = {
   [Field.FeeType]: chainAdapters.FeeDataKey
 }
 
-type UnstakeProps = {
+type StakeProps = {
   assetId: CAIP19
+  apr: string
   fiatRate: BigNumber
-  cryptoUnstakeAmount: BigNumber
+  cryptoStakeAmount: BigNumber
+  onCancel: () => void
+}
+
+// TODO: Make this a derived selector after this is wired up
+function calculateYearlyYield(apy: string, amount: string = '') {
+  return bnOrZero(amount).times(apy).toString()
 }
 
 const DEFAULT_VALIDATOR_NAME = 'Shapeshift Validator'
 
 // TODO: Wire up the whole component with staked data
-export const Confirm = ({ assetId, cryptoUnstakeAmount, fiatRate }: UnstakeProps) => {
-  const methods = useForm<UnstakingValues>({
+export const StakeConfirm = ({
+  apr,
+  assetId,
+  cryptoStakeAmount,
+  fiatRate,
+  onCancel
+}: StakeProps) => {
+  const methods = useForm<StakingValues>({
     mode: 'onChange',
     defaultValues: {
       [Field.FeeType]: chainAdapters.FeeDataKey.Average
@@ -48,18 +62,15 @@ export const Confirm = ({ assetId, cryptoUnstakeAmount, fiatRate }: UnstakeProps
 
   const { handleSubmit } = methods
 
-  const { cosmosUnstakingConfirm } = useModal()
-
   const memoryHistory = useHistory()
   const onSubmit = (_: any) => {
-    memoryHistory.push(UnstakingPath.Broadcast)
+    memoryHistory.push(StakingPath.Broadcast)
   }
+
+  const cryptoYield = calculateYearlyYield(apr, cryptoStakeAmount.toPrecision())
+  const fiatYield = bnOrZero(cryptoYield).times(fiatRate).toPrecision()
 
   const translate = useTranslate()
-
-  const handleCancel = () => {
-    cosmosUnstakingConfirm.close()
-  }
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
@@ -77,34 +88,45 @@ export const Confirm = ({ assetId, cryptoUnstakeAmount, fiatRate }: UnstakeProps
           pb='18px'
           px='30px'
           onSubmit={handleSubmit(onSubmit)}
-          flexDirection='column'
+          direction='column'
           alignItems='center'
           justifyContent='space-between'
         >
           <ModalHeader textAlign='center'>{translate('defi.confirmDetails')}</ModalHeader>
           <Flex width='100%' mb='20px' justifyContent='space-between'>
-            <Text color='gray.500' translation={'defi.unstake'} />
-            <Flex flexDirection='column' alignItems='flex-end'>
+            <Text color='gray.500' translation={'defi.stake'} />
+            <Flex direction='column' alignItems='flex-end'>
               <Amount.Fiat
                 fontWeight='semibold'
-                value={cryptoUnstakeAmount.times(fiatRate).toPrecision()}
+                value={cryptoStakeAmount.times(fiatRate).toPrecision()}
               />
               <Amount.Crypto
                 color='gray.500'
-                value={cryptoUnstakeAmount.toPrecision()}
+                value={cryptoStakeAmount.toPrecision()}
                 symbol={asset.symbol}
               />
             </Flex>
           </Flex>
           <Flex width='100%' mb='30px' justifyContent='space-between'>
             <CText display='inline-flex' alignItems='center' color='gray.500'>
-              {translate('defi.unstakeFrom')}
+              {translate('defi.validator')}
               &nbsp;
               <Tooltip label={translate('defi.modals.staking.tooltip.validator')}>
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
             <CText>{DEFAULT_VALIDATOR_NAME}</CText>
+          </Flex>
+          <Flex width='100%' mb='35px' justifyContent='space-between'>
+            <Text translation={'defi.averageApr'} color='gray.500' />
+            <AprTag percentage='0.125' />
+          </Flex>
+          <Flex width='100%' mb='13px' justifyContent='space-between'>
+            <Text translation={'defi.estimatedYearlyRewards'} color='gray.500' />
+            <Flex direction='column' alignItems='flex-end'>
+              <Amount.Crypto value={cryptoYield} symbol={asset.symbol} />
+              <Amount.Fiat color='gray.500' value={fiatYield} />
+            </Flex>
           </Flex>
           <Flex mb='6px' width='100%'>
             <CText display='inline-flex' alignItems='center' color='gray.500'>
@@ -122,7 +144,7 @@ export const Confirm = ({ assetId, cryptoUnstakeAmount, fiatRate }: UnstakeProps
           <FormControl>
             <TxFeeRadioGroup
               asset={asset}
-              mb='90px'
+              mb='10px'
               fees={{
                 slow: {
                   txFee: '0.004',
@@ -143,13 +165,13 @@ export const Confirm = ({ assetId, cryptoUnstakeAmount, fiatRate }: UnstakeProps
             textAlign='center'
             fontSize='sm'
             fontWeight='semibold'
-            translation={['defi.unbondInfoItWillTakeShort', { unbondingDays: '14' }]}
+            translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
             mb='18px'
           />
           <Button colorScheme={'blue'} mb={2} size='lg' type='submit' width='full'>
             <Text translation={'defi.confirmAndBroadcast'} />
           </Button>
-          <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
+          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
             <Text translation='common.cancel' />
           </Button>
         </Flex>

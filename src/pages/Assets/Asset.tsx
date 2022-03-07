@@ -40,7 +40,7 @@ export const useAsset = () => {
   }
 }
 
-export const Asset = ({ route }: { route: Route }) => {
+export const Asset = ({ route }: { route?: Route }) => {
   const { asset, marketData } = useAsset()
   return !(asset && marketData) ? (
     <Page key={asset?.tokenId}>

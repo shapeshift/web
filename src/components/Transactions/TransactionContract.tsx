@@ -138,7 +138,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
               <Row.Value>
                 <Amount.Crypto
                   value={fromBaseUnit(
-                    txDetails.tx?.fee?.value ?? '0',
+                    txDetails.tx?.fee?.value,
                     txDetails.feeAsset?.precision ?? 18
                   )}
                   symbol={txDetails.feeAsset.symbol}

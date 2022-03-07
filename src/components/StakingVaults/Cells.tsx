@@ -37,7 +37,7 @@ export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: As
   if (!asset) return null
 
   return (
-    <HStack width='full'>
+    <HStack width='full' data-test='account-row'>
       {showTeaser && (
         <Popover isOpen={showPopover} onClose={() => setShowPopover(false)}>
           <PopoverTrigger>
@@ -61,6 +61,7 @@ export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: As
                 height='20px'
                 width='full'
                 title={rowTitle}
+                data-test={`account-row-asset-name-${asset.symbol}`}
                 _after={{
                   content: 'attr(title)',
                   overflow: 'hidden',

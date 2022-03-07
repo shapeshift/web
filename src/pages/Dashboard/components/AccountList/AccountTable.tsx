@@ -55,6 +55,7 @@ export const AccountTable = () => {
               lineHeight='shorter'
               fontWeight='normal'
               fontSize='xs'
+              data-test={`account-row-asset-crypto-${row.original.symbol}`}
               value={row.original.cryptoAmount}
               symbol={row.original.symbol}
             />

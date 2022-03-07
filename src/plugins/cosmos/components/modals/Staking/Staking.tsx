@@ -38,7 +38,7 @@ export const entries = [
 const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   const location = useLocation<StakingConfirmProps>()
   const history = useHistory()
-  const isConfirmStep = matchPath<any>(location.pathname, {
+  const isConfirmStep = matchPath(location.pathname, {
     path: StakeRoutes.StakeConfirm,
     exact: true
   })
@@ -77,7 +77,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
           <Route path={StakeRoutes.StakeConfirm}>
             <StakeConfirm
               cryptoAmount={location.state?.cryptoAmount}
-              assetId={assetId}
+              assetId={location.state?.assetId}
               fiatRate={location.state?.fiatRate}
               apr={location.state?.apr}
               onCancel={handleCancel}

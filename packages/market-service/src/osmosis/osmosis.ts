@@ -110,9 +110,9 @@ export class OsmosisMarketService implements MarketService {
     try {
       // Historical timeframe data from the v2 endpoint does not support ranges greater than 1 month
       // and v1 doesn't support ranges less than 7 week, so we use both to get all ranges.
-      const url = `${this.baseUrl}/tokens/${
-        isV1 ? 'v1' : 'v2'
-      }/historical/${symbol}/chart?range=${range}`
+      const url = `${this.baseUrl}/tokens/${isV1 ? 'v1' : 'v2'}/historical/${symbol}/chart?${
+        isV1 ? 'range' : 'tf'
+      }=${range}`
 
       const { data } = await axios.get<OsmosisHistoryData[]>(url)
 

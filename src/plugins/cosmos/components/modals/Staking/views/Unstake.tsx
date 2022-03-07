@@ -17,13 +17,14 @@ import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInpu
 import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakingAction } from '../Staking'
+import { StakeRoutes, StakingAction } from '../Staking'
 
 const UNBONDING_DURATION = '14'
 
@@ -80,8 +81,14 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
 
   const { cosmosStaking } = useModal()
 
+  const memoryHistory = useHistory()
+
   const onSubmit = (_: any) => {
-    // TODO: onContinue()
+    memoryHistory.push(StakeRoutes.UnstakeConfirm, {
+      cryptoAmount: bnOrZero(values.cryptoAmount),
+      assetId,
+      fiatRate: bnOrZero(marketData.price)
+    })
   }
 
   const translate = useTranslate()

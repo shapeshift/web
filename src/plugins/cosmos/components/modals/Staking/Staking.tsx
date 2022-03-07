@@ -6,9 +6,9 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
-import { StakingConfirmProps } from './views/StakeConfirm'
-import { StakeConfirm } from './views/StakeConfirm'
+import { StakeConfirmRouter, StakingConfirmProps } from './views/StakeConfirmRouter'
 import { Unstake } from './views/Unstake'
+import { UnstakeConfirmRouter } from './views/UnstakeConfirmRouter'
 
 export enum StakingAction {
   Stake = 'stake',
@@ -21,10 +21,11 @@ type StakingModalProps = {
   action: StakingAction
 }
 
-enum StakeRoutes {
+export enum StakeRoutes {
   Stake = '/stake',
   Unstake = '/unstake',
   StakeConfirm = '/stake/confirm',
+  UnstakeConfirm = '/unstake/confirm',
   Overview = '/stake/overview'
 }
 
@@ -32,6 +33,7 @@ export const entries = [
   StakeRoutes.Stake,
   StakeRoutes.Unstake,
   StakeRoutes.StakeConfirm,
+  StakeRoutes.UnstakeConfirm,
   StakeRoutes.Overview
 ]
 
@@ -39,7 +41,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   const location = useLocation<StakingConfirmProps>()
   const history = useHistory()
   const isConfirmStep = matchPath(location.pathname, {
-    path: StakeRoutes.StakeConfirm,
+    path: [StakeRoutes.StakeConfirm, StakeRoutes.UnstakeConfirm],
     exact: true
   })
 
@@ -75,7 +77,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
             />
           </Route>
           <Route path={StakeRoutes.StakeConfirm}>
-            <StakeConfirm
+            <StakeConfirmRouter
               cryptoAmount={location.state?.cryptoAmount}
               assetId={location.state?.assetId}
               fiatRate={location.state?.fiatRate}
@@ -87,19 +89,29 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
       )
     if (action === StakingAction.Unstake)
       return (
-        <Route path='/'>
-          <Unstake
-            assetId={assetId}
-            apr='0.12'
-            cryptoAmountStaked='4242'
-            marketData={{
-              price: '25',
-              marketCap: '999999',
-              volume: '1000',
-              changePercent24Hr: 2
-            }}
-          />
-        </Route>
+        <>
+          <Route exact path={StakeRoutes.UnstakeConfirm}>
+            <UnstakeConfirmRouter
+              assetId={assetId}
+              cryptoAmount={location.state?.cryptoAmount}
+              fiatRate={location.state?.fiatRate}
+              onCancel={handleCancel}
+            />
+          </Route>
+          <Route exact path='/stake'>
+            <Unstake
+              assetId={assetId}
+              apr='0.12'
+              cryptoAmountStaked='4242'
+              marketData={{
+                price: '25',
+                marketCap: '999999',
+                volume: '1000',
+                changePercent24Hr: 2
+              }}
+            />
+          </Route>
+        </>
       )
     if (action === StakingAction.Overview)
       return (

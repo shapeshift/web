@@ -37,6 +37,8 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
+    // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21
+    'https://api-osmosis.imperator.co/tokens/',
     process.env.REACT_APP_ETHEREUM_NODE_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
@@ -59,7 +61,8 @@ const cspMeta = Object.entries({
     'https://raw.githack.com/yearn/yearn-assets/',
     'https://assets.yearn.network/tokens/',
     'https://raw.githubusercontent.com/yearn/yearn-assets/',
-    'https://rawcdn.githack.com/trustwallet/assets/'
+    'https://rawcdn.githack.com/trustwallet/assets/',
+    'https://raw.githubusercontent.com/osmosis-labs/'
   ],
   'script-src': [
     "'self'",

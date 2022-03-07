@@ -51,7 +51,7 @@ body:
     id: bounty-hunters
     attributes:
       label: Bounty Hunters
-      description: Additional information for all bounty hunters.
+      description: *Please do not edit* - additional information for all bounty hunters.
       value: 
         |
         - [Join our discord](https://discord.gg/shapeshift)

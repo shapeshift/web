@@ -61,6 +61,8 @@ import { shared } from './shared'
 import { createTray } from './tray'
 import { isWin, isLinux, isMac } from './constants'
 import { db } from './db'
+import { getDevice } from './wallet'
+import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 
 
@@ -114,66 +116,77 @@ if (process.env.PROD) {
 
 
 function createWindow() {
-    /**
-     * Menu Bar
-     */
-    log.info('Creating window!')
-
-    //Auto launch on startup
-    if (!isDev) {
-        kkAutoLauncher.enable()
-        kkAutoLauncher
-            .isEnabled()
-            .then(function (isEnabled) {
-                if (isEnabled) {
-                    return
-                }
-                kkAutoLauncher.enable()
-            })
-            .catch(function (e) {
-                log.error('failed to enable auto launch: ', e)
-            })
-    }
-
-    /**
-     * Initial window options
-     *
-     * more options: https://www.electronjs.org/docs/api/browser-window
-     */
-    windows.mainWindow = new BrowserWindow({
-        width: isDev ? 960 : 460,
-        height: 780,
-        show: false,
-        backgroundColor: 'white',
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            devTools: true
-        }
+    const keyring = new Keyring()
+    getDevice(keyring).then((wallet) => {
+        if (wallet instanceof Error) return
+        // @ts-ignore
+        wallet.btcGetAddress({
+            addressNList: [2147483732, 2147483648, 2147483648, 0, 0],
+            coin: 'Bitcoin',
+            scriptType: 'p2wpkh',
+            showDisplay: false
+        }).then(console.log)
     })
+    // /**
+    //  * Menu Bar
+    //  */
+    // log.info('Creating window!')
 
-    //TODO remove/ flag on dev
-    if (isDev) windows.mainWindow.webContents.openDevTools()
+    // //Auto launch on startup
+    // if (!isDev) {
+    //     kkAutoLauncher.enable()
+    //     kkAutoLauncher
+    //         .isEnabled()
+    //         .then(function (isEnabled) {
+    //             if (isEnabled) {
+    //                 return
+    //             }
+    //             kkAutoLauncher.enable()
+    //         })
+    //         .catch(function (e) {
+    //             log.error('failed to enable auto launch: ', e)
+    //         })
+    // }
 
-    const startURL = isDev
-        ? 'http://localhost:3000'
-        : `file://${path.join(__dirname, '../../build/index.html')}`
-    log.info('startURL: ', startURL)
+    // /**
+    //  * Initial window options
+    //  *
+    //  * more options: https://www.electronjs.org/docs/api/browser-window
+    //  */
+    // windows.mainWindow = new BrowserWindow({
+    //     width: isDev ? 960 : 460,
+    //     height: 780,
+    //     show: false,
+    //     backgroundColor: 'white',
+    //     webPreferences: {
+    //         nodeIntegration: true,
+    //         contextIsolation: false,
+    //         devTools: true
+    //     }
+    // })
 
-    windows.mainWindow.loadURL(startURL)
+    // //TODO remove/ flag on dev
+    // if (isDev) windows.mainWindow.webContents.openDevTools()
 
-    windows.mainWindow.on('closed', (event) => {
-        if (windows.mainWindow) windows.mainWindow.destroy()
-        stop_bridge(shared.eventIPC)
-    })
+    // const startURL = isDev
+    //     ? 'http://localhost:3000'
+    //     : `file://${path.join(__dirname, '../../build/index.html')}`
+    // log.info('startURL: ', startURL)
 
-    windows.mainWindow.once("ready-to-show", () => {
-        shouldShowWindow = true;
-    });
+    // windows.mainWindow.loadURL(startURL)
 
-    db.findOne({ type: 'user' }, (err, doc) => {
-        if (doc) shared.USER = doc.user
-    })
+    // windows.mainWindow.on('closed', (event) => {
+    //     if (windows.mainWindow) windows.mainWindow.destroy()
+    //     stop_bridge(shared.eventIPC)
+    // })
+
+    // windows.mainWindow.once("ready-to-show", () => {
+    //     shouldShowWindow = true;
+    // });
+
+    // db.findOne({ type: 'user' }, (err, doc) => {
+    //     if (doc) shared.USER = doc.user
+    // })
 }
 
 app.setAsDefaultProtocolClient('keepkey')

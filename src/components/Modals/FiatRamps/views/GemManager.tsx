@@ -54,11 +54,19 @@ export const GemManager = () => {
   const [ensAddress, setEnsAddress] = useState<string>('')
   const { state } = useWallet()
   const wallet = state?.wallet
-  const chain = ChainTypes.Ethereum
   const chainAdapterManager = useChainAdapters()
-  const chainAdapter = chainAdapterManager.byChain(chain)
+  const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
 
-  const supportsAddressVerifying = ['Portis', 'KeepKey'].includes(state?.walletInfo?.name ?? '')
+  const [supportsAddressVerifying, setSupportsAddressVerifying] = useState(false)
+
+  useEffect(() => {
+    ;(async () => {
+      const supportsAddressVerifying = ['Portis', 'KeepKey'].includes(
+        (await state?.wallet?.getLabel()) ?? state?.walletInfo?.name ?? ''
+      )
+      setSupportsAddressVerifying(supportsAddressVerifying)
+    })()
+  }, [state?.wallet, state?.walletInfo?.name])
 
   const [loading, setLoading] = useState(false)
   const [buyList, setBuyList] = useState<GemCurrency[]>([])
@@ -109,10 +117,8 @@ export const GemManager = () => {
           flatten(concat(filteredCoinifyList, filteredWyreList)),
           'gem_asset_id'
         )
-          // TODO(gomes): remove when we have Thorchain BTC support
           .map(asset => ({
             ...asset,
-            disabled: asset.ticker === 'BTC',
             cryptoBalance: bnOrZero(balances[asset.ticker]?.crypto),
             fiatBalance: bnOrZero(balances[asset.ticker]?.fiat)
           }))
@@ -200,8 +206,8 @@ export const GemManager = () => {
 
   useEffect(() => {
     ;(async () => {
-      if (!(wallet && chainAdapter)) return
-      const selectedAccountAddress = await chainAdapter.getAddress({
+      if (!(wallet && ethChainAdapter)) return
+      const selectedAccountAddress = await ethChainAdapter.getAddress({
         wallet
       })
       setAddress(selectedAccountAddress)
@@ -209,11 +215,11 @@ export const GemManager = () => {
       !reverseSelectedAccountAddressLookup.error &&
         setEnsAddress(reverseSelectedAccountAddressLookup.name)
     })()
-  }, [setAddress, setEnsAddress, wallet, chainAdapter, chain])
+  }, [setAddress, setEnsAddress, wallet, ethChainAdapter])
 
   const handleVerify = async () => {
-    if (!(wallet && chainAdapter && address)) return
-    const deviceAddress = await chainAdapter.getAddress({
+    if (!(wallet && ethChainAdapter && address)) return
+    const deviceAddress = await ethChainAdapter.getAddress({
       wallet,
       showOnDevice: true
     })

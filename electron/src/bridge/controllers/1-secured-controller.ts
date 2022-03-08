@@ -3,7 +3,7 @@ import { windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { keepkey } from '../';
 import { GenericResponse, SignedTx } from '../responses';
-import { shared } from 'src/shared';
+import { shared } from '../../shared';
 import wait from 'wait-promise'
 
 @Tags('Secured Endpoints')

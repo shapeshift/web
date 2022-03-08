@@ -1,11 +1,3 @@
-/*
-
-    Bridge REST endpoints
-
-
-
- */
-
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { keepkey } from '../';
 
@@ -16,12 +8,13 @@ export interface GenericResponse {
 }
 
 
-@Tags('Client Endpoints')
+@Tags('Secured Endpoints')
 @Route('')
 export class SecuredController extends Controller {
-    @Response(401, "Please provice a valid serviceKey")
+
     @Get('/auth/verify')
     @Security("api_key")
+    @Response(401, "Please provice a valid serviceKey")
     public async verifyAuth(): Promise<GenericResponse> {
         return {
             success: true

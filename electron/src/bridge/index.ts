@@ -8,7 +8,7 @@ import { Device, NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepke
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
 import { windows } from '../main'
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, IpcMainEvent } from 'electron'
 import wait from 'wait-promise'
 import { shared } from '../shared'
 import { updateMenu } from '../tray'
@@ -54,17 +54,20 @@ export const keepkey: {
     STATE: number,
     STATUS: string,
     device: Device | null,
-    transport: TransportDelegate | null
+    transport: TransportDelegate | null,
+    event: IpcMainEvent | null
 } = {
     STATE: 0,
     STATUS: 'preInit',
     device: null,
-    transport: null
+    transport: null,
+    event: null
 }
 
 
-export const start_bridge = async function (event) {
+export const start_bridge = async function (event: IpcMainEvent) {
     let tag = " | start_bridge | "
+    keepkey.event = event
     try {
         try {
             keepkey.device = await adapter.getDevice()

@@ -36,7 +36,7 @@ export const menuTemplate: any = [
     {
         label: 'Start Bridge',
         click: function () {
-            if (!bridgeRunning) start_bridge(shared.eventIPC)
+            if (!bridgeRunning && shared.eventIPC) start_bridge(shared.eventIPC)
             log.info('start bridge!!')
         },
         enabled: true

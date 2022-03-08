@@ -1,3 +1,5 @@
+import { IpcMainEvent } from "electron";
+
 export const shared: {
     USER: {
         online: boolean,
@@ -8,7 +10,7 @@ export const shared: {
         balances: any[]
     },
     SIGNED_TX: any,
-    eventIPC: {},
+    eventIPC: IpcMainEvent | null,
     KEEPKEY_FEATURES: Record<string, unknown>
 } = {
     USER: {
@@ -17,6 +19,6 @@ export const shared: {
         balances: []
     },
     SIGNED_TX: null,
-    eventIPC: {}, 
+    eventIPC: null, 
     KEEPKEY_FEATURES: {}
 }

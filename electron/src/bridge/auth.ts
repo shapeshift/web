@@ -3,7 +3,8 @@ import { db } from "../db";
 
 export function expressAuthentication(
     request: express.Request,
-    securityName: string
+    securityName: string,
+    scopes?: string[]
 ): Promise<any> {
     if (securityName === "api_key") {
         let serviceKey;

@@ -18,6 +18,56 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"Read": {
+				"properties": {
+					"data": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Error": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"reason"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Write": {
+				"properties": {
+					"output": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"output"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"WriteBody": {
+				"properties": {
+					"data": {}
+				},
+				"required": [
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Status": {
 				"properties": {
 					"success": {
@@ -114,7 +164,7 @@
 					}
 				},
 				"tags": [
-					"Client Endpoints"
+					"Secured Endpoints"
 				],
 				"security": [
 					{
@@ -122,6 +172,78 @@
 					}
 				],
 				"parameters": []
+			}
+		},
+		"/exchange/device": {
+			"get": {
+				"operationId": "ReadDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/Read"
+										},
+										{
+											"$ref": "#/components/schemas/Error"
+										}
+									]
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Unable to communicate with device"
+					}
+				},
+				"tags": [
+					"Raw KeepKey Device I/0 Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "WriteDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/Write"
+										},
+										{
+											"$ref": "#/components/schemas/Error"
+										}
+									]
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Unable to communicate with device"
+					}
+				},
+				"tags": [
+					"Raw KeepKey Device I/0 Endpoints"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/WriteBody"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/status": {

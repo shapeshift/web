@@ -130,8 +130,8 @@
 		"securitySchemes": {
 			"api_key": {
 				"type": "apiKey",
-				"name": "serviceKey",
-				"in": "headers"
+				"name": "authorization",
+				"in": "header"
 			}
 		}
 	},
@@ -172,6 +172,426 @@
 					}
 				],
 				"parameters": []
+			}
+		},
+		"/getPublicKeys": {
+			"post": {
+				"operationId": "GetPublicKeys",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/btcGetAddress": {
+			"post": {
+				"operationId": "BtcGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/ethGetAddress": {
+			"post": {
+				"operationId": "EthGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/thorchainGetAddress": {
+			"post": {
+				"operationId": "ThorchainGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/osmosisGetAddress": {
+			"post": {
+				"operationId": "OsmosisGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/binanceGetAddress": {
+			"post": {
+				"operationId": "BinanceGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/cosmosGetAddress": {
+			"post": {
+				"operationId": "CosmosGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/btcSignTx": {
+			"post": {
+				"operationId": "BtcSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/thorchainSignTx": {
+			"post": {
+				"operationId": "ThorchainSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/cosmosSignTx": {
+			"post": {
+				"operationId": "CosmosSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/osmosisSignTx": {
+			"post": {
+				"operationId": "OsmosisSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/ethSignTx": {
+			"post": {
+				"operationId": "EthSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
 			}
 		},
 		"/exchange/device": {
@@ -303,6 +723,9 @@
 								}
 							}
 						}
+					},
+					"500": {
+						"description": ""
 					}
 				},
 				"tags": [

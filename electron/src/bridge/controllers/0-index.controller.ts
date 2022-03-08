@@ -1,64 +1,13 @@
-/*
-
-    Bridge REST endpoints
-
-
-
- */
 import { ipcMain } from 'electron';
 import { uniqueId } from 'lodash';
 import { db } from '../../db';
 import { windows } from '../../main';
 import { shared } from '../../shared';
 
-import { Body, Controller, Get, Post, Header, Route, Tags } from 'tsoa';
+import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse } from 'tsoa';
 import { keepkey } from '../';
+import { PairBody, PairResponse, Status } from '../responses';
 
-
-export interface Status {
-    success: boolean,
-    status: string,
-    state: number
-}
-
-export interface SignedTx {
-    success: boolean,
-    status: string,
-    signedTx: any
-}
-
-//PairResponse
-export interface GenericResponse {
-    success: boolean
-}
-
-//PairResponse
-export interface PairResponse {
-    success: boolean,
-    reason: string
-}
-
-export interface PairBody {
-    serviceName: string,
-    serviceImageUrl: string
-}
-
-export interface Pubkey {
-    pubkey: string
-    caip: string
-}
-
-export interface User {
-    online: boolean,
-    accounts: any,
-    balances: any
-}
-
-export interface Error {
-    success: boolean
-    tag: string
-    e: any
-}
 
 export class ApiError extends Error {
     private statusCode: number;
@@ -90,6 +39,7 @@ export class IndexController extends Controller {
         return shared.KEEPKEY_FEATURES
     }
 
+    @Response(500)
     @Post('/pair')
     public async pair(@Body() body: PairBody, @Header('authorization') serviceKey: string): Promise<PairResponse> {
         return new Promise<PairResponse>((resolve, reject) => {
@@ -97,6 +47,12 @@ export class IndexController extends Controller {
                 this.setStatus(500)
                 return resolve({ success: false, reason: 'Window not open' })
             }
+
+            if (!body.serviceImageUrl || !body.serviceName) {
+                this.setStatus(500)
+                return resolve({ success: false, reason: 'Missing body parameters' })
+            }
+
             const nonce = uniqueId()
 
             windows.mainWindow.webContents.send('@modal/pair', {

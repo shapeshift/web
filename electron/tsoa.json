@@ -28,8 +28,8 @@
     "securityDefinitions": {
       "api_key": {
         "type": "apiKey",
-        "name": "serviceKey",
-        "in": "headers"
+        "name": "authorization",
+        "in": "header"
       }
     }
   },

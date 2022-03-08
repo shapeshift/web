@@ -5,7 +5,7 @@ export function expressAuthentication(
     request: express.Request,
     securityName: string,
     scopes?: string[]
-): Promise<any> {
+) {
     if (securityName === "api_key") {
         let serviceKey;
         if (request.headers && request.headers.authorization) {
@@ -17,13 +17,16 @@ export function expressAuthentication(
             return Promise.reject({ success: false, reason: 'Please provice a valid serviceKey' })
         }
 
-        db.findOne({ type: 'service', serviceKey }, (err, doc) => {
-            if (!doc) {
-                return Promise.reject({ success: false, reason: 'Please provice a valid serviceKey' })
-            } else {
-                Promise.resolve()
-            }
-        })
+        return Promise.resolve(new Promise<any>((resolve, reject) => {
+            db.findOne({ type: 'service', serviceKey }, (err, doc) => {
+                if (!doc) {
+                    return reject({ success: false, reason: 'Please provice a valid serviceKey' })
+                } else {
+                    return resolve({})
+                }
+            })
+        }))
+
     }
     return Promise.reject({ success: false, reason: 'Please provice a valid serviceKey' })
 }

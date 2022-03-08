@@ -1,24 +1,7 @@
 import log from 'electron-log';
 import { Body, Controller, Get, Post, Route, Tags, Security, Response } from 'tsoa';
 import { keepkey } from '..';
-
-
-export interface Read {
-    data: string
-}
-
-export interface Write {
-    output: string
-}
-
-export interface WriteBody {
-    data: any
-}
-
-export interface Error {
-    success: boolean
-    reason: string
-}
+import { Read, Error, WriteBody, Write } from '../responses';
 
 
 //route

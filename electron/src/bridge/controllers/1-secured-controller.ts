@@ -3,7 +3,7 @@ import { windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { keepkey } from '../';
 import { GenericResponse, SignedTx } from '../responses';
-import { shared } from '../../shared';
+import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
 
 @Tags('Secured Endpoints')
@@ -19,6 +19,13 @@ export class SecuredController extends Controller {
         return {
             success: true
         }
+    }
+
+    @Get('/user')
+    @Security("api_key")
+    @Response(401, "Please provice a valid serviceKey")
+    public async user(): Promise<userType> {
+        return shared.USER
     }
 
     @Post('/getPublicKeys')
@@ -193,7 +200,7 @@ export class SecuredController extends Controller {
     @Post('/sign')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async sign(@Body() body: any): Promise<SignedTx> {
+    public async signTransaction(@Body() body: any): Promise<SignedTx> {
         return new Promise<SignedTx>(async (resolve, reject) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed() || !keepkey.event) return reject()
 

@@ -18,6 +18,39 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"userType": {
+				"properties": {
+					"balances": {
+						"items": {},
+						"type": "array"
+					},
+					"accounts": {
+						"items": {
+							"properties": {
+								"caip": {
+									"type": "string"
+								},
+								"pubkey": {}
+							},
+							"required": [
+								"caip",
+								"pubkey"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"online": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"balances",
+					"accounts",
+					"online"
+				],
+				"type": "object"
+			},
 			"SignedTx": {
 				"properties": {
 					"success": {
@@ -173,6 +206,35 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/GenericResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Please provice a valid serviceKey"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/user": {
+			"get": {
+				"operationId": "User",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/userType"
 								}
 							}
 						}
@@ -614,7 +676,7 @@
 		},
 		"/sign": {
 			"post": {
-				"operationId": "Sign",
+				"operationId": "SignTransaction",
 				"responses": {
 					"200": {
 						"description": "Ok",

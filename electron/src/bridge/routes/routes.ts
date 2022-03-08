@@ -24,6 +24,11 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "userType": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"balances":{"dataType":"array","array":{"dataType":"any"},"required":true},"accounts":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"caip":{"dataType":"string","required":true},"pubkey":{"dataType":"any","required":true}}},"required":true},"online":{"dataType":"boolean","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "SignedTx": {
         "dataType": "refObject",
         "properties": {
@@ -127,6 +132,29 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.verifyAuth.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/user',
+            authenticateMiddleware([{"api_key":[]}]),
+
+            function SecuredController_user(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new SecuredController();
+
+
+              const promise = controller.user.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -424,7 +452,7 @@ export function RegisterRoutes(app: express.Router) {
         app.post('/sign',
             authenticateMiddleware([{"api_key":[]}]),
 
-            function SecuredController_sign(request: any, response: any, next: any) {
+            function SecuredController_signTransaction(request: any, response: any, next: any) {
             const args = {
                     body: {"in":"body","name":"body","required":true,"dataType":"any"},
             };
@@ -438,7 +466,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new SecuredController();
 
 
-              const promise = controller.sign.apply(controller, validatedArgs as any);
+              const promise = controller.signTransaction.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

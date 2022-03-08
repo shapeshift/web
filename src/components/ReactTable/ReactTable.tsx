@@ -49,12 +49,12 @@ export const ReactTable = ({ columns, data, initialState }: ReactTableProps) => 
               >
                 <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
                   {column.render('Header')}
-                  <Flex ml={2}>
+                  <Flex>
                     {column.isSorted ? (
                       column.isSortedDesc ? (
-                        <ArrowDownIcon aria-label='sorted descending' />
+                        <ArrowDownIcon ml={2} aria-label='sorted descending' />
                       ) : (
-                        <ArrowUpIcon aria-label='sorted ascending' />
+                        <ArrowUpIcon ml={2} aria-label='sorted ascending' />
                       )
                     ) : null}
                   </Flex>

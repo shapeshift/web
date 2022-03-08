@@ -9,7 +9,7 @@ import { ConnectModal } from '../../components/ConnectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { XDEFIConfig } from '../config'
 
-export interface XDeFiSetupProps
+export interface XDEFISetupProps
   extends RouteComponentProps<
     {},
     any, // history
@@ -18,7 +18,7 @@ export interface XDeFiSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-export const XDeFiConnect = ({ history }: XDeFiSetupProps) => {
+export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
   const { dispatch, state } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +59,7 @@ export const XDeFiConnect = ({ history }: XDeFiSetupProps) => {
           throw new Error('walletProvider.xdefi.errors.network')
         }
 
-        // Hack to handle XDeFi account changes
+        // Hack to handle XDEFI account changes
         //TODO: handle this properly
         const resetState = () => dispatch({ type: WalletActions.RESET_STATE })
         provider?.on?.('accountsChanged', resetState)
@@ -82,7 +82,7 @@ export const XDeFiConnect = ({ history }: XDeFiSetupProps) => {
         history.push('/xdefi/success')
       } catch (e: any) {
         if (e?.message?.startsWith('walletProvider.')) {
-          console.error('XDeFi Connect: There was an error initializing the wallet', e)
+          console.error('XDEFI Connect: There was an error initializing the wallet', e)
           setErrorLoading(e?.message)
         } else {
           setErrorLoading('walletProvider.xdefi.errors.unknown')

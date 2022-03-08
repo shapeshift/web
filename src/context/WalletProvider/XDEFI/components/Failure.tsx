@@ -1,6 +1,6 @@
 import { FailureModal } from 'context/WalletProvider/components/FailureModal'
 
-export const XDeFiFailure = () => {
+export const XDEFIFailure = () => {
   return (
     <FailureModal
       headerText={'walletProvider.xdefi.failure.header'}

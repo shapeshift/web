@@ -1,8 +1,8 @@
 import { XDeFiAdapter } from '@shapeshiftoss/hdwallet-xdefi'
-import { XDEFIcon } from 'components/Icons/XDEFIcon'
+import { XDEFIIcon } from 'components/Icons/XDEFIIcon'
 
 export const XDEFIConfig = {
   adapter: XDeFiAdapter,
-  icon: XDEFIcon,
+  icon: XDEFIIcon,
   name: 'XDeFi',
 }

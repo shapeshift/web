@@ -760,23 +760,23 @@
     },
     "xdefi": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with XDeFi",
-        "connectFailure": "Unable to connect XDeFi wallet",
-        "network": "XDeFi isn't set to Ethereum Mainnet",
-        "multipleWallets": "Detected Ethereum provider is not XDeFi. Do you have multiple wallets installed?"
+        "unknown": "An unexpected error occurred communicating with XDEFI",
+        "connectFailure": "Unable to connect XDEFI wallet",
+        "network": "XDEFI isn't set to Ethereum Mainnet",
+        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed?"
       },
       "connect": {
-        "header": "Pair XDeFi",
-        "body": "Click Pair and login to XDeFi from the popup window",
+        "header": "Pair XDEFI",
+        "body": "Click Pair and login to XDEFI from the popup window",
         "button": "Pair"
       },
       "failure": {
         "header": "Error",
-        "body": "Unable to connect XDeFi wallet"
+        "body": "Unable to connect XDEFI wallet"
       },
       "redirect": {
-        "header": "Open in XDeFi App",
-        "body": "Click to open ShapeShift dashboard in XDeFi",
+        "header": "Open in XDEFI App",
+        "body": "Click to open ShapeShift dashboard in XDEFI",
         "button": "Open"
       }
     },
@@ -794,8 +794,11 @@
       },
       "import": {
         "header": "Import your wallet",
-        "body": "Enter your seed phrase to import an existing wallet",
-        "button": "Next"
+        "body": "Enter your Secret Recovery Phrase to import an existing wallet",
+        "button": "Next",
+        "secretRecoveryPhraseError": "Enter your Secret Recovery Phrase with a single space in between words. Omit any commas, returns, or any additional characters.",
+        "secretRecoveryPhraseRequired": "Secret Recovery Phrase is required",
+        "secretRecoveryPhraseTooShort": "Secret Recovery Phrase is too short"
       },
       "password": {
         "header": "Enter Your Password",
@@ -804,7 +807,7 @@
         "connect": "Connect to another wallet"
       },
       "create": {
-        "header": "Your Backup Seed Phrase",
+        "header": "Your Secret Recovery Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
         "button": "Next",
         "hideWords": "Hide Words",
@@ -812,7 +815,7 @@
       },
       "start": {
         "header": "ShapeShift Wallet",
-        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a backup phrase, or create a new wallet.",
+        "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a Secret Recovery Phrase, or create a new wallet.",
         "import": "Import a wallet",
         "create": "Create a new wallet",
         "load": "Saved wallets"
@@ -824,7 +827,7 @@
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {
-        "header": "Verify Your Backup Seed Phrase",
+        "header": "Verify Your Secret Recovery Phrase",
         "body": "Which of these is the",
         "body2": " word",
         "body3": "in your secret phrase.",

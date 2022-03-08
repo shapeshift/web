@@ -25,6 +25,7 @@ import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ensReverseLookup } from 'lib/ens'
 import { selectPortfolioCryptoHumanBalancesBySymbol } from 'state/slices/selectors'
 
@@ -105,10 +106,14 @@ export const GemManager = () => {
         )
           .map(result => ({
             ...result,
-            cryptoBalance: Number(balances[result.ticker]?.crypto) || 0,
-            fiatBalance: Number(balances[result.ticker]?.fiat) || 0
+            cryptoBalance: bnOrZero(balances[result.ticker]?.crypto),
+            fiatBalance: bnOrZero(balances[result.ticker]?.fiat)
           }))
-          .sort(key === 'source' ? (a, b) => b.fiatBalance - a.fiatBalance : undefined)
+          .sort((a, b) =>
+            key === 'source' && (a.fiatBalance || b.fiatBalance)
+              ? b.fiatBalance.minus(a.fiatBalance).toNumber()
+              : a.name.localeCompare(b.name)
+          )
         return results
       },
     [balances]

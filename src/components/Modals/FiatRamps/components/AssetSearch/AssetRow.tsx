@@ -1,5 +1,6 @@
 import { Box, Button, Text, useColorModeValue } from '@chakra-ui/react'
 import { ListChildComponentProps } from 'react-window'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
 import { FiatRampAction, GemCurrency } from '../../FiatRamps'
@@ -33,9 +34,10 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
           </Text>
         </Box>
       </Box>
-      {type === FiatRampAction.Sell && (
-        <Box>
-          <Text lineHeight={1}>{asset.cryptoBalance}</Text>
+      {type === FiatRampAction.Sell && asset.cryptoBalance && asset.fiatBalance && (
+        <Box textAlign='right'>
+          <Amount.Crypto symbol={asset.ticker} value={asset.cryptoBalance.toPrecision()} />
+          <Amount.Fiat value={asset.fiatBalance.toPrecision()} />
         </Box>
       )}
     </Button>

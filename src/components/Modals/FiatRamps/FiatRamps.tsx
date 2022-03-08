@@ -1,6 +1,7 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/modal'
 import { MemoryRouter } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { FiatRampsRouter } from './FiatRampsRouter'
 
@@ -31,8 +32,8 @@ export type GemCurrency = {
   gem_asset_id: string
   name: string
   ticker: string
-  cryptoBalance?: number
-  fiatBalance?: number
+  cryptoBalance?: BigNumber
+  fiatBalance?: BigNumber
 }
 
 export enum FiatRampsRoutes {

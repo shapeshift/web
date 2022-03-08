@@ -9,7 +9,8 @@ import { TransactionContract } from 'components/TransactionHistoryRows/Transacti
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
-import { Direction, TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
+import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
@@ -17,7 +18,7 @@ dayjs.extend(localizedFormat)
 export type TransactionRowProps = {
   txDetails: TxDetails
   showDateAndGuide?: boolean
-  compactMode?: boolean
+  compactMode: boolean
   isOpen: boolean
   toggleOpen: Function
 }
@@ -51,16 +52,15 @@ export const TransactionRow = ({
     }
     switch (txDetails.type || txDetails.direction) {
       case TxType.Send:
-      case Direction.Outbound:
         return <TransactionSend {...props} />
       case TxType.Receive:
-      case Direction.Inbound:
         return <TransactionReceive {...props} />
       case TradeType.Trade:
         return <TransactionTrade {...props} />
-      case Direction.InPlace:
-      default:
+      case TxType.Contract:
         return <TransactionContract {...props} />
+      default:
+        return <UnknownTransaction {...props} />
     }
   }
   return (

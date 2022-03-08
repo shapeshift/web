@@ -31,7 +31,7 @@ export const TransactionReceive = ({
         assets={[
           {
             symbol: txDetails.symbol,
-            amount: txDetails.value,
+            amount: txDetails.value ?? '0',
             precision: txDetails.precision,
             currentPrice: marketData.price
           }
@@ -39,7 +39,7 @@ export const TransactionReceive = ({
         fee={{
           symbol: txDetails.feeAsset?.symbol ?? '',
           amount: txDetails.tx.fee?.value ?? '0',
-          precision: txDetails.feeAsset?.precision,
+          precision: txDetails.feeAsset?.precision ?? 0,
           // receive type does not have fee
           currentPrice: '0'
         }}
@@ -47,11 +47,15 @@ export const TransactionReceive = ({
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
       />
-      <TransactionDetailsContainer isOpen={isOpen}>
-        <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+      <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
+        <TransactionId
+          explorerTxLink={txDetails.explorerTxLink}
+          txid={txDetails.tx.txid}
+          compactMode={compactMode}
+        />
         <Row title='youReceived'>
           <Amount
-            value={txDetails.value}
+            value={txDetails.value ?? '0'}
             precision={txDetails.precision}
             symbol={txDetails.symbol}
           />
@@ -66,8 +70,8 @@ export const TransactionReceive = ({
         <Row title='minerFee'>
           <Amount
             value={txDetails.tx.fee?.value ?? '0'}
-            precision={txDetails.feeAsset?.precision}
-            symbol={txDetails.feeAsset?.symbol}
+            precision={txDetails.feeAsset?.precision ?? 0}
+            symbol={txDetails.feeAsset?.symbol ?? ''}
           />
         </Row>
         <Row title='status'>

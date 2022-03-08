@@ -12,7 +12,7 @@ import { TransactionId } from './TransactionDetails/TransactionId'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import { TransactionRowProps } from './TransactionRow'
 
-export const TransactionContract = ({
+export const UnknownTransaction = ({
   txDetails,
   showDateAndGuide,
   compactMode,
@@ -46,14 +46,10 @@ export const TransactionContract = ({
   return (
     <>
       <TransactionGenericRow
-        type={txDetails.direction || ''}
+        type={''}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
-        title={
-          txDetails.tx.data
-            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.tx.data?.method}`
-            : 'transactionRow.unknown'
-        }
+        title='transactionRow.unknown'
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
         assets={assets}

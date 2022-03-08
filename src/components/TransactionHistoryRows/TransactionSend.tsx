@@ -21,7 +21,7 @@ export const TransactionSend = ({
     selectMarketDataById(state, txDetails.tx.transfers[0].caip19)
   )
   const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.feeAsset.caip19)
+    txDetails.feeAsset ? selectMarketDataById(state, txDetails.feeAsset?.caip19) : null
   )
   return (
     <>
@@ -34,7 +34,7 @@ export const TransactionSend = ({
         assets={[
           {
             symbol: txDetails.symbol,
-            amount: txDetails.value,
+            amount: txDetails.value ?? '0',
             precision: txDetails.precision,
             currentPrice: marketData.price
           }
@@ -42,18 +42,22 @@ export const TransactionSend = ({
         fee={{
           symbol: txDetails.feeAsset?.symbol ?? '',
           amount: txDetails.tx.fee?.value ?? '0',
-          precision: txDetails.feeAsset.precision,
-          currentPrice: feeAssetMarketData.price
+          precision: txDetails.feeAsset?.precision ?? 0,
+          currentPrice: feeAssetMarketData?.price ?? undefined
         }}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
       />
-      <TransactionDetailsContainer isOpen={isOpen}>
-        <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+      <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
+        <TransactionId
+          explorerTxLink={txDetails.explorerTxLink}
+          txid={txDetails.tx.txid}
+          compactMode={compactMode}
+        />
         <Row title='youSent'>
           <Amount
-            value={txDetails.value}
+            value={txDetails.value ?? '0'}
             precision={txDetails.precision}
             symbol={txDetails.symbol}
           />
@@ -65,13 +69,15 @@ export const TransactionSend = ({
             ens={txDetails.ensTo}
           />
         </Row>
-        <Row title='minerFee'>
-          <Amount
-            value={txDetails.tx.fee?.value ?? '0'}
-            precision={txDetails.feeAsset.precision}
-            symbol={txDetails.feeAsset.symbol}
-          />
-        </Row>
+        {txDetails.feeAsset && (
+          <Row title='minerFee'>
+            <Amount
+              value={txDetails.tx.fee?.value ?? '0'}
+              precision={txDetails.feeAsset.precision}
+              symbol={txDetails.feeAsset.symbol}
+            />
+          </Row>
+        )}
         <Row title='status'>
           <Status status={txDetails.tx.status} />
         </Row>

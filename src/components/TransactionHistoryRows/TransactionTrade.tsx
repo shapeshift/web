@@ -28,6 +28,21 @@ export const TransactionTrade = ({
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, txDetails.tx.fee?.caip19 ?? '')
   )
+  let assets = []
+  if (txDetails.sellAsset)
+    assets.push({
+      symbol: txDetails.sellAsset.symbol,
+      amount: txDetails.sellTx?.value ?? '0',
+      precision: txDetails.sellAsset.precision,
+      currentPrice: sourceMarketData?.price
+    })
+  if (txDetails.buyAsset)
+    assets.push({
+      symbol: txDetails.buyAsset.symbol,
+      amount: txDetails.buyTx?.value ?? '0',
+      precision: txDetails.buyAsset.precision,
+      currentPrice: destinationMarketData?.price
+    })
   return (
     <>
       <TransactionGenericRow
@@ -36,32 +51,23 @@ export const TransactionTrade = ({
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
-        assets={[
-          {
-            symbol: txDetails.sellAsset.symbol,
-            amount: txDetails.sellTx?.value ?? '0',
-            precision: txDetails.sellAsset.precision,
-            currentPrice: sourceMarketData.price
-          },
-          {
-            symbol: txDetails.buyAsset.symbol,
-            amount: txDetails.buyTx?.value ?? '0',
-            precision: txDetails.buyAsset.precision,
-            currentPrice: destinationMarketData.price
-          }
-        ]}
+        assets={assets}
         fee={{
           symbol: txDetails.feeAsset?.symbol ?? '',
           amount: txDetails.tx.fee?.value ?? '0',
-          precision: txDetails.feeAsset.precision,
+          precision: txDetails.feeAsset?.precision ?? 0,
           currentPrice: feeAssetMarketData.price
         }}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
       />
-      <TransactionDetailsContainer isOpen={isOpen}>
-        <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+      <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
+        <TransactionId
+          explorerTxLink={txDetails.explorerTxLink}
+          txid={txDetails.tx.txid}
+          compactMode={compactMode}
+        />
         {txDetails.tx.tradeDetails && (
           <Row title='orderRoute'>
             <Text
@@ -76,13 +82,15 @@ export const TransactionTrade = ({
             <Text value={txDetails.tx.tradeDetails.dexName} />
           </Row>
         )}
-        <Row title='youSent'>
-          <Amount
-            value={txDetails.sellTx?.value ?? '0'}
-            precision={txDetails.sellAsset.precision}
-            symbol={txDetails.sellAsset.symbol}
-          />
-        </Row>
+        {txDetails.sellAsset && (
+          <Row title='youSent'>
+            <Amount
+              value={txDetails.sellTx?.value ?? '0'}
+              precision={txDetails.sellAsset.precision}
+              symbol={txDetails.sellAsset.symbol}
+            />
+          </Row>
+        )}
         <Row title='sentTo'>
           <Address
             explorerTxLink={txDetails.explorerTxLink}
@@ -90,20 +98,24 @@ export const TransactionTrade = ({
             ens={txDetails.ensTo}
           />
         </Row>
-        <Row title='minerFee'>
-          <Amount
-            value={txDetails.tx.fee?.value ?? '0'}
-            precision={txDetails.feeAsset.precision}
-            symbol={txDetails.feeAsset.symbol}
-          />
-        </Row>
-        <Row title='youReceived'>
-          <Amount
-            value={txDetails.buyTx?.value ?? '0'}
-            precision={txDetails.buyAsset.precision}
-            symbol={txDetails.buyAsset.symbol}
-          />
-        </Row>
+        {txDetails.feeAsset && (
+          <Row title='minerFee'>
+            <Amount
+              value={txDetails.tx.fee?.value ?? '0'}
+              precision={txDetails.feeAsset.precision}
+              symbol={txDetails.feeAsset.symbol}
+            />
+          </Row>
+        )}
+        {txDetails.buyAsset && (
+          <Row title='youReceived'>
+            <Amount
+              value={txDetails.buyTx?.value ?? '0'}
+              precision={txDetails.buyAsset.precision}
+              symbol={txDetails.buyAsset.symbol}
+            />
+          </Row>
+        )}
         <Row title='receivedFrom'>
           <Address
             explorerTxLink={txDetails.explorerTxLink}

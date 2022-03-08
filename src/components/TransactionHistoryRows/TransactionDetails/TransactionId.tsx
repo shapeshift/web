@@ -7,13 +7,15 @@ import { Row } from './Row'
 
 export const TransactionId = ({
   explorerTxLink,
-  txid
+  txid,
+  compactMode
 }: {
   explorerTxLink: string
   txid: string
+  compactMode: boolean
 }) => {
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
-  return isLargerThanLg ? (
+  return isLargerThanLg && !compactMode ? (
     <Flex flex={1} flexDir='column' mb={2}>
       <Text translation='transactionHistory.txid' color='gray.600' />
       <Link isExternal color='blue.200' href={`${explorerTxLink}${txid}`}>

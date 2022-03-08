@@ -1,8 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
 import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
-import { BsQuestion } from 'react-icons/bs'
-import { FaExchangeAlt, FaThumbsUp } from 'react-icons/fa'
+import { FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { IoIosArrowRoundForward } from 'react-icons/io'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -30,7 +29,7 @@ const TransactionIcon = ({ type }: { type: string }) => {
     case Direction.InPlace:
       return <FaThumbsUp />
     default:
-      return <BsQuestion />
+      return <FaStickyNote />
   }
 }
 
@@ -43,8 +42,8 @@ type TransactionRowAsset = {
 
 type TransactionGenericRowProps = {
   type: string
-  unknown?: boolean
   symbol: string
+  title?: string
   showDateAndGuide?: boolean
   compactMode?: boolean
   assets: TransactionRowAsset[]
@@ -61,7 +60,7 @@ const Guide = ({ title }: { title: string }) => (
 
 export const TransactionGenericRow = ({
   type,
-  unknown,
+  title,
   showDateAndGuide,
   assets,
   fee,
@@ -90,9 +89,7 @@ export const TransactionGenericRow = ({
                 lineHeight='1'
                 mb={1}
                 translation={
-                  unknown
-                    ? 'transactionHistory.unknownType'
-                    : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
+                  title ? title : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
                 }
               />
               <TransactionTime blockTime={blockTime} />

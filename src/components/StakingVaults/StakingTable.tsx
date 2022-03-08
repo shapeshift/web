@@ -32,9 +32,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Cell: ({ row }: { row: RowProps }) => (
           <AssetCell
             assetId={row.original.assetId}
-            provider={row.original.provider}
+            subText={row.original.provider}
             showTeaser={showTeaser}
-            version={row.original.version}
+            postFix={`(${row.original.version})`}
             onClick={() => onClick(row.original)}
           />
         ),

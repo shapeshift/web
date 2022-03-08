@@ -53,6 +53,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "priceChange": "Price Change",
       "allocation": "Allocation",
       "empty": {
         "title": "Cricket noises...",
@@ -129,8 +130,10 @@
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",
     "validator": "Validator",
+    "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
     "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
+    "unbondInfoItWillTakeShort": "It will take %{unbondingDays} days to unstake your tokens",
     "confirmAndBroadcast": "Confirm & broadcast",
     "averageApr": "Average APR",
     "estimatedYearlyRewards": "Estimated Yearly Rewards",
@@ -238,7 +241,8 @@
       "thor": {
         "transferOut": "Transfer out"
       }
-    }
+    },
+    "unknown": "Transaction"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
@@ -316,7 +320,7 @@
         }
       }
     },
-   "stake": {
+    "stake": {
       "txFees": {
         "low": "Low",
         "medium": "Medium",

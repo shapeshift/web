@@ -43,7 +43,10 @@ describe('The Dashboard', () => {
     // cy.getBySel('trade-rate-quote').should('have.text', '1 FOX = 0.00011 ETH') // TODO - mock response and test here
     cy.getBySel('trade-preview-button').should('be.disabled')
     cy.getBySel('token-row-sell-max-button').click()
-    cy.getBySel('trade-preview-button').should('have.text', 'Not enough ETH to cover gas')
+    // TODO@0xApotheosis - this timeout won't be necessary once external request bounty complete
+    cy.getBySel('trade-preview-button').should('have.text', 'Not enough ETH to cover gas', {
+      timeout: 30000
+    })
     // TODO - We are now at the approval screen - test the rest of the flow
   })
 

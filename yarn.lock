@@ -4004,10 +4004,10 @@
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/market-service@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-2.0.0.tgz#41276af5d14754400e41a9ae82cb75afced4275e"
-  integrity sha512-cWU3hUEFizKdSodBc4nUEKS8ORcpkCd0H1N4H+km0HaVHOhTF5rdBrbq7HAj2bXcNoT2MchKYCrsMn/VGSufRQ==
+"@shapeshiftoss/market-service@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-2.0.2.tgz#37e9dee50478368f3a5b2d807da0f81e9b42df37"
+  integrity sha512-z+aP76Vl4ETTFDhOg+3MbqUpoAWVY42mACO0G3j+aiCog5UyO83sMqO0b4wn+4Jm5IGp3WlnpfnaWFPnVxsmtA==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
     "@yfi/sdk" "^1.0.29"

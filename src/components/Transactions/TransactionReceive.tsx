@@ -57,13 +57,15 @@ export const TransactionReceive = ({
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              <Amount.Crypto
-                color='green.500'
-                value={fromBaseUnit(txDetails.value, txDetails.precision)}
-                symbol={txDetails.symbol}
-                maximumFractionDigits={6}
-                prefix=''
-              />
+              {txDetails.value && (
+                <Amount.Crypto
+                  color='green.500'
+                  value={fromBaseUnit(txDetails.value, txDetails.precision)}
+                  symbol={txDetails.symbol}
+                  maximumFractionDigits={6}
+                  prefix=''
+                />
+              )}
             </Flex>
           </Flex>
         </Flex>

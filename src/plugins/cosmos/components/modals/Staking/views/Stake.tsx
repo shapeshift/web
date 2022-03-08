@@ -27,7 +27,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakingAction } from '../Staking'
+import { StakeRoutes, StakingAction } from '../Staking'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -97,7 +97,7 @@ export const Stake = ({
   const memoryHistory = useHistory()
 
   const onSubmit = (_: any) => {
-    memoryHistory.push('stake/confirm', {
+    memoryHistory.push(StakeRoutes.StakeConfirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount),
       assetId,
       fiatRate: bnOrZero(marketData.price),

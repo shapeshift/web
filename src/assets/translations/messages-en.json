@@ -53,6 +53,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "priceChange": "Price Change",
       "allocation": "Allocation",
       "empty": {
         "title": "Cricket noises...",
@@ -317,7 +318,7 @@
         }
       }
     },
-   "stake": {
+    "stake": {
       "txFees": {
         "low": "Low",
         "medium": "Medium",

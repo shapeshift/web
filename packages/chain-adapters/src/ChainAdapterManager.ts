@@ -25,17 +25,17 @@ export class ChainAdapterManager {
       ([type, { httpUrl, wsUrl }]) => {
         switch (type) {
           case ChainTypes.Ethereum: {
-            const http = new unchained.ethereum.api.V1Api(
-              new unchained.ethereum.api.Configuration({ basePath: httpUrl })
+            const http = new unchained.ethereum.V1Api(
+              new unchained.ethereum.Configuration({ basePath: httpUrl })
             )
-            const ws = new unchained.ethereum.ws.Client(wsUrl)
+            const ws = new unchained.ws.Client<unchained.SequencedTx>(wsUrl)
             return this.addChain(type, () => new ethereum.ChainAdapter({ providers: { http, ws } }))
           }
           case ChainTypes.Bitcoin: {
-            const http = new unchained.bitcoin.api.V1Api(
-              new unchained.bitcoin.api.Configuration({ basePath: httpUrl })
+            const http = new unchained.bitcoin.V1Api(
+              new unchained.bitcoin.Configuration({ basePath: httpUrl })
             )
-            const ws = new unchained.bitcoin.ws.Client(wsUrl)
+            const ws = new unchained.ws.Client<unchained.SequencedTx>(wsUrl)
             return this.addChain(
               type,
               () => new bitcoin.ChainAdapter({ providers: { http, ws }, coinName: 'Bitcoin' })
@@ -43,12 +43,13 @@ export class ChainAdapterManager {
           }
 
           case ChainTypes.Cosmos: {
-            const http = new unchained.cosmos.api.V1Api(
-              new unchained.cosmos.api.Configuration({ basePath: httpUrl })
+            const http = new unchained.cosmos.V1Api(
+              new unchained.cosmos.Configuration({ basePath: httpUrl })
             )
+            const ws = new unchained.ws.Client<unchained.cosmos.Tx>(wsUrl)
             return this.addChain(
               type,
-              () => new cosmos.ChainAdapter({ providers: { http }, coinName: 'Cosmos' })
+              () => new cosmos.ChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
             )
           }
           default:

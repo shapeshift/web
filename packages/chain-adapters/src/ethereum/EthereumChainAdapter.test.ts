@@ -7,7 +7,7 @@
 import { ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import { ethereum as unchainedEthereum } from '@shapeshiftoss/unchained-client'
+import unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
 import { numberToHex } from 'web3-utils'
 
@@ -110,14 +110,14 @@ describe('EthereumChainAdapter', () => {
   })
 
   const makeChainAdapterArgs = (overrideArgs?: {
-    providers?: { http: unchainedEthereum.api.V1Api }
+    providers?: { http: unchained.ethereum.V1Api }
     chainId?: string
   }): ethereum.ChainAdapterArgs =>
     merge(
       {
         providers: {
-          http: {} as unknown as unchainedEthereum.api.V1Api,
-          ws: {} as unchainedEthereum.ws.Client
+          http: {} as unknown as unchained.ethereum.V1Api,
+          ws: {} as unchained.ws.Client<unchained.SequencedTx>
         }
       },
       overrideArgs
@@ -153,7 +153,7 @@ describe('EthereumChainAdapter', () => {
       const httpProvider = {
         estimateGas: jest.fn().mockResolvedValue(makeEstimateGasMockedResponse()),
         getGasFees: jest.fn().mockResolvedValue(makeGetGasFeesMockedResponse())
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
 
       const adapter = new ethereum.ChainAdapter(args)
@@ -307,7 +307,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
@@ -336,7 +336,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
@@ -400,7 +400,7 @@ describe('EthereumChainAdapter', () => {
 
       const httpProvider = {
         sendTx: jest.fn().mockResolvedValue({ data: expectedResult })
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -436,7 +436,7 @@ describe('EthereumChainAdapter', () => {
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' })
           )
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -473,7 +473,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' }))
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -504,7 +504,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', erc20Balance: '424242' }))
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -530,7 +530,7 @@ describe('EthereumChainAdapter', () => {
         getAccount: jest
           .fn<any, any>()
           .mockResolvedValue(makeGetAccountMockResponse({ balance, erc20Balance: '424242' }))
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -564,7 +564,7 @@ describe('EthereumChainAdapter', () => {
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' })
           )
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -597,7 +597,7 @@ describe('EthereumChainAdapter', () => {
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', erc20Balance: '424242' })
           )
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
@@ -633,7 +633,7 @@ describe('EthereumChainAdapter', () => {
           .mockResolvedValue(
             makeGetAccountMockResponse({ balance: '2500000', erc20Balance: undefined })
           )
-      } as unknown as unchainedEthereum.api.V1Api
+      } as unknown as unchained.ethereum.V1Api
 
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)

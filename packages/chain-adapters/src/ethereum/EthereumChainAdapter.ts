@@ -2,7 +2,7 @@ import { Contract } from '@ethersproject/contracts'
 import { AssetNamespace, AssetReference, CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import { bip32ToAddressNList, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { ethereum } from '@shapeshiftoss/unchained-client'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import WAValidator from 'multicoin-address-validator'
@@ -22,8 +22,8 @@ import erc20Abi from './erc20Abi.json'
 
 export interface ChainAdapterArgs {
   providers: {
-    http: ethereum.api.V1Api
-    ws: ethereum.ws.Client
+    http: unchained.ethereum.V1Api
+    ws: unchained.ws.Client<unchained.SequencedTx>
   }
   chainId?: CAIP2
 }
@@ -37,8 +37,8 @@ async function getErc20Data(to: string, value: string, contractAddress?: string)
 
 export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   private readonly providers: {
-    http: ethereum.api.V1Api
-    ws: ethereum.ws.Client
+    http: unchained.ethereum.V1Api
+    ws: unchained.ws.Client<unchained.SequencedTx>
   }
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
@@ -118,7 +118,7 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
 
   async getTxHistory({
     pubkey
-  }: ethereum.api.V1ApiGetTxHistoryRequest): Promise<
+  }: unchained.ethereum.V1ApiGetTxHistoryRequest): Promise<
     chainAdapters.TxHistoryResponse<ChainTypes.Ethereum>
   > {
     try {
@@ -371,8 +371,8 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
     await this.providers.ws.subscribeTxs(
       subscriptionId,
       { topic: 'txs', addresses: [address] },
-      (msg) => {
-        const transfers = msg.transfers.map<chainAdapters.TxTransfer>((transfer) => ({
+      ({ data: tx }) => {
+        const transfers = tx.transfers.map<chainAdapters.TxTransfer>((transfer) => ({
           caip19: transfer.caip19,
           from: transfer.from,
           to: transfer.to,
@@ -381,22 +381,22 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         }))
 
         onMessage({
-          address: msg.address,
-          blockHash: msg.blockHash,
-          blockHeight: msg.blockHeight,
-          blockTime: msg.blockTime,
-          caip2: msg.caip2,
+          address: tx.address,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.blockTime,
+          caip2: tx.caip2,
           chain: ChainTypes.Ethereum,
-          confirmations: msg.confirmations,
-          fee: msg.fee,
-          status: getStatus(msg.status),
-          tradeDetails: msg.trade,
+          confirmations: tx.confirmations,
+          fee: tx.fee,
+          status: getStatus(tx.status),
+          tradeDetails: tx.trade,
           transfers,
-          txid: msg.txid,
-          ...(msg.data && {
+          txid: tx.txid,
+          ...(tx.data && {
             data: {
-              method: msg.data.method,
-              parser: msg.data.parser ?? 'unknown'
+              method: tx.data.method,
+              parser: tx.data.parser ?? 'unknown'
             }
           })
         })

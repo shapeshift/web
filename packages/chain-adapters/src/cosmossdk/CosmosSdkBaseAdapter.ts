@@ -2,19 +2,19 @@ import { AssetNamespace, CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
 import { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import * as parser from '@shapeshiftoss/unchained-tx-parser'
 import WAValidator from 'multicoin-address-validator'
 
 import { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
+import { getStatus, getType, toRootDerivationPath } from '../utils'
 
 export type CosmosChainTypes = ChainTypes.Cosmos | ChainTypes.Osmosis
 
 export interface ChainAdapterArgs {
   chainId?: CAIP2
   providers: {
-    http: unchained.cosmos.api.V1Api
-    // unchained-client 5.1.1 does not have a websocket client for cosmos
+    http: unchained.cosmos.V1Api
+    ws: unchained.ws.Client<unchained.cosmos.Tx>
   }
   coinName: string
 }
@@ -24,12 +24,13 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
   protected readonly supportedChainIds: CAIP2[]
   protected readonly coinName: string
   protected readonly providers: {
-    http: unchained.cosmos.api.V1Api
+    http: unchained.cosmos.V1Api
+    ws: unchained.ws.Client<unchained.cosmos.Tx>
   }
 
-  protected parser: parser.cosmos.TransactionParser
+  protected parser: unchained.cosmos.TransactionParser
 
-  public static readonly defaultBIP44Params: BIP44Params = {
+  static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: 118,
     accountNumber: 0
@@ -130,10 +131,42 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
   async subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
     onMessage: (msg: chainAdapters.SubscribeTxsMessage<T>) => void,
-    onError?: (err: chainAdapters.SubscribeError) => void
+    onError: (err: chainAdapters.SubscribeError) => void
   ): Promise<void> {
-    console.warn(input, onMessage, onError)
-    throw new Error('Method not implemented.')
+    const { wallet, bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params } = input
+
+    const address = await this.getAddress({ wallet, bip44Params })
+    const subscriptionId = toRootDerivationPath(bip44Params)
+
+    await this.providers.ws.subscribeTxs(
+      subscriptionId,
+      { topic: 'txs', addresses: [address] },
+      async (msg) => {
+        const tx = await this.parser.parse(msg.data, msg.address)
+
+        onMessage({
+          address: tx.address,
+          blockHash: tx.blockHash,
+          blockHeight: tx.blockHeight,
+          blockTime: tx.blockTime,
+          caip2: tx.caip2,
+          chain: this.getType(),
+          confirmations: tx.confirmations,
+          fee: tx.fee,
+          status: getStatus(tx.status),
+          tradeDetails: tx.trade,
+          transfers: tx.transfers.map((transfer) => ({
+            caip19: transfer.caip19,
+            from: transfer.from,
+            to: transfer.to,
+            type: getType(transfer.type),
+            value: transfer.totalValue
+          })),
+          txid: tx.txid
+        })
+      },
+      (err) => onError({ message: err.message })
+    )
   }
 
   unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void {

@@ -6,7 +6,7 @@ import {
   supportsCosmos
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
-import * as parser from '@shapeshiftoss/unchained-tx-parser'
+import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 
 import { ChainAdapter as IChainAdapter } from '../../api'
@@ -29,7 +29,7 @@ export class ChainAdapter
   constructor(args: ChainAdapterArgs) {
     super(args)
 
-    this.parser = new parser.cosmos.TransactionParser({ chainId: this.chainId })
+    this.parser = new unchained.cosmos.TransactionParser({ chainId: this.chainId })
   }
 
   getType(): ChainTypes.Cosmos {

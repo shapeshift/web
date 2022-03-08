@@ -43,7 +43,8 @@ export const useBalances = (): UseBalancesReturnType => {
 
         const asset = assetData.find(asset => asset.chain === key)
         if (!asset) {
-          throw new Error(`asset not found for chain ${key}`)
+          console.warn(`asset not found for chain ${key}`)
+          continue
         }
 
         let addressOrXpub

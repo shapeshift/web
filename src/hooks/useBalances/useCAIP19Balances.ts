@@ -54,7 +54,8 @@ export const useCAIP19Balances = () => {
       // asset should contain CAIP2, or utility fn CAIP19ToCAIP2
       const asset = assetData.find(asset => asset.caip19 === assetCAIP19)
       if (!asset) {
-        throw new Error(`asset not found for chain ${chain}`)
+        console.warn(`asset not found for chain ${chain}`)
+        continue
       }
 
       let addressOrXpub

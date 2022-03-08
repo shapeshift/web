@@ -32,7 +32,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
         const asset = assetData.find(asset => asset.chain === chain)
         if (!asset) {
-          throw new Error(`asset not found for chain ${chain}`)
+          console.warn(`asset not found for chain ${chain}`)
+          continue
         }
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]

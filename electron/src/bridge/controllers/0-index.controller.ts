@@ -91,7 +91,7 @@ export class IndexController extends Controller {
     }
 
     @Post('/pair')
-    public async pair(@Body() body: PairBody, @Header('Authorization') serviceKey: string): Promise<PairResponse> {
+    public async pair(@Body() body: PairBody, @Header('authorization') serviceKey: string): Promise<PairResponse> {
         return new Promise<PairResponse>((resolve, reject) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
                 this.setStatus(500)

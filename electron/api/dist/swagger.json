@@ -312,7 +312,7 @@
 				"parameters": [
 					{
 						"in": "header",
-						"name": "Authorization",
+						"name": "authorization",
 						"required": true,
 						"schema": {
 							"type": "string"

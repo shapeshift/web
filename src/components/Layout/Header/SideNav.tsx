@@ -23,10 +23,10 @@ export const SideNav = ({ route }: { route: Route }) => {
         position='sticky'
         top='4.5rem'
         maxWidth='xs'
-        flex='1 1 0%'
+        flex={{ base: 'inherit', '2xl': '1 1 0%' }}
         display={{ base: 'none', md: 'flex' }}
       >
-        <SideNavContent route={route} />
+        <SideNavContent route={route} isCompact={true} />
       </chakra.header>
     </>
   )

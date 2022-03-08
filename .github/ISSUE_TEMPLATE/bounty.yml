@@ -47,10 +47,13 @@ body:
           required: true
         - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
           required: true
-  - type: markdown
+  - type: textarea
+    id: bounty-hunters
     attributes:
-      value: |
-        ## Bounty Hunters
+      label: Bounty Hunters
+      description: Please do not edit - additional information for all bounty hunters.
+      value: 
+        |
         - [Join our discord](https://discord.gg/shapeshift)
         - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
         - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info

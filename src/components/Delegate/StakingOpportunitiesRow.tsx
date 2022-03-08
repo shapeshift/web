@@ -1,6 +1,7 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -10,7 +11,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   const isLoaded = true
-  const { cosmosGetStarted, cosmosStaked } = useModal()
+  const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
@@ -18,7 +19,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
   }
 
   const handleStakedClick = () => {
-    cosmosStaked.open({ assetId: 'cosmoshub-4/slip44:118' })
+    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Overview })
   }
 
   return (
@@ -44,7 +45,7 @@ export const StakingOpportunitiesRow = ({ name }: { name: string }) => {
           <RawText size='lg' fontWeight='bold'>{`${name}`}</RawText>
         </Skeleton>
         <Skeleton isLoaded={isLoaded} ml={4}>
-          <AprTag percentage='1.25' />
+          <AprTag percentage='0.12' showAprSuffix />
         </Skeleton>
       </Flex>
       <Flex>

@@ -15,9 +15,7 @@ import React from 'react'
 export type Route = {
   path: string
   label: string
-  main: React.ReactNode
-  leftSidebar?: React.ReactNode
-  rightSidebar?: React.ReactNode
+  main: React.ElementType<{ route?: Route }> | null
   parent?: Route | null
   routes?: Route[]
   icon?: JSX.Element

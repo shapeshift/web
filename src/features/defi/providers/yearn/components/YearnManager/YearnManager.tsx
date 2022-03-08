@@ -1,37 +1,75 @@
-import { Center } from '@chakra-ui/layout'
-import {
-  DefiAction,
-  DefiParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { Center, Heading, Stack } from '@chakra-ui/layout'
+import { ModalHeader, useColorModeValue } from '@chakra-ui/react'
+import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
+import { DefiParams } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
-import { MemoryRouter, useParams } from 'react-router'
+import { AnimatePresence } from 'framer-motion'
+import { Location } from 'history'
+import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { SlideTransition } from 'components/SlideTransition'
+import { RawText } from 'components/Text'
 
-import { routes as deposit, YearnDeposit } from './Deposit/YearnDeposit'
-import { routes as withdraw, YearnWithdraw } from './Withdraw/YearnWithdraw'
+import { YearnDeposit } from './Deposit/YearnDeposit'
+import { YearnWithdraw } from './Withdraw/YearnWithdraw'
 
-export const YearnManager = () => {
-  const params = useParams<DefiParams>()
+enum YearnPath {
+  Deposit = '/defi/vault/yearn/deposit',
+  Withdraw = '/defi/vault/yearn/withdraw',
+  Overview = `/defi/vault/yearn/overview`
+}
+
+type YearnRouteProps = {
+  parentLocation: Location
+} & DefiParams
+
+const YearnRoutes = ({ parentLocation, provider, earnType }: YearnRouteProps) => {
   const { yearn } = useYearn()
-
+  const headerBg = useColorModeValue('gray.50', 'gray.800')
   if (!yearn)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
       </Center>
     )
-
-  return params.action === DefiAction.Deposit ? (
-    <MemoryRouter key='deposit' initialIndex={0} initialEntries={deposit.map(route => route.path)}>
-      <YearnDeposit api={yearn} />
-    </MemoryRouter>
-  ) : (
-    <MemoryRouter
-      key='withdraw'
-      initialIndex={0}
-      initialEntries={withdraw.map(route => route.path)}
-    >
-      <YearnWithdraw api={yearn} />
-    </MemoryRouter>
+  return (
+    <>
+      <ModalHeader bg={headerBg} borderTopRadius='xl'>
+        <Stack width='full' alignItems='center' spacing={2}>
+          <Heading textTransform='capitalize' textAlign='center' fontSize='md'>
+            {provider} {earnType}
+          </Heading>
+          <DefiActionButtons vaultExpired={false} />
+        </Stack>
+      </ModalHeader>
+      <AnimatePresence exitBeforeEnter initial={false}>
+        <Switch location={parentLocation} key={parentLocation.key}>
+          <Route path={YearnPath.Deposit}>
+            <MemoryRouter>
+              <SlideTransition>
+                <YearnDeposit api={yearn} />
+              </SlideTransition>
+            </MemoryRouter>
+          </Route>
+          <Route path={YearnPath.Withdraw}>
+            <MemoryRouter>
+              <SlideTransition>
+                <YearnWithdraw api={yearn} />
+              </SlideTransition>
+            </MemoryRouter>
+          </Route>
+          <Route path={YearnPath.Overview}>
+            <RawText>Overview</RawText>
+          </Route>
+        </Switch>
+      </AnimatePresence>
+    </>
   )
+}
+
+export const YearnManager = () => {
+  const location = useLocation()
+  const params = useParams<DefiParams>()
+
+  return <YearnRoutes parentLocation={location} {...params} />
 }

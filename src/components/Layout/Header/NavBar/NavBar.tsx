@@ -12,19 +12,17 @@ export const NavBar = (props: StackProps) => {
     <Stack width='full' flex='1 1 0%' {...props}>
       {union(routes, pluginManager.getRoutes())
         .filter(route => !route.disable && !route.hide)
-        .map(item => {
+        .map((item, idx) => {
           return (
-            <>
-              <MainNavLink
-                key={item.label}
-                icon={item.icon}
-                href={item.path}
-                to={item.path}
-                label={translate(item.label)}
-                aria-label={translate(item.label)}
-                data-test={`navbar-${item.label.split('.')[1]}-button`}
-              />
-            </>
+            <MainNavLink
+              key={idx}
+              icon={item.icon}
+              href={item.path}
+              to={item.path}
+              label={translate(item.label)}
+              aria-label={translate(item.label)}
+              data-test={`navbar-${item.label.split('.')[1]}-button`}
+            />
           )
         })}
     </Stack>

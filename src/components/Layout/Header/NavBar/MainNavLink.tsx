@@ -30,19 +30,6 @@ export const MainNavLink = memo(
       >
         <Box display={{ base: props?.isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>
       </Button>
-      // <Tooltip label={label} fontSize='md' px={4} hasArrow>
-      //   <IconButton
-      //     icon={icon}
-      //     as={ReactRouterLink}
-      //     rounded='full'
-      //     isActive={active}
-      //     _active={{
-      //       bg: 'blue.500',
-      //       color: 'white'
-      //     }}
-      //     {...props}
-      //   />
-      // </Tooltip>
     )
   })
 )

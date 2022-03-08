@@ -27,7 +27,7 @@ info You can now run `yarn link "@shapeshiftoss/types"` in the projects where yo
 ✨  Done in 0.47s.
 ```
 
-Similary you can unlink packages, which can be useful for debugging failing CI runs
+Similarly you can unlink packages, which can be useful for debugging failing CI runs
 ```bash
 ➜ yarn unlink-packages
 yarn run v1.22.15
@@ -53,6 +53,9 @@ Bug fixes and features should always come with tests, when applicable. Test file
 To run the test suite:
 
 ```bash
+# build all dependent packages
+yarn build
+
 # Runs the full test suite
 yarn test
 
@@ -66,4 +69,4 @@ One technique that can helpful when writing tests, is to reference the coverage 
 
 ## Contributing
 
-Please see the [Contributing Guidlines](CONTRIBUTING.md) document for this repo's specific contributing guidelines.
+Please see the [Contributing Guidelines](CONTRIBUTING.md) document for this repo's specific contributing guidelines.

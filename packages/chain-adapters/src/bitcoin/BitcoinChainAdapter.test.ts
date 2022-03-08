@@ -10,10 +10,12 @@ import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
+import { ChainAdapterArgs } from '../utxo/UTXOBaseAdapter'
 import * as bitcoin from './BitcoinChainAdapter'
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 const VALID_CHAIN_ID = 'bip122:000000000019d6689c085ae165831e93'
+const VALID_ASSET_ID = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 
 const getWallet = async (): Promise<HDWallet> => {
   const nativeAdapterArgs: NativeAdapterArgs = {
@@ -132,7 +134,7 @@ const getNetworkFeesMockedResponse = {
 }
 
 describe('BitcoinChainAdapter', () => {
-  let args: bitcoin.ChainAdapterArgs = {} as any
+  let args: ChainAdapterArgs = {} as any
 
   beforeEach(() => {
     args = {
@@ -140,12 +142,13 @@ describe('BitcoinChainAdapter', () => {
         http: {} as any,
         ws: {} as any
       },
-      coinName: 'Bitcoin'
+      coinName: 'Bitcoin',
+      chainId: 'bip122:000000000019d6689c085ae165831e93'
     }
   })
 
   describe('constructor', () => {
-    it('should return chainAdapter with default Bitcoin chainId if called with no chainId', () => {
+    it('should return chainAdapter with Bitcoin chainId', () => {
       const adapter = new bitcoin.ChainAdapter(args)
       const chainId = adapter.getChainId()
       expect(chainId).toEqual(VALID_CHAIN_ID)
@@ -156,9 +159,26 @@ describe('BitcoinChainAdapter', () => {
       const chainId = adapter.getChainId()
       expect(chainId).toEqual('bip122:000000000933ea01ad0ee984209779ba')
     })
+    it('should return chainAdapter with Bitcoin caip19 / assetId', () => {
+      const adapter = new bitcoin.ChainAdapter(args)
+      const assetId = adapter.getAssetId()
+      const caip19 = adapter.getCaip19()
+      expect(assetId).toEqual(caip19)
+      expect(assetId).toEqual(VALID_ASSET_ID)
+    })
     it('should throw if called with invalid chainId', () => {
       args.chainId = 'INVALID_CHAINID'
-      expect(() => new bitcoin.ChainAdapter(args)).toThrow(/The ChainID (.+) is not supported/)
+      expect(() => new bitcoin.ChainAdapter(args)).toThrow(
+        /fromCAIP19: error parsing caip19, chain: (.+), network: undefined/
+      )
+    })
+    it('should throw if called with non bitcoin chainId', () => {
+      args.chainId = 'eip155:1'
+      expect(() => new bitcoin.ChainAdapter(args)).toThrow(/chainId must be a bitcoin chain type/)
+    })
+    it('should throw if called with no chainId', () => {
+      args.chainId = undefined
+      expect(() => new bitcoin.ChainAdapter(args)).toThrow(/chainId required/)
     })
   })
 
@@ -215,7 +235,7 @@ describe('BitcoinChainAdapter', () => {
 
       const adapter = new bitcoin.ChainAdapter(args)
       await expect(adapter.getAccount('')).rejects.toThrow(
-        'BitcoinChainAdapter: pubkey parameter is not defined'
+        'UTXOBaseAdapter: pubkey parameter is not defined'
       )
     })
   })

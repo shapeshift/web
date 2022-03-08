@@ -18,6 +18,24 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"SignedTx": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"status": {
+						"type": "string"
+					},
+					"signedTx": {}
+				},
+				"required": [
+					"success",
+					"status",
+					"signedTx"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Read": {
 				"properties": {
 					"data": {
@@ -568,6 +586,43 @@
 						"content": {
 							"application/json": {
 								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/sign": {
+			"post": {
+				"operationId": "Sign",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SignedTx"
+								}
 							}
 						}
 					},

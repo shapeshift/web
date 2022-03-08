@@ -315,7 +315,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
       if (state.wallet) {
         // @ts-ignore
-        let pubkeys = await state.wallet.getPublicKeys(paths.payload)
+        let pubkeys = await state.wallet.getPublicKeys(data.payload.paths)
         console.info('pubkeys: ', pubkeys)
         ipcRenderer.send('@hdwallet/response/getPublicKeys', pubkeys)
       }

@@ -151,23 +151,15 @@ export class KeepKeyService {
           break
         case 'ATOM':
           signedTx = await this.HDWallet.cosmosSignTx(unsignedTx.HDwalletPayload)
-          txid = cryptoTools.createHash('sha256').update(signedTx).digest('hex').toUpperCase()
-
-          signedTx.serialized = broadcastString
+          txid = cryptoTools.createHash('sha256').update(signedTx.serialized).digest('hex').toUpperCase()
           signedTx.txid = txid
           break
         case 'OSMO':
           signedTx = await this.HDWallet.osmosisSignTx(unsignedTx.HDwalletPayload)
-          broadcastString = {
-            tx: signedTx,
-            type: 'cosmos-sdk/StdTx',
-            mode: 'sync'
-          }
-          buffer = Buffer.from(JSON.stringify(broadcastString), 'base64')
+          buffer = Buffer.from(JSON.stringify(signedTx.serialized), 'base64')
           //TODO FIXME
           txid = cryptoTools.createHash('sha256').update(buffer).digest('hex').toUpperCase()
           signedTx.txid = txid
-          signedTx.serialized = JSON.stringify(broadcastString)
           break
         case 'ETH':
           signedTx = await this.HDWallet.ethSignTx(unsignedTx.HDwalletPayload)

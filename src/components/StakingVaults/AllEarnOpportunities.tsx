@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities
@@ -20,7 +19,6 @@ export const AllEarnOpportunities = () => {
     state: { isConnected },
     dispatch
   } = useWallet()
-  const earnFeature = FeatureFlag.Yearn
   const sortedVaults = useSortedYearnVaults()
 
   const allRows = useNormalizeOpportunities({
@@ -44,8 +42,6 @@ export const AllEarnOpportunities = () => {
       state: { background: location }
     })
   }
-
-  if (!earnFeature) return null
 
   return (
     <Card variant='outline' my={6}>

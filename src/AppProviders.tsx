@@ -2,7 +2,6 @@ import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { UnchainedUrls } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { I18n } from 'react-polyglot'
@@ -46,8 +45,6 @@ const unchainedUrls: UnchainedUrls = {
 }
 
 export function AppProviders({ children }: ProvidersProps) {
-  const earnFeature = FeatureFlag.Yearn
-  const DefiProvider = earnFeature ? DefiManagerProvider : React.Fragment
   return (
     <ReduxProvider store={store}>
       <ChakraProvider theme={theme}>
@@ -63,7 +60,7 @@ export function AppProviders({ children }: ProvidersProps) {
                       <MarketDataProvider>
                         <TransactionsProvider>
                           <ModalProvider>
-                            <DefiProvider>{children}</DefiProvider>
+                            <DefiManagerProvider>{children}</DefiManagerProvider>
                           </ModalProvider>
                         </TransactionsProvider>
                       </MarketDataProvider>

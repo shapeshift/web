@@ -58,12 +58,6 @@ export const assetApi = createApi({
       queryFn: async (_, { getState }) => {
         // @ts-ignore
         const state = getState() as ReduxState
-        console.log(
-          '%c state.preferences.featureFlags ',
-          'background-color: ; color: white;',
-          state.preferences.featureFlags
-        )
-
         const service = await getAssetService()
         const assetArray = service?.byNetwork(
           // Cosmos assets have a network type of COSMOSHUB_MAINNET

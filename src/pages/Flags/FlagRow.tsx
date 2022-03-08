@@ -1,10 +1,8 @@
 import { Switch } from '@chakra-ui/react'
-import { useHistory } from 'react-router-dom'
 import { Row } from 'components/Row/Row'
 import { FeatureFlags, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-
-import { selectFeatureFlag } from '../../state/slices/preferencesSlice/selectors'
-import { useAppDispatch, useAppSelector } from '../../state/store'
+import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 type FlagRowProps = {
   flag: keyof FeatureFlags

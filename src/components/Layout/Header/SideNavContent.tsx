@@ -5,7 +5,6 @@ import {
   Flex,
   FlexProps,
   HStack,
-  Icon,
   Link,
   Stack,
   useColorMode,
@@ -21,10 +20,10 @@ import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
 type HeaderContentProps = {
-  route: Route
+  route?: Route
 } & FlexProps
 
-export const SideNavContent = ({ route }: HeaderContentProps) => {
+export const SideNavContent = (props: HeaderContentProps) => {
   const { toggleColorMode } = useColorMode()
   const isActive = useColorModeValue(false, true)
   return (
@@ -36,6 +35,7 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
       data-test='full-width-header'
       flexDir='column'
       p={4}
+      {...props}
     >
       <Flex width='full' display={{ base: 'block', md: 'none' }}>
         <UserMenu />
@@ -72,8 +72,9 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
             <Text translation='common.privacy' />
           </Link>
         </HStack>
+        {/* "Hidden" link to the flags page */}
         <Link as={RouterLink} to='/flags'>
-          <SettingsIcon color={'gray'} float={'right'} />
+          <SettingsIcon color={'transparent'} />
         </Link>
       </Stack>
     </Flex>

@@ -1,5 +1,4 @@
 import { Button, Heading, Stack, StackDivider } from '@chakra-ui/react'
-import localforage from 'localforage'
 import { useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { Card } from 'components/Card/Card'

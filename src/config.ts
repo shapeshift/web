@@ -1,6 +1,5 @@
 import * as envalid from 'envalid'
 import { bool } from 'envalid'
-import { useState } from 'react'
 
 import env from './env'
 
@@ -35,26 +34,4 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   })
 }
 
-const initConfig = () => cleanEnv(env, validators, { reporter })
-
-let _config: Config
-
-const getConfig = () => {
-  !_config && (_config = initConfig())
-  return _config
-}
-
-type Config = ReturnType<typeof initConfig> | undefined
-
-/**
- * TODO(0xdef1cafe): comment heavily as to proper use of this
- */
-const useConfig = () => {
-  const [config, setConfig] = useState<ReturnType<typeof getConfig>>(getConfig())
-
-  const setFeatureFlags = (flags: Partial<Config>) => setConfig({ ...config, ...flags })
-
-  return { config, setFeatureFlags }
-}
-
-export { getConfig, useConfig }
+export const getConfig = () => cleanEnv(env, validators, { reporter })

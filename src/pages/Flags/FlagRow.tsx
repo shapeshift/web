@@ -1,4 +1,5 @@
 import { Switch } from '@chakra-ui/react'
+import { useHistory } from 'react-router-dom'
 import { Row } from 'components/Row/Row'
 import { FeatureFlags, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 
@@ -15,6 +16,7 @@ export const FlagRow = ({ flag }: FlagRowProps) => {
   const handleClick = () => {
     dispatch(preferences.actions.setFeatureFlag({ flag, value: !isOn }))
   }
+
   return (
     <Row>
       <Row.Label>{flag}</Row.Label>

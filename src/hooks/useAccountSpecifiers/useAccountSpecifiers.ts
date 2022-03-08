@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssetIds, selectAssets } from 'state/slices/selectors'
+import { selectAssetIds, selectAssets, selectPortfolioAssetIds } from 'state/slices/selectors'
 
 // the value is an xpub/ypub/zpub, or eth account, used to query unchained
 export type AccountSpecifierMap = { [k: CAIP2]: string }
@@ -33,6 +33,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
 
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
+  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
 
   const getAccountSpecifiers = useCallback(async () => {
     if (!wallet) return
@@ -120,11 +121,15 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   useEffect(() => {
     if (!wallet || !walletInfo?.deviceId) return
     if (!assetIds?.length) return
-    getAccountSpecifiers()
+
+    // @TODO!!!
+    if (portfolioAssetIds.length === 0) {
+      getAccountSpecifiers()
+    }
     // once the asset ids are loaded, the asset data we need is in the store
     // the asset data may change as we lazily load descriptions later,
     // so don't include the assetsById as a dependency
-  }, [walletInfo?.deviceId, assetIds, wallet, getAccountSpecifiers])
+  }, [portfolioAssetIds, walletInfo?.deviceId, assetIds, wallet, getAccountSpecifiers])
 
   return accountSpecifiers
 }

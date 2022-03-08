@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 
 import { getConfig } from '../../../config'
 
@@ -12,15 +11,6 @@ export type FeatureFlags = {
 
 export type Preferences = {
   featureFlags: FeatureFlags
-}
-
-export const supportedAccountTypes = {
-  [ChainTypes.Bitcoin]: [
-    UtxoAccountType.SegwitNative,
-    UtxoAccountType.SegwitP2sh,
-    UtxoAccountType.P2pkh
-  ],
-  [ChainTypes.Ethereum]: undefined
 }
 
 const initialState: Preferences = {
@@ -37,6 +27,7 @@ export const preferences = createSlice({
   name: 'preferences',
   initialState,
   reducers: {
+    clear: () => initialState,
     setFeatureFlag(state, { payload }: { payload: { flag: keyof FeatureFlags; value: boolean } }) {
       state.featureFlags[payload.flag] = payload.value
     }

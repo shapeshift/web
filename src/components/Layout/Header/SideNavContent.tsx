@@ -1,10 +1,11 @@
-import { ChatIcon, SunIcon } from '@chakra-ui/icons'
+import { ChatIcon, SettingsIcon, SunIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Flex,
   FlexProps,
   HStack,
+  Icon,
   Link,
   Stack,
   useColorMode,
@@ -71,6 +72,9 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
             <Text translation='common.privacy' />
           </Link>
         </HStack>
+        <Link as={RouterLink} to='/flags'>
+          <SettingsIcon color={'gray'} float={'right'} />
+        </Link>
       </Stack>
     </Flex>
   )

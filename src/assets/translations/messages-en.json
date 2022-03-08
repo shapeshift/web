@@ -240,7 +240,8 @@
       "thor": {
         "transferOut": "Transfer out"
       }
-    }
+    },
+    "unknown": "Transaction"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",

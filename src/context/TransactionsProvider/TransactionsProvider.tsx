@@ -34,7 +34,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
         const asset = Object.values(assets).find(asset => asset.caip2 === chainId)
         if (!asset) {
-          throw new Error(`asset not found for chain ${chain}`)
+          console.warn(`asset not found for chain ${chain}`)
+          continue
         }
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]

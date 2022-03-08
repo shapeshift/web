@@ -8,7 +8,7 @@ import usb from "usb";
 import { ipcMain } from "electron";
 import { shared } from "./shared";
 
-let Hardware = require("@keepkey/keepkey-hardware-hid")
+import Hardware from "@keepkey/keepkey-hardware-hid"
 
 ipcMain.on('@keepkey/update-firmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '

@@ -61,6 +61,8 @@ import { shared } from './shared'
 import { createTray } from './tray'
 import { isWin, isLinux, isMac } from './constants'
 import { db } from './db'
+import { getDevice } from './wallet'
+import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 
 
@@ -114,6 +116,17 @@ if (process.env.PROD) {
 
 
 function createWindow() {
+    // const keyring = new Keyring()
+    // getDevice(keyring).then((wallet) => {
+    //     if (wallet instanceof Error) return
+    //     // @ts-ignore
+    //     wallet.btcGetAddress({
+    //         addressNList: [2147483732, 2147483648, 2147483648, 0, 0],
+    //         coin: 'Bitcoin',
+    //         scriptType: 'p2wpkh',
+    //         showDisplay: false
+    //     }).then(console.log)
+    // })
     /**
      * Menu Bar
      */

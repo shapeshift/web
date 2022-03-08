@@ -1,15 +1,10 @@
+import { IpcMainEvent } from "electron";
+
 export const shared: {
-    USER: {
-        online: boolean,
-        accounts: Array<{
-            pubkey: any;
-            caip: string;
-        }>,
-        balances: any[]
-    },
+    USER: userType,
     SIGNED_TX: any,
-    eventIPC: {},
-    KEEPKEY_FEATURES: any
+    eventIPC: IpcMainEvent | null,
+    KEEPKEY_FEATURES: Record<string, unknown>
 } = {
     USER: {
         online: false,
@@ -17,6 +12,15 @@ export const shared: {
         balances: []
     },
     SIGNED_TX: null,
-    eventIPC: {}, 
+    eventIPC: null,
     KEEPKEY_FEATURES: {}
+}
+
+export type userType = {
+    online: boolean,
+    accounts: Array<{
+        pubkey: any;
+        caip: string;
+    }>,
+    balances: any[]
 }

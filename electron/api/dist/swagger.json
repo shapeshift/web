@@ -6,27 +6,6 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"Status": {
-				"properties": {
-					"success": {
-						"type": "boolean"
-					},
-					"status": {
-						"type": "string"
-					},
-					"state": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"success",
-					"status",
-					"state"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"GenericResponse": {
 				"properties": {
 					"success": {
@@ -39,37 +18,38 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"PairBody": {
+			"userType": {
 				"properties": {
-					"serviceName": {
-						"type": "string"
+					"balances": {
+						"items": {},
+						"type": "array"
 					},
-					"serviceImageUrl": {
-						"type": "string"
+					"accounts": {
+						"items": {
+							"properties": {
+								"caip": {
+									"type": "string"
+								},
+								"pubkey": {}
+							},
+							"required": [
+								"caip",
+								"pubkey"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"online": {
+						"type": "boolean"
 					}
 				},
 				"required": [
-					"serviceName",
-					"serviceImageUrl"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
-			"User": {
-				"properties": {
-					"online": {
-						"type": "boolean"
-					},
-					"accounts": {},
-					"balances": {}
-				},
-				"required": [
-					"online",
+					"balances",
 					"accounts",
-					"balances"
+					"online"
 				],
-				"type": "object",
-				"additionalProperties": false
+				"type": "object"
 			},
 			"SignedTx": {
 				"properties": {
@@ -101,6 +81,22 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"Error": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"reason"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"Write": {
 				"properties": {
 					"output": {
@@ -112,24 +108,684 @@
 				],
 				"type": "object",
 				"additionalProperties": false
+			},
+			"WriteBody": {
+				"properties": {
+					"data": {}
+				},
+				"required": [
+					"data"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Status": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"status": {
+						"type": "string"
+					},
+					"state": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"success",
+					"status",
+					"state"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Record_string.unknown_": {
+				"properties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"PairResponse": {
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"reason": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"success",
+					"reason"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"PairBody": {
+				"properties": {
+					"serviceName": {
+						"type": "string"
+					},
+					"serviceImageUrl": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"serviceName",
+					"serviceImageUrl"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"api_key": {
+				"type": "apiKey",
+				"name": "authorization",
+				"in": "header"
+			}
+		}
 	},
 	"info": {
-		"title": "@KeepKey/keepkey-bridge",
-		"version": "0.0.12",
-		"description": "A REST interface for the KeepKey",
+		"title": "keepkey-desktop",
+		"version": "0.1.32",
 		"contact": {
-			"name": "highlander ",
-			"email": "highlander@keepkey.com"
+			"name": "Highlander ",
+			"email": "bithighlander@gmail.com"
 		}
 	},
 	"openapi": "3.0.0",
 	"paths": {
+		"/auth/verify": {
+			"get": {
+				"operationId": "VerifyAuth",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Please provice a valid serviceKey"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/user": {
+			"get": {
+				"operationId": "User",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/userType"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Please provice a valid serviceKey"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/getPublicKeys": {
+			"post": {
+				"operationId": "GetPublicKeys",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/btcGetAddress": {
+			"post": {
+				"operationId": "BtcGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/ethGetAddress": {
+			"post": {
+				"operationId": "EthGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/thorchainGetAddress": {
+			"post": {
+				"operationId": "ThorchainGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/osmosisGetAddress": {
+			"post": {
+				"operationId": "OsmosisGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/binanceGetAddress": {
+			"post": {
+				"operationId": "BinanceGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/cosmosGetAddress": {
+			"post": {
+				"operationId": "CosmosGetAddress",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/btcSignTx": {
+			"post": {
+				"operationId": "BtcSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/thorchainSignTx": {
+			"post": {
+				"operationId": "ThorchainSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/cosmosSignTx": {
+			"post": {
+				"operationId": "CosmosSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/osmosisSignTx": {
+			"post": {
+				"operationId": "OsmosisSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/ethSignTx": {
+			"post": {
+				"operationId": "EthSignTx",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/sign": {
+			"post": {
+				"operationId": "SignTransaction",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SignedTx"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error"
+					}
+				},
+				"tags": [
+					"Secured Endpoints"
+				],
+				"security": [
+					{
+						"api_key": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/exchange/device": {
+			"get": {
+				"operationId": "ReadDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/Read"
+										},
+										{
+											"$ref": "#/components/schemas/Error"
+										}
+									]
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Unable to communicate with device"
+					}
+				},
+				"tags": [
+					"Raw KeepKey Device I/0 Endpoints"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "WriteDevice",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/Write"
+										},
+										{
+											"$ref": "#/components/schemas/Error"
+										}
+									]
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Unable to communicate with device"
+					}
+				},
+				"tags": [
+					"Raw KeepKey Device I/0 Endpoints"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/WriteBody"
+							}
+						}
+					}
+				}
+			}
+		},
 		"/status": {
 			"get": {
-				"operationId": "Health",
+				"operationId": "Status",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -158,7 +814,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Status"
+									"$ref": "#/components/schemas/Record_string.unknown_"
 								}
 							}
 						}
@@ -180,10 +836,13 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/GenericResponse"
+									"$ref": "#/components/schemas/PairResponse"
 								}
 							}
 						}
+					},
+					"500": {
+						"description": ""
 					}
 				},
 				"tags": [
@@ -193,7 +852,7 @@
 				"parameters": [
 					{
 						"in": "header",
-						"name": "Authorization",
+						"name": "authorization",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -210,577 +869,6 @@
 						}
 					}
 				}
-			}
-		},
-		"/user": {
-			"get": {
-				"operationId": "User",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/User"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/auth/verify": {
-			"get": {
-				"operationId": "VerifyAuth",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/GenericResponse"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/sign": {
-			"post": {
-				"operationId": "SignTransaction",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/SignedTx"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Client Endpoints"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/applyPolicy": {
-			"post": {
-				"operationId": "ApplyPolicy",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/applySettings": {
-			"post": {
-				"operationId": "ApplySettings",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/changePin": {
-			"post": {
-				"operationId": "ChangePin",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/removePin": {
-			"post": {
-				"operationId": "RemovePin",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": []
-			}
-		},
-		"/getPublicKeys": {
-			"post": {
-				"operationId": "GetPublicKeys",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {}
-						}
-					}
-				}
-			}
-		},
-		"/btcGetAddress": {
-			"post": {
-				"operationId": "BtcGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/ethGetAddress": {
-			"post": {
-				"operationId": "EthGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/thorchainGetAddress": {
-			"post": {
-				"operationId": "ThorchainGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/osmosisGetAddress": {
-			"post": {
-				"operationId": "OsmosisGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/binanceGetAddress": {
-			"post": {
-				"operationId": "BinanceGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/cosmosGetAddress": {
-			"post": {
-				"operationId": "CosmosGetAddress",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/btcSignTx": {
-			"post": {
-				"operationId": "BtcSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/thorchainSignTx": {
-			"post": {
-				"operationId": "ThorchainSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/cosmosSignTx": {
-			"post": {
-				"operationId": "CosmosSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/osmosisSignTx": {
-			"post": {
-				"operationId": "OsmosisSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/ethSignTx": {
-			"post": {
-				"operationId": "EthSignTx",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"KeepKey device API"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "header",
-						"name": "Authorization",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
-			}
-		},
-		"/exchange/device": {
-			"get": {
-				"operationId": "ReadDevice",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Read"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Raw KeepKey Device I/0"
-				],
-				"security": [],
-				"parameters": []
-			},
-			"post": {
-				"operationId": "WriteDevice",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Write"
-								}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Raw KeepKey Device I/0"
-				],
-				"security": [],
-				"parameters": []
 			}
 		}
 	},

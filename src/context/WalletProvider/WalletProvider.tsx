@@ -226,6 +226,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   //onStart()
   useEffect(() => {
     if (!state.wallet) {
+      console.info('Starting bridge')
       ipcRenderer.send('@app/start', {
         username: keepkey.username,
         queryKey: keepkey.queryKey,

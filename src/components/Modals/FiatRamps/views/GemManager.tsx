@@ -58,6 +58,8 @@ export const GemManager = () => {
   const chainAdapterManager = useChainAdapters()
   const chainAdapter = chainAdapterManager.byChain(chain)
 
+  const supportsAddressVerifying = ['Portis', 'KeepKey'].includes(state?.walletInfo?.name ?? '')
+
   const [loading, setLoading] = useState(false)
   const [buyList, setBuyList] = useState<GemCurrency[]>([])
   const [sellList, setSellList] = useState<GemCurrency[]>([])
@@ -98,16 +100,21 @@ export const GemManager = () => {
         key: 'destination' | 'source',
         filter: (currency: SupportedCurrency) => boolean
       ): GemCurrency[] => {
-        const filteredCoinifyList = coinifyList.filter(filter).map(list => list[key].currencies)
-        const filteredWyreList = wyreList.filter(filter).map(list => list[key].currencies)
+        const filteredCoinifyList = coinifyList
+          .filter(filter)
+          .map(coinifyList => coinifyList[key].currencies)
+        const filteredWyreList = wyreList.filter(filter).map(wyreList => wyreList[key].currencies)
+
         const results = uniqBy(
           flatten(concat(filteredCoinifyList, filteredWyreList)),
           'gem_asset_id'
         )
-          .map(result => ({
-            ...result,
-            cryptoBalance: bnOrZero(balances[result.ticker]?.crypto),
-            fiatBalance: bnOrZero(balances[result.ticker]?.fiat)
+          // TODO(gomes): remove when we have Thorchain BTC support
+          .map(asset => ({
+            ...asset,
+            disabled: asset.ticker === 'BTC',
+            cryptoBalance: bnOrZero(balances[asset.ticker]?.crypto),
+            fiatBalance: bnOrZero(balances[asset.ticker]?.fiat)
           }))
           .sort((a, b) =>
             key === 'source' && (a.fiatBalance || b.fiatBalance)
@@ -123,12 +130,12 @@ export const GemManager = () => {
     setLoading(true)
 
     try {
-      const coinifyList = await fetchCoinifySupportedCurrencies()
-      const wyreList = await fetchWyreSupportedCurrencies()
-      const filteredBuyList = filterAndMerge(coinifyList, wyreList, 'destination', isBuyAsset)
-      const filteredSellList = filterAndMerge(coinifyList, wyreList, 'source', isSellAsset)
-      setBuyList(filteredBuyList)
-      setSellList(filteredSellList)
+      const coinifyAssets = await fetchCoinifySupportedCurrencies()
+      const wyreAssets = await fetchWyreSupportedCurrencies()
+      const buyAssets = filterAndMerge(coinifyAssets, wyreAssets, 'destination', isBuyAsset)
+      const sellAssets = filterAndMerge(coinifyAssets, wyreAssets, 'source', isSellAsset)
+      setBuyList(buyAssets)
+      setSellList(sellAssets)
       setLoading(false)
     } catch (e) {
       console.error(e)
@@ -268,7 +275,7 @@ export const GemManager = () => {
                 <Text translation={fundsTranslation} color='gray.500'></Text>
                 <InputGroup size='md'>
                   <Input pr='4.5rem' value={ensAddress || middleEllipsis(address, 11)} readOnly />
-                  <InputRightElement width='4.5rem'>
+                  <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
                     <IconButton
                       icon={<CopyIcon />}
                       aria-label='copy-icon'
@@ -277,15 +284,17 @@ export const GemManager = () => {
                       variant='ghost'
                       onClick={handleCopyClick}
                     />
-                    <IconButton
-                      icon={verified ? <CheckIcon /> : <ViewIcon />}
-                      onClick={handleVerify}
-                      aria-label='check-icon'
-                      size='sm'
-                      color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
-                      isRound
-                      variant='ghost'
-                    />
+                    {supportsAddressVerifying && (
+                      <IconButton
+                        icon={verified ? <CheckIcon /> : <ViewIcon />}
+                        onClick={handleVerify}
+                        aria-label='check-icon'
+                        size='sm'
+                        color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                        isRound
+                        variant='ghost'
+                      />
+                    )}
                   </InputRightElement>
                 </InputGroup>
               </Flex>

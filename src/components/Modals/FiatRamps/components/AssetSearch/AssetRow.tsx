@@ -16,6 +16,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
 
   return (
     <Button
+      disabled={asset.disabled}
       variant='ghost'
       onClick={() => handleClick(asset)}
       justifyContent='space-between'

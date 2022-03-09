@@ -34,7 +34,7 @@ export type GemCurrency = {
   ticker: string
   cryptoBalance?: BigNumber
   fiatBalance?: BigNumber
-  disabled: boolean
+  disabled?: boolean
 }
 
 export enum FiatRampsRoutes {

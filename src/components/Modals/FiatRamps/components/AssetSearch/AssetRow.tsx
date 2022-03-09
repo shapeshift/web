@@ -4,7 +4,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
 import { FiatRampAction, GemCurrency } from '../../FiatRamps'
-import { getAssetLogoUrl } from './helpers/getAssetLogoUrl'
+import { getAssetLogoUrl } from '../../utils'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {
   const asset: GemCurrency = data.items[index]
@@ -16,7 +16,7 @@ export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style
 
   return (
     <Button
-      disabled={asset.ticker === 'BTC'}
+      disabled={asset.disabled}
       variant='ghost'
       onClick={() => handleClick(asset)}
       justifyContent='space-between'

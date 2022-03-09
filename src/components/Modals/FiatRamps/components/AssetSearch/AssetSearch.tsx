@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 import { FiatRampAction, GemCurrency } from '../../FiatRamps'
+import { filterAssetsBySearchTerm } from '../../utils'
 import { AssetList } from './AssetList'
-import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm'
 
 type AssetSearchProps = {
   onClick: (asset: GemCurrency) => void

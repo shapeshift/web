@@ -8,8 +8,7 @@ import {
   HStack,
   IconButton,
   useColorModeValue,
-  useDisclosure,
-  useEventListener
+  useDisclosure
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
@@ -38,9 +37,7 @@ export const Header = ({ route }: { route: Route }) => {
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyPress)
-    return () => {
-      document.removeEventListener('keydown', handleKeyPress)
-    }
+    return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
   return (

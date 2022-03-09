@@ -1,4 +1,4 @@
-import { ChatIcon, SettingsIcon, SunIcon } from '@chakra-ui/icons'
+import { ChatIcon, SunIcon } from '@chakra-ui/icons'
 import {
   Box,
   Flex,
@@ -87,10 +87,6 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
             <Text translation='common.privacy' />
           </Link>
         </HStack>
-        {/* "Hidden" link to the flags page */}
-        <Link as={RouterLink} to='/flags'>
-          <SettingsIcon color={'transparent'} />
-        </Link>
       </Stack>
     </Flex>
   )

@@ -143,6 +143,7 @@
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Claim rewards",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",

@@ -3,7 +3,9 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { useRef } from 'react'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { ClaimConfirmRouter } from './views/ClaimConfirmRouter'
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
 import { StakeConfirmRouter, StakingConfirmProps } from './views/StakeConfirmRouter'
@@ -13,7 +15,8 @@ import { UnstakeConfirmRouter } from './views/UnstakeConfirmRouter'
 export enum StakingAction {
   Stake = 'stake',
   Unstake = 'unstake',
-  Overview = 'overview'
+  Overview = 'overview',
+  Claim = 'claim'
 }
 
 type StakingModalProps = {
@@ -26,7 +29,8 @@ export enum StakeRoutes {
   Unstake = '/unstake',
   StakeConfirm = '/stake/confirm',
   UnstakeConfirm = '/unstake/confirm',
-  Overview = '/stake/overview'
+  Overview = '/stake/overview',
+  Claim = '/claim'
 }
 
 export const entries = [
@@ -118,6 +122,19 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
         <Route path='/'>
           <Overview assetId={assetId} />
         </Route>
+      )
+
+    if (action === StakingAction.Claim)
+      return (
+        <>
+          <Route exact path={StakeRoutes.Stake}>
+            <ClaimConfirmRouter
+              cryptoAmount={bnOrZero('4242')}
+              assetId={assetId}
+              onCancel={handleCancel}
+            />
+          </Route>
+        </>
       )
   }
 

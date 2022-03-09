@@ -38,6 +38,12 @@ const main = async () => {
   try {
     const chainAdapterManager = new ChainAdapterManager(unchainedUrls)
     const wallet = await getWallet()
+    await wallet.wipe()
+    await wallet.loadDevice({
+      mnemonic: 'all all all all all all all all all all all all',
+      label: 'test',
+      skipChecksum: true
+    })
 
     /** BITCOIN CLI */
     const btcChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
@@ -170,6 +176,9 @@ const main = async () => {
 
     const cosmosAccount = await cosmosChainAdapter.getAccount(cosmosAddress)
     console.log('cosmosAccount:', cosmosAccount)
+
+    const cosmosTxHistory = await cosmosChainAdapter.getTxHistory({ pubkey: cosmosAddress })
+    console.log('cosmosTxHistory:', cosmosTxHistory)
 
     await cosmosChainAdapter.subscribeTxs(
       { wallet, bip44Params: cosmosBip44Params },

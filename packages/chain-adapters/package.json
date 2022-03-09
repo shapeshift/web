@@ -35,8 +35,8 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^2.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.18.2",
-    "@shapeshiftoss/hdwallet-native": "^1.18.2",
+    "@shapeshiftoss/hdwallet-core": "^1.19.0",
+    "@shapeshiftoss/hdwallet-native": "^1.19.0",
     "@shapeshiftoss/types": "^2.0.0",
     "@shapeshiftoss/unchained-client": "^6.0.0",
     "bs58check": "^2.0.0"

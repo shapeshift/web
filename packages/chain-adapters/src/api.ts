@@ -43,7 +43,7 @@ export type ChainAdapter<T extends ChainTypes> = {
 
   subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
-    onMessage: (msg: chainAdapters.SubscribeTxsMessage<T>) => void,
+    onMessage: (msg: chainAdapters.Transaction<T>) => void,
     onError?: (err: chainAdapters.SubscribeError) => void
   ): Promise<void>
 

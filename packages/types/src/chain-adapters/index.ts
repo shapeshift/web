@@ -1,6 +1,6 @@
 import { BTCSignTx, CosmosSignTx, ETHSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 
-import { BIP44Params, ChainTypes, NetworkTypes, SwapperType, UtxoAccountType } from '../base'
+import { BIP44Params, ChainTypes, SwapperType, UtxoAccountType } from '../base'
 import { ChainAndSwapperSpecific, ChainSpecific } from '../utility'
 import * as bitcoin from './bitcoin'
 import * as cosmos from './cosmos'
@@ -30,29 +30,6 @@ export type AssetBalance = {
   balance: string
   caip19: string
 }
-
-type ChainSpecificTransaction<T> = ChainSpecific<
-  T,
-  {
-    [ChainTypes.Bitcoin]: bitcoin.TransactionSpecific
-  }
->
-
-export type Transaction<T extends ChainTypes> = {
-  network: NetworkTypes
-  chain: T
-  symbol: string
-  txid: string
-  status: string
-  from: string
-  to?: string
-  blockHash?: string
-  blockHeight?: number
-  confirmations?: number
-  timestamp?: number
-  value: string
-  fee: string
-} & ChainSpecificTransaction<T>
 
 export enum FeeDataKey {
   Slow = 'slow',
@@ -129,7 +106,7 @@ export enum TxStatus {
   Unknown = 'unknown'
 }
 
-export type SubscribeTxsMessage<T extends ChainTypes> = {
+export type Transaction<T extends ChainTypes> = {
   address: string
   blockHash?: string
   blockHeight: number
@@ -174,9 +151,8 @@ export type SubscribeError = {
 }
 
 export type TxHistoryResponse<T extends ChainTypes> = {
-  page: number
-  totalPages: number
-  txs: number
+  cursor: string
+  pubkey: string
   transactions: Array<Transaction<T>>
 }
 
@@ -212,10 +188,9 @@ export type SignTxInput<TxType> = {
 }
 
 export interface TxHistoryInput {
+  readonly cursor?: string
   readonly pubkey: string
-  readonly page?: number
   readonly pageSize?: number
-  readonly contract?: string
 }
 
 export type GetAddressInputBase = {

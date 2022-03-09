@@ -7,13 +7,7 @@ import {
   BTCSignTxOutput,
   supportsBTC
 } from '@shapeshiftoss/hdwallet-core'
-import {
-  BIP44Params,
-  chainAdapters,
-  ChainTypes,
-  NetworkTypes,
-  UtxoAccountType
-} from '@shapeshiftoss/types'
+import { BIP44Params, chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import coinSelect from 'coinselect'
 import split from 'coinselect/split'
@@ -64,31 +58,10 @@ export class ChainAdapter
   }
 
   async getTxHistory(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     input: chainAdapters.TxHistoryInput
   ): Promise<chainAdapters.TxHistoryResponse<ChainTypes.Bitcoin>> {
-    const { pubkey } = input
-
-    if (!pubkey) return ErrorHandler('pubkey parameter is not defined')
-
-    try {
-      const { data } = await this.providers.http.getTxHistory(input)
-      return {
-        page: data.page,
-        totalPages: data.totalPages,
-        transactions: data.transactions.map((tx) => ({
-          ...tx,
-          chain: ChainTypes.Bitcoin,
-          network: NetworkTypes.MAINNET,
-          symbol: 'BTC',
-          chainSpecific: {
-            opReturnData: ''
-          }
-        })),
-        txs: data.txs
-      }
-    } catch (err) {
-      return ErrorHandler(err)
-    }
+    throw new Error('Method not implemented.')
   }
 
   async buildSendTransaction(tx: chainAdapters.BuildSendTxInput<ChainTypes.Bitcoin>): Promise<{
@@ -335,7 +308,7 @@ export class ChainAdapter
 
   async subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
-    onMessage: (msg: chainAdapters.SubscribeTxsMessage<ChainTypes.Bitcoin>) => void,
+    onMessage: (msg: chainAdapters.Transaction<ChainTypes.Bitcoin>) => void,
     onError: (err: chainAdapters.SubscribeError) => void
   ): Promise<void> {
     const {

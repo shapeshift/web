@@ -25,10 +25,13 @@ export const Header = ({ route }: { route: Route }) => {
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  // trigger a history.push when ALT+F is pressed
+  /**
+   * FOR DEVELOPERS:
+   * Open the hidden flags menu via keypress
+   */
   const handleKeyPress = useCallback(
     event => {
-      if (event.altKey && event.keyCode === 70) {
+      if (event.altKey && event.shiftKey && event.keyCode === 70) {
         history.push('/flags')
       }
     },

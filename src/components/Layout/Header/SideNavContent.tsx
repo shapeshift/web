@@ -27,7 +27,7 @@ type HeaderContentProps = {
   isCompact?: boolean
 } & FlexProps
 
-export const SideNavContent = ({ route, isCompact }: HeaderContentProps) => {
+export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
   const { toggleColorMode } = useColorMode()
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -41,7 +41,6 @@ export const SideNavContent = ({ route, isCompact }: HeaderContentProps) => {
       data-test='full-width-header'
       flexDir='column'
       p={4}
-      {...props}
     >
       {!isLargerThanMd && (
         <>

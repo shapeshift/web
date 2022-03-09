@@ -1,4 +1,4 @@
-import { Box, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -47,6 +47,17 @@ export const Portfolio = () => {
                 <Amount.Fiat value={totalBalance} />
               </Skeleton>
             </Card.Heading>
+            {isFinite(percentChange) && (
+              //@TODO: fix the all percent change currently shows infinite
+              <Skeleton mt={2} isLoaded={!!percentChange}>
+                <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                  <StatNumber fontSize='md' display='flex' alignItems='center'>
+                    <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                    <Amount.Percent value={percentChange * 0.01} />
+                  </StatNumber>
+                </Stat>
+              </Skeleton>
+            )}
           </Box>
           <Skeleton isLoaded={isLoaded}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />

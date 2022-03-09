@@ -151,7 +151,11 @@ export class KeepKeyService {
           break
         case 'ATOM':
           signedTx = await this.HDWallet.cosmosSignTx(unsignedTx.HDwalletPayload)
-          txid = cryptoTools.createHash('sha256').update(signedTx.serialized).digest('hex').toUpperCase()
+          txid = cryptoTools
+            .createHash('sha256')
+            .update(signedTx.serialized)
+            .digest('hex')
+            .toUpperCase()
           signedTx.txid = txid
           break
         case 'OSMO':

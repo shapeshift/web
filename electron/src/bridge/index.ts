@@ -1,5 +1,5 @@
 import swaggerUi from 'swagger-ui-express'
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
@@ -7,15 +7,12 @@ import log from 'electron-log'
 import { Device, NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
-import { windows } from '../main'
-import { app, ipcMain, IpcMainEvent } from 'electron'
-import wait from 'wait-promise'
-import { shared } from '../shared'
+import { ipcMain, IpcMainEvent } from 'electron'
 import { updateMenu } from '../tray'
-import { uniqueId } from 'lodash'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
-import { TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
+import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
+import { getDevice } from '../wallet'
 
 const appExpress = express()
 appExpress.use(cors())
@@ -30,8 +27,6 @@ const adapter = NodeWebUSBKeepKeyAdapter.useKeyring(new Keyring())
 
 let server: Server
 
-const EVENT_LOG: Array<{ read: { data: string } }> = []
-let sleep = wait.sleep;
 
 export let bridgeRunning = false
 
@@ -55,13 +50,17 @@ export const keepkey: {
     STATUS: string,
     device: Device | null,
     transport: TransportDelegate | null,
-    event: IpcMainEvent | null
+    event: IpcMainEvent | null,
+    keyring: Keyring | null,
+    wallet: KeepKeyHDWallet | null
 } = {
     STATE: 0,
     STATUS: 'preInit',
     device: null,
     transport: null,
-    event: null
+    event: null,
+    keyring: null,
+    wallet: null
 }
 
 
@@ -93,6 +92,12 @@ export const start_bridge = async function (event: IpcMainEvent) {
         } else {
             log.info('Can not start! waiting for device connect')
         }
+
+        keepkey.keyring = new Keyring()
+        const wallet = await getDevice(keepkey.keyring)
+
+        if (wallet instanceof Error) return
+        keepkey.wallet = wallet
 
         let API_PORT = process.env['API_PORT_BRIDGE'] || '1646'
 

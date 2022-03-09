@@ -6,7 +6,7 @@ import { shared } from '../../shared';
 
 import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse } from 'tsoa';
 import { keepkey } from '../';
-import { PairBody, PairResponse, Status } from '../responses';
+import { PairBody, PairResponse, Status } from '../types';
 
 
 export class ApiError extends Error {

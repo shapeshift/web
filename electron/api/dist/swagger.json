@@ -51,6 +51,608 @@
 				],
 				"type": "object"
 			},
+			"PublicKey": {
+				"properties": {
+					"xpub": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"xpub"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BIP32Path": {
+				"items": {
+					"type": "number",
+					"format": "double"
+				},
+				"type": "array"
+			},
+			"BTCInputScriptType": {
+				"enum": [
+					"cashaddr",
+					"bech32",
+					"p2pkh",
+					"p2sh",
+					"external",
+					"p2wpkh",
+					"p2sh-p2wpkh"
+				],
+				"type": "string"
+			},
+			"Coin": {
+				"type": "string"
+			},
+			"GetPublicKey": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"showDisplay": {
+						"type": "boolean"
+					},
+					"scriptType": {
+						"$ref": "#/components/schemas/BTCInputScriptType"
+					},
+					"curve": {
+						"type": "string"
+					},
+					"coin": {
+						"$ref": "#/components/schemas/Coin"
+					}
+				},
+				"required": [
+					"addressNList",
+					"curve",
+					"coin"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BTCGetAddress": {
+				"properties": {
+					"showDisplay": {
+						"type": "boolean"
+					},
+					"scriptType": {
+						"$ref": "#/components/schemas/BTCInputScriptType"
+					},
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"coin": {
+						"$ref": "#/components/schemas/Coin"
+					}
+				},
+				"required": [
+					"addressNList",
+					"coin"
+				],
+				"type": "object"
+			},
+			"ETHGetAddress": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"showDisplay": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"addressNList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ThorchainGetAddress": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"showDisplay": {
+						"type": "boolean"
+					},
+					"testnet": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"addressNList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"OsmosisGetAddress": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"showDisplay": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"addressNList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BinanceGetAddress": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"showDisplay": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"addressNList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CosmosGetAddress": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"showDisplay": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"addressNList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BTCSignedTx": {
+				"properties": {
+					"signatures": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"serializedTx": {
+						"type": "string",
+						"description": "hex string representation of the raw, signed transaction"
+					}
+				},
+				"required": [
+					"signatures",
+					"serializedTx"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Thorchain.Msg": {
+				"properties": {
+					"type": {
+						"type": "string"
+					},
+					"value": {}
+				},
+				"required": [
+					"type",
+					"value"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Coins": {
+				"items": {
+					"$ref": "#/components/schemas/Coin"
+				},
+				"type": "array"
+			},
+			"Thorchain.StdFee": {
+				"properties": {
+					"amount": {
+						"$ref": "#/components/schemas/Coins"
+					},
+					"gas": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"amount",
+					"gas"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"crypto.PubKey": {
+				"properties": {
+					"type": {
+						"type": "string"
+					},
+					"value": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"type",
+					"value"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Thorchain.StdSignature": {
+				"properties": {
+					"pub_key": {
+						"$ref": "#/components/schemas/crypto.PubKey"
+					},
+					"signature": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"signature"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ThorchainTx": {
+				"properties": {
+					"msg": {
+						"items": {
+							"$ref": "#/components/schemas/Thorchain.Msg"
+						},
+						"type": "array"
+					},
+					"fee": {
+						"$ref": "#/components/schemas/Thorchain.StdFee"
+					},
+					"signatures": {
+						"items": {
+							"$ref": "#/components/schemas/Thorchain.StdSignature"
+						},
+						"type": "array",
+						"nullable": true
+					},
+					"memo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"msg",
+					"fee",
+					"signatures",
+					"memo"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"StdFee": {
+				"properties": {
+					"amount": {
+						"$ref": "#/components/schemas/Coins"
+					},
+					"gas": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"amount",
+					"gas"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Msg": {
+				"properties": {
+					"type": {
+						"type": "string"
+					},
+					"value": {}
+				},
+				"required": [
+					"type",
+					"value"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"StdSignature": {
+				"properties": {
+					"pub_key": {
+						"$ref": "#/components/schemas/crypto.PubKey"
+					},
+					"signature": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"signature"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Thorchain.StdTx": {
+				"properties": {
+					"fee": {
+						"$ref": "#/components/schemas/StdFee"
+					},
+					"memo": {
+						"type": "string"
+					},
+					"msg": {
+						"items": {
+							"$ref": "#/components/schemas/Msg"
+						},
+						"type": "array"
+					},
+					"signatures": {
+						"items": {
+							"$ref": "#/components/schemas/StdSignature"
+						},
+						"type": "array",
+						"nullable": true
+					}
+				},
+				"required": [
+					"fee",
+					"memo",
+					"msg",
+					"signatures"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ThorchainSignTx": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"tx": {
+						"$ref": "#/components/schemas/Thorchain.StdTx"
+					},
+					"sequence": {
+						"type": "string"
+					},
+					"account_number": {
+						"type": "string"
+					},
+					"chain_id": {
+						"type": "string"
+					},
+					"fee": {
+						"type": "number",
+						"format": "double"
+					},
+					"testnet": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"addressNList",
+					"tx",
+					"sequence",
+					"account_number",
+					"chain_id"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CosmosSignedTx": {
+				"properties": {
+					"serialized": {
+						"type": "string"
+					},
+					"body": {
+						"type": "string"
+					},
+					"authInfoBytes": {
+						"type": "string"
+					},
+					"signatures": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"serialized",
+					"body",
+					"authInfoBytes",
+					"signatures"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Cosmos.StdTx": {
+				"properties": {
+					"msg": {
+						"items": {
+							"$ref": "#/components/schemas/Msg"
+						},
+						"type": "array"
+					},
+					"fee": {
+						"$ref": "#/components/schemas/StdFee"
+					},
+					"signatures": {
+						"items": {
+							"$ref": "#/components/schemas/StdSignature"
+						},
+						"type": "array",
+						"nullable": true
+					},
+					"memo": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"msg",
+					"fee",
+					"signatures",
+					"memo"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CosmosSignTx": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"tx": {
+						"$ref": "#/components/schemas/Cosmos.StdTx"
+					},
+					"chain_id": {
+						"type": "string"
+					},
+					"account_number": {
+						"type": "string"
+					},
+					"sequence": {
+						"type": "string"
+					},
+					"fee": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"addressNList",
+					"tx",
+					"chain_id",
+					"account_number",
+					"sequence"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ETHSignedTx": {
+				"properties": {
+					"v": {
+						"type": "number",
+						"format": "double",
+						"description": "uint32"
+					},
+					"r": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					},
+					"s": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					},
+					"serialized": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					}
+				},
+				"required": [
+					"v",
+					"r",
+					"s",
+					"serialized"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ExchangeType": {
+				"properties": {
+					"signedExchangeResponse": {
+						"type": "string",
+						"description": "`SignedExchangeResponse` from the `/sendamountProto2` ShapeShift endpoint, base64 encoded"
+					},
+					"withdrawalCoinName": {
+						"type": "string"
+					},
+					"withdrawalAddressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"withdrawalScriptType": {
+						"$ref": "#/components/schemas/BTCInputScriptType"
+					},
+					"returnAddressNList": {
+						"$ref": "#/components/schemas/BIP32Path"
+					},
+					"returnScriptType": {
+						"$ref": "#/components/schemas/BTCInputScriptType"
+					}
+				},
+				"required": [
+					"signedExchangeResponse",
+					"withdrawalCoinName",
+					"withdrawalAddressNList",
+					"returnAddressNList"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ETHSignTx": {
+				"properties": {
+					"addressNList": {
+						"$ref": "#/components/schemas/BIP32Path",
+						"description": "bip32 path to sign the transaction from"
+					},
+					"nonce": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					},
+					"gasPrice": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					},
+					"gasLimit": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					},
+					"maxFeePerGas": {
+						"type": "string",
+						"description": "EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei)"
+					},
+					"maxPriorityFeePerGas": {
+						"type": "string",
+						"description": "EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei)"
+					},
+					"to": {
+						"type": "string",
+						"description": "address, with '0x' prefix"
+					},
+					"toAddressNList": {
+						"$ref": "#/components/schemas/BIP32Path",
+						"description": "bip32 path for destination (device must `ethSupportsSecureTransfer()`)"
+					},
+					"value": {
+						"type": "string",
+						"description": "big-endian hex, prefixed with '0x'"
+					},
+					"data": {
+						"type": "string",
+						"description": "prefixed with '0x'"
+					},
+					"chainId": {
+						"type": "number",
+						"format": "double",
+						"description": "mainnet: 1, ropsten: 3, kovan: 42"
+					},
+					"exchangeType": {
+						"$ref": "#/components/schemas/ExchangeType",
+						"description": "Device must `ethSupportsNativeShapeShift()`"
+					}
+				},
+				"required": [
+					"addressNList",
+					"nonce",
+					"gasLimit",
+					"to",
+					"value",
+					"data",
+					"chainId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"SignedTx": {
 				"properties": {
 					"success": {
@@ -188,7 +790,7 @@
 	},
 	"info": {
 		"title": "keepkey-desktop",
-		"version": "0.1.32",
+		"version": "0.1.33",
 		"contact": {
 			"name": "Highlander ",
 			"email": "bithighlander@gmail.com"
@@ -262,7 +864,17 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"items": {
+										"allOf": [
+											{
+												"$ref": "#/components/schemas/PublicKey"
+											}
+										],
+										"nullable": true
+									},
+									"type": "array"
+								}
 							}
 						}
 					},
@@ -283,7 +895,12 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"items": {
+									"$ref": "#/components/schemas/GetPublicKey"
+								},
+								"type": "array"
+							}
 						}
 					}
 				}
@@ -297,7 +914,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "string"
+								}
 							}
 						}
 					},
@@ -318,7 +937,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/BTCGetAddress"
+							}
 						}
 					}
 				}
@@ -332,7 +953,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "string"
+								}
 							}
 						}
 					},
@@ -353,7 +976,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ETHGetAddress"
+							}
 						}
 					}
 				}
@@ -367,7 +992,10 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "string",
+									"nullable": true
+								}
 							}
 						}
 					},
@@ -388,7 +1016,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ThorchainGetAddress"
+							}
 						}
 					}
 				}
@@ -423,7 +1053,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/OsmosisGetAddress"
+							}
 						}
 					}
 				}
@@ -437,7 +1069,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "string"
+								}
 							}
 						}
 					},
@@ -458,7 +1092,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/BinanceGetAddress"
+							}
 						}
 					}
 				}
@@ -472,7 +1108,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"type": "string"
+								}
 							}
 						}
 					},
@@ -493,7 +1131,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/CosmosGetAddress"
+							}
 						}
 					}
 				}
@@ -507,7 +1147,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/BTCSignedTx"
+								}
 							}
 						}
 					},
@@ -542,7 +1184,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/ThorchainTx"
+								}
 							}
 						}
 					},
@@ -563,7 +1207,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ThorchainSignTx"
+							}
 						}
 					}
 				}
@@ -577,7 +1223,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/CosmosSignedTx"
+								}
 							}
 						}
 					},
@@ -598,7 +1246,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/CosmosSignTx"
+							}
 						}
 					}
 				}
@@ -647,7 +1297,9 @@
 						"description": "Ok",
 						"content": {
 							"application/json": {
-								"schema": {}
+								"schema": {
+									"$ref": "#/components/schemas/ETHSignedTx"
+								}
 							}
 						}
 					},
@@ -668,7 +1320,9 @@
 					"required": true,
 					"content": {
 						"application/json": {
-							"schema": {}
+							"schema": {
+								"$ref": "#/components/schemas/ETHSignTx"
+							}
 						}
 					}
 				}

@@ -1,7 +1,7 @@
 import log from 'electron-log';
 import { Body, Controller, Get, Post, Route, Tags, Security, Response } from 'tsoa';
 import { keepkey } from '..';
-import { Read, Error, WriteBody, Write } from '../responses';
+import { Read, Error, WriteBody, Write } from '../types';
 
 
 //route

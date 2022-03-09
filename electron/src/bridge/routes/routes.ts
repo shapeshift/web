@@ -29,6 +29,283 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"balances":{"dataType":"array","array":{"dataType":"any"},"required":true},"accounts":{"dataType":"array","array":{"dataType":"nestedObjectLiteral","nestedProperties":{"caip":{"dataType":"string","required":true},"pubkey":{"dataType":"any","required":true}}},"required":true},"online":{"dataType":"boolean","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "PublicKey": {
+        "dataType": "refObject",
+        "properties": {
+            "xpub": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BIP32Path": {
+        "dataType": "refAlias",
+        "type": {"dataType":"array","array":{"dataType":"double"},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BTCInputScriptType": {
+        "dataType": "refEnum",
+        "enums": ["cashaddr","bech32","p2pkh","p2sh","external","p2wpkh","p2sh-p2wpkh"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Coin": {
+        "dataType": "refAlias",
+        "type": {"dataType":"string","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GetPublicKey": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "showDisplay": {"dataType":"boolean"},
+            "scriptType": {"ref":"BTCInputScriptType"},
+            "curve": {"dataType":"string","required":true},
+            "coin": {"ref":"Coin","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BTCGetAddress": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"showDisplay":{"dataType":"boolean"},"scriptType":{"ref":"BTCInputScriptType"},"addressNList":{"ref":"BIP32Path","required":true},"coin":{"ref":"Coin","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ETHGetAddress": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "showDisplay": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ThorchainGetAddress": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "showDisplay": {"dataType":"boolean"},
+            "testnet": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "OsmosisGetAddress": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "showDisplay": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BinanceGetAddress": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "showDisplay": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CosmosGetAddress": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "showDisplay": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "BTCSignedTx": {
+        "dataType": "refObject",
+        "properties": {
+            "signatures": {"dataType":"array","array":{"dataType":"string"},"required":true},
+            "serializedTx": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Thorchain.Msg": {
+        "dataType": "refObject",
+        "properties": {
+            "type": {"dataType":"string","required":true},
+            "value": {"dataType":"any","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Coins": {
+        "dataType": "refAlias",
+        "type": {"dataType":"array","array":{"dataType":"refAlias","ref":"Coin"},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Thorchain.StdFee": {
+        "dataType": "refObject",
+        "properties": {
+            "amount": {"ref":"Coins","required":true},
+            "gas": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "crypto.PubKey": {
+        "dataType": "refObject",
+        "properties": {
+            "type": {"dataType":"string","required":true},
+            "value": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Thorchain.StdSignature": {
+        "dataType": "refObject",
+        "properties": {
+            "pub_key": {"ref":"crypto.PubKey"},
+            "signature": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ThorchainTx": {
+        "dataType": "refObject",
+        "properties": {
+            "msg": {"dataType":"array","array":{"dataType":"refObject","ref":"Thorchain.Msg"},"required":true},
+            "fee": {"ref":"Thorchain.StdFee","required":true},
+            "signatures": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":[null]},{"dataType":"array","array":{"dataType":"refObject","ref":"Thorchain.StdSignature"}}],"required":true},
+            "memo": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "StdFee": {
+        "dataType": "refObject",
+        "properties": {
+            "amount": {"ref":"Coins","required":true},
+            "gas": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Msg": {
+        "dataType": "refObject",
+        "properties": {
+            "type": {"dataType":"string","required":true},
+            "value": {"dataType":"any","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "StdSignature": {
+        "dataType": "refObject",
+        "properties": {
+            "pub_key": {"ref":"crypto.PubKey"},
+            "signature": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Thorchain.StdTx": {
+        "dataType": "refObject",
+        "properties": {
+            "fee": {"ref":"StdFee","required":true},
+            "memo": {"dataType":"string","required":true},
+            "msg": {"dataType":"array","array":{"dataType":"refObject","ref":"Msg"},"required":true},
+            "signatures": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":[null]},{"dataType":"array","array":{"dataType":"refObject","ref":"StdSignature"}}],"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ThorchainSignTx": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "tx": {"ref":"Thorchain.StdTx","required":true},
+            "sequence": {"dataType":"string","required":true},
+            "account_number": {"dataType":"string","required":true},
+            "chain_id": {"dataType":"string","required":true},
+            "fee": {"dataType":"double"},
+            "testnet": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CosmosSignedTx": {
+        "dataType": "refObject",
+        "properties": {
+            "serialized": {"dataType":"string","required":true},
+            "body": {"dataType":"string","required":true},
+            "authInfoBytes": {"dataType":"string","required":true},
+            "signatures": {"dataType":"array","array":{"dataType":"string"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Cosmos.StdTx": {
+        "dataType": "refObject",
+        "properties": {
+            "msg": {"dataType":"array","array":{"dataType":"refObject","ref":"Msg"},"required":true},
+            "fee": {"ref":"StdFee","required":true},
+            "signatures": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":[null]},{"dataType":"array","array":{"dataType":"refObject","ref":"StdSignature"}}],"required":true},
+            "memo": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CosmosSignTx": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "tx": {"ref":"Cosmos.StdTx","required":true},
+            "chain_id": {"dataType":"string","required":true},
+            "account_number": {"dataType":"string","required":true},
+            "sequence": {"dataType":"string","required":true},
+            "fee": {"dataType":"double"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ETHSignedTx": {
+        "dataType": "refObject",
+        "properties": {
+            "v": {"dataType":"double","required":true},
+            "r": {"dataType":"string","required":true},
+            "s": {"dataType":"string","required":true},
+            "serialized": {"dataType":"string","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ExchangeType": {
+        "dataType": "refObject",
+        "properties": {
+            "signedExchangeResponse": {"dataType":"string","required":true},
+            "withdrawalCoinName": {"dataType":"string","required":true},
+            "withdrawalAddressNList": {"ref":"BIP32Path","required":true},
+            "withdrawalScriptType": {"ref":"BTCInputScriptType"},
+            "returnAddressNList": {"ref":"BIP32Path","required":true},
+            "returnScriptType": {"ref":"BTCInputScriptType"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ETHSignTx": {
+        "dataType": "refObject",
+        "properties": {
+            "addressNList": {"ref":"BIP32Path","required":true},
+            "nonce": {"dataType":"string","required":true},
+            "gasPrice": {"dataType":"string"},
+            "gasLimit": {"dataType":"string","required":true},
+            "maxFeePerGas": {"dataType":"string"},
+            "maxPriorityFeePerGas": {"dataType":"string"},
+            "to": {"dataType":"string","required":true},
+            "toAddressNList": {"ref":"BIP32Path"},
+            "value": {"dataType":"string","required":true},
+            "data": {"dataType":"string","required":true},
+            "chainId": {"dataType":"double","required":true},
+            "exchangeType": {"ref":"ExchangeType"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "SignedTx": {
         "dataType": "refObject",
         "properties": {
@@ -166,7 +443,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_getPublicKeys(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"dataType":"array","array":{"dataType":"refObject","ref":"GetPublicKey"}},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -190,7 +467,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_btcGetAddress(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"BTCGetAddress"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -214,7 +491,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_ethGetAddress(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"ETHGetAddress"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -238,7 +515,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_thorchainGetAddress(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"ThorchainGetAddress"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -262,7 +539,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_osmosisGetAddress(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"OsmosisGetAddress"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -286,7 +563,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_binanceGetAddress(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"BinanceGetAddress"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -310,7 +587,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_cosmosGetAddress(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"CosmosGetAddress"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -358,7 +635,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_thorchainSignTx(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"ThorchainSignTx"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -382,7 +659,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_cosmosSignTx(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"CosmosSignTx"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -430,7 +707,7 @@ export function RegisterRoutes(app: express.Router) {
 
             function SecuredController_ethSignTx(request: any, response: any, next: any) {
             const args = {
-                    body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                    body: {"in":"body","name":"body","required":true,"ref":"ETHSignTx"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

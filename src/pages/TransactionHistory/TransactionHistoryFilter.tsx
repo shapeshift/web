@@ -101,7 +101,7 @@ export const TransactionHistoryFilter = ({
         <DatePicker name={FilterFormFields.FromDate} control={control} />
         <Text
           fontWeight='300'
-          px={3}
+          px={1}
           color={'gray.500'}
           translation='transactionHistory.filters.to'
         />
@@ -136,7 +136,7 @@ export const TransactionHistoryFilter = ({
           </ButtonGroup>
         </PopoverTrigger>
         <PopoverContent
-          w='400px'
+          w='360px'
           maxWidth='100%'
           bg={popoverContentBg}
           boxShadow='lg'

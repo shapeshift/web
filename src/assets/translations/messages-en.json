@@ -662,9 +662,10 @@
       "10days": "10 days",
       "30days": "30 days",
       "90days": "90 days",
-      "sent": "Sent",
+      "send": "Send",
       "trade": "Trade",
-      "received": "Received",
+      "receive": "Receive",
+      "custom": "Custom",
       "apply": "Apply"
     },
     "downloadCSV": "Download CSV",

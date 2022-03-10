@@ -24,7 +24,7 @@ export const DatePicker = ({ control, name }: { control: Control; name: string }
         name={name}
         placeholderText='00/00/0000'
         autoComplete='off'
-        showPopperArrow={false}
+        formatWeekDay={(day: string) => day.slice(0, 1)}
       />
     </InputGroup>
   )

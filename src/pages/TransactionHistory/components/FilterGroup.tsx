@@ -9,12 +9,12 @@ import {
   RadioGroup,
   useColorModeValue
 } from '@chakra-ui/react'
-import { useState } from 'react'
+import { ReactChild, useState } from 'react'
 import { Control, useController } from 'react-hook-form'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
 
-type Option = [string, string]
+type Option = [string, string, ReactChild?]
 
 export const FilterGroup = ({
   title,
@@ -61,12 +61,15 @@ export const FilterGroup = ({
       <Collapse in={isOpen} unmountOnExit>
         <Box px={2} mb={2}>
           <GroupComponent value={value || []} onChange={onChange} name={name}>
-            {options.map(([title, optionValue]) => (
-              <Box key={optionValue} py={1}>
-                <InputComponent value={optionValue}>
-                  <Text translation={title} fontWeight='300' />
-                </InputComponent>
-              </Box>
+            {options.map(([title, optionValue, CustomComponent]: Option) => (
+              <>
+                <Box key={optionValue} py={1}>
+                  <InputComponent value={optionValue}>
+                    <Text translation={title} fontWeight='300' />
+                  </InputComponent>
+                </Box>
+                {!!CustomComponent && CustomComponent}
+              </>
             ))}
           </GroupComponent>
         </Box>

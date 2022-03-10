@@ -50,7 +50,13 @@ export const RouteSteps = ({
       {...styleProps}
     >
       {assetSymbol && action && (
-        <Text mb={30} fontWeight='bold' translation={[`defi.${action}Asset`, { assetSymbol }]} />
+        <Text
+          my={10}
+          fontSize='lg'
+          fontWeight='semibold'
+          textAlign='center'
+          translation={[`defi.${action}Asset`, { assetSymbol }]}
+        />
       )}
       <VerticalStepper activeStep={activeStep?.step || 0} steps={steps} />
     </Box>

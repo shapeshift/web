@@ -129,9 +129,9 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
         <>
           <Route exact path={StakeRoutes.Stake}>
             <ClaimConfirmRouter
-              cryptoAmount={bnOrZero('4242')}
+              cryptoAmount={bnOrZero('0.04123')}
+              fiatAmountAvailable='0.2365'
               assetId={assetId}
-              onCancel={handleCancel}
             />
           </Route>
         </>

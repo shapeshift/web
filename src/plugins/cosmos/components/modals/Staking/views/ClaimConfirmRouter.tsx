@@ -7,12 +7,13 @@ import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { StakingAction } from '../Staking'
+import { ClaimBroadcast } from './ClaimBroadcast'
 import { ClaimConfirm } from './ClaimConfirm'
 
 export type ClaimConfirmProps = {
   cryptoAmount: BigNumber
+  fiatAmountAvailable: string
   assetId: CAIP19
-  onCancel: () => void
 }
 
 export enum ClaimPath {
@@ -21,11 +22,11 @@ export enum ClaimPath {
 }
 
 export const claimConfirmRoutes = [
-  { step: 0, path: ClaimPath.Confirm, label: 'Confirm Details' },
-  { step: 1, path: ClaimPath.Broadcast, label: 'Broadcast TX' }
+  { step: 0, path: ClaimPath.Confirm, label: 'Confirm' },
+  { step: 1, path: ClaimPath.Broadcast, label: 'Broadcast' }
 ]
 
-const CosmosClaimRouter = ({ cryptoAmount, onCancel, assetId }: ClaimConfirmProps) => {
+const CosmosClaimRouter = ({ cryptoAmount, fiatAmountAvailable, assetId }: ClaimConfirmProps) => {
   const location = useLocation<ClaimConfirmProps>()
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
@@ -38,33 +39,30 @@ const CosmosClaimRouter = ({ cryptoAmount, onCancel, assetId }: ClaimConfirmProp
   return (
     <SlideTransition>
       <Switch location={location} key={location.key}>
-        <Flex minWidth={{ base: '100%', xl: '500px' }} flexDir={{ base: 'column', lg: 'row' }}>
+        <Flex minWidth={{ base: '100%', xl: '450px' }} flexDirection='column'>
           <RouteSteps
             assetSymbol={asset.symbol}
             action={StakingAction.Claim}
-            px={23}
-            py={43}
             routes={claimConfirmRoutes}
             location={location}
+            px={{ sm: '120px' }}
           />
-          <Flex
-            flexDir='column'
-            width='full'
-            minWidth={{ base: 'auto', lg: '450px' }}
-            maxWidth={{ base: 'auto', lg: '450px' }}
-          >
-            <Flex direction='column' minWidth='400px'>
-              <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
-                <ClaimConfirm
-                  cryptoStakeAmount={cryptoAmount}
-                  assetId={assetId}
-                  onCancel={onCancel}
-                />
-              </Route>
-              <Route exact key={ClaimPath.Broadcast} path={ClaimPath.Broadcast}>
-                TODO Claim Broadcast component
-              </Route>
-            </Flex>
+          <Flex direction='column' minWidth='450px'>
+            <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
+              <ClaimConfirm
+                cryptoStakeAmount={cryptoAmount}
+                fiatAmountAvailable={fiatAmountAvailable}
+                assetId={assetId}
+              />
+            </Route>
+            <Route exact key={ClaimPath.Broadcast} path={ClaimPath.Broadcast}>
+              <ClaimBroadcast
+                cryptoStakeAmount={cryptoAmount}
+                fiatAmountAvailable={fiatAmountAvailable}
+                assetId={assetId}
+                isLoading={true}
+              />
+            </Route>
           </Flex>
         </Flex>
       </Switch>

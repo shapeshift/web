@@ -52,7 +52,7 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
 
   abstract subscribeTxs(
     input: chainAdapters.SubscribeTxsInput,
-    onMessage: (msg: chainAdapters.SubscribeTxsMessage<T>) => void,
+    onMessage: (msg: chainAdapters.Transaction<T>) => void,
     onError?: (err: chainAdapters.SubscribeError) => void
   ): Promise<void>
   abstract unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void

@@ -1,31 +1,37 @@
 import { ChatIcon, SunIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Button,
   Flex,
   FlexProps,
   HStack,
   Link,
   Stack,
   useColorMode,
-  useColorModeValue
+  useColorModeValue,
+  useMediaQuery
 } from '@chakra-ui/react'
 import { FaMoon } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { Link as RouterLink } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { RawText, Text } from 'components/Text'
+import { breakpoints } from 'theme/theme'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
+import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
 type HeaderContentProps = {
   route: Route
+  isCompact?: boolean
 } & FlexProps
 
-export const SideNavContent = ({ route }: HeaderContentProps) => {
+export const SideNavContent = ({ route, isCompact }: HeaderContentProps) => {
   const { toggleColorMode } = useColorMode()
+  const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const isActive = useColorModeValue(false, true)
   return (
     <Flex
@@ -37,37 +43,47 @@ export const SideNavContent = ({ route }: HeaderContentProps) => {
       flexDir='column'
       p={4}
     >
-      <Flex width='full' display={{ base: 'block', md: 'none' }}>
-        <UserMenu />
-      </Flex>
-      <Flex width='full' display={{ base: 'block', md: 'none' }}>
-        <FiatRamps />
-      </Flex>
-      <Box mt={12} width='full' display={{ base: 'block', md: 'none' }}>
-        <AutoCompleteSearch />
-      </Box>
-      <NavBar mt={6} />
+      {!isLargerThanMd && (
+        <>
+          <Flex width='full'>
+            <UserMenu />
+          </Flex>
+          <Flex width='full'>
+            <FiatRamps />
+          </Flex>
+          <Box mt={12} width='full'>
+            <AutoCompleteSearch />
+          </Box>
+        </>
+      )}
+
+      <NavBar isCompact={isCompact} mt={6} />
       <Stack width='full'>
-        <Button
+        <MainNavLink
           variant='ghost'
-          isFullWidth
+          isCompact={isCompact}
           onClick={toggleColorMode}
-          justifyContent='space-between'
+          label={translate(isActive ? 'common.lightTheme' : 'common.darkTheme')}
           leftIcon={isActive ? <SunIcon /> : <FaMoon />}
-        >
-          <Text mr='auto' translation={isActive ? 'common.lightTheme' : 'common.darkTheme'} />
-        </Button>
-        <Button
+        />
+        <MainNavLink
           leftIcon={<ChatIcon />}
           as={Link}
+          isCompact={isCompact}
           justifyContent='flex-start'
           variant='ghost'
+          label={translate('common.submitFeedback')}
           isExternal
           href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
+        />
+        <HStack
+          display={{ base: 'none', '2xl': 'flex' }}
+          divider={<RawText mx={1}>•</RawText>}
+          fontSize='sm'
+          px={4}
+          mt={4}
+          color='gray.500'
         >
-          <Text translation='common.submitFeedback' />
-        </Button>
-        <HStack divider={<RawText mx={1}>•</RawText>} fontSize='sm' px={4} mt={4} color='gray.500'>
           <Link as={RouterLink} justifyContent='flex-start' to='/legal/terms-of-service'>
             <Text translation='common.terms' />
           </Link>

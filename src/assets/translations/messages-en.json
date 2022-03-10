@@ -56,6 +56,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "priceChange": "Price Change",
       "allocation": "Allocation",
       "empty": {
         "title": "Cricket noises...",
@@ -261,7 +262,8 @@
       "thor": {
         "transferOut": "Transfer out"
       }
-    }
+    },
+    "unknown": "Transaction"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
@@ -339,7 +341,7 @@
         }
       }
     },
-   "stake": {
+    "stake": {
       "txFees": {
         "low": "Low",
         "medium": "Medium",

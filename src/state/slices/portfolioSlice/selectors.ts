@@ -393,3 +393,55 @@ export const selectAccountIdsByAssetId = createSelector(
   selectAssetIdParam,
   findAccountsByAssetId
 )
+
+export type AccountRowData = {
+  name: string
+  icon: string
+  symbol: string
+  fiatAmount: string
+  cryptoAmount: string
+  assetId: AccountSpecifier
+  allocation: number
+  price: string
+  priceChange: number
+}
+
+export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
+  selectAssets,
+  selectMarketData,
+  selectPortfolioAssetBalances,
+  selectPortfolioTotalFiatBalance,
+  (assetsById, marketData, balances, totalPortfolioFiatBalance): AccountRowData[] => {
+    const assetRows = Object.entries(balances).reduce<AccountRowData[]>(
+      (acc, [assetId, baseUnitBalance]) => {
+        const name = assetsById[assetId]?.name
+        const icon = assetsById[assetId]?.icon
+        const symbol = assetsById[assetId]?.symbol
+        const precision = assetsById[assetId]?.precision
+        const price = marketData[assetId]?.price
+        const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
+        const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price)).toFixed(2)
+        const allocation = bnOrZero(fiatAmount)
+          .div(bnOrZero(totalPortfolioFiatBalance))
+          .times(100)
+          .toNumber()
+        const priceChange = marketData[assetId]?.changePercent24Hr
+        const data = {
+          assetId,
+          name,
+          icon,
+          symbol,
+          fiatAmount,
+          cryptoAmount,
+          allocation,
+          price,
+          priceChange
+        }
+        acc.push(data)
+        return acc
+      },
+      []
+    )
+    return assetRows
+  }
+)

@@ -6,6 +6,7 @@ import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAssetIds } from 'state/slices/selectors'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -37,13 +38,19 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     console.info('dispatching portfolio clear action')
     dispatch(portfolio.actions.clear())
     // fetch each account
-    accountSpecifiers.forEach(accountSpecifierMap =>
+    accountSpecifiers.forEach(accountSpecifierMap => {
       // forceRefetch is enabled here to make sure that we always have the latest wallet information
       // it also forces queryFn to run and that's needed for the wallet info to be dispatched
       dispatch(
         portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
       )
-    )
+      dispatch(
+        txHistoryApi.endpoints.getAllTxHistory.initiate(
+          { accountSpecifierMap },
+          { forceRefetch: true }
+        )
+      )
+    })
   }, [dispatch, accountSpecifiers])
 
   // we only prefetch market data for the top 1000 assets

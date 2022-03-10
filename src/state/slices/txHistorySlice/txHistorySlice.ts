@@ -1,13 +1,19 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query'
+import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+// import isEmpty from 'lodash/isEmpty'
+import last from 'lodash/last'
 import orderBy from 'lodash/orderBy'
+import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
+import { ReduxState } from 'state/reducer'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { addToIndex, getRelatedAssetIds } from './utils'
 
 export type TxId = string
-export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
+export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType
@@ -39,7 +45,7 @@ export type TxHistoryById = {
  */
 
 export type TxIdByAssetId = {
-  [k: CAIP19]: string[]
+  [k: CAIP19]: TxId[]
 }
 
 export type TxIdByAccountId = {
@@ -131,7 +137,86 @@ export const txHistory = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    onMessage: (txState, { payload }: TxMessage) =>
-      updateOrInsert(txState, payload.message, payload.accountSpecifier)
+    onMessage: (txState, { payload }: TxMessage) => {
+      return updateOrInsert(txState, payload.message, payload.accountSpecifier)
+    },
+    upsertTxs: (txState, { payload }) => {
+      // TODO: implementation
+      return txState
+    }
   }
 })
+
+type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
+
+export const txHistoryApi = createApi({
+  reducerPath: 'marketApi',
+  // not actually used, only used to satisfy createApi, we use a custom queryFn
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
+  endpoints: build => ({
+    getAllTxHistory: build.query<TxHistory, AllTxHistoryArgs>({
+      queryFn: async ({ accountSpecifierMap }, { dispatch, getState }) => {
+        // TODO(0xdef1cafe): handle this and return the right original state?
+        // if (isEmpty(accountSpecifierMap)) return { data: cloneDeep()}
+        const untypedState = getState()
+        const txHistoryState = (untypedState as ReduxState).txHistory
+
+        let txs: chainAdapters.Transaction<ChainTypes>[] = []
+        const chainAdapters = getChainAdapters()
+        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const { chain } = caip2.fromCAIP2(CAIP2)
+        const adapter = chainAdapters.byChain(chain)
+        let currentCursor: string = ''
+        const pageSize = 100
+        do {
+          const pubkey = last(accountSpecifier.split(':')) ?? ''
+          const { cursor: _cursor, transactions } = await adapter.getTxHistory({
+            cursor: currentCursor,
+            pubkey,
+            pageSize
+          })
+          currentCursor = _cursor
+          txs.concat(transactions)
+        } while (currentCursor)
+        const data = txArrayToState(txs, accountSpecifier, txHistoryState)
+        dispatch(txHistory.actions.upsertTxs(data))
+        return { data }
+      }
+    })
+  })
+})
+
+const txArrayToState = (
+  txs: chainAdapters.Transaction<ChainTypes>[],
+  accountSpecifier: AccountSpecifier,
+  currentState: TxHistory
+): TxHistory => {
+  const result = txs.reduce<TxHistory>((state, tx) => {
+    const txId = makeUniqueTxId(tx, accountSpecifier)
+    const ids = state.ids.concat(txId)
+    const byId = {
+      ...state.byId,
+      [txId]: tx
+    }
+    const byAccountId = {
+      ...state.byAccountId,
+      [accountSpecifier]: state.byAccountId[accountSpecifier].concat(txId)
+    }
+    // TODO(0xdef1cafe): parse the assetId from the tx
+    const assetId: CAIP19 = ''
+    const byAssetId = {
+      ...state.byAssetId,
+      [assetId]: state.byAssetId[assetId].concat(txId)
+    }
+    return {
+      ids,
+      byId,
+      byAccountId,
+      byAssetId
+    }
+  }, currentState)
+
+  return result
+}

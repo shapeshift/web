@@ -1,3 +1,15 @@
+# [@shapeshiftoss/chain-adapters-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.2.0...@shapeshiftoss/chain-adapters-v2.3.0) (2022-03-10)
+
+
+### Bug Fixes
+
+* update argument type ([#428](https://github.com/shapeshift/lib/issues/428)) ([08feb5e](https://github.com/shapeshift/lib/commit/08feb5e4e80c5329f4a34d84715086eea6beb722))
+
+
+### Features
+
+* cosmos tx history support ([#416](https://github.com/shapeshift/lib/issues/416)) ([94f24eb](https://github.com/shapeshift/lib/commit/94f24ebfe83f36bf0802d99bdcf7626905b82432))
+
 # [@shapeshiftoss/chain-adapters-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.1.0...@shapeshiftoss/chain-adapters-v2.2.0) (2022-03-08)
 
 

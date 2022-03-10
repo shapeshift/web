@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.0.0...@shapeshiftoss/types-v2.1.0) (2022-03-10)
+
+
+### Features
+
+* cosmos tx history support ([#416](https://github.com/shapeshift/lib/issues/416)) ([94f24eb](https://github.com/shapeshift/lib/commit/94f24ebfe83f36bf0802d99bdcf7626905b82432))
+
 # [@shapeshiftoss/types-v2.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v1.26.0...@shapeshiftoss/types-v2.0.0) (2022-03-03)
 
 

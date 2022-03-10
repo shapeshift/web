@@ -174,15 +174,15 @@ export class SecuredController extends Controller {
     @Response(500, "Internal server error")
     public async signTransaction(@Body() body: any): Promise<SignedTx> {
         return new Promise<SignedTx>(async (resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed() || !keepkey.event) return reject()
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
 
             windows.mainWindow.setAlwaysOnTop(true)
-            if (!windows.mainWindow.isVisible()) {
-                windows.mainWindow.show()
+            if (!windows.mainWindow.isFocusable) {
+                windows.mainWindow.focus()
                 app.dock.show()
             }
 
-            keepkey.event.sender.send('signTx', { payload: body })
+            windows.mainWindow.webContents.send('signTx', { payload: body })
             //hold till signed
             while (!shared.SIGNED_TX) {
                 console.log("waiting!")

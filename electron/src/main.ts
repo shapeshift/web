@@ -38,7 +38,7 @@ import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
-import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, IpcMainEvent } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
 
@@ -64,7 +64,8 @@ import { db } from './db'
 import { getDevice } from './wallet'
 import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 
-
+// dont allow muliple windows to open
+const instanceLock = app.requestSingleInstanceLock();
 
 
 const TAG = ' | MAIN | '
@@ -82,6 +83,7 @@ let USER_REJECT_PAIR: boolean
 let skipUpdateTimeout: NodeJS.Timeout
 let windowShowInterval: NodeJS.Timeout
 let shouldShowWindow = false;
+let skipUpdateCheckCompleted = false
 
 
 export const windows: {
@@ -114,22 +116,7 @@ if (process.env.PROD) {
     global.__statics = __dirname
 }
 
-
-function createWindow() {
-    // const keyring = new Keyring()
-    // getDevice(keyring).then((wallet) => {
-    //     if (wallet instanceof Error) return
-    //     // @ts-ignore
-    //     wallet.btcGetAddress({
-    //         addressNList: [2147483732, 2147483648, 2147483648, 0, 0],
-    //         coin: 'Bitcoin',
-    //         scriptType: 'p2wpkh',
-    //         showDisplay: false
-    //     }).then(console.log)
-    // })
-    /**
-     * Menu Bar
-     */
+export const createWindow = () => new Promise<boolean>((resolve, reject) => {
     log.info('Creating window!')
 
     //Auto launch on startup
@@ -158,9 +145,11 @@ function createWindow() {
         height: 780,
         show: false,
         backgroundColor: 'white',
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            // offscreen: true,
             devTools: true
         }
     })
@@ -175,19 +164,31 @@ function createWindow() {
 
     windows.mainWindow.loadURL(startURL)
 
+    windows.mainWindow.removeAllListeners('closed')
+    windows.mainWindow.removeAllListeners('ready-to-show')
+    ipcMain.removeAllListeners('@app/start')
+
     windows.mainWindow.on('closed', (event) => {
-        if (windows.mainWindow) windows.mainWindow.destroy()
-        stop_bridge(shared.eventIPC)
+        if (windows.mainWindow) {
+            windows.mainWindow.destroy()
+            windows.mainWindow = undefined
+        }
     })
 
-    windows.mainWindow.once("ready-to-show", () => {
+    windows.mainWindow.once('ready-to-show', () => {
         shouldShowWindow = true;
+        if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
+
+    ipcMain.on('@app/start', (event, data) => {
+        appStartListener(event, data, resolve)
+    })
 
     db.findOne({ type: 'user' }, (err, doc) => {
         if (doc) shared.USER = doc.user
     })
-}
+})
+
 
 app.setAsDefaultProtocolClient('keepkey')
 // Export so you can access it from the renderer thread
@@ -199,17 +200,30 @@ app.on('ready', async () => {
     if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
 })
 
+if (!instanceLock) {
+    app.quit();
+} else {
+    app.on("second-instance", (event, argv, workingDirectory) => {
+        if (windows.mainWindow) {
+            if (windows.mainWindow.isDestroyed()) {
+                createWindow();
+            } else if (windows.mainWindow.isMinimized()) {
+                windows.mainWindow.restore();
+            }
+            windows.mainWindow.focus();
+        } else {
+            createWindow();
+        }
+    });
+}
+
 app.on('window-all-closed', () => {
-    if (!isMac) {
-        app.quit()
-    }
+    return
 })
 
-app.on('activate', () => {
-    if (windows.mainWindow === null) {
-        createWindow()
-    }
-})
+app.on("activate", function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
 
 app.on('before-quit', () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -356,6 +370,7 @@ const skipUpdateCheck = (splash: BrowserWindow) => {
             }, 800);
         }
     }, 1000);
+    skipUpdateCheckCompleted = true
 }
 
 const createSplashWindow = () => {
@@ -388,15 +403,16 @@ ipcMain.on('@bridge/stop', async event => {
 ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
     try {
-        if (!bridgeRunning) start_bridge(event)
+        if (!bridgeRunning) start_bridge()
     } catch (e) {
         log.error(tag, e)
     }
 })
 
-ipcMain.on('@app/start', async (event, data) => {
+const appStartListener = async (event: IpcMainEvent, data: any, resolve: (value: boolean | PromiseLike<boolean>) => void) => {
     const tag = TAG + ' | onStartApp | '
     try {
+        resolve(true)
         log.info(tag, 'event: onStartApp: ', data)
 
         //load DB
@@ -445,7 +461,7 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error('Failed to create tray! e: ', e)
         }
         try {
-            if (!bridgeRunning) start_bridge(event)
+            if (!bridgeRunning) start_bridge()
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }
@@ -453,7 +469,7 @@ ipcMain.on('@app/start', async (event, data) => {
         usb.on('attach', function (device) {
             log.info('attach device: ', device)
             event.sender.send('attach', { device })
-            if (!bridgeRunning) start_bridge(event)
+            if (!bridgeRunning) start_bridge()
             update_keepkey_status(event)
         })
 
@@ -467,4 +483,6 @@ ipcMain.on('@app/start', async (event, data) => {
         log.error('e: ', e)
         log.error(tag, e)
     }
-})
+}
+
+

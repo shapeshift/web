@@ -1,4 +1,5 @@
 import log from 'electron-log';
+import { windows } from '../../main';
 import { Body, Controller, Get, Post, Route, Tags, Security, Response } from 'tsoa';
 import { keepkey } from '..';
 import { Read, Error, WriteBody, Write } from '../types';
@@ -23,7 +24,7 @@ export class DeviceController extends Controller {
             }
             // log.info('output: ', output)
             this.EVENT_LOG.push({ read: output })
-            if (keepkey.event) keepkey.event.sender.send('dataSent', { output })
+            if (windows.mainWindow) windows.mainWindow.webContents.send('dataSent', { output })
             return resolve(output)
         })
     }
@@ -38,7 +39,7 @@ export class DeviceController extends Controller {
             keepkey.transport.writeChunk(msg)
             log.info('input: ', msg.toString('hex'))
             // EVENT_LOG.push({ write: output })
-            if (keepkey.event) keepkey.event.sender.send('dataReceive', { output: msg })
+            if (windows.mainWindow) windows.mainWindow.webContents.send('dataReceive', { output: msg })
             return resolve({ output: msg.toString() })
         })
     }

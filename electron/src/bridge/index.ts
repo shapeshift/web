@@ -7,12 +7,13 @@ import log from 'electron-log'
 import { Device, NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
-import { ipcMain, IpcMainEvent } from 'electron'
+import { ipcMain } from 'electron'
 import { updateMenu } from '../tray'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { getDevice } from '../wallet'
+import { windows } from '../main'
 
 const appExpress = express()
 appExpress.use(cors())
@@ -50,7 +51,6 @@ export const keepkey: {
     STATUS: string,
     device: Device | null,
     transport: TransportDelegate | null,
-    event: IpcMainEvent | null,
     keyring: Keyring | null,
     wallet: KeepKeyHDWallet | null
 } = {
@@ -58,15 +58,13 @@ export const keepkey: {
     STATUS: 'preInit',
     device: null,
     transport: null,
-    event: null,
     keyring: null,
     wallet: null
 }
 
 
-export const start_bridge = async function (event: IpcMainEvent) {
+export const start_bridge = async function () {
     let tag = " | start_bridge | "
-    keepkey.event = event
     try {
         try {
             keepkey.device = await adapter.getDevice()
@@ -74,8 +72,8 @@ export const start_bridge = async function (event: IpcMainEvent) {
         } catch (e) {
             keepkey.STATE = 1
             keepkey.STATUS = `no devices`
-            event.sender.send('setKeepKeyState', { state: keepkey.STATE })
-            event.sender.send('setKeepKeyStatus', { status: keepkey.STATUS })
+            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
             return
         }
 
@@ -87,8 +85,8 @@ export const start_bridge = async function (event: IpcMainEvent) {
 
             keepkey.STATE = 2
             keepkey.STATUS = 'keepkey connected'
-            event.sender.send('setKeepKeyState', { state: keepkey.STATE })
-            event.sender.send('setKeepKeyStatus', { status: keepkey.STATUS })
+            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
         } else {
             log.info('Can not start! waiting for device connect')
         }
@@ -104,7 +102,7 @@ export const start_bridge = async function (event: IpcMainEvent) {
         // send paired apps when requested
         ipcMain.on('@bridge/paired-apps', (event) => {
             db.find({ type: 'service' }, (err, docs) => {
-                event.sender.send('@bridge/paired-apps', docs)
+                windows.mainWindow?.webContents.send('@bridge/paired-apps', docs)
             })
         })
 
@@ -132,20 +130,20 @@ export const start_bridge = async function (event: IpcMainEvent) {
         //port
         try {
             server = appExpress.listen(API_PORT, () => {
-                event.sender.send('playSound', { sound: 'success' })
+                windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)
                 keepkey.STATE = 3
                 keepkey.STATUS = 'bridge online'
-                event.sender.send('setKeepKeyState', { state: keepkey.STATE })
-                event.sender.send('setKeepKeyStatus', { status: keepkey.STATUS })
+                windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+                windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
                 updateMenu(keepkey.STATE)
             })
         } catch (e) {
-            event.sender.send('playSound', { sound: 'fail' })
+            windows.mainWindow?.webContents.send('playSound', { sound: 'fail' })
             keepkey.STATE = -1
             keepkey.STATUS = 'bridge error'
-            event.sender.send('setKeepKeyState', { state: keepkey.STATE })
-            event.sender.send('setKeepKeyStatus', { status: keepkey.STATUS })
+            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
             updateMenu(keepkey.STATE)
             log.info('e: ', e)
         }
@@ -159,14 +157,14 @@ export const start_bridge = async function (event: IpcMainEvent) {
 
 export const stop_bridge = async (event) => {
     try {
-        event.sender.send('playSound', { sound: 'fail' })
+        windows.mainWindow?.webContents.send('playSound', { sound: 'fail' })
         log.info('server: ', server)
         server.close(() => {
             log.info('Closed out remaining connections')
             keepkey.STATE = 2
             keepkey.STATUS = 'device connected'
-            event.sender.send('setKeepKeyState', { state: keepkey.STATE })
-            event.sender.send('setKeepKeyStatus', { status: keepkey.STATUS })
+            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
             updateMenu(keepkey.STATE)
         })
         bridgeRunning = false

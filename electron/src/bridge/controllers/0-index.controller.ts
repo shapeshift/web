@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import { uniqueId } from 'lodash';
 import { db } from '../../db';
-import { windows } from '../../main';
+import { createWindow, windows } from '../../main';
 import { shared } from '../../shared';
 
 import { Body, Controller, Get, Post, Header, Route, Tags, Response, SuccessResponse } from 'tsoa';
@@ -44,8 +44,10 @@ export class IndexController extends Controller {
     public async pair(@Body() body: PairBody, @Header('authorization') serviceKey: string): Promise<PairResponse> {
         return new Promise<PairResponse>(async (resolve, reject) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
-                this.setStatus(500)
-                return resolve({ success: false, reason: 'Window not open' })
+                if (!await createWindow()) {
+                    this.setStatus(500)
+                    return resolve({ success: false, reason: 'Window not open' })
+                }
             }
 
             if (!body.serviceImageUrl || !body.serviceName) {
@@ -63,6 +65,11 @@ export class IndexController extends Controller {
             if (isAlreadyPaired) return resolve({ success: true, reason: 'Service already exists' })
 
             const nonce = uniqueId()
+
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
+                this.setStatus(500)
+                return resolve({ success: false, reason: 'Window not open' })
+            }
 
             windows.mainWindow.webContents.send('@modal/pair', {
                 serviceName: body.serviceName,

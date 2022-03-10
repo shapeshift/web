@@ -3,7 +3,7 @@ import log from 'electron-log'
 import path from 'path'
 import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { assetsDirectory } from './constants'
-import { windows } from './main'
+import { createWindow, windows } from './main'
 import { shared } from './shared'
 
 let tray: Tray
@@ -20,23 +20,21 @@ export const menuTemplate: any = [
     { type: 'separator' },
     {
         label: 'Show App',
-        click: function () {
-            log.info('show App')
-            if (!windows.mainWindow) return
-            if (windows.mainWindow.isVisible()) {
-                windows.mainWindow.hide()
-                app.dock.hide()
+        enabled: true,
+        click: () => {
+            if (!windows.mainWindow) return createWindow()
+            if (windows.mainWindow.isDestroyed()) {
+                createWindow();
             } else {
-                windows.mainWindow.show()
-                app.dock.hide()
+                windows.mainWindow.focus();
             }
-        }
+        },
     },
     { type: 'separator' },
     {
         label: 'Start Bridge',
         click: function () {
-            if (!bridgeRunning && shared.eventIPC) start_bridge(shared.eventIPC)
+            if (!bridgeRunning) start_bridge()
             log.info('start bridge!!')
         },
         enabled: true
@@ -53,17 +51,14 @@ export const menuTemplate: any = [
     { type: 'separator' },
     {
         label: 'Toggle App',
-        click: function () {
-            log.info('show App')
-            if (!windows.mainWindow) return
-            if (windows.mainWindow.isVisible()) {
-                windows.mainWindow.hide()
-                app.dock.hide()
+        click: () => {
+            if (!windows.mainWindow) return createWindow()
+            if (windows.mainWindow.isDestroyed()) {
+                createWindow();
             } else {
-                windows.mainWindow.show()
-                app.dock.hide()
+                windows.mainWindow.focus();
             }
-        }
+        },
     },
     {
         label: 'Disable Auto Launch',
@@ -88,7 +83,7 @@ export const createTray = eventIpc => {
     const trayIcon = `${lightDark}/keepKey/unknown.png`
     tray = new Tray(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
-    tray.setContextMenu(contextMenu)
+    Menu.setApplicationMenu(contextMenu)
 }
 
 export const updateMenu = status => {

@@ -2,9 +2,10 @@ import { app, ipcMain } from 'electron';
 import { windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { keepkey } from '../';
-import { GenericResponse, SignedTx } from '../responses';
+import { GenericResponse, SignedTx } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
+import { BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, GetPublicKey, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
 
 @Tags('Secured Endpoints')
 @Route('')
@@ -31,63 +32,51 @@ export class SecuredController extends Controller {
     @Post('/getPublicKeys')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async getPublicKeys(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async getPublicKeys(@Body() body: GetPublicKey[]): Promise<Array<PublicKey | null>> {
+        return new Promise<Array<PublicKey | null>>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/getPublicKeys', { body })
-            ipcMain.once(`@hdwallet/response/getPublicKeys`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.getPublicKeys(body).then(resolve)
         })
     }
 
     @Post('/btcGetAddress')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async btcGetAddress(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async btcGetAddress(@Body() body: BTCGetAddress): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/btcGetAddress', { body })
-            ipcMain.once(`@hdwallet/response/btcGetAddress`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.btcGetAddress(body).then(resolve)
         })
     }
 
     @Post('/ethGetAddress')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async ethGetAddress(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async ethGetAddress(@Body() body: ETHGetAddress): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/ethGetAddress', { body })
-            ipcMain.once(`@hdwallet/response/ethGetAddress`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.ethGetAddress(body).then(resolve)
         })
     }
 
     @Post('/thorchainGetAddress')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async thorchainGetAddress(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async thorchainGetAddress(@Body() body: ThorchainGetAddress): Promise<string | null> {
+        return new Promise<string | null>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/thorchainGetAddress', { body })
-            ipcMain.once(`@hdwallet/response/thorchainGetAddress`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.thorchainGetAddress(body).then(resolve)
         })
     }
 
     @Post('/osmosisGetAddress')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async osmosisGetAddress(@Body() body: any): Promise<any> {
+    public async osmosisGetAddress(@Body() body: OsmosisGetAddress): Promise<any> {
         return new Promise<any>((resolve, reject) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
 
@@ -101,42 +90,34 @@ export class SecuredController extends Controller {
     @Post('/binanceGetAddress')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async binanceGetAddress(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async binanceGetAddress(@Body() body: BinanceGetAddress): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/binanceGetAddress', { body })
-            ipcMain.once(`@hdwallet/response/binanceGetAddress`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.binanceGetAddress(body).then(resolve)
         })
     }
 
     @Post('/cosmosGetAddress')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async cosmosGetAddress(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async cosmosGetAddress(@Body() body: CosmosGetAddress): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/cosmosGetAddress', { body })
-            ipcMain.once(`@hdwallet/response/cosmosGetAddress`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.cosmosGetAddress(body).then(resolve)
         })
     }
 
     @Post('/btcSignTx')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async btcSignTx(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async btcSignTx(@Body() body: any): Promise<BTCSignedTx> {
+        // BTCSignTxKK results in a circular import
+        return new Promise<BTCSignedTx>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/btcSignTx', { body })
-            ipcMain.once(`@hdwallet/response/btcSignTx`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.btcSignTx(body).then(resolve)
         })
     }
 
@@ -144,28 +125,22 @@ export class SecuredController extends Controller {
     @Post('/thorchainSignTx')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async thorchainSignTx(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async thorchainSignTx(@Body() body: ThorchainSignTx): Promise<ThorchainTx> {
+        return new Promise<ThorchainTx>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/thorchainSignTx', { body })
-            ipcMain.once(`@hdwallet/response/thorchainSignTx`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.thorchainSignTx(body).then(resolve)
         })
     }
 
     @Post('/cosmosSignTx')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async cosmosSignTx(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async cosmosSignTx(@Body() body: CosmosSignTx): Promise<CosmosSignedTx> {
+        return new Promise<CosmosSignedTx>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/cosmosSignTx', { body })
-            ipcMain.once(`@hdwallet/response/cosmosSignTx`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.cosmosSignTx(body).then(resolve)
         })
     }
 
@@ -186,14 +161,11 @@ export class SecuredController extends Controller {
     @Post('/ethSignTx')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async ethSignTx(@Body() body: any): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
+    public async ethSignTx(@Body() body: ETHSignTx): Promise<ETHSignedTx> {
+        return new Promise<ETHSignedTx>((resolve, reject) => {
+            if (!keepkey.wallet) return reject()
 
-            windows.mainWindow.webContents.send('@hdwallet/ethSignTx', { body })
-            ipcMain.once(`@hdwallet/response/ethSignTx`, (event, data) => {
-                resolve(data)
-            })
+            keepkey.wallet.ethSignTx(body).then(resolve)
         })
     }
 
@@ -202,15 +174,15 @@ export class SecuredController extends Controller {
     @Response(500, "Internal server error")
     public async signTransaction(@Body() body: any): Promise<SignedTx> {
         return new Promise<SignedTx>(async (resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed() || !keepkey.event) return reject()
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
 
             windows.mainWindow.setAlwaysOnTop(true)
-            if (!windows.mainWindow.isVisible()) {
-                windows.mainWindow.show()
+            if (!windows.mainWindow.isFocusable) {
+                windows.mainWindow.focus()
                 app.dock.show()
             }
 
-            keepkey.event.sender.send('signTx', { payload: body })
+            windows.mainWindow.webContents.send('signTx', { payload: body })
             //hold till signed
             while (!shared.SIGNED_TX) {
                 console.log("waiting!")

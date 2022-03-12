@@ -1,11 +1,12 @@
-import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core';
+import { Keyring } from '@shapeshiftoss/hdwallet-core';
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import log from 'electron-log';
 
 
 const TAG = ' | WALLET | '
 
-export const getDevice = async function (keyring: Keyring): Promise<HDWallet | Error> {
+export const getDevice = async function (keyring: Keyring): Promise<KeepKeyHDWallet | Error> {
     let tag = TAG + " | getDevice | "
     try {
         const keepkeyAdapter = NodeWebUSBKeepKeyAdapter.useKeyring(keyring);
@@ -14,7 +15,7 @@ export const getDevice = async function (keyring: Keyring): Promise<HDWallet | E
             log.debug(tag, "Device found!")
             log.debug(tag, "wallet: ", wallet)
         }
-        return wallet;
+        return wallet as KeepKeyHDWallet;
     } catch (e: any) {
         //log.error(tag,"*** e: ",e.toString())
         log.info("failed to get device: ", e.message)

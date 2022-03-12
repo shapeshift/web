@@ -91,6 +91,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     if (!wallet) throw new Error('No wallet connected')
 
+    if(Number(values.cryptoAmount) === 0){
+      values.cryptoAmount="0.00001"
+    }
+  
     const value = bnOrZero(values.cryptoAmount)
       .times(bnOrZero(10).exponentiatedBy(values.asset.precision))
       .toFixed(0)

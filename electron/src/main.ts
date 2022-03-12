@@ -166,7 +166,7 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
 
     windows.mainWindow.removeAllListeners('closed')
     windows.mainWindow.removeAllListeners('ready-to-show')
-    ipcMain.removeAllListeners('@app/start')
+    ipcMain.removeAllListeners('@wallet/connected')
 
     windows.mainWindow.on('closed', (event) => {
         if (windows.mainWindow) {
@@ -180,8 +180,8 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
 
-    ipcMain.on('@app/start', (event, data) => {
-        appStartListener(event, data, resolve)
+    ipcMain.on('@wallet/connected', (event, data) => {
+        resolve(true)
     })
 
     db.findOne({ type: 'user' }, (err, doc) => {
@@ -409,10 +409,9 @@ ipcMain.on('@bridge/start', async event => {
     }
 })
 
-const appStartListener = async (event: IpcMainEvent, data: any, resolve: (value: boolean | PromiseLike<boolean>) => void) => {
+ipcMain.on('@app/start', async (event, data) => {
     const tag = TAG + ' | onStartApp | '
     try {
-        resolve(true)
         log.info(tag, 'event: onStartApp: ', data)
 
         //load DB
@@ -486,3 +485,4 @@ const appStartListener = async (event: IpcMainEvent, data: any, resolve: (value:
 }
 
 
+)

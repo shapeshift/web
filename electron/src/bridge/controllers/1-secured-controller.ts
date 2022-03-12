@@ -1,11 +1,11 @@
 import { app, ipcMain } from 'electron';
-import { windows } from '../../main';
+import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { keepkey } from '../';
-import { GenericResponse, SignedTx } from '../types';
+import { GenericResponse, SignedTx, GetPublicKey } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
-import { BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, GetPublicKey, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
+import { BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
 
 @Tags('Secured Endpoints')
 @Route('')
@@ -36,6 +36,7 @@ export class SecuredController extends Controller {
         return new Promise<Array<PublicKey | null>>((resolve, reject) => {
             if (!keepkey.wallet) return reject()
 
+            // @ts-ignore
             keepkey.wallet.getPublicKeys(body).then(resolve)
         })
     }
@@ -174,6 +175,10 @@ export class SecuredController extends Controller {
     @Response(500, "Internal server error")
     public async signTransaction(@Body() body: any): Promise<SignedTx> {
         return new Promise<SignedTx>(async (resolve, reject) => {
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
+                if (!await createWindow()) return reject()
+            }
+
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
 
             windows.mainWindow.setAlwaysOnTop(true)

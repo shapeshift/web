@@ -1,3 +1,5 @@
+import { BIP32Path, BTCInputScriptType, Coin } from "@shapeshiftoss/hdwallet-core"
+
 export interface GenericResponse {
     success: boolean
 }
@@ -51,4 +53,13 @@ export interface WriteBody {
 export interface Error {
     success: boolean
     reason: string
+}
+
+export interface GetPublicKey {
+    addressNList: BIP32Path;
+    showDisplay?: boolean;
+    scriptType?: BTCInputScriptType;
+    curve?: string;
+    coin: Coin;
+    symbol?: string
 }

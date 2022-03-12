@@ -101,11 +101,13 @@
 					},
 					"coin": {
 						"$ref": "#/components/schemas/Coin"
+					},
+					"symbol": {
+						"type": "string"
 					}
 				},
 				"required": [
 					"addressNList",
-					"curve",
 					"coin"
 				],
 				"type": "object",
@@ -790,7 +792,7 @@
 	},
 	"info": {
 		"title": "keepkey-desktop",
-		"version": "0.1.33",
+		"version": "0.1.34",
 		"contact": {
 			"name": "Highlander ",
 			"email": "bithighlander@gmail.com"

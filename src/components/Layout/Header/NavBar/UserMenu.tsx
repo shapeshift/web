@@ -12,6 +12,7 @@ import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
+import { KeyManager } from 'context/WalletProvider/config'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
 
@@ -40,15 +41,18 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
-} & Pick<InitialState, 'walletInfo' | 'isConnected'>
+} & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
 
 const WalletConnected = ({
   walletInfo,
   isConnected,
   onDisconnect,
-  onSwitchProvider
+  onSwitchProvider,
+  type
 }: WalletConnectedProps) => {
   const translate = useTranslate()
+  const isKeepKey = type === KeyManager.KeepKey
+
   return (
     <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
       <MenuItem icon={<WalletImage walletInfo={walletInfo} />}>
@@ -61,6 +65,7 @@ const WalletConnected = ({
               color='yellow.500'
             />
           )}
+          {isKeepKey && <ChevronRightIcon />}
         </Flex>
       </MenuItem>
       <MenuDivider ml={3} />
@@ -152,7 +157,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
-  const { isConnected, walletInfo } = state
+  const { isConnected, walletInfo, type } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -173,6 +178,7 @@ export const UserMenu = () => {
             walletInfo={walletInfo}
             onDisconnect={disconnect}
             onSwitchProvider={handleConnect}
+            type={type}
           />
         ) : (
           <NoWallet onClick={handleConnect} />

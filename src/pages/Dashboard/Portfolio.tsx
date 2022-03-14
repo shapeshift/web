@@ -48,7 +48,6 @@ export const Portfolio = () => {
               </Skeleton>
             </Card.Heading>
             {isFinite(percentChange) && (
-              //@TODO: fix the all percent change currently shows infinite
               <Skeleton mt={2} isLoaded={!!percentChange}>
                 <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
                   <StatNumber fontSize='md' display='flex' alignItems='center'>

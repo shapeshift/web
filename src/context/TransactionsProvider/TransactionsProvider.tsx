@@ -20,7 +20,13 @@ type TransactionsProviderProps = {
 }
 
 export const useNewTxIds = () => {
+  // note that both of these states require the | undefined type, as
+  // a new wallet can have an empty array of txs, which is valid,
+  // so we can't use a length check for existence
+
+  // past tx ids are what we track after the txs are initially loaded
   const [pastTxIds, setPastTxIds] = useState<TxId[] | undefined>()
+  // these are new txs after the loaded flag is set
   const [newTxIds, setNewTxIds] = useState<TxId[] | undefined>()
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)

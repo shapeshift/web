@@ -2,14 +2,12 @@ import {
   Input,
   FormControl,
   FormLabel,
-  FormErrorMessage,
   FormHelperText,
   Alert,
   AlertDescription,
   AlertIcon,
   Box,
   Button,
-  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -17,13 +15,14 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
-  useClipboard
+  IconButton
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect, useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { FaClipboard } from 'react-icons/fa'
 
 export type PairingProps = {
   serviceName: string
@@ -34,10 +33,9 @@ export type PairingProps = {
 export const WalletConnectModal = (input: any) => {
   const [error] = useState<string | null>(null)
   const [loading] = useState(false)
-  const [uri, setUri] = useState('uri:.....')
+  const [uri, setUri] = useState('')
   const { walletConnect } = useModal()
   const { close, isOpen } = walletConnect
-  const { hasCopied, onCopy } = useClipboard(uri)
 
   const HandleSubmit = async (e: any) => {
     console.log("uri: ", uri)
@@ -47,7 +45,7 @@ export const WalletConnectModal = (input: any) => {
 
   const handleInputChange = (e: { target: { value: any } }) => setUri(e.target.value)
 
-  useEffect(() => {
+  const copyFromClipboard = () => {
     // @ts-ignore
     navigator.permissions.query({ name: "clipboard-read" }).then(async (result) => {
       // If permission to read the clipboard is granted or if the user will
@@ -60,7 +58,7 @@ export const WalletConnectModal = (input: any) => {
         });
       }
     });
-  }, [navigator.permissions])
+  }
 
   // const HandleReject = async () => {
   //   ipcRenderer.send(`@bridge/reject-service-${input.nonce}`, input)
@@ -100,11 +98,14 @@ export const WalletConnectModal = (input: any) => {
               )}
               <FormControl>
                 <FormLabel htmlFor='uri'>URI</FormLabel>
-                <Input
-                  id='uri'
-                  value={uri}
-                  onChange={handleInputChange}
-                />
+                <Box display='flex' flexDirection='row' >
+                  <Input
+                    id='uri'
+                    value={uri}
+                    onChange={handleInputChange}
+                  />
+                  <IconButton ml={4} aria-label='Copy from clipboard' icon={<FaClipboard />} onClick={copyFromClipboard} />
+                </Box>
                 <FormHelperText>Enter Wallet Connect URI</FormHelperText>
                 <Button
                   mt={4}

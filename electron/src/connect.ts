@@ -51,9 +51,9 @@ export async function pairWalletConnect(event:any,payload:any) {
         log.info(tag,"payload: ",payload)
 
         //connect to URI
-        let success = await walletConnectClient.pair({ uri:payload.uri })
+        let success = await walletConnectClient.pair({ uri:payload })
         log.info(tag,"success: ",success)
-        
+
         // //TODO UX pairing
         // event.sender.send("@app/onSuccessPair", {});
     }catch(e){

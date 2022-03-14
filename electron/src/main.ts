@@ -410,10 +410,10 @@ ipcMain.on('@bridge/start', async event => {
     }
 })
 
-ipcMain.on('@connect/pair', async event => {
+ipcMain.on('@connect/pair', async (event, data) => {
     const tag = TAG + ' | onPairWalletConnect | '
     try {
-
+        pairWalletConnect(event,data)
     } catch (e) {
         log.error(tag, e)
     }

@@ -455,9 +455,9 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error(e)
         }
 
-        //sub to walletConnect
+        //setup walletConnect
         try{
-            let walletConnectClient = createWalletConnectClient(event)
+            createWalletConnectClient(event)
         }catch(e){
             log.error(e)
         }

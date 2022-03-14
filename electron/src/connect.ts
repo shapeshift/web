@@ -73,11 +73,11 @@ export async function createWalletConnectClient(event:any) {
     // @ts-ignore
     walletConnectClient = await WalletConnectClient.init({
         controller: true,
-        projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+        projectId: "14d36ca1bc76a70273d44d384e8475ae",
         relayUrl: process.env.NEXT_PUBLIC_RELAY_URL ?? 'wss://relay.walletconnect.com',
         metadata: {
             name: 'KeepKey Desktop',
-            description: 'a companion app for the keepkey device',
+            description: 'a companion app for the KeepKey device',
             url: 'https://keepkey.com/',
             icons: ['https://assets.website-files.com/5cec55545d0f47cfe2a39a8e/5e9bcf1fd3886ab687f29cdc_logo%20(2).png']
         }
@@ -202,5 +202,7 @@ export async function createWalletConnectClient(event:any) {
     walletConnectClient.on(CLIENT_EVENTS.session.created, onSessionCreated)
 
     walletConnectClient.on(CLIENT_EVENTS.session.request, onSignRequest)
+
+    return true
 }
 

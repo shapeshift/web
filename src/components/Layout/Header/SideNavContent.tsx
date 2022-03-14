@@ -64,8 +64,8 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
         />
         <MainNavLink
           leftIcon={<ChatIcon />}
-          as={Link}
           isCompact={isCompact}
+          as={Link}
           justifyContent='flex-start'
           variant='ghost'
           label={translate('common.submitFeedback')}

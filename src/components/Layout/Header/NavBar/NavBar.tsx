@@ -21,10 +21,10 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
         .map((item, idx) => {
           return (
             <MainNavLink
+              isCompact={isCompact}
               as={ReactRouterLink}
               key={idx}
               leftIcon={item.icon}
-              isCompact={isCompact}
               href={item.path}
               to={item.path}
               label={translate(item.label)}

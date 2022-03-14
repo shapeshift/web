@@ -1,4 +1,5 @@
 import { Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { Card } from 'components/Card/Card'
@@ -7,7 +8,7 @@ import { RawText } from 'components/Text'
 import { slices } from 'state/reducer'
 import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { clearState, store, useAppSelector } from 'state/store'
+import { AppDispatch, clearState, useAppSelector } from 'state/store'
 
 import { FlagRow } from './FlagRow'
 
@@ -26,6 +27,7 @@ const FlagHeader = () => {
 
 export const Flags = ({ route }: FlagsPageProps) => {
   const history = useHistory()
+  const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
   const handleReset = async () => {
@@ -40,7 +42,7 @@ export const Flags = ({ route }: FlagsPageProps) => {
 
   const handleResetPrefs = async () => {
     try {
-      store.dispatch(slices.preferences.actions.clear())
+      dispatch(slices.preferences.actions.clear())
     } catch (e) {
       console.error('handleResetPrefs: ', e)
     }
@@ -58,7 +60,9 @@ export const Flags = ({ route }: FlagsPageProps) => {
         </Card.Body>
       </Card>
       <HStack my={4}>
-        <Button onClick={handleReset}>Reset App</Button>
+        <Button onClick={handleReset} colorScheme='blue'>
+          Apply
+        </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
       </HStack>
     </Main>

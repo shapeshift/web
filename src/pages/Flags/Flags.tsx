@@ -20,7 +20,13 @@ const FlagHeader = () => {
   return (
     <Stack pb={4}>
       <Heading>Flags</Heading>
-      <RawText color='gray.500'>Turn on and off flags, by toggling the switch.</RawText>
+      <RawText color='red.500' fontStyle='italic'>
+        These features are <strong>experimental</strong> and in <strong>active development</strong>.
+        They may be incomplete and/or non-functional. Use at your own risk.
+      </RawText>
+      <RawText color='gray.500'>
+        Turn on and off flags by toggling the switch then press "Apply" to reset the application.
+      </RawText>
     </Stack>
   )
 }

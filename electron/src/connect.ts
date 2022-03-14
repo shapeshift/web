@@ -6,34 +6,35 @@
 
 
 import WalletConnectClient from '@walletconnect/client'
+import { CLIENT_EVENTS } from '@walletconnect/client'
 import log from 'electron-log'
 import {app} from "electron";
 
 export let walletConnectClient: WalletConnectClient
 
-export declare const CLIENT_EVENTS: {
-    pairing: {
-        proposal: string;
-        updated: string;
-        upgraded: string;
-        extended: string;
-        created: string;
-        deleted: string;
-        sync: string;
-    };
-    session: {
-        proposal: string;
-        updated: string;
-        upgraded: string;
-        extended: string;
-        created: string;
-        deleted: string;
-        notification: string;
-        request: string;
-        response: string;
-        sync: string;
-    };
-};
+// const CLIENT_EVENTS = {
+//     pairing: {
+//         proposal: string;
+//         updated: string;
+//         upgraded: string;
+//         extended: string;
+//         created: string;
+//         deleted: string;
+//         sync: string;
+//     };
+//     session: {
+//         proposal: string;
+//         updated: string;
+//         upgraded: string;
+//         extended: string;
+//         created: string;
+//         deleted: string;
+//         notification: string;
+//         request: string;
+//         response: string;
+//         sync: string;
+//     };
+// };
 
 export const EIP155_SIGNING_METHODS = {
     PERSONAL_SIGN: 'personal_sign',

@@ -297,15 +297,15 @@
       "restore": "Restore KeepKey from seed"
     },
     "firmware": {
-        "header": "Update Required for Your KeepKey!",
-        "bootloaderUpdate": "Updating your devices BootLoader",
-        "FirmwareUpdate": "Updating your devices Firmware",
-        "update": "check KeepKey Status",
-        "continue": "approve and continue",
-        "bootloaderNeeded": "to continue you must updater your bootloader!",
-        "firmwareNeeded": "to continue you must updater your firmware!",
-        "bootloader": "BootLoader version",
-        "firmware": "Firmware version"
+      "header": "Update Required for Your KeepKey!",
+      "bootloaderUpdate": "Updating your devices BootLoader",
+      "FirmwareUpdate": "Updating your devices Firmware",
+      "update": "check KeepKey Status",
+      "continue": "approve and continue",
+      "bootloaderNeeded": "to continue you must updater your bootloader!",
+      "firmwareNeeded": "to continue you must updater your firmware!",
+      "bootloader": "BootLoader version",
+      "firmware": "Firmware version"
     },
     "shapeShift": {
       "password": {
@@ -336,7 +336,7 @@
       "to": "To",
       "router": "Router",
       "memo": "Memo",
-      "protocol":"Protocol",
+      "protocol": "Protocol",
       "broadcastingTransaction": "Broadcasting Transaction",
       "errors": {
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
@@ -454,7 +454,10 @@
       "loadingText": "Pairing Wallet"
     },
     "pair": {
-      "header": "App pairing request",
+      "header": {
+        "native": "App pairing request",
+        "walletconnect": "Wallet Connect pairing request"
+      },
       "body": "%{serviceName} wants to pair with your KeepKey",
       "cta": {
         "pair": "Pair",

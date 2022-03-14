@@ -46,6 +46,7 @@
     "@visx/responsive": "^2.8.0",
     "@visx/shape": "^2.4.0",
     "@visx/tooltip": "^2.8.0",
+    "@walletconnect/client": "^1.7.4",
     "allsettled-polyfill": "^1.0.4",
     "auto-launch": "^5.0.5",
     "axios": "^0.24.0",

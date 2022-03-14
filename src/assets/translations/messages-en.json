@@ -40,7 +40,8 @@
     "days": "Days",
     "devTools": "Developer Tools",
     "pairedApps": "View Paired Apps",
-    "viewAsset": "View Asset"
+    "viewAsset": "View Asset",
+    "walletConnect": "Wallet Connect"
   },
   "updateToast": {
     "body": "A new version of the app is available",

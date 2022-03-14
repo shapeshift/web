@@ -150,6 +150,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
+  const { walletConnect } = useModal()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
 
@@ -157,6 +158,11 @@ export const UserMenu = () => {
 
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }
+
+  const handleWalletConnect = () => {
+    console.log("OPEN WALLET CONNECT")
+    walletConnect.open({})
   }
 
   return (
@@ -178,6 +184,12 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
+        <MenuItem
+            icon={<ExternalLinkIcon />}
+            onClick={handleWalletConnect}
+        >
+          <Text translation='common.walletConnect' />
+        </MenuItem>
         <MenuItem
           icon={<ExternalLinkIcon />}
           as={Link}

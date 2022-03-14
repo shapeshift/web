@@ -1,4 +1,9 @@
 import {
+  Input,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
   Alert,
   AlertDescription,
   AlertIcon,
@@ -11,7 +16,8 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Stack
+  Stack,
+  useClipboard
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useState } from 'react'
@@ -25,21 +31,25 @@ export type PairingProps = {
   nonce: string
 }
 
-export const WalletConnectModal = (input: PairingProps) => {
+export const WalletConnectModal = (input: any) => {
   const [error] = useState<string | null>(null)
   const [loading] = useState(false)
-  const { pair } = useModal()
-  const { close, isOpen } = pair
+  const [uri, setUri] = useState('uri:.....')
+  const { walletConnect } = useModal()
+  const { close, isOpen } = walletConnect
+  const { hasCopied, onCopy } = useClipboard(uri)
 
-  const HandleSubmit = async () => {
-    ipcRenderer.send(`@bridge/approve-service-${input.nonce}`, input)
-    close()
+  const HandleSubmit = async (e:any) => {
+    console.log("uri: ",uri)
+    ipcRenderer.send(`@connect/pair`, uri)
   }
 
-  const HandleReject = async () => {
-    ipcRenderer.send(`@bridge/reject-service-${input.nonce}`, input)
-    close()
-  }
+  const handleInputChange = (e: { target: { value: any } }) => setUri(e.target.value)
+
+  // const HandleReject = async () => {
+  //   ipcRenderer.send(`@bridge/reject-service-${input.nonce}`, input)
+  //   close()
+  // }
 
   return (
     <SlideTransition>
@@ -62,11 +72,7 @@ export const WalletConnectModal = (input: PairingProps) => {
           <ModalBody>
             <Stack spacing={4} mb={4}>
               <Box display='inline-flex' justifyContent='center' alignItems='center'>
-                <Image src={input.serviceImageUrl} borderRadius='full' height='10' width='10' />
-                <Text
-                  translation={['modals.pair.body', { serviceName: input.serviceName }]}
-                  pl='2'
-                />
+
               </Box>
               {error && (
                 <Alert status='error'>
@@ -76,24 +82,23 @@ export const WalletConnectModal = (input: PairingProps) => {
                   </AlertDescription>
                 </Alert>
               )}
-              <Button
-                width='full'
-                size='lg'
-                colorScheme='blue'
-                onClick={HandleSubmit}
-                disabled={loading}
-              >
-                <Text translation={'modals.pair.cta.pair'} />
-              </Button>
-              <Button
-                width='full'
-                size='lg'
-                colorScheme='red'
-                onClick={HandleReject}
-                disabled={loading}
-              >
-                <Text translation={'modals.pair.cta.reject'} />
-              </Button>
+              <FormControl>
+                <FormLabel htmlFor='uri'>URI</FormLabel>
+                <Input
+                    id='uri'
+                    value={uri}
+                    onChange={handleInputChange}
+                />
+                <FormHelperText>Enter Wallet Connect URI</FormHelperText>
+                <Button
+                    mt={4}
+                    colorScheme='teal'
+                    type='submit'
+                    onClick={HandleSubmit}
+                >
+                  Submit
+                </Button>
+              </FormControl>
             </Stack>
           </ModalBody>
         </ModalContent>

@@ -36,7 +36,7 @@ const MODALS = {
   cosmosGetStarted: GetStartedModal,
   cosmosStaked: StakedModal,
   cosmosStaking: StakingModal,
-  WalletConnectModal: WalletConnectModal
+  walletConnect: WalletConnectModal
 }
 
 // state

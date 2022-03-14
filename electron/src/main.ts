@@ -63,7 +63,7 @@ import { isWin, isLinux, isMac } from './constants'
 import { db } from './db'
 import { getDevice } from './wallet'
 import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { createWalletConnectClient } from './connect'
+import { createWalletConnectClient, pairWalletConnect } from './connect'
 
 // dont allow muliple windows to open
 const instanceLock = app.requestSingleInstanceLock();
@@ -405,6 +405,15 @@ ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
     try {
         if (!bridgeRunning) start_bridge()
+    } catch (e) {
+        log.error(tag, e)
+    }
+})
+
+ipcMain.on('@connect/pair', async event => {
+    const tag = TAG + ' | onPairWalletConnect | '
+    try {
+
     } catch (e) {
         log.error(tag, e)
     }

@@ -12,30 +12,6 @@ import {app} from "electron";
 
 export let walletConnectClient: WalletConnectClient
 
-// const CLIENT_EVENTS = {
-//     pairing: {
-//         proposal: string;
-//         updated: string;
-//         upgraded: string;
-//         extended: string;
-//         created: string;
-//         deleted: string;
-//         sync: string;
-//     };
-//     session: {
-//         proposal: string;
-//         updated: string;
-//         upgraded: string;
-//         extended: string;
-//         created: string;
-//         deleted: string;
-//         notification: string;
-//         request: string;
-//         response: string;
-//         sync: string;
-//     };
-// };
-
 export const EIP155_SIGNING_METHODS = {
     PERSONAL_SIGN: 'personal_sign',
     ETH_SIGN: 'eth_sign',
@@ -68,6 +44,23 @@ export const COSMOS_SIGNING_METHODS = {
     COSMOS_SIGN_DIRECT: 'cosmos_signDirect',
     COSMOS_SIGN_AMINO: 'cosmos_signAmino'
 }
+
+export async function pairWalletConnect(event:any,payload:any) {
+    let tag = " | pairWalletConnect | "
+    try{
+        log.info(tag,"payload: ",payload)
+
+        //connect to URI
+        let success = await walletConnectClient.pair({ uri:payload.uri })
+        log.info(tag,"success: ",success)
+        
+        // //TODO UX pairing
+        // event.sender.send("@app/onSuccessPair", {});
+    }catch(e){
+        log.error(e)
+    }
+}
+
 
 export async function createWalletConnectClient(event:any) {
     //TODO wtf types

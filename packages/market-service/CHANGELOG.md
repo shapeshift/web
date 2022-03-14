@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v2.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.2...@shapeshiftoss/market-service-v2.0.3) (2022-03-14)
+
+
+### Bug Fixes
+
+* osmosis chart range data ([#423](https://github.com/shapeshift/lib/issues/423)) ([d202cee](https://github.com/shapeshift/lib/commit/d202cee9b3b807eaa3a5d5a8df2d27d1835a19c6))
+
 # [@shapeshiftoss/market-service-v2.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.1...@shapeshiftoss/market-service-v2.0.2) (2022-03-07)
 
 

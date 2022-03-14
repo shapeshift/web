@@ -11,7 +11,9 @@ import log from 'electron-log'
 import { app, ipcMain, IpcMainEvent } from "electron";
 import { SessionTypes } from '@walletconnect/types'
 import { uniqueId } from 'lodash';
-
+import {shared} from "./shared";
+import wait from 'wait-promise'
+const sleep = wait.sleep;
 export let walletConnectClient: WalletConnectClient
 
 export const EIP155_SIGNING_METHODS = {
@@ -259,7 +261,7 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
 
 
      */
-    let onSignRequest = function (params: any) {
+    let onSignRequest = async function (params: any) {
         let tag = " | onSignRequest | "
         try {
             log.info(tag, "params: ", params)
@@ -298,6 +300,20 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                 //Push Error to ipc UNKNOWN tx type!
             }
             event.sender.send('signTx', { unsignedTx: { HDwalletPayload } });
+
+            //hold till signed
+            while (!shared.SIGNED_TX) {
+                console.log("waiting!")
+                await sleep(300)
+            }
+
+            let response = shared.SIGNED_TX
+            //respond
+            let successRespond = await walletConnectClient.respond({
+                topic,
+                response
+            })
+            log.info(tag,"successRespond: ",successRespond)
         } catch (e) {
             log.error(e)
         }

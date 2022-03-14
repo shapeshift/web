@@ -129,6 +129,7 @@ export const start_bridge = async function () {
 
         //port
         try {
+            log.info(tag,"starting server! **** ")
             server = appExpress.listen(API_PORT, () => {
                 windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)

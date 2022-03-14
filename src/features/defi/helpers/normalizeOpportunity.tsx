@@ -86,7 +86,7 @@ const transformFoxy = (foxies: any[]): EarnOpportunityType[] => {
       apy: 0.1,
       expired: false,
       chain: ChainTypes.Ethereum,
-      assetId: '222',
+      assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
       fiatAmount: '100',
       cryptoAmount: '0'
     }

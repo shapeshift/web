@@ -30,16 +30,17 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
 
   protected parser: unchained.cosmos.TransactionParser
 
-  static readonly defaultBIP44Params: BIP44Params = {
-    purpose: 44,
-    coinType: 118,
-    accountNumber: 0
-  }
+  static defaultBIP44Params: BIP44Params
 
   protected constructor(args: ChainAdapterArgs) {
     if (args.chainId && this.supportedChainIds.includes(args.chainId)) {
       this.chainId = args.chainId
     }
+
+    CosmosSdkBaseAdapter.defaultBIP44Params = (<typeof CosmosSdkBaseAdapter>(
+      this.constructor
+    )).defaultBIP44Params
+
     this.providers = args.providers
   }
 
@@ -208,11 +209,15 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
   }
 
   unsubscribeTxs(input?: chainAdapters.SubscribeTxsInput): void {
-    console.warn(input)
-    throw new Error('Method not implemented.')
+    if (!input) return this.providers.ws.unsubscribeTxs()
+
+    const { bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params } = input
+    const subscriptionId = toRootDerivationPath(bip44Params)
+
+    this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
   }
 
   closeTxs(): void {
-    throw new Error('Method not implemented.')
+    this.providers.ws.close('txs')
   }
 }

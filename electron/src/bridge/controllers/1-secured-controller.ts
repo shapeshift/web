@@ -15,7 +15,7 @@ export class SecuredController extends Controller {
 
     @Get('/auth/verify')
     @Security("api_key")
-    @Response(401, "Please provice a valid serviceKey")
+    @Response(401, "Please provide a valid serviceKey")
     public async verifyAuth(): Promise<GenericResponse> {
         return {
             success: true
@@ -24,7 +24,7 @@ export class SecuredController extends Controller {
 
     @Get('/user')
     @Security("api_key")
-    @Response(401, "Please provice a valid serviceKey")
+    @Response(401, "Please provide a valid serviceKey")
     public async user(): Promise<userType> {
         return shared.USER
     }

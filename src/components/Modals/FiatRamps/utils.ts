@@ -108,6 +108,7 @@ export const parseGemAssets = (
   return results
 }
 
+const memoizeResolver = (...args: any) => JSON.stringify(args)
 export const makeGemPartnerUrl = memoize(
   (intent: FiatRampAction, selectedAssetTicker: string | undefined, address: string) => {
     if (!selectedAssetTicker) return
@@ -130,5 +131,6 @@ export const makeGemPartnerUrl = memoize(
       wallets: JSON.stringify([{ address, asset: selectedAssetTicker }])
     })
     return `${GEM_URL}?${queryConfig}`
-  }
+  },
+  memoizeResolver
 )

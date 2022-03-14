@@ -18,6 +18,10 @@ export interface Plugin {
 class PluginManager {
   #pluginManager = new Map<string, Plugin>()
 
+  clear(): void {
+    this.#pluginManager.clear()
+  }
+
   register(plugin: RegistrablePlugin): void {
     for (const [pluginId, pluginManifest] of plugin.register()) {
       if (this.#pluginManager.has(pluginId)) {
@@ -44,6 +48,8 @@ class PluginManager {
 export const pluginManager = new PluginManager()
 
 export const registerPlugins = async () => {
+  pluginManager.clear()
+
   for (const plugin of activePlugins) {
     pluginManager.register(await import(`./${plugin}/index.tsx`))
   }

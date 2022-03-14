@@ -25,7 +25,7 @@ export const Portfolio = () => {
   const isLoaded = !loading
 
   return (
-    <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>
+    <Stack spacing={6} width='full'>
       <Card variant='footer-stub'>
         <Card.Header
           display='flex'

@@ -1,43 +1,35 @@
-import { Button, IconButtonProps } from '@chakra-ui/react'
+import { Box, Button, ButtonProps, forwardRef, useMediaQuery } from '@chakra-ui/react'
 import { memo } from 'react'
-import { Link as ReactRouterLink, NavLinkProps, useLocation } from 'react-router-dom'
+import { NavLinkProps, useLocation } from 'react-router-dom'
+import { breakpoints } from 'theme/theme'
 
 type SidebarLinkProps = {
-  icon?: React.ReactElement
-  href: string
+  href?: string
   label: string
   children?: React.ReactNode
-} & NavLinkProps &
-  IconButtonProps
+  to?: NavLinkProps['to']
+  isCompact?: boolean
+} & ButtonProps
 
-export const MainNavLink = memo((props: SidebarLinkProps) => {
-  const { href, icon, label } = props
-  const location = useLocation()
-  const active = location?.pathname.includes(href ?? '')
-  return (
-    <Button
-      as={ReactRouterLink}
-      {...props}
-      leftIcon={icon}
-      width='full'
-      justifyContent='flex-start'
-      variant='ghost'
-      isActive={active}
-    >
-      {label}
-    </Button>
-    // <Tooltip label={label} fontSize='md' px={4} hasArrow>
-    //   <IconButton
-    //     icon={icon}
-    //     as={ReactRouterLink}
-    //     rounded='full'
-    //     isActive={active}
-    //     _active={{
-    //       bg: 'blue.500',
-    //       color: 'white'
-    //     }}
-    //     {...props}
-    //   />
-    // </Tooltip>
-  )
-})
+export const MainNavLink = memo(
+  forwardRef<SidebarLinkProps, 'div'>((props: SidebarLinkProps, ref) => {
+    const { href, label } = props
+    const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
+    const location = useLocation()
+    const active = location?.pathname.includes(href ?? '')
+    return (
+      <Button
+        width='full'
+        justifyContent='flex-start'
+        variant='ghost'
+        isActive={href ? active : false}
+        minWidth={props?.isCompact ? 'auto' : 10}
+        iconSpacing={isLargerThan2xl ? 4 : props?.isCompact ? 0 : 4}
+        ref={ref}
+        {...props}
+      >
+        <Box display={{ base: props?.isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>
+      </Button>
+    )
+  })
+)

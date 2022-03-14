@@ -1,6 +1,5 @@
 import { Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import { AccountAssets } from 'components/AccountAssets/AccountAssets'
 import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
@@ -13,6 +12,8 @@ import { AssetChart } from '../../components/AssetHeader/AssetChart'
 import { AssetDescription } from '../../components/AssetHeader/AssetDescription'
 import { AssetMarketData } from '../../components/AssetHeader/AssetMarketData'
 import { TradeCard } from '../../pages/Dashboard/TradeCard'
+import { selectFeatureFlag } from '../../state/slices/preferencesSlice/selectors'
+import { useAppSelector } from '../../state/store'
 
 type AssetDetailsProps = {
   assetId: CAIP19
@@ -20,6 +21,7 @@ type AssetDetailsProps = {
 }
 
 export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
+  const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -32,7 +34,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           <AssetChart accountId={accountId} assetId={caip19} isLoaded={true} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
-          {FeatureFlag.CosmosInvestor && <StakingOpportunities />}
+          {cosmosInvestorFlag && <StakingOpportunities />}
           <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>

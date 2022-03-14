@@ -32,9 +32,10 @@ export const AssetCell = ({ assetId, subText, showTeaser, postFix, onClick }: As
   const debouncedHandleMouseEnter = debounce(() => setShowPopover(true), 100)
   const handleOnMouseLeave = debouncedHandleMouseEnter.cancel
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const rowTitle = postFix ? `${asset.name} ${postFix}` : asset.name
 
   if (!asset) return null
+
+  const rowTitle = postFix ? `${asset.name} ${postFix}` : asset.name
 
   return (
     <HStack width='full' data-test='account-row'>

@@ -10,7 +10,8 @@ import {
   useColorModeValue,
   useDisclosure
 } from '@chakra-ui/react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
+import { Link, useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
@@ -20,8 +21,27 @@ import { SideNavContent } from './SideNavContent'
 
 export const Header = ({ route }: { route: Route }) => {
   const { onToggle, isOpen, onClose } = useDisclosure()
+  const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+
+  /**
+   * FOR DEVELOPERS:
+   * Open the hidden flags menu via keypress
+   */
+  const handleKeyPress = useCallback(
+    event => {
+      if (event.altKey && event.shiftKey && event.keyCode === 70) {
+        history.push('/flags')
+      }
+    },
+    [history]
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyPress)
+    return () => document.removeEventListener('keydown', handleKeyPress)
+  }, [handleKeyPress])
 
   return (
     <>

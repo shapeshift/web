@@ -13,6 +13,7 @@ import { SessionTypes } from '@walletconnect/types'
 import { uniqueId } from 'lodash';
 import { shared } from "./shared";
 import wait from 'wait-promise'
+import { createWindow, windows } from './main';
 const sleep = wait.sleep;
 export let walletConnectClient: WalletConnectClient
 
@@ -91,7 +92,7 @@ export async function approveWalletConnect(proposal: SessionTypes.Proposal, acco
             }
         }
         log.info(tag, proposal)
-        log.info(tag, "debug: ",{ proposal, response })
+        log.info(tag, "debug: ", { proposal, response })
         const approve = await walletConnectClient.approve({ proposal, response })
         log.info(tag, approve)
     } catch (e) {
@@ -300,7 +301,14 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                 default:
                 //Push Error to ipc UNKNOWN tx type!
             }
-            event.sender.send('signTx', { unsignedTx: { HDwalletPayload } });
+
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
+                if (!await createWindow()) return
+            }
+
+            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
+
+            windows.mainWindow.webContents.send('signTx', { unsignedTx: { HDwalletPayload } });
 
             //hold till signed
             while (!shared.SIGNED_TX) {

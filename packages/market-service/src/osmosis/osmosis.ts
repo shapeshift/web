@@ -77,38 +77,48 @@ export class OsmosisMarketService implements MarketService {
 
     let range
     let isV1
+    let start
     switch (timeframe) {
       case HistoryTimeframe.HOUR:
         range = '5'
         isV1 = false
+        start = 12
         break
       case HistoryTimeframe.DAY:
         range = '60'
         isV1 = false
+        start = 24
         break
       case HistoryTimeframe.WEEK:
         range = '7d'
         isV1 = true
+        start = bnOrZero(24).times(7).toNumber()
         break
       case HistoryTimeframe.MONTH:
         range = '1mo'
         isV1 = true
+        start = bnOrZero(24).times(30).toNumber()
         break
       case HistoryTimeframe.YEAR:
         range = '1y'
         isV1 = true
+        start = bnOrZero(24).times(365).toNumber()
         break
       case HistoryTimeframe.ALL:
-        range = 'all'
+        // TODO: currently the 'all' range for v2 is returning 500 errors. Using 1y for the time being.
+        // We need to revisit this at a later date to see if it works in the future
+        range = '1y'
         isV1 = true
+        start = 0
         break
       default:
-        range = 'all'
+        range = '1y'
         isV1 = true
+        start = 0
     }
 
     try {
-      // Historical timeframe data from the v2 endpoint does not support ranges greater than 1 month
+      // Historical timeframe data from the v2 endpoint currently does not support ranges greater than 1 month
       // and v1 doesn't support ranges less than 7 week, so we use both to get all ranges.
       const url = `${this.baseUrl}/tokens/${isV1 ? 'v1' : 'v2'}/historical/${symbol}/chart?${
         isV1 ? 'range' : 'tf'
@@ -116,7 +126,10 @@ export class OsmosisMarketService implements MarketService {
 
       const { data } = await axios.get<OsmosisHistoryData[]>(url)
 
-      return data.reduce<HistoryData[]>((acc, current) => {
+      // return the correct range of data points for each timeframe
+      const taperedData = data.slice(-start)
+
+      return taperedData.reduce<HistoryData[]>((acc, current) => {
         // convert timestamp from seconds to milliseconds
         const date = bnOrZero(current.time).times(1000).toNumber()
         if (!isValidDate(date)) {

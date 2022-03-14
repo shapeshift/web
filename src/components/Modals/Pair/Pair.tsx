@@ -57,7 +57,7 @@ export const PairModal = (input: PairingProps) => {
           showDisplay: false
         })
         .then(address => {
-          setAccounts([`eip155:42:${address}`])
+          setAccounts([`eip155:1:${address}`])
         })
     }
   }, [state.wallet, input.type])

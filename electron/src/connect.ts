@@ -91,7 +91,7 @@ export async function approveWalletConnect(proposal: SessionTypes.Proposal, acco
             }
         }
         log.info(tag, proposal)
-        log.info(tag, accounts)
+        log.info(tag, "debug: ",{ proposal, response })
         const approve = await walletConnectClient.approve({ proposal, response })
         log.info(tag, approve)
     } catch (e) {

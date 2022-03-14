@@ -196,7 +196,7 @@ export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
 )
 
-export const selectPortfolioCryptoHumanBalancesBySymbol = createSelector(
+export const selectPortfolioCryptoMixedBalancesBySymbol = createSelector(
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,

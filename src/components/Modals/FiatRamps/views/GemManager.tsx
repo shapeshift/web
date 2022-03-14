@@ -15,8 +15,6 @@ import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
-import queryString from 'querystring'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -27,7 +25,7 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
-import { selectPortfolioCryptoHumanBalancesBySymbol } from 'state/slices/selectors'
+import { selectPortfolioCryptoMixedBalancesBySymbol } from 'state/slices/selectors'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
@@ -35,19 +33,13 @@ import { FiatRampAction, GemCurrency, SupportedCurrency } from '../FiatRamps'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
-  filterAndMerge,
   getAssetLogoUrl,
-  isBuyAsset,
-  isSellAsset,
-  isSupportedBitcoinAsset
+  isSupportedBitcoinAsset,
+  makeGemPartnerUrl,
+  middleEllipsis,
+  parseGemBuyAssets,
+  parseGemSellAssets
 } from '../utils'
-
-const middleEllipsis = (address: string, cut: number) =>
-  `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
-
-const GEM_ENV = getConfig().REACT_APP_GEM_ENV
-const GEM_API_KEY = getConfig().REACT_APP_GEM_API_KEY
-const GEM_URL = getConfig().REACT_APP_GEM_URL
 
 export const GemManager = () => {
   const translate = useTranslate()
@@ -60,12 +52,17 @@ export const GemManager = () => {
   const [action, setAction] = useState<FiatRampAction>(FiatRampAction.Buy)
   const [ethAddress, setEthAddress] = useState<string>('')
   const [btcAddress, setBtcAddress] = useState<string>('')
-  const [ensAddress, setEnsAddress] = useState<string>('')
+  const [ensName, setEnsName] = useState<string>('')
   const [supportsAddressVerifying, setSupportsAddressVerifying] = useState(false)
   const [coinifyAssets, setCoinifyAssets] = useState<SupportedCurrency[]>([])
   const [wyreAssets, setWyreAssets] = useState<SupportedCurrency[]>([])
-  const { state } = useWallet()
-  const wallet = state?.wallet
+  const [loading, setLoading] = useState(false)
+  const [buyList, setBuyList] = useState<GemCurrency[]>([])
+  const [sellList, setSellList] = useState<GemCurrency[]>([])
+
+  const {
+    state: { wallet }
+  } = useWallet()
   const chainAdapterManager = useChainAdapters()
   const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const btcChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
@@ -73,7 +70,7 @@ export const GemManager = () => {
   const addressOrNameFull =
     isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress
       ? btcAddress
-      : ensAddress || ethAddress
+      : ensName || ethAddress
 
   const addressFull =
     isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress ? btcAddress : ethAddress
@@ -81,7 +78,7 @@ export const GemManager = () => {
   const addressOrNameEllipsed =
     isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress
       ? middleEllipsis(btcAddress, 11)
-      : ensAddress || middleEllipsis(ethAddress, 11)
+      : ensName || middleEllipsis(ethAddress, 11)
 
   useEffect(() => {
     ;(async () => {
@@ -92,15 +89,11 @@ export const GemManager = () => {
     })()
   }, [wallet])
 
-  const [loading, setLoading] = useState(false)
-  const [buyList, setBuyList] = useState<GemCurrency[]>([])
-  const [sellList, setSellList] = useState<GemCurrency[]>([])
-
-  const balances = useSelector(selectPortfolioCryptoHumanBalancesBySymbol)
+  const balances = useSelector(selectPortfolioCryptoMixedBalancesBySymbol)
 
   useEffect(() => {
     ;(async () => {
-      if (!(wallet && ethChainAdapter)) return
+      if (!wallet) return
       const ethAddress = await ethChainAdapter.getAddress({
         wallet
       })
@@ -108,6 +101,7 @@ export const GemManager = () => {
         ? (await btcChainAdapter.getAddress({
             wallet,
             accountType: UtxoAccountType.SegwitNative,
+            // Magic segwit native bip44 params
             bip44Params: {
               purpose: 84,
               coinType: 0,
@@ -119,58 +113,36 @@ export const GemManager = () => {
       setEthAddress(ethAddress)
       setBtcAddress(btcAddress)
       const reverseEthAddressLookup = await ensReverseLookup(ethAddress)
-      !reverseEthAddressLookup.error && setEnsAddress(reverseEthAddressLookup.name)
+      !reverseEthAddressLookup.error && setEnsName(reverseEthAddressLookup.name)
     })()
-  }, [setEthAddress, setEnsAddress, wallet, ethChainAdapter, btcChainAdapter])
-
-  const fetchSupportedCurrencies = async () => {
-    setLoading(true)
-
-    try {
-      if (!coinifyAssets.length) {
-        const coinifyAssets = await fetchCoinifySupportedCurrencies()
-        setCoinifyAssets(coinifyAssets)
-      }
-      if (!wyreAssets.length) {
-        const wyreAssets = await fetchWyreSupportedCurrencies()
-        setWyreAssets(wyreAssets)
-      }
-      const buyAssets = filterAndMerge(
-        coinifyAssets,
-        wyreAssets,
-        'destination',
-        isBuyAsset,
-        balances,
-        btcAddress
-      )
-      const sellAssets = filterAndMerge(
-        coinifyAssets,
-        wyreAssets,
-        'source',
-        isSellAsset,
-        balances,
-        btcAddress
-      )
-      setBuyList(buyAssets)
-      setSellList(sellAssets)
-      setLoading(false)
-    } catch (e) {
-      console.error(e)
-      setLoading(false)
-    }
-  }
+  }, [setEthAddress, setEnsName, wallet, ethChainAdapter, btcChainAdapter])
 
   useEffect(() => {
     ;(async () => {
-      await fetchSupportedCurrencies()
+      setLoading(true)
+
+      try {
+        if (!coinifyAssets.length) {
+          const coinifyAssets = await fetchCoinifySupportedCurrencies()
+          setCoinifyAssets(coinifyAssets)
+        }
+        if (!wyreAssets.length) {
+          const wyreAssets = await fetchWyreSupportedCurrencies()
+          setWyreAssets(wyreAssets)
+        }
+        const buyAssets = parseGemBuyAssets(coinifyAssets, wyreAssets, balances, btcAddress)
+        const sellAssets = parseGemSellAssets(coinifyAssets, wyreAssets, balances, btcAddress)
+        setBuyList(buyAssets)
+        setSellList(sellAssets)
+        setLoading(false)
+      } catch (e) {
+        console.error(e)
+        setLoading(false)
+      }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [btcAddress, coinifyAssets, wyreAssets])
 
-  const onSelectAsset = (data: GemCurrency) => {
-    setIsSelectingAsset(false)
-    setSelectedAsset(data)
-  }
   useEffect(() => setSelectedAsset(null), [action])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
@@ -181,21 +153,10 @@ export const GemManager = () => {
     [action]
   )
 
-  const gemPartnerUrl = useMemo(() => {
-    const onrampConfig = {
-      partnerName: 'ShapeShift',
-      environment: GEM_ENV,
-      partnerIconUrl:
-        'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png',
-      apiKey: GEM_API_KEY
-    }
-    const queryConfig = queryString.stringify({
-      ...onrampConfig,
-      intent: action,
-      wallets: JSON.stringify([{ address: addressFull, asset: selectedAsset?.ticker }])
-    })
-    return `${GEM_URL}?${queryConfig}`
-  }, [action, selectedAsset, addressFull])
+  const onAssetSelect = (data: GemCurrency) => {
+    setIsSelectingAsset(false)
+    setSelectedAsset(data)
+  }
 
   const handleCopyClick = async () => {
     const duration = 2500
@@ -216,8 +177,12 @@ export const GemManager = () => {
   }
 
   const handleVerify = async () => {
-    if (!(wallet && ethChainAdapter)) return
-    const deviceAddress = await ethChainAdapter.getAddress({
+    if (!wallet) return
+    const adapter =
+      isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress
+        ? btcChainAdapter
+        : ethChainAdapter
+    const deviceAddress = await adapter.getAddress({
       wallet,
       showOnDevice: true
     })
@@ -242,7 +207,7 @@ export const GemManager = () => {
               <Text alignSelf='center' translation={selectAssetTranslation} />
             </Flex>
             <AssetSearch
-              onClick={onSelectAsset}
+              onClick={onAssetSelect}
               type={action}
               assets={action === FiatRampAction.Buy ? buyList : sellList}
               loading={loading}
@@ -309,7 +274,7 @@ export const GemManager = () => {
               colorScheme='blue'
               disabled={!selectedAsset}
               as='a'
-              href={gemPartnerUrl}
+              href={makeGemPartnerUrl(action, selectedAsset?.ticker, addressFull)}
               target='_blank'
             >
               <Text translation='common.continue' />

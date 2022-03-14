@@ -1,18 +1,18 @@
 import { Center, Heading, Stack } from '@chakra-ui/layout'
 import { ModalHeader, useColorModeValue } from '@chakra-ui/react'
-import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
-import { DefiParams } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 // import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
+import { getConfig } from 'config'
+import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
+import { DefiParams } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import { Location } from 'history'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { getConfig } from 'config'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
 import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
@@ -55,7 +55,7 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
       <ModalHeader bg={headerBg} borderTopRadius='xl'>
         <Stack width='full' alignItems='center' spacing={2}>
           <Heading textTransform='capitalize' textAlign='center' fontSize='md'>
-            {provider} {earnType}
+            {provider} {earnType.replace('_', ' ')}
           </Heading>
           <DefiActionButtons vaultExpired={false} />
         </Stack>

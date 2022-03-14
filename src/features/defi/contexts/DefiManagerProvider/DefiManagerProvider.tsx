@@ -5,8 +5,8 @@ import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
 
 import { DefiModal } from '../../components/DefiModal/DefiModal'
-import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
+import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
 
 export enum DefiType {
   Pool = 'pool',

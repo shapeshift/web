@@ -12,7 +12,7 @@ import { DefiType } from '../contexts/DefiManagerProvider/DefiManagerProvider'
 export type EarnOpportunityType = {
   type?: string
   provider: string
-  version: string
+  version?: string
   contractAddress: string
   tokenAddress: string
   apy?: number | string
@@ -79,7 +79,6 @@ const transformFoxy = (foxies: any[]): EarnOpportunityType[] => {
     return {
       type: DefiType.TokenStaking,
       provider: 'ShapeShift',
-      version: '1',
       contractAddress: foxy.contractAddress,
       tokenAddress: foxy.tokenAddress,
       tvl: '100',

@@ -4,6 +4,7 @@ import {
   useNormalizeOpportunities
 } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
+import { useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
@@ -33,24 +34,27 @@ export const AllEarnOpportunities = () => {
     foxyArray: sortedFoxyOpportunities
   })
 
-  const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chain, tokenAddress } = opportunity
-    console.log({ isConnected })
-    if (!isConnected) {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-      return
-    }
-    console.log({ type, provider })
-    history.push({
-      pathname: `/defi/${type}/${provider}/deposit`,
-      search: qs.stringify({
-        chain,
-        contractAddress,
-        tokenId: tokenAddress
-      }),
-      state: { background: location }
-    })
-  }
+  const handleClick = useCallback(
+    (opportunity: EarnOpportunityType) => {
+      const { type, provider, contractAddress, chain, tokenAddress } = opportunity
+      console.log({ isConnected })
+      if (!isConnected) {
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+        return
+      }
+      console.log({ type, provider })
+      history.push({
+        pathname: `/defi/${type}/${provider}/deposit`,
+        search: qs.stringify({
+          chain,
+          contractAddress,
+          tokenId: tokenAddress
+        }),
+        state: { background: location }
+      })
+    },
+    [dispatch, history, isConnected, location]
+  )
 
   return (
     <Card variant='outline' my={6}>

@@ -472,6 +472,7 @@ ipcMain.on('@app/start', async (event, data) => {
         }
         try {
             start_bridge()
+            start_bridge()
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }

@@ -74,7 +74,6 @@ export const start_bridge = async function () {
             keepkey.STATUS = `no devices`
             windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
             windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
-            return
         }
 
         if (keepkey.device) {
@@ -129,6 +128,7 @@ export const start_bridge = async function () {
 
         //port
         try {
+            log.info(tag,"starting server! **** ")
             server = appExpress.listen(API_PORT, () => {
                 windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)

@@ -168,7 +168,7 @@
   "homepage": "./",
   "build": {
     "appId": "com.keepkey.desktop",
-    "productName": "KeepKey Client",
+    "productName": "KeepKey Desktop",
     "afterSign": "electron-builder-notarize",
     "files": [
       "assets/**/*",

@@ -38,7 +38,7 @@ import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
-import { app, BrowserWindow, nativeTheme, ipcMain, IpcMainEvent } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
 
@@ -63,7 +63,7 @@ import { isWin, isLinux, isMac } from './constants'
 import { db } from './db'
 import { getDevice } from './wallet'
 import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { createWalletConnectClient, pairWalletConnect } from './connect'
+import { pairWalletConnect } from './connect'
 
 // dont allow muliple windows to open
 const instanceLock = app.requestSingleInstanceLock();
@@ -464,12 +464,6 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error(e)
         }
 
-        //setup walletConnect
-        try{
-            createWalletConnectClient(event)
-        }catch(e){
-            log.error(e)
-        }
 
         try {
             createTray(event)

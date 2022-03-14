@@ -84,7 +84,7 @@ example event
  */
 
 export async function approveWalletConnect(proposal: SessionTypes.Proposal, accounts: Array<string>) {
-    let tag = " | pairWalletConnect | "
+    let tag = " | approveWalletConnect | "
     try {
         const response = {
             state: {
@@ -93,6 +93,7 @@ export async function approveWalletConnect(proposal: SessionTypes.Proposal, acco
         }
         log.info(tag, proposal)
         log.info(tag, "debug: ", { proposal, response })
+        log.info(tag, "debug: ", JSON.stringify({ proposal, response }))
         const approve = await walletConnectClient.approve({ proposal, response })
         log.info(tag, approve)
     } catch (e) {
@@ -193,6 +194,11 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
             log.info(tag, "params: ", proposal)
             log.info(tag, "params: ", JSON.stringify(proposal))
 
+            log.info(tag, "params: ", JSON.stringify({
+                type: 'walletconnect',
+                data: proposal,
+                nonce
+            }))
             event.sender.send("@modal/pair", {
                 type: 'walletconnect',
                 data: proposal,
@@ -222,51 +228,12 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
     }
 
     /*
-            Example unsignedTx
-
-        //Unsigned TX
-        let unsignedTx =  {
-            "network":"ETH",
-            "asset":"ETH",
-            "transaction":{
-                "context":"0x33b35c665496bA8E71B22373843376740401F106.wallet",
-                "type":"transfer",
-                "addressFrom":"0x33b35c665496bA8E71B22373843376740401F106",
-                "recipient":"0x33b35c665496bA8E71B22373843376740401F106",
-                "asset":"ETH",
-                "network":"ETH",
-                "memo":"",
-                "amount":"0.0001",
-                "fee":{
-                    "priority":5
-                },
-                "noBroadcast":true
-            },
-            "HDwalletPayload":{
-                "addressNList":[
-                    2147483692,
-                    2147483708,
-                    2147483648,
-                    0,
-                    0
-                ],
-                "nonce":"0x2c4",
-                "gasPrice":"0xf22d45af6",
-                "gasLimit":"0x13880",
-                "value":"0x5af3107a4000",
-                "to":"0x33b35c665496bA8E71B22373843376740401F106",
-                "data":"",
-                "chainId":1
-            },
-            "verbal":"Ethereum transaction"
-        }
-
-
      */
     let onSignRequest = async function (params: any) {
         let tag = " | onSignRequest | "
         try {
             log.info(tag, "params: ", params)
+            log.info(tag, "params: ", JSON.parse(params))
             const { topic, request } = params
             const { method } = request
 

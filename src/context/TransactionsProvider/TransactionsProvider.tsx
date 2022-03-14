@@ -3,11 +3,17 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+// import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAccountIdByAddress, selectAssets } from 'state/slices/selectors'
+import {
+  selectAccountIdByAddress,
+  selectAssets,
+  selectTxHistoryStatus,
+  selectTxIds
+} from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
-import { store } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -20,16 +26,18 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
+  const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   useEffect(() => {
-    if (!wallet) return
+    console.info('tx provider', walletInfo?.deviceId)
     ;(async () => {
+      if (!wallet) return
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const chain = adapter.getType()
-        const chainId = await adapter.getCaip2()
+        const chainId = adapter.getCaip2()
         if (!walletSupportChain({ chainId, wallet })) continue
 
         const asset = Object.values(assets).find(asset => asset.caip2 === chainId)
@@ -42,6 +50,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
+            if (txHistoryStatus !== 'loading') dispatch(txHistory.actions.setStatus('loading'))
+            console.info('subscribing txs for chain', chain)
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
@@ -68,17 +78,45 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     })()
 
     return () => {
+      dispatch(txHistory.actions.clear())
       chainAdapter.getSupportedAdapters().forEach(getAdapter => {
-        dispatch(txHistory.actions.clear())
         try {
+          console.info('unsubbing txs for chain', getAdapter().getType())
           getAdapter().unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // x eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, walletInfo?.deviceId])
+
+  /**
+   * TODO(0xdef1cafe)
+   * until all coinstacks (btc and eth) support restful tx pagination
+   * we can't know when txs are actually loaded, but we can kind of infer it
+   * like we do on the balance charts, by debouncing the txids coming in
+   * over the websocket
+   *
+   * once we a wallet, and leave sufficient time (TX_DEBOUNCE_DELAY),
+   * we can be pretty sure they're finished loading, and set a loaded flag
+   *
+   * after this, other parts of the app can useEffect on txids changing,
+   * and act on new txs coming in
+   */
+  const txIds = useAppSelector(selectTxIds)
+
+  useEffect(() => {
+    if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
+    if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
+    console.info('new tx')
+    const TX_DEBOUNCE_DELAY = 5000
+    const timer = setTimeout(() => {
+      console.info('tx history loaded')
+      dispatch(txHistory.actions.setStatus('loaded'))
+    }, TX_DEBOUNCE_DELAY)
+    return () => clearTimeout(timer) // clear if the input changes
+  }, [dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
 
   return <>{children}</>
 }

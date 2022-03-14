@@ -120,6 +120,7 @@
     "dev:silent": "NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false BROWSER=none react-app-rewired start",
     "build:ui": "cross-env NODE_OPTIONS=--max-old-space-size=4096 react-app-rewired build",
     "dev:electron": "concurrently \"yarn dev\" \"yarn watch:electron\" \"wait-on http://localhost:3000 && electron .\"",
+    "fix:electron": "./node_modules/.bin/electron-builder install-app-deps",
     "compile:electron": "cd electron && tsc && cd ..",
     "watch:electron": "cd electron && tsc -w && cd ..",
     "build:electron": "yarn build:ui && yarn compile:electron && electron-builder build",

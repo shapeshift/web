@@ -9,6 +9,8 @@ import WalletConnectClient from '@walletconnect/client'
 import { CLIENT_EVENTS } from '@walletconnect/client'
 import log from 'electron-log'
 import { app, IpcMainEvent } from "electron";
+import { SessionTypes } from '@walletconnect/types'
+import { uniqueId } from 'lodash';
 
 export let walletConnectClient: WalletConnectClient
 
@@ -78,68 +80,68 @@ example event
 
  */
 
-export async function approveWalletConnect(event: any, payload: any) {
-    let tag = " | pairWalletConnect | "
-    try {
-        let proposal = {
-            "relay":{
-                "protocol":"waku"
-            },
-            "topic":"827c48aeaad46ed796b0ca52825373e9893f66c7735bd3e1cb4b44d56f4e4308",
-            "proposer":{
-                "publicKey":"c4dc6e2b7ffedef5370ceb1edf79e5cdc9c3100941e9e5590e67e5178d6fd958",
-                "controller":false,
-                "metadata":{
-                    "description":"React App for WalletConnect",
-                    "url":"https://react-app.walletconnect.com",
-                    "icons":[
-                        "https://react-app.walletconnect.com/favicon.ico"
-                    ],
-                    "name":"React App"
-                }
-            },
-            "signal":{
-                "method":"pairing",
-                "params":{
-                    "topic":"4ee2bb7aa62095430ef208742dac19097070d142d4ab8c4fd882d4312bbbd669"
-                }
-            },
-            "permissions":{
-                "blockchain":{
-                    "chains":[
-                        "eip155:1"
-                    ]
-                },
-                "jsonrpc":{
-                    "methods":[
-                        "eth_sendTransaction",
-                        "eth_signTransaction",
-                        "eth_sign",
-                        "personal_sign",
-                        "eth_signTypedData"
-                    ]
-                },
-                "notifications":{
-                    "types":[
+// export async function approveWalletConnect(event: any, payload: any) {
+//     let tag = " | pairWalletConnect | "
+//     try {
+//         let proposal = {
+//             "relay": {
+//                 "protocol": "waku"
+//             },
+//             "topic": "827c48aeaad46ed796b0ca52825373e9893f66c7735bd3e1cb4b44d56f4e4308",
+//             "proposer": {
+//                 "publicKey": "c4dc6e2b7ffedef5370ceb1edf79e5cdc9c3100941e9e5590e67e5178d6fd958",
+//                 "controller": false,
+//                 "metadata": {
+//                     "description": "React App for WalletConnect",
+//                     "url": "https://react-app.walletconnect.com",
+//                     "icons": [
+//                         "https://react-app.walletconnect.com/favicon.ico"
+//                     ],
+//                     "name": "React App"
+//                 }
+//             },
+//             "signal": {
+//                 "method": "pairing",
+//                 "params": {
+//                     "topic": "4ee2bb7aa62095430ef208742dac19097070d142d4ab8c4fd882d4312bbbd669"
+//                 }
+//             },
+//             "permissions": {
+//                 "blockchain": {
+//                     "chains": [
+//                         "eip155:1"
+//                     ]
+//                 },
+//                 "jsonrpc": {
+//                     "methods": [
+//                         "eth_sendTransaction",
+//                         "eth_signTransaction",
+//                         "eth_sign",
+//                         "personal_sign",
+//                         "eth_signTypedData"
+//                     ]
+//                 },
+//                 "notifications": {
+//                     "types": [
 
-                    ]
-                }
-            },
-            "ttl":604800
-        }
+//                     ]
+//                 }
+//             },
+//             "ttl": 604800
+//         }
 
-        //
-        const accounts = ['0xBlaBlaTesting']
-        const response = {
-            state: {
-                accounts
-            }
-        }
-        await walletConnectClient.approve({ proposal, response })
-    } catch (e) {
-        log.error(e)
-    }
-}
+//         //
+//         const accounts = ['0xBlaBlaTesting']
+//         const response = {
+//             state: {
+//                 accounts
+//             }
+//         }
+//         await walletConnectClient.approve({ proposal, response })
+//     } catch (e) {
+//         log.error(e)
+//     }
+// }
 
 
 export async function pairWalletConnect(event: any, payload: any) {
@@ -227,14 +229,18 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
         }
 
      */
-    let onSessionProposal = function (params: any) {
+    let onSessionProposal = function (proposal: SessionTypes.Proposal) {
         let tag = " | onSessionProposal | "
+        const nonce = uniqueId()
         try {
-            log.info(tag, "params: ", params)
-            log.info(tag, "params: ",JSON.stringify(params))
+            log.info(tag, "params: ", proposal)
+            log.info(tag, "params: ", JSON.stringify(proposal))
 
-            //TODO do something
-            event.sender.send("@app/onSessionProposal", {});
+            event.sender.send("@modal/pair", {
+                type: 'walletconnect',
+                data: proposal,
+                nonce
+            });
         } catch (e) {
             log.error(e)
         }
@@ -245,7 +251,7 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
         let tag = " | onSessionCreated | "
         try {
             log.info(tag, "params: ", params)
-            log.info(tag, "params: ",JSON.stringify(params))
+            log.info(tag, "params: ", JSON.stringify(params))
 
             //TODO save dapp into pairing
             event.sender.send("@app/onSessionCreated", {});
@@ -342,7 +348,7 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
 
     walletConnectClient.on(CLIENT_EVENTS.session.proposal, onSessionProposal)
 
-    walletConnectClient.on(CLIENT_EVENTS.session.created, onSessionCreated)
+    walletConnectClient.on(CLIENT_EVENTS.session.created, console.log)
 
     walletConnectClient.on(CLIENT_EVENTS.session.request, onSignRequest)
 

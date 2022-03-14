@@ -471,7 +471,7 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error('Failed to create tray! e: ', e)
         }
         try {
-            if (!bridgeRunning) start_bridge()
+            start_bridge()
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }

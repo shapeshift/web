@@ -454,11 +454,16 @@
       "loadingText": "Pairing Wallet"
     },
     "pair": {
-      "header": {
-        "native": "App pairing request",
-        "walletconnect": "Wallet Connect pairing request"
+      "native": {
+        "header": "App pairing request",
+        "body": "%{serviceName} wants to pair with your KeepKey"
       },
-      "body": "%{serviceName} wants to pair with your KeepKey",
+      "walletconnect": {
+        "header": "Wallet Connect pairing request",
+        "chain": "Blockchain(s)",
+        "relay": "Relay Protocol",
+        "methods": "Methods"
+      },
       "cta": {
         "pair": "Pair",
         "reject": "Reject"

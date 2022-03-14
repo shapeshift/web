@@ -10,11 +10,13 @@ import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { selectFeatureFlags } from 'state/slices/selectors'
 
+import { useChainAdapters } from './context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Route } from './Routes/helpers'
 import { useAppSelector } from './state/store'
 
 export const App = () => {
   const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
+  const chainAdapterManager = useChainAdapters()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
@@ -25,13 +27,29 @@ export const App = () => {
   useEffect(() => {
     registerPlugins()
       .then(() => {
-        setPluginRoutes(pluginManager.getRoutes())
+        let routes: Route[] = []
+
+        // Register Chain Adapters
+        for (const [, plugin] of pluginManager.entries()) {
+          // Ignore plugins that have their feature flag disabled
+          // If no featureFlag is present, then we assume it's enabled
+          if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
+            // Routes
+            routes = routes.concat(plugin.routes)
+            // Chain Adapters
+            plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
+              chainAdapterManager.addChain(chain, factory)
+            })
+          }
+        }
+
+        setPluginRoutes(routes)
       })
       .catch(e => {
         console.error('RegisterPlugins', e)
         setPluginRoutes([])
       })
-  }, [setPluginRoutes, featureFlags])
+  }, [setPluginRoutes, chainAdapterManager, featureFlags])
 
   useEffect(() => {
     if (shouldUpdate && !toast.isActive(updateId)) {

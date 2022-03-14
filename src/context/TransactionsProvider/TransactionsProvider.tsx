@@ -1,9 +1,9 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import React, { useEffect } from 'react'
+import difference from 'lodash/difference'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-// import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -12,11 +12,32 @@ import {
   selectTxHistoryStatus,
   selectTxIds
 } from 'state/slices/selectors'
-import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistory, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
+}
+
+export const useNewTxIds = () => {
+  const [pastTxIds, setPastTxIds] = useState<TxId[] | undefined>()
+  const [newTxIds, setNewTxIds] = useState<TxId[] | undefined>()
+  const txHistoryStatus = useSelector(selectTxHistoryStatus)
+  const txIds = useAppSelector(selectTxIds)
+
+  useEffect(() => {
+    // we only want to set the past txids once when they're loaded
+    if (txHistoryStatus === 'loaded' && !pastTxIds) setPastTxIds(txIds)
+  }, [txHistoryStatus, txIds, pastTxIds])
+
+  useEffect(() => {
+    // don't set the new ones, until the old ones are loaded
+    if (!pastTxIds) return
+    // the difference between the past loaded, and current, is the new txids
+    setNewTxIds(difference(txIds, pastTxIds))
+  }, [pastTxIds, txIds])
+
+  return { newTxIds }
 }
 
 export const TransactionsProvider = ({ children }: TransactionsProviderProps): JSX.Element => {
@@ -27,6 +48,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
+  const txIds = useAppSelector(selectTxIds)
 
   useEffect(() => {
     ;(async () => {
@@ -107,7 +129,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
    * after this, other parts of the app can useEffect on txids changing,
    * and act on new txs coming in
    */
-  const txIds = useAppSelector(selectTxIds)
 
   useEffect(() => {
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected

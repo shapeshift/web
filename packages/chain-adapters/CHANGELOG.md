@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.3.0...@shapeshiftoss/chain-adapters-v2.4.0) (2022-03-14)
+
+
+### Features
+
+* cosmos unsubscribeTxs and closeTxs ([#434](https://github.com/shapeshift/lib/issues/434)) ([95e4ee1](https://github.com/shapeshift/lib/commit/95e4ee1ffc92a1d66348435937cef0401796d2d9))
+
 # [@shapeshiftoss/chain-adapters-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.2.0...@shapeshiftoss/chain-adapters-v2.3.0) (2022-03-10)
 
 

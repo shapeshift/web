@@ -15,7 +15,7 @@ import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useReducer, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { AssetIcon } from 'components/AssetIcon'
@@ -30,6 +30,7 @@ import { selectPortfolioCryptoMixedBalancesBySymbol } from 'state/slices/selecto
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
 import { FiatRampAction, GemCurrency, SupportedCurrency } from '../FiatRamps'
+import { reducer } from '../reducer'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
@@ -46,17 +47,23 @@ export const GemManager = () => {
   const toast = useToast()
   const { fiatRamps } = useModal()
 
-  const [selectedAsset, setSelectedAsset] = useState<GemCurrency | null>()
+  // TODO: Move to another file
+
+  const initialState = {
+    loading: false,
+    selectedAsset: null,
+    shownOnDisplay: false,
+    ethAddress: '',
+    btcAddress: '',
+    supportsAddressVerifying: false,
+    coinifyAssets: [],
+    wyreAssets: []
+  }
+  const [state, dispatch] = useReducer(reducer, initialState)
+  // TODO end
+
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
-  const [verified, setVerified] = useState<boolean | null>(null)
   const [action, setAction] = useState<FiatRampAction>(FiatRampAction.Buy)
-  const [ethAddress, setEthAddress] = useState<string>('')
-  const [btcAddress, setBtcAddress] = useState<string>('')
-  const [ensName, setEnsName] = useState<string>('')
-  const [supportsAddressVerifying, setSupportsAddressVerifying] = useState(false)
-  const [coinifyAssets, setCoinifyAssets] = useState<SupportedCurrency[]>([])
-  const [wyreAssets, setWyreAssets] = useState<SupportedCurrency[]>([])
-  const [loading, setLoading] = useState(false)
   const [buyList, setBuyList] = useState<GemCurrency[]>([])
   const [sellList, setSellList] = useState<GemCurrency[]>([])
 
@@ -68,24 +75,27 @@ export const GemManager = () => {
   const btcChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
 
   const addressOrNameFull =
-    isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress
-      ? btcAddress
-      : ensName || ethAddress
+    isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
+      ? state.btcAddress
+      : state.ensName || state.ethAddress
 
   const addressFull =
-    isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress ? btcAddress : ethAddress
+    isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
+      ? state.btcAddress
+      : state.ethAddress
 
   const addressOrNameEllipsed =
-    isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress
-      ? middleEllipsis(btcAddress, 11)
-      : ensName || middleEllipsis(ethAddress, 11)
+    isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
+      ? middleEllipsis(state.btcAddress, 11)
+      : state.ensName || middleEllipsis(state.ethAddress, 11)
 
   useEffect(() => {
     ;(async () => {
       const supportsAddressVerifying = Boolean(
         (wallet as KeepKeyHDWallet)._isKeepKey || (wallet as PortisHDWallet)._isPortis
       )
-      setSupportsAddressVerifying(supportsAddressVerifying)
+
+      dispatch({ type: 'SET_SUPPORTS_ADDRESS_VERIFYING', supportsAddressVerifying })
     })()
   }, [wallet])
 
@@ -110,40 +120,52 @@ export const GemManager = () => {
           })) ?? ''
         : ''
 
-      setEthAddress(ethAddress)
-      setBtcAddress(btcAddress)
+      dispatch({ type: 'SET_ETH_ADDRESS', ethAddress })
+      dispatch({ type: 'SET_BTC_ADDRESS', btcAddress })
       const reverseEthAddressLookup = await ensReverseLookup(ethAddress)
-      !reverseEthAddressLookup.error && setEnsName(reverseEthAddressLookup.name)
+      !reverseEthAddressLookup.error &&
+        dispatch({ type: 'SET_ENS_NAME', ensName: reverseEthAddressLookup.name })
     })()
-  }, [setEthAddress, setEnsName, wallet, ethChainAdapter, btcChainAdapter])
+  }, [wallet, ethChainAdapter, btcChainAdapter])
 
   useEffect(() => {
     ;(async () => {
-      setLoading(true)
+      dispatch({ type: 'FETCH_STARTED' })
 
       try {
-        if (!coinifyAssets.length) {
+        if (!state.coinifyAssets.length) {
           const coinifyAssets = await fetchCoinifySupportedCurrencies()
-          setCoinifyAssets(coinifyAssets)
+          dispatch({ type: 'SET_COINIFY_ASSETS', coinifyAssets })
         }
-        if (!wyreAssets.length) {
+        if (!state.wyreAssets.length) {
           const wyreAssets = await fetchWyreSupportedCurrencies()
-          setWyreAssets(wyreAssets)
+          dispatch({ type: 'SET_WYRE_ASSETS', wyreAssets })
         }
-        const buyAssets = parseGemBuyAssets(coinifyAssets, wyreAssets, balances, btcAddress)
-        const sellAssets = parseGemSellAssets(coinifyAssets, wyreAssets, balances, btcAddress)
+        const buyAssets = parseGemBuyAssets(
+          state.coinifyAssets,
+          state.wyreAssets,
+          balances,
+          state.btcAddress
+        )
+        const sellAssets = parseGemSellAssets(
+          state.coinifyAssets,
+          state.wyreAssets,
+          balances,
+          state.btcAddress
+        )
         setBuyList(buyAssets)
         setSellList(sellAssets)
-        setLoading(false)
+
+        dispatch({ type: 'FETCH_COMPLETED' })
       } catch (e) {
         console.error(e)
-        setLoading(false)
+        dispatch({ type: 'FETCH_COMPLETED' })
       }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [btcAddress, coinifyAssets, wyreAssets])
+  }, [state.btcAddress, state.coinifyAssets, state.wyreAssets])
 
-  useEffect(() => setSelectedAsset(null), [action])
+  useEffect(() => dispatch({ type: 'SELECT_ASSET', selectedAsset: null }), [action])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -155,7 +177,7 @@ export const GemManager = () => {
 
   const onAssetSelect = (data: GemCurrency) => {
     setIsSelectingAsset(false)
-    setSelectedAsset(data)
+    dispatch({ type: 'SELECT_ASSET', selectedAsset: data })
   }
 
   const handleCopyClick = async () => {
@@ -179,14 +201,28 @@ export const GemManager = () => {
   const handleVerify = async () => {
     if (!wallet) return
     const adapter =
-      isSupportedBitcoinAsset(selectedAsset?.ticker) && btcAddress
+      isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
         ? btcChainAdapter
         : ethChainAdapter
     const deviceAddress = await adapter.getAddress({
       wallet,
+      ...(isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
+        ? {
+            accountType: UtxoAccountType.SegwitNative,
+            // Magic segwit native bip44 params
+            bip44Params: {
+              purpose: 84,
+              coinType: 0,
+              accountNumber: 0
+            }
+          }
+        : {}),
       showOnDevice: true
     })
-    setVerified(Boolean(deviceAddress) && deviceAddress === ethAddress)
+    dispatch({
+      type: 'SHOW_ON_DISPLAY',
+      shownOnDisplay: Boolean(deviceAddress) && deviceAddress === state.ethAddress
+    })
   }
 
   return (
@@ -210,7 +246,7 @@ export const GemManager = () => {
               onClick={onAssetSelect}
               type={action}
               assets={action === FiatRampAction.Buy ? buyList : sellList}
-              loading={loading}
+              loading={state.loading}
             />
           </Stack>
         ) : (
@@ -225,13 +261,13 @@ export const GemManager = () => {
               onClick={() => setIsSelectingAsset(true)}
               rightIcon={<ChevronRightIcon color='gray.500' boxSize={6} />}
             >
-              {selectedAsset ? (
+              {state.selectedAsset ? (
                 <Flex alignItems='center'>
-                  <AssetIcon src={getAssetLogoUrl(selectedAsset)} mr={4} />
+                  <AssetIcon src={getAssetLogoUrl(state.selectedAsset)} mr={4} />
                   <Box textAlign='left'>
-                    <RawText lineHeight={1}>{selectedAsset.name}</RawText>
+                    <RawText lineHeight={1}>{state.selectedAsset.name}</RawText>
                     <RawText fontWeight='normal' fontSize='sm' color='gray.500'>
-                      {selectedAsset?.ticker}
+                      {state.selectedAsset?.ticker}
                     </RawText>
                   </Box>
                 </Flex>
@@ -239,12 +275,12 @@ export const GemManager = () => {
                 <Text translation={selectAssetTranslation} color='gray.500' />
               )}
             </Button>
-            {selectedAsset && (
+            {state.selectedAsset && (
               <Flex flexDirection='column'>
                 <Text translation={fundsTranslation} color='gray.500'></Text>
                 <InputGroup size='md'>
                   <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
-                  <InputRightElement width={supportsAddressVerifying ? '4.5rem' : undefined}>
+                  <InputRightElement width={state.supportsAddressVerifying ? '4.5rem' : undefined}>
                     <IconButton
                       icon={<CopyIcon />}
                       aria-label='copy-icon'
@@ -253,13 +289,19 @@ export const GemManager = () => {
                       variant='ghost'
                       onClick={handleCopyClick}
                     />
-                    {supportsAddressVerifying && (
+                    {state.supportsAddressVerifying && (
                       <IconButton
-                        icon={verified ? <CheckIcon /> : <ViewIcon />}
+                        icon={state.shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
                         onClick={handleVerify}
                         aria-label='check-icon'
                         size='sm'
-                        color={verified ? 'green.500' : verified === false ? 'red.500' : 'gray.500'}
+                        color={
+                          state.shownOnDisplay
+                            ? 'green.500'
+                            : state.shownOnDisplay === false
+                            ? 'red.500'
+                            : 'gray.500'
+                        }
                         isRound
                         variant='ghost'
                       />
@@ -272,9 +314,9 @@ export const GemManager = () => {
               width='full'
               size='lg'
               colorScheme='blue'
-              disabled={!selectedAsset}
+              disabled={!state.selectedAsset}
               as='a'
-              href={makeGemPartnerUrl(action, selectedAsset?.ticker, addressFull)}
+              href={makeGemPartnerUrl(action, state.selectedAsset?.ticker, addressFull)}
               target='_blank'
             >
               <Text translation='common.continue' />

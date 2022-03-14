@@ -111,7 +111,48 @@ export async function createWalletConnectClient(event:any) {
         }
     }
 
-    //
+    /*
+            Example unsignedTx
+
+        //Unsigned TX
+        let unsignedTx =  {
+            "network":"ETH",
+            "asset":"ETH",
+            "transaction":{
+                "context":"0x33b35c665496bA8E71B22373843376740401F106.wallet",
+                "type":"transfer",
+                "addressFrom":"0x33b35c665496bA8E71B22373843376740401F106",
+                "recipient":"0x33b35c665496bA8E71B22373843376740401F106",
+                "asset":"ETH",
+                "network":"ETH",
+                "memo":"",
+                "amount":"0.0001",
+                "fee":{
+                    "priority":5
+                },
+                "noBroadcast":true
+            },
+            "HDwalletPayload":{
+                "addressNList":[
+                    2147483692,
+                    2147483708,
+                    2147483648,
+                    0,
+                    0
+                ],
+                "nonce":"0x2c4",
+                "gasPrice":"0xf22d45af6",
+                "gasLimit":"0x13880",
+                "value":"0x5af3107a4000",
+                "to":"0x33b35c665496bA8E71B22373843376740401F106",
+                "data":"",
+                "chainId":1
+            },
+            "verbal":"Ethereum transaction"
+        }
+
+
+     */
     let onSignRequest = function(params:any){
         let tag = " | onSignRequest | "
         try{
@@ -129,30 +170,27 @@ export async function createWalletConnectClient(event:any) {
                 case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
                     network = "ETH"
                     asset = "ETH" //TODO detect token
-                    //TODO convert Sign
+                    //TODO convert
                     HDwalletPayload = {}
                 case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
                 case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
                 case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
-                    //TODO convert Sign
+                    //TODO convert
                     network = "ETH"
                     HDwalletPayload = {}
                 case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
                 case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
                     network = "ETH"
-                    //TODO convert Sign
+                    //TODO convert
                     HDwalletPayload = {}
                 case COSMOS_SIGNING_METHODS.COSMOS_SIGN_DIRECT:
                 case COSMOS_SIGNING_METHODS.COSMOS_SIGN_AMINO:
                     network = "COSMOS"
-                    //TODO convert Sign
+                    //TODO convert
                     HDwalletPayload = {}
                 default:
                     //Push Error to ipc UNKNOWN tx type!
             }
-
-
-
             event.sender.send('signTx', {unsignedTx:{HDwalletPayload}});
         }catch(e){
             log.error(e)

@@ -8,7 +8,7 @@
 import WalletConnectClient from '@walletconnect/client'
 import { CLIENT_EVENTS } from '@walletconnect/client'
 import log from 'electron-log'
-import {app} from "electron";
+import { app, IpcMainEvent } from "electron";
 
 export let walletConnectClient: WalletConnectClient
 
@@ -45,26 +45,25 @@ export const COSMOS_SIGNING_METHODS = {
     COSMOS_SIGN_AMINO: 'cosmos_signAmino'
 }
 
-export async function pairWalletConnect(event:any,payload:any) {
+export async function pairWalletConnect(event: any, payload: any) {
     let tag = " | pairWalletConnect | "
-    try{
-        log.info(tag,"payload: ",payload)
-
+    try {
+        log.info(tag, "payload: ", payload)
+        if (!walletConnectClient) createWalletConnectClient(event)
         //connect to URI
-        let success = await walletConnectClient.pair({ uri:payload })
-        log.info(tag,"success: ",success)
+        let success = await walletConnectClient.pair({ uri: payload })
+        log.info(tag, "success: ", success)
 
         // //TODO UX pairing
         // event.sender.send("@app/onSuccessPair", {});
-    }catch(e){
+    } catch (e) {
         log.error(e)
     }
 }
 
 
-export async function createWalletConnectClient(event:any) {
+export async function createWalletConnectClient(event: IpcMainEvent) {
     //TODO wtf types
-    // @ts-ignore
     walletConnectClient = await WalletConnectClient.init({
         controller: true,
         projectId: "14d36ca1bc76a70273d44d384e8475ae",
@@ -80,27 +79,27 @@ export async function createWalletConnectClient(event:any) {
     //Wallet Connect Events
     //ref https://github.com/WalletConnect/web-examples/blob/main/wallets/react-wallet-v2/src/hooks/useWalletConnectEventsManager.ts
 
-    let onSessionProposal = function(params:any){
+    let onSessionProposal = function (params: any) {
         let tag = " | onSessionProposal | "
-        try{
-           log.info(tag,"params: ",params)
+        try {
+            log.info(tag, "params: ", params)
 
             //TODO do something
             event.sender.send("@app/onSessionProposal", {});
-        }catch(e){
+        } catch (e) {
             log.error(e)
         }
     }
 
     //A dapp created a session
-    let onSessionCreated = function(params:any){
+    let onSessionCreated = function (params: any) {
         let tag = " | onSessionCreated | "
-        try{
-            log.info(tag,"params: ",params)
+        try {
+            log.info(tag, "params: ", params)
 
             //TODO save dapp into pairing
             event.sender.send("@app/onSessionCreated", {});
-        }catch(e){
+        } catch (e) {
             log.error(e)
         }
     }
@@ -147,10 +146,10 @@ export async function createWalletConnectClient(event:any) {
 
 
      */
-    let onSignRequest = function(params:any){
+    let onSignRequest = function (params: any) {
         let tag = " | onSignRequest | "
-        try{
-            log.info(tag,"params: ",params)
+        try {
+            log.info(tag, "params: ", params)
             const { topic, request } = params
             const { method } = request
 
@@ -183,10 +182,10 @@ export async function createWalletConnectClient(event:any) {
                     //TODO convert
                     HDwalletPayload = {}
                 default:
-                    //Push Error to ipc UNKNOWN tx type!
+                //Push Error to ipc UNKNOWN tx type!
             }
-            event.sender.send('signTx', {unsignedTx:{HDwalletPayload}});
-        }catch(e){
+            event.sender.send('signTx', { unsignedTx: { HDwalletPayload } });
+        } catch (e) {
             log.error(e)
         }
     }

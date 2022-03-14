@@ -8096,7 +8096,7 @@ better-opn@^2.1.1:
   dependencies:
     open "^7.0.3"
 
-better-sqlite3@^7.1.2, better-sqlite3@^7.5.0:
+better-sqlite3@^7.1.2:
   version "7.5.0"
   resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-7.5.0.tgz#2a91cb616453f002096743b0e5b66a7021cd1c63"
   integrity sha512-6FdG9DoytYGDhLW7VWW1vxjEz7xHkqK6LnaUQYA8d6GHNgZhu9PFX2xwKEEnSBRoT1J4PjTUPeg217ShxNmuPg==

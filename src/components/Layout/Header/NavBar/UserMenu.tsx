@@ -161,7 +161,7 @@ export const UserMenu = () => {
   }
 
   const handleWalletConnect = () => {
-    console.log("OPEN WALLET CONNECT")
+    console.info('OPEN WALLET CONNECT')
     walletConnect.open({})
   }
 
@@ -184,10 +184,7 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuItem
-            icon={<ExternalLinkIcon />}
-            onClick={handleWalletConnect}
-        >
+        <MenuItem icon={<ExternalLinkIcon />} onClick={handleWalletConnect}>
           <Text translation='common.walletConnect' />
         </MenuItem>
         <MenuItem

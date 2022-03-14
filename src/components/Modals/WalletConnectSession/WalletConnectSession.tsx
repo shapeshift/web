@@ -1,15 +1,13 @@
 import {
-  Input,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
-  FormHelperText,
   Alert,
   AlertDescription,
   AlertIcon,
   Box,
   Button,
-  Image,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -33,14 +31,13 @@ export type PairingProps = {
 
 export const WalletConnectSessionModal = (input: any) => {
   const [error] = useState<string | null>(null)
-  const [loading] = useState(false)
+  // const [loading] = useState(false)
   const [uri, setUri] = useState('uri:.....')
   const { walletConnect } = useModal()
   const { close, isOpen } = walletConnect
   const { hasCopied, onCopy } = useClipboard(uri)
 
   const HandleSubmit = async (e: any) => {
-
     ipcRenderer.send(`@connect/session`, uri)
   }
 
@@ -48,17 +45,17 @@ export const WalletConnectSessionModal = (input: any) => {
 
   useEffect(() => {
     // @ts-ignore
-    navigator.permissions.query({ name: "clipboard-read" }).then(async (result) => {
+    navigator.permissions.query({ name: 'clipboard-read' }).then(async result => {
       // If permission to read the clipboard is granted or if the user will
       // be prompted to allow it, we proceed.
 
-      if (result.state == "granted" || result.state == "prompt") {
-        navigator.clipboard.read().then(async (data) => {
-          const link = await data[0].getType("text/plain")
+      if (result.state === 'granted' || result.state === 'prompt') {
+        navigator.clipboard.read().then(async data => {
+          const link = await data[0].getType('text/plain')
           link.text().then(setUri)
-        });
+        })
       }
-    });
+    })
   }, [navigator.permissions])
 
   // const HandleReject = async () => {
@@ -86,9 +83,7 @@ export const WalletConnectSessionModal = (input: any) => {
           </ModalHeader>
           <ModalBody>
             <Stack spacing={4} mb={4}>
-              <Box display='inline-flex' justifyContent='center' alignItems='center'>
-
-              </Box>
+              <Box display='inline-flex' justifyContent='center' alignItems='center'></Box>
               {error && (
                 <Alert status='error'>
                   <AlertIcon />
@@ -99,18 +94,9 @@ export const WalletConnectSessionModal = (input: any) => {
               )}
               <FormControl>
                 <FormLabel htmlFor='uri'>URI</FormLabel>
-                <Input
-                  id='uri'
-                  value={uri}
-                  onChange={handleInputChange}
-                />
+                <Input id='uri' value={uri} onChange={handleInputChange} />
                 <FormHelperText>Enter Wallet Connect URI</FormHelperText>
-                <Button
-                  mt={4}
-                  colorScheme='teal'
-                  type='submit'
-                  onClick={HandleSubmit}
-                >
+                <Button mt={4} colorScheme='teal' type='submit' onClick={HandleSubmit}>
                   Submit
                 </Button>
               </FormControl>

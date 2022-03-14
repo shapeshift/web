@@ -11,7 +11,7 @@ import log from 'electron-log'
 import { app, ipcMain, IpcMainEvent } from "electron";
 import { SessionTypes } from '@walletconnect/types'
 import { uniqueId } from 'lodash';
-import {shared} from "./shared";
+import { shared } from "./shared";
 import wait from 'wait-promise'
 const sleep = wait.sleep;
 export let walletConnectClient: WalletConnectClient
@@ -92,7 +92,8 @@ export async function approveWalletConnect(proposal: SessionTypes.Proposal, acco
         }
         log.info(tag, proposal)
         log.info(tag, accounts)
-        await walletConnectClient.approve({ proposal, response })
+        const approve = await walletConnectClient.approve({ proposal, response })
+        log.info(tag, approve)
     } catch (e) {
         log.error(e)
     }
@@ -313,7 +314,7 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                 topic,
                 response
             })
-            log.info(tag,"successRespond: ",successRespond)
+            log.info(tag, "successRespond: ", successRespond)
         } catch (e) {
             log.error(e)
         }

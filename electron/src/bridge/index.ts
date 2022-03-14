@@ -74,6 +74,7 @@ export const start_bridge = async function () {
             keepkey.STATUS = `no devices`
             windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
             windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
+            return
         }
 
         if (keepkey.device) {

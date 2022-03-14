@@ -218,7 +218,7 @@ if (!instanceLock) {
 }
 
 app.on('window-all-closed', () => {
-    return
+    if (!bridgeRunning) app.quit()
 })
 
 app.on("activate", function () {
@@ -464,25 +464,22 @@ ipcMain.on('@app/start', async (event, data) => {
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }
-
-        usb.on('attach', function (device) {
-            log.info('attach device: ', device)
-            event.sender.send('attach', { device })
-            if (!bridgeRunning) start_bridge()
-            update_keepkey_status(event)
-        })
-
-        usb.on('detach', function (device) {
-            log.info('detach device: ', device)
-            event.sender.send('detach', { device })
-            //stop_bridge(event)
-            update_keepkey_status(event)
-        })
     } catch (e) {
         log.error('e: ', e)
         log.error(tag, e)
     }
-}
+})
 
+usb.on('attach', function (device) {
+    log.info('attach device: ', device)
+    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
+    if (!bridgeRunning) start_bridge()
+    update_keepkey_status(event)
+})
 
-)
+usb.on('detach', function (device) {
+    log.info('detach device: ', device)
+    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
+    //stop_bridge(event)
+    update_keepkey_status(event)
+})

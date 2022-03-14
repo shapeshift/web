@@ -29,8 +29,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
   useEffect(() => {
-    console.info('tx provider', walletInfo?.deviceId)
     ;(async () => {
+      // we need to do this check inside the function, such that the effect always
+      // returns an unsubscribe function
       if (!wallet) return
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
@@ -50,6 +51,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
+            // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
+            // this state machine should be removed, and managed by the txHistory RTK query api
             if (txHistoryStatus !== 'loading') dispatch(txHistory.actions.setStatus('loading'))
             console.info('subscribing txs for chain', chain)
             await adapter.subscribeTxs(
@@ -81,14 +84,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       dispatch(txHistory.actions.clear())
       chainAdapter.getSupportedAdapters().forEach(getAdapter => {
         try {
-          console.info('unsubbing txs for chain', getAdapter().getType())
           getAdapter().unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }
       })
     }
-    // x eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, walletInfo?.deviceId])
 
   /**
@@ -98,8 +100,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
    * like we do on the balance charts, by debouncing the txids coming in
    * over the websocket
    *
-   * once we a wallet, and leave sufficient time (TX_DEBOUNCE_DELAY),
-   * we can be pretty sure they're finished loading, and set a loaded flag
+   * once we connect a wallet and subscribe to tx history, and leave sufficient
+   * time (TX_DEBOUNCE_DELAY), we can be pretty sure they're finished loading,
+   * and set a loaded flag
    *
    * after this, other parts of the app can useEffect on txids changing,
    * and act on new txs coming in

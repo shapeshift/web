@@ -46,6 +46,9 @@ export type TxIdByAccountId = {
   [k: AccountSpecifier]: TxId[]
 }
 
+// before the wallet is connected, we're idle
+// when we subscribe to the history, we're loading
+// after logic managing a delay after no new tx's in TransactionsProvider, we're loaded
 export type TxHistoryStatus = 'idle' | 'loading' | 'loaded'
 
 export type TxHistory = {

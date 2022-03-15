@@ -1,10 +1,16 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
+import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useJsonToCsv } from 'react-json-csv'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { getBuyTx, getSellTx, getStandardTx } from 'hooks/useTxDetails/useTxDetails'
+import {
+  getBuyTx,
+  getSellTx,
+  getStandardTx,
+  isSupportedContract
+} from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetsByMarketCap, selectTxs } from 'state/slices/selectors'
@@ -14,6 +20,7 @@ import { breakpoints } from 'theme/theme'
 
 type ReportRow = {
   txid: TxId
+  type: string
   status: string
   timestamp: string
   minerFee: string
@@ -35,6 +42,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const translate = useTranslate()
   const fields = {
     txid: translate('transactionHistory.csv.txid'),
+    type: translate('transactionHistory.csv.type'),
     status: translate('transactionHistory.csv.status'),
     timestamp: translate('transactionHistory.csv.timestamp'),
     minerFee: translate('transactionHistory.csv.minerFee'),
@@ -54,6 +62,9 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const txId = txIds[index]
       const transaction = allTxs[txId]
       const standardTx = getStandardTx(transaction)
+      const txType = isSupportedContract(transaction)
+        ? TxType.Contract
+        : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTx = getBuyTx(transaction)
       const sellTx = getSellTx(transaction)
       const feeAsset = assets.find(asset => asset.caip19 === transaction.fee?.caip19)
@@ -65,7 +76,14 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const outputAsset = outputCaip19 ? assets.find(asset => asset.caip19 === outputCaip19) : null
       report.push({
         txid: transaction.txid,
-        status: translate(transaction.status),
+        type: translate(
+          txType
+            ? `transactionHistory.transactionTypes.${txType}`
+            : transaction.data
+            ? `transactionRow.parser.${transaction.data?.parser}.${transaction.data?.method}`
+            : 'transactionRow.unknown'
+        ),
+        status: translate(`transactionRow.${transaction.status}`),
         timestamp: dayjs(transaction.blockTime * 1000).toISOString(),
         minerFee: transaction.fee
           ? bnOrZero(fromBaseUnit(transaction.fee?.value, feeAsset?.precision ?? 18)).toString()
@@ -75,12 +93,12 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
           ? bnOrZero(fromBaseUnit(input?.value, inputAsset?.precision ?? 18)).toString()
           : '-',
         inputCurrency: inputAsset?.symbol ?? '-',
-        inputAddress: input?.to ?? '-',
+        inputAddress: input?.from ?? '-',
         outputAmount: output
           ? bnOrZero(fromBaseUnit(output?.value, outputAsset?.precision ?? 18)).toString()
           : '-',
         outputCurrency: outputAsset?.symbol ?? '-',
-        outputAddress: output?.from ?? '-'
+        outputAddress: output?.to ?? '-'
       })
     }
     try {

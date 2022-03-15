@@ -672,6 +672,7 @@
     "csv": {
       "fileName": "ShapeShift Transactions History",
       "txid": "TX ID",
+      "type": "TX type",
       "timestamp": "Timestamp",
       "status": "Status",
       "minerFee": "Miner fee",
@@ -682,6 +683,11 @@
       "outputAmount": "Output amount",
       "outputCurrency": "Output currency",
       "outputAddress": "Output address"
+    },
+    "transactionTypes": {
+      "send": "Send",
+      "receive": "Receive",
+      "trade": "Trade"
     },
     "assets": "Assets",
     "viewOnChain": "View on chain",

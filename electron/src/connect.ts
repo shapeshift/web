@@ -181,8 +181,6 @@ export async function pairWalletConnect(event: any, payload: any) {
             let gasPrice = Number(parseInt(gasInfo.gasPrice))
             console.log("gasPrice: ",gasPrice)
             // @ts-ignore
-            gasPrice = gasPrice / 1000
-            // @ts-ignore
             gasPrice = parseInt(gasPrice)
             console.log("gasPrice: ",gasPrice)
             //@ts-ignore
@@ -191,7 +189,6 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             // @ts-ignore
             let nonce = accountInfo.nonce
-            nonce = 710
             console.log("nonce: ",nonce)
             nonce = "0x"+nonce.toString(16);
             console.log("nonce: ",nonce)

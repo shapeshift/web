@@ -200,6 +200,10 @@ export async function pairWalletConnect(event: any, payload: any) {
             nonce = "0x"+nonce.toString(16);
             console.log("nonce: ",nonce)
 
+            //TODO track last Nonce Users
+            //if nonce <= lastNonceUsed
+            //nonce = lastNonceUsed + 1
+
             let HDwalletPayload = {
                 "addressNList":[
                     2147483692,

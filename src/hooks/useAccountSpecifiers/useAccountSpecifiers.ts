@@ -117,7 +117,6 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
        * do a deep equal comparison here and only set the account specifiers if they're
        * different
        */
-      console.info('setting account specifiers')
       if (!isEqual(acc, accountSpecifiers)) setAccountSpecifiers(acc)
     } catch (e) {
       console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)

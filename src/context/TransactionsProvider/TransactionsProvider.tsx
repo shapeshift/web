@@ -52,7 +52,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
-            console.info('subscribing txs for chain', chain)
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
@@ -109,10 +108,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
     const TX_DEBOUNCE_DELAY = 5000
-    const timer = setTimeout(() => {
-      console.info('tx history loaded')
-      dispatch(txHistory.actions.setStatus('loaded'))
-    }, TX_DEBOUNCE_DELAY)
+    const timer = setTimeout(
+      () => dispatch(txHistory.actions.setStatus('loaded')),
+      TX_DEBOUNCE_DELAY
+    )
     return () => clearTimeout(timer) // clear if the input changes
   }, [dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
 

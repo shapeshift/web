@@ -11,9 +11,11 @@ import {
   useDisclosure
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
@@ -43,6 +45,8 @@ export const Header = ({ route }: { route: Route }) => {
     document.addEventListener('keydown', handleKeyPress)
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
+
+  const gemRampFlag = useSelector(state => selectFeatureFlag(state as any, 'GemRamp'))
 
   return (
     <>
@@ -79,9 +83,11 @@ export const Header = ({ route }: { route: Route }) => {
             <AutoCompleteSearch />
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <FiatRamps />
-            </Box>
+            {gemRampFlag && (
+              <Box display={{ base: 'none', md: 'block' }}>
+                <FiatRamps />
+              </Box>
+            )}
             <Box display={{ base: 'none', md: 'block' }}>
               <UserMenu />
             </Box>

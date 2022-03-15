@@ -3836,10 +3836,10 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.2.tgz#61aee46519ccbcd5ee5db2ca5d44d893a79644bc"
   integrity sha512-7t4Q49KtySfGZiTYyfOUcUMcOIYGoHn4/5fSaUVTi2oR4i2LJxAKsX1iNzBz1UOBytVIbQIUknG3jIFvQCb25A==
 
-"@shapeshiftoss/chain-adapters@^2.11.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.11.0.tgz#edea4e34ee1e5d2a6069f5f7f0e26365a8e3dede"
-  integrity sha512-Z0wZ0fIpsJ5i7m4Pe/+4lH+NZbiiMbtPQb+QSDcO1DMpozJa/O+go89Cl43eO7suXCiGEY7c+vrV78V3Ns8+IQ==
+"@shapeshiftoss/chain-adapters@^2.12.0":
+  version "2.12.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.12.0.tgz#d53a11cea913c9fb439b4594a8ac3af6b3b72821"
+  integrity sha512-kno4yLj3KfrDTiDjSF0wh19LHen2H/K3s9JYarxtW+MmmIx2ZaIq2uY/RH/gDK/ASdDf7+f/voiFyiniHty29Q==
   dependencies:
     axios "^0.26.0"
     bech32 "^2.0.0"
@@ -4051,10 +4051,10 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.7.0":
-  version "2.7.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.7.0.tgz#e3b5206ff7e6e813e153f9150d400ead58a8221e"
-  integrity sha512-kCqAEP9ISJ6GZDTfeRTwtgDPe3ztXJ9XkqHwFcb2kZiSqgeuQ+vO35yGbp/X+EWdeGVHPEFBzeoplZyVe+79iQ==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.8.0":
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.8.0.tgz#997a86001e625da6e3c104a569a95dc3684c0679"
+  integrity sha512-yMGJ7q6sdONFs7KV/UsqcT05eECyF8QpOPwAvf13lmw1DeDbmsAzYKmveX+APVC19kW8cm2Qr5hE+C/35IZ/Ww==
 
 "@shapeshiftoss/unchained-client@^6.7.0":
   version "6.7.0"

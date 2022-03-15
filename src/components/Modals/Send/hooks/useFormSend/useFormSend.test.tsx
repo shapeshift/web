@@ -1,4 +1,5 @@
 import { useToast } from '@chakra-ui/react'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import {
   AssetDataSource,
   chainAdapters,
@@ -21,6 +22,10 @@ import { useFormSend } from './useFormSend'
 jest.mock('@chakra-ui/react', () => ({
   ...jest.requireActual('@chakra-ui/react'),
   useToast: jest.fn(),
+}))
+jest.mock('@shapeshiftoss/hdwallet-core', () => ({
+  ...jest.requireActual('@shapeshiftoss/hdwallet-core'),
+  supportsETH: jest.fn(),
 }))
 jest.mock('react-hook-form')
 jest.mock('react-polyglot', () => ({
@@ -101,6 +106,8 @@ const textTxToSign = {
   data: '0xa9059cbb000000000000000000000000f293f9e575aec02d3da5952b5fd95353c53a134e0000000000000000000000000000000000000000000000000000000000000000',
   nonce: '136',
   gasPrice: '0x1b3dbe5200',
+  maxFeePerGas: '0x1b3dbe5200',
+  maxPriorityFeePerGas: '0x1b3dbe5200',
   gasLimit: '0xa870',
 }
 
@@ -108,7 +115,10 @@ const testSignedTx = '0xfakeSignedTxHash'
 
 const expectedTx = '0xfakeTxHash'
 
-describe('useFormSend', () => {
+describe.each([
+  ['wallet does not support EIP-1559', false],
+  ['wallet supports EIP-1559', true],
+])('useFormSend (%s)', (_, walletSupportsEIP1559) => {
   const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
 
   beforeEach(() => {
@@ -130,9 +140,11 @@ describe('useFormSend', () => {
       state: {
         wallet: {
           supportsOfflineSigning: jest.fn().mockReturnValue(true),
+          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
+    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
@@ -158,9 +170,11 @@ describe('useFormSend', () => {
       state: {
         wallet: {
           supportsOfflineSigning: jest.fn().mockReturnValue(true),
+          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
+    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({
@@ -183,7 +197,7 @@ describe('useFormSend', () => {
     expect(sendClose).toHaveBeenCalled()
   })
 
-  it.only('handles successfully sending an ETH address tx without offline signing', async () => {
+  it('handles successfully sending an ETH address tx without offline signing', async () => {
     const toaster = jest.fn()
     const signAndBroadcastTransaction = jest.fn().mockResolvedValue('txid')
     ;(useToast as jest.Mock<unknown>).mockImplementation(() => toaster)
@@ -192,9 +206,11 @@ describe('useFormSend', () => {
         wallet: {
           supportsOfflineSigning: jest.fn().mockReturnValue(false),
           supportsBroadcast: jest.fn().mockReturnValue(true),
+          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
+    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))
@@ -226,9 +242,11 @@ describe('useFormSend', () => {
         wallet: {
           supportsOfflineSigning: jest.fn().mockReturnValue(false),
           supportsBroadcast: jest.fn().mockReturnValue(true),
+          ethSupportsEIP1559: jest.fn().mockReturnValue(walletSupportsEIP1559),
         },
       },
     }))
+    ;(supportsETH as unknown as jest.Mock<unknown>).mockReturnValue(true)
 
     const sendClose = jest.fn()
     ;(useModal as jest.Mock<unknown>).mockImplementation(() => ({ send: { close: sendClose } }))

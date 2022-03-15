@@ -229,6 +229,14 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
     }
 
     /*
+        onSignTx response
+        {
+           r: '0x647c0ad5c91ed3ac0d61ef50ad863d6120ee229660ad5be7bcd4ac32864ca543',
+           s: '0x177be6c313d314cecd8bb668aabf67b52a98871033a28cf577926507cc450019',
+           v: 37,
+           serialized: '0xf8668202c58504a817c8008252089433b35c665496ba8e71b22373843376740401f106808025a0647c0ad5c91ed3ac0d61ef50ad863d6120ee229660ad5be7bcd4ac32864ca543a0177be6c313d314cecd8bb668aabf67b52a98871033a28cf577926507cc450019',
+           txid: 'broke'
+         }
      */
     let onSignRequest = async function (params: any) {
         let tag = " | onSignRequest | "
@@ -315,6 +323,8 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                     data: {
                         invocation: {
                             unsignedTx: {
+                                "network":"ETH",
+                                "asset":"ETH",
                                 "transaction":{
                                     "context":params.request.params[0].from,
                                     "type":"transfer",
@@ -329,7 +339,8 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                                     },
                                     "noBroadcast":true
                                 },
-                                HDwalletPayload
+                                HDwalletPayload,
+                                "verbal":"Ethereum transaction"
                             }
                         }
                     }

@@ -1,13 +1,16 @@
+import { Box } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
 import { Card } from 'components/Card/Card'
+import { MarketDataUnavailable } from 'components/Feedbacks/MarketDataUnavailable'
 import { Graph } from 'components/Graph/Graph'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { calculatePercentChange } from 'lib/charts'
 import {
-  selectPriceHistoriesLoadingByAssetTimeframe,
-  selectPriceHistoryByAssetTimeframe
+  selectPriceHistoryByAssetTimeframe,
+  selectPriceHistoryLoadingByAssetTimeframe,
+  selectPriceHistoryUnavailableByAssetTimeframe
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,13 +38,23 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   useEffect(() => setPercentChange(calculatePercentChange(data)), [data, setPercentChange])
 
   const loading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
+    selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe)
   )
+  const unavailable = useAppSelector(state =>
+    selectPriceHistoryUnavailableByAssetTimeframe(state, assetId, timeframe)
+  )
+
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
   return (
     <Card.Body p={0} height='350px'>
-      <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
+      {unavailable ? (
+        <Box p={8}>
+          <MarketDataUnavailable />
+        </Box>
+      ) : (
+        <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
+      )}
     </Card.Body>
   )
 }

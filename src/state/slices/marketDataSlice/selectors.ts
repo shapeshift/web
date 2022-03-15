@@ -4,6 +4,8 @@ import { HistoryTimeframe } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { ReduxState } from 'state/reducer'
 
+import { marketApi } from './marketDataSlice'
+
 export const selectMarketData = (state: ReduxState) => state.marketData.byId
 
 const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => assetId
@@ -39,6 +41,26 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   // if we don't have the data it's loading
   (priceHistory, assetIds, timeframe) =>
     !assetIds.every(assetId => Boolean(priceHistory[timeframe][assetId]))
+)
+
+const selectPriceHistoryQueryByAssetTimeframe = createSelector(
+  (_state: ReduxState, assetId: CAIP19, _timeframe: HistoryTimeframe) => assetId,
+  (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
+  (assetId, timeframe) =>
+    marketApi.endpoints.findPriceHistoryByCaip19.select({ assetId, timeframe })
+)
+
+export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
+  (state: ReduxState) => state,
+  selectPriceHistoryQueryByAssetTimeframe,
+  (state: ReduxState, querySelector) => querySelector(state).isLoading
+)
+
+export const selectPriceHistoryUnavailableByAssetTimeframe = createSelector(
+  (state: ReduxState, _assetId: CAIP19, _timeframe: HistoryTimeframe) => state,
+  selectPriceHistoryQueryByAssetTimeframe,
+  (state: ReduxState, querySelector) =>
+    querySelector(state).isSuccess && querySelector(state).data?.length === 0
 )
 
 export const selectPriceHistoryTimeframe = createSelector(

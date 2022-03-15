@@ -17,10 +17,7 @@ export const AccountTokenTxHistory: React.FC<AssetTransactionProps> = ({ route }
   const assetIdParam = decodeURIComponent(assetId)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetIdParam))
   return !asset ? null : (
-    <Main
-      route={route}
-      titleComponent={<AssetHeader assetId={assetIdParam} accountId={accountId} />}
-    >
+    <Main titleComponent={<AssetHeader assetId={assetIdParam} accountId={accountId} />}>
       <AllTransactions assetId={assetIdParam} accountId={accountId} />
     </Main>
   )

@@ -22,7 +22,7 @@ export const Overview = ({ route }: { route?: Route }) => {
   const balances = useEarnBalances()
   const walletBalance = useSelector(selectPortfolioTotalFiatBalance)
   return (
-    <Main titleComponent={<DefiHeader />} route={route}>
+    <Main titleComponent={<DefiHeader />}>
       <OverviewHeader earnBalance={balances} walletBalance={walletBalance} />
       <Stack spacing={4} divider={<Divider marginTop={0} />}>
         <VaultList balances={balances} />

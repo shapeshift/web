@@ -12,14 +12,13 @@ import {
 } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
-export const Header = ({ route }: { route: Route }) => {
+export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
@@ -86,7 +85,9 @@ export const Header = ({ route }: { route: Route }) => {
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>{route && <SideNavContent route={route} />}</DrawerContent>
+        <DrawerContent>
+          <SideNavContent />
+        </DrawerContent>
       </Drawer>
     </>
   )

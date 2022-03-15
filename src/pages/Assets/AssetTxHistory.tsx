@@ -16,7 +16,7 @@ export const AssetTxHistory: React.FC<AssetTransactionProps> = ({ route }) => {
   if (!params.assetSubId && !params.chainId) return null
 
   return (
-    <Main route={route} titleComponent={<AssetHeader assetId={assetId} />}>
+    <Main titleComponent={<AssetHeader assetId={assetId} />}>
       <AllTransactions assetId={assetId} />
     </Main>
   )

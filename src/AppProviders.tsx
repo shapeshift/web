@@ -4,10 +4,12 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
+import { AppRouteProvider } from 'Routes/Routes'
 import { ScrollToTop } from 'Routes/ScrollToTop'
 import { translations } from 'assets/translations'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -18,6 +20,7 @@ import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { simpleLocale } from 'lib/browserLocale'
+import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -56,7 +59,13 @@ export function AppProviders({ children }: ProvidersProps) {
                       <MarketDataProvider>
                         <TransactionsProvider>
                           <ModalProvider>
-                            <DefiManagerProvider>{children}</DefiManagerProvider>
+                            <DefiManagerProvider>
+                              <AppRouteProvider>
+                                <ErrorBoundary FallbackComponent={ErrorPage}>
+                                  {children}
+                                </ErrorBoundary>
+                              </AppRouteProvider>
+                            </DefiManagerProvider>
                           </ModalProvider>
                         </TransactionsProvider>
                       </MarketDataProvider>

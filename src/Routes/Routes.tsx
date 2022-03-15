@@ -1,9 +1,12 @@
 import union from 'lodash/union'
+import { pluginManager, registerPlugins } from 'plugins'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
@@ -23,6 +26,8 @@ import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
+import { selectFeatureFlags } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
@@ -146,20 +151,75 @@ function useLocationBackground() {
   const background = location.state && location.state.background
   return { background, location }
 }
+export interface IRouteContext {
+  appRoutes: NestedRoute[]
+  currentRoute: NestedRoute | void
+}
 
-export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
+const RouteContext = createContext<IRouteContext | null>(null)
+
+export const AppRouteProvider: React.FC = ({ children }) => {
+  const location = useLocation()
+  const [pluginRoutes, setPluginRoutes] = useState<NestedRoute[]>([])
+  const chainAdapterManager = useChainAdapters()
+  const featureFlags = useAppSelector(selectFeatureFlags)
+
+  useEffect(() => {
+    registerPlugins()
+      .then(() => {
+        let routes: NestedRoute[] = []
+
+        // Register Chain Adapters
+        for (const [, plugin] of pluginManager.entries()) {
+          // Ignore plugins that have their feature flag disabled
+          // If no featureFlag is present, then we assume it's enabled
+          if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
+            // Routes
+            routes = routes.concat(plugin.routes)
+            // Chain Adapters
+            plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
+              chainAdapterManager.addChain(chain, factory)
+            })
+          }
+        }
+
+        setPluginRoutes(routes)
+      })
+      .catch(e => {
+        console.error('RegisterPlugins', e)
+        setPluginRoutes([])
+      })
+  }, [setPluginRoutes, chainAdapterManager, featureFlags])
+
+  const appRoutes = useMemo(() => {
+    return generateAppRoutes(union(pluginRoutes, routes))
+  }, [pluginRoutes])
+
+  const currentRoute = useMemo(() => {
+    return appRoutes.find(e => matchPath(location.pathname, { path: e.path, exact: true }))
+  }, [appRoutes, location.pathname])
+
+  return (
+    <RouteContext.Provider value={{ currentRoute, appRoutes }}>{children}</RouteContext.Provider>
+  )
+}
+
+export const useAppRoutes = (): IRouteContext =>
+  useContext(RouteContext as React.Context<IRouteContext>)
+
+export const Routes = () => {
   const { background, location } = useLocationBackground()
+  const { appRoutes } = useAppRoutes()
   const { state } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
-
-  const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
 
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
+        const MainComponent = route.main
         return (
           <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
-            <Layout route={route} />
+            <Layout>{MainComponent && <MainComponent />}</Layout>
           </PrivateRoute>
         )
       })}
@@ -167,31 +227,19 @@ export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
         <ConnectWallet />
       </Route>
       <Route path={'/legal/terms-of-service'}>
-        <Layout
-          route={{
-            path: '/legal/terms-of-service',
-            label: 'Terms of Service',
-            main: TermsOfService
-          }}
-        />
+        <Layout>
+          <TermsOfService />
+        </Layout>
       </Route>
       <Route path={'/legal/privacy-policy'}>
-        <Layout
-          route={{
-            path: '/legal/privacy-policy',
-            label: 'Privacy Policy',
-            main: PrivacyPolicy
-          }}
-        />
+        <Layout>
+          <PrivacyPolicy />
+        </Layout>
       </Route>
       <Route path='/flags'>
-        <Layout
-          route={{
-            path: '/flags',
-            label: 'Flags',
-            main: Flags
-          }}
-        />
+        <Layout>
+          <Flags />
+        </Layout>
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

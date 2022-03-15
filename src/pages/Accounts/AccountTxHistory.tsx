@@ -19,7 +19,7 @@ export const AccountTxHistory: React.FC<AssetTransactionProps> = ({ route }) => 
   const feeAssetId = accountIdToFeeAssetId(parsedAccountId)
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
   return !feeAsset ? null : (
-    <Main route={route} titleComponent={<AssetHeader assetId={feeAssetId} accountId={accountId} />}>
+    <Main titleComponent={<AssetHeader assetId={feeAssetId} accountId={accountId} />}>
       <AllTransactions assetId={feeAssetId} accountId={accountId} />
     </Main>
   )

@@ -4033,12 +4033,7 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.0.0.tgz#de64b40bc777551d83c0938a319ba805069caf10"
-  integrity sha512-1NOcxKikRX9T8JRu6d+cSvaWscrnVzqanOrDhPkCzDfjmqZQ5JgVR1dz7bTN6s83oZiRcM80zAIfX9lJ06cHTg==
-
-"@shapeshiftoss/types@^2.1.0":
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.1.0.tgz#6704f709f2650da671f212278687d32143269a10"
   integrity sha512-4v7ZyV6LvUZ3z0rTntNxyivpuzhwrAO6lYlxkSNcfoMlrAOiZp9a93QeYFs8enQgphZ3V7giO13LXAEyBWDKpw==
@@ -6547,18 +6542,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.29":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.1.1.tgz#237899a175fe177e13b1f98111811027da01602d"
-  integrity sha512-UObLdc6T3DJpp7rUKLqM7eit62v4CBMRI2pcXgFLJ2PJraCLlpG+pUSxxwFFZLLgTavfqwleMvo8xML3gnnsbg==
-  dependencies:
-    bignumber.js "9.0.1"
-    cross-fetch "3.1.4"
-    dotenv "10.0.0"
-    emittery "0.8.1"
-    type-fest "1.2.1"
-
-"@yfi/sdk@^1.0.30":
+"@yfi/sdk@^1.0.29", "@yfi/sdk@^1.0.30":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.2.0.tgz#b0635ced261cab41c57272ebb00ea7041702d74b"
   integrity sha512-o0GE+enTlUDwuP+W7TD7/5r5s2xuMTj93vPpUmDYePOunx3B85jwEl2FLUugTOdsku8eKhLLhLJTx6fJmSJLAw==
@@ -17991,10 +17975,10 @@ react-element-to-jsx-string@^14.3.4:
     is-plain-object "5.0.0"
     react-is "17.0.2"
 
-react-error-boundary@^3.1.0:
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-3.1.3.tgz#276bfa05de8ac17b863587c9e0647522c25e2a0b"
-  integrity sha512-A+F9HHy9fvt9t8SNDlonq01prnU8AmkjvGKV4kk8seB9kU3xMEO8J/PQlLVmoOIDODl5U2kufSBs4vrWIqhsAA==
+react-error-boundary@^3.1.0, react-error-boundary@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-3.1.4.tgz#255db92b23197108757a888b01e5b729919abde0"
+  integrity sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==
   dependencies:
     "@babel/runtime" "^7.12.5"
 

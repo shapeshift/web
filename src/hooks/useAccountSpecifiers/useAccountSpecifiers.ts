@@ -27,6 +27,8 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   const [accountSpecifiers, setAccountSpecifiers] = useState<AccountSpecifierMap[]>([])
   const [loading, setLoading] = useState(false)
   const chainAdapter = useChainAdapters()
+  // Needed to trigger if we add new chain adapters from a plugin
+  const numSupportedChainAdapters = chainAdapter.getSupportedAdapters().length
   const {
     state: { wallet, walletInfo }
   } = useWallet()
@@ -131,7 +133,14 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portfolioAssetIds, walletInfo?.deviceId, assetIds, wallet])
+  }, [
+    portfolioAssetIds,
+    walletInfo?.deviceId,
+    assetIds,
+    wallet,
+    chainAdapter,
+    numSupportedChainAdapters
+  ])
 
   return accountSpecifiers
 }

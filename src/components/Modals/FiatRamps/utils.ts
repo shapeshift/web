@@ -1,4 +1,4 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters, CAIP19 } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { concat, flatten, uniqBy } from 'lodash'
@@ -6,7 +6,6 @@ import memoize from 'lodash/memoize'
 import { matchSorter } from 'match-sorter'
 import queryString from 'querystring'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { PortfolioAssetBalances } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { FiatRampAction } from './const'
 import { GemCurrency, SupportedCurrency, TransactionDirection } from './FiatRamps'
@@ -91,7 +90,7 @@ export const parseGemBuyAssets = (
     btcAddress
   )
 
-export const parseGemAssets = (
+const parseGemAssets = (
   filteredCoinifyList: GemCurrency[][],
   filteredWyreList: GemCurrency[][],
   key: 'destination' | 'source',

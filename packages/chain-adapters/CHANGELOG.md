@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.0...@shapeshiftoss/chain-adapters-v2.4.1) (2022-03-15)
+
+
+### Bug Fixes
+
+* removed error from required chainId and set on class ([#426](https://github.com/shapeshift/lib/issues/426)) ([8693d21](https://github.com/shapeshift/lib/commit/8693d217ed75f3f99882e8174653d5b95c9cfe97))
+
 # [@shapeshiftoss/chain-adapters-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.3.0...@shapeshiftoss/chain-adapters-v2.4.0) (2022-03-14)
 
 

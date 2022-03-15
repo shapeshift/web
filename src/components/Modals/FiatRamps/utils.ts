@@ -10,8 +10,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { FiatRampAction } from './const'
 import { GemCurrency, SupportedCurrency, TransactionDirection } from './FiatRamps'
 
-const ASSET_LOGO_BASE_URI =
-  'https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/'
+const ASSET_LOGO_BASE_URI = getConfig().REACT_APP_GEM_ASSET_LOGO
 
 export const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`

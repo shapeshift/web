@@ -135,6 +135,16 @@ export const portfolio = createSlice({
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
 
+      /**
+       * WIP(0xdef1cafe): when we refetch the portfolio, we need to upsert, but not sum,
+       * otherwise our balances suddenly ~double
+       *
+       * the new incoming account balance will be correct so we can just replace those
+       *
+       * for the assetBalance, we'll need to calculate the diff between the previous and
+       * new, and upsert the difference, rather than the payload.
+       *
+       */
       state.assetBalances.byId = mergeWith(
         state.assetBalances.byId,
         payload.assetBalances.byId,

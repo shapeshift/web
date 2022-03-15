@@ -56,6 +56,9 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const txsById = useSelector(selectTxs)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
 
+  /**
+   * portfolio refetch on new tx logic
+   */
   useEffect(() => {
     // we only want to refetch portfolio if a new tx comes in after we're finished loading
     if (txHistoryStatus !== 'loaded') return
@@ -76,7 +79,9 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       acc[chainId] = accountSpecifier
       return acc
     }, {})
+    // bust the cache
     const forceRefetch = true
+    // refetch that account
     dispatch(portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch }))
     // txsById changes on each tx - as txs have more confirmations
     // eslint-disable-next-line react-hooks/exhaustive-deps

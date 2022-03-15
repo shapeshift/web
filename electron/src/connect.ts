@@ -5,17 +5,17 @@
  */
 
 
-import WalletConnectClient from '@walletconnect/client'
-import { CLIENT_EVENTS } from '@walletconnect/client'
+import WalletConnect from "@walletconnect/client";
+
 import log from 'electron-log'
 import { app, ipcMain, IpcMainEvent } from "electron";
-import { SessionTypes } from '@walletconnect/types'
+
 import { uniqueId } from 'lodash';
 import { shared } from "./shared";
 import wait from 'wait-promise'
 import { createWindow, windows } from './main';
 const sleep = wait.sleep;
-export let walletConnectClient: WalletConnectClient
+export let walletConnectClient: any
 
 export const EIP155_SIGNING_METHODS = {
     PERSONAL_SIGN: 'personal_sign',

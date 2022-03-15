@@ -2,9 +2,10 @@ import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 
 import { GemManagerAction } from './const'
+import { GemManagerState } from './state'
 import { isSupportedBitcoinAsset, parseGemBuyAssets, parseGemSellAssets } from './utils'
 
-export const reducer = (state: any, action: any) => {
+export const reducer = (state: GemManagerState, action: Record<any, any>) => {
   switch (action.type) {
     case GemManagerAction.FETCH_STARTED:
       return {

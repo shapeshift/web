@@ -35,7 +35,6 @@ import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
   getAssetLogoUrl,
-  isSupportedBitcoinAsset,
   makeGemPartnerUrl,
   middleEllipsis
 } from '../utils'
@@ -58,20 +57,13 @@ export const GemManager = () => {
   const ethChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const btcChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
 
-  const addressOrNameFull =
-    isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
-      ? state.btcAddress
-      : state.ensName || state.ethAddress
+  const addressOrNameFull = state.isBTC ? state.btcAddress : state.ensName || state.ethAddress
 
-  const addressFull =
-    isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
-      ? state.btcAddress
-      : state.ethAddress
+  const addressFull = state.isBTC ? state.btcAddress : state.ethAddress
 
-  const addressOrNameEllipsed =
-    isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
-      ? middleEllipsis(state.btcAddress, 11)
-      : state.ensName || middleEllipsis(state.ethAddress, 11)
+  const addressOrNameEllipsed = state.isBTC
+    ? middleEllipsis(state.btcAddress, 11)
+    : state.ensName || middleEllipsis(state.ethAddress, 11)
 
   useEffect(() => {
     ;(async () => {
@@ -185,9 +177,9 @@ export const GemManager = () => {
 
   const handleVerify = async () => {
     if (!wallet) return
-    const deviceAddress = await state.adapter.getAddress({
+    const deviceAddress = await state.chainAdapter.getAddress({
       wallet,
-      ...(isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
+      ...(state.isBTC
         ? {
             accountType: UtxoAccountType.SegwitNative,
             bip44Params: BTC_SEGWIT_NATIVE_BIP44

@@ -60,7 +60,7 @@ export const parseGemSellAssets = (
   coinifyAssets: SupportedCurrency[],
   wyreAssets: SupportedCurrency[],
   balances: any,
-  btcAddress: string
+  btcAddress: string | null
 ): GemCurrency[] =>
   parseGemAssets(
     coinifyAssets.filter(isSellAsset).map(coinifyList => coinifyList['source'].currencies),
@@ -74,7 +74,7 @@ export const parseGemBuyAssets = (
   coinifyAssets: SupportedCurrency[],
   wyreAssets: SupportedCurrency[],
   balances: any,
-  btcAddress: string
+  btcAddress: string | null
 ): GemCurrency[] =>
   parseGemAssets(
     coinifyAssets.filter(isBuyAsset).map(coinifyList => coinifyList['destination'].currencies),
@@ -89,7 +89,7 @@ export const parseGemAssets = (
   filteredWyreList: GemCurrency[][],
   key: 'destination' | 'source',
   balances: any,
-  btcAddress: string
+  btcAddress: string | null
 ): GemCurrency[] => {
   const results = uniqBy(flatten(concat(filteredCoinifyList, filteredWyreList)), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemTickerToCAIP19(asset.ticker)))

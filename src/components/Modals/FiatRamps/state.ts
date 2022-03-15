@@ -5,11 +5,12 @@ import { FiatRampAction } from './const'
 import { GemCurrency, SupportedCurrency } from './FiatRamps'
 
 export type GemManagerState = {
-  loading: Boolean
+  loading: boolean
   selectedAsset: GemCurrency | null
   shownOnDisplay: Boolean
-  ethAddress: string
+  ethAddress: string | null
   btcAddress: string | null
+  ensName: string | null
   supportsAddressVerifying: boolean
   coinifyAssets: SupportedCurrency[]
   wyreAssets: SupportedCurrency[]
@@ -17,19 +18,22 @@ export type GemManagerState = {
   buyList: GemCurrency[]
   sellList: GemCurrency[]
   fiatRampAction: FiatRampAction
+  isBTC: boolean
 }
 
 export const initialState: GemManagerState = {
   loading: false,
   selectedAsset: null,
   shownOnDisplay: false,
-  ethAddress: '',
-  btcAddress: '',
+  ethAddress: null,
+  btcAddress: null,
+  ensName: null,
   supportsAddressVerifying: false,
   coinifyAssets: [],
   wyreAssets: [],
   chainAdapter: null,
   buyList: [],
   sellList: [],
-  fiatRampAction: FiatRampAction.Buy
+  fiatRampAction: FiatRampAction.Buy,
+  isBTC: false
 }

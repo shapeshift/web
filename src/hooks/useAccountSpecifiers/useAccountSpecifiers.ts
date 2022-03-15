@@ -12,12 +12,13 @@ import {
   supportsOsmosis
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { useEffect, useState } from 'react'
+import isEqual from 'lodash/isEqual'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssetIds, selectAssets, selectPortfolioAssetIds } from 'state/slices/selectors'
+import { selectAssetIds, selectAssets } from 'state/slices/selectors'
 
 // the value is an xpub/ypub/zpub, or eth account, used to query unchained
 export type AccountSpecifierMap = { [k: CAIP2]: string }
@@ -35,7 +36,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
 
   const assetsById = useSelector(selectAssets)
   const assetIds = useSelector(selectAssetIds)
-  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
+  const deviceId = useMemo(() => walletInfo?.deviceId, [walletInfo?.deviceId])
 
   const getAccountSpecifiers = async () => {
     if (!wallet) return
@@ -116,7 +117,8 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
        * do a deep equal comparison here and only set the account specifiers if they're
        * different
        */
-      setAccountSpecifiers(acc)
+      console.info('setting account specifiers')
+      if (!isEqual(acc, accountSpecifiers)) setAccountSpecifiers(acc)
     } catch (e) {
       console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
     } finally {
@@ -125,22 +127,13 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   }
 
   useEffect(() => {
-    if (!(wallet && walletInfo?.deviceId && assetIds.length)) return
+    if (!(wallet && deviceId && assetIds.length)) return
 
-    if (!loading && portfolioAssetIds.length === 0) {
-      getAccountSpecifiers().catch(e =>
-        console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    portfolioAssetIds,
-    walletInfo?.deviceId,
-    assetIds,
-    wallet,
-    chainAdapter,
-    numSupportedChainAdapters
-  ])
+    if (loading) return // we're already iterating and fetching accounts
+    getAccountSpecifiers().catch((e: unknown) =>
+      console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
+    )
+  }, [deviceId, assetIds, numSupportedChainAdapters])
 
   return accountSpecifiers
 }

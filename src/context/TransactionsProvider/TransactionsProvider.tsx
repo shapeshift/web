@@ -57,10 +57,20 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const txIds = useAppSelector(selectTxIds)
 
   useEffect(() => {
+    const unsubscribe = () => {
+      dispatch(txHistory.actions.clear())
+      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+        try {
+          console.info('unsubbing txs for', getAdapter().getType())
+          getAdapter().unsubscribeTxs()
+        } catch (e) {
+          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
+        }
+      })
+    }
+
+    if (!wallet) return unsubscribe
     ;(async () => {
-      // we need to do this check inside the function, such that the effect always
-      // returns an unsubscribe function
-      if (!wallet) return
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
       for (const getAdapter of supportedAdapters) {
@@ -108,17 +118,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       }
     })()
 
-    return () => {
-      dispatch(txHistory.actions.clear())
-      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
-        try {
-          getAdapter().unsubscribeTxs()
-        } catch (e) {
-          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
-        }
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return unsubscribe
+    // x eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, walletInfo?.deviceId])
 
   /**
@@ -139,7 +140,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
-    console.info('new tx')
     const TX_DEBOUNCE_DELAY = 5000
     const timer = setTimeout(() => {
       console.info('tx history loaded')

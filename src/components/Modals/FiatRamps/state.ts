@@ -7,7 +7,7 @@ import { GemCurrency, SupportedCurrency } from './FiatRamps'
 export type GemManagerState = {
   loading: boolean
   selectedAsset: GemCurrency | null
-  shownOnDisplay: Boolean
+  shownOnDisplay: Boolean | null
   ethAddress: string | null
   btcAddress: string | null
   ensName: string | null
@@ -24,7 +24,7 @@ export type GemManagerState = {
 export const initialState: GemManagerState = {
   loading: false,
   selectedAsset: null,
-  shownOnDisplay: false,
+  shownOnDisplay: null,
   ethAddress: null,
   btcAddress: null,
   ensName: null,

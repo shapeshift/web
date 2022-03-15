@@ -83,13 +83,13 @@ export const GemManager = () => {
         })
         dispatch({ type: GemManagerAction.SET_ETH_ADDRESS, ethAddress })
       }
-      if (!state.btcAddress) {
+      if (wallet && !state.btcAddress) {
         const btcAddress = supportsBTC(wallet)
-          ? (await btcChainAdapter.getAddress({
+          ? await btcChainAdapter.getAddress({
               wallet,
               accountType: UtxoAccountType.SegwitNative,
               bip44Params: BTC_SEGWIT_NATIVE_BIP44
-            })) ?? ''
+            })
           : ''
         dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
       }
@@ -100,7 +100,16 @@ export const GemManager = () => {
           dispatch({ type: GemManagerAction.SET_ENS_NAME, ensName: reverseEthAddressLookup.name })
       }
     })()
-  }, [state.ensName, state.ethAddress, state.btcAddress, wallet, ethChainAdapter, btcChainAdapter])
+  }, [
+    state.isBTC,
+    state.chainAdapter,
+    state.ensName,
+    state.ethAddress,
+    state.btcAddress,
+    wallet,
+    ethChainAdapter,
+    btcChainAdapter
+  ])
 
   useEffect(() => {
     ;(async () => {
@@ -116,16 +125,25 @@ export const GemManager = () => {
           dispatch({ type: GemManagerAction.SET_WYRE_ASSETS, wyreAssets })
         }
 
-        dispatch({ type: GemManagerAction.SET_BUY_LIST })
-        dispatch({ type: GemManagerAction.SET_SELL_LIST, balances })
-
+        dispatch(
+          state.fiatRampAction === FiatRampAction.Buy
+            ? { type: GemManagerAction.SET_BUY_LIST }
+            : { type: GemManagerAction.SET_SELL_LIST, balances }
+        )
         dispatch({ type: GemManagerAction.FETCH_COMPLETED })
       } catch (e) {
         console.error(e)
         dispatch({ type: GemManagerAction.FETCH_COMPLETED })
       }
     })()
-  }, [state.loading, balances, state.btcAddress, state.coinifyAssets, state.wyreAssets])
+  }, [
+    state.fiatRampAction,
+    state.loading,
+    balances,
+    state.btcAddress,
+    state.coinifyAssets,
+    state.wyreAssets
+  ])
 
   useEffect(
     () => dispatch({ type: GemManagerAction.SELECT_ASSET, selectedAsset: null }),
@@ -139,11 +157,21 @@ export const GemManager = () => {
       btcAddress: state.btcAddress
     })
 
+    const chainAdapter =
+      wallet && state.isBTC && supportsBTC(wallet) ? btcChainAdapter : ethChainAdapter
+
     dispatch({
       type: GemManagerAction.SET_CHAIN_ADAPTER,
-      chainAdapter: state.chainAdapter
+      chainAdapter: chainAdapter
     })
-  }, [state.isBTC, state.chainAdapter, state.selectedAsset?.ticker, state.btcAddress])
+  }, [
+    btcChainAdapter,
+    ethChainAdapter,
+    wallet,
+    state.isBTC,
+    state.selectedAsset?.ticker,
+    state.btcAddress
+  ])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -155,6 +183,10 @@ export const GemManager = () => {
 
   const onAssetSelect = (data: GemCurrency) => {
     setIsSelectingAsset(false)
+    dispatch({
+      type: GemManagerAction.SHOW_ON_DISPLAY,
+      shownOnDisplay: null
+    })
     dispatch({ type: GemManagerAction.SELECT_ASSET, selectedAsset: data })
   }
 

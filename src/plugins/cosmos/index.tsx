@@ -21,25 +21,33 @@ export function register(): Plugins {
             [
               ChainTypes.Cosmos,
               () => {
-                const http = new unchained.cosmos.api.V1Api(
-                  new unchained.cosmos.api.Configuration({
+                const http = new unchained.cosmos.V1Api(
+                  new unchained.cosmos.Configuration({
                     basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
                   })
                 )
 
-                return new CosmosChainAdapter({ providers: { http }, coinName: 'Cosmos' })
+                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
+                )
+
+                return new CosmosChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
               }
             ],
             [
               ChainTypes.Osmosis,
               () => {
-                const http = new unchained.cosmos.api.V1Api(
-                  new unchained.cosmos.api.Configuration({
+                const http = new unchained.cosmos.V1Api(
+                  new unchained.cosmos.Configuration({
                     basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
                   })
                 )
 
-                return new OsmosisChainAdapter({ providers: { http }, coinName: 'Osmosis' })
+                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
+                )
+
+                return new OsmosisChainAdapter({ providers: { http, ws }, coinName: 'Osmosis' })
               }
             ]
           ]

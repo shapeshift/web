@@ -7,7 +7,8 @@ import { matchSorter } from 'match-sorter'
 import queryString from 'querystring'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { FiatRampAction, GemCurrency, SupportedCurrency, TransactionDirection } from './FiatRamps'
+import { FiatRampAction } from './const'
+import { GemCurrency, SupportedCurrency, TransactionDirection } from './FiatRamps'
 
 const ASSET_LOGO_BASE_URI =
   'https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/'
@@ -78,7 +79,7 @@ export const parseGemBuyAssets = (
   parseGemAssets(
     coinifyAssets.filter(isBuyAsset).map(coinifyList => coinifyList['destination'].currencies),
     wyreAssets.filter(isBuyAsset).map(wyreList => wyreList['destination'].currencies),
-    'source',
+    'destination',
     balances,
     btcAddress
   )

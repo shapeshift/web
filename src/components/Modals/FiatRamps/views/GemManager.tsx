@@ -12,8 +12,6 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,17 +27,17 @@ import { selectPortfolioCryptoMixedBalancesBySymbol } from 'state/slices/selecto
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { FiatRampAction, GemCurrency, SupportedCurrency } from '../FiatRamps'
+import { BTC_SEGWIT_NATIVE_BIP44, FiatRampAction } from '../const'
+import { GemCurrency } from '../FiatRamps'
 import { reducer } from '../reducer'
+import { initialState } from '../state'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,
   getAssetLogoUrl,
   isSupportedBitcoinAsset,
   makeGemPartnerUrl,
-  middleEllipsis,
-  parseGemBuyAssets,
-  parseGemSellAssets
+  middleEllipsis
 } from '../utils'
 
 export const GemManager = () => {
@@ -47,25 +45,11 @@ export const GemManager = () => {
   const toast = useToast()
   const { fiatRamps } = useModal()
 
-  // TODO: Move to another file
-
-  const initialState = {
-    loading: false,
-    selectedAsset: null,
-    shownOnDisplay: false,
-    ethAddress: '',
-    btcAddress: '',
-    supportsAddressVerifying: false,
-    coinifyAssets: [],
-    wyreAssets: []
-  }
   const [state, dispatch] = useReducer(reducer, initialState)
-  // TODO end
-
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
-  const [action, setAction] = useState<FiatRampAction>(FiatRampAction.Buy)
-  const [buyList, setBuyList] = useState<GemCurrency[]>([])
-  const [sellList, setSellList] = useState<GemCurrency[]>([])
+
+  const setFiatRampAction = (fiatRampAction: FiatRampAction) =>
+    dispatch({ type: 'SET_FIAT_RAMP_ACTION', fiatRampAction })
 
   const {
     state: { wallet }
@@ -91,11 +75,7 @@ export const GemManager = () => {
 
   useEffect(() => {
     ;(async () => {
-      const supportsAddressVerifying = Boolean(
-        (wallet as KeepKeyHDWallet)._isKeepKey || (wallet as PortisHDWallet)._isPortis
-      )
-
-      dispatch({ type: 'SET_SUPPORTS_ADDRESS_VERIFYING', supportsAddressVerifying })
+      dispatch({ type: 'SET_SUPPORTS_ADDRESS_VERIFYING', wallet })
     })()
   }, [wallet])
 
@@ -111,12 +91,7 @@ export const GemManager = () => {
         ? (await btcChainAdapter.getAddress({
             wallet,
             accountType: UtxoAccountType.SegwitNative,
-            // Magic segwit native bip44 params
-            bip44Params: {
-              purpose: 84,
-              coinType: 0,
-              accountNumber: 0
-            }
+            bip44Params: BTC_SEGWIT_NATIVE_BIP44
           })) ?? ''
         : ''
 
@@ -141,20 +116,9 @@ export const GemManager = () => {
           const wyreAssets = await fetchWyreSupportedCurrencies()
           dispatch({ type: 'SET_WYRE_ASSETS', wyreAssets })
         }
-        const buyAssets = parseGemBuyAssets(
-          state.coinifyAssets,
-          state.wyreAssets,
-          balances,
-          state.btcAddress
-        )
-        const sellAssets = parseGemSellAssets(
-          state.coinifyAssets,
-          state.wyreAssets,
-          balances,
-          state.btcAddress
-        )
-        setBuyList(buyAssets)
-        setSellList(sellAssets)
+
+        dispatch({ type: 'SET_BUY_LIST', balances })
+        dispatch({ type: 'SET_SELL_LIST', balances })
 
         dispatch({ type: 'FETCH_COMPLETED' })
       } catch (e) {
@@ -165,14 +129,24 @@ export const GemManager = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.btcAddress, state.coinifyAssets, state.wyreAssets])
 
-  useEffect(() => dispatch({ type: 'SELECT_ASSET', selectedAsset: null }), [action])
+  useEffect(() => dispatch({ type: 'SELECT_ASSET', selectedAsset: null }), [state.fiatRampAction])
+
+  useEffect(() => {
+    dispatch({
+      type: 'SET_CHAIN_ADAPTER',
+      chainAdapter:
+        isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
+          ? btcChainAdapter
+          : ethChainAdapter
+    })
+  }, [btcChainAdapter, ethChainAdapter, state.selectedAsset?.ticker, state.btcAddress])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
-      action === FiatRampAction.Buy
+      state.fiatRampAction === FiatRampAction.Buy
         ? ['fiatRamps.selectAnAssetToBuy', 'fiatRamps.assetToBuy', 'fiatRamps.fundsTo']
         : ['fiatRamps.selectAnAssetToSell', 'fiatRamps.assetToSell', 'fiatRamps.fundsFrom'],
-    [action]
+    [state.fiatRampAction]
   )
 
   const onAssetSelect = (data: GemCurrency) => {
@@ -200,21 +174,13 @@ export const GemManager = () => {
 
   const handleVerify = async () => {
     if (!wallet) return
-    const adapter =
-      isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
-        ? btcChainAdapter
-        : ethChainAdapter
-    const deviceAddress = await adapter.getAddress({
+    const deviceAddress = await state.adapter.getAddress({
       wallet,
       ...(isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
         ? {
             accountType: UtxoAccountType.SegwitNative,
             // Magic segwit native bip44 params
-            bip44Params: {
-              purpose: 84,
-              coinType: 0,
-              accountNumber: 0
-            }
+            bip44Params: BTC_SEGWIT_NATIVE_BIP44
           }
         : {}),
       showOnDevice: true
@@ -244,14 +210,14 @@ export const GemManager = () => {
             </Flex>
             <AssetSearch
               onClick={onAssetSelect}
-              type={action}
-              assets={action === FiatRampAction.Buy ? buyList : sellList}
+              type={state.fiatRampAction}
+              assets={state.fiatRampAction === FiatRampAction.Buy ? state.buyList : state.sellList}
               loading={state.loading}
             />
           </Stack>
         ) : (
           <Stack spacing={4}>
-            <FiatRampActionButtons action={action} setAction={setAction} />
+            <FiatRampActionButtons action={state.fiatRampAction} setAction={setFiatRampAction} />
             <Text translation={assetTranslation} color='gray.500' />
             <Button
               width='full'
@@ -316,7 +282,11 @@ export const GemManager = () => {
               colorScheme='blue'
               disabled={!state.selectedAsset}
               as='a'
-              href={makeGemPartnerUrl(action, state.selectedAsset?.ticker, addressFull)}
+              href={makeGemPartnerUrl(
+                state.fiatRampAction,
+                state.selectedAsset?.ticker,
+                addressFull
+              )}
               target='_blank'
             >
               <Text translation='common.continue' />

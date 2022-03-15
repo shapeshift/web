@@ -3,7 +3,8 @@ import { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 
-import { FiatRampAction, GemCurrency } from '../../FiatRamps'
+import { FiatRampAction } from '../../const'
+import { GemCurrency } from '../../FiatRamps'
 import { getAssetLogoUrl } from '../../utils'
 
 export const AssetRow: React.FC<ListChildComponentProps> = ({ data, index, style }) => {

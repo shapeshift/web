@@ -5,11 +5,6 @@ import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { FiatRampsRouter } from './FiatRampsRouter'
 
-export enum FiatRampAction {
-  Buy = 'buy',
-  Sell = 'sell'
-}
-
 export enum TransactionDirection {
   BankToBlockchain = 'bank_blockchain',
   CardToBlockchain = 'card_blockchain',
@@ -32,8 +27,8 @@ export type GemCurrency = {
   gem_asset_id: string
   name: string
   ticker: string
-  cryptoBalance?: BigNumber
-  fiatBalance?: BigNumber
+  cryptoBalance: BigNumber
+  fiatBalance: BigNumber
   disabled?: boolean
 }
 

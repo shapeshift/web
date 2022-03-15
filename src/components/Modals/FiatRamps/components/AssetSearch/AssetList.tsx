@@ -2,7 +2,8 @@ import { ListProps } from '@chakra-ui/react'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'components/Text'
 
-import { FiatRampAction, GemCurrency } from '../../FiatRamps'
+import { FiatRampAction } from '../../const'
+import { GemCurrency } from '../../FiatRamps'
 import { AssetRow } from './AssetRow'
 
 type AssetListProps = {

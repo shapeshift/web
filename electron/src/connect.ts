@@ -173,6 +173,14 @@ export async function pairWalletConnect(event: any, payload: any) {
             accountInfo = accountInfo.data
             console.log("accountInfo: ",accountInfo)
 
+            //gasPrice
+            let gasInfo = await axios.get("https://api.ethereum.shapeshift.com/api/v1/gas/fees")
+            gasInfo = gasInfo.data
+            console.log("gasInfo: ",gasInfo)
+            //@ts-ignore
+            let gasPrice = "0x"+gasInfo.gasPrice.toString(16);
+            console.log("gasPrice: ",gasPrice)
+
             // @ts-ignore
             let nonce = accountInfo.nonce
             console.log("nonce: ",nonce)
@@ -188,8 +196,8 @@ export async function pairWalletConnect(event: any, payload: any) {
                     0
                 ],
                 "nonce":nonce,
-                "gasPrice":params[0].gas,
-                "gasLimit":"0x13880", //TODO lookup gasLimit
+                "gasPrice":gasPrice, //TODO lookup gasPrice
+                "gasLimit":params[0].gas, //TODO lookup gasLimit
                 "value":params[0].value || "0x0",
                 "to":params[0].to,
                 "data":params[0].data,

@@ -11,7 +11,7 @@ export type MatchParams = {
 }
 
 type AccountTokenProps = {
-  route: Route
+  route?: Route
 }
 
 export const AccountToken = ({ route }: AccountTokenProps) => {

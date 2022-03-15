@@ -1,4 +1,4 @@
-import { Box, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Skeleton, Stack, Stat, StatArrow, StatNumber } from '@chakra-ui/react'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -13,7 +13,7 @@ import {
   selectPortfolioTotalFiatBalance
 } from 'state/slices/selectors'
 
-import { AccountList } from './components/AccountList/AccountList'
+import { AccountTable } from './components/AccountList/AccountTable'
 
 export const Portfolio = () => {
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
@@ -25,7 +25,7 @@ export const Portfolio = () => {
   const isLoaded = !loading
 
   return (
-    <Stack spacing={6} width='full' pt={{ base: 0, lg: 4 }} pr={{ base: 0, lg: 4 }}>
+    <Stack spacing={6} width='full'>
       <Card variant='footer-stub'>
         <Card.Header
           display='flex'
@@ -47,6 +47,16 @@ export const Portfolio = () => {
                 <Amount.Fiat value={totalBalance} />
               </Skeleton>
             </Card.Heading>
+            {isFinite(percentChange) && (
+              <Skeleton mt={2} isLoaded={!!percentChange}>
+                <Stat display='flex' justifyContent={{ base: 'center', md: 'flex-start' }}>
+                  <StatNumber fontSize='md' display='flex' alignItems='center'>
+                    <StatArrow type={percentChange > 0 ? 'increase' : 'decrease'} />
+                    <Amount.Percent value={percentChange * 0.01} />
+                  </StatNumber>
+                </Stat>
+              </Skeleton>
+            )}
           </Box>
           <Skeleton isLoaded={isLoaded}>
             <TimeControls defaultTime={timeframe} onChange={time => setTimeframe(time)} />
@@ -66,7 +76,7 @@ export const Portfolio = () => {
           </Card.Heading>
         </Card.Header>
         <Card.Body px={2} pt={0}>
-          <AccountList />
+          <AccountTable />
         </Card.Body>
       </Card>
     </Stack>

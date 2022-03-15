@@ -16,7 +16,13 @@ export type VerticalStepperProps = {
 export const VerticalStepper = ({ state, activeStep, steps }: VerticalStepperProps) => {
   return (
     <VStack width='100%'>
-      <Steps state={state} activeStep={activeStep} orientation='vertical'>
+      <Steps
+        state={state}
+        activeStep={activeStep}
+        orientation='horizontal'
+        labelOrientation='vertical'
+        size='sm'
+      >
         {steps.map(step => (
           <Step key={step.label} label={step.label} />
         ))}

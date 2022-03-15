@@ -76,7 +76,7 @@ export const Confirm = () => {
         <Text translation={['modals.send.confirm.sendAsset', { asset: asset.name }]} />
       </ModalHeader>
       <ModalBody>
-        <Flex flexDir='column' alignItems='center' mb={8}>
+        <Flex flexDirection='column' alignItems='center' mb={8}>
           <Amount.Crypto
             fontSize='4xl'
             fontWeight='bold'
@@ -108,13 +108,13 @@ export const Confirm = () => {
           </FormControl>
         </Stack>
       </ModalBody>
-      <ModalFooter flexDir='column' borderTopWidth={1} borderColor={borderColor}>
+      <ModalFooter flexDirection='column' borderTopWidth={1} borderColor={borderColor}>
         <Row>
           <Box>
             <Row.Label color='inherit' fontWeight='bold'>
               <Text translation='modals.send.confirm.total' />
             </Row.Label>
-            <Row.Label flexDir='row' display='flex'>
+            <Row.Label flexDirection='row' display='flex'>
               <Text translation='modals.send.confirm.amount' />
               <RawText mx={1}>+</RawText>
               <Text translation='modals.send.confirm.transactionFee' />

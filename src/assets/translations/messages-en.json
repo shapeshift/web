@@ -53,6 +53,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "priceChange": "Price Change",
       "allocation": "Allocation",
       "empty": {
         "title": "Cricket noises...",
@@ -118,11 +119,24 @@
         "byContinuing": "By continuing, you are accepting the",
         "risks": "risks",
         "ofParticipating": "of participating in this feature and agreeing to the",
-        "terms": "terms"
+        "terms": "terms",
+        "tooltip": {
+          "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
+          "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
+        }
       }
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
+    "confirmDetails": "Confirm Details",
+    "validator": "Validator",
+    "unstakeFrom": "Unstake From",
+    "gasFee": "Gas Fee",
+    "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
+    "unbondInfoItWillTakeShort": "It will take %{unbondingDays} days to unstake your tokens",
+    "confirmAndBroadcast": "Confirm & broadcast",
+    "averageApr": "Average APR",
+    "estimatedYearlyRewards": "Estimated Yearly Rewards",
     "staked": "Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
@@ -138,6 +152,7 @@
     "category": "Category",
     "tvl": "TVL",
     "apy": "APY",
+    "apr": "APR",
     "balance": "Balance",
     "defi": "DeFi",
     "defiBody": "Explore a growing universe of DeFi opportunities.",
@@ -225,7 +240,8 @@
       "thor": {
         "transferOut": "Transfer out"
       }
-    }
+    },
+    "unknown": "Transaction"
   },
   "trade": {
     "searchingRate": "Searching for best rate...",
@@ -303,17 +319,27 @@
         }
       }
     },
+    "stake": {
+      "txFees": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
     "send": {
       "getBalanceError": "Error getting wallet balances",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "Token Address",
       "scanQrCode": "Scan QR Code",
+      "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
+        "generic": "An error occured.",
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
-        "transactionRejected": "User has rejected the transaction"
+        "transactionRejected": "User has rejected the transaction",
+        "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings."
       },
       "confirm": {
         "sendAsset": "Send %{asset}",

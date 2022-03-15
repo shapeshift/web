@@ -1,0 +1,15 @@
+.parsed-link {
+    text-decoration: none;
+}
+
+body.chakra-ui-dark .parsed-link {
+    color: #7F99FB !important;
+}
+
+body.chakra-ui-light .parsed-link {
+    color: #2D4EC9 !important;
+}
+
+.parsed-link:hover {
+    text-decoration: underline;
+}

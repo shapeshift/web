@@ -1,22 +1,30 @@
-import type { CAIP19 } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { Route } from '../Routes/helpers'
 
 const activePlugins = ['cosmos']
 
-export type AssetProps = { assetId: CAIP19 }
 export type Plugins = [caip2: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
 
 export interface Plugin {
   name: string
   icon: JSX.Element
-  disabled?: boolean
+  featureFlag?: keyof FeatureFlags
+  providers?: {
+    chainAdapters?: Array<[ChainTypes, () => ChainAdapter<ChainTypes>]>
+  }
   routes: Route[]
 }
 
 class PluginManager {
   #pluginManager = new Map<string, Plugin>()
+
+  clear(): void {
+    this.#pluginManager.clear()
+  }
 
   register(plugin: RegistrablePlugin): void {
     for (const [pluginId, pluginManifest] of plugin.register()) {
@@ -27,15 +35,8 @@ class PluginManager {
     }
   }
 
-  getRoutes(): Route[] {
-    let routes: Route[] = []
-    for (const [, plugin] of this.#pluginManager.entries()) {
-      if (!plugin.disabled) {
-        routes = routes.concat(plugin.routes)
-      }
-    }
-
-    return routes
+  entries(): [string, Plugin][] {
+    return [...this.#pluginManager.entries()]
   }
 }
 
@@ -44,6 +45,8 @@ class PluginManager {
 export const pluginManager = new PluginManager()
 
 export const registerPlugins = async () => {
+  pluginManager.clear()
+
   for (const plugin of activePlugins) {
     pluginManager.register(await import(`./${plugin}/index.tsx`))
   }

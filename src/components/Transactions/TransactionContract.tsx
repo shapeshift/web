@@ -68,7 +68,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
             </Box>
 
             <Flex flexDir='column' ml='auto' textAlign='right'>
-              {txDetails.direction !== 'in-place' && (
+              {txDetails.direction !== 'in-place' && txDetails.value && (
                 <Amount.Crypto
                   {...(txDetails.direction === 'inbound'
                     ? { color: 'green.500' }
@@ -130,21 +130,23 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
             </Row.Value>
           </Row>
 
-          <Row variant='vertical' hidden={!(txDetails.tx?.fee && txDetails.feeAsset)}>
-            <Row.Label>
-              <Text translation='transactionRow.fee' />
-            </Row.Label>
-            <Row.Value>
-              <Amount.Crypto
-                value={fromBaseUnit(
-                  txDetails.tx?.fee?.value ?? '0',
-                  txDetails.feeAsset?.precision ?? 18
-                )}
-                symbol={txDetails.feeAsset.symbol}
-                maximumFractionDigits={6}
-              />
-            </Row.Value>
-          </Row>
+          {txDetails.tx?.fee && txDetails.feeAsset && (
+            <Row variant='vertical'>
+              <Row.Label>
+                <Text translation='transactionRow.fee' />
+              </Row.Label>
+              <Row.Value>
+                <Amount.Crypto
+                  value={fromBaseUnit(
+                    txDetails.tx?.fee?.value,
+                    txDetails.feeAsset?.precision ?? 18
+                  )}
+                  symbol={txDetails.feeAsset.symbol}
+                  maximumFractionDigits={6}
+                />
+              </Row.Value>
+            </Row>
+          )}
           <TransactionStatus txStatus={txDetails.tx.status} />
           {toAddress && (
             <Row variant='vertical'>

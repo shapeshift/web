@@ -446,6 +446,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('signTx', async (event: any, data: any) => {
       let unsignedTx = data.payload.data
+      console.log("unsignedTx: ",unsignedTx)
       //open signTx
       if (
         unsignedTx &&

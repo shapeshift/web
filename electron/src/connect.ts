@@ -86,6 +86,7 @@ example event
 export async function approveWalletConnect(proposal: SessionTypes.Proposal, accounts: Array<string>) {
     let tag = " | approveWalletConnect | "
     try {
+        if(accounts.length === 0) throw Error("Failed to load accounts!")
         const response = {
             state: {
                 accounts
@@ -233,7 +234,7 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
         let tag = " | onSignRequest | "
         try {
             log.info(tag, "params: ", params)
-            log.info(tag, "params: ", JSON.parse(params))
+            log.info(tag, "params: ", JSON.stringify(params))
             const { topic, request } = params
             const { method } = request
 
@@ -242,40 +243,101 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
             let HDwalletPayload = {}
             let network
             let asset
-            switch (method) {
-                case EIP155_SIGNING_METHODS.ETH_SIGN:
-                case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
-                    network = "ETH"
-                    asset = "ETH" //TODO detect token
-                    //TODO convert
-                    HDwalletPayload = {}
-                case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
-                case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
-                case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
-                    //TODO convert
-                    network = "ETH"
-                    HDwalletPayload = {}
-                case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-                case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
-                    network = "ETH"
-                    //TODO convert
-                    HDwalletPayload = {}
-                case COSMOS_SIGNING_METHODS.COSMOS_SIGN_DIRECT:
-                case COSMOS_SIGNING_METHODS.COSMOS_SIGN_AMINO:
-                    network = "COSMOS"
-                    //TODO convert
-                    HDwalletPayload = {}
-                default:
-                //Push Error to ipc UNKNOWN tx type!
+
+            HDwalletPayload = {
+                "addressNList":[
+                    2147483692,
+                    2147483708,
+                    2147483648,
+                    0,
+                    0
+                ],
+                "nonce":params.request.params[0].nonce,
+                "gasPrice":params.request.params[0].gasPrice,
+                "gasLimit":params.request.params[0].gasLimit,
+                "value":params.request.params[0].value,
+                "to":params.request.params[0].to,
+                "data":params.request.params[0].data,
+                "chainId":1 //TODO accept more chains/parse caips
             }
+
+            // switch (method) {
+            //     case "eth_sendTransaction":
+            //     case EIP155_SIGNING_METHODS.ETH_SIGN:
+            //     case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
+            //         network = "ETH"
+            //         asset = "ETH" //TODO detect token
+            //         //TODO convert
+            //         HDwalletPayload = {
+            //             "addressNList":[
+            //                 2147483692,
+            //                 2147483708,
+            //                 2147483648,
+            //                 0,
+            //                 0
+            //             ],
+            //             "nonce":params.request.params[0].nonce,
+            //             "gasPrice":params.request.params[0].gasPrice,
+            //             "gasLimit":params.request.params[0].gasLimit,
+            //             "value":params.request.params[0].value,
+            //             "to":params.request.params[0].to,
+            //             "data":params.request.params[0].data,
+            //             "chainId":1 //TODO accept more chains/parse caips
+            //         }
+            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
+            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
+            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
+            //         //TODO convert
+            //         network = "ETH"
+            //         HDwalletPayload = {}
+            //     case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
+            //         network = "ETH"
+            //         //TODO convert
+            //         HDwalletPayload = {}
+            //     case COSMOS_SIGNING_METHODS.COSMOS_SIGN_DIRECT:
+            //     case COSMOS_SIGNING_METHODS.COSMOS_SIGN_AMINO:
+            //         network = "COSMOS"
+            //         //TODO convert
+            //         HDwalletPayload = {}
+            //     default:
+            //     //Push Error to ipc UNKNOWN tx type!
+            // }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
                 if (!await createWindow()) return
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
-
-            windows.mainWindow.webContents.send('signTx', { unsignedTx: { HDwalletPayload } });
+            log.info(tag,"HDwalletPayload: ",HDwalletPayload)
+            let args = {
+                payload: {
+                    data: {
+                        invocation: {
+                            unsignedTx: {
+                                "transaction":{
+                                    "context":params.request.params[0].from,
+                                    "type":"transfer",
+                                    "addressFrom":params.request.params[0].from,
+                                    "recipient":params.request.params[0].to,
+                                    "asset":"ETH",
+                                    "network":"ETH",
+                                    "memo":"",
+                                    "amount":"0.0001",
+                                    "fee":{
+                                        "priority":5
+                                    },
+                                    "noBroadcast":true
+                                },
+                                HDwalletPayload
+                            }
+                        }
+                    }
+                }
+            }
+            log.info(tag,"args: ",args)
+            log.info(tag,"args: ",JSON.stringify(args))
+            windows.mainWindow.webContents.send('signTx', args);
 
             //hold till signed
             while (!shared.SIGNED_TX) {

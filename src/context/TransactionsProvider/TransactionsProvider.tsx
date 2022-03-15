@@ -1,6 +1,5 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import difference from 'lodash/difference'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -12,38 +11,11 @@ import {
   selectTxHistoryStatus,
   selectTxIds
 } from 'state/slices/selectors'
-import { txHistory, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
-}
-
-export const useNewTxIds = () => {
-  // note that both of these states require the | undefined type, as
-  // a new wallet can have an empty array of txs, which is valid,
-  // so we can't use a length check for existence
-
-  // past tx ids are what we track after the txs are initially loaded
-  const [pastTxIds, setPastTxIds] = useState<TxId[] | undefined>()
-  // these are new txs after the loaded flag is set
-  const [newTxIds, setNewTxIds] = useState<TxId[] | undefined>()
-  const txHistoryStatus = useSelector(selectTxHistoryStatus)
-  const txIds = useAppSelector(selectTxIds)
-
-  useEffect(() => {
-    // we only want to set the past txids once when they're loaded
-    if (txHistoryStatus === 'loaded' && !pastTxIds) setPastTxIds(txIds)
-  }, [txHistoryStatus, txIds, pastTxIds])
-
-  useEffect(() => {
-    // don't set the new ones, until the old ones are loaded
-    if (!pastTxIds) return
-    // the difference between the past loaded, and current, is the new txids
-    setNewTxIds(difference(txIds, pastTxIds))
-  }, [pastTxIds, txIds])
-
-  return { newTxIds }
 }
 
 export const TransactionsProvider = ({ children }: TransactionsProviderProps): JSX.Element => {

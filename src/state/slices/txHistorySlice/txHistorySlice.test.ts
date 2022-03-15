@@ -5,7 +5,7 @@ import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/t
 import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
-import { makeUniqueTxId, txHistory } from './txHistorySlice'
+import { makeUniqueTxId, TxHistory, txHistory } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   beforeAll(() => {
@@ -17,7 +17,8 @@ describe('txHistorySlice', () => {
       byId: {},
       byAssetId: {},
       byAccountId: {},
-      ids: []
+      ids: [],
+      status: 'idle'
     })
   })
 
@@ -195,27 +196,33 @@ describe('txHistorySlice', () => {
 
   describe('selectLastNTxIds', () => {
     it('should memoize', () => {
+      const txHistory: TxHistory = {
+        byId: {},
+        byAssetId: {},
+        byAccountId: {},
+        ids: ['a', 'b'],
+        status: 'idle'
+      }
+
       const state = {
         ...mockStore,
-        txHistory: {
-          byId: {},
-          byAssetId: {},
-          byAccountId: {},
-          ids: ['a', 'b']
-        }
+        txHistory
       }
       const first = selectLastNTxIds(state, 1)
+
+      const newTxHistory: TxHistory = {
+        byId: {},
+        byAssetId: {},
+        byAccountId: {},
+        // this array will always change on every new tx
+        ids: ['a', 'b', 'c'],
+        status: 'idle'
+      }
 
       // redux will replace the array on update
       const newState = {
         ...mockStore,
-        txHistory: {
-          byId: {},
-          byAssetId: {},
-          byAccountId: {},
-          // this array will always change on every new tx
-          ids: ['a', 'b', 'c']
-        }
+        txHistory: newTxHistory
       }
       const second = selectLastNTxIds(newState, 1)
 

@@ -24,11 +24,11 @@ import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
 type HeaderContentProps = {
-  route: Route
+  route?: Route
   isCompact?: boolean
 } & FlexProps
 
-export const SideNavContent = ({ route, isCompact }: HeaderContentProps) => {
+export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
   const { toggleColorMode } = useColorMode()
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -68,8 +68,8 @@ export const SideNavContent = ({ route, isCompact }: HeaderContentProps) => {
         />
         <MainNavLink
           leftIcon={<ChatIcon />}
-          as={Link}
           isCompact={isCompact}
+          as={Link}
           justifyContent='flex-start'
           variant='ghost'
           label={translate('common.submitFeedback')}

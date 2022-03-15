@@ -7,7 +7,7 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { addToIndex, getRelatedAssetIds } from './utils'
 
 export type TxId = string
-export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
+export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType
@@ -46,11 +46,17 @@ export type TxIdByAccountId = {
   [k: AccountSpecifier]: TxId[]
 }
 
+// before the wallet is connected, we're idle
+// when we subscribe to the history, we're loading
+// after logic managing a delay after no new tx's in TransactionsProvider, we're loaded
+export type TxHistoryStatus = 'idle' | 'loading' | 'loaded'
+
 export type TxHistory = {
   byId: TxHistoryById
   byAssetId: TxIdByAssetId
   byAccountId: TxIdByAccountId
   ids: TxId[]
+  status: TxHistoryStatus
 }
 
 export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
@@ -60,7 +66,8 @@ const initialState: TxHistory = {
   byId: {},
   ids: [], // sorted, newest first
   byAssetId: {},
-  byAccountId: {}
+  byAccountId: {},
+  status: 'idle'
 }
 
 /**
@@ -126,11 +133,16 @@ const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountS
   // get applied to state when it goes out of scope
 }
 
+type TxHistoryStatusPayload = { payload: TxHistoryStatus }
+
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
   reducers: {
     clear: () => initialState,
+    setStatus: (state, { payload }: TxHistoryStatusPayload) => {
+      state.status = payload
+    },
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsert(txState, payload.message, payload.accountSpecifier)
   }

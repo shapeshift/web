@@ -6,11 +6,19 @@ import memoize from 'lodash/memoize'
 import { matchSorter } from 'match-sorter'
 import queryString from 'querystring'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { PortfolioAssetBalances } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { FiatRampAction } from './const'
 import { GemCurrency, SupportedCurrency, TransactionDirection } from './FiatRamps'
 
 const ASSET_LOGO_BASE_URI = getConfig().REACT_APP_GEM_ASSET_LOGO
+
+type MixedPortfolioAssetBalances = {
+  [k: CAIP19]: {
+    crypto: string
+    fiat: string
+  }
+}
 
 export const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
@@ -58,7 +66,7 @@ export const isSellAsset = (currency: SupportedCurrency) =>
 export const parseGemSellAssets = (
   coinifyAssets: SupportedCurrency[],
   wyreAssets: SupportedCurrency[],
-  balances: any,
+  balances: MixedPortfolioAssetBalances,
   btcAddress: string | null
 ): GemCurrency[] =>
   parseGemAssets(
@@ -72,7 +80,7 @@ export const parseGemSellAssets = (
 export const parseGemBuyAssets = (
   coinifyAssets: SupportedCurrency[],
   wyreAssets: SupportedCurrency[],
-  balances: any,
+  balances: MixedPortfolioAssetBalances,
   btcAddress: string | null
 ): GemCurrency[] =>
   parseGemAssets(
@@ -87,7 +95,7 @@ export const parseGemAssets = (
   filteredCoinifyList: GemCurrency[][],
   filteredWyreList: GemCurrency[][],
   key: 'destination' | 'source',
-  balances: any,
+  balances: MixedPortfolioAssetBalances,
   btcAddress: string | null
 ): GemCurrency[] => {
   const results = uniqBy(flatten(concat(filteredCoinifyList, filteredWyreList)), 'gem_asset_id')

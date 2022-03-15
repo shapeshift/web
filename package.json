@@ -71,6 +71,7 @@
     "express": "^4.17.1",
     "framer-motion": "^4.1.16",
     "https-browserify": "^1.0.0",
+    "keccak256": "^1.0.6",
     "keepkey-config": "^0.0.1",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",

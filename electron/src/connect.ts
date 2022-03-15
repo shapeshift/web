@@ -14,18 +14,20 @@ import { uniqueId } from 'lodash';
 import { shared } from "./shared";
 import wait from 'wait-promise'
 import { createWindow, windows } from './main';
+import axios from "axios";
 const sleep = wait.sleep;
 export let walletConnectClient: any
-
+const keccak256 = require('keccak256')
 const Unchained = require('openapi-client-axios').default;
 
 let unchainedEth = new Unchained({
-    definition:"https://dev-api.ethereum.shapeshift.com",
+    definition:"https://dev-api.ethereum.shapeshift.com/swagger.json",
     axiosConfigDefaults: {
         headers: {
         },
     }
 });
+
 
 export function getCachedSession(): any {
     const local = localStorage ? localStorage.getItem("walletconnect") : null;
@@ -157,11 +159,21 @@ export async function pairWalletConnect(event: any, payload: any) {
             let {method,params} = payload
 
             //TODO moveme
-            await unchainedEth.init()
-            //getNonce
-            let accountInfo = await unchainedEth.instance.Account(params[0].from)
+            // await unchainedEth.init()
+            //
+            //
+            // console.log("unchainedEth", unchainedEth);
+            // console.log("unchainedEth", unchainedEth.instance);
+            //
+            // //getNonce
+            // let accountInfo = await unchainedEth.instance.GetAccount(params[0].from)
+            // console.log("accountInfo: ",accountInfo)
+
+            let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/"+params[0].from)
+            accountInfo = accountInfo.data
             console.log("accountInfo: ",accountInfo)
 
+            // @ts-ignore
             let nonce = accountInfo.nonce
             console.log("nonce: ",nonce)
             nonce = "0x"+nonce.toString(16);
@@ -176,12 +188,12 @@ export async function pairWalletConnect(event: any, payload: any) {
                     0
                 ],
                 "nonce":nonce,
-                "gasPrice":params[0].gasPrice,
-                "gasLimit":params[0].gasLimit,
-                "value":params[0].value,
+                "gasPrice":params[0].gas,
+                "gasLimit":"0x13880", //TODO lookup gasLimit
+                "value":params[0].value || "0x0",
                 "to":params[0].to,
                 "data":params[0].data,
-                "chainId":1 //TODO accept more chains/parse caips
+                "chainId":1
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
@@ -231,12 +243,23 @@ export async function pairWalletConnect(event: any, payload: any) {
             let response = shared.SIGNED_TX
             log.info(tag,"response: ",response)
 
+            //broadcast
+            let body = {
+                hex:response.serialized
+            }
+            let result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
+            log.info(tag,"result: ",result)
+
+            //get txid
+            let txid = keccak256(response.serialized).toString('hex')
+            log.info(tag,"txid: ",txid)
+
             //respond
-            // let successRespond = await walletConnectClient.respond({
-            //     topic,
-            //     response
-            // })
-            // log.info(tag, "successRespond: ", successRespond)
+            let successRespond = await walletConnectClient.approveRequest({
+                id: payload.id,
+                result:txid,
+            })
+            log.info(tag, "successRespond: ", successRespond)
 
         });
 

@@ -153,7 +153,7 @@ export const TransactionGenericRow = ({
             ))}
           </Flex>
         </Flex>
-        {!compactMode && isLargerThanXl && <Flex flex={0.2} />}
+        {!compactMode && isLargerThanLg && <Flex flex={0.2} />}
         {!compactMode && isLargerThanXl && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
             {showDateAndGuide && <Guide title='fee' />}
@@ -180,7 +180,7 @@ export const TransactionGenericRow = ({
             </Flex>
           </Flex>
         )}
-        {!compactMode && isLargerThanXl && (
+        {!compactMode && isLargerThanLg && (
           <Flex flex={0} flexDir='column'>
             {showDateAndGuide && <Guide title='viewOnChain' />}
             <Flex justifyContent='flex-start' alignItems='center'>

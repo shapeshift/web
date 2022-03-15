@@ -19,27 +19,25 @@ export const getDevice = async function (keyring: Keyring): Promise<GetDeviceRet
     let tag = TAG + " | getDevice | "
     try {
 
-        console.log('hi', 1)
         await resetDevice()
-        console.log('hi', 2)
         const keepkeyAdapter = NodeWebUSBKeepKeyAdapter.useKeyring(keyring);
-        console.log('hi', 3)
         const device = await keepkeyAdapter.getDevice()
-        console.log('hi', 4)
         const transportDelegate = await keepkeyAdapter.getTransportDelegate(device)
-        console.log('hi', 5)
-
-
 
         if (!transportDelegate) return new Error("Unable to connect transport!")
-        console.log('hi', 6)
+
+
+        // const transport = await Transport.create(keyring, transportDelegate)
+        // await transport.connect()
+
+        // const softReset = new SoftReset()
+        // transport.call(MessageType.MESSAGETYPE_SOFTRESET, softReset)
+
         await transportDelegate.connect()
-        console.log('hi', 7)
+
 
         let wallet = await keepkeyAdapter.pairDevice(device.serialNumber, true) as KeepKeyHDWallet;
-        console.log('PAIRING DEVICE', 2)
         if (wallet) {
-            console.log('PAIRING DEVICE', 3)
             log.debug(tag, "Device found!")
             log.debug(tag, "wallet: ", wallet)
         }

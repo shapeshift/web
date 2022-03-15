@@ -177,12 +177,21 @@ export async function pairWalletConnect(event: any, payload: any) {
             let gasInfo = await axios.get("https://api.ethereum.shapeshift.com/api/v1/gas/fees")
             gasInfo = gasInfo.data
             console.log("gasInfo: ",gasInfo)
+            // @ts-ignore
+            let gasPrice = Number(parseInt(gasInfo.gasPrice))
+            console.log("gasPrice: ",gasPrice)
+            // @ts-ignore
+            gasPrice = gasPrice / 1000
+            // @ts-ignore
+            gasPrice = parseInt(gasPrice)
+            console.log("gasPrice: ",gasPrice)
             //@ts-ignore
-            let gasPrice = "0x"+gasInfo.gasPrice.toString(16);
+            gasPrice = "0x"+gasPrice.toString(16);
             console.log("gasPrice: ",gasPrice)
 
             // @ts-ignore
             let nonce = accountInfo.nonce
+            nonce = 710
             console.log("nonce: ",nonce)
             nonce = "0x"+nonce.toString(16);
             console.log("nonce: ",nonce)
@@ -255,8 +264,14 @@ export async function pairWalletConnect(event: any, payload: any) {
             let body = {
                 hex:response.serialized
             }
-            let result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
-            log.info(tag,"result: ",result)
+            log.info(tag,"body: ",body)
+            try{
+                let result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
+                log.info(tag,"result: ",result.data)
+            }catch(e){
+                log.error("e: ",e)
+            }
+
 
             //get txid
             let txid = keccak256(response.serialized).toString('hex')

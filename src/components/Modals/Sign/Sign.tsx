@@ -184,6 +184,33 @@ export const SignModal = (input: any) => {
                 </Row.Value>
               </Row>
 
+              <Row>
+                <Row.Label>
+                  <Text translation={'modals.sign.nonce'} />
+                </Row.Label>
+                <small>
+                  {input?.invocation?.unsignedTx?.HDwalletPayload?.nonce}
+                </small>
+              </Row>
+
+              <Row>
+                <Row.Label>
+                  <Text translation={'modals.sign.gasPrice'} />
+                </Row.Label>
+                <small>
+                  {parseInt(input?.invocation?.unsignedTx?.HDwalletPayload?.gasPrice, 16)}
+                </small>
+              </Row>
+
+              <Row>
+                <Row.Label>
+                  <Text translation={'modals.sign.gasLimit'} />
+                </Row.Label>
+                <small>
+                  {parseInt(input?.invocation?.unsignedTx?.HDwalletPayload?.gasLimit, 16)}
+                </small>
+              </Row>
+
               {/*<Row>*/}
               {/*  <Row.Label>*/}
               {/*    <Text translation={'modals.sign.fee'} />*/}

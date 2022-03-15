@@ -189,7 +189,7 @@ export const SignModal = (input: any) => {
                   <Text translation={'modals.sign.nonce'} />
                 </Row.Label>
                 <small>
-                  {input?.invocation?.unsignedTx?.HDwalletPayload?.nonce}
+                  {parseInt(input?.invocation?.unsignedTx?.HDwalletPayload?.nonce, 16)}
                 </small>
               </Row>
 

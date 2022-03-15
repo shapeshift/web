@@ -17,6 +17,16 @@ import { createWindow, windows } from './main';
 const sleep = wait.sleep;
 export let walletConnectClient: any
 
+const Unchained = require('openapi-client-axios').default;
+
+let unchainedEth = new Unchained({
+    definition:"https://dev-api.ethereum.shapeshift.com",
+    axiosConfigDefaults: {
+        headers: {
+        },
+    }
+});
+
 export function getCachedSession(): any {
     const local = localStorage ? localStorage.getItem("walletconnect") : null;
 
@@ -146,7 +156,16 @@ export async function pairWalletConnect(event: any, payload: any) {
             console.log("params", payload.params);
             let {method,params} = payload
 
+            //TODO moveme
+            await unchainedEth.init()
             //getNonce
+            let accountInfo = await unchainedEth.instance.Account(params[0].from)
+            console.log("accountInfo: ",accountInfo)
+
+            let nonce = accountInfo.nonce
+            console.log("nonce: ",nonce)
+            nonce = "0x"+nonce.toString(16);
+            console.log("nonce: ",nonce)
 
             let HDwalletPayload = {
                 "addressNList":[
@@ -156,7 +175,7 @@ export async function pairWalletConnect(event: any, payload: any) {
                     0,
                     0
                 ],
-                "nonce":params[0].nonce,
+                "nonce":nonce,
                 "gasPrice":params[0].gasPrice,
                 "gasLimit":params[0].gasLimit,
                 "value":params[0].value,

@@ -20,7 +20,7 @@ export let walletConnectClient: any
 const Unchained = require('openapi-client-axios').default;
 
 let unchainedEth = new Unchained({
-    definition:"https://dev-api.ethereum.shapeshift.com",
+    definition: "https://dev-api.ethereum.shapeshift.com/swagger.json",
     axiosConfigDefaults: {
         headers: {
         },
@@ -50,12 +50,12 @@ export function getCachedSession(): any {
 export async function approveWalletConnect(proposal: any, accounts: Array<string>) {
     let tag = " | approveWalletConnect | "
     try {
-        if(accounts.length === 0) throw Error("Failed to load accounts!")
+        if (accounts.length === 0) throw Error("Failed to load accounts!")
 
         log.info(tag, proposal)
-        log.info(tag, "debug: ", JSON.stringify({ chainId:1, accounts }))
-        const approve = await walletConnectClient.approveSession({ chainId:1, accounts })
-        log.info(tag, "approve response: ",approve)
+        log.info(tag, "debug: ", JSON.stringify({ chainId: 1, accounts }))
+        const approve = await walletConnectClient.approveSession({ chainId: 1, accounts })
+        log.info(tag, "approve response: ", approve)
     } catch (e) {
         log.error(e)
     }
@@ -98,11 +98,11 @@ export async function pairWalletConnect(event: any, payload: any) {
     try {
         log.info(tag, "payload: ", payload)
         //connect to URI
-        walletConnectClient = await new WalletConnect({ uri:payload });
+        walletConnectClient = new WalletConnect({ uri: payload });
 
         if (!walletConnectClient.connected) {
             let success = await walletConnectClient.createSession();
-            log.info(tag,"success: ",success)
+            log.info(tag, "success: ", success)
         }
 
         walletConnectClient.on("session_request", (error, payload) => {
@@ -154,34 +154,34 @@ export async function pairWalletConnect(event: any, payload: any) {
             console.log("payload: ", payload);
             console.log("method", payload.method);
             console.log("params", payload.params);
-            let {method,params} = payload
+            let { method, params } = payload
 
             //TODO moveme
             await unchainedEth.init()
             //getNonce
             let accountInfo = await unchainedEth.instance.Account(params[0].from)
-            console.log("accountInfo: ",accountInfo)
+            console.log("accountInfo: ", accountInfo)
 
             let nonce = accountInfo.nonce
-            console.log("nonce: ",nonce)
-            nonce = "0x"+nonce.toString(16);
-            console.log("nonce: ",nonce)
+            console.log("nonce: ", nonce)
+            nonce = "0x" + nonce.toString(16);
+            console.log("nonce: ", nonce)
 
             let HDwalletPayload = {
-                "addressNList":[
+                "addressNList": [
                     2147483692,
                     2147483708,
                     2147483648,
                     0,
                     0
                 ],
-                "nonce":nonce,
-                "gasPrice":params[0].gasPrice,
-                "gasLimit":params[0].gasLimit,
-                "value":params[0].value,
-                "to":params[0].to,
-                "data":params[0].data,
-                "chainId":1 //TODO accept more chains/parse caips
+                "nonce": nonce,
+                "gasPrice": params[0].gasPrice,
+                "gasLimit": params[0].gasLimit,
+                "value": params[0].value,
+                "to": params[0].to,
+                "data": params[0].data,
+                "chainId": 1 //TODO accept more chains/parse caips
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
@@ -189,37 +189,37 @@ export async function pairWalletConnect(event: any, payload: any) {
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
-            log.info(tag,"HDwalletPayload: ",HDwalletPayload)
+            log.info(tag, "HDwalletPayload: ", HDwalletPayload)
             let args = {
                 payload: {
                     data: {
                         invocation: {
                             unsignedTx: {
-                                "network":"ETH",
-                                "asset":"ETH",
-                                "transaction":{
-                                    "context":params[0].from,
-                                    "type":"transfer",
-                                    "addressFrom":params[0].from,
-                                    "recipient":params[0].to,
-                                    "asset":"ETH",
-                                    "network":"ETH",
-                                    "memo":"",
-                                    "amount":"0.0001",
-                                    "fee":{
-                                        "priority":5
+                                "network": "ETH",
+                                "asset": "ETH",
+                                "transaction": {
+                                    "context": params[0].from,
+                                    "type": "transfer",
+                                    "addressFrom": params[0].from,
+                                    "recipient": params[0].to,
+                                    "asset": "ETH",
+                                    "network": "ETH",
+                                    "memo": "",
+                                    "amount": "0.0001",
+                                    "fee": {
+                                        "priority": 5
                                     },
-                                    "noBroadcast":true
+                                    "noBroadcast": true
                                 },
                                 HDwalletPayload,
-                                "verbal":"Ethereum transaction"
+                                "verbal": "Ethereum transaction"
                             }
                         }
                     }
                 }
             }
-            log.info(tag,"args: ",args)
-            log.info(tag,"args: ",JSON.stringify(args))
+            log.info(tag, "args: ", args)
+            log.info(tag, "args: ", JSON.stringify(args))
             windows.mainWindow.webContents.send('signTx', args);
 
             //hold till signed
@@ -229,7 +229,7 @@ export async function pairWalletConnect(event: any, payload: any) {
             }
 
             let response = shared.SIGNED_TX
-            log.info(tag,"response: ",response)
+            log.info(tag, "response: ", response)
 
             //respond
             // let successRespond = await walletConnectClient.respond({
@@ -274,18 +274,18 @@ export async function pairWalletConnect(event: any, payload: any) {
 
 export async function createWalletConnectClient(event: IpcMainEvent) {
     let tag = " | createWalletConnectClient | "
-    try{
+    try {
         //
         const session = getCachedSession();
-        log.info(tag,"session: ",session)
+        log.info(tag, "session: ", session)
 
-        if(session){
+        if (session) {
             walletConnectClient = new WalletConnect({ session });
         } else {
-            log.info(tag,"no session found!")
+            log.info(tag, "no session found!")
         }
 
-    }catch(e){
+    } catch (e) {
         log.error(e)
     }
 }

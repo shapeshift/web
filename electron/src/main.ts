@@ -139,7 +139,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    await start_bridge()
+    if (!bridgeRunning) start_bridge()
     /**
      * Initial window options
      *
@@ -455,8 +455,8 @@ ipcMain.on('@app/start', async (event, data) => {
         // let accountInfo = await unchainedEth.instance.GetAccount("0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
         // console.log("accountInfo: ",accountInfo)
 
-        let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/"+"0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
-        console.log("accountInfo: ",accountInfo)
+        let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + "0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
+        console.log("accountInfo: ", accountInfo)
 
         //load DB
         try {

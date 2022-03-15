@@ -27,7 +27,7 @@ import { selectPortfolioCryptoMixedBalancesBySymbol } from 'state/slices/selecto
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { BTC_SEGWIT_NATIVE_BIP44, FiatRampAction } from '../const'
+import { BTC_SEGWIT_NATIVE_BIP44, FiatRampAction, GemManagerAction } from '../const'
 import { GemCurrency } from '../FiatRamps'
 import { reducer } from '../reducer'
 import { initialState } from '../state'
@@ -49,7 +49,7 @@ export const GemManager = () => {
   const [isSelectingAsset, setIsSelectingAsset] = useState(false)
 
   const setFiatRampAction = (fiatRampAction: FiatRampAction) =>
-    dispatch({ type: 'SET_FIAT_RAMP_ACTION', fiatRampAction })
+    dispatch({ type: GemManagerAction.SET_FIAT_RAMP_ACTION, fiatRampAction })
 
   const {
     state: { wallet }
@@ -75,7 +75,7 @@ export const GemManager = () => {
 
   useEffect(() => {
     ;(async () => {
-      dispatch({ type: 'SET_SUPPORTS_ADDRESS_VERIFYING', wallet })
+      dispatch({ type: GemManagerAction.SET_SUPPORTS_ADDRESS_VERIFYING, wallet })
     })()
   }, [wallet])
 
@@ -95,11 +95,11 @@ export const GemManager = () => {
           })) ?? ''
         : ''
 
-      dispatch({ type: 'SET_ETH_ADDRESS', ethAddress })
-      dispatch({ type: 'SET_BTC_ADDRESS', btcAddress })
+      dispatch({ type: GemManagerAction.SET_ETH_ADDRESS, ethAddress })
+      dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
       const reverseEthAddressLookup = await ensReverseLookup(ethAddress)
       !reverseEthAddressLookup.error &&
-        dispatch({ type: 'SET_ENS_NAME', ensName: reverseEthAddressLookup.name })
+        dispatch({ type: GemManagerAction.SET_ENS_NAME, ensName: reverseEthAddressLookup.name })
     })()
   }, [wallet, ethChainAdapter, btcChainAdapter])
 
@@ -110,15 +110,15 @@ export const GemManager = () => {
       try {
         if (!state.coinifyAssets.length) {
           const coinifyAssets = await fetchCoinifySupportedCurrencies()
-          dispatch({ type: 'SET_COINIFY_ASSETS', coinifyAssets })
+          dispatch({ type: GemManagerAction.SET_COINIFY_ASSETS, coinifyAssets })
         }
         if (!state.wyreAssets.length) {
           const wyreAssets = await fetchWyreSupportedCurrencies()
-          dispatch({ type: 'SET_WYRE_ASSETS', wyreAssets })
+          dispatch({ type: GemManagerAction.SET_WYRE_ASSETS, wyreAssets })
         }
 
-        dispatch({ type: 'SET_BUY_LIST', balances })
-        dispatch({ type: 'SET_SELL_LIST', balances })
+        dispatch({ type: GemManagerAction.SET_BUY_LIST, balances })
+        dispatch({ type: GemManagerAction.SET_SELL_LIST, balances })
 
         dispatch({ type: 'FETCH_COMPLETED' })
       } catch (e) {
@@ -133,7 +133,7 @@ export const GemManager = () => {
 
   useEffect(() => {
     dispatch({
-      type: 'SET_CHAIN_ADAPTER',
+      type: GemManagerAction.SET_CHAIN_ADAPTER,
       chainAdapter:
         isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
           ? btcChainAdapter
@@ -179,15 +179,19 @@ export const GemManager = () => {
       ...(isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
         ? {
             accountType: UtxoAccountType.SegwitNative,
-            // Magic segwit native bip44 params
             bip44Params: BTC_SEGWIT_NATIVE_BIP44
           }
         : {}),
       showOnDevice: true
     })
+
+    const shownOnDisplay =
+      Boolean(deviceAddress) &&
+      (deviceAddress === state.ethAddress || deviceAddress === state.btcAddress)
+
     dispatch({
       type: 'SHOW_ON_DISPLAY',
-      shownOnDisplay: Boolean(deviceAddress) && deviceAddress === state.ethAddress
+      shownOnDisplay
     })
   }
 

@@ -1,16 +1,17 @@
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 
+import { GemManagerAction } from './const'
 import { parseGemBuyAssets, parseGemSellAssets } from './utils'
 
 export const reducer = (state: any, action: any) => {
   switch (action.type) {
-    case 'FETCH_STARTED':
+    case GemManagerAction.FETCH_STARTED:
       return {
         ...state,
         loading: true
       }
-    case 'FETCH_COMPLETED':
+    case GemManagerAction.FETCH_COMPLETED:
       return {
         ...state,
         loading: false
@@ -102,6 +103,7 @@ export const reducer = (state: any, action: any) => {
         chainAdapter: action.chainAdapter
       }
     default:
+      console.log({ action })
       throw new Error('Todo')
   }
 }

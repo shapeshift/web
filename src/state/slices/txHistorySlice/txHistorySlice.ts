@@ -7,7 +7,7 @@ import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { addToIndex, getRelatedAssetIds } from './utils'
 
 export type TxId = string
-export type Tx = chainAdapters.SubscribeTxsMessage<ChainTypes> & { accountType?: UtxoAccountType }
+export type Tx = chainAdapters.Transaction<ChainTypes> & { accountType?: UtxoAccountType }
 
 export type TxFilter = {
   accountType?: UtxoAccountType

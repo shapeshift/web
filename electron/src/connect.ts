@@ -52,7 +52,14 @@ export function getCachedSession(): any {
 export async function approveWalletConnect(proposal: any, accounts: Array<string>) {
     let tag = " | approveWalletConnect | "
     try {
-        if(accounts.length === 0) throw Error("Failed to load accounts!")
+        if(accounts.length === 0) {
+            log.info(tag,"shared: ",shared.USER)
+
+            throw Error("Failed to load accounts!")
+        }
+
+        //
+
 
         log.info(tag, proposal)
         log.info(tag, "debug: ", JSON.stringify({ chainId:1, accounts }))
@@ -262,11 +269,23 @@ export async function pairWalletConnect(event: any, payload: any) {
                 hex:response.serialized
             }
             log.info(tag,"body: ",body)
+            let result
             try{
-                let result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
-                log.info(tag,"result: ",result.data)
+                result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
+                result = result.data
+                log.info(tag,"result: ",result)
             }catch(e){
                 log.error("e: ",e)
+                log.info(tag,"error: ",e)
+                // @ts-ignore
+                log.info(tag,"error: ",e.body)
+                // @ts-ignore
+                if(e.body.error === 'nonce too low'){
+                    //re-submit with nonce +1
+                }
+
+                //TODO show error to user!
+
             }
 
 
@@ -277,7 +296,7 @@ export async function pairWalletConnect(event: any, payload: any) {
             //respond
             let successRespond = await walletConnectClient.approveRequest({
                 id: payload.id,
-                result:txid,
+                result:result,
             })
             log.info(tag, "successRespond: ", successRespond)
 

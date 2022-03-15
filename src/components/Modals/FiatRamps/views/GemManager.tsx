@@ -84,13 +84,14 @@ export const GemManager = () => {
         dispatch({ type: GemManagerAction.SET_ETH_ADDRESS, ethAddress })
       }
       if (wallet && !state.btcAddress) {
-        const btcAddress = supportsBTC(wallet)
-          ? await btcChainAdapter.getAddress({
-              wallet,
-              accountType: UtxoAccountType.SegwitNative,
-              bip44Params: BTC_SEGWIT_NATIVE_BIP44
-            })
-          : ''
+        const btcAddress =
+          wallet && supportsBTC(wallet)
+            ? await btcChainAdapter.getAddress({
+                wallet,
+                accountType: UtxoAccountType.SegwitNative,
+                bip44Params: BTC_SEGWIT_NATIVE_BIP44
+              })
+            : ''
         dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
       }
 
@@ -136,14 +137,9 @@ export const GemManager = () => {
         dispatch({ type: GemManagerAction.FETCH_COMPLETED })
       }
     })()
-  }, [
-    state.fiatRampAction,
-    state.loading,
-    balances,
-    state.btcAddress,
-    state.coinifyAssets,
-    state.wyreAssets
-  ])
+    // We use balances but do not need to actually need to react on it in this hook
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.fiatRampAction, state.btcAddress, state.coinifyAssets, state.wyreAssets])
 
   useEffect(
     () => dispatch({ type: GemManagerAction.SELECT_ASSET, selectedAsset: null }),

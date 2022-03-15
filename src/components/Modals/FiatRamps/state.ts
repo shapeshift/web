@@ -1,6 +1,25 @@
-import { FiatRampAction } from './const'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 
-export const initialState = {
+import { FiatRampAction } from './const'
+import { GemCurrency, SupportedCurrency } from './FiatRamps'
+
+export type GemManagerState = {
+  loading: Boolean
+  selectedAsset: GemCurrency | null
+  shownOnDisplay: Boolean
+  ethAddress: string
+  btcAddress: string | null
+  supportsAddressVerifying: boolean
+  coinifyAssets: SupportedCurrency[]
+  wyreAssets: SupportedCurrency[]
+  chainAdapter: ChainAdapter<ChainTypes.Bitcoin | ChainTypes.Ethereum> | null
+  buyList: GemCurrency[]
+  sellList: GemCurrency[]
+  fiatRampAction: FiatRampAction
+}
+
+export const initialState: GemManagerState = {
   loading: false,
   selectedAsset: null,
   shownOnDisplay: false,
@@ -11,6 +30,6 @@ export const initialState = {
   wyreAssets: [],
   chainAdapter: null,
   buyList: [],
-  selList: [],
+  sellList: [],
   fiatRampAction: FiatRampAction.Buy
 }

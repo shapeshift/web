@@ -84,28 +84,34 @@ export const GemManager = () => {
   useEffect(() => {
     ;(async () => {
       if (!wallet) return
-      const ethAddress = await ethChainAdapter.getAddress({
-        wallet
-      })
-      const btcAddress = supportsBTC(wallet)
-        ? (await btcChainAdapter.getAddress({
-            wallet,
-            accountType: UtxoAccountType.SegwitNative,
-            bip44Params: BTC_SEGWIT_NATIVE_BIP44
-          })) ?? ''
-        : ''
+      if (!state.ethAddress) {
+        const ethAddress = await ethChainAdapter.getAddress({
+          wallet
+        })
+        dispatch({ type: GemManagerAction.SET_ETH_ADDRESS, ethAddress })
+      }
+      if (!state.btcAddress) {
+        const btcAddress = supportsBTC(wallet)
+          ? (await btcChainAdapter.getAddress({
+              wallet,
+              accountType: UtxoAccountType.SegwitNative,
+              bip44Params: BTC_SEGWIT_NATIVE_BIP44
+            })) ?? ''
+          : ''
+        dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
+      }
 
-      dispatch({ type: GemManagerAction.SET_ETH_ADDRESS, ethAddress })
-      dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
-      const reverseEthAddressLookup = await ensReverseLookup(ethAddress)
-      !reverseEthAddressLookup.error &&
-        dispatch({ type: GemManagerAction.SET_ENS_NAME, ensName: reverseEthAddressLookup.name })
+      if (state.ethAddress && !state.ensName) {
+        const reverseEthAddressLookup = await ensReverseLookup(state.ethAddress)
+        !reverseEthAddressLookup.error &&
+          dispatch({ type: GemManagerAction.SET_ENS_NAME, ensName: reverseEthAddressLookup.name })
+      }
     })()
-  }, [wallet, ethChainAdapter, btcChainAdapter])
+  }, [state.ensName, state.ethAddress, state.btcAddress, wallet, ethChainAdapter, btcChainAdapter])
 
   useEffect(() => {
     ;(async () => {
-      dispatch({ type: 'FETCH_STARTED' })
+      dispatch({ type: GemManagerAction.FETCH_STARTED })
 
       try {
         if (!state.coinifyAssets.length) {
@@ -117,29 +123,34 @@ export const GemManager = () => {
           dispatch({ type: GemManagerAction.SET_WYRE_ASSETS, wyreAssets })
         }
 
-        dispatch({ type: GemManagerAction.SET_BUY_LIST, balances })
+        dispatch({ type: GemManagerAction.SET_BUY_LIST })
         dispatch({ type: GemManagerAction.SET_SELL_LIST, balances })
 
-        dispatch({ type: 'FETCH_COMPLETED' })
+        dispatch({ type: GemManagerAction.FETCH_COMPLETED })
       } catch (e) {
         console.error(e)
-        dispatch({ type: 'FETCH_COMPLETED' })
+        dispatch({ type: GemManagerAction.FETCH_COMPLETED })
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.btcAddress, state.coinifyAssets, state.wyreAssets])
+  }, [state.loading, balances, state.btcAddress, state.coinifyAssets, state.wyreAssets])
 
-  useEffect(() => dispatch({ type: 'SELECT_ASSET', selectedAsset: null }), [state.fiatRampAction])
+  useEffect(
+    () => dispatch({ type: GemManagerAction.SELECT_ASSET, selectedAsset: null }),
+    [state.fiatRampAction]
+  )
 
   useEffect(() => {
     dispatch({
-      type: GemManagerAction.SET_CHAIN_ADAPTER,
-      chainAdapter:
-        isSupportedBitcoinAsset(state.selectedAsset?.ticker) && state.btcAddress
-          ? btcChainAdapter
-          : ethChainAdapter
+      type: GemManagerAction.SET_IS_BTC,
+      assetTicker: state.selectedAsset?.ticker,
+      btcAddress: state.btcAddress
     })
-  }, [btcChainAdapter, ethChainAdapter, state.selectedAsset?.ticker, state.btcAddress])
+
+    dispatch({
+      type: GemManagerAction.SET_CHAIN_ADAPTER,
+      chainAdapter: state.chainAdapter
+    })
+  }, [state.isBTC, state.chainAdapter, state.selectedAsset?.ticker, state.btcAddress])
 
   const [selectAssetTranslation, assetTranslation, fundsTranslation] = useMemo(
     () =>
@@ -151,7 +162,7 @@ export const GemManager = () => {
 
   const onAssetSelect = (data: GemCurrency) => {
     setIsSelectingAsset(false)
-    dispatch({ type: 'SELECT_ASSET', selectedAsset: data })
+    dispatch({ type: GemManagerAction.SELECT_ASSET, selectedAsset: data })
   }
 
   const handleCopyClick = async () => {
@@ -190,7 +201,7 @@ export const GemManager = () => {
       (deviceAddress === state.ethAddress || deviceAddress === state.btcAddress)
 
     dispatch({
-      type: 'SHOW_ON_DISPLAY',
+      type: GemManagerAction.SHOW_ON_DISPLAY,
       shownOnDisplay
     })
   }

@@ -2,7 +2,7 @@ import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 
 import { GemManagerAction } from './const'
-import { parseGemBuyAssets, parseGemSellAssets } from './utils'
+import { isSupportedBitcoinAsset, parseGemBuyAssets, parseGemSellAssets } from './utils'
 
 export const reducer = (state: any, action: any) => {
   switch (action.type) {
@@ -16,32 +16,32 @@ export const reducer = (state: any, action: any) => {
         ...state,
         loading: false
       }
-    case 'SELECT_ASSET':
+    case GemManagerAction.SELECT_ASSET:
       return {
         ...state,
         selectedAsset: action.selectedAsset
       }
-    case 'SHOW_ON_DISPLAY':
+    case GemManagerAction.SHOW_ON_DISPLAY:
       return {
         ...state,
         shownOnDisplay: action.shownOnDisplay
       }
-    case 'SET_ETH_ADDRESS':
+    case GemManagerAction.SET_ETH_ADDRESS:
       return {
         ...state,
         ethAddress: action.ethAddress
       }
-    case 'SET_BTC_ADDRESS':
+    case GemManagerAction.SET_BTC_ADDRESS:
       return {
         ...state,
         btcAddress: action.btcAddress
       }
-    case 'SET_ENS_NAME':
+    case GemManagerAction.SET_ENS_NAME:
       return {
         ...state,
         ensName: action.ensName
       }
-    case 'SET_SUPPORTS_ADDRESS_VERIFYING':
+    case GemManagerAction.SET_SUPPORTS_ADDRESS_VERIFYING:
       const { wallet } = action
       const supportsAddressVerifying = Boolean(
         (wallet as KeepKeyHDWallet)._isKeepKey || (wallet as PortisHDWallet)._isPortis
@@ -50,17 +50,17 @@ export const reducer = (state: any, action: any) => {
         ...state,
         supportsAddressVerifying
       }
-    case 'SET_COINIFY_ASSETS':
+    case GemManagerAction.SET_COINIFY_ASSETS:
       return {
         ...state,
         coinifyAssets: action.coinifyAssets
       }
-    case 'SET_WYRE_ASSETS':
+    case GemManagerAction.SET_WYRE_ASSETS:
       return {
         ...state,
         wyreAssets: action.wyreAssets
       }
-    case 'SET_BUY_LIST':
+    case GemManagerAction.SET_BUY_LIST:
       const buyList = parseGemBuyAssets(
         state.coinifyAssets,
         state.wyreAssets,
@@ -74,7 +74,7 @@ export const reducer = (state: any, action: any) => {
         ...state,
         buyList
       }
-    case 'SET_SELL_LIST':
+    case GemManagerAction.SET_SELL_LIST:
       const sellList = parseGemSellAssets(
         state.coinifyAssets,
         state.wyreAssets,
@@ -87,23 +87,28 @@ export const reducer = (state: any, action: any) => {
         ...state,
         sellList
       }
-    case 'SET_FIAT_RAMP_ACTION':
+    case GemManagerAction.SET_FIAT_RAMP_ACTION:
       return {
         ...state,
         fiatRampAction: action.fiatRampAction
       }
-    case 'SET_IS_SELECTING_ASSET':
+    case GemManagerAction.SET_IS_SELECTING_ASSET:
       return {
         ...state,
         isSelectingAsset: action.isSelectingAsset
       }
-    case 'SET_CHAIN_ADAPTER':
+    case GemManagerAction.SET_CHAIN_ADAPTER:
       return {
         ...state,
         chainAdapter: action.chainAdapter
       }
+    case GemManagerAction.SET_IS_BTC:
+      const isBTC = isSupportedBitcoinAsset(action.assetTicker) && action.btcAddress
+      return {
+        ...state,
+        isBTC: isBTC
+      }
     default:
-      console.log({ action })
       throw new Error('Todo')
   }
 }

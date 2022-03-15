@@ -97,8 +97,8 @@ export const parseGemAssets = (
       return {
         ...asset,
         disabled: isSupportedBitcoinAsset(asset?.ticker) && !btcAddress,
-        cryptoBalance: bnOrZero(balances[asset?.ticker]?.crypto),
-        fiatBalance: bnOrZero(balances[asset?.ticker]?.fiat)
+        cryptoBalance: bnOrZero(balances?.[asset?.ticker]?.crypto),
+        fiatBalance: bnOrZero(balances?.[asset?.ticker]?.fiat)
       }
     })
     .sort((a, b) =>

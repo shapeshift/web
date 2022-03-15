@@ -9,7 +9,7 @@ import {
   RadioGroup,
   useColorModeValue
 } from '@chakra-ui/react'
-import { ReactChild, useState } from 'react'
+import { Fragment, ReactChild, useState } from 'react'
 import { Control, useController } from 'react-hook-form'
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
@@ -42,7 +42,6 @@ export const FilterGroup = ({
         justifyContent='space-between'
         alignItems='center'
         variant='ghost'
-        fontWeight='400'
         color={useColorModeValue('black', 'white')}
         _hover={{ bg: 'transparent' }}
         px={2}
@@ -62,14 +61,14 @@ export const FilterGroup = ({
         <Box px={2} mb={2}>
           <GroupComponent value={value || []} onChange={onChange} name={name}>
             {options.map(([title, optionValue, CustomComponent]: Option) => (
-              <>
-                <Box key={optionValue} py={1}>
+              <Fragment key={optionValue}>
+                <Box py={1}>
                   <InputComponent value={optionValue}>
-                    <Text translation={title} fontWeight='300' />
+                    <Text translation={title} />
                   </InputComponent>
                 </Box>
                 {!!CustomComponent && CustomComponent}
-              </>
+              </Fragment>
             ))}
           </GroupComponent>
         </Box>

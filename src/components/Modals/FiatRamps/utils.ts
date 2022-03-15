@@ -98,7 +98,7 @@ const parseGemAssets = (
   btcAddress: string | null
 ): GemCurrency[] => {
   const results = uniqBy(flatten(concat(filteredCoinifyList, filteredWyreList)), 'gem_asset_id')
-    .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.ticker)))
+    .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.gem_asset_id)))
     .map(asset => {
       return {
         ...asset,

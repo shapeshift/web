@@ -29,19 +29,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const txIds = useAppSelector(selectTxIds)
 
   useEffect(() => {
-    const unsubscribe = () => {
-      dispatch(txHistory.actions.clear())
-      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
-        try {
-          console.info('unsubbing txs for', getAdapter().getType())
-          getAdapter().unsubscribeTxs()
-        } catch (e) {
-          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
-        }
-      })
-    }
-
-    if (!wallet) return unsubscribe
+    if (!wallet) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
 
@@ -58,12 +46,12 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
         const accountTypes = supportedAccountTypes[chain] ?? [undefined]
 
+        // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
+        // this state machine should be removed, and managed by the txHistory RTK query api
+        dispatch(txHistory.actions.setStatus('loading'))
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
-            // TODO(0xdef1cafe) - once we have restful tx history for all coinstacks
-            // this state machine should be removed, and managed by the txHistory RTK query api
-            if (txHistoryStatus !== 'loading') dispatch(txHistory.actions.setStatus('loading'))
             console.info('subscribing txs for chain', chain)
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
@@ -90,9 +78,17 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       }
     })()
 
-    return unsubscribe
-    // x eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, walletInfo?.deviceId])
+    return () => {
+      dispatch(txHistory.actions.clear())
+      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+        try {
+          getAdapter().unsubscribeTxs()
+        } catch (e) {
+          console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
+        }
+      })
+    }
+  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter])
 
   /**
    * TODO(0xdef1cafe)

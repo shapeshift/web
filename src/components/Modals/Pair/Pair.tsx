@@ -15,7 +15,7 @@ import {
   Text as ChakraText
 } from '@chakra-ui/react'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { SessionTypes } from '@walletconnect/types'
+// import { SessionTypes } from '@walletconnect/types'
 import { ipcRenderer } from 'electron'
 import { useEffect, useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
@@ -36,7 +36,7 @@ export type NativePairingProps = {
 
 export type WalletConnectPairingProps = {
   type: 'walletconnect'
-  data: SessionTypes.Proposal
+  data: any
   nonce: string
 }
 
@@ -57,7 +57,7 @@ export const PairModal = (input: PairingProps) => {
           showDisplay: false
         })
         .then(address => {
-          setAccounts([`eip155:1:${address}`])
+          setAccounts([address])
         })
     }
   }, [state.wallet, input.type])
@@ -105,7 +105,7 @@ export const PairModal = (input: PairingProps) => {
                   src={
                     input.type === 'native'
                       ? input.data.serviceImageUrl
-                      : input.data.proposer.metadata.icons[0]
+                      : input.data.params[0].peerMeta.icons[0]
                   }
                   borderRadius='full'
                   height='10'
@@ -120,34 +120,34 @@ export const PairModal = (input: PairingProps) => {
                         serviceName:
                           input.type === 'native'
                             ? input.data.serviceName
-                            : input.data.proposer.metadata.name
+                            : input.data.params[0].peerMeta.name
                       }
                     ]}
                     pl='2'
                   />
                   {input.type === 'walletconnect' ? (
                     <ChakraText pl={2} color='gray.500' fontSize='sm'>
-                      {input.data.proposer.metadata.description}
+                      {input.data.params[0].peerMeta.description}
                     </ChakraText>
                   ) : null}
                 </Box>
               </Box>
               {input.type === 'walletconnect' && (
                 <Box display='flex' flexDirection='column' gap={1}>
-                  <Text translation={'modals.pair.walletconnect.chain'} />
-                  {input.data.permissions.blockchain.chains &&
-                    input.data.permissions.blockchain.chains.map(chain => (
-                      <ChakraText color='gray.500'>{chain}</ChakraText>
-                    ))}
-                  <Text translation={'modals.pair.walletconnect.relay'} />
-                  <ChakraText color='gray.500'>{input.data.relay.protocol}</ChakraText>
-                  <Text translation={'modals.pair.walletconnect.methods'} />
-                  <ChakraText color='gray.500'>
-                    {input.data.permissions.jsonrpc.methods.join(', ')}
-                  </ChakraText>
-                  <Text translation={'accounts.accounts'} />
-                  {accounts &&
-                    accounts.map(address => <ChakraText color='gray.500'>{address}</ChakraText>)}
+                  {/*<Text translation={'modals.pair.walletconnect.chain'} />*/}
+                  {/*{input.data.permissions.blockchain.chains &&*/}
+                  {/*  input.data.permissions.blockchain.chains.map(chain => (*/}
+                  {/*    <ChakraText color='gray.500'>{chain}</ChakraText>*/}
+                  {/*  ))}*/}
+                  {/*<Text translation={'modals.pair.walletconnect.relay'} />*/}
+                  {/*<ChakraText color='gray.500'>{input.data.relay.protocol}</ChakraText>*/}
+                  {/*<Text translation={'modals.pair.walletconnect.methods'} />*/}
+                  {/*<ChakraText color='gray.500'>*/}
+                  {/*  {input.data.permissions.jsonrpc.methods.join(', ')}*/}
+                  {/*</ChakraText>*/}
+                  {/*<Text translation={'accounts.accounts'} />*/}
+                  {/*{accounts &&*/}
+                  {/*  accounts.map(address => <ChakraText color='gray.500'>{address}</ChakraText>)}*/}
                 </Box>
               )}
               {error && (

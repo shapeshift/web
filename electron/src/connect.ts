@@ -17,242 +17,138 @@ import { createWindow, windows } from './main';
 const sleep = wait.sleep;
 export let walletConnectClient: any
 
-export const EIP155_SIGNING_METHODS = {
-    PERSONAL_SIGN: 'personal_sign',
-    ETH_SIGN: 'eth_sign',
-    ETH_SIGN_TRANSACTION: 'eth_signTransaction',
-    ETH_SIGN_TYPED_DATA: 'eth_signTypedData',
-    ETH_SIGN_TYPED_DATA_V3: 'eth_signTypedData_v3',
-    ETH_SIGN_TYPED_DATA_V4: 'eth_signTypedData_v4',
-    ETH_SEND_RAW_TRANSACTION: 'eth_sendRawTransaction',
-    ETH_SEND_TRANSACTION: 'eth_sendTransaction'
-}
+export function getCachedSession(): any {
+    const local = localStorage ? localStorage.getItem("walletconnect") : null;
 
-/**
- * Chains
- */
-export const COSMOS_MAINNET_CHAINS = {
-    'cosmos:cosmoshub-4': {
-        chainId: 'cosmoshub-4',
-        name: 'Cosmos Hub',
-        logo: '/chain-logos/cosmos-cosmoshub-4.png',
-        rgb: '107, 111, 147',
-        rpc: ''
+    let session = null;
+    if (local) {
+        try {
+            session = JSON.parse(local);
+        } catch (error) {
+            throw error;
+        }
     }
-}
-
-
-/**
- * Methods
- */
-export const COSMOS_SIGNING_METHODS = {
-    COSMOS_SIGN_DIRECT: 'cosmos_signDirect',
-    COSMOS_SIGN_AMINO: 'cosmos_signAmino'
+    return session;
 }
 
 /*
 
-example event
-{
-   relay: { protocol: 'waku' },
-   topic: '0537892ecb22ca40b14e6fcd6f8190a110fa9a2782c993397821c36ec26c4322',
-   proposer: {
-     publicKey: 'f961e93e195d1b118bffef3ad5ff4aaf2aa80bbf8168ba3fbd73445d81832561',
-     controller: false,
-     metadata: {
-       description: 'React App for WalletConnect',
-       url: 'https://react-app.walletconnect.com',
-       icons: '[array]',
-       name: 'React App'
-     }
-   },
-   signal: {
-     method: 'pairing',
-     params: {
-       topic: '95adfef496af30fe59aea86aca1ee3ccfaefe8390fc6b25b1850643d606b3532'
-     }
-   },
-   permissions: {
-     blockchain: { chains: '[array]' },
-     jsonrpc: { methods: '[array]' },
-     notifications: { types: '[array]' }
-   },
-   ttl: 604800
- }
 
 
  */
 
-export async function approveWalletConnect(proposal: SessionTypes.Proposal, accounts: Array<string>) {
+export async function approveWalletConnect(proposal: any, accounts: Array<string>) {
     let tag = " | approveWalletConnect | "
     try {
         if(accounts.length === 0) throw Error("Failed to load accounts!")
-        const response = {
-            state: {
-                accounts
-            }
-        }
+
         log.info(tag, proposal)
-        log.info(tag, "debug: ", { proposal, response })
-        log.info(tag, "debug: ", JSON.stringify({ proposal, response }))
-        const approve = await walletConnectClient.approve({ proposal, response })
-        log.info(tag, approve)
+        log.info(tag, "debug: ", JSON.stringify({ chainId:1, accounts }))
+        const approve = await walletConnectClient.approveSession({ chainId:1, accounts })
+        log.info(tag, "approve response: ",approve)
     } catch (e) {
         log.error(e)
     }
 }
 
+/*
+
+session_request
+
+{
+   "type":"walletconnect",
+   "data":{
+      "id":1647362525352040,
+      "jsonrpc":"2.0",
+      "method":"session_request",
+      "params":[
+         {
+            "peerId":"ebc4eaa3-d22f-42d3-858e-808f4f6f60a1",
+            "peerMeta":{
+               "description":"Swap or provide liquidity on the Uniswap Protocol",
+               "url":"https://app.uniswap.org",
+               "icons":[
+                  "https://app.uniswap.org/./favicon.png",
+                  "https://app.uniswap.org/./images/192x192_App_Icon.png",
+                  "https://app.uniswap.org/./images/512x512_App_Icon.png"
+               ],
+               "name":"Uniswap Interface"
+            },
+            "chainId":1
+         }
+      ]
+   },
+   "nonce":"1"
+}
+
+ */
 
 export async function pairWalletConnect(event: any, payload: any) {
     let tag = " | pairWalletConnect | "
     try {
         log.info(tag, "payload: ", payload)
-        if (!walletConnectClient) createWalletConnectClient(event)
         //connect to URI
-        let success = await walletConnectClient.pair({ uri: payload })
-        log.info(tag, "success: ", success)
+        walletConnectClient = await new WalletConnect({ uri:payload });
 
-        // //TODO UX pairing
-        // event.sender.send("@app/onSuccessPair", {});
-    } catch (e) {
-        log.error(e)
-    }
-}
-
-
-export async function createWalletConnectClient(event: IpcMainEvent) {
-    //TODO wtf types
-    walletConnectClient = await WalletConnectClient.init({
-        controller: true,
-        projectId: "14d36ca1bc76a70273d44d384e8475ae",
-        relayUrl: process.env.NEXT_PUBLIC_RELAY_URL ?? 'wss://relay.walletconnect.com',
-        metadata: {
-            name: 'KeepKey Desktop',
-            description: 'a companion app for the KeepKey device',
-            url: 'https://keepkey.com/',
-            icons: ['https://assets.website-files.com/5cec55545d0f47cfe2a39a8e/5e9bcf1fd3886ab687f29cdc_logo%20(2).png']
-        }
-    })
-
-    //Wallet Connect Events
-    //ref https://github.com/WalletConnect/web-examples/blob/main/wallets/react-wallet-v2/src/hooks/useWalletConnectEventsManager.ts
-
-
-    /*
-        Example
-        {
-            "relay":{
-                "protocol":"waku"
-            },
-            "topic":"827c48aeaad46ed796b0ca52825373e9893f66c7735bd3e1cb4b44d56f4e4308",
-            "proposer":{
-                "publicKey":"c4dc6e2b7ffedef5370ceb1edf79e5cdc9c3100941e9e5590e67e5178d6fd958",
-                "controller":false,
-                "metadata":{
-                    "description":"React App for WalletConnect",
-                    "url":"https://react-app.walletconnect.com",
-                    "icons":[
-                        "https://react-app.walletconnect.com/favicon.ico"
-                    ],
-                    "name":"React App"
-                }
-            },
-            "signal":{
-                "method":"pairing",
-                "params":{
-                    "topic":"4ee2bb7aa62095430ef208742dac19097070d142d4ab8c4fd882d4312bbbd669"
-                }
-            },
-            "permissions":{
-                "blockchain":{
-                    "chains":[
-                        "eip155:1"
-                    ]
-                },
-                "jsonrpc":{
-                    "methods":[
-                        "eth_sendTransaction",
-                        "eth_signTransaction",
-                        "eth_sign",
-                        "personal_sign",
-                        "eth_signTypedData"
-                    ]
-                },
-                "notifications":{
-                    "types":[
-
-                    ]
-                }
-            },
-            "ttl":604800
+        if (!walletConnectClient.connected) {
+            let success = await walletConnectClient.createSession();
+            log.info(tag,"success: ",success)
         }
 
-     */
-    let onSessionProposal = function (proposal: SessionTypes.Proposal) {
-        let tag = " | onSessionProposal | "
-        const nonce = uniqueId()
-        try {
-            log.info(tag, "params: ", proposal)
-            log.info(tag, "params: ", JSON.stringify(proposal))
+        walletConnectClient.on("session_request", (error, payload) => {
+            console.log("EVENT", "session_request");
+            console.log("payload: ", JSON.stringify(payload));
+            const nonce = uniqueId()
 
             log.info(tag, "params: ", JSON.stringify({
                 type: 'walletconnect',
-                data: proposal,
+                data: payload,
                 nonce
             }))
             event.sender.send("@modal/pair", {
                 type: 'walletconnect',
-                data: proposal,
+                data: payload,
                 nonce
             });
 
+            //
             ipcMain.once(`@walletconnect/approve-${nonce}`, (event, data) => {
                 approveWalletConnect(data.proposal, data.accounts)
             })
-        } catch (e) {
-            log.error(e)
-        }
-    }
 
-    //A dapp created a session
-    let onSessionCreated = function (params: any) {
-        let tag = " | onSessionCreated | "
-        try {
-            log.info(tag, "params: ", params)
-            log.info(tag, "params: ", JSON.stringify(params))
+        });
 
-            //TODO save dapp into pairing
-            event.sender.send("@app/onSessionCreated", {});
-        } catch (e) {
-            log.error(e)
-        }
-    }
+        /*
 
-    /*
-        onSignTx response
+        sample event
+
         {
-           r: '0x647c0ad5c91ed3ac0d61ef50ad863d6120ee229660ad5be7bcd4ac32864ca543',
-           s: '0x177be6c313d314cecd8bb668aabf67b52a98871033a28cf577926507cc450019',
-           v: 37,
-           serialized: '0xf8668202c58504a817c8008252089433b35c665496ba8e71b22373843376740401f106808025a0647c0ad5c91ed3ac0d61ef50ad863d6120ee229660ad5be7bcd4ac32864ca543a0177be6c313d314cecd8bb668aabf67b52a98871033a28cf577926507cc450019',
-           txid: 'broke'
+           id: 1647363828590105,
+           jsonrpc: '2.0',
+           method: 'eth_sendTransaction',
+           params: [
+             {
+               gas: '0xd9e6',
+               from: '0x33b35c665496ba8e71b22373843376740401f106',
+               to: '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
+               data: '0x095ea7b300000000000000000000000068b3465833fb72a70ecdf485e0e4c7bd8665fc45ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+             }
+           ]
          }
-     */
-    let onSignRequest = async function (params: any) {
-        let tag = " | onSignRequest | "
-        try {
-            log.info(tag, "params: ", params)
-            log.info(tag, "params: ", JSON.stringify(params))
-            const { topic, request } = params
-            const { method } = request
 
-            //Notes On types of SignTxs
-            //TODO convert walletConnect signTx to HDwalletPayload
-            let HDwalletPayload = {}
-            let network
-            let asset
 
-            HDwalletPayload = {
+         */
+
+        walletConnectClient.on("call_request", async (error, payload) => {
+            console.log("EVENT", "call_request");
+            console.log("payload: ", payload);
+            console.log("method", payload.method);
+            console.log("params", payload.params);
+            let {method,params} = payload
+
+            //getNonce
+
+            let HDwalletPayload = {
                 "addressNList":[
                     2147483692,
                     2147483708,
@@ -260,57 +156,14 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                     0,
                     0
                 ],
-                "nonce":params.request.params[0].nonce,
-                "gasPrice":params.request.params[0].gasPrice,
-                "gasLimit":params.request.params[0].gasLimit,
-                "value":params.request.params[0].value,
-                "to":params.request.params[0].to,
-                "data":params.request.params[0].data,
+                "nonce":params[0].nonce,
+                "gasPrice":params[0].gasPrice,
+                "gasLimit":params[0].gasLimit,
+                "value":params[0].value,
+                "to":params[0].to,
+                "data":params[0].data,
                 "chainId":1 //TODO accept more chains/parse caips
             }
-
-            // switch (method) {
-            //     case "eth_sendTransaction":
-            //     case EIP155_SIGNING_METHODS.ETH_SIGN:
-            //     case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
-            //         network = "ETH"
-            //         asset = "ETH" //TODO detect token
-            //         //TODO convert
-            //         HDwalletPayload = {
-            //             "addressNList":[
-            //                 2147483692,
-            //                 2147483708,
-            //                 2147483648,
-            //                 0,
-            //                 0
-            //             ],
-            //             "nonce":params.request.params[0].nonce,
-            //             "gasPrice":params.request.params[0].gasPrice,
-            //             "gasLimit":params.request.params[0].gasLimit,
-            //             "value":params.request.params[0].value,
-            //             "to":params.request.params[0].to,
-            //             "data":params.request.params[0].data,
-            //             "chainId":1 //TODO accept more chains/parse caips
-            //         }
-            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
-            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
-            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
-            //         //TODO convert
-            //         network = "ETH"
-            //         HDwalletPayload = {}
-            //     case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
-            //     case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
-            //         network = "ETH"
-            //         //TODO convert
-            //         HDwalletPayload = {}
-            //     case COSMOS_SIGNING_METHODS.COSMOS_SIGN_DIRECT:
-            //     case COSMOS_SIGNING_METHODS.COSMOS_SIGN_AMINO:
-            //         network = "COSMOS"
-            //         //TODO convert
-            //         HDwalletPayload = {}
-            //     default:
-            //     //Push Error to ipc UNKNOWN tx type!
-            // }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
                 if (!await createWindow()) return
@@ -326,10 +179,10 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
                                 "network":"ETH",
                                 "asset":"ETH",
                                 "transaction":{
-                                    "context":params.request.params[0].from,
+                                    "context":params[0].from,
                                     "type":"transfer",
-                                    "addressFrom":params.request.params[0].from,
-                                    "recipient":params.request.params[0].to,
+                                    "addressFrom":params[0].from,
+                                    "recipient":params[0].to,
                                     "asset":"ETH",
                                     "network":"ETH",
                                     "memo":"",
@@ -357,23 +210,64 @@ export async function createWalletConnectClient(event: IpcMainEvent) {
             }
 
             let response = shared.SIGNED_TX
+            log.info(tag,"response: ",response)
+
             //respond
-            let successRespond = await walletConnectClient.respond({
-                topic,
-                response
-            })
-            log.info(tag, "successRespond: ", successRespond)
-        } catch (e) {
-            log.error(e)
-        }
+            // let successRespond = await walletConnectClient.respond({
+            //     topic,
+            //     response
+            // })
+            // log.info(tag, "successRespond: ", successRespond)
+
+        });
+
+        walletConnectClient.on("connect", (error, payload) => {
+            console.log("EVENT", "connect");
+            console.log("payload: ", payload);
+
+        });
+
+        walletConnectClient.on("session_update", (error, payload) => {
+            console.log("EVENT", "session_update");
+            console.log("payload: ", payload);
+
+        });
+
+        walletConnectClient.on("connect", (error, payload) => {
+            console.log("EVENT", "connect");
+            console.log("payload: ", payload);
+
+        });
+
+        walletConnectClient.on("disconnect", (error, payload) => {
+            console.log("EVENT", "disconnect");
+            console.log("payload: ", payload);
+
+        });
+
+        // //TODO UX pairing
+        // event.sender.send("@app/onSuccessPair", {});
+    } catch (e) {
+        log.error(e)
     }
+}
 
-    walletConnectClient.on(CLIENT_EVENTS.session.proposal, onSessionProposal)
 
-    walletConnectClient.on(CLIENT_EVENTS.session.created, console.log)
+export async function createWalletConnectClient(event: IpcMainEvent) {
+    let tag = " | createWalletConnectClient | "
+    try{
+        //
+        const session = getCachedSession();
+        log.info(tag,"session: ",session)
 
-    walletConnectClient.on(CLIENT_EVENTS.session.request, onSignRequest)
+        if(session){
+            walletConnectClient = new WalletConnect({ session });
+        } else {
+            log.info(tag,"no session found!")
+        }
 
-    return true
+    }catch(e){
+        log.error(e)
+    }
 }
 

@@ -52,10 +52,10 @@ export function AppProviders({ children }: ProvidersProps) {
           <BrowserRouter>
             <ScrollToTop />
             <BrowserRouterProvider>
-              <AppRouteProvider>
-                <I18n locale={locale} messages={messages}>
-                  <WalletProvider>
-                    <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+              <I18n locale={locale} messages={messages}>
+                <WalletProvider>
+                  <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                    <AppRouteProvider>
                       <PortfolioProvider>
                         <MarketDataProvider>
                           <TransactionsProvider>
@@ -69,10 +69,10 @@ export function AppProviders({ children }: ProvidersProps) {
                           </TransactionsProvider>
                         </MarketDataProvider>
                       </PortfolioProvider>
-                    </ChainAdaptersProvider>
-                  </WalletProvider>
-                </I18n>
-              </AppRouteProvider>
+                    </AppRouteProvider>
+                  </ChainAdaptersProvider>
+                </WalletProvider>
+              </I18n>
             </BrowserRouterProvider>
           </BrowserRouter>
         </PersistGate>

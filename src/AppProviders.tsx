@@ -52,27 +52,27 @@ export function AppProviders({ children }: ProvidersProps) {
           <BrowserRouter>
             <ScrollToTop />
             <BrowserRouterProvider>
-              <I18n locale={locale} messages={messages}>
-                <WalletProvider>
-                  <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
-                    <PortfolioProvider>
-                      <MarketDataProvider>
-                        <TransactionsProvider>
-                          <ModalProvider>
-                            <DefiManagerProvider>
-                              <AppRouteProvider>
+              <AppRouteProvider>
+                <I18n locale={locale} messages={messages}>
+                  <WalletProvider>
+                    <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                      <PortfolioProvider>
+                        <MarketDataProvider>
+                          <TransactionsProvider>
+                            <ModalProvider>
+                              <DefiManagerProvider>
                                 <ErrorBoundary FallbackComponent={ErrorPage}>
                                   {children}
                                 </ErrorBoundary>
-                              </AppRouteProvider>
-                            </DefiManagerProvider>
-                          </ModalProvider>
-                        </TransactionsProvider>
-                      </MarketDataProvider>
-                    </PortfolioProvider>
-                  </ChainAdaptersProvider>
-                </WalletProvider>
-              </I18n>
+                              </DefiManagerProvider>
+                            </ModalProvider>
+                          </TransactionsProvider>
+                        </MarketDataProvider>
+                      </PortfolioProvider>
+                    </ChainAdaptersProvider>
+                  </WalletProvider>
+                </I18n>
+              </AppRouteProvider>
             </BrowserRouterProvider>
           </BrowserRouter>
         </PersistGate>

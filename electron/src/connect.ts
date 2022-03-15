@@ -21,7 +21,7 @@ const keccak256 = require('keccak256')
 const Unchained = require('openapi-client-axios').default;
 
 let unchainedEth = new Unchained({
-    definition:"https://dev-api.ethereum.shapeshift.com/swagger.json",
+    definition: "https://dev-api.ethereum.shapeshift.com/swagger.json",
     axiosConfigDefaults: {
         headers: {
         },
@@ -52,19 +52,20 @@ export function getCachedSession(): any {
 export async function approveWalletConnect(proposal: any, accounts: Array<string>) {
     let tag = " | approveWalletConnect | "
     try {
-        if(accounts.length === 0) {
-            log.info(tag,"shared: ",shared.USER)
-
-            throw Error("Failed to load accounts!")
+        if (accounts.length === 0) {
+            log.info(tag, "shared: ", shared.USER)
+            const ethAccount = shared.USER.accounts.find((a) => a.caip === 'eip155:1')
+            if (ethAccount) accounts = [`${ethAccount.caip}:${ethAccount.pubkey}`]
+            // throw Error("Failed to load accounts!")
         }
 
         //
 
 
         log.info(tag, proposal)
-        log.info(tag, "debug: ", JSON.stringify({ chainId:1, accounts }))
-        const approve = await walletConnectClient.approveSession({ chainId:1, accounts })
-        log.info(tag, "approve response: ",approve)
+        log.info(tag, "debug: ", JSON.stringify({ chainId: 1, accounts }))
+        const approve = await walletConnectClient.approveSession({ chainId: 1, accounts })
+        log.info(tag, "approve response: ", approve)
     } catch (e) {
         log.error(e)
     }
@@ -107,11 +108,11 @@ export async function pairWalletConnect(event: any, payload: any) {
     try {
         log.info(tag, "payload: ", payload)
         //connect to URI
-        walletConnectClient = await new WalletConnect({ uri:payload });
+        walletConnectClient = new WalletConnect({ uri: payload });
 
         if (!walletConnectClient.connected) {
             let success = await walletConnectClient.createSession();
-            log.info(tag,"success: ",success)
+            log.info(tag, "success: ", success)
         }
 
         walletConnectClient.on("session_request", (error, payload) => {
@@ -163,7 +164,7 @@ export async function pairWalletConnect(event: any, payload: any) {
             console.log("payload: ", payload);
             console.log("method", payload.method);
             console.log("params", payload.params);
-            let {method,params} = payload
+            let { method, params } = payload
 
             //TODO moveme
             // await unchainedEth.init()
@@ -176,49 +177,49 @@ export async function pairWalletConnect(event: any, payload: any) {
             // let accountInfo = await unchainedEth.instance.GetAccount(params[0].from)
             // console.log("accountInfo: ",accountInfo)
 
-            let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/"+params[0].from)
+            let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + params[0].from)
             accountInfo = accountInfo.data
-            console.log("accountInfo: ",accountInfo)
+            console.log("accountInfo: ", accountInfo)
 
             //gasPrice
             let gasInfo = await axios.get("https://api.ethereum.shapeshift.com/api/v1/gas/fees")
             gasInfo = gasInfo.data
-            console.log("gasInfo: ",gasInfo)
+            console.log("gasInfo: ", gasInfo)
             // @ts-ignore
             let gasPrice = Number(parseInt(gasInfo.gasPrice))
-            console.log("gasPrice: ",gasPrice)
+            console.log("gasPrice: ", gasPrice)
             // @ts-ignore
             gasPrice = parseInt(gasPrice)
-            console.log("gasPrice: ",gasPrice)
+            console.log("gasPrice: ", gasPrice)
             //@ts-ignore
-            gasPrice = "0x"+gasPrice.toString(16);
-            console.log("gasPrice: ",gasPrice)
+            gasPrice = "0x" + gasPrice.toString(16);
+            console.log("gasPrice: ", gasPrice)
 
             // @ts-ignore
             let nonce = accountInfo.nonce
-            console.log("nonce: ",nonce)
-            nonce = "0x"+nonce.toString(16);
-            console.log("nonce: ",nonce)
+            console.log("nonce: ", nonce)
+            nonce = "0x" + nonce.toString(16);
+            console.log("nonce: ", nonce)
 
             //TODO track last Nonce Users
             //if nonce <= lastNonceUsed
             //nonce = lastNonceUsed + 1
 
             let HDwalletPayload = {
-                "addressNList":[
+                "addressNList": [
                     2147483692,
                     2147483708,
                     2147483648,
                     0,
                     0
                 ],
-                "nonce":nonce,
-                "gasPrice":gasPrice, //TODO lookup gasPrice
-                "gasLimit":params[0].gas, //TODO lookup gasLimit
-                "value":params[0].value || "0x0",
-                "to":params[0].to,
-                "data":params[0].data,
-                "chainId":1
+                "nonce": nonce,
+                "gasPrice": gasPrice, //TODO lookup gasPrice
+                "gasLimit": params[0].gas, //TODO lookup gasLimit
+                "value": params[0].value || "0x0",
+                "to": params[0].to,
+                "data": params[0].data,
+                "chainId": 1
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
@@ -226,37 +227,37 @@ export async function pairWalletConnect(event: any, payload: any) {
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
-            log.info(tag,"HDwalletPayload: ",HDwalletPayload)
+            log.info(tag, "HDwalletPayload: ", HDwalletPayload)
             let args = {
                 payload: {
                     data: {
                         invocation: {
                             unsignedTx: {
-                                "network":"ETH",
-                                "asset":"ETH",
-                                "transaction":{
-                                    "context":params[0].from,
-                                    "type":"transfer",
-                                    "addressFrom":params[0].from,
-                                    "recipient":params[0].to,
-                                    "asset":"ETH",
-                                    "network":"ETH",
-                                    "memo":"",
-                                    "amount":"0.0001",
-                                    "fee":{
-                                        "priority":5
+                                "network": "ETH",
+                                "asset": "ETH",
+                                "transaction": {
+                                    "context": params[0].from,
+                                    "type": "transfer",
+                                    "addressFrom": params[0].from,
+                                    "recipient": params[0].to,
+                                    "asset": "ETH",
+                                    "network": "ETH",
+                                    "memo": "",
+                                    "amount": "0.0001",
+                                    "fee": {
+                                        "priority": 5
                                     },
-                                    "noBroadcast":true
+                                    "noBroadcast": true
                                 },
                                 HDwalletPayload,
-                                "verbal":"Ethereum transaction"
+                                "verbal": "Ethereum transaction"
                             }
                         }
                     }
                 }
             }
-            log.info(tag,"args: ",args)
-            log.info(tag,"args: ",JSON.stringify(args))
+            log.info(tag, "args: ", args)
+            log.info(tag, "args: ", JSON.stringify(args))
             windows.mainWindow.webContents.send('signTx', args);
 
             //hold till signed
@@ -266,25 +267,25 @@ export async function pairWalletConnect(event: any, payload: any) {
             }
 
             let response = shared.SIGNED_TX
-            log.info(tag,"response: ",response)
+            log.info(tag, "response: ", response)
 
             //broadcast
             let body = {
-                hex:response.serialized
+                hex: response.serialized
             }
-            log.info(tag,"body: ",body)
+            log.info(tag, "body: ", body)
             let result
-            try{
-                result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
+            try {
+                result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send", body)
                 result = result.data
-                log.info(tag,"result: ",result)
-            }catch(e){
-                log.error("e: ",e)
-                log.info(tag,"error: ",e)
+                log.info(tag, "result: ", result)
+            } catch (e) {
+                log.error("e: ", e)
+                log.info(tag, "error: ", e)
                 // @ts-ignore
-                log.info(tag,"error: ",e.body)
+                log.info(tag, "error: ", e.body)
                 // @ts-ignore
-                if(e.body.error === 'nonce too low'){
+                if (e.body.error === 'nonce too low') {
                     //re-submit with nonce +1
                 }
 
@@ -295,12 +296,12 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             //get txid
             let txid = keccak256(response.serialized).toString('hex')
-            log.info(tag,"txid: ",txid)
+            log.info(tag, "txid: ", txid)
 
             //respond
             let successRespond = await walletConnectClient.approveRequest({
                 id: payload.id,
-                result:result,
+                result: result,
             })
             log.info(tag, "successRespond: ", successRespond)
 
@@ -340,18 +341,18 @@ export async function pairWalletConnect(event: any, payload: any) {
 
 export async function createWalletConnectClient(event: IpcMainEvent) {
     let tag = " | createWalletConnectClient | "
-    try{
+    try {
         //
         const session = getCachedSession();
-        log.info(tag,"session: ",session)
+        log.info(tag, "session: ", session)
 
-        if(session){
+        if (session) {
             walletConnectClient = new WalletConnect({ session });
         } else {
-            log.info(tag,"no session found!")
+            log.info(tag, "no session found!")
         }
 
-    }catch(e){
+    } catch (e) {
         log.error(e)
     }
 }

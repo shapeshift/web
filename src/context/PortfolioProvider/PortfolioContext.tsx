@@ -1,11 +1,17 @@
 import isEmpty from 'lodash/isEmpty'
+import last from 'lodash/last'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAssetIds } from 'state/slices/selectors'
+import {
+  selectPortfolioAssetIds,
+  selectTxHistoryStatus,
+  selectTxIds,
+  selectTxs
+} from 'state/slices/selectors'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -45,6 +51,33 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       )
     )
   }, [dispatch, accountSpecifiers])
+
+  const txIds = useSelector(selectTxIds)
+  const txsById = useSelector(selectTxs)
+  const txHistoryStatus = useSelector(selectTxHistoryStatus)
+
+  useEffect(() => {
+    // we only want to refetch portfolio if a new tx comes in after we're finished loading
+    if (txHistoryStatus !== 'loaded') return
+    // don't fire with nothing connected
+    if (isEmpty(accountSpecifiers)) return
+    // grab the most recent txId
+    const txId = last(txIds)!
+    // grab the actual tx
+    const tx = txsById[txId]
+    // always wear protection, or don't it's your choice really
+    if (!tx) return
+    // the chain the tx came from
+    const txChainId = tx.caip2
+    // only refetch accounts for this tx
+    const accountSpecifierMap = accountSpecifiers.reduce((acc, cur) => {
+      const [chainId, accountSpecifier] = Object.entries(cur)[0]
+      if (chainId !== txChainId) return acc
+      acc[chainId] = accountSpecifier
+      return acc
+    }, {})
+    dispatch(portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }))
+  }, [accountSpecifiers, dispatch, txIds, txsById, txHistoryStatus])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

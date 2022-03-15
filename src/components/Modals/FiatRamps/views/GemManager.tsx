@@ -61,9 +61,10 @@ export const GemManager = () => {
 
   const addressFull = state.isBTC ? state.btcAddress : state.ethAddress
 
-  const addressOrNameEllipsed = state.isBTC
-    ? middleEllipsis(state.btcAddress, 11)
-    : state.ensName || middleEllipsis(state.ethAddress, 11)
+  const addressOrNameEllipsed =
+    state.isBTC && state.btcAddress
+      ? middleEllipsis(state.btcAddress, 11)
+      : state.ensName || middleEllipsis(state.ethAddress || '', 11)
 
   useEffect(() => {
     ;(async () => {

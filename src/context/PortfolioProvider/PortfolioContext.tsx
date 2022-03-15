@@ -1,5 +1,5 @@
+import head from 'lodash/head'
 import isEmpty from 'lodash/isEmpty'
-import last from 'lodash/last'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
@@ -62,7 +62,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // don't fire with nothing connected
     if (isEmpty(accountSpecifiers)) return
     // grab the most recent txId
-    const txId = last(txIds)!
+    const txId = head(txIds)!
     // grab the actual tx
     const tx = txsById[txId]
     // always wear protection, or don't it's your choice really
@@ -76,8 +76,11 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
       acc[chainId] = accountSpecifier
       return acc
     }, {})
-    dispatch(portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }))
-  }, [accountSpecifiers, dispatch, txIds, txsById, txHistoryStatus])
+    const forceRefetch = true
+    dispatch(portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch }))
+    // txsById changes on each tx - as txs have more confirmations
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountSpecifiers, dispatch, txIds, txHistoryStatus])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
 import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { Fragment } from 'react'
 import { FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { IoIosArrowRoundForward } from 'react-icons/io'
 import { Amount } from 'components/Amount/Amount'
@@ -109,7 +110,7 @@ export const TransactionGenericRow = ({
             flexWrap='wrap'
           >
             {assets.map((asset, index) => (
-              <>
+              <Fragment key={index}>
                 <Flex alignItems='center'>
                   {!compactMode && isLargerThanLg && (
                     <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
@@ -148,7 +149,7 @@ export const TransactionGenericRow = ({
                     </Box>
                   </Flex>
                 )}
-              </>
+              </Fragment>
             ))}
           </Flex>
         </Flex>

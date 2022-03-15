@@ -13,10 +13,11 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Textarea
+  Textarea,
+  Input
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import KeepKey from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -33,20 +34,41 @@ export const SignModal = (input: any) => {
   const [isApproved, setIsApproved] = React.useState(false)
   const { sign } = useModal()
   const { close, isOpen } = sign
+
   const HDwalletPayload = input.invocation.unsignedTx.HDwalletPayload
+
+  const [nonce, setNonce] = useState("")
+  const [gasPrice, setGasPrice] = useState("")
+  const [gasLimit, setGasLimit] = useState("")
+
+  useEffect(() => {
+    if (!HDwalletPayload || !HDwalletPayload.nonce) return
+    if (HDwalletPayload.nonce) setNonce(HDwalletPayload.nonce)
+    if (HDwalletPayload.gasLimit) setGasLimit(HDwalletPayload.gasLimit)
+    if (HDwalletPayload.gasPrice) setGasPrice(HDwalletPayload.gasPrice)
+  }, [HDwalletPayload])
 
   let isSwap: boolean = false
   if (input?.invocation?.unsignedTx?.type === 'swap') isSwap = true
 
-  const HandleSubmit = async () => {
+  const HandleSubmit = useCallback(async () => {
     setIsApproved(true)
     //show sign
-    let signedTx = await keepkey.signTx(input.invocation.unsignedTx)
+    const unsignedTx = {
+      ...input.invocation.unsignedTx,
+      HDwalletPayload: {
+        ...input.invocation.unsignedTx.HDwalletPayload,
+        nonce,
+        gasLimit,
+        gasPrice
+      }
+    }
+    let signedTx = await keepkey.signTx(unsignedTx)
     ipcRenderer.send('@account/tx-signed', signedTx)
     //onCloseModal
     ipcRenderer.send('@modal/close', {})
     close()
-  }
+  }, [nonce, gasLimit, gasPrice])
 
   const HandleReject = async () => {
     //show sign
@@ -184,32 +206,53 @@ export const SignModal = (input: any) => {
                 </Row.Value>
               </Row>
 
-              <Row>
-                <Row.Label>
-                  <Text translation={'modals.sign.nonce'} />
-                </Row.Label>
-                <small>
-                  {parseInt(input?.invocation?.unsignedTx?.HDwalletPayload?.nonce, 16)}
-                </small>
-              </Row>
+              {nonce &&
+                <Row>
+                  <Row.Label>
+                    <Text translation={'modals.sign.nonce'} />
+                  </Row.Label>
+                  <Input
+                    size='xs'
+                    width='25%'
+                    textAlign='right'
+                    value={parseInt(nonce, 16)} onChange={(e) => {
+                      if (!e.target.value) setNonce((0).toString(16))
+                      setNonce(`0x${Number(e.target.value).toString(16)}`)
+                    }} />
+                </Row>
+              }
 
-              <Row>
-                <Row.Label>
-                  <Text translation={'modals.sign.gasPrice'} />
-                </Row.Label>
-                <small>
-                  {parseInt(input?.invocation?.unsignedTx?.HDwalletPayload?.gasPrice, 16)}
-                </small>
-              </Row>
+              {gasPrice &&
+                <Row>
+                  <Row.Label>
+                    <Text translation={'modals.sign.gasPrice'} />
+                  </Row.Label>
+                  <Input
+                    size='xs'
+                    width='25%'
+                    textAlign='right'
+                    value={parseInt(gasPrice, 16)} onChange={(e) => {
+                      if (!e.target.value) setGasPrice((0).toString(16))
+                      setGasPrice(`0x${Number(e.target.value).toString(16)}`)
+                    }} />
+                </Row>
+              }
 
-              <Row>
-                <Row.Label>
-                  <Text translation={'modals.sign.gasLimit'} />
-                </Row.Label>
-                <small>
-                  {parseInt(input?.invocation?.unsignedTx?.HDwalletPayload?.gasLimit, 16)}
-                </small>
-              </Row>
+              {gasLimit &&
+                <Row>
+                  <Row.Label>
+                    <Text translation={'modals.sign.gasLimit'} />
+                  </Row.Label>
+                  <Input
+                    size='xs'
+                    width='25%'
+                    textAlign='right'
+                    value={parseInt(gasLimit, 16)} onChange={(e) => {
+                      if (!e.target.value) setGasLimit((0).toString(16))
+                      setGasLimit(`0x${Number(e.target.value).toString(16)}`)
+                    }} />
+                </Row>
+              }
 
               {/*<Row>*/}
               {/*  <Row.Label>*/}

@@ -21,7 +21,7 @@ const keccak256 = require('keccak256')
 const Unchained = require('openapi-client-axios').default;
 
 let unchainedEth = new Unchained({
-    definition:"https://dev-api.ethereum.shapeshift.com/swagger.json",
+    definition: "https://dev-api.ethereum.shapeshift.com/swagger.json",
     axiosConfigDefaults: {
         headers: {
         },
@@ -52,10 +52,11 @@ export function getCachedSession(): any {
 export async function approveWalletConnect(proposal: any, accounts: Array<string>) {
     let tag = " | approveWalletConnect | "
     try {
-        if(accounts.length === 0) {
-            log.info(tag,"shared: ",shared.USER)
-
-            throw Error("Failed to load accounts!")
+        if (accounts.length === 0) {
+            log.info(tag, "shared: ", shared.USER)
+            const ethAccount = shared.USER.accounts.find((a) => a.caip === 'eip155:1')
+            if (ethAccount) accounts = [`${ethAccount.caip}:${ethAccount.pubkey}`]
+            // throw Error("Failed to load accounts!")
         }
 
         //
@@ -176,23 +177,23 @@ export async function pairWalletConnect(event: any, payload: any) {
             // let accountInfo = await unchainedEth.instance.GetAccount(params[0].from)
             // console.log("accountInfo: ",accountInfo)
 
-            let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/"+params[0].from)
+            let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + params[0].from)
             accountInfo = accountInfo.data
-            console.log("accountInfo: ",accountInfo)
+            console.log("accountInfo: ", accountInfo)
 
             //gasPrice
             let gasInfo = await axios.get("https://api.ethereum.shapeshift.com/api/v1/gas/fees")
             gasInfo = gasInfo.data
-            console.log("gasInfo: ",gasInfo)
+            console.log("gasInfo: ", gasInfo)
             // @ts-ignore
             let gasPrice = Number(parseInt(gasInfo.gasPrice))
-            console.log("gasPrice: ",gasPrice)
+            console.log("gasPrice: ", gasPrice)
             // @ts-ignore
             gasPrice = parseInt(gasPrice)
-            console.log("gasPrice: ",gasPrice)
+            console.log("gasPrice: ", gasPrice)
             //@ts-ignore
-            gasPrice = "0x"+gasPrice.toString(16);
-            console.log("gasPrice: ",gasPrice)
+            gasPrice = "0x" + gasPrice.toString(16);
+            console.log("gasPrice: ", gasPrice)
 
             // @ts-ignore
             let nonce = accountInfo.nonce
@@ -212,13 +213,13 @@ export async function pairWalletConnect(event: any, payload: any) {
                     0,
                     0
                 ],
-                "nonce":nonce,
-                "gasPrice":gasPrice, //TODO lookup gasPrice
-                "gasLimit":params[0].gas, //TODO lookup gasLimit
-                "value":params[0].value || "0x0",
-                "to":params[0].to,
-                "data":params[0].data,
-                "chainId":1
+                "nonce": nonce,
+                "gasPrice": gasPrice, //TODO lookup gasPrice
+                "gasLimit": params[0].gas, //TODO lookup gasLimit
+                "value": params[0].value || "0x0",
+                "to": params[0].to,
+                "data": params[0].data,
+                "chainId": 1
             }
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
@@ -270,21 +271,21 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             //broadcast
             let body = {
-                hex:response.serialized
+                hex: response.serialized
             }
-            log.info(tag,"body: ",body)
+            log.info(tag, "body: ", body)
             let result
-            try{
-                result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send",body)
+            try {
+                result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send", body)
                 result = result.data
-                log.info(tag,"result: ",result)
-            }catch(e){
-                log.error("e: ",e)
-                log.info(tag,"error: ",e)
+                log.info(tag, "result: ", result)
+            } catch (e) {
+                log.error("e: ", e)
+                log.info(tag, "error: ", e)
                 // @ts-ignore
-                log.info(tag,"error: ",e.body)
+                log.info(tag, "error: ", e.body)
                 // @ts-ignore
-                if(e.body.error === 'nonce too low'){
+                if (e.body.error === 'nonce too low') {
                     //re-submit with nonce +1
                 }
 
@@ -295,12 +296,12 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             //get txid
             let txid = keccak256(response.serialized).toString('hex')
-            log.info(tag,"txid: ",txid)
+            log.info(tag, "txid: ", txid)
 
             //respond
             let successRespond = await walletConnectClient.approveRequest({
                 id: payload.id,
-                result:result,
+                result: result,
             })
             log.info(tag, "successRespond: ", successRespond)
 

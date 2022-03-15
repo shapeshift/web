@@ -1,22 +1,18 @@
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  CloseIcon,
-  RepeatIcon,
-  WarningTwoIcon
-} from '@chakra-ui/icons'
-import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
+import { ChevronDownIcon, ChevronRightIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { Menu, MenuButton, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
 import { Button, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { WalletConnectedMenuRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/WalletConnectedMenuRoutes'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
-import { KeyManager } from 'context/WalletProvider/config'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
+export const entries = ['/main', '/keepkey']
 
 export const WalletImage = ({ walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon
@@ -38,44 +34,26 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
   )
 }
 
-type WalletConnectedProps = {
+export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
 } & Pick<InitialState, 'walletInfo' | 'isConnected' | 'type'>
 
-const WalletConnected = ({
-  walletInfo,
-  isConnected,
-  onDisconnect,
-  onSwitchProvider,
-  type
-}: WalletConnectedProps) => {
-  const translate = useTranslate()
-  const isKeepKey = type === KeyManager.KeepKey
-
+export const WalletConnected = (props: WalletConnectedProps) => {
   return (
-    <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
-      <MenuItem icon={<WalletImage walletInfo={walletInfo} />}>
-        <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-          <RawText>{walletInfo?.name}</RawText>
-          {!isConnected && (
-            <Text
-              translation={'connectWallet.menu.disconnected'}
-              fontSize='sm'
-              color='yellow.500'
-            />
-          )}
-          {isKeepKey && <ChevronRightIcon />}
-        </Flex>
-      </MenuItem>
-      <MenuDivider ml={3} />
-      <MenuItem icon={<RepeatIcon />} onClick={onSwitchProvider}>
-        {translate('connectWallet.menu.switchWallet')}
-      </MenuItem>
-      <MenuItem fontWeight='medium' icon={<CloseIcon />} onClick={onDisconnect} color='red.500'>
-        {translate('connectWallet.menu.disconnect')}
-      </MenuItem>
-    </MenuGroup>
+    <MemoryRouter initialEntries={entries}>
+      <Switch>
+        <Route path='/'>
+          <WalletConnectedMenuRoutes
+            isConnected={props.isConnected}
+            walletInfo={props.walletInfo}
+            onDisconnect={props.onDisconnect}
+            onSwitchProvider={props.onSwitchProvider}
+            type={props.type}
+          />
+        </Route>
+      </Switch>
+    </MemoryRouter>
   )
 }
 

@@ -39,6 +39,7 @@ export abstract class UTXOBaseAdapter<T extends UTXOChainTypes> implements IChai
   protected chainId: CAIP2
   protected assetId: CAIP19
   protected coinName: string
+  protected readonly supportedChainIds: CAIP2[]
   protected readonly providers: {
     http: unchained.bitcoin.V1Api
     ws: unchained.ws.Client<unchained.SequencedTx>

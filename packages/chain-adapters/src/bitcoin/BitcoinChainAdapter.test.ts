@@ -169,16 +169,18 @@ describe('BitcoinChainAdapter', () => {
     it('should throw if called with invalid chainId', () => {
       args.chainId = 'INVALID_CHAINID'
       expect(() => new bitcoin.ChainAdapter(args)).toThrow(
-        /fromCAIP19: error parsing caip19, chain: (.+), network: undefined/
+        'Bitcoin chainId INVALID_CHAINID not supported'
       )
     })
     it('should throw if called with non bitcoin chainId', () => {
       args.chainId = 'eip155:1'
-      expect(() => new bitcoin.ChainAdapter(args)).toThrow(/chainId must be a bitcoin chain type/)
+      expect(() => new bitcoin.ChainAdapter(args)).toThrow('Bitcoin chainId eip155:1 not supported')
     })
-    it('should throw if called with no chainId', () => {
+    it('should use default chainId if no arg chainId provided.', () => {
       args.chainId = undefined
-      expect(() => new bitcoin.ChainAdapter(args)).toThrow(/chainId required/)
+      const adapter = new bitcoin.ChainAdapter(args)
+      const chainId = adapter.getChainId()
+      expect(chainId).toEqual('bip122:000000000019d6689c085ae165831e93')
     })
   })
 

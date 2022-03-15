@@ -16,6 +16,7 @@ import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
+import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 
@@ -184,7 +185,7 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuItem icon={<ExternalLinkIcon />} onClick={handleWalletConnect}>
+        <MenuItem icon={<WalletConnectIcon />} onClick={handleWalletConnect}>
           <Text translation='common.walletConnect' />
         </MenuItem>
         <MenuItem

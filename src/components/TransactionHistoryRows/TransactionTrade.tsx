@@ -56,7 +56,7 @@ export const TransactionTrade = ({
           symbol: txDetails.feeAsset?.symbol ?? '',
           amount: txDetails.tx.fee?.value ?? '0',
           precision: txDetails.feeAsset?.precision ?? 0,
-          currentPrice: feeAssetMarketData.price
+          currentPrice: feeAssetMarketData?.price
         }}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

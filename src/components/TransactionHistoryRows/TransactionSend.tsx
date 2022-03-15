@@ -36,14 +36,14 @@ export const TransactionSend = ({
             symbol: txDetails.symbol,
             amount: txDetails.value ?? '0',
             precision: txDetails.precision,
-            currentPrice: marketData.price
+            currentPrice: marketData?.price
           }
         ]}
         fee={{
           symbol: txDetails.feeAsset?.symbol ?? '',
           amount: txDetails.tx.fee?.value ?? '0',
           precision: txDetails.feeAsset?.precision ?? 0,
-          currentPrice: feeAssetMarketData?.price ?? undefined
+          currentPrice: feeAssetMarketData?.price
         }}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}

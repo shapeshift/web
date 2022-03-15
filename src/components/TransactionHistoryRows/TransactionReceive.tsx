@@ -33,7 +33,7 @@ export const TransactionReceive = ({
             symbol: txDetails.symbol,
             amount: txDetails.value ?? '0',
             precision: txDetails.precision,
-            currentPrice: marketData.price
+            currentPrice: marketData?.price
           }
         ]}
         fee={{

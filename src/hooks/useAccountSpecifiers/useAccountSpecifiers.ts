@@ -20,7 +20,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssetIds, selectAssets } from 'state/slices/selectors'
 
-// the value is an xpub/ypub/zpub, or eth account, used to query unchained
+// the value is an xpub/ypub/zpub, or eth pubkey, used to query unchained
 export type AccountSpecifierMap = { [k: CAIP2]: string }
 type UseAccountSpecifiers = () => AccountSpecifierMap[]
 
@@ -133,7 +133,9 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     getAccountSpecifiers().catch((e: unknown) =>
       console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
     )
-  }, [deviceId, assetIds, numSupportedChainAdapters])
+    // getAccountSpecifiers and loading causes furious renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deviceId, assetIds, numSupportedChainAdapters, wallet])
 
   return accountSpecifiers
 }

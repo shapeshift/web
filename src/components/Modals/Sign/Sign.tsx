@@ -7,14 +7,14 @@ import {
   Button,
   Collapse,
   Image,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Textarea,
-  Input
+  Textarea
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -37,9 +37,9 @@ export const SignModal = (input: any) => {
 
   const HDwalletPayload = input.invocation.unsignedTx.HDwalletPayload
 
-  const [nonce, setNonce] = useState("")
-  const [gasPrice, setGasPrice] = useState("")
-  const [gasLimit, setGasLimit] = useState("")
+  const [nonce, setNonce] = useState('')
+  const [gasPrice, setGasPrice] = useState('')
+  const [gasLimit, setGasLimit] = useState('')
 
   useEffect(() => {
     if (!HDwalletPayload || !HDwalletPayload.nonce) return
@@ -68,7 +68,7 @@ export const SignModal = (input: any) => {
     //onCloseModal
     ipcRenderer.send('@modal/close', {})
     close()
-  }, [nonce, gasLimit, gasPrice])
+  }, [nonce, gasLimit, gasPrice, close, keepkey, input.invocation.unsignedTx])
 
   const HandleReject = async () => {
     //show sign
@@ -206,7 +206,7 @@ export const SignModal = (input: any) => {
                 </Row.Value>
               </Row>
 
-              {nonce &&
+              {nonce && (
                 <Row>
                   <Row.Label>
                     <Text translation={'modals.sign.nonce'} />
@@ -215,14 +215,16 @@ export const SignModal = (input: any) => {
                     size='xs'
                     width='25%'
                     textAlign='right'
-                    value={parseInt(nonce, 16)} onChange={(e) => {
+                    value={parseInt(nonce, 16)}
+                    onChange={e => {
                       if (!e.target.value) setNonce((0).toString(16))
                       setNonce(`0x${Number(e.target.value).toString(16)}`)
-                    }} />
+                    }}
+                  />
                 </Row>
-              }
+              )}
 
-              {gasPrice &&
+              {gasPrice && (
                 <Row>
                   <Row.Label>
                     <Text translation={'modals.sign.gasPrice'} />
@@ -231,14 +233,16 @@ export const SignModal = (input: any) => {
                     size='xs'
                     width='25%'
                     textAlign='right'
-                    value={parseInt(gasPrice, 16)} onChange={(e) => {
+                    value={parseInt(gasPrice, 16)}
+                    onChange={e => {
                       if (!e.target.value) setGasPrice((0).toString(16))
                       setGasPrice(`0x${Number(e.target.value).toString(16)}`)
-                    }} />
+                    }}
+                  />
                 </Row>
-              }
+              )}
 
-              {gasLimit &&
+              {gasLimit && (
                 <Row>
                   <Row.Label>
                     <Text translation={'modals.sign.gasLimit'} />
@@ -247,12 +251,14 @@ export const SignModal = (input: any) => {
                     size='xs'
                     width='25%'
                     textAlign='right'
-                    value={parseInt(gasLimit, 16)} onChange={(e) => {
+                    value={parseInt(gasLimit, 16)}
+                    onChange={e => {
                       if (!e.target.value) setGasLimit((0).toString(16))
                       setGasLimit(`0x${Number(e.target.value).toString(16)}`)
-                    }} />
+                    }}
+                  />
                 </Row>
-              }
+              )}
 
               {/*<Row>*/}
               {/*  <Row.Label>*/}

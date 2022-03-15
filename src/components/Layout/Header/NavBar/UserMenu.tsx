@@ -11,12 +11,12 @@ import { Button, Flex, HStack, Link, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaPuzzlePiece, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
-import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 

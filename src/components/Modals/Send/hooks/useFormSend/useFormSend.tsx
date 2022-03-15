@@ -33,18 +33,19 @@ export const useFormSend = () => {
         const adapterType = adapter.getType()
 
         let result
-
         const { estimatedFees, feeType, address: to } = data
         if (adapterType === ChainTypes.Ethereum) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Ethereum>
           const gasPrice = fees.chainSpecific.gasPrice
           const gasLimit = fees.chainSpecific.gasLimit
+          const maxFeePerGas = fees.chainSpecific.maxFeePerGas
+          const maxPriorityFeePerGas = fees.chainSpecific.maxPriorityFeePerGas
           const address = isEthAddress(to) ? to : ((await ensLookup(to)).address as string)
           result = await (adapter as ChainAdapter<ChainTypes.Ethereum>).buildSendTransaction({
             to: address,
             value,
             wallet,
-            chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit },
+            chainSpecific: { erc20ContractAddress: data.asset.tokenId, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
             sendMax: data.sendMax
           })
         } else if (adapterType === ChainTypes.Bitcoin) {

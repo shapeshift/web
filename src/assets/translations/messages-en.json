@@ -40,6 +40,11 @@
     "viewAsset": "View Asset",
     "days": "Days"
   },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "Something went wrong",
+    "cta": "Try again"
+  },
   "updateToast": {
     "body": "A new version of the app is available",
     "cta": "Reload App"

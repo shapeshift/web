@@ -1,12 +1,14 @@
 import { Button, Center, Heading, Stack } from '@chakra-ui/react'
 import { FallbackProps } from 'react-error-boundary'
 import { FaSadTear } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
 import { Layout } from 'components/Layout/Layout'
 import { Main } from 'components/Layout/Main'
 import { RawText } from 'components/Text'
 
 export const ErrorPage = ({ error, resetErrorBoundary }: FallbackProps) => {
+  const translate = useTranslate()
   return (
     <Layout display='flex'>
       <Main height='100%' display='flex' width='full'>
@@ -16,12 +18,12 @@ export const ErrorPage = ({ error, resetErrorBoundary }: FallbackProps) => {
               <FaSadTear />
             </IconCircle>
             <Heading lineHeight='shorter' fontSize='6xl'>
-              Oops!
+              {translate('errorPage.title')}
             </Heading>
-            <RawText fontSize='xl'>Something went wrong</RawText>
+            <RawText fontSize='xl'>{translate('errorPage.body')}</RawText>
             <pre>{error.message}</pre>
             <Button colorScheme='blue' onClick={resetErrorBoundary}>
-              Try again
+              {translate('errorPage.cta')}
             </Button>
           </Stack>
         </Center>

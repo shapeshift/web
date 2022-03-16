@@ -3298,7 +3298,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.27", "@yfi/sdk@^1.0.29", "@yfi/sdk@^1.0.30":
+"@yfi/sdk@^1.0.30":
   version "1.0.30"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.0.30.tgz#33a8ac31d0d2702ac8d08dfc8e47fbbc5350416b"
   integrity sha512-8UR77Oc7V2ZDH+BdMDIsUYFMGhOuKeDxutR0PVAmElW+Mqn/8V2Lux8JuGb4f6vbDGhc6+gX2ukwMccxu1pGFQ==

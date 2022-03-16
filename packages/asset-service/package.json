@@ -33,14 +33,14 @@
   },
   "peerDependencies": {
     "@shapeshiftoss/caip": "^2.0.0",
-    "@shapeshiftoss/types": "^2.0.0"
+    "@shapeshiftoss/types": "^2.1.0"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.5.2",
     "@shapeshiftoss/caip": "^2.0.0",
-    "@shapeshiftoss/types": "^2.0.0",
+    "@shapeshiftoss/types": "^2.1.0",
     "@types/lodash": "^4.14.172",
-    "@yfi/sdk": "^1.0.27",
+    "@yfi/sdk": "^1.0.30",
     "dotenv": "^14.3.0",
     "web3": "^1.7.0"
   }

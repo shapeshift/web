@@ -18,16 +18,6 @@ import axios from "axios";
 const sleep = wait.sleep;
 export let walletConnectClient: any
 const keccak256 = require('keccak256')
-const Unchained = require('openapi-client-axios').default;
-
-let unchainedEth = new Unchained({
-    definition: "https://dev-api.ethereum.shapeshift.com/swagger.json",
-    axiosConfigDefaults: {
-        headers: {
-        },
-    }
-});
-
 
 export function getCachedSession(): any {
     const local = localStorage ? localStorage.getItem("walletconnect") : null;
@@ -157,6 +147,12 @@ export async function pairWalletConnect(event: any, payload: any) {
          }
 
 
+         //method eth_signTypedData_v4
+         params [
+           '0x33b35c665496bA8E71B22373843376740401F106',
+           '{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Permit":[{"name":"owner","type":"address"},{"name":"spender","type":"address"},{"name":"value","type":"uint256"},{"name":"nonce","type":"uint256"},{"name":"deadline","type":"uint256"}]},"domain":{"name":"USD Coin","version":"2","verifyingContract":"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48","chainId":1},"primaryType":"Permit","message":{"owner":"0x33b35c665496bA8E71B22373843376740401F106","spender":"0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45","value":"5056513","nonce":0,"deadline":1647408940}}'
+         ]
+
          */
 
         walletConnectClient.on("call_request", async (error, payload) => {
@@ -177,10 +173,6 @@ export async function pairWalletConnect(event: any, payload: any) {
             // let accountInfo = await unchainedEth.instance.GetAccount(params[0].from)
             // console.log("accountInfo: ",accountInfo)
 
-            let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + params[0].from)
-            accountInfo = accountInfo.data
-            console.log("accountInfo: ", accountInfo)
-
             //gasPrice
             let gasInfo = await axios.get("https://api.ethereum.shapeshift.com/api/v1/gas/fees")
             gasInfo = gasInfo.data
@@ -195,32 +187,88 @@ export async function pairWalletConnect(event: any, payload: any) {
             gasPrice = "0x" + gasPrice.toString(16);
             console.log("gasPrice: ", gasPrice)
 
-            // @ts-ignore
-            let nonce = accountInfo.nonce
-            console.log("nonce: ", nonce)
-            nonce = "0x" + nonce.toString(16);
-            console.log("nonce: ", nonce)
+            let HDwalletPayload
+            let from
+            let accountInfo
+            switch (method) {
+                case 'eth_signTypedData_v4':
+                    //TODO handle EIP712 better
+                    from = params[0]
 
-            //TODO track last Nonce Users
-            //if nonce <= lastNonceUsed
-            //nonce = lastNonceUsed + 1
+                    accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + from)
+                    accountInfo = accountInfo.data
+                    console.log("accountInfo: ", accountInfo)
 
-            let HDwalletPayload = {
-                "addressNList": [
-                    2147483692,
-                    2147483708,
-                    2147483648,
-                    0,
-                    0
-                ],
-                "nonce": nonce,
-                "gasPrice": gasPrice, //TODO lookup gasPrice
-                "gasLimit": params[0].gas, //TODO lookup gasLimit
-                "value": params[0].value || "0x0",
-                "to": params[0].to,
-                "data": params[0].data,
-                "chainId": 1
+                    // @ts-ignore
+                    let nonce = accountInfo.nonce
+                    console.log("nonce: ", nonce)
+                    nonce = "0x" + nonce.toString(16);
+                    console.log("nonce: ", nonce)
+
+                    //TODO track last Nonce Users
+                    //if nonce <= lastNonceUsed
+                    //nonce = lastNonceUsed + 1
+
+                    let typedParams = JSON.parse(params[1])
+                    let value = typedParams.message.value.toString(16)
+                    value = "0x"+value
+
+                    HDwalletPayload = {
+                        "addressNList": [
+                            2147483692,
+                            2147483708,
+                            2147483648,
+                            0,
+                            0
+                        ],
+                        "nonce": nonce,
+                        "gasPrice": gasPrice, //TODO lookup gasPrice
+                        "gasLimit": "0x13880", //TODO lookup gasLimit
+                        "value": value || "0x0",
+                        "to": typedParams.owner,
+                        "data": typedParams.spender,
+                        "chainId": 1
+                    }
+                    break;
+                case 'eth_sendTransaction':
+                    from = params[0].from
+
+                    accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + params[0].from)
+                    accountInfo = accountInfo.data
+                    console.log("accountInfo: ", accountInfo)
+
+
+                    // @ts-ignore
+                    let nonce = accountInfo.nonce
+                    console.log("nonce: ", nonce)
+                    nonce = "0x" + nonce.toString(16);
+                    console.log("nonce: ", nonce)
+
+                    //TODO track last Nonce Users
+                    //if nonce <= lastNonceUsed
+                    //nonce = lastNonceUsed + 1
+
+                    HDwalletPayload = {
+                        "addressNList": [
+                            2147483692,
+                            2147483708,
+                            2147483648,
+                            0,
+                            0
+                        ],
+                        "nonce": nonce,
+                        "gasPrice": gasPrice, //TODO lookup gasPrice
+                        "gasLimit": params[0].gas, //TODO lookup gasLimit
+                        "value": params[0].value || "0x0",
+                        "to": params[0].to,
+                        "data": params[0].data,
+                        "chainId": 1
+                    }
+                    break;
+                default:
+                    throw Error("Unhandled Method: "+method)
             }
+
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
                 if (!await createWindow()) return

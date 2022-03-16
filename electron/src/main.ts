@@ -59,7 +59,7 @@ const Unchained = require('openapi-client-axios').default;
 import fs from 'fs'
 //Modules
 import { update_keepkey_status } from './keepkey'
-import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
+import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
 import { isWin, isLinux, isMac } from './constants'
@@ -120,7 +120,7 @@ if (process.env.PROD) {
     global.__statics = __dirname
 }
 
-export const createWindow = () => new Promise<boolean>((resolve, reject) => {
+export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
     log.info('Creating window!')
 
     //Auto launch on startup
@@ -139,6 +139,7 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
             })
     }
 
+    if (!bridgeRunning) start_bridge()
     /**
      * Initial window options
      *
@@ -181,6 +182,8 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
 
     windows.mainWindow.once('ready-to-show', () => {
         shouldShowWindow = true;
+        if (windows.mainWindow) windows.mainWindow.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+        if (windows.mainWindow) windows.mainWindow.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
 
@@ -198,6 +201,12 @@ app.setAsDefaultProtocolClient('keepkey')
 // Export so you can access it from the renderer thread
 
 app.on('ready', async () => {
+    try {
+        createTray()
+    } catch (e) {
+        log.error('Failed to create tray! e: ', e)
+    }
+
     createSplashWindow()
     if (!windows.splash) return
     if (isDev || isLinux) skipUpdateCheck(windows.splash)
@@ -229,8 +238,12 @@ app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-app.on('before-quit', () => {
+app.on('before-quit', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    if (keepkey.wallet) {
+        await keepkey.wallet.cancel()
+        await keepkey.wallet.softReset()
+    }
     isQuitting = true
 })
 
@@ -416,7 +429,7 @@ ipcMain.on('@bridge/start', async event => {
 ipcMain.on('@connect/pair', async (event, data) => {
     const tag = TAG + ' | onPairWalletConnect | '
     try {
-        pairWalletConnect(event,data)
+        pairWalletConnect(event, data)
     } catch (e) {
         log.error(tag, e)
     }
@@ -442,11 +455,12 @@ ipcMain.on('@app/start', async (event, data) => {
         // let accountInfo = await unchainedEth.instance.GetAccount("0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
         // console.log("accountInfo: ",accountInfo)
 
-        let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/"+"0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
-        console.log("accountInfo: ",accountInfo)
+        let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + "0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
+        console.log("accountInfo: ", accountInfo)
 
         //load DB
         try {
+            log.info(tag, 2)
             db.find({}, function (err, docs) {
                 for (let i = 0; i < docs.length; i++) {
                     let doc = docs[i]
@@ -486,35 +500,25 @@ ipcMain.on('@app/start', async (event, data) => {
         }
 
 
-        try {
-            createTray(event)
-        } catch (e) {
-            log.error('Failed to create tray! e: ', e)
-        }
-        try {
-            start_bridge()
-        } catch (e) {
-            log.error('Failed to start_bridge! e: ', e)
-        }
 
-        usb.on('attach', function (device) {
-            log.info('attach device: ', device)
-            event.sender.send('attach', { device })
-            if (!bridgeRunning) start_bridge()
-            update_keepkey_status(event)
-        })
 
-        usb.on('detach', function (device) {
-            log.info('detach device: ', device)
-            event.sender.send('detach', { device })
-            //stop_bridge(event)
-            update_keepkey_status(event)
-        })
+
     } catch (e) {
         log.error('e: ', e)
         log.error(tag, e)
     }
-}
+})
 
+usb.on('attach', function (device) {
+    log.info('attach device: ', device)
+    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
+    if (!bridgeRunning) start_bridge()
+    update_keepkey_status(event)
+})
 
-)
+usb.on('detach', function (device) {
+    log.info('detach device: ', device)
+    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
+    //stop_bridge(event)
+    update_keepkey_status(event)
+})

@@ -80,7 +80,13 @@ export const WalletConnectedMenuRoutes = ({
             <WalletImage walletInfo={walletInfo} />
             <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
               <RawText>{walletInfo?.name}</RawText>
-              <Text mr={3} translation='Loading...' fontSize='sm' color='yellow.500' />
+              <Text
+                ml={3}
+                mr={3}
+                translation='walletProvider.keepKey.settings.loadingText'
+                fontSize='sm'
+                color='yellow.500'
+              />
             </Flex>
           </Flex>
         </MenuGroup>
@@ -107,15 +113,15 @@ export const WalletConnectedMenuRoutes = ({
           </Flex>
           <MenuDivider />
           <ExpandedMenuItem
-            label='Bootloader'
-            value='Up to date'
+            label={translate('walletProvider.keepKey.settings.menuLabels.bootloader')}
+            value={translate('walletProvider.keepKey.settings.status.upToDate')}
             badge='v3.253'
             badgeColor='green'
             hasSubmenu={true}
           />
           <ExpandedMenuItem
-            label='Firmware'
-            value='Update available'
+            label={translate('walletProvider.keepKey.settings.menuLabels.firmware')}
+            value={translate('walletProvider.keepKey.settings.status.updateAvailable')}
             badge='v6.04'
             badgeColor='yellow'
             hasSubmenu={true}
@@ -123,26 +129,43 @@ export const WalletConnectedMenuRoutes = ({
           />
           <MenuDivider />
           <ExpandedMenuItem label='Label' value={walletInfo?.name} hasSubmenu={true} />
-          <ExpandedMenuItem label='PIN' value='********' hasSubmenu={true} />
+          <ExpandedMenuItem
+            onClick={handleChangePinClick}
+            label={translate('walletProvider.keepKey.settings.menuLabels.pin')}
+            value='********'
+            hasSubmenu={true}
+          />
           <MenuDivider />
         </MenuGroup>
         <MenuGroup title={'Advanced'} ml={3} color='gray.500'>
-          <ExpandedMenuItem label='Device Timeout' value='10 Minutes' hasSubmenu={true} />
           <ExpandedMenuItem
-            label='PIN Caching'
+            label={translate('walletProvider.keepKey.settings.menuLabels.deviceTimeout')}
+            value='10 Minutes'
             hasSubmenu={true}
-            value={walletFeatures.pinCached ? 'Enabled' : 'Disabled'}
+          />
+          <ExpandedMenuItem
+            label={translate('walletProvider.keepKey.settings.menuLabels.pinCaching')}
+            hasSubmenu={true}
+            value={
+              walletFeatures.pinCached
+                ? translate('walletProvider.keepKey.settings.status.enabled')
+                : translate('walletProvider.keepKey.settings.status.disabled')
+            }
             valueDisposition={walletFeatures.pinCached ? 'positive' : 'neutral'}
           />
           <ExpandedMenuItem
-            label='Passphrase'
-            value={walletFeatures.passphraseProtection ? 'Enabled' : 'Disabled'}
+            label={translate('walletProvider.keepKey.settings.menuLabels.passphrase')}
+            value={
+              walletFeatures.passphraseProtection
+                ? translate('walletProvider.keepKey.settings.status.enabled')
+                : translate('walletProvider.keepKey.settings.status.disabled')
+            }
             valueDisposition={walletFeatures.passphraseProtection ? 'positive' : 'neutral'}
             hasSubmenu={true}
           />
           <MenuDivider />
           <MenuItem color='red.500' icon={<CloseIcon />}>
-            Wipe Device
+            {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
           </MenuItem>
         </MenuGroup>
       </>

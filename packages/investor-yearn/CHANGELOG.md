@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-yearn-v1.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.4.2...@shapeshiftoss/investor-yearn-v1.4.3) (2022-03-16)
+
+
+### Bug Fixes
+
+* update json rpc ([#442](https://github.com/shapeshift/lib/issues/442)) ([abfb16c](https://github.com/shapeshift/lib/commit/abfb16c3d28fa40bbb20e9834d95dca9d13e008a))
+
 # [@shapeshiftoss/investor-yearn-v1.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.4.1...@shapeshiftoss/investor-yearn-v1.4.2) (2022-03-03)
 
 # [@shapeshiftoss/investor-yearn-v1.4.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-yearn-v1.4.0...@shapeshiftoss/investor-yearn-v1.4.1) (2022-02-28)

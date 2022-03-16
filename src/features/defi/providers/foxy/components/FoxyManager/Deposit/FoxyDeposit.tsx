@@ -13,6 +13,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
@@ -50,7 +51,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { initialState, reducer, FoxyDepositActionType } from './DepositReducer'
+import { FoxyDepositActionType, initialState, reducer } from './DepositReducer'
 
 enum DepositPath {
   Deposit = '/',
@@ -70,16 +71,8 @@ export const routes = [
   { step: 3, path: DepositPath.Status, label: 'Status' }
 ]
 
-type FoxyOpportunityApi = {
-  allowance: Function
-  estimateDepositGas: Function
-  getGasPrice: Function
-  estimateApproveGas: Function
-  approve: Function
-}
-
 export type FoxyDepositProps = {
-  api: FoxyOpportunityApi
+  api: FoxyApi
 }
 
 export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
@@ -89,34 +82,30 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chain, contractAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  // const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const assetCAIP19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  // const feeAssetCAIP19 = caip19.toCAIP19({
-  //   chain,
-  //   network,
-  //   assetNamespace: AssetNamespace.Slip44,
-  //   assetReference: AssetReference.Ethereum
-  // })
+  const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace: AssetNamespace.Slip44,
+    assetReference: AssetReference.Ethereum
+  })
 
-  const feeAssetCAIP19 = 'eip155:1/slip44:60'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
-  console.log({ feeAsset })
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
-  const vaultCAIP19 = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-  // const vaultCAIP19 = caip19.toCAIP19({
-  //   chain,
-  //   network,
-  //   assetNamespace,
-  //   assetReference: vaultAddress
-  // })
+  const vaultCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace,
+    assetReference: contractAddress
+  })
   const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
 
   // user info
@@ -132,15 +121,12 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !vaultAddress) return
-        const address = ''
-        const foxyOpportunity = ''
-        const pricePerShare = ''
-        // const [address, vault, pricePerShare] = await Promise.all([
-        //   chainAdapter.getAddress({ wallet: walletState.wallet }),
-        //   api.findByDepositVaultAddress(vaultAddress),
-        //   api.pricePerShare({ vaultAddress })
-        // ])
+        if (!walletState.wallet || !contractAddress) return
+        const [address, foxyOpportunity, pricePerShare] = await Promise.all([
+          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          api.getFoxyOpportunityByStakingAddress(contractAddress),
+          api.pricePerShare()
+        ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: FoxyDepositActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
         dispatch({
@@ -152,17 +138,16 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         console.error('FoxyDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, contractAddress, walletState.wallet])
 
   const getApproveGasEstimate = async () => {
-    // if (!state.userAddress || !tokenId) return
-    console.log('getApproveGasEstimate ')
+    if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateApproveGas({
-          tokenContractAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-          contractAddress: '0x21910Ea77801273918f0Ee46FFcaf06F80ec171C',
-          userAddress: '0x9a2D593725045d1727D525Dd07a396f9fF079Bb1'
+          tokenContractAddress: tokenId,
+          contractAddress,
+          userAddress: state.userAddress
         }),
         api.getGasPrice()
       ])
@@ -179,23 +164,20 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const getDepositGasEstimate = async (deposit: DepositValues) => {
-    // if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !tokenId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
           // tokenContractAddress: tokenId,
-          tokenContractAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-          contractAddress: '0x21910Ea77801273918f0Ee46FFcaf06F80ec171C',
+          tokenContractAddress: tokenId,
+          contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)
             .times(`1e+${asset.precision}`)
             .decimalPlaces(0),
-          // userAddress: state.userAddress,
-          userAddress: '0x9a2D593725045d1727D525Dd07a396f9fF079Bb1'
+          userAddress: state.userAddress
         }),
         api.getGasPrice()
       ])
-
-      console.log({ gasPrice, gasLimit })
       return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
     } catch (error) {
       console.error('FoxyDeposit:getDepositGasEstimate error:', error)
@@ -209,28 +191,21 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const handleContinue = async (formValues: DepositValues) => {
-    console.log({ userAddress: state.userAddress })
-    // if (!state.userAddress) return
+    if (!state.userAddress) return
     // set deposit state for future use
     dispatch({ type: FoxyDepositActionType.SET_DEPOSIT, payload: formValues })
-    console.log('checking allowance....')
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
-        tokenContractAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-        contractAddress: '0x21910Ea77801273918f0Ee46FFcaf06F80ec171C',
-        userAddress: '0x9a2D593725045d1727D525Dd07a396f9fF079Bb1'
-        // userAddress: state.userAddress
+        tokenContractAddress: tokenId,
+        contractAddress,
+        userAddress: state.userAddress
       })
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
-      console.log({ allowance, _allowance })
-
       // Skip approval step if user allowance is greater than requested deposit amount
       if (allowance.gt(formValues.cryptoAmount)) {
-        console.log('getting gas deposit estimate...')
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)
-        console.log({ estimatedGasCrypto })
         if (!estimatedGasCrypto) return
         dispatch({
           type: FoxyDepositActionType.SET_DEPOSIT,
@@ -259,21 +234,21 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
 
   const handleApprove = async () => {
     // TODO: wire this back up after testing
-    // if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (!tokenId || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
       await api.approve({
-        tokenContractAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-        contractAddress: '0x21910Ea77801273918f0Ee46FFcaf06F80ec171C',
-        userAddress: '0x9a2D593725045d1727D525Dd07a396f9fF079Bb1',
+        tokenContractAddress: tokenId,
+        contractAddress,
+        userAddress: state.userAddress,
         wallet: walletState.wallet
       })
       await poll({
         fn: () =>
           api.allowance({
-            tokenContractAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
-            contractAddress: '0x21910Ea77801273918f0Ee46FFcaf06F80ec171C',
-            userAddress: '0x9a2D593725045d1727D525Dd07a396f9fF079Bb1'
+            tokenContractAddress: tokenId,
+            contractAddress,
+            userAddress: state.userAddress!
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
@@ -284,7 +259,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
       })
       // Get deposit gas estimate
       const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
-      console.log({ estimatedGasCrypto })
       if (!estimatedGasCrypto) return
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
@@ -309,30 +283,27 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
-      const txid = ''
-      const gasPrice = ''
-      // const [txid, gasPrice] = await Promise.all([
-      //   api.deposit({
-      //     amountDesired: bnOrZero(state.deposit.cryptoAmount)
-      //       .times(`1e+${asset.precision}`)
-      //       .decimalPlaces(0),
-      //     tokenContractAddress: tokenId,
-      //     userAddress: state.userAddress,
-      //     vaultAddress,
-      //     wallet: walletState.wallet
-      //   }),
-      //   api.getGasPrice()
-      // ])
+      const [txid, gasPrice] = await Promise.all([
+        api.deposit({
+          amountDesired: bnOrZero(state.deposit.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
+          tokenContractAddress: tokenId,
+          userAddress: state.userAddress,
+          contractAddress,
+          wallet: walletState.wallet
+        }),
+        api.getGasPrice()
+      ])
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
       history.push(DepositPath.Status)
 
-      const transactionReceipt = { status: false, gasUsed: '1' }
-      // const transactionReceipt = await poll({
-      //   fn: () => api.getTxReceipt({ txid }),
-      //   validate: (result: TransactionReceipt) => !isNil(result),
-      //   interval: 15000,
-      //   maxAttempts: 30
-      // })
+      const transactionReceipt = await poll({
+        fn: () => api.getTxReceipt({ txid }),
+        validate: (result: TransactionReceipt) => !isNil(result),
+        interval: 15000,
+        maxAttempts: 30
+      })
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
         payload: {

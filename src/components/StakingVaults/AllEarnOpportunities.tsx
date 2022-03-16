@@ -10,6 +10,7 @@ import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 
 import { StakingTable } from './StakingTable'
 
@@ -21,28 +22,20 @@ export const AllEarnOpportunities = () => {
     dispatch
   } = useWallet()
   const sortedVaults = useSortedYearnVaults()
-  // TODO: wire up a hook to return foxy opportunities
-  const sortedFoxyOpportunities = [
-    {
-      contractAddress: '0xFoxyContract',
-      tokenAddress: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
-    }
-  ]
+  const { opportunities } = useFoxyBalances()
 
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: sortedFoxyOpportunities
+    foxyArray: opportunities
   })
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
       const { type, provider, contractAddress, chain, tokenAddress } = opportunity
-      console.log({ isConnected })
       if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }
-      console.log({ type, provider })
       history.push({
         pathname: `/defi/${type}/${provider}/deposit`,
         search: qs.stringify({

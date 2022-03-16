@@ -75,6 +75,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
 }
 
 const transformFoxy = (foxies: any[]): EarnOpportunityType[] => {
+  console.info(foxies)
   return foxies.map(foxy => {
     return {
       type: DefiType.TokenStaking,

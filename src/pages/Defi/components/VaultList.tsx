@@ -20,7 +20,7 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
 
   return (
     <Box mb={6}>
-      <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, lg: 0 }}>
+      <Flex alignItems='center' mb={6} justifyContent='space-between' px={{ base: 4, xl: 0 }}>
         <Flex alignItems='center' color='gray.500'>
           <IconCircle>
             <FaPiggyBank />

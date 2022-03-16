@@ -12,7 +12,6 @@ export type Preferences = {
 }
 
 const initialState: Preferences = {
-  // TODO(0xdef1cafe): this whole thing needs to be deleted once we have the account -> address abstraction
   featureFlags: {
     CosmosInvestor: getConfig().REACT_APP_FEATURE_COSMOS_INVESTOR,
     CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS

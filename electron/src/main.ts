@@ -150,7 +150,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
         height: 780,
         show: false,
         backgroundColor: 'white',
-        // autoHideMenuBar: true,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -240,10 +240,6 @@ app.on("activate", function () {
 
 app.on('before-quit', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (keepkey.wallet) {
-        await keepkey.wallet.cancel()
-        await keepkey.wallet.softReset()
-    }
     isQuitting = true
 })
 

@@ -26,6 +26,8 @@
     "@shapeshiftoss/chain-adapters": "^2.4.1",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.19.0",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.19.0",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.19.0",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.19.0",
     "@shapeshiftoss/hdwallet-metamask": "^1.19.0",
     "@shapeshiftoss/hdwallet-native": "^1.19.0",

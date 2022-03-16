@@ -4,7 +4,6 @@ const TAG = ' | KeepKey | '
 
 import { getConfig, updateConfig } from "keepkey-config";
 
-
 import log from "electron-log";
 import usb from "usb";
 import { ipcMain } from "electron";
@@ -66,7 +65,7 @@ export const update_keepkey_status = async function () {
         //
         let firmwareInfo = await Hardware.getLatestFirmwareData()
         log.info(tag, "firmwareInfo: ", firmwareInfo)
-        windows?.mainWindow?.webContents.send('signTx', { payload: firmwareInfo })
+        windows?.mainWindow?.webContents.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
 
         //init
         let resultInit = await Hardware.init()
@@ -80,7 +79,7 @@ export const update_keepkey_status = async function () {
             if (resultInit.bootloaderVersion !== "v1.1.0" && !config.updatedBootloader) {
                 windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
                 updateConfig({ isNewDevice: true })
-                windows?.mainWindow?.webContents.send('openBootloaderUpdate', { payload: true })
+                windows?.mainWindow?.webContents.send('setUpdaterMode', { payload: true })
             }
             if (config.updatedBootloader) {
                 //update firmware next
@@ -109,6 +108,6 @@ export const update_keepkey_status = async function () {
             log.info(tag, "UPDATER MODE DETECTED!")
         }
     } catch (e) {
-        log.error(e)
+        log.error(tag,e)
     }
 }

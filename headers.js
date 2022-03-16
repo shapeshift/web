@@ -43,7 +43,7 @@ const cspMeta = Object.entries({
     process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS,
     process.env.REACT_APP_GEM_ENV,
     process.env.REACT_APP_GEM_API_KEY,
-    process.env.REACT_APP_GEM_URL,
+    'https://onramp.gem.co',
     // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21
     'https://api-osmosis.imperator.co/tokens/',
     process.env.REACT_APP_ETHEREUM_NODE_URL,

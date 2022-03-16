@@ -120,7 +120,7 @@ export const makeGemPartnerUrl = memoize(
   (intent: FiatRampAction, selectedAssetTicker: string | undefined, address: string) => {
     if (!selectedAssetTicker) return
 
-    const GEM_URL = getConfig().REACT_APP_GEM_URL
+    const GEM_URL = 'https://onramp.gem.co'
     const partnerName = 'ShapeShift'
     const environment = getConfig().REACT_APP_GEM_ENV
     const partnerIconUrl =

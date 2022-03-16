@@ -22,7 +22,6 @@ jobs:
       REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
       REACT_APP_GEM_ENV: production
       REACT_APP_GEM_API_KEY: 17baca45f492df6b8974d4f832a659c92644acafea3284cfb0d52550dd3bde1a
-      REACT_APP_GEM_URL: https://onramp.gem.co
     steps:
       - name: Checkout
         uses: actions/checkout@v2

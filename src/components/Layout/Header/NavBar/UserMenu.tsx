@@ -4,6 +4,7 @@ import {
   CloseIcon,
   ExternalLinkIcon,
   RepeatIcon,
+  UpDownIcon,
   WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
@@ -11,7 +12,7 @@ import { Button, Flex, HStack, Link, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaPuzzlePiece, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { WalletConnectIcon } from 'components/Icons/WalletConnect'
+// import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
@@ -188,7 +189,7 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuItem icon={<WalletConnectIcon />} onClick={handleWalletConnect}>
+        <MenuItem icon={<UpDownIcon />} onClick={handleWalletConnect}>
           <Text translation='common.walletConnect' />
         </MenuItem>
         <MenuItem

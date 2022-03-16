@@ -1,3 +1,5 @@
+import {windows} from "./main";
+
 const TAG = ' | KeepKey | '
 
 import { getConfig, updateConfig } from "keepkey-config";
@@ -57,32 +59,32 @@ ipcMain.on('@keepkey/info', async (event, data) => {
     }
 })
 
-export const update_keepkey_status = async function (event) {
+export const update_keepkey_status = async function () {
     let tag = " | update_keepkey_status | "
     try {
         let config = getConfig()
         //
         let firmwareInfo = await Hardware.getLatestFirmwareData()
         log.info(tag, "firmwareInfo: ", firmwareInfo)
-        event.sender.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
+        windows?.mainWindow?.webContents.send('signTx', { payload: firmwareInfo })
 
         //init
         let resultInit = await Hardware.init()
         if (resultInit && resultInit.success && resultInit.bootloaderMode) {
-            event.sender.send('setUpdaterMode', { payload: true })
+            windows?.mainWindow?.webContents.send('setUpdaterMode', { payload: true })
         }
         if (resultInit && resultInit.success && resultInit.wallet) {
             shared.KEEPKEY_FEATURES = resultInit
-            event.sender.send('loadKeepKeyInfo', { payload: resultInit })
+            windows?.mainWindow?.webContents.send('loadKeepKeyInfo', { payload: resultInit })
             //if not latest bootloader, set need bootloader update
             if (resultInit.bootloaderVersion !== "v1.1.0" && !config.updatedBootloader) {
-                event.sender.send('openBootloaderUpdate', {})
+                windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
                 updateConfig({ isNewDevice: true })
-                event.sender.send('setUpdaterMode', { payload: true })
+                windows?.mainWindow?.webContents.send('openBootloaderUpdate', { payload: true })
             }
             if (config.updatedBootloader) {
                 //update firmware next
-                event.sender.send('openFirmwareUpdate', {})
+                windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
             }
         }
         log.info(tag, "resultInit: ", resultInit)
@@ -94,8 +96,7 @@ export const update_keepkey_status = async function (event) {
         if (resultWebUsb) {
             log.info(tag, "KeepKey connected in webusb!")
             //TODO only trigger if firmware modal open
-            event.sender.send('onCompleteFirmwareUpload', {})
-            //get version
+            windows?.mainWindow?.webContents.send('onCompleteFirmwareUpload', {})
         }
 
         let resultPreWebUsb = usb.findByIds(11044, 1)

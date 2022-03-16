@@ -73,6 +73,9 @@ export const BootloaderModal = () => {
                   </div>
                 ) : (
                   <div>
+                    <h3>
+                      <Text translation={'modals.firmware.cta'} />
+                    </h3>
                     <Row>
                       <Row.Label>
                         <Text translation={'modals.firmware.bootloader'} />

@@ -314,6 +314,7 @@
     },
     "firmware": {
       "header": "Update Required for Your KeepKey!",
+      "cta": "Your KeepKey is out of date! lets update your firmware.",
       "bootloaderUpdate": "Updating your devices BootLoader",
       "FirmwareUpdate": "Updating your devices Firmware",
       "update": "check KeepKey Status",

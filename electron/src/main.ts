@@ -494,7 +494,7 @@ ipcMain.on('@app/start', async (event, data) => {
 
         //onStart
         try {
-            update_keepkey_status(event)
+            update_keepkey_status()
         } catch (e) {
             log.error(e)
         }
@@ -516,15 +516,23 @@ ipcMain.on('@app/start', async (event, data) => {
 })
 
 usb.on('attach', function (device) {
-    log.info('attach device: ', device)
-    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
-    if (!bridgeRunning) start_bridge()
-    update_keepkey_status(event)
+    try{
+        log.info('attach device: ', device)
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
+        if (!bridgeRunning) start_bridge()
+        update_keepkey_status()
+    }catch(e){
+        log.error(e)
+    }
 })
 
 usb.on('detach', function (device) {
-    log.info('detach device: ', device)
-    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
-    //stop_bridge(event)
-    update_keepkey_status(event)
+    try{
+        log.info('detach device: ', device)
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
+        //stop_bridge(event)
+        update_keepkey_status()
+    }catch(e){
+        log.error(e)
+    }
 })

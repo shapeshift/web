@@ -193,50 +193,15 @@ export async function pairWalletConnect(event: any, payload: any) {
             switch (method) {
                 case 'eth_signTypedData_v4':
                     //TODO handle EIP712 better
-                    from = params[0]
-
-                    accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + from)
-                    accountInfo = accountInfo.data
-                    console.log("accountInfo: ", accountInfo)
-
-                    // @ts-ignore
-                    let nonce = accountInfo.nonce
-                    console.log("nonce: ", nonce)
-                    nonce = "0x" + nonce.toString(16);
-                    console.log("nonce: ", nonce)
-
-                    //TODO track last Nonce Users
-                    //if nonce <= lastNonceUsed
-                    //nonce = lastNonceUsed + 1
-
-                    let typedParams = JSON.parse(params[1])
-                    let value = typedParams.message.value.toString(16)
-                    value = "0x"+value
-
-                    HDwalletPayload = {
-                        "addressNList": [
-                            2147483692,
-                            2147483708,
-                            2147483648,
-                            0,
-                            0
-                        ],
-                        "nonce": nonce,
-                        "gasPrice": gasPrice, //TODO lookup gasPrice
-                        "gasLimit": "0x13880", //TODO lookup gasLimit
-                        "value": value || "0x0",
-                        "to": typedParams.owner,
-                        "data": typedParams.spender,
-                        "chainId": 1
-                    }
+                    throw Error("EIP712 not supported on Keepkey!")
                     break;
+                case "eth_signTransaction":
                 case 'eth_sendTransaction':
                     from = params[0].from
 
                     accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + params[0].from)
                     accountInfo = accountInfo.data
                     console.log("accountInfo: ", accountInfo)
-
 
                     // @ts-ignore
                     let nonce = accountInfo.nonce
@@ -265,6 +230,12 @@ export async function pairWalletConnect(event: any, payload: any) {
                         "chainId": 1
                     }
                     break;
+                case 'eth_sign':
+                    throw Error("eth_sign not supported on Keepkey!")
+                    break;
+                case 'personal_sign':
+                    throw Error("personal_sign not supported on Keepkey!")
+                    break;
                 default:
                     throw Error("Unhandled Method: "+method)
             }
@@ -284,14 +255,14 @@ export async function pairWalletConnect(event: any, payload: any) {
                                 "network": "ETH",
                                 "asset": "ETH",
                                 "transaction": {
-                                    "context": params[0].from,
+                                    "context": from,
                                     "type": "transfer",
-                                    "addressFrom": params[0].from,
-                                    "recipient": params[0].to,
+                                    "addressFrom": from,
+                                    "recipient": HDwalletPayload.to,
                                     "asset": "ETH",
                                     "network": "ETH",
                                     "memo": "",
-                                    "amount": "0.0001",
+                                    "amount": HDwalletPayload.value,
                                     "fee": {
                                         "priority": 5
                                     },

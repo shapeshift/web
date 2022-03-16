@@ -1,3 +1,10 @@
+# [@shapeshiftoss/swapper-v2.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.0.1...@shapeshiftoss/swapper-v2.0.2) (2022-03-16)
+
+
+### Bug Fixes
+
+* update json rpc ([#442](https://github.com/shapeshift/lib/issues/442)) ([abfb16c](https://github.com/shapeshift/lib/commit/abfb16c3d28fa40bbb20e9834d95dca9d13e008a))
+
 # [@shapeshiftoss/swapper-v2.0.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v2.0.0...@shapeshiftoss/swapper-v2.0.1) (2022-03-03)
 
 # [@shapeshiftoss/swapper-v2.0.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/swapper-v1.16.0...@shapeshiftoss/swapper-v2.0.0) (2022-03-03)

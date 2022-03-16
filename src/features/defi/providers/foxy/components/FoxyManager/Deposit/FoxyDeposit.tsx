@@ -87,6 +87,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
+  console.info('fox', tokenId)
   const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
   const feeAssetCAIP19 = caip19.toCAIP19({
     chain,

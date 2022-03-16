@@ -321,6 +321,19 @@ export async function pairWalletConnect(event: any, payload: any) {
             let body = {
                 hex: response.serialized
             }
+
+            //get txid always (even if failed to broadcast)
+            let txid = keccak256(response.serialized).toString('hex')
+            txid = "0x"+txid
+            log.info(tag, "txid: ", txid)
+
+            //respond
+            let successRespond = await walletConnectClient.approveRequest({
+                id: payload.id,
+                result: txid,
+            })
+            log.info(tag, "successRespond: ", successRespond)
+
             log.info(tag, "body: ", body)
             let result
             try {
@@ -340,19 +353,6 @@ export async function pairWalletConnect(event: any, payload: any) {
                 //TODO show error to user!
 
             }
-
-
-            //get txid always (even if failed to broadcast)
-            let txid = keccak256(response.serialized).toString('hex')
-            txid = "0x"+txid
-            log.info(tag, "txid: ", txid)
-
-            //respond
-            let successRespond = await walletConnectClient.approveRequest({
-                id: payload.id,
-                result: txid,
-            })
-            log.info(tag, "successRespond: ", successRespond)
 
         });
 

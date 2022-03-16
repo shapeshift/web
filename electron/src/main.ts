@@ -99,7 +99,7 @@ export const windows: {
 }
 
 const kkAutoLauncher = new AutoLaunch({
-    name: 'KeepKey Client'
+    name: 'KeepKey Desktop'
 })
 
 /*

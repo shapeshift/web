@@ -483,6 +483,7 @@
       "loadingText": "Pairing Wallet"
     },
     "pair": {
+      "header": "Wallet Connect",
       "native": {
         "header": "App pairing request",
         "body": "%{serviceName} wants to pair with your KeepKey"

@@ -4,6 +4,7 @@ import {
   CloseIcon,
   ExternalLinkIcon,
   RepeatIcon,
+  UpDownIcon,
   WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
@@ -188,7 +189,7 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuItem icon={<WalletConnectIcon />} onClick={handleWalletConnect}>
+        <MenuItem icon={<UpDownIcon />} onClick={handleWalletConnect}>
           <Text translation='common.walletConnect' />
         </MenuItem>
         <MenuItem

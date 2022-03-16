@@ -59,7 +59,7 @@ export const FilterGroup = ({
       </Button>
       <Collapse in={isOpen} unmountOnExit>
         <Box px={2} mb={2}>
-          <GroupComponent value={value || []} onChange={onChange} name={name}>
+          <GroupComponent value={value ?? []} onChange={onChange} name={name}>
             {options.map(([title, optionValue, CustomComponent]: Option) => (
               <Fragment key={optionValue}>
                 <Box py={1}>

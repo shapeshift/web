@@ -1,6 +1,3 @@
-import { selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
-
 import { Address } from './TransactionDetails/Address'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
@@ -9,6 +6,7 @@ import { Status } from './TransactionDetails/Status'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import { TransactionRowProps } from './TransactionRow'
+import { AssetTypes, parseRelevantAssetFromTx } from './utils'
 
 export const TransactionReceive = ({
   txDetails,
@@ -17,9 +15,6 @@ export const TransactionReceive = ({
   toggleOpen,
   isOpen
 }: TransactionRowProps) => {
-  const marketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.tx.transfers[0].caip19)
-  )
   return (
     <>
       <TransactionGenericRow
@@ -28,21 +23,8 @@ export const TransactionReceive = ({
         compactMode={compactMode}
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
-        assets={[
-          {
-            symbol: txDetails.symbol,
-            amount: txDetails.value ?? '0',
-            precision: txDetails.precision,
-            currentPrice: marketData?.price
-          }
-        ]}
-        fee={{
-          symbol: txDetails.feeAsset?.symbol ?? '',
-          amount: txDetails.tx.fee?.value ?? '0',
-          precision: txDetails.feeAsset?.precision ?? 0,
-          // receive type does not have fee
-          currentPrice: '0'
-        }}
+        assets={[parseRelevantAssetFromTx(txDetails, AssetTypes.Destination)]}
+        fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}

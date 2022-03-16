@@ -166,16 +166,18 @@ export const TransactionGenericRow = ({
                   symbol={fee.symbol}
                   maximumFractionDigits={6}
                 />
-                {fee.currentPrice && (
-                  <Amount.Fiat
-                    color='gray.500'
-                    fontSize='sm'
-                    lineHeight='1'
-                    value={bnOrZero(fromBaseUnit(fee.amount, fee.precision))
-                      .times(fee.currentPrice)
-                      .toString()}
-                  />
-                )}
+                <Amount.Fiat
+                  color='gray.500'
+                  fontSize='sm'
+                  lineHeight='1'
+                  value={
+                    fee.amount
+                      ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
+                          .times(fee.currentPrice ?? 0)
+                          .toString()
+                      : '0'
+                  }
+                />
               </Box>
             </Flex>
           </Flex>

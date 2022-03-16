@@ -85,18 +85,21 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
         ),
         status: translate(`transactionRow.${transaction.status}`),
         timestamp: dayjs(transaction.blockTime * 1000).toISOString(),
-        minerFee: transaction.fee
-          ? bnOrZero(fromBaseUnit(transaction.fee?.value, feeAsset?.precision ?? 18)).toString()
-          : '0',
+        minerFee:
+          transaction.fee && feeAsset
+            ? bnOrZero(fromBaseUnit(transaction.fee.value, feeAsset.precision)).toString()
+            : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
-        inputAmount: input
-          ? bnOrZero(fromBaseUnit(input?.value, inputAsset?.precision ?? 18)).toString()
-          : '-',
+        inputAmount:
+          input && inputAsset
+            ? bnOrZero(fromBaseUnit(input.value, inputAsset.precision)).toString()
+            : '-',
         inputCurrency: inputAsset?.symbol ?? '-',
         inputAddress: input?.from ?? '-',
-        outputAmount: output
-          ? bnOrZero(fromBaseUnit(output?.value, outputAsset?.precision ?? 18)).toString()
-          : '-',
+        outputAmount:
+          output && outputAsset
+            ? bnOrZero(fromBaseUnit(output.value, outputAsset.precision)).toString()
+            : '-',
         outputCurrency: outputAsset?.symbol ?? '-',
         outputAddress: output?.to ?? '-'
       })

@@ -1,6 +1,4 @@
 import { SwapperType } from '@shapeshiftoss/types'
-import { selectMarketDataById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { Address } from './TransactionDetails/Address'
 import { Amount } from './TransactionDetails/Amount'
@@ -11,6 +9,7 @@ import { Text } from './TransactionDetails/Text'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import { TransactionRowProps } from './TransactionRow'
+import { AssetTypes, parseRelevantAssetFromTx } from './utils'
 
 export const TransactionContract = ({
   txDetails,
@@ -19,30 +18,9 @@ export const TransactionContract = ({
   isOpen,
   toggleOpen
 }: TransactionRowProps) => {
-  const sourceMarketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.sellTx?.caip19 ?? '')
-  )
-  const destinationMarketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.tradeTx?.caip19 ?? '')
-  )
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, txDetails.tx.fee?.caip19 ?? '')
-  )
   let assets = []
-  if (txDetails.sellAsset)
-    assets.push({
-      symbol: txDetails.sellAsset.symbol,
-      amount: txDetails.sellTx?.value ?? '0',
-      precision: txDetails.sellAsset.precision,
-      currentPrice: sourceMarketData?.price
-    })
-  if (txDetails.buyAsset)
-    assets.push({
-      symbol: txDetails.buyAsset.symbol,
-      amount: txDetails.buyTx?.value ?? '0',
-      precision: txDetails.buyAsset.precision,
-      currentPrice: destinationMarketData?.price
-    })
+  if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
+  if (txDetails.buyAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Destination))
   return (
     <>
       <TransactionGenericRow
@@ -57,12 +35,7 @@ export const TransactionContract = ({
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
         assets={assets}
-        fee={{
-          symbol: txDetails.feeAsset?.symbol ?? '',
-          amount: txDetails.tx.fee?.value ?? '0',
-          precision: txDetails.feeAsset?.precision ?? 0,
-          currentPrice: feeAssetMarketData?.price
-        }}
+        fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
@@ -77,7 +50,7 @@ export const TransactionContract = ({
           <Row title='orderRoute'>
             <Text
               value={
-                txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'Thorchain' : '0x'
+                txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'THORChain' : '0x'
               }
             />
           </Row>

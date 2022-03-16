@@ -12,7 +12,7 @@ export const Amount = ({
 }) => (
   <AmountComponent.Crypto
     lineHeight={1}
-    value={fromBaseUnit(value ?? '0', precision ?? 18)}
+    value={fromBaseUnit(value ?? '0', precision)}
     symbol={symbol ?? ''}
     maximumFractionDigits={6}
   />

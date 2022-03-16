@@ -61,8 +61,11 @@ export const selectTxById = createSelector(
   (txsById, txId) => txsById[txId]
 )
 
-export const selectTxDateByIds = createSelector(selectTxIdsParam, selectTxs, (txIds: TxId[], txs) =>
-  txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime })).sort((a, b) => b.date - a.date)
+export const selectTxDateByIds = createDeepEqualOutputSelector(
+  selectTxIdsParam,
+  selectTxs,
+  (txIds: TxId[], txs) =>
+    txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime })).sort((a, b) => b.date - a.date)
 )
 
 type TxHistoryPageFilter = {
@@ -87,7 +90,7 @@ const selectMatchingAssetsParamFromFilter = (
   { matchingAssets }: TxHistoryPageFilter
 ) => matchingAssets
 
-export const selectTxIdsBasedOnSearchTermAndFilters = createSelector(
+export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
   selectTxs,
   selectTxIds,
   selectMatchingAssetsParamFromFilter,

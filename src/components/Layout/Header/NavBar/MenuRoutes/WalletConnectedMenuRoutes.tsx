@@ -1,7 +1,6 @@
-import { ArrowBackIcon, ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
-import { Center } from '@chakra-ui/layout'
+import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey/dist/keepkey'
 import { useEffect, useState } from 'react'
@@ -9,6 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletConnectedProps, WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
 import { KeyManager } from 'context/WalletProvider/config'
@@ -21,7 +21,7 @@ export const WalletConnectedMenuRoutes = ({
   isConnected,
   type
 }: WalletConnectedProps) => {
-  const { handleKeepKeyClick, handleBackClick } = useMenuRoutes()
+  const { handleKeepKeyClick } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
   const [walletFeatures, setWalletFeatures] = useState<Features.AsObject>()
@@ -36,6 +36,7 @@ export const WalletConnectedMenuRoutes = ({
       const features = (await wallet.getFeatures()) as Features.AsObject
       setWalletFeatures(features)
       isKeepKey && setKeepKeyWallet(wallet as KeepKeyHDWallet)
+      // await keepKeyWallet?.applySettings({ label: 'Test KeepKey' })
     })()
   }, [isKeepKey, wallet])
 
@@ -71,19 +72,9 @@ export const WalletConnectedMenuRoutes = ({
   }
 
   const keepKeyMenu = () => {
-    const keepKeyMenuHeader = (
-      <Flex mb={3} ml={3} flexDir='row' justifyContent='space-between' alignItems='center'>
-        <Button onClick={handleBackClick} size='sm'>
-          <ArrowBackIcon color='lightgrey' />
-        </Button>
-        <Center fontWeight='bold' color='white' fontSize='sm' flex={1} pr={7}>
-          {translate('common.connectedWalletSettings')}
-        </Center>
-      </Flex>
-    )
     const keepKeyStateLoading = (
       <>
-        {keepKeyMenuHeader}
+        <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
           <Flex ml={3}>
             <WalletImage walletInfo={walletInfo} />
@@ -98,7 +89,7 @@ export const WalletConnectedMenuRoutes = ({
 
     const keepKeyStateLoaded = walletFeatures && (
       <>
-        {keepKeyMenuHeader}
+        <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
           <Flex ml={3}>
             <WalletImage walletInfo={walletInfo} />

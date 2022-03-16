@@ -23,12 +23,14 @@ export type UtxoParamsAndAccountType = {
 // TODO(0xdef1cafe): these should be exported from caip2
 export const ethChainId = 'eip155:1'
 export const btcChainId = 'bip122:000000000019d6689c085ae165831e93'
+export const cosmosChainId = 'cosmos:cosmoshub-4'
 
 // we only need to update this when we support additional chains, which is infrequent
 // so it's ok to hardcode this map here
 const caip2toCaip19: Record<string, string> = {
   [ethChainId]: 'eip155:1/slip44:60',
-  [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+  [btcChainId]: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  [cosmosChainId]: 'cosmos:cosmoshub-4/slip44:118'
 }
 
 export const assetIdtoChainId = (caip19: CAIP19): string => {
@@ -82,6 +84,9 @@ export const accountIdToLabel = (accountId: AccountSpecifier): string => {
       if (specifier.startsWith('ypub')) return 'SEGWIT'
       if (specifier.startsWith('zpub')) return 'SEGWIT NATIVE'
       return ''
+    }
+    case cosmosChainId: {
+      return 'Cosmos'
     }
     default: {
       return ''
@@ -254,6 +259,34 @@ export const accountToPortfolio: AccountToPortfolio = args => {
 
           portfolio.accountSpecifiers.byId[accountSpecifier].push(CAIP10)
         })
+
+        break
+      }
+      case ChainTypes.Cosmos:
+      case ChainTypes.Osmosis: {
+        const { caip2, caip19 } = account
+        const accountSpecifier = `${caip2}:${_xpubOrAccount}`
+        const accountId = caip10.toCAIP10({ caip2, account: _xpubOrAccount })
+        portfolio.accountBalances.ids.push(accountSpecifier)
+        portfolio.accountSpecifiers.ids.push(accountSpecifier)
+
+        portfolio.accounts.byId[accountSpecifier] = []
+        portfolio.accounts.byId[accountSpecifier].push(caip19)
+        portfolio.accounts.ids.push(accountSpecifier)
+
+        portfolio.assetBalances.byId[caip19] = sumBalance(
+          portfolio.assetBalances.byId[caip19] ?? '0',
+          account.balance
+        )
+
+        // add assetId without dupes
+        portfolio.assetBalances.ids = Array.from(new Set([...portfolio.assetBalances.ids, caip19]))
+
+        portfolio.accountBalances.byId[accountSpecifier] = {
+          [caip19]: account.balance
+        }
+
+        portfolio.accountSpecifiers.byId[accountSpecifier] = [accountId]
 
         break
       }

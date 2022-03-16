@@ -40,52 +40,57 @@ export const Approve = ({
   const translate = useTranslate()
   return (
     <SlideTransition>
-      <ModalBody width='full' textAlign='center'>
-        <CircularProgress size='120px' thickness='4px' mt={8} mb={4} isIndeterminate={loading}>
-          <CircularProgressLabel>
-            <AssetIcon src={asset.icon} boxSize='90px' />
-          </CircularProgressLabel>
-        </CircularProgress>
-        <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
-        <Text
-          color='gray.500'
-          mb={6}
-          translation={['modals.approve.body', { asset: asset.name }]}
-        />
-        <Link color='blue.500' href={learnMoreLink} isExternal>
-          {translate('modals.approve.learnMore')}
-        </Link>
-      </ModalBody>
-      <ModalFooter flexDir='column' mt={8}>
-        <Stack width='full'>
-          <Row pb={2}>
-            <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
-            <Row.Value>
-              <Box textAlign='right'>
-                <Amount.Fiat value={fiatEstimatedGasFee} />
-                <Amount.Crypto
-                  color='gray.500'
-                  value={cryptoEstimatedGasFee}
-                  symbol={feeAsset.symbol}
-                />
-              </Box>
-            </Row.Value>
-          </Row>
-          {preFooter}
-          <Button
-            onClick={onConfirm}
-            width='full'
-            size='lg'
-            colorScheme='blue'
-            isLoading={loading}
-            loadingText={loadingText}
-          >
-            {translate('modals.approve.confirm')}
-          </Button>
-          <Button onClick={onCancel} width='full' size='lg' variant='ghost'>
-            {translate('modals.approve.reject')}
-          </Button>
+      <ModalBody
+        width='full'
+        textAlign='center'
+        display='flex'
+        py={6}
+        flexDir={{ base: 'column', md: 'row' }}
+      >
+        <Stack flex={1} spacing={4}>
+          <Box>
+            <CircularProgress size='120px' thickness='4px' mb={4} isIndeterminate={loading}>
+              <CircularProgressLabel>
+                <AssetIcon src={asset.icon} boxSize='90px' />
+              </CircularProgressLabel>
+            </CircularProgress>
+          </Box>
+          <Text fontWeight='bold' translation={['modals.approve.header', { asset: asset.name }]} />
+          <Text color='gray.500' translation={['modals.approve.body', { asset: asset.name }]} />
+          <Link color='blue.500' href={learnMoreLink} isExternal>
+            {translate('modals.approve.learnMore')}
+          </Link>
         </Stack>
+      </ModalBody>
+      <ModalFooter as={Stack} spacing={4}>
+        {preFooter}
+        <Row>
+          <Row.Label>{translate('modals.approve.estimatedGas')}</Row.Label>
+          <Row.Value>
+            <Box textAlign='right'>
+              <Amount.Fiat value={fiatEstimatedGasFee} />
+              <Amount.Crypto
+                color='gray.500'
+                value={cryptoEstimatedGasFee}
+                symbol={feeAsset.symbol}
+              />
+            </Box>
+          </Row.Value>
+        </Row>
+      </ModalFooter>
+      <ModalFooter py={4} justifyContent='space-between'>
+        <Button onClick={onCancel} size='lg' colorScheme='gray'>
+          {translate('modals.approve.reject')}
+        </Button>
+        <Button
+          onClick={onConfirm}
+          size='lg'
+          colorScheme='blue'
+          isLoading={loading}
+          loadingText={loadingText}
+        >
+          {translate('modals.approve.confirm')}
+        </Button>
       </ModalFooter>
     </SlideTransition>
   )

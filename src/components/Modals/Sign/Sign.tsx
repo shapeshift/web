@@ -35,7 +35,7 @@ export const SignModal = (input: any) => {
   const { sign } = useModal()
   const { close, isOpen } = sign
 
-  const HDwalletPayload = input.invocation.unsignedTx.HDwalletPayload
+  const HDwalletPayload = input?.invocation?.unsignedTx?.HDwalletPayload
 
   const [nonce, setNonce] = useState('')
   const [gasPrice, setGasPrice] = useState('')
@@ -57,7 +57,7 @@ export const SignModal = (input: any) => {
     const unsignedTx = {
       ...input.invocation.unsignedTx,
       HDwalletPayload: {
-        ...input.invocation.unsignedTx.HDwalletPayload,
+        ...input.invocation?.unsignedTx?.HDwalletPayload,
         nonce,
         gasLimit,
         gasPrice
@@ -67,10 +67,12 @@ export const SignModal = (input: any) => {
     ipcRenderer.send('@account/tx-signed', signedTx)
     //onCloseModal
     ipcRenderer.send('@modal/close', {})
+    setIsApproved(false)
     close()
-  }, [nonce, gasLimit, gasPrice, close, keepkey, input.invocation.unsignedTx])
+  }, [nonce, gasLimit, gasPrice, close, keepkey, input?.invocation?.unsignedTx])
 
   const HandleReject = async () => {
+    setIsApproved(false)
     //show sign
     ipcRenderer.send('unlockWindow', {})
     //onCloseModal
@@ -87,6 +89,7 @@ export const SignModal = (input: any) => {
       onClose={() => {
         ipcRenderer.send('unlockWindow', {})
         ipcRenderer.send('@modal/close', {})
+        setIsApproved(false)
         close()
       }}
       isCentered

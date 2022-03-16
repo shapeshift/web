@@ -105,7 +105,7 @@ export const PairModal = (input: PairingProps) => {
                   src={
                     input.type === 'native'
                       ? input.data.serviceImageUrl
-                      : input.data.params[0].peerMeta.icons[0]
+                      : input?.data?.params[0]?.peerMeta?.icons[0]
                   }
                   borderRadius='full'
                   height='10'
@@ -120,14 +120,14 @@ export const PairModal = (input: PairingProps) => {
                         serviceName:
                           input.type === 'native'
                             ? input.data.serviceName
-                            : input.data.params[0].peerMeta.name
+                            : input?.data?.params[0]?.peerMeta.name
                       }
                     ]}
                     pl='2'
                   />
                   {input.type === 'walletconnect' ? (
                     <ChakraText pl={2} color='gray.500' fontSize='sm'>
-                      {input.data.params[0].peerMeta.description}
+                      {input?.data?.params[0]?.peerMeta.description}
                     </ChakraText>
                   ) : null}
                 </Box>

@@ -33,12 +33,13 @@ export const TxStatus = ({
   return (
     <SlideTransition>
       <ModalHeader textAlign='center'>{translate(statusText)}</ModalHeader>
-      <ModalBody>
-        <AssetToAsset {...rest} />
-        <Divider my={4} />
-        {children}
+      <ModalBody display='flex' py={6} flexDir={{ base: 'column', md: 'row' }}>
+        <Stack width='full' spacing={4} divider={<Divider />}>
+          <AssetToAsset {...rest} />
+          {children}
+        </Stack>
       </ModalBody>
-      <ModalFooter flexDir='column' textAlign='center' mt={6}>
+      <ModalFooter flexDir='column' textAlign='center'>
         <Stack width='full'>
           {onContinue && (
             <Button size='lg' colorScheme='blue' onClick={onContinue}>

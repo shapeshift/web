@@ -21,12 +21,13 @@ import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInpu
 import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakingAction } from '../Staking'
+import { StakeRoutes, StakingAction } from '../Staking'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -93,12 +94,19 @@ export const Stake = ({
 
   const { cosmosStaking } = useModal()
 
+  const memoryHistory = useHistory()
+
   const onSubmit = (_: any) => {
-    // TODO: onContinue()
+    memoryHistory.push(StakeRoutes.StakeConfirm, {
+      cryptoAmount: bnOrZero(values.cryptoAmount),
+      assetId,
+      fiatRate: bnOrZero(marketData.price),
+      apr
+    })
   }
 
   const cryptoYield = calculateYearlyYield(apr, values.cryptoAmount)
-  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
+  const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toPrecision()
 
   const translate = useTranslate()
 

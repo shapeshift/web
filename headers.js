@@ -2,11 +2,12 @@ require('dotenv').config()
 
 const cspMeta = Object.entries({
   'default-src': ["'self'"],
-  'child-src': ["'self'",  "blob:", "'report-sample'"],
+  'child-src': ["'self'", 'blob:', "'report-sample'"],
   'connect-src': [
     "'self'",
     'http://localhost:1646',
     'http://localhost:1646/exchange/device',
+    'data:',
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4
     'https://api.0x.org',
     // @shapeshiftoss/chain-adapters@1.22.1: https://github.com/shapeshift/lib/blob/476550629be9485bfc089decc4df85456968464a/packages/chain-adapters/src/ethereum/EthereumChainAdapter.ts#L226
@@ -38,23 +39,38 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
+    // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21
+    'https://api-osmosis.imperator.co/tokens/',
     process.env.REACT_APP_ETHEREUM_NODE_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     process.env.REACT_APP_UNCHAINED_ETHEREUM_WS_URL,
     process.env.REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-    process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL
+    process.env.REACT_APP_UNCHAINED_BITCOIN_WS_URL,
+    process.env.REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+    process.env.REACT_APP_UNCHAINED_COSMOS_WS_URL
   ],
-  'frame-src': [
-    'https://fwd.metamask.io/',
-    'https://widget.portis.io'
-  ],
+  'frame-src': ['https://fwd.metamask.io/', 'https://widget.portis.io'],
   'img-src': [
-    "*"
+    "*",
+    "'self'",
+    'data:',
+    'blob:',
+    'filesystem:',
+    'https://assets.coincap.io/assets/icons/',
+    'https://static.coincap.io/assets/icons/',
+    'https://assets.coingecko.com/coins/images/',
+    'https://raw.githack.com/trustwallet/assets/',
+    'https://rawcdn.githack.com/yearn/yearn-assets/',
+    'https://raw.githack.com/yearn/yearn-assets/',
+    'https://assets.yearn.network/tokens/',
+    'https://raw.githubusercontent.com/yearn/yearn-assets/',
+    'https://rawcdn.githack.com/trustwallet/assets/',
+    'https://raw.githubusercontent.com/osmosis-labs/'
   ],
   'script-src': [
     "'self'",
     'blob:',
-    "'unsafe-eval'",  //TODO: There are still a couple of libraries we depend on that use eval; notably amqp-ts and google-protobuf.
+    "'unsafe-eval'", //TODO: There are still a couple of libraries we depend on that use eval; notably amqp-ts and google-protobuf.
     "'unsafe-inline'", //TODO: The only inline code we need is the stub injected by Metamask. We can fix this by including the stub in our own bundle.
     "'report-sample'"
   ],
@@ -79,11 +95,12 @@ module.exports = {
   headers,
   cspMeta
 }
-if (module.parent) return
 
-require('fs').writeFileSync(
-  './build/_headers',
-  `/*\n${Object.entries(headers)
-    .map(([k, v]) => `  ${k}: ${v}\n`)
-    .join('')}`
-)
+if (!module.parent) {
+  require('fs').writeFileSync(
+    './build/_headers',
+    `/*\n${Object.entries(headers)
+      .map(([k, v]) => `  ${k}: ${v}\n`)
+      .join('')}`
+  )
+}

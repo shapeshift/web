@@ -9,7 +9,7 @@ import { useAppSelector } from 'state/store'
 import { MatchParams } from './AccountToken'
 
 type AssetTransactionProps = {
-  route: Route
+  route?: Route
 }
 
 export const AccountTokenTxHistory: React.FC<AssetTransactionProps> = ({ route }) => {

@@ -94,22 +94,25 @@ const WalletButton: FC<WalletButtonProps> = ({
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
   useEffect(() => {
-    setShouldShorten(true)
-    if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
-    if (walletInfo.meta.address) {
-      ensReverseLookup(walletInfo.meta.address).then(ens => {
-        if (!ens.error) {
-          setShouldShorten(false)
-          return setWalletLabel(ens.name)
+    ;(async () => {
+      setShouldShorten(true)
+      if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
+      if (walletInfo.meta.address) {
+        try {
+          const addressReverseLookup = await ensReverseLookup(walletInfo.meta.address)
+          if (!addressReverseLookup.error) {
+            setShouldShorten(false)
+            return setWalletLabel(addressReverseLookup.name)
+          }
+        } catch (_) {
+          return setWalletLabel(walletInfo?.meta?.address ?? '')
         }
-        setWalletLabel(walletInfo?.meta?.address ?? '')
-      })
-      return
-    }
-    if (walletInfo.meta.label) {
-      setShouldShorten(false)
-      return setWalletLabel(walletInfo.meta.label)
-    }
+      }
+      if (walletInfo.meta.label) {
+        setShouldShorten(false)
+        return setWalletLabel(walletInfo.meta.label)
+      }
+    })()
   }, [walletInfo])
 
   return Boolean(walletInfo?.deviceId) || isLoadingLocalWallet ? (

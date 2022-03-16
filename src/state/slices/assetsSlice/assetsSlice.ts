@@ -5,7 +5,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, NetworkTypes } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 
-import { FeatureFlag } from '../../../constants/FeatureFlag'
+import { ReduxState } from '../../reducer'
 
 let service: AssetService | undefined = undefined
 
@@ -38,6 +38,7 @@ export const assets = createSlice({
   name: 'asset',
   initialState,
   reducers: {
+    clear: () => initialState,
     setAssets: (state, action: PayloadAction<AssetsState>) => {
       state.byId = { ...state.byId, ...action.payload.byId } // upsert
       state.ids = Array.from(new Set([...state.ids, ...action.payload.ids]))
@@ -54,13 +55,15 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<AssetsState, void>({
       // all assets
-      queryFn: async () => {
+      queryFn: async (_, { getState }) => {
+        // @ts-ignore
+        const state = getState() as ReduxState
         const service = await getAssetService()
         const assetArray = service?.byNetwork(
           // Cosmos assets have a network type of COSMOSHUB_MAINNET
           // If the flag is OFF then we'll filter out only Bitcoin/Ethereum assets
           // If the flag is ON then we'll allow all assets through
-          FeatureFlag.Plugin.Cosmos ? undefined : NetworkTypes.MAINNET
+          state.preferences.featureFlags.CosmosPlugin ? undefined : NetworkTypes.MAINNET
         )
         const data = assetArray.reduce<AssetsState>((acc, cur) => {
           const { caip19 } = cur

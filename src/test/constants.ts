@@ -1,10 +1,5 @@
-import {
-  Asset,
-  AssetDataSource,
-  ChainTypes,
-  ContractTypes,
-  NetworkTypes
-} from '@shapeshiftoss/types'
+import { AssetNamespace } from '@shapeshiftoss/caip'
+import { Asset, AssetDataSource, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 
 export const BTC: Asset = {
   caip2: 'bip122:000000000019d6689c085ae165831e93',
@@ -14,7 +9,7 @@ export const BTC: Asset = {
   network: NetworkTypes.MAINNET,
   precision: 8,
   slip44: 0,
-  contractType: ContractTypes.ERC20,
+  contractType: AssetNamespace.ERC20,
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   dataSource: AssetDataSource.CoinGecko,
@@ -35,7 +30,7 @@ export const WETH: Asset = {
   network: NetworkTypes.MAINNET,
   precision: 18,
   tokenId: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  contractType: ContractTypes.ERC20,
+  contractType: AssetNamespace.ERC20,
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/2518/thumb/weth.png?1628852295',
@@ -77,7 +72,7 @@ export const FOX: Asset = {
   network: NetworkTypes.MAINNET,
   precision: 18,
   tokenId: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-  contractType: ContractTypes.ERC20,
+  contractType: AssetNamespace.ERC20,
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coincap.io/assets/icons/fox@2x.png',
@@ -98,7 +93,7 @@ export const USDC: Asset = {
   network: NetworkTypes.MAINNET,
   precision: 6,
   tokenId: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  contractType: ContractTypes.ERC20,
+  contractType: AssetNamespace.ERC20,
   color: '#FFFFFF',
   secondaryColor: '#FFFFFF',
   icon: 'https://assets.coingecko.com/coins/images/6319/thumb/USD_Coin_icon.png?1547042389',

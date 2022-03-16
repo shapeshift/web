@@ -13,7 +13,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
@@ -88,8 +88,7 @@ export const GemManager = () => {
         const btcAddress =
           wallet && supportsBTC(wallet)
             ? await btcChainAdapter.getAddress({
-                wallet,
-                accountType: UtxoAccountType.SegwitNative
+                wallet
               })
             : ''
         dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
@@ -208,11 +207,6 @@ export const GemManager = () => {
     if (!wallet) return
     const deviceAddress = await state.chainAdapter.getAddress({
       wallet,
-      ...(state.isBTC
-        ? {
-            accountType: UtxoAccountType.SegwitNative
-          }
-        : {}),
       showOnDevice: true
     })
 

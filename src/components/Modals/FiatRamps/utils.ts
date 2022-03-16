@@ -11,8 +11,6 @@ import { FiatRampAction } from './const'
 import { GemCurrency, SupportedCurrency, TransactionDirection } from './FiatRamps'
 
 const ASSET_LOGO_BASE_URI = getConfig().REACT_APP_GEM_ASSET_LOGO
-const COINIFY_SUPPORTED_COINS_URL = 'https://api.gem.co/institutions/coinify/supported_currencies'
-const WYRE_SUPPORTED_COINS_URL = 'https://api.gem.co/institutions/wyre/supported_currencies'
 
 type MixedPortfolioAssetBalances = {
   [k: CAIP19]: {
@@ -39,7 +37,7 @@ export const filterAssetsBySearchTerm = (search: string, assets: GemCurrency[]) 
 
 export const fetchCoinifySupportedCurrencies = async (): Promise<SupportedCurrency[]> => {
   try {
-    const { data } = await axios.get(COINIFY_SUPPORTED_COINS_URL)
+    const { data } = await axios.get(getConfig().REACT_APP_GEM_COINIFY_SUPPORTED_COINS)
     return data
   } catch (e: any) {
     console.error(e)
@@ -49,7 +47,7 @@ export const fetchCoinifySupportedCurrencies = async (): Promise<SupportedCurren
 
 export const fetchWyreSupportedCurrencies = async (): Promise<SupportedCurrency[]> => {
   try {
-    const { data } = await axios.get(WYRE_SUPPORTED_COINS_URL)
+    const { data } = await axios.get(getConfig().REACT_APP_GEM_WYRE_SUPPORTED_COINS)
     return data
   } catch (e: any) {
     console.error(e)
@@ -126,7 +124,7 @@ export const makeGemPartnerUrl = memoize(
 
     const GEM_URL = 'https://onramp.gem.co'
     const partnerName = 'ShapeShift'
-    const environment = 'production'
+    const environment = getConfig().REACT_APP_GEM_ENV
     const partnerIconUrl =
       'https://portis-prod.s3.amazonaws.com/assets/dapps-logo/191330a6-d761-4312-9fa5-7f0024483302.png'
     const apiKey = getConfig().REACT_APP_GEM_API_KEY

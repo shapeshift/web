@@ -7,7 +7,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Link,
   Stack,
   Text as RawText,
   useToast
@@ -316,15 +315,14 @@ export const GemManager = () => {
               size='lg'
               colorScheme='blue'
               disabled={!state.selectedAsset}
-              as={Link}
-              isExternal
-              textDecoration='none !important'
+              as='a'
               mt='25px'
               href={makeGemPartnerUrl(
                 state.fiatRampAction,
                 state.selectedAsset?.ticker,
                 addressFull
               )}
+              target='_blank'
             >
               <Text translation='common.continue' />
             </Button>

@@ -344,6 +344,7 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             //get txid always (even if failed to broadcast)
             let txid = keccak256(response.serialized).toString('hex')
+            txid = "0x"+txid
             log.info(tag, "txid: ", txid)
 
             //respond

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.2...@shapeshiftoss/chain-adapters-v2.4.3) (2022-03-16)
+
+
+### Bug Fixes
+
+* btc getAddress uses the wrong accountType ([#447](https://github.com/shapeshift/lib/issues/447)) ([108851d](https://github.com/shapeshift/lib/commit/108851d015e17a351b6d04b6c42544f363f4f591))
+
 # [@shapeshiftoss/chain-adapters-v2.4.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.1...@shapeshiftoss/chain-adapters-v2.4.2) (2022-03-16)
 
 

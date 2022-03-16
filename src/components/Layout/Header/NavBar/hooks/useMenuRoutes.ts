@@ -5,6 +5,7 @@ export const useMenuRoutes = () => {
   const history = useHistory()
   const handleKeepKeyClick = useCallback(() => history.push('/keepkey'), [history])
   const handleBackClick = useCallback(() => history.goBack(), [history])
+  const handleMenuClose = useCallback(() => history.push('main'), [history])
 
-  return { handleKeepKeyClick, handleBackClick }
+  return { handleKeepKeyClick, handleBackClick, handleMenuClose }
 }

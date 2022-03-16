@@ -40,7 +40,8 @@
     "days": "Days",
     "devTools": "Developer Tools",
     "pairedApps": "View Paired Apps",
-    "viewAsset": "View Asset"
+    "viewAsset": "View Asset",
+    "walletConnect": "Wallet Connect"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -296,15 +297,15 @@
       "restore": "Restore KeepKey from seed"
     },
     "firmware": {
-        "header": "Update Required for Your KeepKey!",
-        "bootloaderUpdate": "Updating your devices BootLoader",
-        "FirmwareUpdate": "Updating your devices Firmware",
-        "update": "check KeepKey Status",
-        "continue": "approve and continue",
-        "bootloaderNeeded": "to continue you must updater your bootloader!",
-        "firmwareNeeded": "to continue you must updater your firmware!",
-        "bootloader": "BootLoader version",
-        "firmware": "Firmware version"
+      "header": "Update Required for Your KeepKey!",
+      "bootloaderUpdate": "Updating your devices BootLoader",
+      "FirmwareUpdate": "Updating your devices Firmware",
+      "update": "check KeepKey Status",
+      "continue": "approve and continue",
+      "bootloaderNeeded": "to continue you must updater your bootloader!",
+      "firmwareNeeded": "to continue you must updater your firmware!",
+      "bootloader": "BootLoader version",
+      "firmware": "Firmware version"
     },
     "shapeShift": {
       "password": {
@@ -325,6 +326,9 @@
     "sign": {
       "header": "Confirm Transaction Details",
       "sign": "Sign Transaction!",
+      "nonce": "nonce",
+      "gasPrice": "gasPrice",
+      "gasLimit": "gasLimit",
       "reject": "reject",
       "extendedValidation": "Extended Validation",
       "amount": "Amount",
@@ -335,7 +339,7 @@
       "to": "To",
       "router": "Router",
       "memo": "Memo",
-      "protocol":"Protocol",
+      "protocol": "Protocol",
       "broadcastingTransaction": "Broadcasting Transaction",
       "errors": {
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
@@ -453,8 +457,16 @@
       "loadingText": "Pairing Wallet"
     },
     "pair": {
-      "header": "App pairing request",
-      "body": "%{serviceName} wants to pair with your KeepKey",
+      "native": {
+        "header": "App pairing request",
+        "body": "%{serviceName} wants to pair with your KeepKey"
+      },
+      "walletconnect": {
+        "header": "Wallet Connect pairing request",
+        "chain": "Blockchain(s)",
+        "relay": "Relay Protocol",
+        "methods": "Methods"
+      },
       "cta": {
         "pair": "Pair",
         "reject": "Reject"

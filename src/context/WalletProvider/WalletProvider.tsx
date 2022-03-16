@@ -100,8 +100,9 @@ function playSound(type: any) {
     audio.play()
   }
   if (type === 'fail') {
-    const audio = new Audio(require('../../assets/sounds/fail.mp3'))
-    audio.play()
+    //eww nerf
+    // const audio = new Audio(require('../../assets/sounds/fail.mp3'))
+    // audio.play()
   }
 }
 

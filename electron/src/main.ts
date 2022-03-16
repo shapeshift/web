@@ -38,10 +38,10 @@ import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
-import { app, BrowserWindow, nativeTheme, ipcMain, IpcMainEvent } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
-
+import axios from 'axios'
 log.transports.file.level = "debug";
 autoUpdater.logger = log;
 
@@ -53,16 +53,20 @@ let {
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
+const Unchained = require('openapi-client-axios').default;
+
+
 import fs from 'fs'
 //Modules
 import { update_keepkey_status } from './keepkey'
-import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
+import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
 import { isWin, isLinux, isMac } from './constants'
 import { db } from './db'
 import { getDevice } from './wallet'
 import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { pairWalletConnect } from './connect'
 
 // dont allow muliple windows to open
 const instanceLock = app.requestSingleInstanceLock();
@@ -116,7 +120,7 @@ if (process.env.PROD) {
     global.__statics = __dirname
 }
 
-export const createWindow = () => new Promise<boolean>((resolve, reject) => {
+export const createWindow = () => new Promise<boolean>(async (resolve, reject) => {
     log.info('Creating window!')
 
     //Auto launch on startup
@@ -135,6 +139,7 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
             })
     }
 
+    if (!bridgeRunning) start_bridge()
     /**
      * Initial window options
      *
@@ -145,7 +150,7 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
         height: 780,
         show: false,
         backgroundColor: 'white',
-        autoHideMenuBar: true,
+        // autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -177,6 +182,8 @@ export const createWindow = () => new Promise<boolean>((resolve, reject) => {
 
     windows.mainWindow.once('ready-to-show', () => {
         shouldShowWindow = true;
+        if (windows.mainWindow) windows.mainWindow.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+        if (windows.mainWindow) windows.mainWindow.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
         if (skipUpdateCheckCompleted) windows.mainWindow?.show()
     });
 
@@ -194,6 +201,12 @@ app.setAsDefaultProtocolClient('keepkey')
 // Export so you can access it from the renderer thread
 
 app.on('ready', async () => {
+    try {
+        createTray()
+    } catch (e) {
+        log.error('Failed to create tray! e: ', e)
+    }
+
     createSplashWindow()
     if (!windows.splash) return
     if (isDev || isLinux) skipUpdateCheck(windows.splash)
@@ -225,8 +238,12 @@ app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
-app.on('before-quit', () => {
+app.on('before-quit', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    if (keepkey.wallet) {
+        await keepkey.wallet.cancel()
+        await keepkey.wallet.softReset()
+    }
     isQuitting = true
 })
 
@@ -409,13 +426,41 @@ ipcMain.on('@bridge/start', async event => {
     }
 })
 
+ipcMain.on('@connect/pair', async (event, data) => {
+    const tag = TAG + ' | onPairWalletConnect | '
+    try {
+        pairWalletConnect(event, data)
+    } catch (e) {
+        log.error(tag, e)
+    }
+})
+
 ipcMain.on('@app/start', async (event, data) => {
     const tag = TAG + ' | onStartApp | '
     try {
         log.info(tag, 'event: onStartApp: ', data)
 
+        // let unchainedEth = new Unchained({
+        //     definition:"https://dev-api.ethereum.shapeshift.com/swagger.json"
+        // });
+        //
+        // //TODO moveme
+        // await unchainedEth.init()
+        //
+        //
+        // console.log("unchainedEth", unchainedEth);
+        // // console.log("unchainedEth", unchainedEth.instance);
+        //
+        // //getNonce
+        // let accountInfo = await unchainedEth.instance.GetAccount("0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
+        // console.log("accountInfo: ",accountInfo)
+
+        let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + "0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
+        console.log("accountInfo: ", accountInfo)
+
         //load DB
         try {
+            log.info(tag, 2)
             db.find({}, function (err, docs) {
                 for (let i = 0; i < docs.length; i++) {
                     let doc = docs[i]
@@ -455,7 +500,7 @@ ipcMain.on('@app/start', async (event, data) => {
         }
 
         try {
-            createTray(event)
+            // createTray(event)
         } catch (e) {
             log.error('Failed to create tray! e: ', e)
         }

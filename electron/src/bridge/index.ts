@@ -15,6 +15,7 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { getDevice } from '../wallet'
 import { windows } from '../main'
 
+
 const appExpress = express()
 appExpress.use(cors())
 appExpress.use(bodyParser.urlencoded({ extended: true }))
@@ -23,8 +24,6 @@ appExpress.use(bodyParser.json())
 //OpenApi spec generated from template project https://github.com/BitHighlander/keepkey-bridge
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
-const adapter = NodeWebUSBKeepKeyAdapter.useKeyring(new Keyring())
-
 
 let server: Server
 
@@ -63,13 +62,25 @@ export const keepkey: {
 }
 
 
-export const start_bridge = async function () {
+export const start_bridge = () => new Promise<void>(async (resolve, reject) => {
     let tag = " | start_bridge | "
     try {
         try {
-            keepkey.device = await adapter.getDevice()
-            log.info(tag, "device: ", keepkey.device)
+            keepkey.keyring = new Keyring()
+            const device = await getDevice(keepkey.keyring)
+            log.info(tag, "device: ", device)
+
+            if (device instanceof Error) {
+                console.log('wallet instance of error', device)
+                return resolve()
+            }
+            resolve()
+            keepkey.device = device.device
+            keepkey.wallet = device.wallet
+            keepkey.transport = device.transport
         } catch (e) {
+            resolve()
+            console.log('unable to get device', e)
             keepkey.STATE = 1
             keepkey.STATUS = `no devices`
             windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
@@ -78,24 +89,27 @@ export const start_bridge = async function () {
         }
 
         if (keepkey.device) {
-            keepkey.transport = await adapter.getTransportDelegate(keepkey.device)
-            if (!keepkey.transport) return
-            await keepkey.transport.connect?.()
+            if (!keepkey.transport) {
+                console.log('unable to get transport')
+                return
+            }
+
             log.info(tag, "transport: ", keepkey.transport)
 
             keepkey.STATE = 2
             keepkey.STATUS = 'keepkey connected'
-            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
-            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
         } else {
             log.info('Can not start! waiting for device connect')
         }
 
-        keepkey.keyring = new Keyring()
-        const wallet = await getDevice(keepkey.keyring)
 
-        if (wallet instanceof Error) return
-        keepkey.wallet = wallet
+        const device = await getDevice(keepkey.keyring)
+
+        if (device instanceof Error) {
+            console.log('wallet instance of error', device)
+            return
+        }
+        keepkey.wallet = device.wallet
 
         let API_PORT = process.env['API_PORT_BRIDGE'] || '1646'
 
@@ -129,6 +143,7 @@ export const start_bridge = async function () {
 
         //port
         try {
+            log.info(tag, "starting server! **** ")
             server = appExpress.listen(API_PORT, () => {
                 windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)
@@ -149,11 +164,12 @@ export const start_bridge = async function () {
         }
 
         bridgeRunning = true
-
+        resolve()
+        
     } catch (e) {
         log.error(e)
     }
-}
+})
 
 export const stop_bridge = async (event) => {
     try {

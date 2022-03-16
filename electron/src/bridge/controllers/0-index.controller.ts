@@ -72,8 +72,11 @@ export class IndexController extends Controller {
             }
 
             windows.mainWindow.webContents.send('@modal/pair', {
-                serviceName: body.serviceName,
-                serviceImageUrl: body.serviceImageUrl,
+                type: 'native',
+                data: {
+                    serviceName: body.serviceName,
+                    serviceImageUrl: body.serviceImageUrl
+                },
                 nonce
             })
 

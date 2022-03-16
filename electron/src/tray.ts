@@ -78,8 +78,7 @@ export const menuTemplate: any = [
     }
 ]
 
-export const createTray = eventIpc => {
-    shared.eventIPC = eventIpc
+export const createTray = () => {
     const trayIcon = `${lightDark}/keepKey/unknown.png`
     tray = new Tray(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
     const contextMenu = Menu.buildFromTemplate(menuTemplate)

@@ -7,6 +7,7 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Spacer,
   Stack,
   Text as RawText,
   useToast
@@ -252,9 +253,15 @@ export const GemManager = () => {
             />
           </Stack>
         ) : (
-          <Stack spacing={4}>
+          <Flex direction='column'>
             <FiatRampActionButtons action={state.fiatRampAction} setAction={setFiatRampAction} />
-            <Text translation={assetTranslation} color='gray.500' />
+            <Text
+              translation={assetTranslation}
+              color='gray.500'
+              fontWeight='semibold'
+              mt='15px'
+              mb='8px'
+            />
             <Button
               width='full'
               colorScheme='gray'
@@ -278,8 +285,8 @@ export const GemManager = () => {
               )}
             </Button>
             {state.selectedAsset && (
-              <Flex flexDirection='column'>
-                <Text translation={fundsTranslation} color='gray.500'></Text>
+              <Flex flexDirection='column' mb='10px'>
+                <Text translation={fundsTranslation} color='gray.500' mt='15px' mb='8px'></Text>
                 <InputGroup size='md'>
                   <Input pr='4.5rem' value={addressOrNameEllipsed} readOnly />
                   <InputRightElement width={state.supportsAddressVerifying ? '4.5rem' : undefined}>
@@ -318,6 +325,7 @@ export const GemManager = () => {
               colorScheme='blue'
               disabled={!state.selectedAsset}
               as='a'
+              mt='25px'
               href={makeGemPartnerUrl(
                 state.fiatRampAction,
                 state.selectedAsset?.ticker,
@@ -330,7 +338,7 @@ export const GemManager = () => {
             <Button width='full' size='lg' variant='ghost' onClick={fiatRamps.close}>
               <Text translation='common.cancel' />
             </Button>
-          </Stack>
+          </Flex>
         )}
       </Box>
     </SlideTransition>

@@ -28,7 +28,7 @@ import { useAppSelector } from 'state/store'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
-import { BTC_SEGWIT_NATIVE_BIP44, FiatRampAction, GemManagerAction } from '../const'
+import { FiatRampAction, GemManagerAction } from '../const'
 import { GemCurrency } from '../FiatRamps'
 import { reducer } from '../reducer'
 import { initialState } from '../state'
@@ -89,8 +89,7 @@ export const GemManager = () => {
           wallet && supportsBTC(wallet)
             ? await btcChainAdapter.getAddress({
                 wallet,
-                accountType: UtxoAccountType.SegwitNative,
-                bip44Params: BTC_SEGWIT_NATIVE_BIP44
+                accountType: UtxoAccountType.SegwitNative
               })
             : ''
         dispatch({ type: GemManagerAction.SET_BTC_ADDRESS, btcAddress })
@@ -211,8 +210,7 @@ export const GemManager = () => {
       wallet,
       ...(state.isBTC
         ? {
-            accountType: UtxoAccountType.SegwitNative,
-            bip44Params: BTC_SEGWIT_NATIVE_BIP44
+            accountType: UtxoAccountType.SegwitNative
           }
         : {}),
       showOnDevice: true

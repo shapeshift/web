@@ -14,8 +14,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Stack,
-  useClipboard
+  Stack
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { useEffect, useState } from 'react'
@@ -35,7 +34,7 @@ export const WalletConnectSessionModal = (input: any) => {
   const [uri, setUri] = useState('uri:.....')
   const { walletConnect } = useModal()
   const { close, isOpen } = walletConnect
-  const { hasCopied, onCopy } = useClipboard(uri)
+  // const { hasCopied, onCopy } = useClipboard(uri)
 
   const HandleSubmit = async (e: any) => {
     ipcRenderer.send(`@connect/session`, uri)

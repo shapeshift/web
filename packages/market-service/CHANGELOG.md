@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v2.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.3...@shapeshiftoss/market-service-v2.0.4) (2022-03-16)
+
+
+### Bug Fixes
+
+* update json rpc ([#442](https://github.com/shapeshift/lib/issues/442)) ([abfb16c](https://github.com/shapeshift/lib/commit/abfb16c3d28fa40bbb20e9834d95dca9d13e008a))
+
 # [@shapeshiftoss/market-service-v2.0.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.2...@shapeshiftoss/market-service-v2.0.3) (2022-03-14)
 
 

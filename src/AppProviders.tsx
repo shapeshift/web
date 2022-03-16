@@ -1,7 +1,7 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { UnchainedUrls } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { I18n } from 'react-polyglot'
@@ -30,19 +30,17 @@ type ProvidersProps = {
 }
 
 const unchainedUrls: UnchainedUrls = {
-  ethereum: {
+  [ChainTypes.Ethereum]: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
   },
-  bitcoin: {
+  [ChainTypes.Bitcoin]: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
   }
 }
 
 export function AppProviders({ children }: ProvidersProps) {
-  const earnFeature = FeatureFlag.Yearn
-  const DefiProvider = earnFeature ? DefiManagerProvider : React.Fragment
   return (
     <ReduxProvider store={store}>
       <ChakraProvider theme={theme}>
@@ -58,7 +56,7 @@ export function AppProviders({ children }: ProvidersProps) {
                       <MarketDataProvider>
                         <TransactionsProvider>
                           <ModalProvider>
-                            <DefiProvider>{children}</DefiProvider>
+                            <DefiManagerProvider>{children}</DefiManagerProvider>
                           </ModalProvider>
                         </TransactionsProvider>
                       </MarketDataProvider>

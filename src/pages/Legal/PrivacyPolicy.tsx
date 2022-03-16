@@ -1,15 +1,10 @@
 import { Center, DarkMode, Flex, Link } from '@chakra-ui/react'
-import { Route } from 'Routes/helpers'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 
-type PrivacyPolicyProps = {
-  route: Route
-}
-
-export const PrivacyPolicy = ({ route }: PrivacyPolicyProps) => {
+export const PrivacyPolicy = () => {
   return (
-    <Main route={route}>
+    <Main>
       <Flex px={{ base: 2, lg: 4 }} py={{ base: 4, lg: 8 }} direction={'column'} rowGap={4}>
         <DarkMode>
           <Center flexDirection={'column'}>

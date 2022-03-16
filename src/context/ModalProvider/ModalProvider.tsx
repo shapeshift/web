@@ -1,7 +1,6 @@
 import merge from 'lodash/merge'
 import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
-import { StakedModal } from 'plugins/cosmos/components/modals/Staked/Staked'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useContext, useMemo, useReducer } from 'react'
 import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
@@ -33,7 +32,6 @@ const MODALS = {
   bootloader: BootloaderModal,
   initialize: InitializeModal,
   cosmosGetStarted: GetStartedModal,
-  cosmosStaked: StakedModal,
   cosmosStaking: StakingModal,
   walletConnect: WalletConnectModal
 }
@@ -158,16 +156,15 @@ export function createModalProvider<M>({
         return { ...acc, [cur]: { open, close } }
       }, state)
       const result = merge(state, fns)
-
       return result
     }, [state, closeFactory, openFactory])
 
     return (
       <InstanceModalContext.Provider value={value}>
         {children}
-        {Object.values(value).map(
-          (Modal, key) => Modal.isOpen && <Modal.Component key={key} {...Modal.props} />
-        )}
+        {Object.values(value).map((Modal, key) => (
+          <Modal.Component key={key} {...Modal.props} />
+        ))}
       </InstanceModalContext.Provider>
     )
   }

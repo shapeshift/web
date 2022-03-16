@@ -6,7 +6,7 @@ import { Header } from './Header/Header'
 import { SideNav } from './Header/SideNav'
 
 export const Layout = ({ route }: { route: Route }) => {
-  const MainComponent = route.main as React.ElementType
+  const MainComponent = route.main
   return (
     <>
       <Header route={route} />
@@ -23,7 +23,7 @@ export const Layout = ({ route }: { route: Route }) => {
           paddingInlineEnd='0'
           flex='1 1 0%'
         >
-          {route.main && <MainComponent route={route} />}
+          {MainComponent && <MainComponent route={route} />}
         </Container>
       </Flex>
     </>

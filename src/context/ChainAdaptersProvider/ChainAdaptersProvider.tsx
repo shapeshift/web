@@ -1,5 +1,7 @@
 import { ChainAdapterManager, UnchainedUrls } from '@shapeshiftoss/chain-adapters'
-import React, { createContext, useContext, useMemo, useRef } from 'react'
+import React, { createContext, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 type ChainAdaptersProviderProps = {
   children: React.ReactNode
@@ -26,16 +28,21 @@ export const ChainAdaptersProvider = ({
   children,
   unchainedUrls
 }: ChainAdaptersProviderProps): JSX.Element => {
-  setChainAdapters(new ChainAdapterManager(unchainedUrls))
-  const chainAdapterManager = useRef<ChainAdapterManager | null>(getChainAdapters())
+  const featureFlags = useSelector(selectFeatureFlags)
 
-  const context = useMemo(() => chainAdapterManager.current, [])
+  useEffect(() => {
+    setChainAdapters(new ChainAdapterManager(unchainedUrls))
+  }, [featureFlags, unchainedUrls])
 
-  return <ChainAdaptersContext.Provider value={context}>{children}</ChainAdaptersContext.Provider>
+  if (!_chainAdapters) {
+    setChainAdapters(new ChainAdapterManager(unchainedUrls))
+  }
+
+  return (
+    <ChainAdaptersContext.Provider value={_chainAdapters}>{children}</ChainAdaptersContext.Provider>
+  )
 }
 
 export const useChainAdapters = () => {
-  const context = useContext(ChainAdaptersContext)
-  if (!context) throw new Error('Chain Adapters cannot be used outside of its context')
-  return context
+  return getChainAdapters()
 }

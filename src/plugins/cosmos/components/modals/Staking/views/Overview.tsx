@@ -3,8 +3,8 @@ import { Button, ModalCloseButton } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import { OverviewHeader } from 'plugins/cosmos/components/OverviewHeader/OverviewHeader'
 import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
-import { StakedHeader } from 'plugins/cosmos/components/StakedHeader/StakedHeader'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
@@ -16,7 +16,7 @@ type StakedProps = {
 }
 
 // TODO: Wire up the whole component with staked data
-export const Staked = ({ assetId }: StakedProps) => {
+export const Overview = ({ assetId }: StakedProps) => {
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
     name: 'Osmosis',
@@ -32,13 +32,13 @@ export const Staked = ({ assetId }: StakedProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <StakedHeader assetName={asset.name} mb='35px' />
+          <OverviewHeader assetName={asset.name} mb='35px' />
           <StakedRow
             mb='10px'
             assetSymbol={asset.symbol}
             fiatRate={bnOrZero('8.47')}
             cryptoStakedAmount={bnOrZero('708.00')}
-            apr={bnOrZero('1.25')}
+            apr={bnOrZero('0.12')}
           />
           <StakingButtons assetId={assetId} />
           <Box width='100%' mt='20px'>

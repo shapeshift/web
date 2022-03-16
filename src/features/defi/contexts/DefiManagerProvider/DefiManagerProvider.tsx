@@ -1,5 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'
@@ -63,17 +64,19 @@ export function DefiManagerProvider({ children }: DefiManagerProviderProps) {
   return (
     <DefiManagerContext.Provider value={null}>
       <YearnProvider>
-        {children}
-        {background && (
-          <Route
-            path='/defi/:earnType/:provider'
-            render={({ match: { params } }) => {
-              const { provider } = params
-              const Module = DefiModules[provider as DefiProvider]
-              return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
-            }}
-          />
-        )}
+        <FoxyProvider>
+          {children}
+          {background && (
+            <Route
+              path='/defi/:earnType/:provider'
+              render={({ match: { params } }) => {
+                const { provider } = params
+                const Module = DefiModules[provider as DefiProvider]
+                return <DefiModal>{Module ? <Module /> : <NotFound />}</DefiModal>
+              }}
+            />
+          )}
+        </FoxyProvider>
       </YearnProvider>
     </DefiManagerContext.Provider>
   )

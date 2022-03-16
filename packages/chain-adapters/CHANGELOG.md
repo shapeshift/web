@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.4.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.3...@shapeshiftoss/chain-adapters-v2.4.4) (2022-03-16)
+
+
+### Bug Fixes
+
+* update unchained client ([#451](https://github.com/shapeshift/lib/issues/451)) ([d23e179](https://github.com/shapeshift/lib/commit/d23e17995889343addf6bbcb79744ad11e3f8127))
+
 # [@shapeshiftoss/chain-adapters-v2.4.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.2...@shapeshiftoss/chain-adapters-v2.4.3) (2022-03-16)
 
 

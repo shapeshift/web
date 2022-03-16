@@ -38,7 +38,7 @@ import path from 'path'
 import isDev from 'electron-is-dev'
 import log from 'electron-log'
 import { autoUpdater } from 'electron-updater'
-import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
 import axios from 'axios'
@@ -62,7 +62,7 @@ import { update_keepkey_status } from './keepkey'
 import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
-import { isWin, isLinux, isMac } from './constants'
+import { isWin, isLinux, isMac, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
 import { getDevice } from './wallet'
 import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -150,7 +150,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
         height: 780,
         show: false,
         backgroundColor: 'white',
-        // autoHideMenuBar: true,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -194,6 +194,22 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     db.findOne({ type: 'user' }, (err, doc) => {
         if (doc) shared.USER = doc.user
     })
+
+    windows.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        let urlObj = new URL(url);
+        let urlHost = urlObj.hostname;
+        if (ALLOWED_HOSTS.includes(urlHost)) return { action: 'allow' }
+        return { action: 'deny' }
+    })
+
+    windows.mainWindow.webContents.on("will-navigate", (event, url) => {
+        let urlObj = new URL(url);
+        let urlHost = urlObj.hostname;
+        if (!ALLOWED_HOSTS.includes(urlHost)) {
+            event.preventDefault();
+            shell.openExternal(url);
+        }
+    });
 })
 
 
@@ -240,10 +256,6 @@ app.on("activate", function () {
 
 app.on('before-quit', async () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    if (keepkey.wallet) {
-        await keepkey.wallet.cancel()
-        await keepkey.wallet.softReset()
-    }
     isQuitting = true
 })
 

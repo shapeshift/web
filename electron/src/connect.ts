@@ -8,7 +8,7 @@
 import WalletConnect from "@walletconnect/client";
 
 import log from 'electron-log'
-import { app, ipcMain, IpcMainEvent } from "electron";
+import { ipcMain, IpcMainEvent } from "electron";
 
 import { uniqueId } from 'lodash';
 import { shared } from "./shared";
@@ -211,7 +211,7 @@ export async function pairWalletConnect(event: any, payload: any) {
 
                     let typedParams = JSON.parse(params[1])
                     let value = typedParams.message.value.toString(16)
-                    value = "0x"+value
+                    value = "0x" + value
 
                     HDwalletPayload = {
                         "addressNList": [
@@ -266,7 +266,7 @@ export async function pairWalletConnect(event: any, payload: any) {
                     }
                     break;
                 default:
-                    throw Error("Unhandled Method: "+method)
+                    throw Error("Unhandled Method: " + method)
             }
 
 
@@ -324,7 +324,7 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             //get txid always (even if failed to broadcast)
             let txid = keccak256(response.serialized).toString('hex')
-            txid = "0x"+txid
+            txid = "0x" + txid
             log.info(tag, "txid: ", txid)
 
             //respond

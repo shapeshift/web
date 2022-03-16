@@ -231,7 +231,7 @@ if (!instanceLock) {
 }
 
 app.on('window-all-closed', () => {
-    return
+    if (!bridgeRunning) app.quit()
 })
 
 app.on("activate", function () {
@@ -499,10 +499,16 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error(e)
         }
 
-
-
-
-
+        try {
+            // createTray(event)
+        } catch (e) {
+            log.error('Failed to create tray! e: ', e)
+        }
+        try {
+            if (!bridgeRunning) start_bridge()
+        } catch (e) {
+            log.error('Failed to start_bridge! e: ', e)
+        }
     } catch (e) {
         log.error('e: ', e)
         log.error(tag, e)

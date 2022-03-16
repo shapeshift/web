@@ -1,7 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Box, Button, HStack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { FeatureFlag } from 'constants/FeatureFlag'
 import {
   EarnOpportunityType,
   useNormalizeOpportunities
@@ -26,7 +25,6 @@ type EarnOpportunitiesProps = {
 }
 
 export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) => {
-  const earnFeature = FeatureFlag.Yearn
   const history = useHistory()
   const location = useLocation()
   const {
@@ -60,8 +58,6 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
     })
   }
 
-  if (!earnFeature || !allRows?.length) return null
-
   return (
     <Card>
       <Card.Header flexDir='row' display='flex'>
@@ -86,9 +82,11 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
           </Box>
         </HStack>
       </Card.Header>
-      <Card.Body pt={0} px={2}>
-        <StakingTable data={allRows} onClick={handleClick} />
-      </Card.Body>
+      {Boolean(allRows?.length) && (
+        <Card.Body pt={0} px={2}>
+          <StakingTable data={allRows} onClick={handleClick} />
+        </Card.Body>
+      )}
     </Card>
   )
 }

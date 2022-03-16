@@ -1,6 +1,4 @@
 import { Stack, StackProps } from '@chakra-ui/react'
-import union from 'lodash/union'
-import { pluginManager } from 'plugins'
 import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink } from 'react-router-dom'
 import { routes } from 'Routes/Routes'
@@ -16,15 +14,15 @@ export const NavBar = ({ isCompact, ...rest }: NavBarProps) => {
 
   return (
     <Stack width='full' flex='1 1 0%' {...rest}>
-      {union(routes, pluginManager.getRoutes())
+      {routes
         .filter(route => !route.disable && !route.hide)
         .map((item, idx) => {
           return (
             <MainNavLink
+              isCompact={isCompact}
               as={ReactRouterLink}
               key={idx}
               leftIcon={item.icon}
-              isCompact={isCompact}
               href={item.path}
               to={item.path}
               label={translate(item.label)}

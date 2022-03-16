@@ -10,10 +10,17 @@ import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
 
-import { WalletConnectedMenuRoutes } from './MenuRoutes/WalletConnectedMenuRoutes'
+import {
+  WalletConnectedMenuRoutes,
+  WalletConnectedRoutes
+} from './MenuRoutes/WalletConnectedMenuRoutes'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
-export const entries = ['/main', '/keepkey']
+export const entries = [
+  WalletConnectedRoutes.Connected,
+  WalletConnectedRoutes.KeepKey,
+  WalletConnectedRoutes.KeepKeyPin
+]
 
 export const WalletImage = ({ walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon

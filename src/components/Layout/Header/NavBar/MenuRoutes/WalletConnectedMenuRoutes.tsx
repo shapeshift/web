@@ -1,6 +1,6 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Flex } from '@chakra-ui/react'
+import { Button,Flex } from '@chakra-ui/react'
 import { Features } from '@keepkey/device-protocol/lib/messages_pb'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey/dist/keepkey'
 import { useEffect, useState } from 'react'
@@ -14,6 +14,12 @@ import { RawText, Text } from 'components/Text'
 import { KeyManager } from 'context/WalletProvider/config'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
+export enum WalletConnectedRoutes {
+  Connected = '/connected',
+  KeepKey = '/connected/keepkey',
+  KeepKeyPin = '/connected/keepkey/pin'
+}
+
 export const WalletConnectedMenuRoutes = ({
   onDisconnect,
   onSwitchProvider,
@@ -21,7 +27,7 @@ export const WalletConnectedMenuRoutes = ({
   isConnected,
   type
 }: WalletConnectedProps) => {
-  const { handleKeepKeyClick } = useMenuRoutes()
+  const { handleKeepKeyClick, handleChangePinClick } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
   const [walletFeatures, setWalletFeatures] = useState<Features.AsObject>()
@@ -173,10 +179,22 @@ export const WalletConnectedMenuRoutes = ({
     return keepKeyStateLoaded || keepKeyStateLoading
   }
 
+  const changePin = () => {
+    return (
+      <>
+        <SubmenuHeader title={translate('walletProvider.keepKey.settings.headings.devicePin')} />
+        <Button colorScheme='blue' ml={3}>
+          {translate('walletProvider.keepKey.settings.actions.updatePin')}
+        </Button>
+      </>
+    )
+  }
+
   return (
     <Switch location={location} key={location.key}>
-      <Route path='/connected' component={connectedMenu} />
-      <Route path='/keepkey' component={keepKeyMenu} />
+      <Route exact path={WalletConnectedRoutes.Connected} component={connectedMenu} />
+      <Route exact path={WalletConnectedRoutes.KeepKey} component={keepKeyMenu} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={changePin} />
     </Switch>
   )
 }

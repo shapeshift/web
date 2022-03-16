@@ -524,6 +524,15 @@
           "disabled": "Disabled",
           "upToDate": "Up to date",
           "updateAvailable": "Update available"
+        },
+        "headings": {
+          "devicePin": "Device PIN",
+          "enterPin": "Enter current PIN",
+          "setPin": "Set a new PIN",
+          "confirmPin": "Confirm new PIN"
+        },
+        "actions": {
+          "updatePin": "Update PIN"
         }
       }
     },

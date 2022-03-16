@@ -342,14 +342,14 @@ export async function pairWalletConnect(event: any, payload: any) {
             }
 
 
-            //get txid
+            //get txid always (even if failed to broadcast)
             let txid = keccak256(response.serialized).toString('hex')
             log.info(tag, "txid: ", txid)
 
             //respond
             let successRespond = await walletConnectClient.approveRequest({
                 id: payload.id,
-                result: result,
+                result: txid,
             })
             log.info(tag, "successRespond: ", successRespond)
 

@@ -22,8 +22,8 @@ type MixedPortfolioAssetBalances = {
 export const middleEllipsis = (address: string, cut: number) =>
   `${address.slice(0, cut)}...${address.slice(-1 * cut)}`
 
-export const isSupportedBitcoinAsset = (ticker: string | undefined) =>
-  Boolean(ticker && ticker === 'BTC')
+export const isSupportedBitcoinAsset = (assetId: string | undefined) =>
+  Boolean(assetId === 'bip122:000000000019d6689c085ae165831e93/slip44:0')
 
 export const getAssetLogoUrl = (asset: GemCurrency) => {
   return ASSET_LOGO_BASE_URI + asset.ticker.toLowerCase() + '.svg'
@@ -32,7 +32,7 @@ export const getAssetLogoUrl = (asset: GemCurrency) => {
 export const filterAssetsBySearchTerm = (search: string, assets: GemCurrency[]) => {
   if (!assets) return []
 
-  return matchSorter(assets, search, { keys: ['name', 'ticker'] })
+  return matchSorter(assets, search, { keys: ['name', 'assetId'] })
 }
 
 export const fetchCoinifySupportedCurrencies = async (): Promise<SupportedCurrency[]> => {
@@ -100,15 +100,17 @@ const parseGemAssets = (
   const results = uniqBy(flatten(concat(filteredCoinifyList, filteredWyreList)), 'gem_asset_id')
     .filter(asset => Boolean(adapters.gemAssetIdToCAIP19(asset.gem_asset_id)))
     .map(asset => {
+      const assetId = adapters.gemAssetIdToCAIP19(asset.gem_asset_id) || ''
       return {
         ...asset,
-        disabled: isSupportedBitcoinAsset(asset?.ticker) && !btcAddress,
-        cryptoBalance: bnOrZero(balances?.[asset?.ticker]?.crypto),
-        fiatBalance: bnOrZero(balances?.[asset?.ticker]?.fiat)
+        assetId,
+        disabled: isSupportedBitcoinAsset(assetId) && !btcAddress,
+        cryptoBalance: bnOrZero(balances?.[assetId]?.crypto),
+        fiatBalance: bnOrZero(balances?.[assetId]?.fiat)
       }
     })
     .sort((a, b) =>
-      key === 'source' && (a.fiatBalance || b.fiatBalance)
+      key === 'source' && (a.fiatBalance.gt(0) || b.fiatBalance.gt(0))
         ? b.fiatBalance.minus(a.fiatBalance).toNumber()
         : a.name.localeCompare(b.name)
     )

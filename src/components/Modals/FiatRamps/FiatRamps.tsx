@@ -27,6 +27,7 @@ export type GemCurrency = {
   gem_asset_id: string
   name: string
   ticker: string
+  assetId: string
   cryptoBalance: BigNumber
   fiatBalance: BigNumber
   disabled?: boolean

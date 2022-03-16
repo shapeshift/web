@@ -7,7 +7,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Spacer,
   Stack,
   Text as RawText,
   useToast
@@ -16,7 +15,6 @@ import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -24,7 +22,8 @@ import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersPro
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
-import { selectPortfolioCryptoMixedBalancesBySymbol } from 'state/slices/selectors'
+import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'
@@ -73,7 +72,7 @@ export const GemManager = () => {
     })()
   }, [wallet])
 
-  const balances = useSelector(selectPortfolioCryptoMixedBalancesBySymbol)
+  const balances = useAppSelector(selectPortfolioMixedHumanBalancesBySymbol)
 
   useEffect(() => {
     ;(async () => {
@@ -150,7 +149,7 @@ export const GemManager = () => {
   useEffect(() => {
     dispatch({
       type: GemManagerAction.SET_IS_BTC,
-      assetTicker: state.selectedAsset?.ticker,
+      assetId: state.selectedAsset?.assetId,
       btcAddress: state.btcAddress
     })
 
@@ -166,7 +165,7 @@ export const GemManager = () => {
     ethChainAdapter,
     wallet,
     state.isBTC,
-    state.selectedAsset?.ticker,
+    state.selectedAsset?.assetId,
     state.btcAddress
   ])
 

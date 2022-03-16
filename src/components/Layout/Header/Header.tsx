@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -46,7 +47,9 @@ export const Header = ({ route }: { route: Route }) => {
     return () => document.removeEventListener('keydown', handleKeyPress)
   }, [handleKeyPress])
 
-  const gemRampFlag = useSelector(state => selectFeatureFlag(state as any, 'GemRamp'))
+  // TODO(gomes): There's currently a runtime error when using the typed useAppSelector here.
+  // Find out the root cause and use it instead
+  const gemRampFlag = useSelector((state: ReduxState) => selectFeatureFlag(state, 'GemRamp'))
 
   return (
     <>

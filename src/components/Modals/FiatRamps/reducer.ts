@@ -104,7 +104,7 @@ export const reducer = (state: GemManagerState, action: Record<any, any>) => {
         chainAdapter: action.chainAdapter
       }
     case GemManagerAction.SET_IS_BTC:
-      const isBTC = isSupportedBitcoinAsset(action.assetTicker) && action.btcAddress
+      const isBTC = isSupportedBitcoinAsset(action.assetId) && action.btcAddress
       return {
         ...state,
         isBTC: isBTC

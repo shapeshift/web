@@ -196,7 +196,7 @@ export const selectPortfolioCryptoHumanBalanceByAssetId = createSelector(
     fromBaseUnit(bnOrZero(balances[assetId]), assets[assetId]?.precision ?? 0)
 )
 
-export const selectPortfolioCryptoMixedBalancesBySymbol = createSelector(
+export const selectPortfolioMixedHumanBalancesBySymbol = createSelector(
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
@@ -207,7 +207,7 @@ export const selectPortfolioCryptoMixedBalancesBySymbol = createSelector(
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(balance, precision)
         const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price)).toFixed(2)
-        acc[assets[assetId].symbol] = { crypto: cryptoValue, fiat: assetFiatBalance }
+        acc[assets[assetId].caip19] = { crypto: cryptoValue, fiat: assetFiatBalance }
         return acc
       },
       {}

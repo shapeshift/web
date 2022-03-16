@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.0.2...@shapeshiftoss/caip-v2.1.0) (2022-03-16)
+
+
+### Features
+
+* add gem adapter ([#433](https://github.com/shapeshift/lib/issues/433)) ([78a8f14](https://github.com/shapeshift/lib/commit/78a8f14b82330239555ad544121ea956dd6ca8be))
+
 # [@shapeshiftoss/caip-v2.0.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.0.1...@shapeshiftoss/caip-v2.0.2) (2022-03-16)
 
 

@@ -38,10 +38,11 @@ const cspMeta = Object.entries({
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
     // @gem(onramp) to get coinify supported currencies
-    process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
+    'https://api.gem.co/institutions/coinify/supported_currencies',
     // @gem(onramp) to get wyre supported currencies
-    process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS,
-    process.env.REACT_APP_GEM_ENV,
+    'https://api.gem.co/institutions/wyre/supported_currencies',
+    // @gem(onramp) to get gem asset logos
+    process.env.REACT_APP_GEM_ASSET_LOGO,
     process.env.REACT_APP_GEM_API_KEY,
     'https://onramp.gem.co',
     // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21

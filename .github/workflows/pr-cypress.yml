@@ -18,8 +18,13 @@ env:
   REACT_APP_PORTIS_DAPP_ID: 8609e6a8-e0dc-45e6-a0ad-edde63a4cdda
   REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
   REACT_APP_METAMASK_DEEPLINK_URL: https://metamask.app.link/dapp/app.shapeshift.com
+
   REACT_APP_FEATURE_COSMOS_INVESTOR: true
   REACT_APP_FEATURE_PLUGIN_COSMOS: true
+  REACT_APP_FEATURE_GEM_RAMP: false
+
+  REACT_APP_GEM_ASSET_LOGO: https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/
+  REACT_APP_GEM_API_KEY: 17baca45f492df6b8974d4f832a659c92644acafea3284cfb0d52550dd3bde1a
 
 jobs:
   test-chrome:

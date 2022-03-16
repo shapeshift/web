@@ -6,7 +6,7 @@ export const CardStyle = {
     card: {
       rounded: {
         base: 0,
-        lg: 'xl'
+        xl: 'xl'
       }
     },
     heading: {

@@ -1,9 +1,10 @@
 import { ArrowBackIcon, ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/layout'
-import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
+import { Menu, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Button, Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useLocation } from 'react-router-dom'
+import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
 import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedProps, WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
@@ -16,7 +17,7 @@ export const WalletConnectedMenuRoutes = ({
   isConnected,
   type
 }: WalletConnectedProps) => {
-  const { handleKeepKeyClick, handleBackClick } = useMenuRoutes()
+  const { handleKeepKeyClick, handleBackClick, handleMenuClose } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
   const isKeepKey = type === KeyManager.KeepKey
@@ -59,55 +60,57 @@ export const WalletConnectedMenuRoutes = ({
           <Button onClick={handleBackClick} size='sm'>
             <ArrowBackIcon color='lightgrey' />
           </Button>
-          <Center fontWeight='bold' color='white' fontSize='sm' flex={1}>
+          <Center fontWeight='bold' color='white' fontSize='sm' flex={1} pr={7}>
             {translate('common.connectedWalletSettings')}
           </Center>
         </Flex>
         <MenuGroup>
-          <MenuItem
-            closeOnSelect={!isKeepKey}
-            onClick={handleKeepKeyClick}
-            icon={<WalletImage walletInfo={walletInfo} />}
-          >
-            <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
+          <Flex ml={3}>
+            <WalletImage walletInfo={walletInfo} />
+            <Flex flex={1} ml={3} justifyContent='space-between' alignItems='center'>
               <RawText>{walletInfo?.name}</RawText>
               {!isConnected && (
                 <Text
+                  mr={3}
                   translation={'connectWallet.menu.disconnected'}
                   fontSize='sm'
                   color='yellow.500'
                 />
               )}
             </Flex>
-          </MenuItem>
+          </Flex>
           <MenuDivider />
-          <MenuItem onClick={handleBackClick} command={'Up to date (v3.253)'}>
-            Bootloader
-          </MenuItem>
-          <MenuItem onClick={handleBackClick} command={'Update available (v6.04)'}>
-            Firmware
-          </MenuItem>
+          <ExpandedMenuItem
+            label='Bootloader'
+            value='Up to date'
+            badge='v3.253'
+            badgeColor='green'
+            hasSubmenu={true}
+          />
+          <ExpandedMenuItem
+            label='Firmware'
+            value='Update available'
+            badge='v6.04'
+            badgeColor='yellow'
+            hasSubmenu={true}
+            valueDisposition='info'
+          />
           <MenuDivider />
-          <MenuItem onClick={handleBackClick} command={walletInfo?.name}>
-            Label
-          </MenuItem>
-          <MenuItem onClick={handleBackClick} command={'********'}>
-            PIN
-          </MenuItem>
+          <ExpandedMenuItem label='Label' value={walletInfo?.name} hasSubmenu={true} />
+          <ExpandedMenuItem label='PIN' value='********' hasSubmenu={true} />
           <MenuDivider />
         </MenuGroup>
         <MenuGroup title={'Advanced'} ml={3} color='gray.500'>
-          <MenuItem onClick={handleBackClick} command={'10 Minutes'}>
-            Device Timeout
-          </MenuItem>
-          <MenuItem onClick={handleBackClick} command={'Disabled'}>
-            PIN Caching
-          </MenuItem>
-          <MenuItem onClick={handleBackClick} command={'Enabled'}>
-            Passphrase
-          </MenuItem>
+          <ExpandedMenuItem label='Device Timeout' value='10 Minutes' hasSubmenu={true} />
+          <ExpandedMenuItem label='PIN Caching' value='Disabled' hasSubmenu={true} />
+          <ExpandedMenuItem
+            label='Passphrase'
+            value='Enabled'
+            hasSubmenu={true}
+            valueDisposition='positive'
+          />
           <MenuDivider />
-          <MenuItem icon={<CloseIcon />} onClick={handleBackClick}>
+          <MenuItem color='red.500' icon={<CloseIcon />}>
             Wipe Device
           </MenuItem>
         </MenuGroup>

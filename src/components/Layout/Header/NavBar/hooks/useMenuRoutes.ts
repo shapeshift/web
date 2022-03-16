@@ -1,11 +1,18 @@
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
+import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/WalletConnectedMenuRoutes'
 
 export const useMenuRoutes = () => {
   const history = useHistory()
-  const handleKeepKeyClick = useCallback(() => history.push('/keepkey'), [history])
   const handleBackClick = useCallback(() => history.goBack(), [history])
-  const handleMenuClose = useCallback(() => history.push('/connected'), [history])
+  const handleKeepKeyClick = useCallback(
+    () => history.push(WalletConnectedRoutes.KeepKey),
+    [history]
+  )
+  const handleChangePinClick = useCallback(
+    () => history.push(WalletConnectedRoutes.KeepKeyPin),
+    [history]
+  )
 
-  return { handleKeepKeyClick, handleBackClick, handleMenuClose }
+  return { handleKeepKeyClick, handleBackClick, handleChangePinClick }
 }

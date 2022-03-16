@@ -1,6 +1,7 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
+import { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
 import { ThemeTypings } from '@chakra-ui/styled-system'
 import { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
 import { RawText } from 'components/Text'
@@ -12,7 +13,7 @@ type ExpandedMenuItemProps = {
   badge?: string
   badgeColor?: ThemeTypings['colorSchemes']
   hasSubmenu?: boolean
-}
+} & MenuItemProps
 
 export const ExpandedMenuItem = ({
   label,
@@ -20,7 +21,8 @@ export const ExpandedMenuItem = ({
   badge,
   badgeColor = 'grey',
   hasSubmenu = false,
-  valueDisposition = 'neutral'
+  valueDisposition = 'neutral',
+  ...props
 }: ExpandedMenuItemProps) => {
   const valueColor: ColorProps['color'] = (() => {
     switch (valueDisposition) {
@@ -37,7 +39,7 @@ export const ExpandedMenuItem = ({
   })()
 
   return (
-    <MenuItem display='flex'>
+    <MenuItem display='flex' {...props} closeOnSelect={!hasSubmenu}>
       <RawText flex={1}>{label}</RawText>
       <RawText ml={3} color={valueColor}>
         {value}

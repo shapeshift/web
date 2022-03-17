@@ -15,6 +15,7 @@ import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
 import { WalletConnectModal } from 'components/Modals/WalletConnect/WalletConnect'
+import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
@@ -33,7 +34,8 @@ const MODALS = {
   initialize: InitializeModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal,
-  walletConnect: WalletConnectModal
+  walletConnect: WalletConnectModal,
+  hardwareError: HardwareErrorModal
 }
 
 // state

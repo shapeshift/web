@@ -3,13 +3,16 @@ import { translations } from 'assets/translations'
 const baseUrl = Cypress.config().baseUrl
 const seed = Cypress.env('testSeed')
 const password = Cypress.env('testPassword')
+const autoRecord = require('cypress-autorecord')
 
-describe('The Dashboard', () => {
-  before(() => {
+describe('The Dashboard', function () {
+  autoRecord()
+
+  before(function () {
     cy.clearIndexedDB()
   })
 
-  it('supports log in via an imported Native wallet', () => {
+  it('supports log in via an imported Native wallet', function () {
     cy.visit('')
 
     // Open WalletProvider.SelectModal
@@ -54,7 +57,7 @@ describe('The Dashboard', () => {
     cy.url().should('equal', `${baseUrl}dashboard`)
   })
 
-  it('supports login via locally stored Native wallet', () => {
+  it('supports login via locally stored Native wallet', function () {
     // This will use the wallet created in `supports log in via an imported Native wallet`
     cy.visit('')
     cy.getBySel('connect-wallet-button').click()
@@ -68,8 +71,8 @@ describe('The Dashboard', () => {
     cy.url().should('equal', `${baseUrl}dashboard`)
   })
 
-  it('cannot login natively when no local Native wallets', () => {
-    cy.clearIndexedDB().then(() => {
+  it('cannot login natively when no local Native wallets', function () {
+    cy.clearIndexedDB().then(function () {
       cy.visit('')
       cy.getBySel('connect-wallet-button').click()
       cy.getBySel('wallet-native-button').click()
@@ -77,7 +80,7 @@ describe('The Dashboard', () => {
     })
   })
 
-  it('support Portis log in', () => {
+  it('support Portis log in', function () {
     cy.visit('')
 
     // Open WalletProvider.SelectModal

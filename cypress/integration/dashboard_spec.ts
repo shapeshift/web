@@ -1,19 +1,21 @@
 const baseUrl = Cypress.config().baseUrl
 const linkContract = Cypress.env('linkContract')
+const autoRecord = require('cypress-autorecord')
 
-beforeEach(() => {
+beforeEach(function () {
   // Intercept all account requests relating to our test wallet
   cy.mockAllRequests()
 })
 
-describe('The Dashboard', () => {
-  before(() => {
+describe('The Dashboard', function () {
+  autoRecord()
+  before(function () {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()
     cy.login()
   })
 
-  it('nav bar works', () => {
+  it('nav bar works', function () {
     // A proxy to understand if the Dashboard has initialised
     cy.getBySel('account-row').should('have.length.gt', 5)
 
@@ -23,7 +25,7 @@ describe('The Dashboard', () => {
     cy.navigateToDashboard()
   })
 
-  it('displays the expected account rows', () => {
+  it('displays the expected account rows', function () {
     cy.getBySel('account-row').should('have.length.gt', 5)
 
     // Check LINK - one asset is enough. Test all and our tests become brittle.
@@ -34,7 +36,7 @@ describe('The Dashboard', () => {
     // TODO - Mock API response and test account row allocation
   })
 
-  it('supports trades', () => {
+  it('supports trades', function () {
     cy.getBySel('account-row-asset-name-ETH').click()
     cy.getBySel('token-row-sell').find('input').type('89')
     cy.getBySel('trade-preview-button').should('be.disabled')
@@ -51,7 +53,7 @@ describe('The Dashboard', () => {
   })
 
   // Flakey - fix and unskip
-  it.skip('supports send transaction setup', () => {
+  it.skip('supports send transaction setup', function () {
     cy.navigateToDashboard()
     cy.getBySel('account-row-asset-crypto-LINK').click()
     cy.url().should('equal', `${baseUrl}assets/${linkContract}`)
@@ -76,7 +78,7 @@ describe('The Dashboard', () => {
   })
 
   // Flakey - fix and unskip
-  it.skip('supports receive transaction setup', () => {
+  it.skip('supports receive transaction setup', function () {
     cy.navigateToDashboard()
     cy.getBySel('account-row-asset-crypto-LINK').click()
     cy.url().should('equal', `${baseUrl}assets/${linkContract}`)

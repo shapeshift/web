@@ -2,6 +2,7 @@ require('dotenv').config()
 const { execSync } = require('child_process')
 const { resolve } = require('path')
 const fs = require('fs')
+const autoRecordPlugin = require('cypress-autorecord/plugin')
 
 const execa = require('execa')
 
@@ -51,6 +52,8 @@ const findBrave = (): Cypress.Browser | undefined => {
  * @type {Cypress.PluginConfig}
  */
 module.exports = async (on: any, config: any) => {
+  autoRecordPlugin(on, config, fs)
+
   if (config.testingType === 'component') {
     require('@cypress/react/plugins/react-scripts')(on, config)
   }

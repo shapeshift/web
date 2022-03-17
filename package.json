@@ -45,6 +45,7 @@
     "chakra-ui-steps": "^1.6.1",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
+    "cypress-autorecord": "^3.1.2",
     "dayjs": "^1.10.6",
     "dompurify": "^2.3.2",
     "envalid": "^7.2.1",

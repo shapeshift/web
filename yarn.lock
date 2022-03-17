@@ -4033,12 +4033,7 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.0.0.tgz#de64b40bc777551d83c0938a319ba805069caf10"
-  integrity sha512-1NOcxKikRX9T8JRu6d+cSvaWscrnVzqanOrDhPkCzDfjmqZQ5JgVR1dz7bTN6s83oZiRcM80zAIfX9lJ06cHTg==
-
-"@shapeshiftoss/types@^2.1.0":
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.1.0.tgz#6704f709f2650da671f212278687d32143269a10"
   integrity sha512-4v7ZyV6LvUZ3z0rTntNxyivpuzhwrAO6lYlxkSNcfoMlrAOiZp9a93QeYFs8enQgphZ3V7giO13LXAEyBWDKpw==
@@ -6547,18 +6542,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.29":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.1.1.tgz#237899a175fe177e13b1f98111811027da01602d"
-  integrity sha512-UObLdc6T3DJpp7rUKLqM7eit62v4CBMRI2pcXgFLJ2PJraCLlpG+pUSxxwFFZLLgTavfqwleMvo8xML3gnnsbg==
-  dependencies:
-    bignumber.js "9.0.1"
-    cross-fetch "3.1.4"
-    dotenv "10.0.0"
-    emittery "0.8.1"
-    type-fest "1.2.1"
-
-"@yfi/sdk@^1.0.30":
+"@yfi/sdk@^1.0.29", "@yfi/sdk@^1.0.30":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.2.0.tgz#b0635ced261cab41c57272ebb00ea7041702d74b"
   integrity sha512-o0GE+enTlUDwuP+W7TD7/5r5s2xuMTj93vPpUmDYePOunx3B85jwEl2FLUugTOdsku8eKhLLhLJTx6fJmSJLAw==
@@ -9500,6 +9484,11 @@ cyclist@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
+
+cypress-autorecord@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/cypress-autorecord/-/cypress-autorecord-3.1.2.tgz#296e74fc40f25bc1b8064f0e2fd255e75ba8b089"
+  integrity sha512-BNI4E2DBIbzJgWBU/8vJ6E34PndO3DTsT5jJe7iAISNqwnsX6dirpd0tE0xo0jpB63oBMvqmOptaODoJQ9PVpg==
 
 cypress@9.5.1:
   version "9.5.1"

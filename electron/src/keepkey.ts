@@ -14,11 +14,16 @@ import Hardware from "@keepkey/keepkey-hardware-hid"
 ipcMain.on('@keepkey/update-firmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
+        log.info(tag," checkpoint !!!!")
         let result = await Hardware.getLatestFirmwareData()
+        // log.info(tag,"result: ",result)
         updateConfig({ attemptUpdateFirmware: true })
         let firmware = await Hardware.downloadFirmware(result.firmware.url)
+        log.info(tag,"firmware: ",firmware)
+
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
+
         updateConfig({ updatedFirmware: true })
         event.sender.send('onCompleteFirmwareUpload', {
             bootloader: true,
@@ -34,7 +39,7 @@ ipcMain.on('@keepkey/update-bootloader', async event => {
     try {
         log.info(tag, "checkpoint: ")
         let result = await Hardware.getLatestFirmwareData()
-        updateConfig({ attemptUpdateBootlder: true })
+        updateConfig({ attemptUpdateBootloader: true })
         let firmware = await Hardware.downloadFirmware(result.bootloader.url)
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
@@ -61,8 +66,7 @@ ipcMain.on('@keepkey/info', async (event, data) => {
 export const update_keepkey_status = async function () {
     let tag = " | update_keepkey_status | "
     try {
-        let config = getConfig()
-        //
+
         let firmwareInfo = await Hardware.getLatestFirmwareData()
         log.info(tag, "firmwareInfo: ", firmwareInfo)
         windows?.mainWindow?.webContents.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
@@ -76,12 +80,9 @@ export const update_keepkey_status = async function () {
             shared.KEEPKEY_FEATURES = resultInit
             windows?.mainWindow?.webContents.send('loadKeepKeyInfo', { payload: resultInit })
             //if not latest bootloader, set need bootloader update
-            if (resultInit.bootloaderVersion !== "v1.1.0" && !config.updatedBootloader) {
+            if (resultInit.bootloaderVersion !== "v1.1.0") {
                 windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
-                updateConfig({ isNewDevice: true })
-                windows?.mainWindow?.webContents.send('setUpdaterMode', { payload: true })
-            }
-            if (config.updatedBootloader) {
+            } else if(resultInit.firmwareVersion !== "v7.2.1") {
                 //update firmware next
                 windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
             }
@@ -105,7 +106,7 @@ export const update_keepkey_status = async function () {
 
         let resultUpdater = usb.findByIds(11044, 1)
         if (resultUpdater) {
-            log.info(tag, "UPDATER MODE DETECTED!")
+            // log.info(tag, "UPDATER MODE DETECTED!")
         }
     } catch (e) {
         log.error(tag,e)

@@ -56,7 +56,7 @@ export const AssetToAsset = ({
 
   return (
     <Flex width='full' justifyContent='space-between' alignItems='stretch' {...rest}>
-      <Box flex={1}>
+      <Box flex={1} maxWidth='calc(50% - 11px)'>
         <Flex alignItems='center'>
           <AssetIcon src={sellAsset.currency.icon} boxSize={boxSize} />
           <Divider flex={1} bgColor={sellAssetColor} />
@@ -84,7 +84,7 @@ export const AssetToAsset = ({
           {renderIcon()}
         </Circle>
       </Flex>
-      <Flex flexDirection='column' flex={1}>
+      <Flex flexDirection='column' flex={1} maxWidth='calc(50% - 11px)'>
         <Flex alignItems='center' flex={1} justify='flex-start'>
           <Divider flex={1} bgColor={buyAssetColor} />
           <AssetIcon src={buyAsset.currency.icon} boxSize={boxSize} />

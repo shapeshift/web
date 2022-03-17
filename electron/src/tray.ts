@@ -44,7 +44,7 @@ export const menuTemplate: any = [
         enabled: false,
         click: function () {
             log.info('stop bridge')
-            stop_bridge(shared.eventIPC)
+            stop_bridge()
         }
     },
     //

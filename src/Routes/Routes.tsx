@@ -1,5 +1,6 @@
 import union from 'lodash/union'
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
+import { MdOutlineApps } from 'react-icons/md'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -10,6 +11,7 @@ import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
 import { AccountTokenTxHistory } from 'pages/Accounts/AccountToken/AccountTokenTxHistory'
 import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
+import { Apps } from 'pages/Apps/Apps'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
@@ -138,6 +140,12 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
+  },
+  {
+    path: '/apps',
+    label: 'navBar.apps',
+    icon: <MdOutlineApps />,
+    main: Apps
   }
 ]
 

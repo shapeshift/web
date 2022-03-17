@@ -96,7 +96,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
       if (walletInfo.meta.address) {

@@ -46,7 +46,7 @@ export const AppSettingsModal = () => {
   const saveSettings = useCallback(() => {
     ipcRenderer.send('@app/update-settings', settings)
     close()
-  }, [settings])
+  }, [settings, close])
 
   if (!settings) return <Spinner />
 

@@ -203,6 +203,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
         let urlObj = new URL(url);
         let urlHost = urlObj.hostname;
         if (ALLOWED_HOSTS.includes(urlHost)) return { action: 'allow' }
+        shell.openExternal(url);
         return { action: 'deny' }
     })
 

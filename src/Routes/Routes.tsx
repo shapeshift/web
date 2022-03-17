@@ -11,6 +11,7 @@ import { Accounts } from 'pages/Accounts/Accounts'
 import { AccountToken } from 'pages/Accounts/AccountToken/AccountToken'
 import { AccountTokenTxHistory } from 'pages/Accounts/AccountToken/AccountTokenTxHistory'
 import { AccountTxHistory } from 'pages/Accounts/AccountTxHistory'
+import { Apps } from 'pages/Apps/Apps'
 import { Asset } from 'pages/Assets/Asset'
 import { Assets } from 'pages/Assets/Assets'
 import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
@@ -27,7 +28,6 @@ import { NotFound } from 'pages/NotFound/NotFound'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
-import { Apps } from 'pages/Apps/Apps'
 
 export const routes: Array<NestedRoute> = [
   {
@@ -146,7 +146,7 @@ export const routes: Array<NestedRoute> = [
     label: 'navBar.apps',
     icon: <MdOutlineApps />,
     main: Apps
-  },
+  }
 ]
 
 function useLocationBackground() {

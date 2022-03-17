@@ -35,7 +35,7 @@ export const FirmwareModal = () => {
   }, [])
 
   const HandleUpdateFirmware = async () => {
-    console.log("Updating firmware (firmware modal)")
+    console.info('Updating firmware (firmware modal)')
     setLoading(true)
     ipcRenderer.send('@keepkey/update-firmware', {})
   }

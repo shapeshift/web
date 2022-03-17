@@ -6,6 +6,7 @@ import React, { useContext, useMemo, useReducer } from 'react'
 import { AppSettingsModal } from 'components/Modals/AppSettings/AppSettings'
 import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
 import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
+import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
 import { InitializeModal } from 'components/Modals/Initialize/Initialize'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
@@ -16,7 +17,6 @@ import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
 import { WalletConnectModal } from 'components/Modals/WalletConnect/WalletConnect'
-import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the

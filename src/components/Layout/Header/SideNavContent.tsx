@@ -12,9 +12,12 @@ import {
 } from '@chakra-ui/react'
 import { FaMoon } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Link as RouterLink } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { RawText, Text } from 'components/Text'
+import { ReduxState } from 'state/reducer'
+import { selectFeatureFlag } from 'state/slices/selectors'
 import { breakpoints } from 'theme/theme'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
@@ -33,6 +36,8 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const isActive = useColorModeValue(false, true)
+  const gemRampFlag = useSelector((state: ReduxState) => selectFeatureFlag(state, 'GemRamp'))
+
   return (
     <Flex
       width='full'
@@ -48,9 +53,11 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
           <Flex width='full'>
             <UserMenu />
           </Flex>
-          <Flex width='full'>
-            <FiatRamps />
-          </Flex>
+          {gemRampFlag && (
+            <Flex width='full' mt={4}>
+              <FiatRamps />
+            </Flex>
+          )}
           <Box mt={12} width='full'>
             <AutoCompleteSearch />
           </Box>

@@ -87,7 +87,11 @@ export const Header = ({ route }: { route: Route }) => {
           </HStack>
           <Flex justifyContent='flex-end' flex={1}>
             {gemRampFlag && (
-              <Box display={{ base: 'none', md: 'block' }}>
+              <Box
+                display={{ base: 'none', md: 'block' }}
+                mr={{ base: 0, md: 4 }}
+                mb={{ base: 4, md: 0 }}
+              >
                 <FiatRamps />
               </Box>
             )}

@@ -213,7 +213,7 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token",
-    "apps": "WalletConnect Apps"
+    "apps": "Supported Apps"
   },
   "apps": {
     "header": "Supported WalletConnect Apps",

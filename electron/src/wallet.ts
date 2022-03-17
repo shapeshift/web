@@ -58,7 +58,7 @@ export const getDevice = async function (keyring: Keyring): Promise<GetDeviceRet
 
 
 const resetDevice = () => new Promise<void>((resolve, reject) => {
-    const keepkey = usb.getDeviceList().find((d) => d.deviceDescriptor.idVendor == 11044)
+    const keepkey = usb.findByIds(11044, 2)
     if (keepkey) {
         keepkey.open()
         keepkey.reset(() => { resolve() })

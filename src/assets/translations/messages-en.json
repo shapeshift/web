@@ -212,7 +212,14 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
+    "foxToken": "FOX Token",
+    "apps": "WalletConnect Apps"
+  },
+  "apps": {
+    "header": "Supported WalletConnect Apps",
+    "cta": {
+      "open": "Open App"
+    }
   },
   "transactionRow": {
     "send": "Sent %{symbol}",

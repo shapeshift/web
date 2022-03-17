@@ -1,5 +1,6 @@
 import union from 'lodash/union'
 import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
+import { MdOutlineApps } from 'react-icons/md'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -26,6 +27,7 @@ import { NotFound } from 'pages/NotFound/NotFound'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
+import { Apps } from 'pages/Apps/Apps'
 
 export const routes: Array<NestedRoute> = [
   {
@@ -138,7 +140,13 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
-  }
+  },
+  {
+    path: '/apps',
+    label: 'navBar.apps',
+    icon: <MdOutlineApps />,
+    main: Apps
+  },
 ]
 
 function useLocationBackground() {

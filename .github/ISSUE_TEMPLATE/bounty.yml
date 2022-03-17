@@ -16,9 +16,9 @@ body:
   - type: textarea
     id: reference
     attributes:
-      label: Reference
-      description: An explanation as to where the bounty hunter should look or code that is affected
-      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps here if applicable.
+      label: References and additional details
+      description: An explanation as to where the bounty hunter should look or code that is affected. Include any relevent transaction IDs and replication steps.
+      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps and transaction IDs here if applicable.
     validations:
       required: true
   - type: textarea
@@ -43,14 +43,6 @@ body:
       label: Screenshots/Mockups
       description: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
       placeholder: Only include screenshots or mockups for features that require UI changes.
-    validations:
-      required: false
-  - type: textarea
-    id: additional-details
-    attributes:
-      label: Additional details (e.g. TXID)
-      description: Additional details related to the issue to help replicate/reproduce it
-      placeholder: Include any related transaction IDs and replication steps.
     validations:
       required: false
   - type: checkboxes

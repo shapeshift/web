@@ -25,7 +25,7 @@ appExpress.use(bodyParser.json())
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
-let server: Server
+export let server: Server
 
 
 export let bridgeRunning = false

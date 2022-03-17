@@ -142,6 +142,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
+    console.log(settings)
     if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
     /**
      * Initial window options
@@ -227,9 +228,11 @@ app.on('ready', async () => {
     }
 
     createSplashWindow()
-    if (!windows.splash) return
-    if (isDev || isLinux) skipUpdateCheck(windows.splash)
-    if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
+    settings.loadSettingsFromDb().then(async () => {
+        if (!windows.splash) return
+        if (isDev || isLinux) skipUpdateCheck(windows.splash)
+        if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
+    })
 })
 
 if (!instanceLock) {

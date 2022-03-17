@@ -3,6 +3,7 @@ import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { AppSettingsModal } from 'components/Modals/AppSettings/AppSettings'
 import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
 import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
 import { InitializeModal } from 'components/Modals/Initialize/Initialize'
@@ -15,7 +16,6 @@ import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
 import { WalletConnectModal } from 'components/Modals/WalletConnect/WalletConnect'
-import { AppSettingsModal } from 'components/Modals/AppSettings/AppSettings'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the

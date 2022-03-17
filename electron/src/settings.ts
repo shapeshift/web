@@ -1,7 +1,8 @@
 import { ipcMain } from "electron";
-import { bridgeRunning, start_bridge, stop_bridge } from "./bridge";
+import { bridgeRunning, server, start_bridge, stop_bridge } from "./bridge";
 import { db } from "./db";
 import { kkAutoLauncher } from "./main";
+import { AddressInfo } from "net";
 
 let instance: Settings;
 
@@ -17,15 +18,6 @@ export class Settings {
         }
         instance = this;
 
-        db.findOne({ type: 'settings' }, (err, doc) => {
-            if (!doc) return this.syncSettingsWithDB()
-
-            this.shouldAutoLunch = doc.settings.shouldAutoLunch
-            this.shouldAutoStartBridge = doc.settings.shouldAutoStartBridge
-            this.shouldMinimizeToTray = doc.settings.shouldMinimizeToTray
-            this.bridgeApiPort = doc.settings.bridgeApiPort
-        })
-
         ipcMain.on('@app/update-settings', (_event, data) => {
             this.updateBulkSettings(data)
         })
@@ -39,6 +31,23 @@ export class Settings {
             })
         })
     }
+
+
+    loadSettingsFromDb = () => new Promise<Settings>((resolve, reject) => {
+        db.findOne({ type: 'settings' }, (err, doc) => {
+            if (!doc) {
+                resolve(this)
+                return this.syncSettingsWithDB()
+            }
+
+            this.shouldAutoLunch = doc.settings.shouldAutoLunch
+            this.shouldAutoStartBridge = doc.settings.shouldAutoStartBridge
+            this.shouldMinimizeToTray = doc.settings.shouldMinimizeToTray
+            this.bridgeApiPort = doc.settings.bridgeApiPort
+            resolve(this)
+        })
+    })
+
 
     private syncSettingsWithDB() {
         db.findOne({ type: 'settings' }, (err, doc) => {
@@ -85,8 +94,11 @@ export class Settings {
     async setBridgeApiPort(value: number, bulk = false) {
         this.bridgeApiPort = value
         if (bridgeRunning) {
-            await stop_bridge()
-            start_bridge(value)
+            const address = server.address() as AddressInfo
+            if (address.port !== value) {
+                await stop_bridge()
+                start_bridge(value)
+            }
         }
         if (!bulk) this.syncSettingsWithDB()
     }
@@ -97,6 +109,7 @@ export class Settings {
         shouldMinimizeToTray?: boolean,
         bridgeApiPort?: number
     }) {
+        console.log(shouldAutoLunch, shouldAutoStartBridge, shouldMinimizeToTray, bridgeApiPort)
         if (shouldAutoLunch !== undefined) this.setShouldAutoLunch(shouldAutoLunch, true)
         if (shouldAutoStartBridge !== undefined) this.setShouldAutoStartBridge(shouldAutoStartBridge, true)
         if (shouldMinimizeToTray !== undefined) this.setShouldMinimizeToTray(shouldMinimizeToTray, true)

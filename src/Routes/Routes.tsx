@@ -1,6 +1,5 @@
 import union from 'lodash/union'
-import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
-import { MdHistory } from 'react-icons/md'
+import { FaHistory, FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -144,7 +143,7 @@ export const routes: Array<NestedRoute> = [
   {
     path: '/transaction-history',
     label: 'navBar.transactionHistory',
-    icon: <MdHistory size='1.2em' />,
+    icon: <FaHistory />,
     main: TransactionHistory
   }
 ]

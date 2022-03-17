@@ -12,7 +12,7 @@ import * as portfolioSelectors from './slices/portfolioSlice/selectors'
 
 const persistConfig = {
   key: 'root',
-  blacklist: ['portfolio', 'assetApi', 'marketApi', 'portfolioApi'],
+  blacklist: ['txHistory', 'portfolio', 'assetApi', 'marketApi', 'portfolioApi'],
   storage: localforage
 }
 

@@ -12,7 +12,7 @@ import * as portfolioSelectors from './slices/portfolioSlice/selectors'
 
 const persistConfig = {
   key: 'root',
-  whitelist: ['preferences'],
+  whitelist: [''],
   storage: localforage
 }
 

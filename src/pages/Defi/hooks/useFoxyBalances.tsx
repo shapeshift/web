@@ -19,8 +19,8 @@ export type FoxyOpportunity = {
   provider: string
   version: string
   contractAddress: string
-  foxyAddress: string
-  foxAddress: string
+  rewardToken: string
+  stakingToken: string
   chain: ChainTypes
   tvl?: BigNumber
   expired?: boolean
@@ -28,6 +28,7 @@ export type FoxyOpportunity = {
   balance: string
   contractCaip19: CAIP19
   tokenCaip19: CAIP19
+  rewardTokenCaip19: CAIP19
   pricePerShare: BigNumber
 }
 
@@ -47,6 +48,12 @@ async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyAp
   for (let index = 0; index < opps.length; index++) {
     // TODO: caip indentifiers in vaults
     const opportunity = opps[index]
+    const rewardTokenCaip19 = caip19.toCAIP19({
+      chain: opportunity.chain,
+      network: NetworkTypes.MAINNET,
+      assetNamespace: AssetNamespace.ERC20,
+      assetReference: opportunity.rewardToken
+    })
     const contractCaip19 = caip19.toCAIP19({
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
@@ -57,9 +64,9 @@ async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyAp
       chain: opportunity.chain,
       network: NetworkTypes.MAINNET,
       assetNamespace: AssetNamespace.ERC20,
-      assetReference: opportunity.foxAddress
+      assetReference: opportunity.stakingToken
     })
-    const balance = balances[contractCaip19]
+    const balance = balances[rewardTokenCaip19]
 
     const pricePerShare = api.pricePerShare()
     acc[opportunity.contractAddress] = {
@@ -67,6 +74,7 @@ async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyAp
       balance: bnOrZero(balance).toString(),
       contractCaip19,
       tokenCaip19,
+      rewardTokenCaip19,
       pricePerShare: bnOrZero(pricePerShare)
     }
   }
@@ -103,7 +111,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
   const makeVaultFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {
-      const asset = assets[opportunity.contractCaip19]
+      const asset = assets[opportunity.tokenCaip19]
       const pricePerShare = bnOrZero(opportunity.pricePerShare).div(`1e+${asset?.precision}`)
       const marketPrice = marketData[opportunity.tokenCaip19]?.price
       return bnOrZero(opportunity.balance)
@@ -125,16 +133,19 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
 
   const mergedOpportunities = useMemo(() => {
     return Object.values(opportunities).map(opportunity => {
-      const asset = assets[opportunity.contractCaip19]
+      const asset = assets[opportunity.tokenCaip19]
       const fiatAmount = makeVaultFiatAmount(opportunity)
+      const marketPrice = marketData[opportunity.tokenCaip19]?.price
+      const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
         ...opportunity,
+        tvl,
         cryptoAmount: bnOrZero(opportunity.balance).div(`1e+${asset?.precision}`).toString(),
         fiatAmount: fiatAmount.toString()
       }
       return data
     })
-  }, [assets, makeVaultFiatAmount, opportunities])
+  }, [assets, makeVaultFiatAmount, marketData, opportunities])
 
   return {
     opportunities: mergedOpportunities,

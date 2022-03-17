@@ -262,6 +262,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
+            enableWithdrawType
           />
         )
 

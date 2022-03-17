@@ -41,7 +41,8 @@
     "devTools": "Developer Tools",
     "pairedApps": "View Paired Apps",
     "viewAsset": "View Asset",
-    "walletConnect": "Wallet Connect"
+    "walletConnect": "Wallet Connect",
+    "appSettings": "App Settings"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -506,6 +507,14 @@
       "cta": {
         "unpair": "Unpair App"
       }
+    },
+    "appSettings": {
+      "header": "App Settings",
+      "autoLaunch": "Automatically launch on app startup",
+      "autoStartBridge": "Automatically start the bridge api on app start",
+      "minimizeToTray": "Minimize to tray",
+      "bridgeApiPort": "Bridge api port",
+      "saveSettings": "Save Settings"
     }
   },
   "walletProvider": {

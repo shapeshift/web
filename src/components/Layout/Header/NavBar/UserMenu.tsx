@@ -4,6 +4,7 @@ import {
   CloseIcon,
   ExternalLinkIcon,
   RepeatIcon,
+  SettingsIcon,
   WarningTwoIcon
 } from '@chakra-ui/icons'
 import { Menu, MenuButton, MenuDivider, MenuGroup, MenuItem, MenuList } from '@chakra-ui/menu'
@@ -95,7 +96,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
       if (walletInfo.meta.address) {
@@ -155,11 +156,9 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
-  const { walletConnect } = useModal()
+  const { walletConnect, pairedApps, appSettings } = useModal()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
-
-  const { pairedApps } = useModal()
 
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -168,6 +167,11 @@ export const UserMenu = () => {
   const handleWalletConnect = () => {
     console.info('OPEN WALLET CONNECT')
     walletConnect.open({})
+  }
+
+  const handleAppSettings = () => {
+    console.info('OPEN APP SETTINGS')
+    appSettings.open({})
   }
 
   return (
@@ -192,6 +196,12 @@ export const UserMenu = () => {
         <MenuItem icon={<WalletConnectIcon />} onClick={handleWalletConnect}>
           <Text translation='common.walletConnect' />
         </MenuItem>
+        <MenuItem icon={<SettingsIcon />} onClick={handleAppSettings}>
+          <Text translation='common.appSettings' />
+        </MenuItem>
+        <MenuItem icon={<FaPuzzlePiece />} onClick={() => pairedApps.open({})}>
+          <Text translation='common.pairedApps' />
+        </MenuItem>
         <MenuItem
           icon={<ExternalLinkIcon />}
           as={Link}
@@ -200,9 +210,6 @@ export const UserMenu = () => {
           href='http://localhost:1646/docs'
         >
           <Text translation='common.devTools' />
-        </MenuItem>
-        <MenuItem icon={<FaPuzzlePiece />} onClick={() => pairedApps.open({})}>
-          <Text translation='common.pairedApps' />
         </MenuItem>
       </MenuList>
     </Menu>

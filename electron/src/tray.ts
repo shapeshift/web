@@ -4,7 +4,6 @@ import path from 'path'
 import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { assetsDirectory } from './constants'
 import { createWindow, windows } from './main'
-import { shared } from './shared'
 
 let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
@@ -44,7 +43,7 @@ export const menuTemplate: any = [
         enabled: false,
         click: function () {
             log.info('stop bridge')
-            stop_bridge(shared.eventIPC)
+            stop_bridge()
         }
     },
     //

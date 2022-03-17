@@ -4,7 +4,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import path from 'path'
 import log from 'electron-log'
-import { Device, NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
+import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
 import { ipcMain } from 'electron'
@@ -25,7 +25,7 @@ appExpress.use(bodyParser.json())
 const swaggerDocument = require(path.join(__dirname, '../../api/dist/swagger.json'))
 if (!swaggerDocument) throw Error("Failed to load API SPEC!")
 
-let server: Server
+export let server: Server
 
 
 export let bridgeRunning = false
@@ -62,7 +62,7 @@ export const keepkey: {
 }
 
 
-export const start_bridge = () => new Promise<void>(async (resolve, reject) => {
+export const start_bridge = (port?: number) => new Promise<void>(async (resolve, reject) => {
     let tag = " | start_bridge | "
     try {
         try {
@@ -111,7 +111,7 @@ export const start_bridge = () => new Promise<void>(async (resolve, reject) => {
         }
         keepkey.wallet = device.wallet
 
-        let API_PORT = process.env['API_PORT_BRIDGE'] || '1646'
+        let API_PORT = port || 1646
 
         // send paired apps when requested
         ipcMain.on('@bridge/paired-apps', (event) => {
@@ -165,13 +165,13 @@ export const start_bridge = () => new Promise<void>(async (resolve, reject) => {
 
         bridgeRunning = true
         resolve()
-        
+
     } catch (e) {
         log.error(e)
     }
 })
 
-export const stop_bridge = async (event) => {
+export const stop_bridge = () => new Promise<void>((resolve, reject) => {
     try {
         windows.mainWindow?.webContents.send('playSound', { sound: 'fail' })
         log.info('server: ', server)
@@ -184,7 +184,9 @@ export const stop_bridge = async (event) => {
             updateMenu(keepkey.STATE)
         })
         bridgeRunning = false
+        resolve()
     } catch (e) {
         log.error(e)
+        reject()
     }
-}
+})

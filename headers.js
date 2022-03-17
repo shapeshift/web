@@ -60,7 +60,7 @@ const cspMeta = Object.entries({
     'data:',
     'blob:',
     'filesystem:',
-    'https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/',
+    process.env.REACT_APP_GEM_ASSET_LOGO,
     'https://assets.coincap.io/assets/icons/',
     'https://static.coincap.io/assets/icons/',
     'https://assets.coingecko.com/coins/images/',

@@ -1,24 +1,17 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Button, Flex } from '@chakra-ui/react'
-import { Features } from '@keepkey/device-protocol/lib/messages_pb'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey/dist/keepkey'
-import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
-import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { useKeepKeyWallet } from 'components/Layout/Header/NavBar/hooks/useKeepKeyWallet'
+import {
+  useMenuRoutes,
+  WalletConnectedRoutes
+} from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletConnectedProps, WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
-import { KeyManager } from 'context/WalletProvider/config'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-
-export enum WalletConnectedRoutes {
-  Connected = '/connected',
-  KeepKey = '/connected/keepkey',
-  KeepKeyPin = '/connected/keepkey/pin'
-}
 
 export const WalletConnectedMenuRoutes = ({
   onDisconnect,
@@ -30,11 +23,7 @@ export const WalletConnectedMenuRoutes = ({
   const { handleKeepKeyClick, handleChangePinClick } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
-  const [walletFeatures, setWalletFeatures] = useState<Features.AsObject>()
-  const [keepKeyWallet, setKeepKeyWallet] = useState<KeepKeyHDWallet | undefined>()
-  const { state: walletState } = useWallet()
-  const isKeepKey = type === KeyManager.KeepKey
-  const wallet = walletState.wallet
+  const keepKey = useKeepKeyWallet()
 
   function getBooleanLabel(value: boolean | undefined) {
     return value
@@ -42,22 +31,12 @@ export const WalletConnectedMenuRoutes = ({
       : translate('walletProvider.keepKey.settings.status.disabled')
   }
 
-  useEffect(() => {
-    if (!wallet) return
-    ;(async () => {
-      const features = (await wallet.getFeatures()) as Features.AsObject
-      setWalletFeatures(features)
-      isKeepKey && setKeepKeyWallet(wallet as KeepKeyHDWallet)
-      // await keepKeyWallet?.applySettings({ label: 'Test KeepKey' })
-    })()
-  }, [isKeepKey, wallet])
-
   const connectedMenu = () => {
     return (
       <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
         <MenuItem
-          closeOnSelect={!isKeepKey}
-          onClick={isKeepKey ? handleKeepKeyClick : undefined}
+          closeOnSelect={!keepKey}
+          onClick={keepKey ? handleKeepKeyClick : undefined}
           icon={<WalletImage walletInfo={walletInfo} />}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
@@ -69,7 +48,7 @@ export const WalletConnectedMenuRoutes = ({
                 color='yellow.500'
               />
             )}
-            {isKeepKey && <ChevronRightIcon />}
+            {keepKey && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
         <MenuDivider ml={3} />
@@ -105,7 +84,7 @@ export const WalletConnectedMenuRoutes = ({
       </>
     )
 
-    const keepKeyStateLoaded = walletFeatures && (
+    const keepKeyStateLoaded = keepKey?.features && (
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
@@ -158,13 +137,13 @@ export const WalletConnectedMenuRoutes = ({
           <ExpandedMenuItem
             label={translate('walletProvider.keepKey.settings.menuLabels.pinCaching')}
             hasSubmenu={true}
-            value={getBooleanLabel(walletFeatures.pinCached)}
-            valueDisposition={walletFeatures.pinCached ? 'positive' : 'neutral'}
+            value={getBooleanLabel(keepKey.features.pinCached)}
+            valueDisposition={keepKey.features.pinCached ? 'positive' : 'neutral'}
           />
           <ExpandedMenuItem
             label={translate('walletProvider.keepKey.settings.menuLabels.passphrase')}
-            value={getBooleanLabel(walletFeatures.passphraseProtection)}
-            valueDisposition={walletFeatures.passphraseProtection ? 'positive' : 'neutral'}
+            value={getBooleanLabel(keepKey.features.passphraseProtection)}
+            valueDisposition={keepKey.features.passphraseProtection ? 'positive' : 'neutral'}
             hasSubmenu={true}
           />
           <MenuDivider />
@@ -179,12 +158,15 @@ export const WalletConnectedMenuRoutes = ({
 
   const changePin = () => {
     return (
-      <>
-        <SubmenuHeader title={translate('walletProvider.keepKey.settings.headings.devicePin')} />
-        <Button colorScheme='blue' size='sm' ml={3}>
+      <Flex flexDir='column' ml={3} mr={3} mb={3}>
+        <SubmenuHeader
+          title={translate('walletProvider.keepKey.settings.headings.devicePin')}
+          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
+        />
+        <Button colorScheme='blue' size='sm'>
           {translate('walletProvider.keepKey.settings.actions.updatePin')}
         </Button>
-      </>
+      </Flex>
     )
   }
 

@@ -5,6 +5,7 @@ import { getConfig } from '../../../config'
 export type FeatureFlags = {
   CosmosInvestor: boolean
   CosmosPlugin: boolean
+  FoxyInvestor: boolean
 }
 
 export type Preferences = {
@@ -14,7 +15,8 @@ export type Preferences = {
 const initialState: Preferences = {
   featureFlags: {
     CosmosInvestor: getConfig().REACT_APP_FEATURE_COSMOS_INVESTOR,
-    CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS
+    CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS,
+    FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR
   }
 }
 

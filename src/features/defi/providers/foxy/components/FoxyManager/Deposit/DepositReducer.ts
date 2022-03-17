@@ -1,9 +1,21 @@
 // import { SupportedFoxyVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 // TODO: fill in type
 type SupportedFoxyOpportunity = {
+  type: DefiType
+  provider: string
+  version: string
+  contractAddress: string
+  rewardToken: string
+  stakingToken: string
+  chain: ChainTypes
+  tvl: BigNumber
+  apy: string
+  expired: boolean
 }
 
 type EstimatedGas = {
@@ -29,39 +41,16 @@ type FoxyDepositState = {
 export const initialState: FoxyDepositState = {
   txid: null,
   foxyOpportunity: {
-    vaultAddress: '',
-    tokenAddress: '',
+    contractAddress: '',
+    stakingToken: '',
     provider: '',
     chain: ChainTypes.Ethereum,
-    type: '',
+    type: DefiType.TokenStaking,
     expired: false,
-    address: '',
-    typeId: 'OPPORTUNITY_V2',
-    token: '',
-    name: '',
     version: '',
-    symbol: '',
-    decimals: '',
-    tokenId: '',
-    underlyingTokenBalance: {
-      amount: '0',
-      amountUsdc: '0'
-    },
-    metadata: {
-      symbol: '',
-      pricePerShare: '',
-      migrationAvailable: false,
-      latestVaultAddress: '',
-      depositLimit: '',
-      emergencyShutdown: false,
-      controller: '',
-      totalAssets: '',
-      totalSupply: '',
-      displayName: '',
-      displayIcon: '',
-      defaultDisplayToken: '',
-      hideIfNoDeposits: false
-    }
+    rewardToken: '',
+    tvl: bnOrZero(0),
+    apy: ''
   },
   userAddress: null,
   loading: false,

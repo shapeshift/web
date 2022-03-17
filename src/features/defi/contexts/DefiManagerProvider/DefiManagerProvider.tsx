@@ -1,6 +1,6 @@
 import { ChainTypes } from '@shapeshiftoss/types'
-import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
 import { Route, useLocation } from 'react-router-dom'
 import { NotFound } from 'pages/NotFound/NotFound'

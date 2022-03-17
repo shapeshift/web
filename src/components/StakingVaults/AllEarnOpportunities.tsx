@@ -11,12 +11,15 @@ import { Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useSortedYearnVaults } from 'hooks/useSortedYearnVaults/useSortedYearnVaults'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
 
 export const AllEarnOpportunities = () => {
   const history = useHistory()
   const location = useLocation()
+  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const {
     state: { isConnected },
     dispatch
@@ -24,9 +27,11 @@ export const AllEarnOpportunities = () => {
   const sortedVaults = useSortedYearnVaults()
   const { opportunities } = useFoxyBalances()
 
+  const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
+
   const allRows = useNormalizeOpportunities({
     vaultArray: sortedVaults,
-    foxyArray: opportunities
+    foxyArray: foxyRows
   })
 
   const handleClick = useCallback(

@@ -47,7 +47,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: KeepKeyIcon,
     name: 'KeepKey',
     routes: [
-      { path: '/keepkey/connect', component: KeepKeyConnect },
+      // { path: '/keepkey/connect', component: KeepKeyConnect },
       { path: '/keepkey/success', component: KeepKeySuccess }
     ]
   },

@@ -1,7 +1,8 @@
+import {windows} from "./main";
+
 const TAG = ' | KeepKey | '
 
 import { getConfig, updateConfig } from "keepkey-config";
-
 
 import log from "electron-log";
 import usb from "usb";
@@ -13,11 +14,16 @@ import Hardware from "@keepkey/keepkey-hardware-hid"
 ipcMain.on('@keepkey/update-firmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
+        log.info(tag," checkpoint !!!!")
         let result = await Hardware.getLatestFirmwareData()
+        // log.info(tag,"result: ",result)
         updateConfig({ attemptUpdateFirmware: true })
         let firmware = await Hardware.downloadFirmware(result.firmware.url)
+        log.info(tag,"firmware: ",firmware)
+
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
+
         updateConfig({ updatedFirmware: true })
         event.sender.send('onCompleteFirmwareUpload', {
             bootloader: true,
@@ -33,7 +39,7 @@ ipcMain.on('@keepkey/update-bootloader', async event => {
     try {
         log.info(tag, "checkpoint: ")
         let result = await Hardware.getLatestFirmwareData()
-        updateConfig({ attemptUpdateBootlder: true })
+        updateConfig({ attemptUpdateBootloader: true })
         let firmware = await Hardware.downloadFirmware(result.bootloader.url)
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
@@ -57,32 +63,28 @@ ipcMain.on('@keepkey/info', async (event, data) => {
     }
 })
 
-export const update_keepkey_status = async function (event) {
+export const update_keepkey_status = async function () {
     let tag = " | update_keepkey_status | "
     try {
-        let config = getConfig()
-        //
+
         let firmwareInfo = await Hardware.getLatestFirmwareData()
         log.info(tag, "firmwareInfo: ", firmwareInfo)
-        event.sender.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
+        windows?.mainWindow?.webContents.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
 
         //init
         let resultInit = await Hardware.init()
         if (resultInit && resultInit.success && resultInit.bootloaderMode) {
-            event.sender.send('setUpdaterMode', { payload: true })
+            windows?.mainWindow?.webContents.send('setUpdaterMode', { payload: true })
         }
         if (resultInit && resultInit.success && resultInit.wallet) {
             shared.KEEPKEY_FEATURES = resultInit
-            event.sender.send('loadKeepKeyInfo', { payload: resultInit })
+            windows?.mainWindow?.webContents.send('loadKeepKeyInfo', { payload: resultInit })
             //if not latest bootloader, set need bootloader update
-            if (resultInit.bootloaderVersion !== "v1.1.0" && !config.updatedBootloader) {
-                event.sender.send('openBootloaderUpdate', {})
-                updateConfig({ isNewDevice: true })
-                event.sender.send('setUpdaterMode', { payload: true })
-            }
-            if (config.updatedBootloader) {
+            if (resultInit.bootloaderVersion !== "v1.1.0") {
+                windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
+            } else if(resultInit.firmwareVersion !== "v7.2.1") {
                 //update firmware next
-                event.sender.send('openFirmwareUpdate', {})
+                windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
             }
         }
         log.info(tag, "resultInit: ", resultInit)
@@ -90,24 +92,25 @@ export const update_keepkey_status = async function (event) {
         let allDevices = usb.getDeviceList()
         log.info(tag, "allDevices: ", allDevices)
 
+
+        let deviceDetected = false
         let resultWebUsb = usb.findByIds(11044, 2)
         if (resultWebUsb) {
             log.info(tag, "KeepKey connected in webusb!")
-            //TODO only trigger if firmware modal open
-            event.sender.send('onCompleteFirmwareUpload', {})
-            //get version
+            deviceDetected = true
         }
 
         let resultPreWebUsb = usb.findByIds(11044, 1)
         if (resultPreWebUsb) {
-            log.info(tag, "update required!")
+            log.info(tag, "update required! (resultPreWebUsb)")
+            deviceDetected = true
         }
 
-        let resultUpdater = usb.findByIds(11044, 1)
-        if (resultUpdater) {
-            log.info(tag, "UPDATER MODE DETECTED!")
+        if(!deviceDetected){
+            windows?.mainWindow?.webContents.send('openHardwareError', { })
         }
+
     } catch (e) {
-        log.error(e)
+        log.error(tag,e)
     }
 }

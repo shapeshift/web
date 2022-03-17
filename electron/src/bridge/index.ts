@@ -147,6 +147,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             server = appExpress.listen(API_PORT, () => {
                 windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)
+                windows?.mainWindow?.webContents.send('closeHardwareError', { })
                 keepkey.STATE = 3
                 keepkey.STATUS = 'bridge online'
                 windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })

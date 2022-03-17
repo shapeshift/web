@@ -55,7 +55,7 @@ export const BootloaderModal = () => {
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         <ModalHeader>
-          <Text translation={'modals.firmware.bootloaderUpdate'} />
+          <Text translation={'modals.bootloader.bootloaderUpdate'} />
         </ModalHeader>
         <ModalBody>
           <div>
@@ -76,15 +76,18 @@ export const BootloaderModal = () => {
                       onClick={HandleUpdateBootloader}
                       disabled={loading}
                     >
-                      <Text translation={'modals.firmware.continue'} />
+                      <Text translation={'modals.bootloader.continue'} />
                     </Button>
                     <Image src={kkRelease} alt='Approve Transaction On Device!' />
                   </div>
                 ) : (
                   <div>
+                    <h3>
+                      <Text translation={'modals.bootloader.cta'} />
+                    </h3>
                     <Row>
                       <Row.Label>
-                        <Text translation={'modals.firmware.bootloader'} />
+                        <Text translation={'modals.bootloader.bootloader'} />
                       </Row.Label>
                       <Row.Value>{keepkey?.bootloaderVersion}</Row.Value>
                     </Row>

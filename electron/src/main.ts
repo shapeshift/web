@@ -67,6 +67,9 @@ import { db } from './db'
 import { getDevice } from './wallet'
 import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { pairWalletConnect } from './connect'
+import { Settings } from './settings'
+
+export const settings = new Settings()
 
 // dont allow muliple windows to open
 const instanceLock = app.requestSingleInstanceLock();
@@ -98,7 +101,7 @@ export const windows: {
     splash: undefined
 }
 
-const kkAutoLauncher = new AutoLaunch({
+export const kkAutoLauncher = new AutoLaunch({
     name: 'KeepKey Desktop'
 })
 
@@ -124,7 +127,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     log.info('Creating window!')
 
     //Auto launch on startup
-    if (!isDev) {
+    if (!isDev && settings.shouldAutoLunch) {
         kkAutoLauncher.enable()
         kkAutoLauncher
             .isEnabled()
@@ -139,7 +142,8 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             })
     }
 
-    if (!bridgeRunning) start_bridge()
+    console.log(settings)
+    if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
     /**
      * Initial window options
      *
@@ -224,9 +228,11 @@ app.on('ready', async () => {
     }
 
     createSplashWindow()
-    if (!windows.splash) return
-    if (isDev || isLinux) skipUpdateCheck(windows.splash)
-    if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
+    settings.loadSettingsFromDb().then(async () => {
+        if (!windows.splash) return
+        if (isDev || isLinux) skipUpdateCheck(windows.splash)
+        if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
+    })
 })
 
 if (!instanceLock) {
@@ -247,7 +253,7 @@ if (!instanceLock) {
 }
 
 app.on('window-all-closed', () => {
-    if (!bridgeRunning) app.quit()
+    if (!bridgeRunning || !settings.shouldMinimizeToTray) app.quit()
 })
 
 app.on("activate", function () {
@@ -430,7 +436,7 @@ const createSplashWindow = () => {
 ipcMain.on('@bridge/stop', async event => {
     const tag = TAG + ' | onStartBridge | '
     try {
-        stop_bridge(event)
+        await stop_bridge()
     } catch (e) {
         log.error(tag, e)
     }
@@ -439,7 +445,7 @@ ipcMain.on('@bridge/stop', async event => {
 ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
     try {
-        if (!bridgeRunning) start_bridge()
+        if (!bridgeRunning) start_bridge(settings.bridgeApiPort)
     } catch (e) {
         log.error(tag, e)
     }
@@ -534,7 +540,7 @@ ipcMain.on('@app/start', async (event, data) => {
             log.error('Failed to create tray! e: ', e)
         }
         try {
-            if (!bridgeRunning) start_bridge()
+            if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
         } catch (e) {
             log.error('Failed to start_bridge! e: ', e)
         }

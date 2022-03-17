@@ -3,6 +3,7 @@ import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { AppSettingsModal } from 'components/Modals/AppSettings/AppSettings'
 import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
 import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
 import { InitializeModal } from 'components/Modals/Initialize/Initialize'
@@ -36,6 +37,7 @@ const MODALS = {
   cosmosStaking: StakingModal,
   walletConnect: WalletConnectModal,
   hardwareError: HardwareErrorModal
+  appSettings: AppSettingsModal
 }
 
 // state

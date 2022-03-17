@@ -1,6 +1,7 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
+import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 // import { FoxyVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
@@ -35,7 +36,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { initialState, reducer, FoxyWithdrawActionType } from './WithdrawReducer'
+import { FoxyWithdrawActionType, initialState, reducer } from './WithdrawReducer'
 
 enum WithdrawPath {
   Withdraw = '/',
@@ -51,10 +52,8 @@ export const routes = [
   { step: 2, path: WithdrawPath.Status, label: 'Status' }
 ]
 
-type FoxyOpportunityApi = {}
-
 type FoxyWithdrawProps = {
-  api: FoxyOpportunityApi
+  api: FoxyApi
 }
 
 export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
@@ -62,7 +61,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const location = useLocation()
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chain, contractAddress, tokenId } = query
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
@@ -78,7 +77,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: vaultAddress
+    assetReference: contractAddress
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
@@ -101,15 +100,12 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !vaultAddress) return
-          const foxyOpportunity = ''
-          const address = ''
-          const pricePerShare = ''
-        // const [address, foxyOpportunity, pricePerShare] = await Promise.all([
-        //   chainAdapter.getAddress({ wallet: walletState.wallet }),
-          // api.findByDepositVaultAddress(vaultAddress),
-          // api.pricePerShare({ vaultAddress })
-        // ])
+        if (!walletState.wallet || !contractAddress) return
+        const [address, foxyOpportunity, pricePerShare] = await Promise.all([
+          chainAdapter.getAddress({ wallet: walletState.wallet }),
+          api.getFoxyOpportunityByStakingAddress(contractAddress),
+          api.pricePerShare()
+        ])
         dispatch({ type: FoxyWithdrawActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: FoxyWithdrawActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
         dispatch({
@@ -121,24 +117,22 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         console.error('FoxyWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, contractAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!state.userAddress || !tokenId) return
     try {
-      const gasLimit = ''
-      const gasPrice = ''
-      // const [gasLimit, gasPrice] = await Promise.all([
-      //   api.estimateWithdrawGas({
-      //     tokenContractAddress: tokenId,
-      //     vaultAddress,
-      //     amountDesired: bnOrZero(withdraw.cryptoAmount)
-      //       .times(`1e+${asset.precision}`)
-      //       .decimalPlaces(0),
-      //     userAddress: state.userAddress
-      //   }),
-      //   api.getGasPrice()
-      // ])
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateWithdrawGas({
+          tokenContractAddress: tokenId,
+          contractAddress,
+          amountDesired: bnOrZero(withdraw.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
+          userAddress: state.userAddress
+        }),
+        api.getGasPrice()
+      ])
       const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       return returVal
     } catch (error) {
@@ -165,30 +159,27 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
-      const txid = ''
-      const gasPrice = ''
-      // const [txid, gasPrice] = await Promise.all([
-      //   api.withdraw({
-      //     tokenContractAddress: tokenId,
-      //     userAddress: state.userAddress,
-      //     vaultAddress,
-      //     wallet: walletState.wallet,
-      //     amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-      //       .times(`1e+${asset.precision}`)
-      //       .decimalPlaces(0)
-      //   }),
-      //   api.getGasPrice()
-      // ])
+      const [txid, gasPrice] = await Promise.all([
+        api.withdraw({
+          tokenContractAddress: tokenId,
+          userAddress: state.userAddress,
+          contractAddress,
+          wallet: walletState.wallet,
+          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0)
+        }),
+        api.getGasPrice()
+      ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       history.push(WithdrawPath.Status)
 
-      const transactionReceipt = { status: false, gasUsed: '1' }
-      // const transactionReceipt = await poll({
-      //   fn: () => api.getTxReceipt({ txid }),
-      //   validate: (result: TransactionReceipt) => !isNil(result),
-      //   interval: 15000,
-      //   maxAttempts: 30
-      // })
+      const transactionReceipt = await poll({
+        fn: () => api.getTxReceipt({ txid }),
+        validate: (result: TransactionReceipt) => !isNil(result),
+        interval: 15000,
+        maxAttempts: 30
+      })
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {

@@ -89,33 +89,27 @@ export const update_keepkey_status = async function () {
         }
         log.info(tag, "resultInit: ", resultInit)
 
-        // let allDevices = usb.getDeviceList()
-        // log.info(tag, "allDevices: ", allDevices)
-        //
-        // let resultWebUsb = usb.findByIds(11044, 2)
-        // if (resultWebUsb) {
-        //     log.info(tag, "KeepKey connected in webusb!")
-        //     //TODO only trigger if firmware modal open
-        //     windows?.mainWindow?.webContents.send('onCompleteFirmwareUpload', {})
-        // }
-        //
-        // let resultPreWebUsb = usb.findByIds(11044, 1)
-        // if (resultPreWebUsb) {
-        //     log.info(tag, "update required! (resultPreWebUsb)")
-        //     log.info(tag, "update required! (resultPreWebUsb): ",resultInit.bootloaderVersion)
-        //     //update firmware next
-        //     if (resultInit.bootloaderVersion === "v1.1.0") {
-        //         windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
-        //     } else {
-        //         log.info(tag, "update required! (resultPreWebUsb): Update bootloader!")
-        //         windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
-        //     }
-        // }
-        //
-        // let resultUpdater = usb.findByIds(11044, 1)
-        // if (resultUpdater) {
-        //     // log.info(tag, "UPDATER MODE DETECTED!")
-        // }
+        let allDevices = usb.getDeviceList()
+        log.info(tag, "allDevices: ", allDevices)
+
+
+        let deviceDetected = false
+        let resultWebUsb = usb.findByIds(11044, 2)
+        if (resultWebUsb) {
+            log.info(tag, "KeepKey connected in webusb!")
+            deviceDetected = true
+        }
+
+        let resultPreWebUsb = usb.findByIds(11044, 1)
+        if (resultPreWebUsb) {
+            log.info(tag, "update required! (resultPreWebUsb)")
+            deviceDetected = true
+        }
+
+        if(!deviceDetected){
+            windows?.mainWindow?.webContents.send('openHardwareError', { })
+        }
+
     } catch (e) {
         log.error(tag,e)
     }

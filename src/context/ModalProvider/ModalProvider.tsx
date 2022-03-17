@@ -36,7 +36,7 @@ const MODALS = {
   cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal,
   walletConnect: WalletConnectModal,
-  hardwareError: HardwareErrorModal
+  hardwareError: HardwareErrorModal,
   appSettings: AppSettingsModal
 }
 

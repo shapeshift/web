@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { Main } from 'components/Layout/Main'
-import { AllTransactions } from 'components/Transactions/AllTransactions'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 
 import { MatchParams } from './Asset'
 
@@ -17,7 +17,7 @@ export const AssetTxHistory: React.FC<AssetTransactionProps> = ({ route }) => {
 
   return (
     <Main route={route} titleComponent={<AssetHeader assetId={assetId} />}>
-      <AllTransactions assetId={assetId} />
+      <AssetTransactionHistory assetId={assetId} useCompactMode={false} />
     </Main>
   )
 }

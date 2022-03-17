@@ -37,8 +37,11 @@
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "viewAsset": "View Asset",
-    "days": "Days"
+    "days": "Days",
+    "copied": "Copied to clipboard.",
+    "copyFailed": "Failed to copy to clipboard",
+    "copyFailedDescription": "Please copy manually",
+    "viewAsset": "View Asset"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -63,6 +66,25 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     }
+  },
+  "fiatRamps": {
+    "routeTitle": "Buy or Sell",
+    "routeTitleForGem": "Gem on Ramp",
+    "title": "Buy or Sell Crypto",
+    "titleMessage": "ShapeShift has partnered with several fiat ramp providers for buying and selling cryptocurrencies.",
+    "gem": "GEM",
+    "gemMessage": "Buy or Sell Crypto with Gem",
+    "onJuno": "OnJuno",
+    "comingSoon": "Coming Soon ...",
+    "buy": "Buy",
+    "sell": "Sell",
+    "assetToBuy": "Asset to Buy",
+    "selectAnAssetToBuy": "Select an asset to buy",
+    "assetToSell": "Asset to Sell",
+    "selectAnAssetToSell": "Select an asset to sell",
+    "fundsTo": "Funds will be sent to",
+    "fundsFrom": "Funds will be sent from",
+    "headerLabel": "Buy/Sell Crypto"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -204,6 +226,7 @@
     "accountDetails": "Account Details",
     "earn": "Earn",
     "defi": "DeFi",
+    "transactionHistory": "Transaction History",
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
@@ -647,5 +670,59 @@
   "accounts": {
     "accounts": "Accounts"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "Transaction History",
+    "recentTransactions": "Recent Transactions",
+    "filter": "Filter",
+    "filters": {
+      "filters": "Filters",
+      "resetFilters": "Reset Filters",
+      "to": "to",
+      "categories": "Categories",
+      "dayRange": "Day Range",
+      "10days": "10 days",
+      "30days": "30 days",
+      "90days": "90 days",
+      "send": "Send",
+      "trade": "Trade",
+      "receive": "Receive",
+      "custom": "Custom",
+      "apply": "Apply"
+    },
+    "downloadCSV": "Download CSV",
+    "csv": {
+      "fileName": "ShapeShift Transactions History",
+      "txid": "TX ID",
+      "type": "TX type",
+      "timestamp": "Timestamp",
+      "status": "Status",
+      "minerFee": "Miner fee",
+      "minerFeeCurrency": "Miner fee currency",
+      "inputAmount": "Input amount",
+      "inputCurrency": "Input currency",
+      "inputAddress": "Input address",
+      "outputAmount": "Output amount",
+      "outputCurrency": "Output currency",
+      "outputAddress": "Output address"
+    },
+    "transactionTypes": {
+      "send": "Send",
+      "receive": "Receive",
+      "trade": "Trade"
+    },
+    "assets": "Assets",
+    "viewOnChain": "View on chain",
+    "txid": "TX ID",
+    "fee": "Fee",
+    "youSent": "You Sent",
+    "youReceived": "You Received",
+    "sentTo": "Sent to",
+    "receivedFrom": "Received From",
+    "orderRoute": "Order Route",
+    "status": "Status",
+    "transactionType": "Transaction Type",
+    "minerFee": "Miner Fee",
+    "unknownType": "Transaction"
+  }
 }

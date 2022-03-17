@@ -3,6 +3,7 @@ import noop from 'lodash/noop'
 import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/GetStarted'
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useContext, useMemo, useReducer } from 'react'
+import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
@@ -18,6 +19,7 @@ const MODALS = {
   keepkeyPassphrase: PassphraseModal,
   receive: ReceiveModal,
   send: SendModal,
+  fiatRamps: FiatRampsModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal
 }

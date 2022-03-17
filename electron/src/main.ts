@@ -160,7 +160,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     })
 
     //TODO remove/ flag on dev
-    if (isDev) windows.mainWindow.webContents.openDevTools()
+    windows.mainWindow.webContents.openDevTools()
 
     const startURL = isDev
         ? 'http://localhost:3000'
@@ -373,6 +373,13 @@ ipcMain.on('@account/balance', async (event, data) => {
         log.error('e: ', e)
         log.error(tag, e)
     }
+})
+// C:\Users\amito\AppData\Local\Programs\keepkey-desktop\resources\app.asar\electron\dist
+log.info("__dirname", __dirname)
+ipcMain.on('@app/get-asset-url', (event, data) => {
+    const assetUrl = !isDev ? `file://${path.resolve(__dirname, "../../build/", data.assetPath)}` : data.assetPath
+    console.log('asset url', assetUrl)
+    event.sender.send(`@app/get-asset-url-${data.nonce}`, { nonce: data.nonce, assetUrl })
 })
 
 ipcMain.on("@app/version", (event, _data) => {

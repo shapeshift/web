@@ -160,7 +160,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
     })
 
     //TODO remove/ flag on dev
-    windows.mainWindow.webContents.openDevTools()
+    if (isDev) windows.mainWindow.webContents.openDevTools()
 
     const startURL = isDev
         ? 'http://localhost:3000'

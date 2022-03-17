@@ -61,7 +61,7 @@ async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyAp
     })
     const balance = balances[contractCaip19]
 
-    const pricePerShare = api?.pricePerShare()
+    const pricePerShare = api.pricePerShare()
     acc[opportunity.contractAddress] = {
       ...opportunity,
       balance: bnOrZero(balance).toString(),

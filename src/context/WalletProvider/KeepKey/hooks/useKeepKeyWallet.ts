@@ -13,6 +13,7 @@ export const useKeepKeyWallet = () => {
     if (!wallet) return
     ;(async () => {
       isKeepKey && setKeepKeyWallet(wallet as KeepKeyHDWallet)
+      // await keepKeyWallet?.applySettings({ label: 'Test KeepKey' })
     })()
   }, [isKeepKey, wallet])
 

@@ -101,7 +101,12 @@ export const update_keepkey_status = async function () {
 
         let resultPreWebUsb = usb.findByIds(11044, 1)
         if (resultPreWebUsb) {
-            log.info(tag, "update required!")
+            log.info(tag, "update required! (resultPreWebUsb)")
+            log.info(tag, "update required! (resultPreWebUsb): ",resultInit.bootloaderVersion)
+            //update firmware next
+            if (resultInit.bootloaderVersion === "v1.1.0") {
+                windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
+            }
         }
 
         let resultUpdater = usb.findByIds(11044, 1)

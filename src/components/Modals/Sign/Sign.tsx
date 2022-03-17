@@ -22,6 +22,7 @@ import KeepKey from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { getAssetUrl } from 'lib/getAssetUrl'
 
 import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
@@ -40,6 +41,12 @@ export const SignModal = (input: any) => {
   const [nonce, setNonce] = useState('')
   const [gasPrice, setGasPrice] = useState('')
   const [gasLimit, setGasLimit] = useState('')
+
+  const [holdAndRelease, setHoldAndRelease] = useState(KeepKey)
+
+  useEffect(() => {
+    getAssetUrl(KeepKey).then(setHoldAndRelease)
+  }, [])
 
   useEffect(() => {
     if (!HDwalletPayload || !HDwalletPayload.nonce) return
@@ -105,7 +112,7 @@ export const SignModal = (input: any) => {
         <ModalBody>
           {isApproved ? (
             <div>
-              <Image src={KeepKey} alt='Approve Transaction On Device!' />
+              <Image src={holdAndRelease} alt='Approve Transaction On Device!' />
             </div>
           ) : (
             <div>

@@ -8,7 +8,7 @@
 import WalletConnect from "@walletconnect/client";
 
 import log from 'electron-log'
-import { app, ipcMain, IpcMainEvent } from "electron";
+import { ipcMain, IpcMainEvent } from "electron";
 
 import { uniqueId } from 'lodash';
 import { shared } from "./shared";
@@ -203,6 +203,7 @@ export async function pairWalletConnect(event: any, payload: any) {
                     accountInfo = accountInfo.data
                     console.log("accountInfo: ", accountInfo)
 
+
                     // @ts-ignore
                     let nonce = accountInfo.nonce
                     console.log("nonce: ", nonce)
@@ -237,7 +238,7 @@ export async function pairWalletConnect(event: any, payload: any) {
                     throw Error("personal_sign not supported on Keepkey!")
                     break;
                 default:
-                    throw Error("Unhandled Method: "+method)
+                    throw Error("Unhandled Method: " + method)
             }
 
 
@@ -295,7 +296,7 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             //get txid always (even if failed to broadcast)
             let txid = keccak256(response.serialized).toString('hex')
-            txid = "0x"+txid
+            txid = "0x" + txid
             log.info(tag, "txid: ", txid)
 
             //respond

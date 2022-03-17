@@ -18,6 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
+import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 
@@ -95,7 +96,7 @@ const WalletButton: FC<WalletButtonProps> = ({
   const bgColor = useColorModeValue('gray.300', 'gray.800')
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       setShouldShorten(true)
       if (!walletInfo || !walletInfo.meta) return setWalletLabel('')
       if (walletInfo.meta.address) {
@@ -189,7 +190,7 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuItem icon={<UpDownIcon />} onClick={handleWalletConnect}>
+        <MenuItem icon={<WalletConnectIcon />} onClick={handleWalletConnect}>
           <Text translation='common.walletConnect' />
         </MenuItem>
         <MenuItem

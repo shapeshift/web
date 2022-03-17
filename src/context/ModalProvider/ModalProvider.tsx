@@ -8,6 +8,7 @@ import { BootloaderModal } from 'components/Modals/Bootloader/Bootloader'
 import { FirmwareModal } from 'components/Modals/Firmware/Firmware'
 import { HardwareErrorModal } from 'components/Modals/HardwareError/HardwareError'
 import { InitializeModal } from 'components/Modals/Initialize/Initialize'
+import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
 import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
 import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
@@ -33,6 +34,7 @@ const MODALS = {
   firmware: FirmwareModal,
   bootloader: BootloaderModal,
   initialize: InitializeModal,
+  fiatRamps: FiatRampsModal,
   cosmosGetStarted: GetStartedModal,
   cosmosStaking: StakingModal,
   walletConnect: WalletConnectModal,

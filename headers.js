@@ -37,11 +37,11 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
-    // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L40
+    // @gem(onramp) to get coinify supported currencies
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
-    // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L50
+    // @gem(onramp) to get wyre supported currencies
     process.env.REACT_APP_GEM_WYRE_SUPPORTED_COINS,
-    // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L13
+    // @gem(onramp) to get gem asset logos
     process.env.REACT_APP_GEM_ASSET_LOGO,
     'https://onramp.gem.co',
     // @shapeshiftoss/market-service@2.0.0: https://github.com/shapeshift/lib/blob/1efccc3401eccb3125e1f09b7f829b886b457b89/packages/market-service/src/osmosis/osmosis.ts#L21
@@ -60,8 +60,7 @@ const cspMeta = Object.entries({
     'data:',
     'blob:',
     'filesystem:',
-    // https://github.com/shapeshift/web/blob/70111acd6236759675cf81ddcd196c31472989a6/src/components/Modals/FiatRamps/utils.ts#L13
-    process.env.REACT_APP_GEM_ASSET_LOGO,
+    'https://gem-widgets-assets.s3-us-west-2.amazonaws.com/currencies/crypto/',
     'https://assets.coincap.io/assets/icons/',
     'https://static.coincap.io/assets/icons/',
     'https://assets.coingecko.com/coins/images/',

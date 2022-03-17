@@ -84,10 +84,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId } = query
   const alertText = useColorModeValue('blue.800', 'white')
-
+  const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  console.info('fox', tokenId)
   const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
   const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
@@ -358,13 +357,16 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
 
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
     let statusText = StatusTextEnum.pending
+    let statusBg = defaultStatusBg
     if (state.deposit.txStatus === 'success') {
       statusText = StatusTextEnum.success
-      statusIcon = <CheckIcon color='green' />
+      statusIcon = <CheckIcon color='white' />
+      statusBg = 'green.500'
     }
     if (state.deposit.txStatus === 'failed') {
       statusText = StatusTextEnum.failed
-      statusIcon = <CloseIcon color='red' />
+      statusIcon = <CloseIcon color='white' />
+      statusBg = 'red.500'
     }
 
     switch (route.path) {
@@ -520,6 +522,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
             loading={state.loading}
             statusText={statusText}
             statusIcon={statusIcon}
+            bg={statusBg}
             continueText='modals.status.position'
             closeText='modals.status.close'
             assets={[

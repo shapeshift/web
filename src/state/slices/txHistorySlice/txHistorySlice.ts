@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query'
 import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
@@ -171,27 +172,42 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
-        // TODO(0xdef1cafe): handle this and return the right original state?
-        // if (isEmpty(accountSpecifierMap)) return { data: cloneDeep()}
+        try {
+          if (isEmpty(accountSpecifierMap))
+            throw new Error('getAllTxHistory: No accounts given to get transaction history')
 
-        let txs: chainAdapters.Transaction<ChainTypes>[] = []
-        const chainAdapters = getChainAdapters()
-        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
-        const { chain } = caip2.fromCAIP2(CAIP2)
-        const adapter = chainAdapters.byChain(chain)
-        let currentCursor: string = ''
-        const pageSize = 100
-        do {
-          const { cursor: _cursor, transactions } = await adapter.getTxHistory({
-            cursor: currentCursor,
-            pubkey,
-            pageSize
-          })
-          currentCursor = _cursor
-          txs = [...txs, ...transactions]
-        } while (currentCursor)
-        dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier: `${CAIP2}:${pubkey}` }))
-        return { data: txs }
+          let txs: chainAdapters.Transaction<ChainTypes>[] = []
+          const chainAdapters = getChainAdapters()
+          const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+          const accountSpecifier = `${CAIP2}:${pubkey}`
+          const { chain } = caip2.fromCAIP2(CAIP2)
+          const adapter = chainAdapters.byChain(chain)
+          let currentCursor: string = ''
+          const pageSize = 100
+          do {
+            const { cursor: _cursor, transactions } = await adapter.getTxHistory({
+              cursor: currentCursor,
+              pubkey,
+              pageSize
+            })
+            currentCursor = _cursor
+            txs = [...txs, ...transactions]
+          } while (currentCursor)
+          dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
+          return { data: txs }
+        } catch (err) {
+          if (err instanceof Error) {
+            const data = err.message
+            const error = { data, status: 400 }
+            return { error }
+          }
+          return {
+            error: {
+              data: 'getAllTxHistory: An error occurred fetching all tx history',
+              status: 500
+            }
+          }
+        }
       }
     })
   })

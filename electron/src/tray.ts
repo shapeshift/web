@@ -68,6 +68,13 @@ export const menuTemplate: any = [
         }
     },
     {
+        label: 'Open dev tools',
+        type: 'normal',
+        click: () => {
+            if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.openDevTools()
+        }
+    },
+    {
         label: 'Quit KeepKey Bridge',
         type: 'normal',
         click: function () {

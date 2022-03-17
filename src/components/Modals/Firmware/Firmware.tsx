@@ -10,12 +10,13 @@ import {
   Spinner
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import KeepKeyConnect from 'assets/hold-and-connect.svg'
 import KeepKeyRelease from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { getAssetUrl } from 'lib/getAssetUrl'
 
 import { Row } from '../../Row/Row'
 
@@ -24,6 +25,14 @@ export const FirmwareModal = () => {
   const [loading, setLoading] = useState(false)
   const { firmware } = useModal()
   const { close, isOpen } = firmware
+
+  const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
+  const [kkRelease, setKKRelease] = useState(KeepKeyRelease)
+
+  useEffect(() => {
+    getAssetUrl(KeepKeyConnect).then(setKKConnect)
+    getAssetUrl(KeepKeyRelease).then(setKKRelease)
+  }, [])
 
   const HandleUpdateFirmware = async () => {
     console.log("Updating firmware (firmware modal)")
@@ -70,7 +79,7 @@ export const FirmwareModal = () => {
                     >
                       <Text translation={'modals.firmware.continue'} />
                     </Button>
-                    <Image src={KeepKeyRelease} alt='Approve Transaction On Device!' />
+                    <Image src={kkRelease} alt='Approve Transaction On Device!' />
                   </div>
                 ) : (
                   <div>
@@ -89,7 +98,7 @@ export const FirmwareModal = () => {
                       </Row.Label>
                       <Row.Value>{keepkey?.firmwareVersion}</Row.Value>
                     </Row>
-                    <Image src={KeepKeyConnect} alt='Approve Transaction On Device!' />
+                    <Image src={kkConnect} alt='Approve Transaction On Device!' />
                     <small>
                       Please disconnect, hold down button, and reconnect device to enter bootloader
                       mode to continue.

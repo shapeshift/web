@@ -18,6 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { breakpoints } from 'theme/theme'
 
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
+import { FiatRamps } from './NavBar/FiatRamps'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
@@ -46,6 +47,9 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
         <>
           <Flex width='full'>
             <UserMenu />
+          </Flex>
+          <Flex width='full'>
+            <FiatRamps />
           </Flex>
           <Box mt={12} width='full'>
             <AutoCompleteSearch />

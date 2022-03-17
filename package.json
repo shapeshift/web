@@ -15,7 +15,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.7.2",
     "@shapeshiftoss/asset-service": "^2.0.0",
-    "@shapeshiftoss/caip": "^2.0.0",
+    "@shapeshiftoss/caip": "^2.1.0",
     "@shapeshiftoss/chain-adapters": "^2.4.4",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.19.0",

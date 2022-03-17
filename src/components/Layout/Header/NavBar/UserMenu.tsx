@@ -5,15 +5,12 @@ import { FC, useEffect, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
+import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { WalletConnectedMenuRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/WalletConnectedMenuRoutes'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { ensReverseLookup } from 'lib/ens'
-
-import {
-  WalletConnectedMenuRoutes,
-  WalletConnectedRoutes
-} from './MenuRoutes/WalletConnectedMenuRoutes'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
 export const entries = [

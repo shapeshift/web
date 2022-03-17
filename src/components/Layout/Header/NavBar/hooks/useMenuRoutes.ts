@@ -1,6 +1,11 @@
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
-import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/WalletConnectedMenuRoutes'
+
+export enum WalletConnectedRoutes {
+  Connected = '/connected',
+  KeepKey = '/connected/keepkey',
+  KeepKeyPin = '/connected/keepkey/pin'
+}
 
 export const useMenuRoutes = () => {
   const history = useHistory()

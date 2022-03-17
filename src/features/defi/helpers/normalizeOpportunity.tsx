@@ -4,7 +4,7 @@ import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
 import { useSelector } from 'react-redux'
-import { FoxOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
+import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
@@ -75,8 +75,9 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
   }, [])
 }
 
-const transformFoxy = (foxies: FoxOpportunity[]): EarnOpportunityType[] => {
+const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] => {
   return foxies.map(foxy => {
+    //@TODO: Need to hook up balances either here or in the other hook
     return {
       type: DefiType.TokenStaking,
       provider: foxy.provider,
@@ -85,10 +86,10 @@ const transformFoxy = (foxies: FoxOpportunity[]): EarnOpportunityType[] => {
       tvl: bnOrZero(foxy.tvl).div(`1e+${USDC_PRECISION}`).toString(),
       apy: foxy.apy,
       expired: foxy.expired,
-      chain: ChainTypes.Ethereum,
-      assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
-      fiatAmount: '100',
-      cryptoAmount: '0'
+      chain: foxy.chain,
+      assetId: foxy.tokenCaip19,
+      fiatAmount: foxy.fiatAmount,
+      cryptoAmount: foxy.cryptoAmount
     }
   })
 }

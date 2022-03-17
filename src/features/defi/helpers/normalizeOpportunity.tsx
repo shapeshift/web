@@ -96,7 +96,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
 
 type NormalizeOpportunitiesProps = {
   vaultArray: SupportedYearnVault[]
-  foxyArray: any[]
+  foxyArray: MergedFoxyOpportunity[]
 }
 
 export const useNormalizeOpportunities = ({

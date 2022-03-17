@@ -313,15 +313,22 @@
       "initialize": "Initialize new KeepKey",
       "restore": "Restore KeepKey from seed"
     },
-    "firmware": {
-      "header": "Update Required for Your KeepKey!",
-      "bootloaderUpdate": "Updating your devices BootLoader",
-      "FirmwareUpdate": "Updating your devices Firmware",
+    "bootloader": {
+      "header": "Bootloader Update Required for Your KeepKey!",
+      "cta": "Your KeepKey is out of date! lets update your bootloader.",
+      "bootloaderUpdate": "Updating your device's bootloader",
       "update": "check KeepKey Status",
       "continue": "approve and continue",
       "bootloaderNeeded": "to continue you must updater your bootloader!",
-      "firmwareNeeded": "to continue you must updater your firmware!",
       "bootloader": "BootLoader version",
+      "firmware": "Firmware version"
+    },
+    "firmware": {
+      "header": "Firmware Update Required for Your KeepKey!",
+      "firmwareUpdate": "Updating your device's Firmware",
+      "update": "check KeepKey Status",
+      "continue": "approve and continue",
+      "firmwareNeeded": "to continue you must updater your firmware!",
       "firmware": "Firmware version"
     },
     "shapeShift": {

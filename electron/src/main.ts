@@ -465,23 +465,33 @@ ipcMain.on('@app/start', async (event, data) => {
     try {
         log.info(tag, 'event: onStartApp: ', data)
 
-        // let unchainedEth = new Unchained({
-        //     definition:"https://dev-api.ethereum.shapeshift.com/swagger.json"
-        // });
-        //
-        // //TODO moveme
-        // await unchainedEth.init()
-        //
-        //
-        // console.log("unchainedEth", unchainedEth);
-        // // console.log("unchainedEth", unchainedEth.instance);
-        //
-        // //getNonce
-        // let accountInfo = await unchainedEth.instance.GetAccount("0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
-        // console.log("accountInfo: ",accountInfo)
+        try{
 
-        let accountInfo = await axios.get("https://dev-api.ethereum.shapeshift.com/api/v1/account/" + "0xfEb8bf56e554fc47639e5Ed9E1dAe21DfF69d6A9")
-        console.log("accountInfo: ", accountInfo)
+            usb.on('attach', function (device) {
+                try{
+                    log.info('attach device: ', device)
+                    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
+                    if (!bridgeRunning) start_bridge()
+                    update_keepkey_status()
+                }catch(e){
+                    log.error(e)
+                }
+            })
+
+            usb.on('detach', function (device) {
+                try{
+                    log.info('detach device: ', device)
+                    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
+                    //stop_bridge(event)
+                    update_keepkey_status()
+                }catch(e){
+                    log.error(e)
+                }
+            })
+
+        }catch(e){
+            log.error(e)
+        }
 
         //load DB
         try {
@@ -519,7 +529,7 @@ ipcMain.on('@app/start', async (event, data) => {
 
         //onStart
         try {
-            update_keepkey_status(event)
+            update_keepkey_status()
         } catch (e) {
             log.error(e)
         }
@@ -538,18 +548,4 @@ ipcMain.on('@app/start', async (event, data) => {
         log.error('e: ', e)
         log.error(tag, e)
     }
-})
-
-usb.on('attach', function (device) {
-    log.info('attach device: ', device)
-    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
-    if (!bridgeRunning && settings.shouldAutoStartBridge) start_bridge(settings.bridgeApiPort)
-    update_keepkey_status(event)
-})
-
-usb.on('detach', function (device) {
-    log.info('detach device: ', device)
-    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
-    //stop_bridge(event)
-    update_keepkey_status(event)
 })

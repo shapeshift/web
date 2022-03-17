@@ -54,45 +54,45 @@ export const SelectModal = () => {
                 )
               })}
           </div>
-          <div>
-            <br />
-            <Text mb={6} translation={'walletProvider.selectModal.cta'} />
-            <Text mb={6} color='gray.500' translation={'walletProvider.selectModal.demo'} />
-            {adapters &&
-              // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
-              // So not all of the supported wallets will have an initialized adapter
-              // TODO: hacky shortlist, fixme (why is so fricken hard to disable a wallet), TODO feature flag new wallets?)
-              Object.values({
-                Native: 'native'
-              }).map(key => {
-                // @ts-ignore
-                const option = SUPPORTED_WALLETS[key]
-                const Icon = option.icon
-                return (
-                  <Button
-                    key={key}
-                    w='full'
-                    size='lg'
-                    py={8}
-                    justifyContent='space-between'
-                    // @ts-ignore
-                    onClick={() => connect(key)}
-                  >
-                    <Flex alignItems='center'>
-                      <RawText fontWeight='semibold'>Load a Mnemonic</RawText>
-                      {walletInfo?.name === option.name && (
-                        <Tag colorScheme='green' ml={2}>
-                          <Text translation='common.connected' />
-                        </Tag>
-                      )}
-                    </Flex>
-                    <Center>
-                      <Icon height='30px' w='auto' />
-                    </Center>
-                  </Button>
-                )
-              })}
-          </div>
+          {/*<div>*/}
+          {/*  <br />*/}
+          {/*  <Text mb={6} translation={'walletProvider.selectModal.cta'} />*/}
+          {/*  <Text mb={6} color='gray.500' translation={'walletProvider.selectModal.demo'} />*/}
+          {/*  {adapters &&*/}
+          {/*    // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab*/}
+          {/*    // So not all of the supported wallets will have an initialized adapter*/}
+          {/*    // TODO: hacky shortlist, fixme (why is so fricken hard to disable a wallet), TODO feature flag new wallets?)*/}
+          {/*    Object.values({*/}
+          {/*      Native: 'native'*/}
+          {/*    }).map(key => {*/}
+          {/*      // @ts-ignore*/}
+          {/*      const option = SUPPORTED_WALLETS[key]*/}
+          {/*      const Icon = option.icon*/}
+          {/*      return (*/}
+          {/*        <Button*/}
+          {/*          key={key}*/}
+          {/*          w='full'*/}
+          {/*          size='lg'*/}
+          {/*          py={8}*/}
+          {/*          justifyContent='space-between'*/}
+          {/*          // @ts-ignore*/}
+          {/*          onClick={() => connect(key)}*/}
+          {/*        >*/}
+          {/*          <Flex alignItems='center'>*/}
+          {/*            <RawText fontWeight='semibold'>Load a Mnemonic</RawText>*/}
+          {/*            {walletInfo?.name === option.name && (*/}
+          {/*              <Tag colorScheme='green' ml={2}>*/}
+          {/*                <Text translation='common.connected' />*/}
+          {/*              </Tag>*/}
+          {/*            )}*/}
+          {/*          </Flex>*/}
+          {/*          <Center>*/}
+          {/*            <Icon height='30px' w='auto' />*/}
+          {/*          </Center>*/}
+          {/*        </Button>*/}
+          {/*      )*/}
+          {/*    })}*/}
+          {/*</div>*/}
         </Stack>
       </ModalBody>
     </>

@@ -186,7 +186,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  const { sign, pair, firmware, bootloader } = useModal()
+  const { sign, pair, firmware, bootloader, hardwareError } = useModal()
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -308,6 +308,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('openFirmwareUpdate', (event, data) => {
       firmware.open({})
+    })
+
+    ipcRenderer.on('openHardwareError', (event, data) => {
+      hardwareError.open({})
+    })
+
+    ipcRenderer.on('closeHardwareError', (event, data) => {
+      hardwareError.close()
     })
 
     ipcRenderer.on('openBootloaderUpdate', (event, data) => {

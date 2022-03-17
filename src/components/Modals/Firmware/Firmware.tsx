@@ -35,6 +35,7 @@ export const FirmwareModal = () => {
   }, [])
 
   const HandleUpdateFirmware = async () => {
+    console.log("Updating firmware (firmware modal)")
     setLoading(true)
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
@@ -82,6 +83,9 @@ export const FirmwareModal = () => {
                   </div>
                 ) : (
                   <div>
+                    <h3>
+                      <Text translation={'modals.bootloader.cta'} />
+                    </h3>
                     <Row>
                       <Row.Label>
                         <Text translation={'modals.firmware.bootloader'} />

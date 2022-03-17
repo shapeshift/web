@@ -54,7 +54,7 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
             <UserMenu />
           </Flex>
           {gemRampFlag && (
-            <Flex width='full'>
+            <Flex width='full' mt={4}>
               <FiatRamps />
             </Flex>
           )}

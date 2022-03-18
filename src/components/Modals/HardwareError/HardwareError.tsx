@@ -8,11 +8,12 @@ import {
   ModalOverlay
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
-import { Text } from 'components/Text'
+import React, { useEffect, useState } from 'react'
 import KeepKeyConnect from 'assets/connect-keepkey.svg'
+import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import React, {useEffect, useState} from "react";
-import {getAssetUrl} from "../../../lib/getAssetUrl";
+
+import { getAssetUrl } from '../../../lib/getAssetUrl'
 
 export const HardwareErrorModal = () => {
   const { hardwareError } = useModal()

@@ -45,7 +45,8 @@ export const mockStore: ReduxState = {
     featureFlags: {
       CosmosInvestor: false,
       CosmosPlugin: false,
-      FoxyInvestor: false
+      FoxyInvestor: false,
+      GemRamp: false
     }
   },
   assets: {

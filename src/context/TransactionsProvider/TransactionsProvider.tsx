@@ -1,5 +1,5 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'

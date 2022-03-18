@@ -1,6 +1,6 @@
 import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Button, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Route } from 'react-router-dom'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -8,6 +8,7 @@ import {
   useMenuRoutes,
   WalletConnectedRoutes
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { KeepKeyPinRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/KeepKeyPinRoutes'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
@@ -127,24 +128,10 @@ export const KeepKeyMenuRoutes = () => {
     return keepKeyStateLoaded || keepKeyStateLoading
   }
 
-  const changePin = () => {
-    return (
-      <Flex flexDir='column' ml={3} mr={3} mb={3}>
-        <SubmenuHeader
-          title={translate('walletProvider.keepKey.settings.headings.devicePin')}
-          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
-        />
-        <Button colorScheme='blue' size='sm'>
-          {translate('walletProvider.keepKey.settings.actions.updatePin')}
-        </Button>
-      </Flex>
-    )
-  }
-
   return (
     <>
       <Route exact path={WalletConnectedRoutes.KeepKey} component={keepKeyMenu} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={changePin} />
+      <KeepKeyPinRoutes />
     </>
   )
 }

@@ -79,7 +79,6 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
 
 const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] => {
   return foxies.map(foxy => {
-    //@TODO: Need to hook up balances either here or in the other hook
     return {
       type: DefiType.TokenStaking,
       provider: foxy.provider,

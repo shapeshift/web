@@ -3,7 +3,6 @@ import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useLocation } from 'react-router-dom'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 import {
   useMenuRoutes,
   WalletConnectedRoutes
@@ -11,6 +10,7 @@ import {
 import { KeepKeyMenuRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/KeepKeyMenuRoutes'
 import { WalletConnectedProps, WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
+import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 
 export const WalletConnectedMenuRoutes = ({
   onDisconnect,
@@ -28,8 +28,8 @@ export const WalletConnectedMenuRoutes = ({
     return (
       <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
         <MenuItem
-          closeOnSelect={!keepKey}
-          onClick={keepKey ? handleKeepKeyClick : undefined}
+          closeOnSelect={!keepKey.wallet}
+          onClick={keepKey.wallet ? handleKeepKeyClick : undefined}
           icon={<WalletImage walletInfo={walletInfo} />}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
@@ -41,7 +41,7 @@ export const WalletConnectedMenuRoutes = ({
                 color='yellow.500'
               />
             )}
-            {keepKey && <ChevronRightIcon />}
+            {keepKey.wallet && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
         <MenuDivider ml={3} />

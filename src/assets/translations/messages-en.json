@@ -338,6 +338,10 @@
         "button": "Submit Passphrase"
       }
     },
+    "hardware": {
+      "header": "Hardware Error!",
+      "reconnect": "Please disconnect, and reconnect your KeepKey to continue."
+    },
     "initialize": {
       "header": "Initialize KeepKey!",
       "initialize": "Initialize new KeepKey",

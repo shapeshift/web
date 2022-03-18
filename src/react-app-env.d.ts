@@ -4,3 +4,4 @@
 declare module 'react-qr-reader'
 declare module 'reselect-tools'
 declare module '@ensdomains/ensjs'
+declare module 'react-json-csv'

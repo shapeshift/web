@@ -168,6 +168,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
         resolve()
 
     } catch (e) {
+        windows?.mainWindow?.webContents.send('openHardwareError', { e })
         log.error(e)
     }
 })

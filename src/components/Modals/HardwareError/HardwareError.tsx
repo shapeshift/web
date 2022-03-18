@@ -1,4 +1,5 @@
 import {
+  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -8,11 +9,20 @@ import {
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
 import { Text } from 'components/Text'
+import KeepKeyConnect from 'assets/connect-keepkey.svg'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import React, {useEffect, useState} from "react";
+import {getAssetUrl} from "../../../lib/getAssetUrl";
 
 export const HardwareErrorModal = () => {
   const { hardwareError } = useModal()
   const { close, isOpen } = hardwareError
+
+  const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
+
+  useEffect(() => {
+    getAssetUrl(KeepKeyConnect).then(setKKConnect)
+  }, [])
 
   return (
     <Modal
@@ -34,6 +44,7 @@ export const HardwareErrorModal = () => {
         </ModalHeader>
         <ModalBody>
           <div>
+            <Image src={kkConnect} alt='reconnect Device!' />
             <Text translation={'modals.hardware.reconnect'} />
           </div>
         </ModalBody>

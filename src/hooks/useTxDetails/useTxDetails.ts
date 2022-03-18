@@ -1,9 +1,9 @@
-import { Asset, chainAdapters } from '@shapeshiftoss/types'
+import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
 import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
-import { selectAssetByCAIP19, selectTxById } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -17,7 +17,7 @@ const SUPPORTED_CONTRACT_METHODS = new Set([
   'transferOut'
 ])
 
-enum Direction {
+export enum Direction {
   InPlace = 'in-place',
   Outbound = 'outbound',
   Inbound = 'inbound'
@@ -42,6 +42,9 @@ export interface TxDetails {
   explorerTxLink: string
   explorerAddressLink: string
   direction?: Direction
+  sourceMarketData: MarketData
+  destinationMarketData: MarketData
+  feeMarketData: MarketData
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
@@ -85,6 +88,13 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, tx.fee?.caip19 ?? ''))
   const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTx?.caip19 ?? ''))
   const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTx?.caip19 ?? ''))
+  const sourceMarketData = useAppSelector(state =>
+    selectMarketDataById(state, sellTx?.caip19 ?? '')
+  )
+  const destinationMarketData = useAppSelector(state =>
+    selectMarketDataById(state, buyTx?.caip19 ?? '')
+  )
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.caip19 ?? ''))
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
 
   const value = standardTx?.value ?? tradeTx?.value ?? undefined
@@ -133,6 +143,9 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     precision,
     explorerTxLink,
     explorerAddressLink,
-    direction
+    direction,
+    sourceMarketData,
+    destinationMarketData,
+    feeMarketData
   }
 }

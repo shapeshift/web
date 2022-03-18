@@ -151,10 +151,12 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
   ): Promise<string>
 
   async broadcastTransaction(hex: string): Promise<string> {
-    const { data } = await this.providers.http.sendTx({
-      body: { rawTx: hex }
-    })
-    return data
+    try {
+      const { data } = await this.providers.http.sendTx({ body: { rawTx: hex } })
+      return data
+    } catch (err) {
+      return ErrorHandler(err)
+    }
   }
 
   abstract signAndBroadcastTransaction(

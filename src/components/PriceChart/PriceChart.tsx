@@ -47,7 +47,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
   return (
-    <Card.Body p={0} height='350px'>
+    <Card.Body p={0} height={unavailable ? undefined : '350px'}>
       {unavailable ? (
         <Box p={8}>
           <MarketDataUnavailable />

@@ -61,7 +61,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const location = useLocation()
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId } = query
+  const { chain, contractAddress, tokenId, rewardId } = query
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
@@ -77,7 +77,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: contractAddress
+    assetReference: rewardId
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
   const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))

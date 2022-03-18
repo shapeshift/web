@@ -39,6 +39,7 @@ export type DefiQueryParams = {
   chain: ChainTypes
   contractAddress: string
   tokenId: string
+  rewardId: string
 }
 
 type DefiManagerProviderProps = {

@@ -16,6 +16,7 @@ export type EarnOpportunityType = {
   version?: string
   contractAddress: string
   tokenAddress: string
+  rewardAddress: string
   apy?: number | string
   tvl: string
   assetId: CAIP19
@@ -51,6 +52,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
       version: vault.version,
       contractAddress: vault.vaultAddress,
       tokenAddress: vault.tokenAddress,
+      rewardAddress: vault.vaultAddress,
       tvl: bnOrZero(vault.underlyingTokenBalance.amountUsdc).div(`1e+${USDC_PRECISION}`).toString(),
       apy: vault.metadata.apy?.net_apy,
       expired: vault.expired,
@@ -83,6 +85,7 @@ const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] =
       provider: foxy.provider,
       contractAddress: foxy.contractAddress,
       tokenAddress: foxy.stakingToken,
+      rewardAddress: foxy.rewardToken,
       tvl: bnOrZero(foxy.tvl).toString(),
       apy: foxy.apy,
       expired: foxy.expired,

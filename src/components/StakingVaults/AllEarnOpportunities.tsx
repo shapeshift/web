@@ -36,7 +36,7 @@ export const AllEarnOpportunities = () => {
 
   const handleClick = useCallback(
     (opportunity: EarnOpportunityType) => {
-      const { type, provider, contractAddress, chain, tokenAddress } = opportunity
+      const { type, provider, contractAddress, chain, tokenAddress, rewardAddress } = opportunity
       if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
@@ -46,7 +46,8 @@ export const AllEarnOpportunities = () => {
         search: qs.stringify({
           chain,
           contractAddress,
-          tokenId: tokenAddress
+          tokenId: tokenAddress,
+          rewardId: rewardAddress
         }),
         state: { background: location }
       })

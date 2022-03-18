@@ -172,8 +172,11 @@ export const txHistoryApi = createApi({
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
         try {
-          if (isEmpty(accountSpecifierMap))
-            throw new Error('getAllTxHistory: No accounts given to get transaction history')
+          if (isEmpty(accountSpecifierMap)) {
+            const data = 'getAllTxHistory: No account specifier given to get all tx history'
+            const error = { data, status: 400 }
+            return { error }
+          }
 
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
@@ -195,11 +198,6 @@ export const txHistoryApi = createApi({
           dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
           return { data: txs }
         } catch (err) {
-          if (err instanceof Error) {
-            const data = err.message
-            const error = { data, status: 400 }
-            return { error }
-          }
           return {
             error: {
               data: 'getAllTxHistory: An error occurred fetching all tx history',

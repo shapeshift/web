@@ -1,0 +1,656 @@
+{
+  "nav bar works": {
+    "timestamp": 1647577786024,
+    "routes": [
+      {
+        "url": "https://dev-api.bitcoin.shapeshift.com/api/v1/account/ypub6XXDgeGKTVzkT4cfLaEjBgGcyqiEPnDmo4RkEJTvWT6b1DxBYmwm4N1SB3NtozMdSXjdQQXYFeuocb5PcDnTved71aHp4ntVCJ6qFiArCuq",
+        "method": "GET",
+        "status": 200,
+        "headers": {},
+        "body": "",
+        "response": {
+          "pubkey": "ypub6XXDgeGKTVzkT4cfLaEjBgGcyqiEPnDmo4RkEJTvWT6b1DxBYmwm4N1SB3NtozMdSXjdQQXYFeuocb5PcDnTved71aHp4ntVCJ6qFiArCuq",
+          "balance": "0",
+          "unconfirmedBalance": "0",
+          "addresses": [
+            {
+              "balance": "0",
+              "pubkey": "3JjuPnw7Z7GAbT5krVUMSCeDcDTqrZNN7n"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3Gsj7zbVCTGEfENwGwZtpmY9ExJ5FXp8sT"
+            },
+            {
+              "balance": "0",
+              "pubkey": "32r9cS8pQhbF3Ggp4q7sXeDv5as82Yt5r5"
+            },
+            {
+              "balance": "0",
+              "pubkey": "33c1ArQretwu3xfdFU4ph6PbLPFQ1v45s1"
+            },
+            {
+              "balance": "0",
+              "pubkey": "35mj8dkH9N1S4snLVJUPBvtvsZfZpgY97o"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3Cx7GNohTq2ugf49N6NiGHz9Sv7BrVk4Q1"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3PHhxzxmXQK3n5AAxXU5qoGuafEXKWfMsy"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3E4x2BMk4xakshYG9egacLGjiQa5Fgu4Es"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3CETrr8HDGVZQetKpNRV7JaM9aAf1QV3rm"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3HcL31WwPoAXK8REjx759v8iC2P8yeHhwS"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3KHwgjHogHhKYHEfkG8LqyoRrcxiSQj3Hj"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3BvkBdpDbdrXpEf9tnAdGsGGWwjEGmEUSf"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3LC9cvYRVCopv3LVQqQCUzGcqd1A5ZYXnH"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3Ned6kQSFLiRwuWX95C3dxjy3w1sRkYfBT"
+            },
+            {
+              "balance": "0",
+              "pubkey": "347ZkPdKC5VgXZBLevxNPTQfsSKxHg9h6s"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3MZzotg6gwZmpT4Yn9pZxfmXNfiiJtQGkW"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3Cqk4CsXrXtr1M4BSZxzJzsgmpyYQKqqkC"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3PskeVKbuZbtB79dauVE6TxBGtaPa6JdPD"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3DHXG2wKUFLXW9EkAQRNachSiwMR6gyV1k"
+            },
+            {
+              "balance": "0",
+              "pubkey": "37sTyXPG9EAHujWU5YoTBK4uftcy7eaZiB"
+            },
+            {
+              "balance": "0",
+              "pubkey": "35CmU42zRAryBz5odUJu8YJPqDGawdsUwc"
+            },
+            {
+              "balance": "0",
+              "pubkey": "39awK9M38KA6kESBiqrXHzWHBR44KvuQkw"
+            },
+            {
+              "balance": "0",
+              "pubkey": "359xYdGMMo5m1RsueWXx711XCgwVb2jH5x"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3CMNhcCQ3rt8tL3wrkZu6GKx4xYRrAxaQw"
+            },
+            {
+              "balance": "0",
+              "pubkey": "37Tf1PFrokpEzdZiPhPJt968BkS4nD9X4z"
+            },
+            {
+              "balance": "0",
+              "pubkey": "36uCPEbzbVcKQnYaBy3heraNjQ7GMN9jTB"
+            },
+            {
+              "balance": "0",
+              "pubkey": "37QUGzQ6KTwN5HMGznpxysax4TpSTRS9rF"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3K3HKrWGQ9vivmeGaLZ8dcnJ3c5qm656jm"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3B5wd5Xrwg9DqVJWjiN4RodnrMSkmTgR31"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3PGZUMX3PF3nWDuqccRtwQnoQR49yXpgux"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3ATg3Phdu1f9gLgnVoRM2dmesJVTRWzSZa"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3DSKYV6Q5CggVhpfRPJLaLB65gUVsvzkRG"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3QXog21VtUTFxUCpeTTjPLQoUMHWZLVf41"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3PvN62uPbkyFvP1GWeJWnrxj8viUBsxEu3"
+            },
+            {
+              "balance": "0",
+              "pubkey": "324hZdb8krEdyeTwLuhGbE8iqmea6Y2jjy"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3AhqriQ2JE8YNQKhr6vWSnGq8GQzud9Ky7"
+            },
+            {
+              "balance": "0",
+              "pubkey": "39zdQxS5AvCysDNbaZ4ZqnHkSKpd1HNghK"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3CRYHdmPxDSutGH9AbjAXKG57FhsMfbTBF"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3CwKeAMBRrrsGEt7yEk2ve7SfxVmnPFZUQ"
+            },
+            {
+              "balance": "0",
+              "pubkey": "349n1Lu3Cbapj9VyAo4F8wSCwveBXV1Fyy"
+            },
+            {
+              "balance": "0",
+              "pubkey": "3MFQY2THsq6SyMWADBeCZHVT8adLmCrMuZ"
+            },
+            {
+              "balance": "0",
+              "pubkey": "34L5aq6ovreXrkE7hBWTdaJ4Q9rraQ3SHL"
+            }
+          ],
+          "nextReceiveAddressIndex": 0,
+          "nextChangeAddressIndex": 0
+        }
+      },
+      {
+        "url": "https://dev-api.bitcoin.shapeshift.com/api/v1/account/xpub6Bx9mtMRrggguBL45ewFfCxHbqibvMtfkNDAt4rmYR5Vc7U5Sudp8Zis8pmVvjrUtsL3kieffiAvcFmS39ntHm8v8oAvaMEc7DEsN9drV4A",
+        "method": "GET",
+        "status": 200,
+        "headers": {},
+        "body": "",
+        "response": {
+          "pubkey": "xpub6Bx9mtMRrggguBL45ewFfCxHbqibvMtfkNDAt4rmYR5Vc7U5Sudp8Zis8pmVvjrUtsL3kieffiAvcFmS39ntHm8v8oAvaMEc7DEsN9drV4A",
+          "balance": "0",
+          "unconfirmedBalance": "0",
+          "addresses": [
+            {
+              "balance": "0",
+              "pubkey": "1HszWe5vsKrJePNMEJPmmED7qHXTKeqHCy"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1KoJKZ4aMJD6P9eTKJZaQ6S3Fw1JaN6Pm5"
+            },
+            {
+              "balance": "0",
+              "pubkey": "14iWj2GDBmPYGcpzonAiF5CbM92bCXXEwJ"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1JWXrD2pcN94DRkWYiS78tf1VbXhkQqAfF"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Ge43B6RbMuzhrTn4CSEvVra6guSrfBpes"
+            },
+            {
+              "balance": "0",
+              "pubkey": "15A35Rm96n8pmaKEAyqEEN18ZPmxpbqFUM"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Cm5pRj4DBMwLLqVHh63seKyYmk8Q8Q7vt"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1BxLsveABWqJWV1iJ5ep9TrbTBezoUCfGh"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1N1eePqSznhgDV8R6GCQi9KL5PRfBWzkai"
+            },
+            {
+              "balance": "0",
+              "pubkey": "19UbWFjxmfk6uvLAfGELXR8mL4MP9cLiiM"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1APFBZhaFr2qXnmSFsEnpeqUGfWneKqgdg"
+            },
+            {
+              "balance": "0",
+              "pubkey": "13jrj9zRRThojaACKfNwiwiBc31D2Gv6iw"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1M2FjnHWDyyd6N1ASjYG5pGXNu5DuNwTjx"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1ND23R1W6ojZg53iBEHWsMCVNArWcd2LB6"
+            },
+            {
+              "balance": "0",
+              "pubkey": "17MKZrN3fT1JYrZqkwdizvWuJkHnHdqUES"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1KcyNt7TWrQAo9xM8DTCf51n6iEGkZxA1K"
+            },
+            {
+              "balance": "0",
+              "pubkey": "17Nywt6LvYYXJzDydybYnbK85HM28WjMjw"
+            },
+            {
+              "balance": "0",
+              "pubkey": "16Yteykb732zWWL5wKzA1QUG2KrcxXbVfG"
+            },
+            {
+              "balance": "0",
+              "pubkey": "17T3sRRoTaBVVj9nzCSQVYTbWm5NHYXbW1"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Bk5p1pVuGCVKN87Rr4sVspn26TwycmChp"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1MgNeeVtvoMQzxSivhiDPyxZhxwqEeYXq2"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1P1XGptEYiVGbhZoTSCtUPu962s5NhEpT7"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1MNBR7hhEz9jd3zwDk8xYBshFRMU3ev8oV"
+            },
+            {
+              "balance": "0",
+              "pubkey": "199zzBniNauRk5bZawYfBtCRTBqgcPKAxm"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1F2bGzDwhkZyQMqRS3ejyTQfjB5JgcN5UV"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1HHQTYJVwhZhnxQJmuxuyPLaKfBU1P3FkV"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Gy1G7AsUvq5iGFg4qKtiReiWqTFKB5UFX"
+            },
+            {
+              "balance": "0",
+              "pubkey": "16oA3QwP6JeRmb2yrHmhbeaNVs1tuTs8A4"
+            },
+            {
+              "balance": "0",
+              "pubkey": "18ZJzDiNs6k2FsnZEwQHUP2s44Mbm5Rnqs"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1B2rReLr5j1iR1UDNoEcTwKArSngWL27CY"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1HZSgcZKU6QucQDwFaZUbDq7PqLbRBeoaL"
+            },
+            {
+              "balance": "0",
+              "pubkey": "12FnLxnHVzESQGn2fWp7ggWWHEkBRBeQX6"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1CYorthsMoeLhx1p9e4V3NMu3z7dyk191k"
+            },
+            {
+              "balance": "0",
+              "pubkey": "147ngoYzTmRF7TS3F3EQLSFE2i3d7KuhUv"
+            },
+            {
+              "balance": "0",
+              "pubkey": "15ZK7Q4ffPSG33kWQbAMVmH8Xs2dRGZ1Lb"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Kk1JjHw9WRq9LzpGAfo9emDcCjie5Mg9x"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1BVFmy34VPGzTDoxzbnpfutcdtYXHgMUB4"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1FJ6Dy8frSKuw8vptcfWFgXnDatTdBwuji"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Bgpfm16zkcqps82p7FUCm5Xveeym3GWsK"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1PLXHQ4BNJpSSbevdxrxxKr25gKaNwXm9P"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1D7Tx1yXy3kTVw599oY5e93qPqz2CgyNWg"
+            },
+            {
+              "balance": "0",
+              "pubkey": "14wbtpjyoW3Ac87X8oiBTFXLrzYUPsBi23"
+            }
+          ],
+          "nextReceiveAddressIndex": 0,
+          "nextChangeAddressIndex": 0
+        }
+      },
+      {
+        "url": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
+        "method": "GET",
+        "status": 301,
+        "headers": {},
+        "body": "",
+        "response": "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>openresty/1.13.6.2</center>\r\n</body>\r\n</html>\r\n"
+      },
+      {
+        "url": "https://dev-api.bitcoin.shapeshift.com/api/v1/account/xpub6Bx9mtMRrggguBL45ewFfCxHbqibvMtfkNDAt4rmYR5Vc7U5Sudp8Zis8pmVvjrUtsL3kieffiAvcFmS39ntHm8v8oAvaMEc7DEsN9drV4A",
+        "method": "GET",
+        "status": 200,
+        "headers": {},
+        "body": "",
+        "response": {
+          "pubkey": "xpub6Bx9mtMRrggguBL45ewFfCxHbqibvMtfkNDAt4rmYR5Vc7U5Sudp8Zis8pmVvjrUtsL3kieffiAvcFmS39ntHm8v8oAvaMEc7DEsN9drV4A",
+          "balance": "0",
+          "unconfirmedBalance": "0",
+          "addresses": [
+            {
+              "balance": "0",
+              "pubkey": "1HszWe5vsKrJePNMEJPmmED7qHXTKeqHCy"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1KoJKZ4aMJD6P9eTKJZaQ6S3Fw1JaN6Pm5"
+            },
+            {
+              "balance": "0",
+              "pubkey": "14iWj2GDBmPYGcpzonAiF5CbM92bCXXEwJ"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1JWXrD2pcN94DRkWYiS78tf1VbXhkQqAfF"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Ge43B6RbMuzhrTn4CSEvVra6guSrfBpes"
+            },
+            {
+              "balance": "0",
+              "pubkey": "15A35Rm96n8pmaKEAyqEEN18ZPmxpbqFUM"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Cm5pRj4DBMwLLqVHh63seKyYmk8Q8Q7vt"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1BxLsveABWqJWV1iJ5ep9TrbTBezoUCfGh"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1N1eePqSznhgDV8R6GCQi9KL5PRfBWzkai"
+            },
+            {
+              "balance": "0",
+              "pubkey": "19UbWFjxmfk6uvLAfGELXR8mL4MP9cLiiM"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1APFBZhaFr2qXnmSFsEnpeqUGfWneKqgdg"
+            },
+            {
+              "balance": "0",
+              "pubkey": "13jrj9zRRThojaACKfNwiwiBc31D2Gv6iw"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1M2FjnHWDyyd6N1ASjYG5pGXNu5DuNwTjx"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1ND23R1W6ojZg53iBEHWsMCVNArWcd2LB6"
+            },
+            {
+              "balance": "0",
+              "pubkey": "17MKZrN3fT1JYrZqkwdizvWuJkHnHdqUES"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1KcyNt7TWrQAo9xM8DTCf51n6iEGkZxA1K"
+            },
+            {
+              "balance": "0",
+              "pubkey": "17Nywt6LvYYXJzDydybYnbK85HM28WjMjw"
+            },
+            {
+              "balance": "0",
+              "pubkey": "16Yteykb732zWWL5wKzA1QUG2KrcxXbVfG"
+            },
+            {
+              "balance": "0",
+              "pubkey": "17T3sRRoTaBVVj9nzCSQVYTbWm5NHYXbW1"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Bk5p1pVuGCVKN87Rr4sVspn26TwycmChp"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1MgNeeVtvoMQzxSivhiDPyxZhxwqEeYXq2"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1P1XGptEYiVGbhZoTSCtUPu962s5NhEpT7"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1MNBR7hhEz9jd3zwDk8xYBshFRMU3ev8oV"
+            },
+            {
+              "balance": "0",
+              "pubkey": "199zzBniNauRk5bZawYfBtCRTBqgcPKAxm"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1F2bGzDwhkZyQMqRS3ejyTQfjB5JgcN5UV"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1HHQTYJVwhZhnxQJmuxuyPLaKfBU1P3FkV"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Gy1G7AsUvq5iGFg4qKtiReiWqTFKB5UFX"
+            },
+            {
+              "balance": "0",
+              "pubkey": "16oA3QwP6JeRmb2yrHmhbeaNVs1tuTs8A4"
+            },
+            {
+              "balance": "0",
+              "pubkey": "18ZJzDiNs6k2FsnZEwQHUP2s44Mbm5Rnqs"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1B2rReLr5j1iR1UDNoEcTwKArSngWL27CY"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1HZSgcZKU6QucQDwFaZUbDq7PqLbRBeoaL"
+            },
+            {
+              "balance": "0",
+              "pubkey": "12FnLxnHVzESQGn2fWp7ggWWHEkBRBeQX6"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1CYorthsMoeLhx1p9e4V3NMu3z7dyk191k"
+            },
+            {
+              "balance": "0",
+              "pubkey": "147ngoYzTmRF7TS3F3EQLSFE2i3d7KuhUv"
+            },
+            {
+              "balance": "0",
+              "pubkey": "15ZK7Q4ffPSG33kWQbAMVmH8Xs2dRGZ1Lb"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Kk1JjHw9WRq9LzpGAfo9emDcCjie5Mg9x"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1BVFmy34VPGzTDoxzbnpfutcdtYXHgMUB4"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1FJ6Dy8frSKuw8vptcfWFgXnDatTdBwuji"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1Bgpfm16zkcqps82p7FUCm5Xveeym3GWsK"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1PLXHQ4BNJpSSbevdxrxxKr25gKaNwXm9P"
+            },
+            {
+              "balance": "0",
+              "pubkey": "1D7Tx1yXy3kTVw599oY5e93qPqz2CgyNWg"
+            },
+            {
+              "balance": "0",
+              "pubkey": "14wbtpjyoW3Ac87X8oiBTFXLrzYUPsBi23"
+            }
+          ],
+          "nextReceiveAddressIndex": 0,
+          "nextChangeAddressIndex": 0
+        }
+      }
+    ]
+  },
+  "supports trades": {
+    "timestamp": 1647577791666,
+    "routes": [
+      {
+        "url": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        "method": "GET",
+        "status": 301,
+        "headers": {},
+        "body": "",
+        "response": "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>openresty/1.13.6.2</center>\r\n</body>\r\n</html>\r\n"
+      },
+      {
+        "url": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE/logo.png",
+        "method": "GET",
+        "status": 301,
+        "headers": {},
+        "body": "",
+        "response": "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>openresty/1.13.6.2</center>\r\n</body>\r\n</html>\r\n"
+      },
+      {
+        "url": "https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x4Fabb145d64652a948d72533023f6E7A623C7C53/logo.png",
+        "method": "GET",
+        "status": 301,
+        "headers": {},
+        "body": "",
+        "response": "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>openresty/1.13.6.2</center>\r\n</body>\r\n</html>\r\n"
+      },
+      {
+        "url": "https://dev-api.ethereum.shapeshift.com/",
+        "method": "POST",
+        "status": 404,
+        "headers": {},
+        "body": {
+          "method": "eth_chainId",
+          "params": [],
+          "id": 46,
+          "jsonrpc": "2.0"
+        },
+        "response": {
+          "message": "Not Found"
+        }
+      },
+      {
+        "url": "https://dev-api.ethereum.shapeshift.com/",
+        "method": "POST",
+        "status": 404,
+        "headers": {},
+        "body": {
+          "method": "net_version",
+          "params": [],
+          "id": 47,
+          "jsonrpc": "2.0"
+        },
+        "response": {
+          "message": "Not Found"
+        }
+      },
+      {
+        "url": "https://dev-api.ethereum.shapeshift.com/",
+        "method": "POST",
+        "status": 404,
+        "headers": {},
+        "body": {
+          "method": "eth_chainId",
+          "params": [],
+          "id": 46,
+          "jsonrpc": "2.0"
+        },
+        "response": {
+          "message": "Not Found"
+        }
+      },
+      {
+        "url": "https://dev-api.ethereum.shapeshift.com/",
+        "method": "POST",
+        "status": 404,
+        "headers": {},
+        "body": {
+          "method": "net_version",
+          "params": [],
+          "id": 47,
+          "jsonrpc": "2.0"
+        },
+        "response": {
+          "message": "Not Found"
+        }
+      }
+    ]
+  }
+}

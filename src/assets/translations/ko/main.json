@@ -11,6 +11,7 @@
     "created": "%{date}에 생성됨",
     "noResultsFound": "결과 없음",
     "insufficientFunds": "자금 부족",
+    "insufficientAmountForGas": "ETH 가스가 부족합니다.",
     "invalidAddress": "유효하지 않은 주소",
     "unresolvableEnsDomain": "ENS 도메인 확인중 문제 발생",
     "deposit": "입금",
@@ -20,10 +21,13 @@
     "connectedWallet": "지갑 연결됨",
     "noWallet": "연결된 지갑 없음",
     "seeAll": "모두 보기",
-    "darkMode": "야간 모드",
+    "darkMode": "다크 모드",
+    "darkTheme": "다크 모드",
+    "lightTheme": "라이트 모드",
     "rename": "이름 바꾸기",
     "forget": "삭제하시겠습니까?",
     "available": "이용 가능",
+    "or": "및",
     "somethingWentWrong": "문제가 발생했습니다.",
     "somethingWentWrongBody": "문제가 발생했습니다.",
     "transactionFailed": "거래 실패",
@@ -32,7 +36,12 @@
     "send": "보내기",
     "receive": "받기",
     "privacy": "개인 정보 보호 정책",
-    "terms": "서비스 약관"
+    "terms": "서비스 약관",
+    "days": "일",
+    "copied": "클립보드에 복사했습니다.",
+    "copyFailed": "클립보드에 복사하지 못했습니다.",
+    "copyFailedDescription": "수동으로 복사하십시오",
+    "viewAsset": "자산 보기"
   },
   "updateToast": {
     "body": "새로운 버전의 앱이 출시되었습니다.",
@@ -47,6 +56,7 @@
       "balance": "총 보유 자산",
       "price": "가격",
       "value": "현 가치",
+      "priceChange": "가격 변동",
       "allocation": "배당 구성",
       "empty": {
         "title": "뻘쭘...",
@@ -56,6 +66,25 @@
     "recentTransactions": {
       "recentTransactions": "최근 거래"
     }
+  },
+  "fiatRamps": {
+    "routeTitle": "구매하기",
+    "routeTitleForGem": "Gem on Ramp",
+    "title": "암호화폐 구매 또는 판매",
+    "titleMessage": "ShapeShift는 암호화폐 구매 및 판매를 위해 여러 법정화폐 램프 제공업체와 파트너 관계를 맺었습니다.",
+    "gem": "GEM",
+    "gemMessage": "Gem으로 암호화폐 구매 또는 판매",
+    "onJuno": "OnJuno",
+    "comingSoon": "개발 중 - 나중에 확인하십시오",
+    "buy": "구매",
+    "sell": "판매",
+    "assetToBuy": "구매할 자산",
+    "selectAnAssetToBuy": "구매할 자산 선택하세요",
+    "assetToSell": "판매할 자산",
+    "selectAnAssetToSell": "판매할 자산 선택하세요",
+    "fundsTo": "자금은 다음으로 보내질 것입니다 ㅡ",
+    "fundsFrom": "자금은 다음에서 보내질 것입니다 ㅡ ",
+    "headerLabel": "암호화폐 구매/판매"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift (셰이프시프트)",
@@ -75,7 +104,74 @@
     }
   },
   "defi": {
+    "modals": {
+      "learnMore": {
+        "next": "다음",
+        "close": "닫기",
+        "headers": {
+          "aboutStakingRewards": "스테이킹 보상 정보",
+          "unstaking": "%{assetName}의 스테이킹 해제",
+          "risks": "위험이 있습니까?"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "귀하가 벌어들이는 %{assetName}의 비율인 연간 수익률(APR)은 일반적으로 7% - 20% 사이에서 변동합니다.",
+          "amountStakingInfo": "%{assetName}의 금액에 관계없이 스테이킹할 수 있으며 즉시 보상을 받기 시작합니다.",
+          "withdrawInfo": "언제든지 보상을 인출할 수 있으며, ~$.01 정도의 약간의 가스 요금이 나갑니다.",
+          "unbondingInfo": "토큰을 스테이킹 해제하면 14일 동안 잠겨 있으며 그 동안에는 보상을 받지 못합니다. 14일이 지나면 %{assetName}이 기본 지갑으로 돌아갑니다.",
+          "slashingInfo": "스테이킹은 검증자를 통해 이루어집니다. 매우 드물지만 거짓 또는 잘못된 거래를 허용하여 스테이킹한 유효성 검사기가 엉망이 되면 자산의 일부를 잃을 수 있습니다.",
+          "partnerInfo": "우리는 안전하고 신뢰할 수 있으며 감사된 인프라를 갖춘 평판 좋은 검증자와 협력하여 이러한 위험을 완화했습니다."
+        },
+        "userProtectionInfo": "*수익은 추정되며 시장 상황에 따라 변동됩니다.",
+        "cta": {
+          "startStaking": "스테이킹 시작",
+          "learnMore": "더 알아보기"
+        }
+      },
+      "getStarted": {
+        "header": "%{assetName} 스테이킹하여 최대 %{maxApr}% APR*을 받으세요.",
+        "body": "스테이킹은 블록체인 네트워크 운영을 지원하기 위해 암호화폐 지갑에 자금을 보유하는 과정이며, 그 대가로 보유자는 기여에 대한 보상을 받습니다.",
+        "userProtectionInfo": "*수익은 추정된 것으로 시장 상황에 따라 변동됩니다.",
+        "cta": {
+          "startStaking": "스테이킹 시작",
+          "learnMore": "더 알아보기"
+        }
+      },
+      "staking": {
+        "estimateDisclaimer": "*추정치는 시장 상황에 따라 변동될 수 있습니다.",
+        "tooltip": {
+          "validator": "Validator는 트랜잭션 처리, 데이터 저장 및 블록체인에 블록 추가를 담당합니다.",
+          "gasFees": "%{networkName}의 가스 요금은 이더리움 메인넷의 가스 요금보다 훨씬 낮습니다. 이 수수료는 네트워크를 보호하고 운영하는 검증자에게 직접 지불되며 ShapeShift에는 지불되지 않습니다."
+        }
+      }
+    },
+    "amountToStake": "스테이크할 금액",
+    "amountToUnstake": "언스테이킹 금액",
+    "confirmDetails": "세부정보 확인",
+    "validator": "검증자 (Validator)",
+    "unstakeFrom": "언스테이크",
+    "gasFee": "가스비",
+    "unbondInfoItWillTake": "토큰이 스테이킹되는 동안에는 토큰을 전송하거나 사용할 수 없습니다. 언스테이킹 후 잠금을 해제하는 데 %{unbondingDays}일이 걸립니다.",
+    "unbondInfoItWillTakeShort": "토큰을 언스테이킹하는 데 %{unbondingDays}일이 소요됩니다.",
+    "confirmAndBroadcast": "확인",
+    "averageApr": "평균 연이율",
+    "estimatedYearlyRewards": "예상 연간 보상",
+    "staked": "스테이크 상태",
+    "assetStaking": "%{assetName} 스테이킹",
+    "stake": "스테이크",
+    "unstake": "언스테이킹",
+    "stakeAsset": "%{assetSymbol} 스테이킹",
+    "unstakeAsset": "%{assetSymbol} 스테이크 해제",
+    "claim": "보상 청구",
+    "rewards": "보상",
+    "unstaking": "스테이크 해제중",
+    "available": "사용 가능 %{unbondingEnd}",
     "earn": "보상 찾기",
+    "asset": "자산",
+    "category": "범주",
+    "tvl": "TVL",
+    "apy": "APY",
+    "apr": "APR",
+    "balance": "잔액",
     "defi": "디파이",
     "defiBody": "성장하는 디파이 기회의 세계를 탐험해 보세요!",
     "netWorth": "순자산",
@@ -95,6 +191,7 @@
     "currentAPY": "현재 연 수익률",
     "currentAPR": "현재 연 이자율",
     "yearn": "Yearn Finance",
+    "emptyEarn": "Earn opportunities will appear here. ",
     "empty": {
       "farming": {
         "body": "현재 진행중인 이자 농사가 없습니다",
@@ -111,14 +208,21 @@
     }
   },
   "staking": {
-    "staking": "스테이킹"
+    "staking": "스테이킹",
+    "assetStakingBalance": "%{assetName} 스테이킹 잔액"
   },
   "navBar": {
     "dashboard": "대시보",
     "assets": "자산",
+    "assetDetails": "자산 정보",
     "accounts": "계정",
+    "accountAsset": "계정 자산",
+    "accountDetails": "계정 세부정보",
     "earn": "자산 획득",
     "defi": "디파이",
+    "transactionHistory": "거래 내역",
+    "overview": "개요",
+    "transactions": "트랜잭션 기록",
     "tradeHistory": "거래 내역",
     "foxToken": "FOX 토큰"
   },
@@ -139,7 +243,22 @@
     "from": "보낸 주소",
     "trade": "거래",
     "amount": "거래량",
-    "for": "for"
+    "for": "for",
+    "parser": {
+      "yearn": {
+        "deposit": "자산 입금",
+        "approve": "승인하기",
+        "withdraw": "자산 출금"
+      },
+      "uniV2": {
+        "addLiquidityETH": "유동성 추가",
+        "removeLiquidityETH": "유동성 제거"
+      },
+      "thor": {
+        "transferOut": "출금"
+      }
+    },
+    "unknown": "거래"
   },
   "trade": {
     "searchingRate": "최저가 검색 중...",
@@ -217,17 +336,27 @@
         }
       }
     },
+    "stake": {
+      "txFees": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    },
     "send": {
       "getBalanceError": "지갑 잔액을 가져오는 중에 오류가 발생했습니다.",
       "broadcastingTransaction": "거래를 브로트캐스팅 합니다.",
       "youHaveSent": "%{amount} %{symbol}를 성공적으로 보냈습니다.",
       "tokenAddress": "토큰 주소",
       "scanQrCode": "QR 코드 스캔",
+      "permissionsButton": "다시 시도하십시오",
       "sent": "%{asset} 전송 완료",
       "errorTitle": "가스를 충당하기에 %{asset} 충분하지 않습니다.",
       "errors": {
+        "generic": "오류가 발생했습니다.",
         "notEnoughNativeToken": "가스를 충당하기에 %{asset} 충분하지 않습니다.",
-        "transactionRejected": "사용자가 거래를 거절했습니다."
+        "transactionRejected": "사용자가 거래를 거절했습니다.",
+        "qrPermissions": "이 기능이 작동하려면 카메라 접근 권한이 필요합니다. 브라우저 설정을 변경하십시오."
       },
       "confirm": {
         "sendAsset": "%{asset} 전송",
@@ -321,7 +450,8 @@
       "continue": "거래내역 보기",
       "position": "위치 확인",
       "viewAsset": "자산 확인",
-      "close": "닫기"
+      "close": "닫기",
+      "viewExplorer": "블록 익스플로러"
     },
     "connect": {
       "loadingText": "지갑 연결"
@@ -420,7 +550,8 @@
       "password": {
         "header": "비밀번호를 입력하세요.",
         "body": "지갑을 암호화할 비밀번호를 입력하세요. 비밀번호로 지갑에 접근 가능합니다. 이 비밀번호를 잃어버리지 마세요.",
-        "button": "다음"
+        "button": "다음",
+        "connect": "다른 지갑에 연결하기"
       },
       "create": {
         "header": "시드 구문",
@@ -459,7 +590,9 @@
     },
     "selectModal": {
       "header": "지갑 연결",
-      "body": "지갑을 연결함으로써 셰이프시프트의 서비스 약관에 동의하며 셰이프시프트의 면책 및 면피 조항을 읽고 이해했음을 시인합니다."
+      "body": "지갑을 연결함으로써 셰이프시프트의 서비스 약관에 동의하며 셰이프시프트의 면책 및 면피 조항을 읽고 이해했음을 시인합니다.",
+      "footer": "지갑이 없으신가요?",
+      "create": "지갑 만들기"
     }
   },
   "graph": {
@@ -492,7 +625,9 @@
         "showLess": "간략히 보기"
       },
       "assetHistory": {
-        "transactionHistory": "거래 내역"
+        "transactionHistory": "거래 내역",
+        "recentTransactions": "최근 거래",
+        "emptyTransactions": "거래가 여기에 표시됩니다."
       },
       "assetAccounts": {
         "account": "계정",
@@ -529,5 +664,58 @@
   "accounts": {
     "accounts": "계정"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "transactionHistory": "거래 내역",
+    "recentTransactions": "최근 거래",
+    "filter": "필터",
+    "filters": {
+      "filters": "필터들",
+      "resetFilters": "필터 재설정",
+      "to": "ㅡ",
+      "categories": "카테고리",
+      "dayRange": "일 범위",
+      "10days": "10일",
+      "30days": "30일",
+      "90days": "90일",
+      "send": "보낸",
+      "trade": "거래",
+      "receive": "받은",
+      "custom": "기타",
+      "apply": "적용"
+    },
+    "downloadCSV": "CSV파일 다운로드",
+    "csv": {
+      "fileName": "ShapeShift 거래 내역",
+      "txid": "TX ID",
+      "type": "TX 유형",
+      "timestamp": "타임스탬프",
+      "status": "상태",
+      "minerFee": "마이너 수수료",
+      "minerFeeCurrency": "마이너 수수료 통화",
+      "inputAmount": "금액 입력",
+      "inputCurrency": "자산 입력",
+      "inputAddress": "주소 입력",
+      "outputAmount": "출력량",
+      "outputCurrency": "출력 자산",
+      "outputAddress": "출력 주소"
+    },
+    "transactionTypes": {
+      "send": "보내기",
+      "receive": "받기",
+      "trade": "거래"
+    },
+    "assets": "자산",
+    "viewOnChain": "체인에 보기",
+    "fee": "수수료",
+    "youSent": "보낸 금액",
+    "youReceived": "받은 금액",
+    "sentTo": "Sent to",
+    "receivedFrom": "Received From",
+    "orderRoute": "주문 경로",
+    "status": "상태",
+    "transactionType": "거래 유형",
+    "minerFee": "마이너 수수료",
+    "unknownType": "거래"
+  }
 }

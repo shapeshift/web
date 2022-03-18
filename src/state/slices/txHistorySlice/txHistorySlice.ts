@@ -171,17 +171,16 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
+        if (isEmpty(accountSpecifierMap)) {
+          const data = 'getAllTxHistory: No account specifier given to get all tx history'
+          const error = { data, status: 400 }
+          return { error }
+        }
+        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const accountSpecifier = `${CAIP2}:${pubkey}`
         try {
-          if (isEmpty(accountSpecifierMap)) {
-            const data = 'getAllTxHistory: No account specifier given to get all tx history'
-            const error = { data, status: 400 }
-            return { error }
-          }
-
           let txs: chainAdapters.Transaction<ChainTypes>[] = []
           const chainAdapters = getChainAdapters()
-          const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
-          const accountSpecifier = `${CAIP2}:${pubkey}`
           const { chain } = caip2.fromCAIP2(CAIP2)
           const adapter = chainAdapters.byChain(chain)
           let currentCursor: string = ''
@@ -200,7 +199,7 @@ export const txHistoryApi = createApi({
         } catch (err) {
           return {
             error: {
-              data: 'getAllTxHistory: An error occurred fetching all tx history',
+              data: `getAllTxHistory: An error occurred fetching all tx history for accountSpecifier: ${accountSpecifier}`,
               status: 500
             }
           }

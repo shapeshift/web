@@ -1,3 +1,8 @@
+import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos'
+import { ChainAdapter as OsmosisChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/osmosis'
+import { ChainTypes } from '@shapeshiftoss/types'
+import * as unchained from '@shapeshiftoss/unchained-client'
+import { getConfig } from 'config'
 import { Plugins } from 'plugins'
 import { AssetIcon } from 'components/AssetIcon'
 
@@ -10,6 +15,43 @@ export function register(): Plugins {
       {
         name: 'plugins.cosmos.navBar',
         icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
+        featureFlag: 'CosmosPlugin',
+        providers: {
+          chainAdapters: [
+            [
+              ChainTypes.Cosmos,
+              () => {
+                const http = new unchained.cosmos.V1Api(
+                  new unchained.cosmos.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
+                  })
+                )
+
+                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
+                )
+
+                return new CosmosChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
+              }
+            ],
+            [
+              ChainTypes.Osmosis,
+              () => {
+                const http = new unchained.cosmos.V1Api(
+                  new unchained.cosmos.Configuration({
+                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
+                  })
+                )
+
+                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
+                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
+                )
+
+                return new OsmosisChainAdapter({ providers: { http, ws }, coinName: 'Osmosis' })
+              }
+            ]
+          ]
+        },
         routes: [
           {
             path: '/assets/cosmos\\:osmosis-1/:assetSubId',

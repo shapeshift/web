@@ -44,7 +44,8 @@ export const mockStore: ReduxState = {
   preferences: {
     featureFlags: {
       CosmosInvestor: false,
-      CosmosPlugin: false
+      CosmosPlugin: false,
+      GemRamp: false
     }
   },
   assets: {
@@ -68,6 +69,7 @@ export const mockStore: ReduxState = {
     byId: {},
     byAssetId: {},
     byAccountId: {},
-    ids: []
+    ids: [],
+    status: 'idle'
   }
 }

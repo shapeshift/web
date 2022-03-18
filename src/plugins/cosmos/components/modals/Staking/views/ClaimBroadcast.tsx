@@ -38,9 +38,7 @@ export const ClaimBroadcast = ({
 
   const translate = useTranslate()
 
-  const handleClose = () => {
-    cosmosStaking.close()
-  }
+  const handleClose = cosmosStaking.close
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({

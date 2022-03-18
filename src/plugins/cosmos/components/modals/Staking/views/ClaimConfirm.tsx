@@ -62,9 +62,7 @@ export const ClaimConfirm = ({
 
   const { cosmosStaking } = useModal()
 
-  const handleCancel = () => {
-    cosmosStaking.close()
-  }
+  const handleCancel = cosmosStaking.close
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({

@@ -1,12 +1,12 @@
 import { Flex } from '@chakra-ui/layout'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
+import { StakeBroadcast } from './StakeBroadcast'
 import { StakeConfirm } from './StakeConfirm'
 
 export type StakingConfirmProps = {
@@ -44,7 +44,7 @@ const CosmosStakingRouter = ({
   }))(assetId) as Asset
 
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
+    <SlideTransition>
       <Switch location={location} key={location.key}>
         <Flex minWidth={{ base: '100%', xl: '500px' }} flexDir={{ base: 'column', lg: 'row' }}>
           <RouteSteps
@@ -71,13 +71,19 @@ const CosmosStakingRouter = ({
                 />
               </Route>
               <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
-                TODO Staking Broadcast component
+                <StakeBroadcast
+                  apr={apr}
+                  cryptoStakeAmount={cryptoAmount}
+                  assetId={assetId}
+                  fiatRate={fiatRate}
+                  onCancel={onCancel}
+                />
               </Route>
             </Flex>
           </Flex>
         </Flex>
       </Switch>
-    </AnimatePresence>
+    </SlideTransition>
   )
 }
 

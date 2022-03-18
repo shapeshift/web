@@ -152,7 +152,7 @@ export const txHistory = createSlice({
     },
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsert(txState, payload.message, payload.accountSpecifier),
-    upsertTxs: (txState, { payload }) => {
+    upsertTxs: (txState, { payload }: TxsMessage) => {
       for (const tx of payload.txs) {
         updateOrInsert(txState, tx, payload.accountSpecifier)
       }

@@ -101,6 +101,7 @@ const WalletButton: FC<WalletButtonProps> = ({
             setShouldShorten(false)
             return setWalletLabel(addressReverseLookup.name)
           }
+          return setWalletLabel(walletInfo?.meta?.address ?? '')
         } catch (_) {
           return setWalletLabel(walletInfo?.meta?.address ?? '')
         }

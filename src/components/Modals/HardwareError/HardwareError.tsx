@@ -8,7 +8,7 @@ import {
   ModalOverlay
 } from '@chakra-ui/react'
 import { ipcRenderer } from 'electron'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import KeepKeyConnect from 'assets/connect-keepkey.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'

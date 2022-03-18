@@ -163,7 +163,7 @@ export const txHistory = createSlice({
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 export const txHistoryApi = createApi({
-  reducerPath: 'marketApi',
+  reducerPath: 'txHistoryApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   // refetch if network connection is dropped, useful for mobile

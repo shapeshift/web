@@ -5,6 +5,7 @@ import last from 'lodash/last'
 import values from 'lodash/values'
 import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'

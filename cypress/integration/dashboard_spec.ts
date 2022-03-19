@@ -1,6 +1,5 @@
 const baseUrl = Cypress.config().baseUrl
 const linkContract = Cypress.env('linkContract')
-const autoRecord = require('cypress-autorecord')
 
 beforeEach(function () {
   // Intercept all account requests relating to our test wallet
@@ -8,7 +7,6 @@ beforeEach(function () {
 })
 
 describe('The Dashboard', function () {
-  autoRecord()
   before(function () {
     // In addition to mocking requests in beforeEach, this also needs to be set up in before to support login
     cy.mockAllRequests()

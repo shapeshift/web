@@ -3,11 +3,8 @@ import { translations } from 'assets/translations'
 const baseUrl = Cypress.config().baseUrl
 const seed = Cypress.env('testSeed')
 const password = Cypress.env('testPassword')
-const autoRecord = require('cypress-autorecord')
 
 describe('The Dashboard', function () {
-  autoRecord()
-
   before(function () {
     cy.clearIndexedDB()
   })

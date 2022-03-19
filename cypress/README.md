@@ -38,21 +38,32 @@ Follow [Cypress best practice](https://docs.cypress.io/guides/references/best-pr
 ### How to use cypress-autorecord
 To allow for auto-recording and stubbing to work, require `cypress-autorecord` in each of your test file and call the function at the beginning of your parent describe block.
 
-```js
-const autoRecord = require('cypress-autorecord'); // Require the autorecord function
-  
-describe('Home Page', function() { // Do not use arrow functions
-  autoRecord(); // Call the autoRecord function at the beginning of your describe block
-  
+```ts
+
+const autoRecord = require('cypress-autorecord') // Require the autorecord function
+
+describe('Home Page', function () {
+  // Do not use arrow functions
+  autoRecord() // Call the autoRecord function at the beginning of your describe block
+
   // Your hooks (beforeEach, afterEach, etc) goes here
-  
-  it('...', function() { // Do not use arrow functions
+
+  it('...', function () {
+    // Do not use arrow functions
     // Your test goes here
-  });
-});
+  })
+})
 ```
 **NOTE: Do not use ES6 arrow functions for your describe or it callback. This will cause the recording function to break.**
 
+To force the test to record over your existent mocks on your next run, please add the test name in the file `cypress.json`
+```json
+{
+  "autorecord": {
+    "recordTests": ["my awesome test"]
+  }
+}
+```
 ## Design decisions
 
 - Implementation in line with [Cypress Best Practices](https://docs.cypress.io/guides/references/best-practices)

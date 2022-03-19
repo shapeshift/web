@@ -1,6 +1,7 @@
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { FeeDataEstimate } from '@shapeshiftoss/types/dist/chain-adapters'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -96,7 +97,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .toFixed(0)
 
     switch (values.asset.chain) {
-      // TODO: Handle Cosmos ChainType here
+      case ChainTypes.Cosmos: {
+        const cosmosChainAdapter = chainAdapterManager.byChain(ChainTypes.Cosmos)
+        return cosmosChainAdapter.getFeeData({})
+      }
+      case ChainTypes.Osmosis: {
+        // TODO(gomes): implement Osmosis support
+        return {} as FeeDataEstimate<ChainTypes>
+      }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({
           wallet
@@ -192,7 +200,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       let fastFee: string = ''
       let adapterFees
       switch (chain) {
-        // TODO: Handle Cosmos ChainType here
+        case ChainTypes.Cosmos: {
+          const cosmosAdapter = chainAdapterManager.byChain(ChainTypes.Cosmos)
+          adapterFees = await cosmosAdapter.getFeeData({})
+          fastFee = adapterFees.fast.txFee
+          break
+        }
         case ChainTypes.Ethereum: {
           const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
           const contractAddress = tokenId

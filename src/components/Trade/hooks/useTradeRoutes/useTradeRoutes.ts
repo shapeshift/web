@@ -10,6 +10,8 @@ import { selectAssets } from 'state/slices/selectors'
 import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
+const ETHEREUM_CAIP19 = 'eip155:1/slip44:60'
+
 export const useTradeRoutes = (
   defaultBuyAssetId?: CAIP19
 ): {
@@ -22,7 +24,7 @@ export const useTradeRoutes = (
   const buyAsset = getValues('buyAsset')
   const sellAsset = getValues('sellAsset')
   const assets = useSelector(selectAssets)
-  const feeAsset = assets['eip155:1/slip44:60']
+  const feeAsset = assets[ETHEREUM_CAIP19]
 
   const setDefaultAssets = useCallback(async () => {
     // wait for assets to be loaded
@@ -30,9 +32,11 @@ export const useTradeRoutes = (
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      // TODO: Actually we only support ERC20 trades, but for example we will need to support cosmos pairs soon
+      // TODO: Actually we only support ERC20 pairs, but for example we will need to support cosmos pairs soon
       const buyAsset =
-        defaultBuyAssetId && assets[defaultBuyAssetId]?.chain === 'ethereum'
+        defaultBuyAssetId &&
+        assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
+        assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
           ? assets[defaultBuyAssetId]
           : assets[buyAssetId]
 

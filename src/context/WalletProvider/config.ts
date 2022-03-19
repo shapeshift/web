@@ -10,7 +10,9 @@ import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { PortisIcon } from 'components/Icons/PortisIcon'
 
+import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
+// import { KeepKeyConnect } from './KeepKey/components/Success'
 import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskSuccess } from './MetaMask/components/Success'
@@ -46,7 +48,7 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     icon: KeepKeyIcon,
     name: 'KeepKey',
     routes: [
-      // { path: '/keepkey/connect', component: KeepKeyConnect },
+      { path: '/keepkey/connect', component: KeepKeyConnect },
       { path: '/keepkey/success', component: KeepKeySuccess }
     ]
   },

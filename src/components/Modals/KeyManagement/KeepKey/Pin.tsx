@@ -57,6 +57,9 @@ export const PinModal = ({
       } catch (e) {
         console.error('KeepKey PIN Submit error: ', e)
       } finally {
+        if (pinFieldRef?.current) {
+          pinFieldRef.current.value = ''
+        }
         setLoading(false)
       }
     }

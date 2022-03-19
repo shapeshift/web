@@ -19,18 +19,18 @@ export const MainNavLink = memo(
     const active = location?.pathname.includes(href ?? '')
     return (
       <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
-      <Button
-        width='full'
-        justifyContent='flex-start'
-        variant='ghost'
-        isActive={href ? active : false}
-        minWidth={isCompact ? 'auto' : 10}
-        iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
-        ref={ref}
-        {...rest}
-      >
-        <Box display={{ base: isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>
-      </Button>
+        <Button
+          width='full'
+          justifyContent='flex-start'
+          variant='ghost'
+          isActive={href ? active : false}
+          minWidth={isCompact ? 'auto' : 10}
+          iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
+          ref={ref}
+          {...rest}
+        >
+          <Box display={{ base: isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>
+        </Button>
       </Tooltip>
     )
   })

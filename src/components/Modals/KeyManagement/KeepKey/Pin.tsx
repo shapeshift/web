@@ -56,9 +56,10 @@ export const PinModal = ({
         return close()
       } catch (e) {
         console.error('KeepKey PIN Submit error: ', e)
+      } finally {
+        setLoading(false)
       }
     }
-    setLoading(false)
   }
 
   // Use different translation text based on which type of PIN request we received

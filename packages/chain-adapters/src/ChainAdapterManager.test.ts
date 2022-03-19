@@ -1,12 +1,18 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ChainTypes } from '@shapeshiftoss/types'
 
+import { UnchainedUrls } from './ChainAdapterManager'
 import { ChainAdapterManager } from './ChainAdapterManager'
 import * as ethereum from './ethereum'
 
-const getCAM = (opts?: Record<string, string>) => {
-  // @ts-ignore
-  return new ChainAdapterManager({ ethereum: 'http://localhost', ...opts })
+const getCAM = (opts?: UnchainedUrls) => {
+  const defaultAdapters: UnchainedUrls = {
+    [ChainTypes.Ethereum]: {
+      httpUrl: 'http://localhost',
+      wsUrl: ''
+    }
+  }
+  return new ChainAdapterManager({ ...defaultAdapters, ...opts })
 }
 
 describe('ChainAdapterManager', () => {
@@ -47,6 +53,37 @@ describe('ChainAdapterManager', () => {
       // @ts-ignore
       cam.addChain(ChainTypes.Ethereum, () => ({}))
       expect(cam.getSupportedAdapters()).toHaveLength(1)
+    })
+  })
+
+  describe('removeChain', () => {
+    it('should throw on invalid chain', () => {
+      const cam = getCAM()
+      const invalidChain = 'foo'
+      // @ts-ignore
+      expect(() => cam.removeChain(invalidChain)).toThrow(
+        `ChainAdapterManager: invalid chain ${invalidChain}`
+      )
+    })
+
+    it('should throw on unregistered chain', () => {
+      const cam = getCAM()
+      const unregisteredChain = ChainTypes.Bitcoin
+      expect(() => cam.removeChain(unregisteredChain)).toThrow(
+        `ChainAdapterManager: chain ${unregisteredChain} not registered`
+      )
+    })
+
+    it('should remove ethereum chain adapter', () => {
+      const cam = getCAM()
+      const chain = ChainTypes.Ethereum
+      const oldChains = cam.getSupportedAdapters().map((adapter) => adapter().getType())
+      expect(oldChains.includes(chain)).toBeTruthy()
+      expect(oldChains.length).toEqual(1)
+      cam.removeChain(chain)
+      const newChains = cam.getSupportedAdapters().map((adapter) => adapter().getType())
+      expect(newChains.includes(chain)).toBeFalsy()
+      expect(newChains.length).toEqual(0)
     })
   })
 

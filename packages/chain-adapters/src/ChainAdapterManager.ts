@@ -76,6 +76,16 @@ export class ChainAdapterManager {
     this.supported.set(chain, factory)
   }
 
+  removeChain<T extends ChainTypes>(chain: T): void {
+    if (!Object.values(ChainTypes).includes(chain)) {
+      throw new Error(`ChainAdapterManager: invalid chain ${chain}`)
+    }
+    if (!this.supported.has(chain)) {
+      throw new Error(`ChainAdapterManager: chain ${chain} not registered`)
+    }
+    this.supported.delete(chain)
+  }
+
   getSupportedChains(): Array<ChainTypes> {
     return Array.from(this.supported.keys())
   }

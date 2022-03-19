@@ -37,6 +37,10 @@ const unchainedUrls: UnchainedUrls = {
   [ChainTypes.Bitcoin]: {
     httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
     wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
+  },
+  [ChainTypes.Cosmos]: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
   }
 }
 

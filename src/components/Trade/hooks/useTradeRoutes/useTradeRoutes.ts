@@ -1,3 +1,4 @@
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
@@ -9,7 +10,9 @@ import { selectAssets } from 'state/slices/selectors'
 import { TradeState } from '../../Trade'
 import { TradeActions, useSwapper } from '../useSwapper/useSwapper'
 
-export const useTradeRoutes = (): {
+export const useTradeRoutes = (
+  defaultBuyAssetId?: CAIP19
+): {
   handleSellClick: (asset: Asset) => Promise<void>
   handleBuyClick: (asset: Asset) => Promise<void>
 } => {
@@ -27,7 +30,12 @@ export const useTradeRoutes = (): {
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      const buyAsset = assets[buyAssetId]
+      // TODO: Actually we only support ERC20 trades, but for example we will need to support cosmos pairs soon
+      const buyAsset =
+        defaultBuyAssetId && assets[defaultBuyAssetId]?.chain === 'ethereum'
+          ? assets[defaultBuyAssetId]
+          : assets[buyAssetId]
+
       if (sellAsset && buyAsset) {
         await getBestSwapper({
           sellAsset: { currency: sellAsset },
@@ -45,7 +53,7 @@ export const useTradeRoutes = (): {
     } catch (e) {
       console.warn(e)
     }
-  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper])
+  }, [assets, setValue, feeAsset, getQuote, getDefaultPair, getBestSwapper, defaultBuyAssetId])
 
   useEffect(() => {
     setDefaultAssets()

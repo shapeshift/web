@@ -39,7 +39,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-          <TradeCard />
+          <TradeCard defaultBuyAssetId={caip19} />
           <AssetMarketData assetId={caip19} />
           <AssetDescription assetId={caip19} />
         </Stack>

@@ -31,7 +31,7 @@ export const MainNavLink = memo(
       >
         <Box display={{ base: isCompact ? 'none' : 'flex', '2xl': 'block' }}>{label}</Box>
       </Button>
-    </Tooltip>
+      </Tooltip>
     )
   })
 )

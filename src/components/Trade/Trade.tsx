@@ -46,7 +46,9 @@ export const Trade = ({ defaultBuyAssetId }: TradeProps) => {
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={entries}>
         <Switch>
-          <Route path='/' render={() => <TradeRoutes defaultBuyAssetId={defaultBuyAssetId} />} />
+          <Route path='/'>
+            <TradeRoutes defaultBuyAssetId={defaultBuyAssetId} />
+          </Route>
         </Switch>
       </MemoryRouter>
     </FormProvider>

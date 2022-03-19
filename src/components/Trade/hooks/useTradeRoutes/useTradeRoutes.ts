@@ -32,11 +32,17 @@ export const useTradeRoutes = (
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
+      let isEthCaip19
+      let isEthereumChain
+
+      if (defaultBuyAssetId) {
+        isEthCaip19 = assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum
+        isEthereumChain = assets[defaultBuyAssetId]?.caip19 === ETHEREUM_CAIP19
+      }
+
       // TODO: Currently, we only support ERC20 pairs but we might need to support cosmos pairs at some point.
       const buyAsset =
-        defaultBuyAssetId &&
-        assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
-        assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
+        defaultBuyAssetId && isEthCaip19 && !isEthereumChain
           ? assets[defaultBuyAssetId]
           : assets[buyAssetId]
 

@@ -48,7 +48,7 @@ export const Flags = ({ route }: FlagsPageProps) => {
 
   const handleResetPrefs = async () => {
     try {
-      dispatch(slices.preferences.actions.clear())
+      dispatch(slices.preferences.actions.clearFeatureFlags())
     } catch (e) {
       console.error('handleResetPrefs: ', e)
     }

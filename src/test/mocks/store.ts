@@ -46,7 +46,9 @@ export const mockStore: ReduxState = {
       CosmosInvestor: false,
       CosmosPlugin: false,
       GemRamp: false
-    }
+    },
+    selectedLocale: 'en',
+    balanceThreshold: 0
   },
   assets: {
     byId: {},

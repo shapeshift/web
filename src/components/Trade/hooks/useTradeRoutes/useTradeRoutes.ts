@@ -32,7 +32,7 @@ export const useTradeRoutes = (
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      // TODO: Actually we only support ERC20 pairs, but for example we will need to support cosmos pairs soon
+      // TODO: Currently, we only support ERC20 pairs but we might need to support cosmos pairs at some point.
       const buyAsset =
         defaultBuyAssetId &&
         assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&

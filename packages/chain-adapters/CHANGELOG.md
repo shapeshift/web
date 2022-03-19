@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.6...@shapeshiftoss/chain-adapters-v2.5.0) (2022-03-19)
+
+
+### Features
+
+* add remove function to chain adapters manager ([#457](https://github.com/shapeshift/lib/issues/457)) ([6e506ac](https://github.com/shapeshift/lib/commit/6e506ac9b104a6448e0ba13d81f50d3505b598e8))
+
 # [@shapeshiftoss/chain-adapters-v2.4.6](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.5...@shapeshiftoss/chain-adapters-v2.4.6) (2022-03-18)
 
 # [@shapeshiftoss/chain-adapters-v2.4.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.4...@shapeshiftoss/chain-adapters-v2.4.5) (2022-03-17)

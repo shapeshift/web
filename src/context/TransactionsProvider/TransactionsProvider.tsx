@@ -13,6 +13,7 @@ import {
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
+import {useModal} from "../ModalProvider/ModalProvider";
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -23,6 +24,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const {
     state: { wallet, walletInfo }
   } = useWallet()
+  const { hardwareError } = useModal()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
@@ -69,6 +71,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               (err: any) => console.error(err)
             )
           } catch (e) {
+            hardwareError.open({})
+            //Note, need to reconnect KeepKey
             console.error(
               `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,
               e

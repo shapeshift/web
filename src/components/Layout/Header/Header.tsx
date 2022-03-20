@@ -14,7 +14,7 @@ import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
-import { FoxIcon } from 'components/Icons/FoxIcon'
+// import { FoxIcon } from 'components/Icons/FoxIcon'
 import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { ReduxState } from 'state/reducer'
@@ -87,7 +87,7 @@ export const Header = ({ route }: { route: Route }) => {
             <Link to='/'>
               <KeepKeyIcon boxSize='7' />
             </Link>
-            <small>{state.keepkeyState}: {state.keepkeyStatus}</small>
+            {/*<small>{state.keepkeyState}: {state.keepkeyStatus}</small>*/}
           </Flex>
           <Flex>
             <div onClick={handleWalletConnect}>

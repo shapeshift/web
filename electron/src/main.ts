@@ -150,7 +150,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
      * more options: https://www.electronjs.org/docs/api/browser-window
      */
     windows.mainWindow = new BrowserWindow({
-        width: isDev ? 960 : 460,
+        width: isDev ? 1960 : 960,
         height: 780,
         show: false,
         backgroundColor: 'white',

@@ -58,6 +58,8 @@ export interface InitialState {
   type: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
+  keepkeyStatus: string | null
+  keepkeyState: any //TODO why cant this be number?
   keepkey: any
   isConnected: boolean
   modal: boolean
@@ -69,6 +71,8 @@ const initialState: InitialState = {
   adapters: null,
   wallet: null,
   type: null,
+  keepkeyStatus: null,
+  keepkeyState: 0,
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
@@ -153,6 +157,10 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
       return { ...state, type: action.payload }
+    case WalletActions.SET_KEEPKEY_STATUS:
+      return { ...state, keepkeyStatus: action.payload }
+    case WalletActions.SET_KEEPKEY_STATE:
+      return { ...state, keepkeyState: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_WALLET_MODAL:

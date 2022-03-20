@@ -15,6 +15,8 @@ import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
+import { WalletConnectIcon } from 'components/Icons/WalletConnect'
+import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
@@ -22,12 +24,21 @@ import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
+import {useModal} from "../../../context/ModalProvider/ModalProvider";
+import {useWallet} from "../../../context/WalletProvider/WalletProvider";
 
 export const Header = ({ route }: { route: Route }) => {
   const { onToggle, isOpen, onClose } = useDisclosure()
+  const { walletConnect } = useModal()
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const { state, dispatch } = useWallet()
+
+  const handleWalletConnect = () => {
+    console.info('OPEN WALLET CONNECT')
+    walletConnect.open({})
+  }
 
   /**
    * FOR DEVELOPERS:
@@ -74,8 +85,14 @@ export const Header = ({ route }: { route: Route }) => {
           </Box>
           <Flex justifyContent={{ base: 'center', md: 'flex-start' }}>
             <Link to='/'>
-              <FoxIcon boxSize='7' />
+              <KeepKeyIcon boxSize='7' />
             </Link>
+            <small>{state.keepkeyState}: {state.keepkeyStatus}</small>
+          </Flex>
+          <Flex>
+            <div onClick={handleWalletConnect}>
+              <WalletConnectIcon />
+            </div>
           </Flex>
           <HStack
             width='100%'

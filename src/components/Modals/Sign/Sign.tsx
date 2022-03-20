@@ -22,11 +22,11 @@ import KeepKey from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getAssetUrl } from 'lib/getAssetUrl'
 
 import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
 import { Row } from '../../Row/Row'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export const SignModal = (input: any) => {
   const { keepkey } = useWallet()
@@ -77,7 +77,15 @@ export const SignModal = (input: any) => {
     ipcRenderer.send('@modal/close', {})
     setIsApproved(false)
     close()
-  }, [nonce, gasLimit, gasPrice, close, keepkey, input?.unsignedTx?.invocation?.unsignedTx])
+  }, [
+    nonce,
+    gasLimit,
+    gasPrice,
+    close,
+    keepkey,
+    input?.unsignedTx?.invocation?.unsignedTx,
+    input.nonce
+  ])
 
   const HandleReject = async () => {
     setIsApproved(false)
@@ -159,7 +167,9 @@ export const SignModal = (input: any) => {
                     <Row.Label>
                       <Text translation={'modals.sign.protocol'} />
                     </Row.Label>
-                    <Row.Value>{input?.unsignedTx?.invocation?.unsignedTx?.transaction?.protocol}</Row.Value>
+                    <Row.Value>
+                      {input?.unsignedTx?.invocation?.unsignedTx?.transaction?.protocol}
+                    </Row.Value>
                   </Row>
                   <Row>
                     <Row.Label>
@@ -212,8 +222,10 @@ export const SignModal = (input: any) => {
                 </Row.Label>
                 <Row.Value isTruncated>
                   <small>
-                    {bnOrZero(input?.unsignedTx?.invocation?.unsignedTx?.transaction?.amount).shiftedBy(-18).toString()} (
-                    {input?.unsignedTx?.invocation?.unsignedTx?.transaction?.asset})
+                    {bnOrZero(input?.unsignedTx?.invocation?.unsignedTx?.transaction?.amount)
+                      .shiftedBy(-18)
+                      .toString()}{' '}
+                    ({input?.unsignedTx?.invocation?.unsignedTx?.transaction?.asset})
                   </small>
                 </Row.Value>
               </Row>

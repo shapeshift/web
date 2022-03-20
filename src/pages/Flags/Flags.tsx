@@ -36,7 +36,7 @@ export const Flags = ({ route }: FlagsPageProps) => {
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
 
-  const handleReset = async () => {
+  const handleApply = async () => {
     try {
       // Delete persisted state
       clearState()
@@ -66,7 +66,7 @@ export const Flags = ({ route }: FlagsPageProps) => {
         </Card.Body>
       </Card>
       <HStack my={4}>
-        <Button onClick={handleReset} colorScheme='blue'>
+        <Button onClick={handleApply} colorScheme='blue'>
           Apply
         </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>

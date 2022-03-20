@@ -46,8 +46,13 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
   useEffect(() => {
     if (!wallet) return
+    if (isEmpty(assets)) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
+      console.info(
+        'tx supported adapter types',
+        supportedAdapters.map(a => a().getType())
+      )
 
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
@@ -68,6 +73,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
+            console.info('subbing txs for', chain)
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
@@ -94,16 +100,18 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     })()
 
     return () => {
+      console.info('clearing tx history')
       dispatch(txHistory.actions.clear())
       chainAdapter.getSupportedAdapters().forEach(getAdapter => {
         try {
+          console.info('unsubbing txs', getAdapter().getType())
           getAdapter().unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }
       })
     }
-  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter])
+  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter, accountSpecifiers])
 
   /**
    * TODO(0xdef1cafe)
@@ -121,6 +129,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
    */
 
   useEffect(() => {
+    if (isEmpty(assets)) return
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
     const TX_DEBOUNCE_DELAY = 5000
@@ -129,7 +138,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       TX_DEBOUNCE_DELAY
     )
     return () => clearTimeout(timer) // clear if the input changes
-  }, [dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
+  }, [assets, dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
 
   return <>{children}</>
 }

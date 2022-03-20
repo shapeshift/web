@@ -13,7 +13,8 @@ import {
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
-import {useModal} from "../ModalProvider/ModalProvider";
+
+import { useModal } from '../ModalProvider/ModalProvider'
 
 type TransactionsProviderProps = {
   children: React.ReactNode

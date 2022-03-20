@@ -1,4 +1,4 @@
-import { Box, Button, ButtonProps, Flex, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, ButtonProps, Flex, Icon, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text/Text'
@@ -37,7 +37,7 @@ export const SettingsListItem = ({
         {tooltipText && (
           <Tooltip label={translate(tooltipText)}>
             <Box ml={1}>
-              <FaInfoCircle color='gray.500' size='0.7em' />
+              <Icon as={FaInfoCircle} color='gray.500' fontSize='0.7em' />
             </Box>
           </Tooltip>
         )}

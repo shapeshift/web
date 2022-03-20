@@ -54,7 +54,7 @@ export const SettingsList = ({
               onClick={toggleColorMode}
               icon={<SunIcon color='gray.500' />}
             >
-              <Switch isChecked={isLightMode} />
+              <Switch isChecked={isLightMode} pointerEvents='none' />
             </SettingsListItem>
             <Divider my={1} />
             <SettingsListItem

@@ -48,7 +48,7 @@ export const mockStore: ReduxState = {
       GemRamp: false
     },
     selectedLocale: 'en',
-    balanceThreshold: 0
+    balanceThreshold: '0'
   },
   assets: {
     byId: {},

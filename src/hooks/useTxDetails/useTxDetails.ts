@@ -45,7 +45,7 @@ export interface TxDetails {
   sourceMarketData: MarketData
   destinationMarketData: MarketData
   feeMarketData: MarketData
-  i18n: string,
+  i18n: string
   negated: boolean
 }
 
@@ -60,7 +60,11 @@ export const getTransferByAsset = (tx: Tx, asset: Asset) =>
 export const isSupportedContract = (tx: Tx) =>
   tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
-export const useTxDetails = (txId: string, activeAsset?: Asset, account: string = ''): TxDetails => {
+export const useTxDetails = (
+  txId: string,
+  activeAsset?: Asset,
+  account: string = ''
+): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
 

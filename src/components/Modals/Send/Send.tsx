@@ -44,7 +44,7 @@ export const SendModal = ({ asset, accountId }: SendModalProps) => {
               path='/'
               component={(props: RouteComponentProps) => {
                 // TODO(gomes): make this cleaner
-                if (asset.chain === ChainTypes.Cosmos) {
+                if (asset.chain === ChainTypes.Cosmos || asset.chain === ChainTypes.Osmosis) {
                   return <CosmosForm asset={asset} accountId={accountId} {...props} />
                 }
                 return <Form asset={asset} accountId={accountId} {...props} />

@@ -342,6 +342,73 @@ export const yearnVaultDeposit: Tx = {
   txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083'
 }
 
+export const createMockEthTxs = (account: string) => {
+    const deposit = {
+      address: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
+      blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
+      blockHeight: 14393924,
+      blockTime: 1647384181,
+      caip2: 'eip155:1',
+      chain: ChainTypes.Ethereum,
+      confirmations: 12405,
+      fee: { caip19: 'eip155:1/slip44:60', value: '5842562180464795' },
+      status: chainAdapters.TxStatus.Confirmed,
+      tradeDetails: undefined,
+      transfers: [
+        {
+          caip19: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+          from: account,
+          to: '0x6a1e73f12018D8e5f966ce794aa2921941feB17E',
+          type: chainAdapters.TxType.Send,
+          value: '5512963958946523122'
+        },
+        {
+          caip19: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
+          from: '0x0000000000000000000000000000000000000000',
+          to: account,
+          type: chainAdapters.TxType.Receive,
+          value: '5481290118862792961'
+        }
+      ],
+      txid: '0xcfea9955795ed8de3f82e8ed0db7256cd08a36390b3a21c17ff2b6dd1f9e8f79',
+      data: { method: 'deposit', parser: 'yearn' }
+    }
+
+    // Converted yvAAVE tx
+    const withdraw = {
+      address: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
+      blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
+      blockHeight: 14400000,
+      blockTime: 1647816181,
+      caip2: 'eip155:1',
+      chain: ChainTypes.Ethereum,
+      confirmations: 9001,
+      fee: { caip19: 'eip155:1/slip44:60', value: '5842562180464795' },
+      status: chainAdapters.TxStatus.Confirmed,
+      tradeDetails: undefined,
+      transfers: [
+        {
+          caip19: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
+          from: account,
+          to: '0x0000000000000000000000000000000000000000',
+          type: chainAdapters.TxType.Send,
+          value: '5481290118862792961'
+        },
+        {
+          caip19: 'eip155:1/erc20:0x1f9840a85d5af5bf1d1762f925bdaddc4201f984',
+          from: '0xd9788f3931ede4d5018184e198699dc6d66c1915',
+          to: account,
+          type: chainAdapters.TxType.Receive,
+          value: '5512963958946523122'
+        }
+      ],
+      txid: '0xe77a8da0d8a7c613305ccdbf818396bcbda801f1d5b239d441e1386e841f3270',
+      data: { method: 'withdraw', parser: 'yearn' }
+    }
+
+    return [deposit, withdraw]
+  }
+
 /**
  * These are in block/blockTime order
  */

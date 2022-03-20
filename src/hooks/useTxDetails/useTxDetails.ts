@@ -45,22 +45,48 @@ export interface TxDetails {
   sourceMarketData: MarketData
   destinationMarketData: MarketData
   feeMarketData: MarketData
+  i18n: string,
+  negated: boolean
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getBuyTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Receive)
-export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Send)
+export const getTransferByType = (tx: Tx, txType: TxType) =>
+  tx.transfers.find(t => t.type === txType)
+export const getBuyTx = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Receive)
+export const getSellTx = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Send)
+export const getTransferByAsset = (tx: Tx, asset: Asset) =>
+  tx.transfers.find(t => t.caip19 === asset.caip19)
 
 export const isSupportedContract = (tx: Tx) =>
   tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
-export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
+export const useTxDetails = (txId: string, activeAsset?: Asset, account: string = ''): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
-  const buyTx = getBuyTx(tx)
-  const sellTx = getSellTx(tx)
+  const buyTx = getTransferByType(tx, chainAdapters.TxType.Receive)
+  const sellTx = { ...getTransferByType(tx, chainAdapters.TxType.Send) } as chainAdapters.TxTransfer
+  const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
+  const txMetaData = { ...tx.data } as chainAdapters.TxMetadata
+  const activeTx = activeAsset !== undefined && getTransferByAsset(tx, activeAsset)
+  let i18n = 'unknown'
+  let negated = false
+
+  // view   -> method   => label
+  // UNI    -> deposit  => deposit
+  // UNI    -> withdraw => receive
+  // yvUNI  -> deposit  => receive
+  // yvUNI  -> withdraw => withdraw
+  if (activeTx && tx.data) {
+    i18n = activeTx.type === 'receive' ? activeTx.type : tx.data.method ?? 'unknown'
+    if (tx.data.method === 'withdraw' && activeTx.type === 'send') {
+      negated = true
+      if (sellTx) {
+        sellTx.value = `-${sellTx.value}`
+      }
+    }
+  }
 
   const direction: Direction | undefined = (() => {
     switch (method) {
@@ -78,8 +104,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     }
   })()
 
-  const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
-
   const standardAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, standardTx?.caip19 ?? '')
   )
@@ -88,6 +112,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, tx.fee?.caip19 ?? ''))
   const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTx?.caip19 ?? ''))
   const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTx?.caip19 ?? ''))
+  const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
+
   const sourceMarketData = useAppSelector(state =>
     selectMarketDataById(state, sellTx?.caip19 ?? '')
   )
@@ -95,7 +121,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     selectMarketDataById(state, buyTx?.caip19 ?? '')
   )
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.caip19 ?? ''))
-  const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
 
   const value = standardTx?.value ?? tradeTx?.value ?? undefined
   const to = standardTx?.to ?? tradeTx?.to ?? ''
@@ -126,7 +151,10 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     ''
 
   return {
-    tx,
+    tx: {
+      ...tx,
+      data: txMetaData
+    },
     buyTx,
     sellTx,
     tradeTx,
@@ -146,6 +174,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     direction,
     sourceMarketData,
     destinationMarketData,
-    feeMarketData
+    feeMarketData,
+    i18n,
+    negated
   }
 }

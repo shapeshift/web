@@ -29,7 +29,7 @@ export const TransactionContract = ({
         compactMode={compactMode}
         title={
           txDetails.tx.data
-            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.tx.data?.method}`
+            ? `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.i18n}`
             : 'transactionRow.unknown'
         }
         blockTime={txDetails.tx.blockTime}

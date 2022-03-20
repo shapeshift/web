@@ -58,7 +58,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                 whiteSpace='nowrap'
                 mb={2}
                 translation={[
-                  `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.tx.data?.method}`,
+                  `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.i18n}`,
                   { symbol: '' }
                 ]}
               />
@@ -73,7 +73,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                   {...(txDetails.direction === 'inbound'
                     ? { color: 'green.500' }
                     : { color: 'inherit', prefix: '-' })}
-                  value={fromBaseUnit(txDetails.value, txDetails.precision)}
+                  value={fromBaseUnit(txDetails.value, txDetails.precision, 6, txDetails.negated)}
                   symbol={txDetails.symbol}
                   maximumFractionDigits={6}
                 />

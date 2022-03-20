@@ -29,16 +29,25 @@ export const useTradeRoutes = (
   const setDefaultAssets = useCallback(async () => {
     // wait for assets to be loaded
     if (isEmpty(assets) || !feeAsset) return
+
+    // TODO: Create a real whitelist when we support more chains
+    const shouldUseDefaultAsset = () => {
+      if (defaultBuyAssetId) {
+        return (
+          assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
+          assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
+        )
+      }
+
+      return false
+    }
+
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
-      const isEthereumChain =
-        defaultBuyAssetId && assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum
-      const isEthCaip19 = defaultBuyAssetId && assets[defaultBuyAssetId]?.caip19 === ETHEREUM_CAIP19
 
-      // TODO: Create a real whitelist when we support more chains
       const buyAsset =
-        defaultBuyAssetId && !isEthCaip19 && isEthereumChain
+        defaultBuyAssetId && shouldUseDefaultAsset()
           ? assets[defaultBuyAssetId]
           : assets[buyAssetId]
 

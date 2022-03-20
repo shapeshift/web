@@ -41,7 +41,8 @@ jest.mock('state/slices/selectors', () => ({
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
   selectMarketDataById: jest.fn(),
-  selectAssets: jest.fn()
+  selectAssets: jest.fn(),
+  selectBalanceThreshold: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'

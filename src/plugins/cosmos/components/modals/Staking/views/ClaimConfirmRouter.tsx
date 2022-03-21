@@ -46,6 +46,7 @@ const CosmosClaimRouter = ({ cryptoAmount, fiatAmountAvailable, assetId }: Claim
             routes={claimConfirmRoutes}
             location={location}
             px={{ sm: '120px' }}
+            borderTopRadius='12px'
           />
           <Flex direction='column' minWidth='450px'>
             <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>

@@ -5,7 +5,7 @@ import { Text } from 'components/Text/Text'
 
 type SettingListItemProps = {
   label: string
-  onClick?: Function
+  onClick?: () => void
   children?: React.ReactNode
   icon: React.ReactNode
   tooltipText?: string
@@ -17,7 +17,7 @@ export const SettingsListItem = ({
   onClick,
   children,
   tooltipText,
-  ...rest
+  ...restProps
 }: SettingListItemProps) => {
   const translate = useTranslate()
   const itemHover = useColorModeValue('gray.100', 'gray.750')
@@ -29,7 +29,7 @@ export const SettingsListItem = ({
       alignItems='center'
       onClick={onClick}
       _hover={onClick ? { bg: itemHover } : {}}
-      {...rest}
+      {...restProps}
     >
       <Flex alignItems='center'>
         {icon}

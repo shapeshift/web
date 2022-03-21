@@ -429,13 +429,10 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
         const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
         /**
-         * if fiatAmount is smaller than threshold, continue to next asset balance
-         * comparedTo returns:
-         *   1 if first value is greater than the second one,
-         *   0 if both are the same value
-         *   -1 if first value is smaller than the second one
+         * if fiatAmount is less than the selected threshold,
+         * continue to the next asset balance by returning acc
          */
-        if (fiatAmount.comparedTo(bnOrZero(balanceThreshold)) < 0) {
+        if (fiatAmount.isLessThan(bnOrZero(balanceThreshold))) {
           return acc
         }
         const allocation = fiatAmount.div(bnOrZero(totalPortfolioFiatBalance)).times(100).toNumber()

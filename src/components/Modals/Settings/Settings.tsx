@@ -26,7 +26,9 @@ const Settings = () => {
       <ModalContent>
         <MemoryRouter initialEntries={entries}>
           <Switch>
-            <Route path='/' component={() => <SettingsRouter appHistory={appHistory} />} />
+            <Route path='/'>
+              <SettingsRouter appHistory={appHistory} />
+            </Route>
           </Switch>
         </MemoryRouter>
       </ModalContent>

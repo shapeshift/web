@@ -1,6 +1,5 @@
-import { ChatIcon } from '@chakra-ui/icons'
+import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
-import { IoIosSettings } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
@@ -59,7 +58,7 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
           isCompact={isCompact}
           onClick={() => settings.open({})}
           label={translate('common.settings')}
-          leftIcon={<IoIosSettings size='1.3em' />}
+          leftIcon={<SettingsIcon />}
         />
         <MainNavLink
           leftIcon={<ChatIcon />}

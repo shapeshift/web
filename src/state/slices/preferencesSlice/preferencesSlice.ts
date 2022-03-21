@@ -38,8 +38,8 @@ export const preferences = createSlice({
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
       state.selectedLocale = payload.locale
     },
-    setBalanceThreshold(state, { payload }: { payload: { thershold: string } }) {
-      state.balanceThreshold = payload.thershold
+    setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
+      state.balanceThreshold = payload.threshold
     }
   }
 })

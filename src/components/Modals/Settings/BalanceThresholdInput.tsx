@@ -32,11 +32,11 @@ export const BalanceThresholdInput = () => {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
   const onChange = (value: string) => {
-    dispatch(preferences.actions.setBalanceThreshold({ thershold: value }))
+    dispatch(preferences.actions.setBalanceThreshold({ threshold: value }))
   }
   return (
     <InputGroup alignItems='center' justifyContent='space-between' width='100px'>
-      <InputLeftElement fontSize='12px' height='100%'>
+      <InputLeftElement fontSize='12px' height='100%' pointerEvents='none'>
         <Icon as={FaGreaterThanEqual} color={useColorModeValue('blue.500', 'blue.300')} />
       </InputLeftElement>
       <NumberFormat

@@ -8,45 +8,8 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { SettingsRoutes } from './Settings'
-
-/**
- * Probably needs a better home
- */
-export const locales = [
-  {
-    key: 'en',
-    label: 'English'
-  },
-  {
-    key: 'es',
-    label: 'Español'
-  },
-  {
-    key: 'fr',
-    label: 'français'
-  },
-  {
-    key: 'id',
-    label: 'Bahasa Indonesia'
-  },
-  {
-    key: 'ko',
-    label: '한국어'
-  },
-  {
-    key: 'pt',
-    label: 'Português'
-  },
-  {
-    key: 'ru',
-    label: 'Русский язык'
-  },
-  {
-    key: 'zh',
-    label: '中文'
-  }
-]
+import { locales } from './constants'
+import { getLocaleLabel } from './utils'
 
 export const Languages = (props: RouteComponentProps) => {
   const dispatch = useAppDispatch()
@@ -54,7 +17,7 @@ export const Languages = (props: RouteComponentProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
-  const back = () => history.push(SettingsRoutes.Index)
+  const goBack = () => history.goBack()
 
   return (
     <>
@@ -68,24 +31,31 @@ export const Languages = (props: RouteComponentProps) => {
         fontSize='xl'
         size='sm'
         isRound
-        onClick={() => back()}
+        onClick={goBack}
       />
       <ModalHeader textAlign='center'>{translate('modals.settings.language')}</ModalHeader>
       <>
         <ModalBody alignItems='center' justifyContent='center' textAlign='center'>
-          <Flex alignItems='center' textAlign='left' mb={2}>
-            <Icon as={FaCheck} color='blue.500' />
-            <RawText ml={4}>{locales.find(l => l.key === selectedLocale)?.label}</RawText>
-          </Flex>
+          <Button
+            disabled={true}
+            width='full'
+            justifyContent='flexStart'
+            mb={2}
+            _disabled={{ opacity: 1 }}
+          >
+            <Flex alignItems='center' textAlign='left'>
+              <Icon as={FaCheck} color='blue.500' />
+              <RawText ml={4}>{getLocaleLabel(selectedLocale)}</RawText>
+            </Flex>
+          </Button>
           {otherLocales.map(locale => (
             <Button
               width='full'
               justifyContent='flexStart'
-              pl={8}
+              pl={12}
               key={locale.key}
               variant='ghost'
               onClick={() => {
-                back()
                 dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
               }}
             >

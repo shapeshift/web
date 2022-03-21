@@ -49,11 +49,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (isEmpty(assets)) return
     ;(async () => {
       const supportedAdapters = chainAdapter.getSupportedAdapters()
-      console.info(
-        'tx supported adapter types',
-        supportedAdapters.map(a => a().getType())
-      )
-
       for (const getAdapter of supportedAdapters) {
         const adapter = getAdapter()
         const chain = adapter.getType()
@@ -73,7 +68,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         for await (const accountType of accountTypes) {
           const accountParams = accountType ? utxoAccountParams(asset, accountType, 0) : {}
           try {
-            console.info('subbing txs for', chain)
             await adapter.subscribeTxs(
               { wallet, accountType, ...accountParams },
               msg => {
@@ -100,11 +94,9 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     })()
 
     return () => {
-      console.info('clearing tx history')
       dispatch(txHistory.actions.clear())
       chainAdapter.getSupportedAdapters().forEach(getAdapter => {
         try {
-          console.info('unsubbing txs', getAdapter().getType())
           getAdapter().unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)

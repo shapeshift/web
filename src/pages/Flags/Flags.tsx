@@ -1,4 +1,6 @@
-import { Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import { Alert } from '@chakra-ui/alert'
+import { AlertIcon, Button, Heading, HStack, Stack, StackDivider } from '@chakra-ui/react'
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
@@ -35,22 +37,27 @@ export const Flags = ({ route }: FlagsPageProps) => {
   const history = useHistory()
   const dispatch = useDispatch<AppDispatch>()
   const featureFlags = useAppSelector(selectFeatureFlags)
+  const [error, setError] = useState<string | null>(null)
 
   const handleApply = async () => {
     try {
       // Delete persisted state
       clearState()
+      setError(null)
       history.push('/')
     } catch (e) {
       console.error('handleReset: ', e)
+      setError(String((e as Error)?.message))
     }
   }
 
   const handleResetPrefs = async () => {
     try {
       dispatch(slices.preferences.actions.clear())
+      setError(null)
     } catch (e) {
       console.error('handleResetPrefs: ', e)
+      setError(String((e as Error)?.message))
     }
   }
 
@@ -71,6 +78,12 @@ export const Flags = ({ route }: FlagsPageProps) => {
         </Button>
         <Button onClick={handleResetPrefs}>Reset Flags to Default</Button>
       </HStack>
+      {error && (
+        <Alert status='error'>
+          <AlertIcon />
+          <RawText>{error}</RawText>
+        </Alert>
+      )}
     </Main>
   )
 }

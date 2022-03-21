@@ -61,7 +61,15 @@ export const App = () => {
 
         // unregister the difference between what we had, and now have after loading plugins
         const chainAdaptersToUnregister = difference(currentChainAdapters, newChainAdapters)
-        chainAdaptersToUnregister.forEach(chain => chainAdapterManager.removeChain(chain))
+        chainAdaptersToUnregister.forEach(chain => {
+          try {
+            // Close the open websocket connection
+            chainAdapterManager.byChain(chain).closeTxs()
+            chainAdapterManager.removeChain(chain)
+          } catch (e) {
+            console.error('RegisterPlugins:Unregister', e)
+          }
+        })
 
         setPluginRoutes(routes)
       })

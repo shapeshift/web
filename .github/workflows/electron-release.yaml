@@ -20,7 +20,7 @@ jobs:
         uses: actions/cache@v2
         id: yarn-cache
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
@@ -28,6 +28,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Save env vars
         run: echo "${{ secrets.DOTENV_VARS }}" >> .env
+      - name: Save sentry properties
+        run: echo "${{ secrets.SENTRY_PROPERTIES }}" >> sentry.properties
       - name: Build UI
         run: yarn build:ui
       - name: Compile electron typescript

@@ -1,11 +1,21 @@
 import { ChainAdapterManager, UnchainedUrls } from '@shapeshiftoss/chain-adapters'
-import React, { createContext, useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { ChainTypes } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
+import React, { createContext } from 'react'
+
+export const defaultUnchainedUrls: UnchainedUrls = {
+  [ChainTypes.Ethereum]: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
+  },
+  [ChainTypes.Bitcoin]: {
+    httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
+    wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
+  }
+}
 
 type ChainAdaptersProviderProps = {
   children: React.ReactNode
-  unchainedUrls: UnchainedUrls
 }
 
 type ChainAdaptersContextProps = ChainAdapterManager | null
@@ -24,25 +34,12 @@ const setChainAdapters = (cam: ChainAdapterManager) => {
   _chainAdapters = cam
 }
 
-export const ChainAdaptersProvider = ({
-  children,
-  unchainedUrls
-}: ChainAdaptersProviderProps): JSX.Element => {
-  const featureFlags = useSelector(selectFeatureFlags)
-
-  useEffect(() => {
-    setChainAdapters(new ChainAdapterManager(unchainedUrls))
-  }, [featureFlags, unchainedUrls])
-
-  if (!_chainAdapters) {
-    setChainAdapters(new ChainAdapterManager(unchainedUrls))
-  }
+export const ChainAdaptersProvider = ({ children }: ChainAdaptersProviderProps): JSX.Element => {
+  if (!_chainAdapters) setChainAdapters(new ChainAdapterManager(defaultUnchainedUrls))
 
   return (
     <ChainAdaptersContext.Provider value={_chainAdapters}>{children}</ChainAdaptersContext.Provider>
   )
 }
 
-export const useChainAdapters = () => {
-  return getChainAdapters()
-}
+export const useChainAdapters = () => getChainAdapters()

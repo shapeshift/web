@@ -1,6 +1,8 @@
 import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
 import { ToastId, useToast } from '@chakra-ui/toast'
+import { ChainTypes } from '@shapeshiftoss/types'
+import difference from 'lodash/difference'
 import { pluginManager, registerPlugins } from 'plugins'
 import { useEffect, useRef, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
@@ -10,7 +12,10 @@ import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { selectFeatureFlags } from 'state/slices/selectors'
 
-import { useChainAdapters } from './context/ChainAdaptersProvider/ChainAdaptersProvider'
+import {
+  defaultUnchainedUrls,
+  useChainAdapters
+} from './context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { Route } from './Routes/helpers'
 import { useAppSelector } from './state/store'
 
@@ -29,19 +34,42 @@ export const App = () => {
       .then(() => {
         let routes: Route[] = []
 
-        // Register Chain Adapters
+        // keep track of what's currently registered
+        const currentChainAdapters = chainAdapterManager
+          .getSupportedAdapters()
+          .map(adapter => adapter().getType())
+
+        // newly registered will be default + what comes from plugins
+        const newChainAdapters: ChainTypes[] = Object.keys(defaultUnchainedUrls) as ChainTypes[]
+
+        // register providers from each plugin
         for (const [, plugin] of pluginManager.entries()) {
           // Ignore plugins that have their feature flag disabled
           // If no featureFlag is present, then we assume it's enabled
           if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
-            // Routes
+            // routes providers
             routes = routes.concat(plugin.routes)
-            // Chain Adapters
+
+            // chain adapters providers
             plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
               chainAdapterManager.addChain(chain, factory)
+              // track newly registered adapters by plugins
+              newChainAdapters.push(chain)
             })
           }
         }
+
+        // unregister the difference between what we had, and now have after loading plugins
+        const chainAdaptersToUnregister = difference(currentChainAdapters, newChainAdapters)
+        chainAdaptersToUnregister.forEach(chain => {
+          try {
+            // Close the open websocket connection
+            chainAdapterManager.byChain(chain).closeTxs()
+            chainAdapterManager.removeChain(chain)
+          } catch (e) {
+            console.error('RegisterPlugins:Unregister', e)
+          }
+        })
 
         setPluginRoutes(routes)
       })

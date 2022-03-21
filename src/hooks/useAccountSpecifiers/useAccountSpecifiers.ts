@@ -38,6 +38,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   const assetIds = useSelector(selectAssetIds)
   const deviceId = useMemo(() => walletInfo?.deviceId, [walletInfo?.deviceId])
 
+  // @TODO: This needs to go into global state and convert this hook into a selector
   const getAccountSpecifiers = async () => {
     if (!wallet) return
     try {

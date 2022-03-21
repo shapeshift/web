@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.1.0...@shapeshiftoss/types-v2.2.0) (2022-03-21)
+
+
+### Features
+
+* cosmos sign and broadcast tx ([#435](https://github.com/shapeshift/lib/issues/435)) ([1ba16a1](https://github.com/shapeshift/lib/commit/1ba16a1589113b3a1eb17415ec6f7e85c6d857a7))
+
 # [@shapeshiftoss/types-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.0.0...@shapeshiftoss/types-v2.1.0) (2022-03-10)
 
 

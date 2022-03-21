@@ -1,3 +1,4 @@
+
 import {windows} from "./main";
 
 const TAG = ' | KeepKey | '
@@ -8,12 +9,20 @@ import log from "electron-log";
 import usb from "usb";
 import { ipcMain } from "electron";
 import { shared } from "./shared";
+import {
+    set_no_devices,
+    set_new_device,
+    enter_bootloader_update,
+    device_connected_pre_webusb,
+    device_connected_webusb, enter_firmware_update, set_out_of_date_bootloader, set_out_of_date_firmware
+} from "./state";
 
 import Hardware from "@keepkey/keepkey-hardware-hid"
 
 ipcMain.on('@keepkey/update-firmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
+        enter_firmware_update()
         log.info(tag," checkpoint !!!!")
         let result = await Hardware.getLatestFirmwareData()
         // log.info(tag,"result: ",result)
@@ -37,6 +46,7 @@ ipcMain.on('@keepkey/update-firmware', async event => {
 ipcMain.on('@keepkey/update-bootloader', async event => {
     const tag = TAG + ' | onUpdateBootloader | '
     try {
+        enter_bootloader_update()
         log.info(tag, "checkpoint: ")
         let result = await Hardware.getLatestFirmwareData()
         updateConfig({ attemptUpdateBootloader: true })
@@ -66,29 +76,7 @@ ipcMain.on('@keepkey/info', async (event, data) => {
 export const update_keepkey_status = async function () {
     let tag = " | update_keepkey_status | "
     try {
-
-        let firmwareInfo = await Hardware.getLatestFirmwareData()
-        log.info(tag, "firmwareInfo: ", firmwareInfo)
-        windows?.mainWindow?.webContents.send('loadKeepKeyFirmwareLatest', { payload: firmwareInfo })
-
-        //init
-        let resultInit = await Hardware.init()
-        if (resultInit && resultInit.success && resultInit.bootloaderMode) {
-            windows?.mainWindow?.webContents.send('setUpdaterMode', { payload: true })
-        }
-        if (resultInit && resultInit.success && resultInit.wallet) {
-            shared.KEEPKEY_FEATURES = resultInit
-            windows?.mainWindow?.webContents.send('loadKeepKeyInfo', { payload: resultInit })
-            //if not latest bootloader, set need bootloader update
-            if (resultInit.bootloaderVersion !== "v1.1.0") {
-                windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
-            } else if(resultInit.firmwareVersion !== "v7.2.1") {
-                //update firmware next
-                windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
-            }
-        }
-        log.info(tag, "resultInit: ", resultInit)
-
+        //primart Detect
         let allDevices = usb.getDeviceList()
         log.info(tag, "allDevices: ", allDevices)
 
@@ -98,17 +86,63 @@ export const update_keepkey_status = async function () {
         if (resultWebUsb) {
             log.info(tag, "KeepKey connected in webusb!")
             deviceDetected = true
+            device_connected_webusb(resultWebUsb)
         }
 
         let resultPreWebUsb = usb.findByIds(11044, 1)
         if (resultPreWebUsb) {
             log.info(tag, "update required! (resultPreWebUsb)")
             deviceDetected = true
+            device_connected_pre_webusb(resultPreWebUsb)
         }
 
         if(!deviceDetected){
-            windows?.mainWindow?.webContents.send('openHardwareError', { })
+            log.info(tag,"No devices connected")
+            set_no_devices()
+        } else {
+            log.info(tag,"resultWebUsb: ",resultWebUsb)
+            log.info(tag,"resultPreWebUsb: ",resultPreWebUsb)
         }
+
+        //HID detect
+        let latestFirmware = await Hardware.getLatestFirmwareData()
+        log.info(tag, "latestFirmware: ", latestFirmware)
+        windows?.mainWindow?.webContents.send('loadKeepKeyFirmwareLatest', { payload: latestFirmware })
+
+        //init
+        let resultInit = await Hardware.init()
+        if (resultInit && resultInit.success && resultInit.bootloaderMode) {
+            windows?.mainWindow?.webContents.send('setUpdaterMode', { payload: true })
+        }
+        if (resultInit && resultInit.success && resultInit.wallet) {
+            log.info(tag,"resultInit: ",resultInit)
+            log.info(tag,"resultInit.bootloaderVersion: ",resultInit.bootloaderVersion)
+            log.info(tag,"resultInit.firmwareVersion: ",resultInit.firmwareVersion)
+
+            shared.KEEPKEY_FEATURES = resultInit
+            windows?.mainWindow?.webContents.send('loadKeepKeyInfo', { payload: resultInit })
+
+            //if new
+            if(resultInit.bootloaderVersion === "v1.0.3" && resultInit.firmwareVersion === "v4.0.0"){
+                set_new_device(resultInit)
+            }
+
+            //if bootloader needs update
+            if (resultInit.bootloaderVersion !== latestFirmware.bootloader.version) {
+                await set_out_of_date_bootloader(resultInit)
+            }
+
+            //if firmware needs update
+            if (resultInit.firmwareVersion !== latestFirmware.firmware.version && resultInit.bootloaderVersion === latestFirmware.bootloader.version) {
+                await set_out_of_date_firmware(resultInit)
+            }
+
+            //if not latest bootloader, set need bootloader update
+
+        }
+        log.info(tag, "resultInit: ", resultInit)
+
+
 
     } catch (e) {
         log.error(tag,e)

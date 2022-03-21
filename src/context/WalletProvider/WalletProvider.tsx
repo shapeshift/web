@@ -319,7 +319,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('openHardwareError', (event, data) => {
-      hardwareError.open({})
+      hardwareError.open(data)
     })
 
     ipcRenderer.on('closeHardwareError', (event, data) => {

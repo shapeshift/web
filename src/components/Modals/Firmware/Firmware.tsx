@@ -68,7 +68,7 @@ export const FirmwareModal = () => {
               <div>
                 {keepkey.isInUpdaterMode ? (
                   <div>
-                    <h2>Updating Firmware</h2>
+                    <Text translation={'modals.firmware.firmwareUpdate'} />
                     <small>click to perform action</small>
                     <Button
                       isFullWidth
@@ -83,9 +83,6 @@ export const FirmwareModal = () => {
                   </div>
                 ) : (
                   <div>
-                    <h3>
-                      <Text translation={'modals.bootloader.cta'} />
-                    </h3>
                     <Row>
                       <Row.Label>
                         <Text translation={'modals.firmware.bootloader'} />

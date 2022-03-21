@@ -338,8 +338,15 @@
         "button": "Submit Passphrase"
       }
     },
+    "troubleshoot": {
+      "header": "troubleshoot your KeepKey",
+      "button": "Restart App"
+    },
     "hardware": {
-      "header": "Hardware Error!",
+      "headerError": "Hardware Error!",
+      "headerConnect": "No Device Found!",
+      "troubleshoot": "troubleshoot",
+      "connect": "Please connect your KeepKey to continue.",
       "reconnect": "Please disconnect, and reconnect your KeepKey to continue."
     },
     "initialize": {

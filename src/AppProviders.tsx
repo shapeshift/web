@@ -1,7 +1,4 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
-import { UnchainedUrls } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -24,17 +21,6 @@ type ProvidersProps = {
   children: React.ReactNode
 }
 
-const unchainedUrls: UnchainedUrls = {
-  [ChainTypes.Ethereum]: {
-    httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-    wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
-  },
-  [ChainTypes.Bitcoin]: {
-    httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-    wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
-  }
-}
-
 export function AppProviders({ children }: ProvidersProps) {
   return (
     <ReduxProvider store={store}>
@@ -46,7 +32,7 @@ export function AppProviders({ children }: ProvidersProps) {
             <BrowserRouterProvider>
               <I18nProvider>
                 <WalletProvider>
-                  <ChainAdaptersProvider unchainedUrls={unchainedUrls}>
+                  <ChainAdaptersProvider>
                     <PortfolioProvider>
                       <MarketDataProvider>
                         <TransactionsProvider>

@@ -13,7 +13,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import isEqual from 'lodash/isEqual'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -22,7 +22,10 @@ import { selectAssetIds, selectAssets } from 'state/slices/selectors'
 
 // the value is an xpub/ypub/zpub, or eth pubkey, used to query unchained
 export type AccountSpecifierMap = { [k: CAIP2]: string }
-type UseAccountSpecifiers = () => AccountSpecifierMap[]
+type UseAccountSpecifiers = () => {
+  accountSpecifiers: AccountSpecifierMap[]
+  getAccountSpecifiersByCaip2(caip2: CAIP2): AccountSpecifierMap[]
+}
 
 export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   const [accountSpecifiers, setAccountSpecifiers] = useState<AccountSpecifierMap[]>([])
@@ -126,6 +129,18 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     }
   }
 
+  const getAccountSpecifiersByCaip2 = useCallback(
+    (caip2: CAIP2): AccountSpecifierMap[] => {
+      const chainAccountSpecifiers = accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
+        const [chainId, accountSpecifier] = Object.entries(cur)[0]
+        if (chainId !== caip2) return acc
+        return acc.concat({ [chainId]: accountSpecifier })
+      }, [])
+      return chainAccountSpecifiers
+    },
+    [accountSpecifiers]
+  )
+
   useEffect(() => {
     if (!(wallet && deviceId && assetIds.length)) return
 
@@ -137,5 +152,5 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId, assetIds, numSupportedChainAdapters, wallet])
 
-  return accountSpecifiers
+  return { accountSpecifiers, getAccountSpecifiersByCaip2 }
 }

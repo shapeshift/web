@@ -30,7 +30,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
-  const accountSpecifiers = useAccountSpecifiers()
+  const { accountSpecifiers, getAccountSpecifiersByCaip2 } = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
@@ -71,15 +71,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               },
               (err: any) => console.error(err)
             )
-            if (isEmpty(accountSpecifiers)) continue
-            accountSpecifiers.forEach(accountSpecifierMap => {
-              dispatch(
-                txHistoryApi.endpoints.getAllTxHistory.initiate(
-                  { accountSpecifierMap },
-                  { forceRefetch: true }
-                )
-              )
-            })
           } catch (e) {
             console.error(
               `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,
@@ -87,6 +78,17 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             )
           }
         }
+        // RESTfully fetch all tx history for this chain.
+        const chainAccountSpecifiers = getAccountSpecifiersByCaip2(chainId)
+        if (isEmpty(chainAccountSpecifiers)) continue
+        chainAccountSpecifiers.forEach(accountSpecifierMap => {
+          dispatch(
+            txHistoryApi.endpoints.getAllTxHistory.initiate(
+              { accountSpecifierMap },
+              { forceRefetch: true }
+            )
+          )
+        })
       }
     })()
 
@@ -100,7 +102,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         }
       })
     }
-  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter, accountSpecifiers])
+  }, [
+    assets,
+    dispatch,
+    walletInfo?.deviceId,
+    wallet,
+    chainAdapter,
+    accountSpecifiers,
+    getAccountSpecifiersByCaip2
+  ])
 
   /**
    * TODO(0xdef1cafe)

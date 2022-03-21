@@ -1,8 +1,10 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -11,6 +13,7 @@ import {
   selectTxHistoryStatus,
   selectTxIds
 } from 'state/slices/selectors'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -27,6 +30,19 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
+  const accountSpecifiers = useAccountSpecifiers()
+
+  useEffect(() => {
+    if (isEmpty(accountSpecifiers)) return
+    accountSpecifiers.forEach(accountSpecifierMap => {
+      dispatch(
+        txHistoryApi.endpoints.getAllTxHistory.initiate(
+          { accountSpecifierMap },
+          { forceRefetch: true }
+        )
+      )
+    })
+  }, [dispatch, accountSpecifiers])
 
   useEffect(() => {
     if (!wallet) return

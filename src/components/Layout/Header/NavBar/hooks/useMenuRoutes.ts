@@ -5,7 +5,8 @@ export enum WalletConnectedRoutes {
   Connected = '/connected',
   KeepKey = '/connected/keepkey',
   KeepKeyPin = '/connected/keepkey/pin',
-  KeepKeyLabel = '/connected/keepkey/label'
+  KeepKeyLabel = '/connected/keepkey/label',
+  KeepKeyTimeout = '/connected/keepkey/timeout'
 }
 
 export const useMenuRoutes = () => {
@@ -25,5 +26,16 @@ export const useMenuRoutes = () => {
     [history]
   )
 
-  return { handleKeepKeyClick, handleBackClick, handleChangePinClick, handleChangeLabelClick }
+  const handleChangeTimeoutClick = useCallback(
+    () => history.push(WalletConnectedRoutes.KeepKeyTimeout),
+    [history]
+  )
+
+  return {
+    handleKeepKeyClick,
+    handleBackClick,
+    handleChangePinClick,
+    handleChangeLabelClick,
+    handleChangeTimeoutClick
+  }
 }

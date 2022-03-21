@@ -24,7 +24,7 @@ import { selectAssetIds, selectAssets } from 'state/slices/selectors'
 export type AccountSpecifierMap = { [k: CAIP2]: string }
 type UseAccountSpecifiers = () => {
   accountSpecifiers: AccountSpecifierMap[]
-  getAccountSpecifiersByCaip2(caip2: CAIP2): AccountSpecifierMap[]
+  getAccountSpecifiersByChainId(chainId: CAIP2): AccountSpecifierMap[]
 }
 
 export const useAccountSpecifiers: UseAccountSpecifiers = () => {
@@ -129,11 +129,11 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     }
   }
 
-  const getAccountSpecifiersByCaip2 = useCallback(
-    (caip2: CAIP2): AccountSpecifierMap[] => {
+  const getAccountSpecifiersByChainId = useCallback(
+    (chainId: CAIP2): AccountSpecifierMap[] => {
       const chainAccountSpecifiers = accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
-        const [chainId, accountSpecifier] = Object.entries(cur)[0]
-        if (chainId !== caip2) return acc
+        const [_chainId, accountSpecifier] = Object.entries(cur)[0]
+        if (_chainId !== chainId) return acc
         return acc.concat({ [chainId]: accountSpecifier })
       }, [])
       return chainAccountSpecifiers
@@ -152,5 +152,5 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceId, assetIds, numSupportedChainAdapters, wallet])
 
-  return { accountSpecifiers, getAccountSpecifiersByCaip2 }
+  return { accountSpecifiers, getAccountSpecifiersByChainId }
 }

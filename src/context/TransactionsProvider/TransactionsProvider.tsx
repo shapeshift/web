@@ -30,7 +30,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
-  const { accountSpecifiers, getAccountSpecifiersByCaip2 } = useAccountSpecifiers()
+  const { accountSpecifiers, getAccountSpecifiersByChainId } = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
@@ -79,7 +79,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           }
         }
         // RESTfully fetch all tx history for this chain.
-        const chainAccountSpecifiers = getAccountSpecifiersByCaip2(chainId)
+        const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
         if (isEmpty(chainAccountSpecifiers)) continue
         chainAccountSpecifiers.forEach(accountSpecifierMap => {
           dispatch(
@@ -109,7 +109,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     wallet,
     chainAdapter,
     accountSpecifiers,
-    getAccountSpecifiersByCaip2
+    getAccountSpecifiersByChainId
   ])
 
   /**

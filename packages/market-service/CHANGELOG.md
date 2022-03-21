@@ -1,3 +1,10 @@
+# [@shapeshiftoss/market-service-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.5...@shapeshiftoss/market-service-v2.1.0) (2022-03-21)
+
+
+### Features
+
+* implement Foxy asset & market data ([#455](https://github.com/shapeshift/lib/issues/455)) ([0d44ab9](https://github.com/shapeshift/lib/commit/0d44ab931153cffab81a923f24814e41a2f898ba)), closes [#453](https://github.com/shapeshift/lib/issues/453)
+
 # [@shapeshiftoss/market-service-v2.0.5](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.4...@shapeshiftoss/market-service-v2.0.5) (2022-03-17)
 
 # [@shapeshiftoss/market-service-v2.0.4](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.0.3...@shapeshiftoss/market-service-v2.0.4) (2022-03-16)

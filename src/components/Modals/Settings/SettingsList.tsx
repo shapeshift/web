@@ -16,6 +16,7 @@ import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
 import { MdChevronRight, MdLanguage } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { selectSelectedLocale } from 'state/slices/selectors'
@@ -45,7 +46,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
   }
 
   return (
-    <>
+    <SlideTransition>
       <ModalHeader textAlign='center'>{translate('modals.settings.settings')}</ModalHeader>
       <ModalCloseButton />
       <ModalBody alignItems='center' justifyContent='center' textAlign='center' pt={0} px={0}>
@@ -100,6 +101,6 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
           />
         </Stack>
       </ModalBody>
-    </>
+    </SlideTransition>
   )
 }

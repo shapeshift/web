@@ -3,6 +3,7 @@ import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps, useHistory } from 'react-router-dom'
+import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
@@ -20,7 +21,7 @@ export const Languages = (props: RouteComponentProps) => {
   const goBack = () => history.goBack()
 
   return (
-    <>
+    <SlideTransition>
       <IconButton
         variant='ghost'
         icon={<ArrowBackIcon />}
@@ -64,6 +65,6 @@ export const Languages = (props: RouteComponentProps) => {
           ))}
         </ModalBody>
       </>
-    </>
+    </SlideTransition>
   )
 }

@@ -71,7 +71,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               },
               (err: any) => console.error(err)
             )
-            if (isEmpty(accountSpecifiers)) return
+            if (isEmpty(accountSpecifiers)) continue
             accountSpecifiers.forEach(accountSpecifierMap => {
               dispatch(
                 txHistoryApi.endpoints.getAllTxHistory.initiate(

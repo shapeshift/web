@@ -11,7 +11,7 @@ type ExpandedMenuItemProps = {
 export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => {
   const { handleBackClick } = useMenuRoutes()
   return (
-    <Flex flexDir='column' maxWidth='350px' mb={3}>
+    <Flex flexDir='column' mb={3}>
       <Flex mb={3} justifyContent='space-between' alignItems='center'>
         <Button onClick={handleBackClick} size='sm'>
           <ArrowBackIcon color='lightgrey' />

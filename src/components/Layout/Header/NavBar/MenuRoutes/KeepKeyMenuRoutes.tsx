@@ -1,6 +1,7 @@
-import { CloseIcon } from '@chakra-ui/icons'
+import { CloseIcon, InfoIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route } from 'react-router-dom'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -8,7 +9,6 @@ import {
   useMenuRoutes,
   WalletConnectedRoutes
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
-import { KeepKeyPinRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/KeepKeyPinRoutes'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
@@ -18,9 +18,10 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 export const KeepKeyMenuRoutes = () => {
   const { handleChangePinClick } = useMenuRoutes()
   const translate = useTranslate()
-  const { wallet, versions } = useKeepKeyWallet()
+  const { wallet, versions, keyring } = useKeepKeyWallet()
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
+  const [awaitingButtonPress, setAwaitingButtonPress] = useState(false)
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -32,6 +33,20 @@ export const KeepKeyMenuRoutes = () => {
     return updateAvailable
       ? translate('walletProvider.keepKey.settings.status.updateAvailable')
       : translate('walletProvider.keepKey.settings.status.upToDate')
+  }
+
+  const handlePinMatrixEvent = () => {
+    setAwaitingButtonPress(false)
+  }
+
+  const handleChangePinInitializeEvent = async () => {
+    setAwaitingButtonPress(true)
+
+    // Message type 18: MESSAGETYPE_PINMATRIXREQUEST
+    keyring.on(['KeepKey', '*', '18'], handlePinMatrixEvent)
+    await wallet?.changePin()
+
+    // FIXME - await successful pin change, or exit, and update UI accordingly
   }
 
   const keepKeyMenu = () => {
@@ -128,10 +143,36 @@ export const KeepKeyMenuRoutes = () => {
     return keepKeyStateLoaded || keepKeyStateLoading
   }
 
+  const changePin = () => {
+    return (
+      <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
+        <SubmenuHeader
+          title={translate('walletProvider.keepKey.settings.headings.devicePin')}
+          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
+        />
+        {awaitingButtonPress ? (
+          <Flex>
+            <InfoIcon color='blue.200' mt={1} />
+            <Text
+              translation='walletProvider.keepKey.settings.descriptions.pinButtonPrompt'
+              ml={3}
+              fontWeight='medium'
+              color='blue.200'
+            />
+          </Flex>
+        ) : (
+          <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
+            {translate('walletProvider.keepKey.settings.actions.updatePin')}
+          </Button>
+        )}
+      </Flex>
+    )
+  }
+
   return (
     <>
       <Route exact path={WalletConnectedRoutes.KeepKey} component={keepKeyMenu} />
-      <KeepKeyPinRoutes />
+      <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={changePin} />
     </>
   )
 }

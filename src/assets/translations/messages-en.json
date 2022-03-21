@@ -532,7 +532,8 @@
           "confirmPin": "Confirm new PIN"
         },
         "descriptions": {
-          "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands."
+          "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
+          "pinButtonPrompt": "Press and hold the button on your KeepKey to change your PIN."
         },
         "actions": {
           "updatePin": "Update PIN"

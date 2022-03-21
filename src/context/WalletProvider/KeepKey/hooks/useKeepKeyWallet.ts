@@ -35,7 +35,7 @@ interface Versions {
 
 export const useKeepKeyWallet = () => {
   const { state: walletState } = useWallet()
-  const { type, wallet } = walletState
+  const { type, wallet, keyring } = walletState
   const [keepKeyWallet, setKeepKeyWallet] = useState<KeepKeyHDWallet | undefined>()
   const [versions, setVersions] = useState<Versions>()
   const isKeepKey = type === KeyManager.KeepKey
@@ -76,5 +76,5 @@ export const useKeepKeyWallet = () => {
     })()
   }, [isKeepKey, wallet])
 
-  return { wallet: keepKeyWallet, versions }
+  return { wallet: keepKeyWallet, versions, keyring }
 }

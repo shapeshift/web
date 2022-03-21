@@ -8,14 +8,14 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
-const SUPPORTED_CONTRACT_METHODS = new Set([
-  'deposit',
-  'approve',
-  'withdraw',
-  'addLiquidityETH',
-  'removeLiquidityETH',
-  'transferOut'
-])
+export enum ContractMethods {
+  Deposit = 'deposit',
+  Approve = 'approve',
+  Withdraw = 'withdraw',
+  AddLiquidityEth = 'addLiquidityETH',
+  RemoveLiquidityEth = 'removeLiquidityETH',
+  TransferOut = 'transferOut'
+}
 
 export enum Direction {
   InPlace = 'in-place',
@@ -45,8 +45,6 @@ export interface TxDetails {
   sourceMarketData: MarketData
   destinationMarketData: MarketData
   feeMarketData: MarketData
-  i18n: string
-  negated: boolean
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
@@ -58,50 +56,27 @@ export const getTransferByAsset = (tx: Tx, asset: Asset) =>
   tx.transfers.find(t => t.caip19 === asset.caip19)
 
 export const isSupportedContract = (tx: Tx) =>
-  tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
+  Object.values(ContractMethods).includes(tx.data?.method as ContractMethods)
 
-export const useTxDetails = (
-  txId: string,
-  activeAsset?: Asset,
-  account: string = ''
-): TxDetails => {
+export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
   const buyTx = getTransferByType(tx, chainAdapters.TxType.Receive)
-  const sellTx = { ...getTransferByType(tx, chainAdapters.TxType.Send) } as chainAdapters.TxTransfer
-  const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
-  const txMetaData = { ...tx.data } as chainAdapters.TxMetadata
-  const activeTx = activeAsset !== undefined && getTransferByAsset(tx, activeAsset)
-  let i18n = 'unknown'
-  let negated = false
-
-  // view   -> method   => label
-  // UNI    -> deposit  => deposit
-  // UNI    -> withdraw => receive
-  // yvUNI  -> deposit  => receive
-  // yvUNI  -> withdraw => withdraw
-  if (activeTx && tx.data) {
-    i18n = activeTx.type === 'receive' ? activeTx.type : tx.data.method ?? 'unknown'
-    if (tx.data.method === 'withdraw' && activeTx.type === 'send') {
-      negated = true
-      if (sellTx) {
-        sellTx.value = `-${sellTx.value}`
-      }
-    }
-  }
+  const sellTx = getTransferByType(tx, chainAdapters.TxType.Send)
+  const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTx
 
   const direction: Direction | undefined = (() => {
     switch (method) {
-      case 'deposit':
-      case 'addLiquidityETH':
-      case 'transferOut':
+      case ContractMethods.Deposit:
+      case ContractMethods.AddLiquidityEth:
+      case ContractMethods.TransferOut:
         return Direction.Outbound
-      case 'withdraw':
-      case 'removeLiquidityETH':
+      case ContractMethods.Withdraw:
+      case ContractMethods.RemoveLiquidityEth:
         return Direction.Inbound
-      case 'approve':
+      case ContractMethods.Approve:
         return Direction.InPlace
       default:
         return undefined
@@ -155,10 +130,7 @@ export const useTxDetails = (
     ''
 
   return {
-    tx: {
-      ...tx,
-      data: txMetaData
-    },
+    tx,
     buyTx,
     sellTx,
     tradeTx,
@@ -178,8 +150,6 @@ export const useTxDetails = (
     direction,
     sourceMarketData,
     destinationMarketData,
-    feeMarketData,
-    i18n,
-    negated
+    feeMarketData
   }
 }

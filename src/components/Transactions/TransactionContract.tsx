@@ -1,5 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, Link, SimpleGrid } from '@chakra-ui/react'
+import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { FaStickyNote, FaThumbsUp } from 'react-icons/fa'
@@ -9,7 +10,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { TransactionStatus } from 'components/Transactions/TransactionStatus'
-import { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { ContractMethods, TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
 export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => {
@@ -30,6 +31,12 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
         return <FaStickyNote />
     }
   })()
+
+  const isReceive = txDetails.tradeTx?.type === TxType.Receive
+  const isWithdraw = txDetails.tx.data?.method === ContractMethods.Withdraw
+  const isSend = txDetails.tradeTx?.type === TxType.Send
+  const i18n = isReceive ? txDetails.tradeTx?.type : txDetails.tx.data?.method
+  const negated = isWithdraw && isSend
 
   return (
     <>
@@ -58,7 +65,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                 whiteSpace='nowrap'
                 mb={2}
                 translation={[
-                  `transactionRow.parser.${txDetails.tx.data?.parser}.${txDetails.i18n}`,
+                  `transactionRow.parser.${txDetails.tx.data?.parser}.${i18n}`,
                   { symbol: '' }
                 ]}
               />
@@ -73,7 +80,8 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                   {...(txDetails.direction === 'inbound'
                     ? { color: 'green.500' }
                     : { color: 'inherit', prefix: '-' })}
-                  value={fromBaseUnit(txDetails.value, txDetails.precision, 6, txDetails.negated)}
+                  prefix={negated ? '-' : ''}
+                  value={fromBaseUnit(txDetails.value, txDetails.precision)}
                   symbol={txDetails.symbol}
                   maximumFractionDigits={6}
                 />

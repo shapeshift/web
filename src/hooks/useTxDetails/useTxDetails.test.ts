@@ -1,6 +1,13 @@
-import { BtcSend, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
-import { getBuyTx, getSellTx, getStandardTx, getTransferByAsset, getTransferByType } from 'hooks/useTxDetails/useTxDetails'
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
+import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
+import {
+  getBuyTx,
+  getSellTx,
+  getStandardTx,
+  getTransferByAsset,
+  getTransferByType,
+  isSupportedContract
+} from 'hooks/useTxDetails/useTxDetails'
 
 describe('getStandardTx', () => {
   it('returns the expected values', () => {
@@ -71,5 +78,20 @@ describe('getTransferByAsset', () => {
     const result = getTransferByAsset(EthSend, asset)
     const expected = undefined
     expect(result).toEqual<undefined>(expected)
+  })
+})
+
+describe('isSupportedContract', () => {
+  it('returns true for being supported', () => {
+    createMockEthTxs('0xcafe').forEach(tx => expect(isSupportedContract(tx)).toBeTruthy())
+  })
+
+  it('returns false when unsupported', () => {
+    createMockEthTxs('0xface')
+      .map((tx, idx) => {
+        tx.data.method += `-${idx}`
+        return tx
+      })
+      .forEach(tx => expect(isSupportedContract(tx)).toBeFalsy())
   })
 })

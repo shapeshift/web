@@ -21,6 +21,7 @@
     "@keepkey/keepkey-hardware-hid": "8.1.18",
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.7.2",
+    "@sentry/electron": "^3.0.4",
     "@shapeshiftoss/asset-service": "^2.0.0",
     "@shapeshiftoss/caip": "^2.1.0",
     "@shapeshiftoss/chain-adapters": "^2.4.4",

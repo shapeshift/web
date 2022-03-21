@@ -41,7 +41,11 @@ import { autoUpdater } from 'electron-updater'
 import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
-import axios from 'axios'
+import * as Sentry from "@sentry/electron";
+import { config as dotenvConfig } from 'dotenv'
+
+dotenvConfig()
+
 log.transports.file.level = "debug";
 autoUpdater.logger = log;
 
@@ -53,19 +57,15 @@ let {
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
-const Unchained = require('openapi-client-axios').default;
+Sentry.init({ dsn: process.env.SENTRY_DSN });
 
-
-import fs from 'fs'
 //Modules
 import { update_keepkey_status } from './keepkey'
 import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
-import { isWin, isLinux, isMac, ALLOWED_HOSTS } from './constants'
+import { isWin, isLinux, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
-import { getDevice } from './wallet'
-import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { pairWalletConnect } from './connect'
 import { Settings } from './settings'
 
@@ -149,6 +149,9 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
      *
      * more options: https://www.electronjs.org/docs/api/browser-window
      */
+    const preloadPath = path.join(__dirname, './preload.js')
+    log.info('preloadPath', preloadPath)
+
     windows.mainWindow = new BrowserWindow({
         width: isDev ? 960 : 460,
         height: 780,
@@ -159,6 +162,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             nodeIntegration: true,
             contextIsolation: false,
             // offscreen: true,
+            preload: preloadPath,
             devTools: true
         }
     })
@@ -380,6 +384,10 @@ ipcMain.on('@app/get-asset-url', (event, data) => {
 
 ipcMain.on("@app/version", (event, _data) => {
     event.sender.send("@app/version", app.getVersion());
+})
+
+ipcMain.on('@app/sentry-dsn', (event, data) => {
+    event.sender.send('@app/sentry-dsn', process.env.SENTRY_DSN)
 })
 
 const skipUpdateCheck = (splash: BrowserWindow) => {

@@ -158,6 +158,7 @@
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",
+    "broadcastingTransaction": "Broadcasting Transaction",
     "validator": "Validator",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",

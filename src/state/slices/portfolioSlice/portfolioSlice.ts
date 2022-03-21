@@ -1,10 +1,11 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, current } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2, CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -171,6 +172,12 @@ export const portfolio = createSlice({
       state.assetBalances.ids = assetBalanceIds
       state.accountBalances.ids = accountBalanceIds
       state.accountSpecifiers.ids = accountSpecifiers
+    },
+    clearAssetsBalanceByChain: (state, { payload }: { payload: { chain: string } }) => {
+      console.info(payload.chain)
+      console.info('before', current(state).assetBalances.byId)
+      state.assetBalances.byId = omit(state.assetBalances.byId, payload.chain)
+      console.info('after', current(state).assetBalances.byId)
     }
   }
 })

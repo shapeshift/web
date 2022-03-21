@@ -21,6 +21,7 @@ type RowProps = Row<AccountRowData>
 export const AccountTable = () => {
   const loading = useSelector(selectPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
+  console.info(rowData)
   const textColor = useColorModeValue('black', 'white')
   const history = useHistory()
   const columns: Column<AccountRowData>[] = useMemo(

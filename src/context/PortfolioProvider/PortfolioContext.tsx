@@ -65,6 +65,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // don't fire with nothing connected
     if (isEmpty(accountSpecifiers)) return
     // grab the most recent txId
+    console.info(accountSpecifiers)
     const txId = head(txIds)!
     // grab the actual tx
     const tx = txsById[txId]
@@ -72,20 +73,24 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     if (!tx) return
     // the chain the tx came from
     const txChainId = tx.caip2
+    console.info(txChainId)
+    dispatch(portfolio.actions.clearAssetsBalanceByChain({ chain: txChainId }))
     // only refetch accounts for this tx
-    const accountSpecifierMap = accountSpecifiers.reduce((acc, cur) => {
-      const [chainId, accountSpecifier] = Object.entries(cur)[0]
-      if (chainId !== txChainId) return acc
-      acc[chainId] = accountSpecifier
-      return acc
-    }, {})
-    // bust the cache
-    const forceRefetch = true
-    // refetch that account
-    dispatch(portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch }))
+    accountSpecifiers.forEach(accountSpecifierMap => {
+      const [chainId] = Object.entries(accountSpecifierMap)[0]
+      if (chainId === txChainId)
+        // refetch that account
+        dispatch(
+          portfolioApi.endpoints.getAccount.initiate(
+            { accountSpecifierMap },
+            // bust the cache
+            { forceRefetch: true }
+          )
+        )
+    })
     // txsById changes on each tx - as txs have more confirmations
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accountSpecifiers, dispatch, txIds, txHistoryStatus])
+  }, [dispatch, txIds])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

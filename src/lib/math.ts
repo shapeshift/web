@@ -5,16 +5,12 @@ import { BN, bn, bnOrZero } from './bignumber/bignumber'
 export const fromBaseUnit = (
   value: BigNumber.Value,
   decimals: number,
-  displayDecimals = 6,
-  negated = false
+  displayDecimals = 6
 ): string => {
-  const x = bnOrZero(value)
+  return bnOrZero(value)
     .div(`1e+${decimals}`)
-    .decimalPlaces(displayDecimals, BigNumber.ROUND_HALF_UP)
-  if (negated) {
-    x.negated()
-  }
-  return x.toString()
+    .decimalPlaces(displayDecimals, BigNumber.ROUND_DOWN)
+    .toString()
 }
 
 export const toBaseUnit = (amount: BigNumber.Value | undefined, precision: number): string => {

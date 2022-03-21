@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.5.0...@shapeshiftoss/chain-adapters-v2.6.0) (2022-03-21)
+
+
+### Features
+
+* cosmos sign and broadcast tx ([#435](https://github.com/shapeshift/lib/issues/435)) ([1ba16a1](https://github.com/shapeshift/lib/commit/1ba16a1589113b3a1eb17415ec6f7e85c6d857a7))
+
 # [@shapeshiftoss/chain-adapters-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.4.6...@shapeshiftoss/chain-adapters-v2.5.0) (2022-03-19)
 
 

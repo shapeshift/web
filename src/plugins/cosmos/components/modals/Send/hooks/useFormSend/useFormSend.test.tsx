@@ -45,15 +45,15 @@ const formData: SendInput = {
   [SendFormFields.EstimatedFees]: {
     [chainAdapters.FeeDataKey.Slow]: {
       txFee: '2500',
-      chainSpecific: { gasLimit: '250000' } as chainAdapters.cosmos.FeeData
+      chainSpecific: { gasLimit: '250000' }
     },
     [chainAdapters.FeeDataKey.Average]: {
       txFee: '3500',
-      chainSpecific: { gasLimit: '250000' } as chainAdapters.cosmos.FeeData
+      chainSpecific: { gasLimit: '250000' }
     },
     [chainAdapters.FeeDataKey.Fast]: {
       txFee: '5000',
-      chainSpecific: { gasLimit: '250000' } as chainAdapters.cosmos.FeeData
+      chainSpecific: { gasLimit: '250000' }
     }
   },
   [SendFormFields.CryptoAmount]: '1',

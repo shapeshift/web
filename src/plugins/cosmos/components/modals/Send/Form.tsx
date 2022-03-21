@@ -1,7 +1,7 @@
 import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import {
   Redirect,
@@ -16,7 +16,7 @@ import { Address } from 'components/Modals/Send/views/Address'
 import { Confirm } from 'components/Modals/Send/views/Confirm'
 import { Details } from 'components/Modals/Send/views/Details'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
-import { SelectAssetRouter, SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
+import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

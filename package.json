@@ -181,6 +181,7 @@
       "build/**/*",
       "electron/**/*",
       "api/**/*",
+      "sentry-symbols.js",
       "package.json"
     ],
     "asar": true,

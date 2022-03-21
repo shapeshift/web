@@ -1,6 +1,6 @@
-import { createSlice, current } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { CAIP2, caip2, CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, CAIP10, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
@@ -174,10 +174,15 @@ export const portfolio = createSlice({
       state.accountSpecifiers.ids = accountSpecifiers
     },
     clearAssetsBalanceByChain: (state, { payload }: { payload: { chain: string } }) => {
-      console.info(payload.chain)
-      console.info('before', current(state).assetBalances.byId)
-      state.assetBalances.byId = omit(state.assetBalances.byId, payload.chain)
-      console.info('after', current(state).assetBalances.byId)
+      const toBeRemovedKeys = Object.keys(state.assetBalances.byId).reduce(
+        (acc: string[], assetCaip19: string) => {
+          const { chain } = caip19.fromCAIP19(assetCaip19)
+          if (chain === payload.chain) acc.push(assetCaip19)
+          return acc
+        },
+        []
+      )
+      state.assetBalances.byId = omit(state.assetBalances.byId, toBeRemovedKeys)
     }
   }
 })

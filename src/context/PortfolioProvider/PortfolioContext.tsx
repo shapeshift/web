@@ -65,7 +65,6 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // don't fire with nothing connected
     if (isEmpty(accountSpecifiers)) return
     // grab the most recent txId
-    console.info(accountSpecifiers)
     const txId = head(txIds)!
     // grab the actual tx
     const tx = txsById[txId]
@@ -73,7 +72,6 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     if (!tx) return
     // the chain the tx came from
     const txChainId = tx.caip2
-    console.info(txChainId)
     dispatch(portfolio.actions.clearAssetsBalanceByChain({ chain: txChainId }))
     // only refetch accounts for this tx
     accountSpecifiers.forEach(accountSpecifierMap => {

@@ -1,9 +1,19 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
+import BigNumber from 'bignumber.js'
 import { WithdrawType, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 
 type SupportedFoxyOpportunity = {
-
+  type: DefiType
+  provider: string
+  version: string
+  contractAddress: string
+  rewardToken: string
+  stakingToken: string
+  chain: ChainTypes
+  tvl: BigNumber
+  apy: string
+  expired: boolean
 }
 
 type EstimatedGas = {

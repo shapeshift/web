@@ -16,6 +16,8 @@
     "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
+    "withdrawal": "Withdrawal",
+    "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
     "connectedWallet": "Connected Wallet",
@@ -26,6 +28,7 @@
     "lightTheme": "Light Theme",
     "rename": "Rename",
     "forget": "Forget?",
+    "pending": "Pending",
     "available": "available",
     "or": "or",
     "somethingWentWrong": "Something went wrong",
@@ -41,7 +44,8 @@
     "copied": "Copied to clipboard.",
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
-    "viewAsset": "View Asset"
+    "viewAsset": "View Asset",
+    "apy": "%{apy}% APY"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -146,6 +150,20 @@
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
         }
+      },
+      "foxyOverview": {
+        "header": "Deposit FOX to get FOXy to earn",
+        "body": "FOXy is a rebasing token pegged to the price of FOX. FOXy is put to work across different DeFi protocols to earn the best yield possible.",
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Deposit FOX Now",
+        "foxyBalance": "FOXy Balance",
+        "withdrawals": "Withdrawals",
+        "emptyWithdraws": "Pending or active withdrawals will show here.",
+        "availableDate": "available %{date}"
+      },
+      "claim": {
+        "claimAmount": "Claim Amount",
+        "claimToAddress": "Claim To Address"
       }
     },
     "amountToStake": "Amount to Stake",

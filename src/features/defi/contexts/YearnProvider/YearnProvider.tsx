@@ -21,7 +21,7 @@ export const YearnProvider: React.FC = ({ children }) => {
   const [yearn, setYearn] = useState<YearnVaultApi | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const adapters = useChainAdapters()
-  const numSupportedChainAdapters = adapters.getSupportedAdapters().length
+  const numSupportedChainAdapters = adapters.getSupportedChains().length
 
   useEffect(() => {
     ;(async () => {

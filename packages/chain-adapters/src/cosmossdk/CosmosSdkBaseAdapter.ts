@@ -72,7 +72,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
         }),
         chain: this.getType(),
         chainSpecific: {
-          sequence: data.sequence
+          accountNumber: data.accountNumber.toString(),
+          sequence: data.sequence.toString()
         },
         pubkey: data.pubkey
         /* TypeScript can't guarantee the correct type for the chainSpecific field because of the generic return type.

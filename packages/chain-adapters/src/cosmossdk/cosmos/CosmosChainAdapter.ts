@@ -7,11 +7,10 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
 
 import { ChainAdapter as IChainAdapter } from '../../api'
 import { ErrorHandler } from '../../error/ErrorHandler'
-import { toPath } from '../../utils'
+import { bnOrZero, toPath } from '../../utils'
 import { ChainAdapterArgs, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 
 export class ChainAdapter
@@ -84,7 +83,7 @@ export class ChainAdapter
         to,
         wallet,
         bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
-        chainSpecific: { gas },
+        chainSpecific: { gas, fee },
         sendMax = false,
         value
       } = tx
@@ -96,16 +95,17 @@ export class ChainAdapter
       const addressNList = bip32ToAddressNList(path)
       const from = await this.getAddress({ bip44Params, wallet })
 
+      const account = await this.getAccount(from)
+
       if (sendMax) {
-        const account = await this.getAccount(from)
-        tx.value = new BigNumber(account.balance).minus(gas).toString()
+        tx.value = bnOrZero(account.balance).minus(gas).toString()
       }
 
       const utx: CosmosTx = {
         fee: {
           amount: [
             {
-              amount: new BigNumber(gas).toString(),
+              amount: bnOrZero(fee).toString(),
               denom: 'uatom'
             }
           ],
@@ -117,7 +117,7 @@ export class ChainAdapter
             value: {
               amount: [
                 {
-                  amount: new BigNumber(value).toString(),
+                  amount: bnOrZero(value).toString(),
                   denom: 'uatom'
                 }
               ],
@@ -134,8 +134,8 @@ export class ChainAdapter
         addressNList,
         tx: utx,
         chain_id: caip2.ChainReference.CosmosHubMainnet,
-        account_number: '',
-        sequence: ''
+        account_number: account.chainSpecific.accountNumber,
+        sequence: account.chainSpecific.sequence
       }
       return { txToSign }
     } catch (err) {
@@ -143,17 +143,44 @@ export class ChainAdapter
     }
   }
 
-  async getFeeData(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods */
-    input: Partial<chainAdapters.GetFeeDataInput<ChainTypes.Cosmos>>
-  ): Promise<chainAdapters.FeeDataEstimate<ChainTypes.Cosmos>> {
-    throw new Error('Method not implemented.')
+  async getFeeData({
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented variable */
+    sendMax
+  }: Partial<chainAdapters.GetFeeDataInput<ChainTypes.Cosmos>>): Promise<
+    chainAdapters.FeeDataEstimate<ChainTypes.Cosmos>
+  > {
+    // We currently don't have a way to query validators to get dynamic fees, so they are hard coded.
+    // When we find a strategy to make this more dynamic, we can use 'sendMax' to define max amount.
+    return {
+      [chainAdapters.FeeDataKey.Fast]: {
+        txFee: '5000',
+        chainSpecific: { gasLimit: '250000' }
+      },
+      [chainAdapters.FeeDataKey.Average]: {
+        txFee: '3500',
+        chainSpecific: { gasLimit: '250000' }
+      },
+      [chainAdapters.FeeDataKey.Slow]: {
+        txFee: '2500',
+        chainSpecific: { gasLimit: '250000' }
+      }
+    }
   }
 
   async signAndBroadcastTransaction(
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars -- Disable no-unused-vars lint rule for unimplemented methods */
     signTxInput: chainAdapters.SignTxInput<CosmosSignTx>
   ): Promise<string> {
-    throw new Error('Method not implemented.')
+    const { wallet } = signTxInput
+    try {
+      if (supportsCosmos(wallet)) {
+        const signedTx = await this.signTransaction(signTxInput)
+        const { data } = await this.providers.http.sendTx({ body: { rawTx: signedTx } })
+        return data
+      } else {
+        throw new Error('Wallet does not support Cosmos.')
+      }
+    } catch (error) {
+      return ErrorHandler(error)
+    }
   }
 }

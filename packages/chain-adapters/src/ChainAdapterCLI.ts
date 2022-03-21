@@ -188,21 +188,29 @@ const main = async () => {
 
     // send cosmos example
     try {
+      const value = '100'
+
+      const feeData = await cosmosChainAdapter.getFeeData({ sendMax: false })
+      const fee = feeData.slow.txFee
+      const gas = feeData.slow.chainSpecific.gasLimit
+
       const cosmosUnsignedTx = await cosmosChainAdapter.buildSendTransaction({
-        to: `0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F`,
-        value: '1',
+        to: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',
+        value,
         wallet,
         bip44Params: cosmosBip44Params,
-        chainSpecific: { gas: '0' }
+        chainSpecific: { gas, fee }
       })
-      const cosmosSignedTx = await cosmosChainAdapter.signTransaction({
+
+      if (!cosmosChainAdapter.signAndBroadcastTransaction) return
+
+      console.log('comsos unsigned tx', cosmosUnsignedTx)
+
+      const broadcastedTx = await cosmosChainAdapter.signAndBroadcastTransaction({
         wallet,
         txToSign: cosmosUnsignedTx.txToSign
       })
-      console.log('cosmosSignedTx:', cosmosSignedTx)
-
-      // const cosmosTxID = await cosmosChainAdapter.broadcastTransaction(cosmosSignedTx)
-      // console.log('cosmosTxID:', cosmosTxID)
+      console.log('broadcastedTx:', broadcastedTx)
     } catch (err) {
       console.log('cosmosTx error:', err.message)
     }

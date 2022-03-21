@@ -1,11 +1,13 @@
 export type BuildTxInput = {
   gas: string
+  fee: string
 }
 
 export type Account = {
-  sequence: number
+  sequence: string
+  accountNumber: string
 }
 
 export type FeeData = {
-  value: string
+  gasLimit: string
 }

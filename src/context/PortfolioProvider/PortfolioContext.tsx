@@ -27,7 +27,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
-  const accountSpecifiers = useAccountSpecifiers()
+  const { accountSpecifiers } = useAccountSpecifiers()
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination

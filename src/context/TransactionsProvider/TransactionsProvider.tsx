@@ -30,19 +30,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
-  const accountSpecifiers = useAccountSpecifiers()
-
-  useEffect(() => {
-    if (isEmpty(accountSpecifiers)) return
-    accountSpecifiers.forEach(accountSpecifierMap => {
-      dispatch(
-        txHistoryApi.endpoints.getAllTxHistory.initiate(
-          { accountSpecifierMap },
-          { forceRefetch: true }
-        )
-      )
-    })
-  }, [dispatch, accountSpecifiers])
+  const { accountSpecifiers, getAccountSpecifiersByChainId } = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
@@ -90,6 +78,17 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             )
           }
         }
+        // RESTfully fetch all tx history for this chain.
+        const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
+        if (isEmpty(chainAccountSpecifiers)) continue
+        chainAccountSpecifiers.forEach(accountSpecifierMap => {
+          dispatch(
+            txHistoryApi.endpoints.getAllTxHistory.initiate(
+              { accountSpecifierMap },
+              { forceRefetch: true }
+            )
+          )
+        })
       }
     })()
 
@@ -103,7 +102,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         }
       })
     }
-  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter, accountSpecifiers])
+  }, [
+    assets,
+    dispatch,
+    walletInfo?.deviceId,
+    wallet,
+    chainAdapter,
+    accountSpecifiers,
+    getAccountSpecifiersByChainId
+  ])
 
   /**
    * TODO(0xdef1cafe)

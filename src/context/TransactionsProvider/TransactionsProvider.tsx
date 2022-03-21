@@ -33,18 +33,6 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const accountSpecifiers = useAccountSpecifiers()
 
   useEffect(() => {
-    if (isEmpty(accountSpecifiers)) return
-    accountSpecifiers.forEach(accountSpecifierMap => {
-      dispatch(
-        txHistoryApi.endpoints.getAllTxHistory.initiate(
-          { accountSpecifierMap },
-          { forceRefetch: true }
-        )
-      )
-    })
-  }, [dispatch, accountSpecifiers])
-
-  useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
     ;(async () => {
@@ -83,6 +71,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
               },
               (err: any) => console.error(err)
             )
+            if (isEmpty(accountSpecifiers)) return
+            accountSpecifiers.forEach(accountSpecifierMap => {
+              dispatch(
+                txHistoryApi.endpoints.getAllTxHistory.initiate(
+                  { accountSpecifierMap },
+                  { forceRefetch: true }
+                )
+              )
+            })
           } catch (e) {
             console.error(
               `TransactionProvider: Error subscribing to transaction history for chain: ${chain}, accountType: ${accountType}`,

@@ -59,6 +59,7 @@ export const useKeepKeyWallet = () => {
       const latestBootloader = releases.latest.bootloader.version
       const deviceFirmware = await keepKey.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version
+
       const versions: Versions = {
         bootloader: {
           device: deviceBootloader,
@@ -72,7 +73,6 @@ export const useKeepKeyWallet = () => {
         }
       }
       setVersions(versions)
-      // await keepKeyWallet?.applySettings({ label: 'Test KeepKey' })
     })()
   }, [isKeepKey, wallet])
 

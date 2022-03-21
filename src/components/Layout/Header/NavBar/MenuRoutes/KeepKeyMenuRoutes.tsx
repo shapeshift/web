@@ -1,7 +1,6 @@
-import { CloseIcon, InfoIcon } from '@chakra-ui/icons'
+import { CloseIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Alert, AlertIcon, Button, Flex, Input } from '@chakra-ui/react'
-import { useState } from 'react'
+import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Route } from 'react-router-dom'
 import { ExpandedMenuItem } from 'components/Layout/Header/NavBar/ExpandedMenuItem'
@@ -9,24 +8,20 @@ import {
   useMenuRoutes,
   WalletConnectedRoutes
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
+import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
+import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
-import { MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const KeepKeyMenuRoutes = () => {
-  const { handleChangePinClick, handleChangeLabelClick } = useMenuRoutes()
+  const { handleChangePinClick, handleChangeLabelClick, handleChangeTimeoutClick } = useMenuRoutes()
   const translate = useTranslate()
-  const { wallet, versions, keyring } = useKeepKeyWallet()
+  const { wallet, versions } = useKeepKeyWallet()
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
-  const [awaitingButtonPress, setAwaitingButtonPress] = useState(false)
-  const [keepKeyUpdateStatus, setKeepKeyUpdateStatus] = useState<
-    'success' | 'failure' | undefined
-  >()
-  const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -38,31 +33,6 @@ export const KeepKeyMenuRoutes = () => {
     return updateAvailable
       ? translate('walletProvider.keepKey.settings.status.updateAvailable')
       : translate('walletProvider.keepKey.settings.status.upToDate')
-  }
-
-  const handleKeepKeyEvents = () => {
-    keyring.on(['KeepKey', '*', MessageType.PINMATRIXREQUEST.toString()], () =>
-      setAwaitingButtonPress(false)
-    )
-
-    keyring.on(['KeepKey', '*', MessageType.SUCCESS.toString()], () =>
-      setKeepKeyUpdateStatus('success')
-    )
-    keyring.on(['KeepKey', '*', MessageType.FAILURE.toString()], () =>
-      setKeepKeyUpdateStatus('failure')
-    )
-  }
-
-  const handleChangePinInitializeEvent = async () => {
-    handleKeepKeyEvents()
-    setAwaitingButtonPress(true)
-    await wallet?.changePin()
-  }
-
-  const handleChangeLabelInitializeEvent = async () => {
-    handleKeepKeyEvents()
-    setAwaitingButtonPress(true)
-    await wallet?.applySettings({ label: keepKeyLabel })
   }
 
   const keepKeyMenu = () => {
@@ -164,112 +134,12 @@ export const KeepKeyMenuRoutes = () => {
     return keepKeyStateLoaded || keepKeyStateLoading
   }
 
-  const changePin = () => {
-    const renderPinState: JSX.Element = (() => {
-      return (
-        <>
-          {keepKeyUpdateStatus && (
-            <Alert
-              status={keepKeyUpdateStatus === 'success' ? 'success' : 'error'}
-              borderRadius='lg'
-              mb={3}
-              fontWeight='semibold'
-              color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'}
-              fontSize='sm'
-            >
-              <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
-              {keepKeyUpdateStatus === 'success'
-                ? translate('walletProvider.keepKey.settings.descriptions.pinUpdateSuccess')
-                : translate('walletProvider.keepKey.settings.descriptions.pinUpdateFailed')}
-            </Alert>
-          )}
-          {awaitingButtonPress ? (
-            <Flex>
-              <InfoIcon color='blue.200' mt={1} />
-              <Text
-                translation='walletProvider.keepKey.settings.descriptions.pinButtonPrompt'
-                ml={3}
-                fontWeight='medium'
-                color='blue.200'
-              />
-            </Flex>
-          ) : (
-            <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
-              {translate('walletProvider.keepKey.settings.actions.updatePin')}
-            </Button>
-          )}
-        </>
-      )
-    })()
-
-    return (
-      <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
-        <SubmenuHeader
-          title={translate('walletProvider.keepKey.settings.headings.devicePin')}
-          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
-        />
-        {renderPinState}
-      </Flex>
-    )
-  }
-
-  const changeLabel = () => {
-    return (
-      <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
-        <SubmenuHeader
-          title={translate('walletProvider.keepKey.settings.headings.devicePin')}
-          description={translate('walletProvider.keepKey.settings.descriptions.pin')}
-        />
-        {keepKeyUpdateStatus && (
-          <Alert
-            status={keepKeyUpdateStatus === 'success' ? 'success' : 'error'}
-            borderRadius='lg'
-            mb={3}
-            fontWeight='semibold'
-            color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'}
-            fontSize='sm'
-          >
-            <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
-            {keepKeyUpdateStatus === 'success'
-              ? translate('walletProvider.keepKey.settings.descriptions.labelUpdateSuccess')
-              : translate('walletProvider.keepKey.settings.descriptions.labelUpdateFailed')}
-          </Alert>
-        )}
-        <Input
-          type='text'
-          placeholder='Enter a device label'
-          _placeholder={{ opacity: 0.4, color: 'inherit' }}
-          mb={3}
-          size='md'
-          background='gray.800'
-          onChange={e => setKeepKeyLabel(e.target.value)}
-          value={keepKeyLabel}
-          autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-        />
-        {awaitingButtonPress ? (
-          <Flex>
-            <InfoIcon color='blue.200' mt={1} />
-            <Text
-              translation='walletProvider.keepKey.settings.descriptions.labelButtonPrompt'
-              ml={3}
-              fontWeight='medium'
-              color='blue.200'
-            />
-          </Flex>
-        ) : (
-          <Button colorScheme='blue' size='sm' onClick={handleChangeLabelInitializeEvent}>
-            {translate('walletProvider.keepKey.settings.actions.updateLabel')}
-          </Button>
-        )}
-      </Flex>
-    )
-  }
-
   return (
     <>
       <Route exact path={WalletConnectedRoutes.KeepKey} component={keepKeyMenu} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={changeLabel} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={changePin} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={ChangeLabel} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={ChangePin} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangePin} />
     </>
   )
 }

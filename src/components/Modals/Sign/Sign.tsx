@@ -22,6 +22,7 @@ import KeepKey from 'assets/hold-and-release.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getAssetUrl } from 'lib/getAssetUrl'
 
 import { MiddleEllipsis } from '../../MiddleEllipsis/MiddleEllipsis'
@@ -36,7 +37,7 @@ export const SignModal = (input: any) => {
   const { sign } = useModal()
   const { close, isOpen } = sign
 
-  const HDwalletPayload = input?.invocation?.unsignedTx?.HDwalletPayload
+  const HDwalletPayload = input?.unsignedTx?.invocation?.unsignedTx?.HDwalletPayload
 
   const [nonce, setNonce] = useState('')
   const [gasPrice, setGasPrice] = useState('')
@@ -56,30 +57,39 @@ export const SignModal = (input: any) => {
   }, [HDwalletPayload])
 
   let isSwap: boolean = false
-  if (input?.invocation?.unsignedTx?.type === 'swap') isSwap = true
+  if (input?.unsignedTx?.invocation?.unsignedTx?.type === 'swap') isSwap = true
 
   const HandleSubmit = useCallback(async () => {
     setIsApproved(true)
     //show sign
     const unsignedTx = {
-      ...input.invocation.unsignedTx,
+      ...input?.unsignedTx.invocation.unsignedTx,
       HDwalletPayload: {
-        ...input.invocation?.unsignedTx?.HDwalletPayload,
+        ...input?.unsignedTx.invocation?.unsignedTx?.HDwalletPayload,
         nonce,
         gasLimit,
         gasPrice
       }
     }
     let signedTx = await keepkey.signTx(unsignedTx)
-    ipcRenderer.send('@account/tx-signed', signedTx)
+    ipcRenderer.send(`@account/tx-signed-${input.nonce}`, { signedTx, nonce: input.nonce })
     //onCloseModal
     ipcRenderer.send('@modal/close', {})
     setIsApproved(false)
     close()
-  }, [nonce, gasLimit, gasPrice, close, keepkey, input?.invocation?.unsignedTx])
+  }, [
+    nonce,
+    gasLimit,
+    gasPrice,
+    close,
+    keepkey,
+    input?.unsignedTx?.invocation?.unsignedTx,
+    input.nonce
+  ])
 
   const HandleReject = async () => {
     setIsApproved(false)
+    ipcRenderer.send(`@account/tx-rejected-${input.nonce}`, { nonce: input.nonce })
     //show sign
     ipcRenderer.send('unlockWindow', {})
     //onCloseModal
@@ -120,13 +130,13 @@ export const SignModal = (input: any) => {
                 <Row.Label>
                   <Text translation={'modals.sign.network'} />
                 </Row.Label>
-                <Row.Value>{input?.invocation?.unsignedTx?.network}</Row.Value>
+                <Row.Value>{input?.unsignedTx?.invocation?.unsignedTx?.network}</Row.Value>
               </Row>
               <Row>
                 <Row.Label>
                   <Text translation={'modals.sign.summary'} />
                 </Row.Label>
-                <Row.Value>{input?.invocation?.unsignedTx?.verbal}</Row.Value>
+                <Row.Value>{input?.unsignedTx?.invocation?.unsignedTx?.verbal}</Row.Value>
               </Row>
               <Box w='100%' p={4} color='white'>
                 <div>
@@ -146,7 +156,7 @@ export const SignModal = (input: any) => {
                     pl='2'
                     pr='2'
                     bgColor='gray.800'
-                    address={input?.invocation?.unsignedTx?.transaction?.addressFrom}
+                    address={input?.unsignedTx?.invocation?.unsignedTx?.transaction?.addressFrom}
                   />
                 </Row.Value>
               </Row>
@@ -157,14 +167,16 @@ export const SignModal = (input: any) => {
                     <Row.Label>
                       <Text translation={'modals.sign.protocol'} />
                     </Row.Label>
-                    <Row.Value>{input?.invocation?.unsignedTx?.transaction?.protocol}</Row.Value>
+                    <Row.Value>
+                      {input?.unsignedTx?.invocation?.unsignedTx?.transaction?.protocol}
+                    </Row.Value>
                   </Row>
                   <Row>
                     <Row.Label>
                       <Text translation={'modals.sign.router'} />
                     </Row.Label>
                     <Row.Value>
-                      {input?.invocation?.unsignedTx?.transaction?.router}
+                      {input?.unsignedTx?.invocation?.unsignedTx?.transaction?.router}
                       <Badge>VALID</Badge>
                     </Row.Value>
                   </Row>
@@ -173,7 +185,7 @@ export const SignModal = (input: any) => {
                       <Text translation={'modals.sign.memo'} />
                     </Row.Label>
                     <Row.Value isTruncated>
-                      <small>{input?.invocation?.unsignedTx?.transaction?.memo}</small>
+                      <small>{input?.unsignedTx?.invocation?.unsignedTx?.transaction?.memo}</small>
                     </Row.Value>
                   </Row>
                 </div>
@@ -197,7 +209,7 @@ export const SignModal = (input: any) => {
                         pl='2'
                         pr='2'
                         bgColor='gray.800'
-                        address={input?.invocation?.unsignedTx?.transaction?.recipient}
+                        address={input?.unsignedTx?.invocation?.unsignedTx?.transaction?.recipient}
                       />
                     </Row.Value>
                   </Row>
@@ -210,8 +222,10 @@ export const SignModal = (input: any) => {
                 </Row.Label>
                 <Row.Value isTruncated>
                   <small>
-                    {input?.invocation?.unsignedTx?.transaction?.amount} (
-                    {input?.invocation?.unsignedTx?.transaction?.asset})
+                    {bnOrZero(input?.unsignedTx?.invocation?.unsignedTx?.transaction?.amount)
+                      .shiftedBy(-18)
+                      .toString()}{' '}
+                    ({input?.unsignedTx?.invocation?.unsignedTx?.transaction?.asset})
                   </small>
                 </Row.Value>
               </Row>

@@ -453,7 +453,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('setDevice', (event, data) => {})
 
-    ipcRenderer.on('signTx', async (event: any, data: any) => {
+    ipcRenderer.on('@account/sign-tx', async (event: any, data: any) => {
       let unsignedTx = data.payload.data
       //open signTx
       if (
@@ -462,7 +462,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         unsignedTx.invocation.unsignedTx &&
         unsignedTx.invocation.unsignedTx.HDwalletPayload
       ) {
-        sign.open(unsignedTx)
+        sign.open({ unsignedTx, nonce: data.nonce })
       } else {
         console.error('INVALID SIGN PAYLOAD!', JSON.stringify(unsignedTx))
       }

@@ -1,6 +1,6 @@
 import { CloseIcon, InfoIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
-import { Button, Flex } from '@chakra-ui/react'
+import { Alert, AlertIcon, Button, Flex } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route } from 'react-router-dom'
@@ -13,6 +13,7 @@ import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { MessageType } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const KeepKeyMenuRoutes = () => {
@@ -22,6 +23,7 @@ export const KeepKeyMenuRoutes = () => {
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
   const [awaitingButtonPress, setAwaitingButtonPress] = useState(false)
+  const [pinUpdateStatus, setPinUpdateStatus] = useState<'success' | 'failure' | undefined>()
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -35,18 +37,20 @@ export const KeepKeyMenuRoutes = () => {
       : translate('walletProvider.keepKey.settings.status.upToDate')
   }
 
-  const handlePinMatrixEvent = () => {
-    setAwaitingButtonPress(false)
-  }
-
   const handleChangePinInitializeEvent = async () => {
     setAwaitingButtonPress(true)
 
-    // Message type 18: MESSAGETYPE_PINMATRIXREQUEST
-    keyring.on(['KeepKey', '*', '18'], handlePinMatrixEvent)
-    await wallet?.changePin()
+    keyring.on(['KeepKey', '*', MessageType.PINMATRIXREQUEST.toString()], () =>
+      setAwaitingButtonPress(false)
+    )
+    keyring.on(['KeepKey', '*', MessageType.SUCCESS.toString()], () =>
+      setPinUpdateStatus('success')
+    )
+    keyring.on(['KeepKey', '*', MessageType.FAILURE.toString()], () =>
+      setPinUpdateStatus('failure')
+    )
 
-    // FIXME - await successful pin change, or exit, and update UI accordingly
+    await wallet?.changePin()
   }
 
   const keepKeyMenu = () => {
@@ -144,27 +148,50 @@ export const KeepKeyMenuRoutes = () => {
   }
 
   const changePin = () => {
+    const renderPinState: JSX.Element = (() => {
+      return (
+        <>
+          {pinUpdateStatus && (
+            <Alert
+              status={pinUpdateStatus === 'success' ? 'success' : 'error'}
+              borderRadius='lg'
+              mb={3}
+              fontWeight='semibold'
+              color={pinUpdateStatus === 'success' ? 'green.200' : 'yellow.200'}
+              fontSize='sm'
+            >
+              <AlertIcon color={pinUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
+              {pinUpdateStatus === 'success'
+                ? translate('walletProvider.keepKey.settings.descriptions.pinUpdateSuccess')
+                : translate('walletProvider.keepKey.settings.descriptions.pinUpdateFailed')}
+            </Alert>
+          )}
+          {awaitingButtonPress ? (
+            <Flex>
+              <InfoIcon color='blue.200' mt={1} />
+              <Text
+                translation='walletProvider.keepKey.settings.descriptions.pinButtonPrompt'
+                ml={3}
+                fontWeight='medium'
+                color='blue.200'
+              />
+            </Flex>
+          ) : (
+            <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
+              {translate('walletProvider.keepKey.settings.actions.updatePin')}
+            </Button>
+          )}
+        </>
+      )
+    })()
+
     return (
       <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
         <SubmenuHeader
           title={translate('walletProvider.keepKey.settings.headings.devicePin')}
           description={translate('walletProvider.keepKey.settings.descriptions.pin')}
         />
-        {awaitingButtonPress ? (
-          <Flex>
-            <InfoIcon color='blue.200' mt={1} />
-            <Text
-              translation='walletProvider.keepKey.settings.descriptions.pinButtonPrompt'
-              ml={3}
-              fontWeight='medium'
-              color='blue.200'
-            />
-          </Flex>
-        ) : (
-          <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
-            {translate('walletProvider.keepKey.settings.actions.updatePin')}
-          </Button>
-        )}
+        {renderPinState}
       </Flex>
     )
   }

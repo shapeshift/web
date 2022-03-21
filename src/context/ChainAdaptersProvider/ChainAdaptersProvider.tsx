@@ -1,18 +1,5 @@
-import { ChainAdapterManager, UnchainedUrls } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
+import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import React, { createContext } from 'react'
-
-export const defaultUnchainedUrls: UnchainedUrls = {
-  [ChainTypes.Ethereum]: {
-    httpUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-    wsUrl: getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
-  },
-  [ChainTypes.Bitcoin]: {
-    httpUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL,
-    wsUrl: getConfig().REACT_APP_UNCHAINED_BITCOIN_WS_URL
-  }
-}
 
 type ChainAdaptersProviderProps = {
   children: React.ReactNode
@@ -35,7 +22,7 @@ const setChainAdapters = (cam: ChainAdapterManager) => {
 }
 
 export const ChainAdaptersProvider = ({ children }: ChainAdaptersProviderProps): JSX.Element => {
-  if (!_chainAdapters) setChainAdapters(new ChainAdapterManager(defaultUnchainedUrls))
+  if (!_chainAdapters) setChainAdapters(new ChainAdapterManager({}))
 
   return (
     <ChainAdaptersContext.Provider value={_chainAdapters}>{children}</ChainAdaptersContext.Provider>

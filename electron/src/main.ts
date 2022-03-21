@@ -312,17 +312,6 @@ autoUpdater.on("error", () => {
 });
 
 
-ipcMain.on('@account/tx-signed', async (event, data) => {
-    const tag = TAG + ' | onSignedTx | '
-    try {
-        log.info(tag, 'event: onSignedTx: ', data)
-        console.log("onSignedTx: ", data)
-        shared.SIGNED_TX = data
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
 
 ipcMain.on('@modal/close', async (event, data) => {
     if (!windows.mainWindow) return
@@ -466,31 +455,31 @@ ipcMain.on('@app/start', async (event, data) => {
     try {
         log.info(tag, 'event: onStartApp: ', data)
 
-        try{
+        try {
 
             usb.on('attach', function (device) {
-                try{
+                try {
                     log.info('attach device: ', device)
                     if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
                     if (!bridgeRunning) start_bridge()
                     update_keepkey_status()
-                }catch(e){
+                } catch (e) {
                     log.error(e)
                 }
             })
 
             usb.on('detach', function (device) {
-                try{
+                try {
                     log.info('detach device: ', device)
                     if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
                     //stop_bridge(event)
                     update_keepkey_status()
-                }catch(e){
+                } catch (e) {
                     log.error(e)
                 }
             })
 
-        }catch(e){
+        } catch (e) {
             log.error(e)
         }
 

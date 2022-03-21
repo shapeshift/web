@@ -2,10 +2,11 @@ import { app, ipcMain } from 'electron';
 import { createWindow, windows } from '../../main';
 import { Body, Controller, Get, Post, Security, Route, Tags, Response } from 'tsoa';
 import { keepkey } from '../';
-import { GenericResponse, SignedTx, GetPublicKey } from '../types';
+import { GenericResponse, SignedTx, GetPublicKey, Error } from '../types';
 import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
 import { BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
+import { uniqueId } from 'lodash';
 
 @Tags('Secured Endpoints')
 @Route('')
@@ -173,8 +174,8 @@ export class SecuredController extends Controller {
     @Post('/sign')
     @Security("api_key")
     @Response(500, "Internal server error")
-    public async signTransaction(@Body() body: any): Promise<SignedTx> {
-        return new Promise<SignedTx>(async (resolve, reject) => {
+    public async signTransaction(@Body() body: any): Promise<SignedTx | Error> {
+        return new Promise<SignedTx | Error>(async (resolve, reject) => {
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
                 if (!await createWindow()) return reject()
             }
@@ -187,14 +188,20 @@ export class SecuredController extends Controller {
                 app.dock.show()
             }
 
-            windows.mainWindow.webContents.send('signTx', { payload: body })
-            //hold till signed
-            while (!shared.SIGNED_TX) {
-                console.log("waiting!")
-                await this.sleep(300)
-            }
-            resolve({ success: true, status: 'signed', signedTx: shared.SIGNED_TX })
-            shared.SIGNED_TX = null
+            const internalNonce = uniqueId()
+            windows.mainWindow.webContents.send('@account/sign-tx', { payload: body, nonce: internalNonce })
+
+            ipcMain.once(`@account/tx-signed-${internalNonce}`, async (event, data) => {
+                if (data.nonce === internalNonce) {
+                    resolve({ success: true, status: 'signed', signedTx: data.signedTx })
+                }
+            })
+
+            ipcMain.once(`@account/tx-rejected-${internalNonce}`, async (event, data) => {
+                if (data.nonce === internalNonce) {
+                    resolve({ success: false, reason: 'User rejected TX' })
+                }
+            })
         })
     }
 }

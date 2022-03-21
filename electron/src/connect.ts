@@ -16,7 +16,7 @@ import wait from 'wait-promise'
 import { createWindow, windows } from './main';
 import axios from "axios";
 const sleep = wait.sleep;
-export let walletConnectClient: any
+export let walletConnectClient: WalletConnect
 const keccak256 = require('keccak256')
 
 export function getCachedSession(): any {
@@ -248,6 +248,7 @@ export async function pairWalletConnect(event: any, payload: any) {
 
             if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
             log.info(tag, "HDwalletPayload: ", HDwalletPayload)
+            const internalNonce = uniqueId()
             let args = {
                 payload: {
                     data: {
@@ -274,58 +275,82 @@ export async function pairWalletConnect(event: any, payload: any) {
                             }
                         }
                     }
-                }
+                },
+                nonce: internalNonce
             }
             log.info(tag, "args: ", args)
             log.info(tag, "args: ", JSON.stringify(args))
-            windows.mainWindow.webContents.send('signTx', args);
+            windows.mainWindow.webContents.send('@account/sign-tx', args);
 
-            //hold till signed
-            while (!shared.SIGNED_TX) {
-                console.log("waiting!")
-                await sleep(300)
-            }
+            ipcMain.once(`@account/tx-signed-${internalNonce}`, async (event, data) => {
+                const tag = ' | onSignedTx | '
+                if (data.nonce === internalNonce) {
+                    try {
+                        log.info(tag, 'event: onSignedTx: ', data)
+                        console.log("onSignedTx: ", data)
 
-            let response = shared.SIGNED_TX
-            log.info(tag, "response: ", response)
+                        let response = data.signedTx
+                        log.info(tag, "response: ", response)
 
-            //broadcast
-            let body = {
-                hex: response.serialized
-            }
+                        //broadcast
+                        let body = {
+                            hex: response.serialized
+                        }
 
-            //get txid always (even if failed to broadcast)
-            let txid = keccak256(response.serialized).toString('hex')
-            txid = "0x" + txid
-            log.info(tag, "txid: ", txid)
+                        //get txid always (even if failed to broadcast)
+                        let txid = keccak256(response.serialized).toString('hex')
+                        txid = "0x" + txid
+                        log.info(tag, "txid: ", txid)
 
-            //respond
-            let successRespond = await walletConnectClient.approveRequest({
-                id: payload.id,
-                result: txid,
-            })
-            log.info(tag, "successRespond: ", successRespond)
+                        //respond
+                        let successRespond = await walletConnectClient.approveRequest({
+                            id: payload.id,
+                            result: txid,
+                        })
 
-            log.info(tag, "body: ", body)
-            let result
-            try {
-                result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send", body)
-                result = result.data
-                log.info(tag, "result: ", result)
-            } catch (e) {
-                log.error("e: ", e)
-                log.info(tag, "error: ", e)
-                // @ts-ignore
-                log.info(tag, "error: ", e.body)
-                // @ts-ignore
-                if (e.body.error === 'nonce too low') {
-                    //re-submit with nonce +1
+
+
+                        log.info(tag, "successRespond: ", successRespond)
+
+                        log.info(tag, "body: ", body)
+                        let result
+                        try {
+                            result = await axios.post("https://dev-api.ethereum.shapeshift.com/api/v1/send", body)
+                            result = result.data
+                            log.info(tag, "result: ", result)
+                        } catch (e) {
+                            log.error("e: ", e)
+                            log.info(tag, "error: ", e)
+                            // @ts-ignore
+                            log.info(tag, "error: ", e.body)
+                            // @ts-ignore
+                            if (e.body.error === 'nonce too low') {
+                                //re-submit with nonce +1
+                            }
+
+                            //TODO show error to user!
+
+                        }
+
+                    } catch (e) {
+                        log.error('e: ', e)
+                        log.error(tag, e)
+                    }
                 }
+            })
 
-                //TODO show error to user!
-
-            }
-
+            ipcMain.once(`@account/tx-rejected-${internalNonce}`, async (event, data) => {
+                if (data.nonce === internalNonce) {
+                    const tag = ' | onRejectTx | '
+                    try {
+                        log.info(tag)
+                        return walletConnectClient.rejectRequest({ id: payload.id, error: { code: 32603, message: 'User rejected tx' } })
+                    } catch (e) {
+                        log.error('e: ', e)
+                        log.error(tag, e)
+                    }
+                }
+            })
         });
 
         walletConnectClient.on("connect", (error, payload) => {

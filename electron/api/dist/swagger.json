@@ -673,18 +673,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Read": {
-				"properties": {
-					"data": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"data"
-				],
-				"type": "object",
-				"additionalProperties": false
-			},
 			"Error": {
 				"properties": {
 					"success": {
@@ -697,6 +685,18 @@
 				"required": [
 					"success",
 					"reason"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Read": {
+				"properties": {
+					"data": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"data"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -792,7 +792,7 @@
 	},
 	"info": {
 		"title": "keepkey-desktop",
-		"version": "0.1.34",
+		"version": "0.1.43",
 		"contact": {
 			"name": "Highlander ",
 			"email": "bithighlander@gmail.com"
@@ -815,7 +815,7 @@
 						}
 					},
 					"401": {
-						"description": "Please provice a valid serviceKey"
+						"description": "Please provide a valid serviceKey"
 					}
 				},
 				"tags": [
@@ -844,7 +844,7 @@
 						}
 					},
 					"401": {
-						"description": "Please provice a valid serviceKey"
+						"description": "Please provide a valid serviceKey"
 					}
 				},
 				"tags": [
@@ -1339,7 +1339,14 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SignedTx"
+									"anyOf": [
+										{
+											"$ref": "#/components/schemas/SignedTx"
+										},
+										{
+											"$ref": "#/components/schemas/Error"
+										}
+									]
 								}
 							}
 						}

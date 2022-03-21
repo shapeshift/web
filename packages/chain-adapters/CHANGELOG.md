@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.6.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.6.1...@shapeshiftoss/chain-adapters-v2.6.2) (2022-03-21)
+
+
+### Bug Fixes
+
+* **cosmos:** actually validateAddress ([#456](https://github.com/shapeshift/lib/issues/456)) ([59bb636](https://github.com/shapeshift/lib/commit/59bb6360724ea328a23748eb0f2c57021d72b2cd))
+
 # [@shapeshiftoss/chain-adapters-v2.6.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.6.0...@shapeshiftoss/chain-adapters-v2.6.1) (2022-03-21)
 
 # [@shapeshiftoss/chain-adapters-v2.6.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.5.0...@shapeshiftoss/chain-adapters-v2.6.0) (2022-03-21)

@@ -5,6 +5,8 @@ import {
   mockCGFindByCaip19Data,
   mockCGPriceHistoryData
 } from './coingecko/coingeckoMockData'
+import { FOXY_CAIP19 } from './foxy/foxy'
+import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
 import { findAll, findByCaip19, findPriceHistoryByCaip19 } from './index'
 import { MarketProviders } from './market-providers'
 import {
@@ -68,6 +70,16 @@ jest.mock('./osmosis/osmosis', () => ({
   })
 }))
 
+jest.mock('./foxy/foxy', () => ({
+  FoxyMarketService: jest.fn().mockImplementation(() => {
+    return {
+      findAll: jest.fn(() => ({ [FOXY_CAIP19]: mockFoxyMarketData })),
+      findByCaip19: jest.fn(() => mockFoxyMarketData),
+      findPriceHistoryByCaip19: jest.fn(() => mockFoxyPriceHistoryData)
+    }
+  })
+}))
+
 jest.mock('@yfi/sdk')
 
 describe('market service', () => {
@@ -94,6 +106,8 @@ describe('market service', () => {
       MarketProviders[3].findAll.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
       MarketProviders[4].findAll.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[5].findAll.mockRejectedValueOnce({ error: 'error' })
       await expect(findAll()).rejects.toEqual(
         new Error('Cannot find market service provider for market data.')
       )
@@ -135,6 +149,8 @@ describe('market service', () => {
       MarketProviders[3].findByCaip19.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
       MarketProviders[4].findByCaip19.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[5].findByCaip19.mockRejectedValueOnce({ error: 'error' })
       const result = await findByCaip19(args)
       expect(result).toBeNull()
     })
@@ -168,6 +184,8 @@ describe('market service', () => {
       MarketProviders[3].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
       // @ts-ignore
       MarketProviders[4].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
+      // @ts-ignore
+      MarketProviders[5].findPriceHistoryByCaip19.mockRejectedValueOnce({ error: 'error' })
       const result = await findPriceHistoryByCaip19(args)
       expect(result).toEqual([])
     })

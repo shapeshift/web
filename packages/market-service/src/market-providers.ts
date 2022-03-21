@@ -3,6 +3,7 @@ import { Yearn } from '@yfi/sdk'
 
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
+import { FoxyMarketService } from './foxy/foxy'
 import { OsmosisMarketService } from './osmosis/osmosis'
 import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
@@ -18,5 +19,6 @@ export const MarketProviders = [
   new CoinCapMarketService(),
   new YearnVaultMarketCapService({ yearnSdk }),
   new YearnTokenMarketCapService({ yearnSdk }),
-  new OsmosisMarketService()
+  new OsmosisMarketService(),
+  new FoxyMarketService()
 ]

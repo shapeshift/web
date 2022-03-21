@@ -94,15 +94,6 @@ export const Form = ({ asset: initialAsset, accountId }: SendFormProps) => {
     if (event.key === 'Enter') event.preventDefault()
   }
 
-  useEffect(() => {
-    if (!accountId && initialAsset) {
-      history.push(SendRoutes.Select, {
-        toRoute: SelectAssetRoutes.Account,
-        assetId: initialAsset.caip19
-      })
-    }
-  }, [accountId, initialAsset, history])
-
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}

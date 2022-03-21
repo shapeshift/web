@@ -3,10 +3,10 @@ import dayjs from 'dayjs'
 import { Fragment, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
+import { MatchParams } from 'pages/Assets/Asset'
 import { selectAssetByCAIP19, selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
-import { MatchParams } from 'pages/Assets/Asset'
 
 type TransactionsGroupByDateProps = {
   txIds: TxId[]
@@ -41,8 +41,9 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
           acc.push({ date: transactionDate, txIds: [transaction.txId] })
         }
         return acc
-      }, 
-    [])
+      },
+      []
+    )
 
     return groups.map((group: TransactionGroup) => (
       <Fragment key={group.date}>

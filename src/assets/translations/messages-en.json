@@ -541,11 +541,15 @@
         "descriptions": {
           "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
           "pinButtonPrompt": "Press and hold the button on your KeepKey to change your PIN.",
+          "labelButtonPrompt": "Press and hold the button on your KeepKey to change your PIN.",
           "pinUpdateSuccess": "PIN successfully updated!",
-          "pinUpdateFailed": "An error occurred whilst updating the PIN."
+          "pinUpdateFailed": "An error occurred whilst updating the PIN.",
+          "labelUpdateSuccess": "Label successfully updated!",
+          "labelUpdateFailed": "An error occurred whilst updating the label."
         },
         "actions": {
-          "updatePin": "Update PIN"
+          "updatePin": "Update PIN",
+          "updateLabel": "Update label"
         }
       }
     },

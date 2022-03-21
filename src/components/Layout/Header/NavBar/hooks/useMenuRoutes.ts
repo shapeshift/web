@@ -4,7 +4,8 @@ import { useHistory } from 'react-router-dom'
 export enum WalletConnectedRoutes {
   Connected = '/connected',
   KeepKey = '/connected/keepkey',
-  KeepKeyPin = '/connected/keepkey/pin'
+  KeepKeyPin = '/connected/keepkey/pin',
+  KeepKeyLabel = '/connected/keepkey/label'
 }
 
 export const useMenuRoutes = () => {
@@ -19,5 +20,10 @@ export const useMenuRoutes = () => {
     [history]
   )
 
-  return { handleKeepKeyClick, handleBackClick, handleChangePinClick }
+  const handleChangeLabelClick = useCallback(
+    () => history.push(WalletConnectedRoutes.KeepKeyLabel),
+    [history]
+  )
+
+  return { handleKeepKeyClick, handleBackClick, handleChangePinClick, handleChangeLabelClick }
 }

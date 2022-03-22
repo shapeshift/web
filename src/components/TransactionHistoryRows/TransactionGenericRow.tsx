@@ -53,7 +53,7 @@ type TransactionGenericRowProps = {
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
-  firstAssetOutgoing?: boolean
+  isFirstAssetOutgoing?: boolean
 }
 
 const Guide = ({ title }: { title: string }) => (
@@ -71,7 +71,7 @@ export const TransactionGenericRow = ({
   explorerTxLink,
   compactMode = false,
   toggleOpen,
-  firstAssetOutgoing = false
+  isFirstAssetOutgoing = false
 }: TransactionGenericRowProps) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
@@ -121,7 +121,7 @@ export const TransactionGenericRow = ({
                     <Amount.Crypto
                       color='inherit'
                       fontWeight='bold'
-                      prefix={index === 0 && firstAssetOutgoing ? '-' : ''}
+                      prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
                       value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
                       symbol={asset.symbol}
                       maximumFractionDigits={6}
@@ -131,7 +131,7 @@ export const TransactionGenericRow = ({
                         color='gray.500'
                         fontSize='sm'
                         lineHeight='1'
-                        prefix={index === 0 && firstAssetOutgoing ? '-' : ''}
+                        prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
                         value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
                           .times(asset.currentPrice)
                           .toString()}

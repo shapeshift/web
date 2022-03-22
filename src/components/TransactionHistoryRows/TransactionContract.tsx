@@ -27,7 +27,7 @@ export const TransactionContract = ({
   const interactsWithWithdrawMethod = txDetails.tx.data?.method === ContractMethod.Withdraw
   const isSend = txDetails.tradeTx?.type === TxType.Send
   const i18n = isReceive ? txDetails.tradeTx?.type : txDetails.tx.data?.method
-  const firstAssetOutgoing = interactsWithWithdrawMethod && isSend
+  const isFirstAssetOutgoing = interactsWithWithdrawMethod && isSend
 
   return (
     <>
@@ -47,7 +47,7 @@ export const TransactionContract = ({
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
-        firstAssetOutgoing={firstAssetOutgoing}
+        isFirstAssetOutgoing={isFirstAssetOutgoing}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <TransactionId

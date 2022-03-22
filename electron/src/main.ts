@@ -397,6 +397,7 @@ ipcMain.on('@app/sentry-dsn', (event, data) => {
 })
 
 ipcMain.on('@app/update', async (event, data) => {
+    if (isDev) return event.sender.send('@app/update', { updateInfo: { version: app.getVersion() } })
     const update = await autoUpdater.checkForUpdates()
     event.sender.send('@app/update', update)
 })

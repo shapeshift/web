@@ -42,9 +42,9 @@ export class Settings {
                 return this.syncSettingsWithDB()
             }
 
-            if (!doc.settings.shouldAutoLunch || !doc.settings.shouldAutoStartBridge ||
-                !doc.settings.shouldMinimizeToTray || !doc.settings.shouldAutoUpdate ||
-                !doc.settings.bridgeApiPort) await this.syncSettingsWithDB()
+            if (doc.settings.shouldAutoLunch === undefined || doc.settings.shouldAutoStartBridge === undefined ||
+                doc.settings.shouldMinimizeToTray === undefined || doc.settings.shouldAutoUpdate === undefined ||
+                doc.settings.bridgeApiPort === undefined) await this.syncSettingsWithDB()
 
             this.shouldAutoLunch = doc.settings.shouldAutoLunch
             this.shouldAutoStartBridge = doc.settings.shouldAutoStartBridge

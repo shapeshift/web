@@ -51,42 +51,25 @@ export const AppSettingsModal = () => {
     bridgeApiPort: 1646
   })
 
+  const [currentAppVer, setCurrentAppVer] = useState<Array<string>>([])
   const [updateState, setUpdateState] = useState(UpdateState.UNCHECKED)
   const [updateData, setUpdateData] = useState<UpdateInfo>()
 
-  useEffect(() => {
-    ipcRenderer.send('@app/settings')
-    ipcRenderer.on('@app/settings', (event, data) => {
-      setSettings(data)
-    })
+  const compareVersions = useCallback(
+    (update: UpdateInfo) => {
+      const updateVer = update.version.split('.')
 
-    ipcRenderer.on('@app/update', (event, data: UpdateCheckResult) => {
-      setUpdateData(data.updateInfo)
-      compareVersions(data.versionInfo, data.updateInfo)
-    })
+      console.info(currentAppVer, updateVer)
 
-    ipcRenderer.on('@app/download-updates', (event, data: UpdateCheckResult | null) => {
-      if (!data) return setUpdateState(UpdateState.LATEST)
-      setUpdateState(UpdateState.DOWNLOADED)
-    })
-
-    return () => setUpdateState(UpdateState.UNCHECKED)
-  }, [])
-
-  useEffect(() => {
-    console.info('updateState', updateState)
-    console.info('updateData', updateData)
-  }, [updateData, updateState])
-
-  const compareVersions = (current: UpdateInfo, update: UpdateInfo) => {
-    const currentVer = current.version.split('.')
-    const updateVer = update.version.split('.')
-
-    if (Number(updateVer[0]) > Number(currentVer[0])) setUpdateState(UpdateState.AVAILABLE)
-    else if (Number(updateVer[1]) > Number(currentVer[1])) setUpdateState(UpdateState.AVAILABLE)
-    else if (Number(updateVer[2]) > Number(currentVer[2])) setUpdateState(UpdateState.AVAILABLE)
-    else setUpdateState(UpdateState.LATEST)
-  }
+      if (Number(updateVer[0]) > Number(currentAppVer[0])) setUpdateState(UpdateState.AVAILABLE)
+      else if (Number(updateVer[1]) > Number(currentAppVer[1]))
+        setUpdateState(UpdateState.AVAILABLE)
+      else if (Number(updateVer[2]) > Number(currentAppVer[2]))
+        setUpdateState(UpdateState.AVAILABLE)
+      else setUpdateState(UpdateState.LATEST)
+    },
+    [currentAppVer]
+  )
 
   const saveSettings = useCallback(() => {
     ipcRenderer.send('@app/update-settings', settings)
@@ -106,6 +89,36 @@ export const AppSettingsModal = () => {
   const installUpdates = () => {
     ipcRenderer.send('@app/install-updates')
   }
+
+  useEffect(() => {
+    ipcRenderer.send('@app/settings')
+    ipcRenderer.on('@app/settings', (event, data) => {
+      setSettings(data)
+    })
+
+    ipcRenderer.send('@app/version')
+    ipcRenderer.on('@app/version', (event, version) => {
+      setCurrentAppVer(version.split('.'))
+    })
+
+    ipcRenderer.on('@app/download-updates', (event, data) => {
+      setUpdateState(UpdateState.DOWNLOADED)
+    })
+
+    return () => setUpdateState(UpdateState.UNCHECKED)
+  }, [])
+
+  useEffect(() => {
+    ipcRenderer.on('@app/update', (event, data: UpdateCheckResult) => {
+      setUpdateData(data.updateInfo)
+      compareVersions(data.updateInfo)
+    })
+  }, [compareVersions])
+
+  useEffect(() => {
+    console.info('updateState', updateState)
+    console.info('updateData', updateData)
+  }, [updateData, updateState])
 
   if (!settings) return <Spinner />
 

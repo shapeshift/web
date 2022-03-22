@@ -35,7 +35,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { SendFormFields as CosmosSendFormFields, SendInput } from '../Form'
 
-const MAX_MEMO_LENGTH = 256
+const MAX_MEMO_LENGTH = 14
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
@@ -47,6 +47,7 @@ export const Details = () => {
   })
 
   const [remainingMemoChars, setRemainingMemoChars] = useState(14)
+  const memoFieldError = remainingMemoChars < 0 && 'Characters Limit Exceeded'
 
   const { send } = useModal()
   const {
@@ -200,8 +201,7 @@ export const Details = () => {
               mb={2}
               as='button'
               type='button'
-              color='gray.500'
-              _hover={{ color: 'gray.400', transition: '.2s color ease' }}
+              color={memoFieldError ? 'red.500' : 'gray.500'}
             >
               {translate('modals.send.sendForm.charactersRemaining', {
                 charactersRemaining: remainingMemoChars
@@ -217,7 +217,7 @@ export const Details = () => {
                   onChange(value)
                   setRemainingMemoChars(MAX_MEMO_LENGTH - value.length)
                 }}
-                value={value.substring(0, 14)}
+                value={value}
                 type='text'
                 variant='filled'
                 placeholder='Optional ATOM Memo'
@@ -230,14 +230,19 @@ export const Details = () => {
         <Stack flex={1}>
           <Button
             isFullWidth
-            isDisabled={!(cryptoAmount ?? fiatAmount) || !!amountFieldError || loading}
-            colorScheme={amountFieldError ? 'red' : 'blue'}
+            isDisabled={
+              !(cryptoAmount ?? fiatAmount) ||
+              !!amountFieldError ||
+              loading ||
+              Boolean(memoFieldError)
+            }
+            colorScheme={amountFieldError || memoFieldError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
             isLoading={loading}
             data-test='send-modal-next-button'
           >
-            <Text translation={amountFieldError || 'common.next'} />
+            <Text translation={amountFieldError || memoFieldError || 'common.next'} />
           </Button>
           <Button isFullWidth variant='ghost' size='lg' mr={3} onClick={() => send.close()}>
             <Text translation='common.cancel' />

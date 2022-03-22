@@ -24,7 +24,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendRoutes } from '../Send'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
@@ -43,9 +42,11 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
-    control
-  })
+  // TODO(gomes): it's immpossible to destructure both memo and ensName - duplicate this module so that they each have their own fields
+  const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType, memo } =
+    useWatch({
+      control
+    })
   const { fees } = useSendFees()
 
   const amountWithFees = useMemo(() => {

@@ -20,7 +20,11 @@ export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => 
           {title}
         </Center>
       </Flex>
-      {description && <Text color='whiteAlpha.600'>{description}</Text>}
+      {description && (
+        <Text fontSize='sm' color='whiteAlpha.600'>
+          {description}
+        </Text>
+      )}
     </Flex>
   )
 }

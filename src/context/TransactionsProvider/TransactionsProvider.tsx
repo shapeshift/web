@@ -30,28 +30,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
-  const accountSpecifiers = useAccountSpecifiers()
-
-  useEffect(() => {
-    if (isEmpty(accountSpecifiers)) return
-    accountSpecifiers.forEach(accountSpecifierMap => {
-      dispatch(
-        txHistoryApi.endpoints.getAllTxHistory.initiate(
-          { accountSpecifierMap },
-          { forceRefetch: true }
-        )
-      )
-    })
-  }, [dispatch, accountSpecifiers])
+  const { accountSpecifiers, getAccountSpecifiersByChainId } = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
+    const supportedChains = chainAdapter.getSupportedChains()
     ;(async () => {
-      const supportedAdapters = chainAdapter.getSupportedAdapters()
-      for (const getAdapter of supportedAdapters) {
-        const adapter = getAdapter()
-        const chain = adapter.getType()
+      for (const chain of supportedChains) {
+        const adapter = chainAdapter.byChain(chain)
         const chainId = adapter.getCaip2()
         if (!walletSupportChain({ chainId, wallet })) continue
 
@@ -90,20 +77,40 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             )
           }
         }
+        // RESTfully fetch all tx history for this chain.
+        const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
+        if (isEmpty(chainAccountSpecifiers)) continue
+        chainAccountSpecifiers.forEach(accountSpecifierMap => {
+          dispatch(
+            txHistoryApi.endpoints.getAllTxHistory.initiate(
+              { accountSpecifierMap },
+              { forceRefetch: true }
+            )
+          )
+        })
       }
     })()
 
     return () => {
       dispatch(txHistory.actions.clear())
-      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+      supportedChains.forEach(chain => {
         try {
-          getAdapter().unsubscribeTxs()
+          const adapter = chainAdapter.byChain(chain)
+          adapter.unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }
       })
     }
-  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter, accountSpecifiers])
+  }, [
+    assets,
+    dispatch,
+    walletInfo?.deviceId,
+    wallet,
+    chainAdapter,
+    accountSpecifiers,
+    getAccountSpecifiersByChainId
+  ])
 
   /**
    * TODO(0xdef1cafe)

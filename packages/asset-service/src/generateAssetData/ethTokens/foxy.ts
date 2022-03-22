@@ -22,7 +22,7 @@ export const getFoxyToken = (): TokenAsset[] => {
     contractType: assetNamespace,
     color: '#CE3885',
     secondaryColor: '#CE3885',
-    icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/icons/foxy-icon.png',
+    icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethTokens/icons/foxy-icon.png',
     sendSupport: true,
     receiveSupport: true,
     symbol: 'FOXy'

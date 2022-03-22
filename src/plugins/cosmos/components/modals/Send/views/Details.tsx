@@ -32,10 +32,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendFormFields as CosmosSendFormFields, SendInput } from '../Form'
 
-const MAX_MEMO_LENGTH = 257
+const MAX_MEMO_LENGTH = 256
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
@@ -47,8 +48,8 @@ export const Details = () => {
       control
     })
 
-  const remainingMemoChars = useMemo(() => MAX_MEMO_LENGTH - Number(memo?.length), [memo])
-  const memoFieldError = remainingMemoChars < 0 && 'Characters Limit Exceeded'
+  const remainingMemoChars = useMemo(() => bnOrZero(MAX_MEMO_LENGTH - Number(memo?.length)), [memo])
+  const memoFieldError = remainingMemoChars.lt(0) && 'Characters Limit Exceeded'
 
   const { send } = useModal()
   const {
@@ -205,7 +206,7 @@ export const Details = () => {
               color={memoFieldError ? 'red.500' : 'gray.500'}
             >
               {translate('modals.send.sendForm.charactersRemaining', {
-                charactersRemaining: remainingMemoChars
+                charactersRemaining: remainingMemoChars.toString()
               })}
             </FormHelperText>
           </Box>

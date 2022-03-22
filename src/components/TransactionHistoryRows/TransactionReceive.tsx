@@ -24,7 +24,11 @@ export const TransactionReceive = ({
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
         assets={[parseRelevantAssetFromTx(txDetails, AssetTypes.Destination)]}
-        fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
+        fee={
+          txDetails.tx?.fee &&
+          txDetails.feeAsset &&
+          parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)
+        }
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
@@ -50,11 +54,13 @@ export const TransactionReceive = ({
           />
         </Row>
         <Row title='minerFee'>
-          <Amount
-            value={txDetails.tx.fee?.value ?? '0'}
-            precision={txDetails.feeAsset?.precision ?? 0}
-            symbol={txDetails.feeAsset?.symbol ?? ''}
-          />
+          {txDetails.tx?.fee && txDetails.feeAsset && (
+            <Amount
+              value={txDetails.tx.fee?.value}
+              precision={txDetails.feeAsset?.precision ?? 0}
+              symbol={txDetails.feeAsset?.symbol ?? ''}
+            />
+          )}
         </Row>
         <Row title='status'>
           <Status status={txDetails.tx.status} />

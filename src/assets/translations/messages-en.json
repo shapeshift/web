@@ -239,7 +239,8 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
+    "foxToken": "FOX Token",
+    "featureFlags": "Feature Flags"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",

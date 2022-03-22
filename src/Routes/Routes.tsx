@@ -158,7 +158,7 @@ export const routes: Array<NestedRoute> = [
   },
   {
     path: '/flags',
-    label: 'Feature Flags',
+    label: 'navBar.featureFlags',
     icon: <FaFlag />,
     hide: getConfig().isDev ? true : false,
     main: Flags

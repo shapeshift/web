@@ -63,7 +63,6 @@ describe('useSwapper', () => {
   beforeEach(() => {
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: jest.fn(),
-      getSupportedAdapters: jest.fn(),
       addChain: jest.fn(),
       getSupportedChains: jest.fn()
     }))

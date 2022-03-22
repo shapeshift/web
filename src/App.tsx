@@ -35,9 +35,7 @@ export const App = () => {
         let routes: Route[] = []
 
         // keep track of what's currently registered
-        const currentChainAdapters = chainAdapterManager
-          .getSupportedAdapters()
-          .map(adapter => adapter().getType())
+        const currentChainAdapters = chainAdapterManager.getSupportedChains()
 
         // newly registered will be default + what comes from plugins
         const newChainAdapters: ChainTypes[] = Object.keys(defaultUnchainedUrls) as ChainTypes[]

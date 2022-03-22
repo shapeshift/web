@@ -32,7 +32,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   const [loading, setLoading] = useState(false)
   const chainAdapter = useChainAdapters()
   // Needed to trigger if we add new chain adapters from a plugin
-  const numSupportedChainAdapters = chainAdapter.getSupportedAdapters().length
+  const numSupportedChains = chainAdapter.getSupportedChains().length
   const {
     state: { wallet, walletInfo }
   } = useWallet()
@@ -46,12 +46,11 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     if (!wallet) return
     try {
       setLoading(true)
-      const supportedAdapters = chainAdapter.getSupportedAdapters()
+      const supportedChains = chainAdapter.getSupportedChains()
       const acc: AccountSpecifierMap[] = []
 
-      for (const getAdapter of supportedAdapters) {
-        const adapter = getAdapter()
-        const chain = adapter.getType()
+      for (const chain of supportedChains) {
+        const adapter = chainAdapter.byChain(chain)
 
         switch (chain) {
           // TODO: Handle Cosmos ChainType here
@@ -150,7 +149,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     )
     // getAccountSpecifiers and loading causes furious renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceId, assetIds, numSupportedChainAdapters, wallet])
+  }, [deviceId, assetIds, numSupportedChains, wallet])
 
   return { accountSpecifiers, getAccountSpecifiersByChainId }
 }

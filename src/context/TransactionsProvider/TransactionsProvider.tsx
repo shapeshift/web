@@ -35,11 +35,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   useEffect(() => {
     if (!wallet) return
     if (isEmpty(assets)) return
+    const supportedChains = chainAdapter.getSupportedChains()
     ;(async () => {
-      const supportedAdapters = chainAdapter.getSupportedAdapters()
-      for (const getAdapter of supportedAdapters) {
-        const adapter = getAdapter()
-        const chain = adapter.getType()
+      for (const chain of supportedChains) {
+        const adapter = chainAdapter.byChain(chain)
         const chainId = adapter.getCaip2()
         if (!walletSupportChain({ chainId, wallet })) continue
 
@@ -94,9 +93,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
 
     return () => {
       dispatch(txHistory.actions.clear())
-      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+      supportedChains.forEach(chain => {
         try {
-          getAdapter().unsubscribeTxs()
+          const adapter = chainAdapter.byChain(chain)
+          adapter.unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }

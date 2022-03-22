@@ -92,6 +92,7 @@ export type WithdrawInfo = {
   amount: string
   gons: string
   expiry: string
+  releaseTime: string
 }
 
 export type SignAndBroadcastPayload = {

@@ -16,7 +16,7 @@ export type Address = {
 }
 
 export type GetAddressInput = GetAddressInputBase & {
-  accountType: UtxoAccountType
+  accountType?: UtxoAccountType
 }
 
 export type TransactionSpecific = {

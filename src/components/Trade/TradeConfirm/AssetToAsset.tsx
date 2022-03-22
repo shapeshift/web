@@ -55,8 +55,8 @@ export const AssetToAsset = ({
   }
 
   return (
-    <Flex width='full' justifyContent='space-between' {...rest}>
-      <Box flex={1}>
+    <Flex width='full' justifyContent='space-between' alignItems='stretch' {...rest}>
+      <Box flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center'>
           <AssetIcon src={sellAsset.currency.icon} boxSize={boxSize} />
           <Divider flex={1} bgColor={sellAssetColor} />
@@ -84,12 +84,18 @@ export const AssetToAsset = ({
           {renderIcon()}
         </Circle>
       </Flex>
-      <Flex flexDir='column' flex={1}>
+      <Flex flexDirection='column' flex={1} maxWidth={`calc(50% - ${boxSize} / 2)`}>
         <Flex alignItems='center' flex={1} justify='flex-start'>
           <Divider flex={1} bgColor={buyAssetColor} />
           <AssetIcon src={buyAsset.currency.icon} boxSize={boxSize} />
         </Flex>
-        <Box textAlign='right' mt={2}>
+        <Flex
+          flexDirection='column'
+          justifyContent='space-between'
+          textAlign='right'
+          height='100%'
+          mt={2}
+        >
           <Text fontWeight='medium'>
             {toCrypto(Number(buyAsset.amount), buyAsset.currency.symbol)}
           </Text>
@@ -100,7 +106,7 @@ export const AssetToAsset = ({
                 .toNumber()
             )}
           </Text>
-        </Box>
+        </Flex>
       </Flex>
     </Flex>
   )

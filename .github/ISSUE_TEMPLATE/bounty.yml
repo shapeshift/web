@@ -55,6 +55,14 @@ body:
           required: true
         - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
           required: true
+  - type: input
+    id: stakeholder
+    attributes:
+      label: Sponsor / stakeholder
+      description: "Who can the bounty huter go to for questions and support?"
+      placeholder: "@github_handle"
+    validations:
+      required: true
   - type: textarea
     id: bounty-hunters
     attributes:

@@ -109,7 +109,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
     })()
   }, [wallet, foxyLoading, foxy, balances, balancesLoading])
 
-  const makeVaultFiatAmount = useCallback(
+  const makeFiatAmount = useCallback(
     (opportunity: FoxyOpportunity) => {
       const asset = assets[opportunity.tokenCaip19]
       const pricePerShare = bnOrZero(opportunity.pricePerShare).div(`1e+${asset?.precision}`)
@@ -125,16 +125,16 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
   const totalBalance = useMemo(
     () =>
       Object.values(opportunities).reduce((acc: BigNumber, opportunity: FoxyOpportunity) => {
-        const amount = makeVaultFiatAmount(opportunity)
+        const amount = makeFiatAmount(opportunity)
         return acc.plus(bnOrZero(amount))
       }, bnOrZero(0)),
-    [makeVaultFiatAmount, opportunities]
+    [makeFiatAmount, opportunities]
   )
 
   const mergedOpportunities = useMemo(() => {
     return Object.values(opportunities).map(opportunity => {
       const asset = assets[opportunity.tokenCaip19]
-      const fiatAmount = makeVaultFiatAmount(opportunity)
+      const fiatAmount = makeFiatAmount(opportunity)
       const marketPrice = marketData[opportunity.tokenCaip19]?.price
       const tvl = bnOrZero(opportunity.tvl).div(`1e+${asset?.precision}`).times(marketPrice)
       const data = {
@@ -145,7 +145,7 @@ export function useFoxyBalances(): UseFoxyBalancesReturn {
       }
       return data
     })
-  }, [assets, makeVaultFiatAmount, marketData, opportunities])
+  }, [assets, makeFiatAmount, marketData, opportunities])
 
   return {
     opportunities: mergedOpportunities,

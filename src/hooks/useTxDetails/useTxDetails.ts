@@ -8,7 +8,7 @@ import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
-export enum ContractMethods {
+export enum ContractMethod {
   Deposit = 'deposit',
   Approve = 'approve',
   Withdraw = 'withdraw',
@@ -56,7 +56,7 @@ export const getTransferByAsset = (tx: Tx, asset: Asset) =>
   tx.transfers.find(t => t.caip19 === asset.caip19)
 
 export const isSupportedContract = (tx: Tx) =>
-  Object.values(ContractMethods).includes(tx.data?.method as ContractMethods)
+  Object.values(ContractMethod).includes(tx.data?.method as ContractMethod)
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
@@ -69,14 +69,14 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
 
   const direction: Direction | undefined = (() => {
     switch (method) {
-      case ContractMethods.Deposit:
-      case ContractMethods.AddLiquidityEth:
-      case ContractMethods.TransferOut:
+      case ContractMethod.Deposit:
+      case ContractMethod.AddLiquidityEth:
+      case ContractMethod.TransferOut:
         return Direction.Outbound
-      case ContractMethods.Withdraw:
-      case ContractMethods.RemoveLiquidityEth:
+      case ContractMethod.Withdraw:
+      case ContractMethod.RemoveLiquidityEth:
         return Direction.Inbound
-      case ContractMethods.Approve:
+      case ContractMethod.Approve:
         return Direction.InPlace
       default:
         return undefined

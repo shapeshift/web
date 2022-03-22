@@ -53,7 +53,7 @@ type TransactionGenericRowProps = {
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
-  negated?: boolean[]
+  sendInteractsWithWithdrawMethod?: boolean[]
 }
 
 const Guide = ({ title }: { title: string }) => (
@@ -71,7 +71,7 @@ export const TransactionGenericRow = ({
   explorerTxLink,
   compactMode = false,
   toggleOpen,
-  negated = [false, false]
+  sendInteractsWithWithdrawMethod = [false, false]
 }: TransactionGenericRowProps) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
@@ -121,7 +121,7 @@ export const TransactionGenericRow = ({
                     <Amount.Crypto
                       color='inherit'
                       fontWeight='bold'
-                      prefix={negated[index] ? '-' : ''}
+                      prefix={sendInteractsWithWithdrawMethod[index] ? '-' : ''}
                       value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
                       symbol={asset.symbol}
                       maximumFractionDigits={6}
@@ -131,7 +131,7 @@ export const TransactionGenericRow = ({
                         color='gray.500'
                         fontSize='sm'
                         lineHeight='1'
-                        prefix={negated[index] ? '-' : ''}
+                        prefix={sendInteractsWithWithdrawMethod[index] ? '-' : ''}
                         value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
                           .times(asset.currentPrice)
                           .toString()}

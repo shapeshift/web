@@ -10,7 +10,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { TransactionStatus } from 'components/Transactions/TransactionStatus'
-import { ContractMethods, TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { ContractMethod, TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 
 export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => {
@@ -33,10 +33,10 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
   })()
 
   const isReceive = txDetails.tradeTx?.type === TxType.Receive
-  const isWithdraw = txDetails.tx.data?.method === ContractMethods.Withdraw
+  const interactsWithWithdrawMethod = txDetails.tx.data?.method === ContractMethod.Withdraw
   const isSend = txDetails.tradeTx?.type === TxType.Send
   const i18n = isReceive ? txDetails.tradeTx?.type : txDetails.tx.data?.method
-  const negated = isWithdraw && isSend
+  const sendInteractsWithWithdrawMethod = interactsWithWithdrawMethod && isSend
 
   return (
     <>
@@ -80,7 +80,7 @@ export const TransactionContract = ({ txDetails }: { txDetails: TxDetails }) => 
                   {...(txDetails.direction === 'inbound'
                     ? { color: 'green.500' }
                     : { color: 'inherit', prefix: '-' })}
-                  prefix={negated ? '-' : ''}
+                  prefix={sendInteractsWithWithdrawMethod ? '-' : ''}
                   value={fromBaseUnit(txDetails.value, txDetails.precision)}
                   symbol={txDetails.symbol}
                   maximumFractionDigits={6}

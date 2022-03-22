@@ -233,9 +233,10 @@ app.on('ready', async () => {
     }
 
     createSplashWindow()
-    settings.loadSettingsFromDb().then(async () => {
+    settings.loadSettingsFromDb().then(async (settings) => {
+        autoUpdater.autoDownload = settings.shouldAutoUpdate
         if (!windows.splash) return
-        if (isDev || isLinux) skipUpdateCheck(windows.splash)
+        if (isDev || isLinux || !settings.shouldAutoUpdate) skipUpdateCheck(windows.splash)
         if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
     })
 })
@@ -271,6 +272,7 @@ app.on('before-quit', async () => {
 })
 
 autoUpdater.on("update-available", (info) => {
+    if (skipUpdateCheckCompleted) return
     if (!windows.splash) return
     windows.splash.webContents.send("@update/download", info);
     // skip the update if it takes more than 1 minute
@@ -282,6 +284,7 @@ autoUpdater.on("update-available", (info) => {
 
 
 autoUpdater.on("download-progress", (progress) => {
+    if (skipUpdateCheckCompleted) return
     let prog = Math.floor(progress.percent);
     if (windows.splash) windows.splash.webContents.send("@update/percentage", prog);
     if (windows.splash) windows.splash.setProgressBar(prog / 100);
@@ -293,6 +296,7 @@ autoUpdater.on("download-progress", (progress) => {
 
 
 autoUpdater.on("update-downloaded", () => {
+    if (skipUpdateCheckCompleted) return
     if (windows.splash) windows.splash.webContents.send("@update/relaunch");
     // stop timeout that skips the update
     if (skipUpdateTimeout) {
@@ -305,12 +309,14 @@ autoUpdater.on("update-downloaded", () => {
 
 
 autoUpdater.on("update-not-available", () => {
+    if (skipUpdateCheckCompleted) return
     if (!windows.splash) return
     skipUpdateCheck(windows.splash);
 });
 
 
 autoUpdater.on("error", () => {
+    if (skipUpdateCheckCompleted) return
     if (!windows.splash) return
     skipUpdateCheck(windows.splash);
 });
@@ -388,6 +394,20 @@ ipcMain.on("@app/version", (event, _data) => {
 
 ipcMain.on('@app/sentry-dsn', (event, data) => {
     event.sender.send('@app/sentry-dsn', process.env.SENTRY_DSN)
+})
+
+ipcMain.on('@app/update', async (event, data) => {
+    const update = await autoUpdater.checkForUpdates()
+    event.sender.send('@app/update', update)
+})
+
+ipcMain.on('@app/download-updates', async (event, data) => {
+    await autoUpdater.downloadUpdate()
+    event.sender.send('@app/download-updates')
+})
+
+ipcMain.on('@app/install-updates', async (event, data) => {
+    autoUpdater.quitAndInstall()
 })
 
 const skipUpdateCheck = (splash: BrowserWindow) => {

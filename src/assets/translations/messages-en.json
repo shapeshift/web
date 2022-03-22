@@ -555,7 +555,16 @@
       "autoStartBridge": "Automatically start the bridge api on app start",
       "minimizeToTray": "Minimize to tray",
       "bridgeApiPort": "Bridge api port",
-      "saveSettings": "Save Settings"
+      "autoUpdate": "Automatically install updates",
+      "cta": {
+        "update": {
+          "check": "Check for updates",
+          "available": "Download version %{version}",
+          "latest": "You are already on the latest version!",
+          "downloaded": "Install updates (requires restart)"
+        },
+        "saveSettings": "Save Settings"
+      }
     }
   },
   "walletProvider": {

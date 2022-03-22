@@ -203,7 +203,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             //if bootloader needs update
             if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
                 log.info("Out of date bootloader!")
-                windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
+                // windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
                 //@ts-ignore
                 await set_out_of_date_bootloader(device?.wallet?.features)
             }

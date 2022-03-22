@@ -329,6 +329,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('openBootloaderUpdate', (event, data) => {
       bootloader.open({})
     })
+
+    ipcRenderer.on('closeBootloaderUpdate', (event, data) => {
+      bootloader.close()
+    })
+
     //HDwallet API
     //TODO moveme into own file
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {

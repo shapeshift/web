@@ -65,6 +65,9 @@ export const device_connected_webusb = async function (resultInit:any){
             IS_UPDATEING_FIRMWARE = false
 
             //close bootloader window
+            windows?.mainWindow?.webContents.send('closeBootloaderUpdate', { })
+
+            //close bootloader window
             windows?.mainWindow?.webContents.send('closeFirmwareUpdate', { })
 
         } else {
@@ -188,18 +191,20 @@ export const set_new_device = async function (resultInit:any){
 
 /*
     Out of date Bootloader
-
     Prompt user to update bootloader
  */
 
 export const set_out_of_date_bootloader = async function (resultInit:any){
     let tag = " | set_out_of_date_bootloader | "
     try{
-        //get current state
-        keepkey.STATUS = STATES[4]
-        keepkey.STATE = STATE_ENGINE[STATES[4]]
 
-        windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
+        if(!IS_UPDATEING_BOOTLOADER && !IS_UPDATEING_FIRMWARE && keepkey.STATE <= 2){
+            keepkey.STATUS = STATES[4]
+            keepkey.STATE = STATE_ENGINE[STATES[4]]
+            windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
+        } else {
+            log.info(tag,"Not opening bootloader update window")
+        }
     }catch(e){
         log.error(tag,"e: ",e)
     }
@@ -215,10 +220,15 @@ export const set_out_of_date_firmware = async function (resultInit:any){
     let tag = " | set_out_of_date_firmware | "
     try{
         //get current state
-        keepkey.STATUS = STATES[5]
-        keepkey.STATE = STATE_ENGINE[STATES[5]]
 
-        windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
+        if(keepkey.STATE <= 5){
+            windows?.mainWindow?.webContents.send('closeBootloaderUpdate', { })
+            keepkey.STATUS = STATES[5]
+            keepkey.STATE = STATE_ENGINE[STATES[5]]
+            windows?.mainWindow?.webContents.send('openFirmwareUpdate', { })
+        } else {
+            log.info(tag,"Not opening firmware update window")
+        }
     }catch(e){
         log.error(tag,"e: ",e)
     }

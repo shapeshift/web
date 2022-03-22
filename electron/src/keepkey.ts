@@ -19,16 +19,27 @@ import {
 
 import Hardware from "@keepkey/keepkey-hardware-hid"
 
+
+let update_firmware = async function(firmware:any){
+    let tag = " | update_firmware | "
+    try{
+        const updateResponse = await Hardware.loadFirmware(firmware)
+        log.info(tag, "updateResponse: ", updateResponse)
+    }catch(e){
+        throw e
+    }
+}
+
 ipcMain.on('@keepkey/update-firmware', async event => {
     const tag = TAG + ' | onUpdateFirmware | '
     try {
         enter_firmware_update()
         log.info(tag," checkpoint !!!!")
         let result = await Hardware.getLatestFirmwareData()
-        // log.info(tag,"result: ",result)
-        updateConfig({ attemptUpdateFirmware: true })
+        log.info(tag," result: ",result)
+
         let firmware = await Hardware.downloadFirmware(result.firmware.url)
-        log.info(tag,"firmware: ",firmware)
+        if(!firmware) throw Error("Failed to load firmware from url!")
 
         const updateResponse = await Hardware.loadFirmware(firmware)
         log.info(tag, "updateResponse: ", updateResponse)
@@ -80,7 +91,6 @@ export const update_keepkey_status = async function () {
         let allDevices = usb.getDeviceList()
         log.info(tag, "allDevices: ", allDevices)
 
-
         let deviceDetected = false
         let resultWebUsb = usb.findByIds(11044, 2)
         if (resultWebUsb) {
@@ -118,7 +128,7 @@ export const update_keepkey_status = async function () {
             log.info(tag,"resultInit: ",resultInit)
             log.info(tag,"resultInit.bootloaderVersion: ",resultInit.bootloaderVersion)
             log.info(tag,"resultInit.firmwareVersion: ",resultInit.firmwareVersion)
-
+            windows?.mainWindow?.webContents.send('closeHardwareError', { })
             shared.KEEPKEY_FEATURES = resultInit
             windows?.mainWindow?.webContents.send('loadKeepKeyInfo', { payload: resultInit })
 
@@ -137,6 +147,12 @@ export const update_keepkey_status = async function () {
                 await set_out_of_date_firmware(resultInit)
             }
 
+            if(resultInit.firmwareVersion === latestFirmware.firmware.version){
+                windows?.mainWindow?.webContents.send('closeFirmwareUpdate', { })
+            }
+            if(resultInit.bootloaderVersion === latestFirmware.bootloader.version){
+                windows?.mainWindow?.webContents.send('closeBootloaderUpdate', { })
+            }
             //if not latest bootloader, set need bootloader update
 
         }

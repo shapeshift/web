@@ -368,6 +368,7 @@
       "header": "Firmware Update Required for Your KeepKey!",
       "firmwareUpdate": "Updating your device's Firmware",
       "update": "check KeepKey Status",
+      "cta": "Please disconnect, hold down button, and reconnect device to enter bootloader mode to continue.",
       "continue": "approve and continue",
       "firmwareNeeded": "to continue you must updater your firmware!",
       "firmware": "Firmware version"

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.0...@shapeshiftoss/asset-service-v2.1.1) (2022-03-22)
+
+
+### Bug Fixes
+
+* icon url ([#470](https://github.com/shapeshift/lib/issues/470)) ([4de6c6b](https://github.com/shapeshift/lib/commit/4de6c6b3155660c732f1705fb4c4aa3a57a5726f))
+
 # [@shapeshiftoss/asset-service-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.0.4...@shapeshiftoss/asset-service-v2.1.0) (2022-03-21)
 
 

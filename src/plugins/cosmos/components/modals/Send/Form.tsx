@@ -14,7 +14,6 @@ import {
 import { SendRoutes } from 'components/Modals/Send/Send'
 import { Address } from 'components/Modals/Send/views/Address'
 import { Confirm } from 'components/Modals/Send/views/Confirm'
-import { Details } from 'components/Modals/Send/views/Details'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -22,6 +21,7 @@ import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
+import { Details } from './views/Details'
 
 export enum SendFormFields {
   Address = 'address',

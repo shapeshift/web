@@ -384,6 +384,9 @@
         "fees": "Fees %{feeType}"
       },
       "sendForm": {
+        "assetMemo": "%{assetSymbol} Memo",
+        "charactersRemaining": "%{charactersRemaining} characters remaining",
+        "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
         "sendAmount": "Send Amount",

@@ -1,6 +1,8 @@
 import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
 import { ToastId, useToast } from '@chakra-ui/toast'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { pluginManager, registerPlugins } from 'plugins'
 import { useEffect, useRef, useState } from 'react'
 import { FaSync } from 'react-icons/fa'
@@ -11,6 +13,7 @@ import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { selectFeatureFlags } from 'state/slices/selectors'
 
 import { useChainAdapters } from './context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { partitionCompareWith } from './lib/utils'
 import { Route } from './Routes/helpers'
 import { useAppSelector } from './state/store'
 
@@ -29,19 +32,45 @@ export const App = () => {
       .then(() => {
         let routes: Route[] = []
 
-        // Register Chain Adapters
+        // keep track of what's currently registered
+        const currentChainAdapters = chainAdapterManager.getSupportedChains()
+
+        // newly registered will be default + what comes from plugins
+        const newChainAdapters: { [k in ChainTypes]?: () => ChainAdapter<ChainTypes> } = {}
+
+        // register providers from each plugin
         for (const [, plugin] of pluginManager.entries()) {
           // Ignore plugins that have their feature flag disabled
           // If no featureFlag is present, then we assume it's enabled
           if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
-            // Routes
-            routes = routes.concat(plugin.routes)
-            // Chain Adapters
+            // routes providers
+            if (plugin.routes) {
+              routes = routes.concat(plugin.routes)
+            }
+
+            // chain adapters providers
             plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
-              chainAdapterManager.addChain(chain, factory)
+              // track newly registered adapters by plugins
+              newChainAdapters[chain] = factory
             })
           }
         }
+
+        // unregister the difference between what we had, and now have after loading plugins
+        partitionCompareWith<ChainTypes>(
+          currentChainAdapters,
+          Object.keys(newChainAdapters) as ChainTypes[],
+          {
+            add: chain => {
+              const factory = newChainAdapters[chain]
+              if (factory) chainAdapterManager.addChain(chain, factory)
+            },
+            remove: chain => {
+              chainAdapterManager.byChain(chain).closeTxs()
+              chainAdapterManager.removeChain(chain)
+            }
+          }
+        )
 
         setPluginRoutes(routes)
       })

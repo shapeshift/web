@@ -3821,10 +3821,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.1.0.tgz#9316d52ca4aefabd6b7af318e3113004628ffffa"
-  integrity sha512-9Smqj1XvpfZ0K2wgTs7264nEXpFyNunllsaOxmfW8GSjcaLQCsirdv1En+ssNoHa8UjsUFC1a8v0UGedDrbi7g==
+"@shapeshiftoss/blockbook@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.1.1.tgz#78a7c6c3a1c6a0e9f22fe4c5d5b932d800229ada"
+  integrity sha512-iwnESD9LAvk8QVynDsBxF4IQOU9DD2oyd9jmB/Ve6Jte9Vg6OIQnu5GC3p9H8AxkqVwtd8YyC9aubBUNBNf0/w==
   dependencies:
     axios "^0.26.0"
     express "^4.17.1"
@@ -3837,12 +3837,13 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.0.tgz#1a483beec633c824936ca26bc07ca9be15d2cdf2"
   integrity sha512-XrsdnHGup+vtyY7mjhdm2ZGZQt25CKOQpjlIHlLIjm49vuXW3IG91O9puw5d2VWifE59S7HTLDO3O9S2HD1b6g==
 
-"@shapeshiftoss/chain-adapters@^2.4.4":
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.4.4.tgz#3f713dc89976a31cc6729d91a39978d2241ea394"
-  integrity sha512-A8kgFcXGTmuk0NCWdiN0txtT4uSvWU/ahhPSZZL5tD8ePgIqJzuyaiUcPhx2xkNAZ22T+Y+HT2FKreTgjXZj2Q==
+"@shapeshiftoss/chain-adapters@^2.6.2":
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.6.2.tgz#dc9f14779e6213bc73bb930978c0ca494cb4f3e3"
+  integrity sha512-BSGwk7K6h43DyshytMygofoYNd7MfyKC/NjAXZgGxcpsvUwNbKeR2mKajoaqpchuenT6tGEotG9CjyCIUuyVzg==
   dependencies:
     axios "^0.26.0"
+    bech32 "^2.0.0"
     bignumber.js "^9.0.1"
     bitcoinjs-lib "^5.2.0"
     coinselect "^3.1.12"
@@ -4033,17 +4034,17 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.1.0.tgz#6704f709f2650da671f212278687d32143269a10"
-  integrity sha512-4v7ZyV6LvUZ3z0rTntNxyivpuzhwrAO6lYlxkSNcfoMlrAOiZp9a93QeYFs8enQgphZ3V7giO13LXAEyBWDKpw==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.2.0.tgz#089d29960bcb9cba9bfdbadb2a32a37849425b23"
+  integrity sha512-RPrtsi/PG4BtdaI73CvQXXRZNE/wfaRZzS8jT33AxrqkeBWqn1dT5gR25DXU6fZUKS4shXYoDUyuMLezz7+96g==
 
-"@shapeshiftoss/unchained-client@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.1.0.tgz#797e4a4e4450e1d4a0595c45ee6314a6d6c48391"
-  integrity sha512-pMasi+t6HxYoWjp6p64LgzMKtrOZ0LJDpdcroJInno7zo59XEXD0y2Elu+7PkqKfk0xYZWF/IWxf2KlipZFilw==
+"@shapeshiftoss/unchained-client@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.1.1.tgz#b7ec71bd70973b26940935ee467390561349e36b"
+  integrity sha512-JpdPC4x0cHRJZG6o30PFTxTL2jPWsrvZPFIoyQcpPEqcCH+S9Bz1BSrwCZmcBnFqZBVQmJ2KoKmfQB9ll9sprA==
   dependencies:
-    "@shapeshiftoss/blockbook" "^6.1.0"
+    "@shapeshiftoss/blockbook" "^6.1.1"
     "@shapeshiftoss/caip" "^2.0.0"
     "@shapeshiftoss/types" "^2.0.0"
     "@yfi/sdk" "^1.0.30"
@@ -7570,6 +7571,11 @@ bech32@1.1.4, bech32@^1.1.2, bech32@^1.1.3, bech32@^1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/bech32/-/bech32-1.1.4.tgz#e38c9f37bf179b8eb16ae3a772b40c356d4832e9"
   integrity sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==
+
+bech32@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/bech32/-/bech32-2.0.0.tgz#078d3686535075c8c79709f054b1b226a133b355"
+  integrity sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==
 
 better-opn@^2.1.1:
   version "2.1.1"

@@ -27,7 +27,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
-  const accountSpecifiers = useAccountSpecifiers()
+  const { accountSpecifiers } = useAccountSpecifiers()
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination
@@ -37,13 +37,13 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     console.info('dispatching portfolio clear action')
     dispatch(portfolio.actions.clear())
     // fetch each account
-    accountSpecifiers.forEach(accountSpecifierMap =>
+    accountSpecifiers.forEach(accountSpecifierMap => {
       // forceRefetch is enabled here to make sure that we always have the latest wallet information
       // it also forces queryFn to run and that's needed for the wallet info to be dispatched
       dispatch(
         portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
       )
-    )
+    })
   }, [dispatch, accountSpecifiers])
 
   // we only prefetch market data for the top 1000 assets

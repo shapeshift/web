@@ -1,8 +1,10 @@
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
+import isEmpty from 'lodash/isEmpty'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
@@ -11,6 +13,7 @@ import {
   selectTxHistoryStatus,
   selectTxIds
 } from 'state/slices/selectors'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
 
@@ -27,15 +30,15 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const assets = useSelector(selectAssets)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
+  const { accountSpecifiers, getAccountSpecifiersByChainId } = useAccountSpecifiers()
 
   useEffect(() => {
     if (!wallet) return
+    if (isEmpty(assets)) return
+    const supportedChains = chainAdapter.getSupportedChains()
     ;(async () => {
-      const supportedAdapters = chainAdapter.getSupportedAdapters()
-
-      for (const getAdapter of supportedAdapters) {
-        const adapter = getAdapter()
-        const chain = adapter.getType()
+      for (const chain of supportedChains) {
+        const adapter = chainAdapter.byChain(chain)
         const chainId = adapter.getCaip2()
         if (!walletSupportChain({ chainId, wallet })) continue
 
@@ -74,20 +77,40 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             )
           }
         }
+        // RESTfully fetch all tx history for this chain.
+        const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
+        if (isEmpty(chainAccountSpecifiers)) continue
+        chainAccountSpecifiers.forEach(accountSpecifierMap => {
+          dispatch(
+            txHistoryApi.endpoints.getAllTxHistory.initiate(
+              { accountSpecifierMap },
+              { forceRefetch: true }
+            )
+          )
+        })
       }
     })()
 
     return () => {
       dispatch(txHistory.actions.clear())
-      chainAdapter.getSupportedAdapters().forEach(getAdapter => {
+      supportedChains.forEach(chain => {
         try {
-          getAdapter().unsubscribeTxs()
+          const adapter = chainAdapter.byChain(chain)
+          adapter.unsubscribeTxs()
         } catch (e) {
           console.error('TransactionsProvider: Error unsubscribing from transaction history', e)
         }
       })
     }
-  }, [assets, dispatch, walletInfo?.deviceId, wallet, chainAdapter])
+  }, [
+    assets,
+    dispatch,
+    walletInfo?.deviceId,
+    wallet,
+    chainAdapter,
+    accountSpecifiers,
+    getAccountSpecifiersByChainId
+  ])
 
   /**
    * TODO(0xdef1cafe)
@@ -105,6 +128,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
    */
 
   useEffect(() => {
+    if (isEmpty(assets)) return
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
     const TX_DEBOUNCE_DELAY = 5000
@@ -113,7 +137,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
       TX_DEBOUNCE_DELAY
     )
     return () => clearTimeout(timer) // clear if the input changes
-  }, [dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
+  }, [assets, dispatch, txHistoryStatus, txIds, walletInfo?.deviceId])
 
   return <>{children}</>
 }

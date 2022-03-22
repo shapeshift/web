@@ -146,6 +146,13 @@
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
         }
+      },
+      "claim": {
+        "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
+        "title": "Claim Staking Rewards",
+        "confirmAndClaim": "Confirm & Claim",
+        "rewardAmount": "Reward Amount",
+        "claimingRewards": "Claiming Rewards"
       }
     },
     "amountToStake": "Amount to Stake",
@@ -166,6 +173,7 @@
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Claim Staking Rewards",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",

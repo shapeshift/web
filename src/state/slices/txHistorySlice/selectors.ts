@@ -12,10 +12,7 @@ import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
 export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId)
 export const selectTxs = (state: ReduxState) => state.txHistory.byId
-export const selectTxIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.ids,
-  ids => ids
-)
+export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.status
 
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId

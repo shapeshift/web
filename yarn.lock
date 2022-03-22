@@ -4034,10 +4034,10 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.2.0.tgz#089d29960bcb9cba9bfdbadb2a32a37849425b23"
-  integrity sha512-RPrtsi/PG4BtdaI73CvQXXRZNE/wfaRZzS8jT33AxrqkeBWqn1dT5gR25DXU6fZUKS4shXYoDUyuMLezz7+96g==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.3.0.tgz#67aeb0a8a1a77ec693a3df2414a8874bc8be1382"
+  integrity sha512-Emc6adG6um8wVm+p7hHdeqbDKgWaZxrgCB0ir64QAF1wKlzHZnHORzxReUro7zTb0uM2K10mSzwQcuovJ2Y4/Q==
 
 "@shapeshiftoss/unchained-client@^6.1.1":
   version "6.1.1"

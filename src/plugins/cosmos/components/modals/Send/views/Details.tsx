@@ -35,7 +35,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { SendFormFields as CosmosSendFormFields, SendInput } from '../Form'
 
-const MAX_MEMO_LENGTH = 14
+const MAX_MEMO_LENGTH = 256
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()

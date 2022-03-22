@@ -3789,10 +3789,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.1.0.tgz#40faa27d1708bcd065f3ec1a53df63a9ff9bdb94"
-  integrity sha512-kaf51ykWqjyYEKSDfYQZpjSEnCFQFhjQNwXWJ7ar186FfZCn4H+HAA82EcfE4bRelIH5rqFJPcLqi40xllKTag==
+"@shapeshiftoss/asset-service@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.1.2.tgz#530207182a7a4b606c7a8a59f81b9c9c70a8f07e"
+  integrity sha512-Ri+QHSu1VAF4lL/g7VOkp37i7SMRqmgCjU7kNSdTVV/PuNgpa7xBPS8WxdVb5nzsgEA8goh0hC59pLpjI1UOdA==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"

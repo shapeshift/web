@@ -219,7 +219,9 @@ export const Details = () => {
                 value={value}
                 type='text'
                 variant='filled'
-                placeholder='Optional ATOM Memo'
+                placeholder={translate('modals.send.sendForm.optionalAssetMemo', {
+                  assetSymbol: asset.symbol
+                })}
               />
             )}
           />

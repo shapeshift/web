@@ -1,3 +1,4 @@
+import { getConfig } from 'config'
 import union from 'lodash/union'
 import {
   FaFlag,
@@ -159,7 +160,7 @@ export const routes: Array<NestedRoute> = [
     path: '/flags',
     label: 'Feature Flags',
     icon: <FaFlag />,
-    hide: window.location.hostname === 'localhost' ? false : true,
+    hide: getConfig().isDev ? true : false,
     main: Flags
   }
 ]

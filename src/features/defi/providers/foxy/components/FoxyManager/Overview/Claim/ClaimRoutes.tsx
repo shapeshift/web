@@ -50,7 +50,9 @@ export const ClaimRoutes = ({ onBack }: CliamRouteProps) => {
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm
-              caip19={stakingAssetCAIP19}
+              assetId={stakingAssetCAIP19}
+              chain={chain}
+              contractAddress={contractAddress}
               onBack={onBack}
               amount={opportunity?.withdrawInfo.amount}
             />

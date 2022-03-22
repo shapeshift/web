@@ -31,7 +31,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
-    "available": "available",
+    "available": "Available",
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
@@ -166,13 +166,16 @@
       "claim": {
         "claimAmount": "Claim Amount",
         "claimToAddress": "Claim To Address",
-        "confirmClaim": "Confirm Claim"
+        "confirmClaim": "Confirm Claim",
+        "claimNow": "Claim Now"
       }
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",
     "broadcastingTransaction": "Broadcasting Transaction",
+    "transactionComplete": "Transaction Complete",
+    "transactionFailed": "Transaction Failed",
     "validator": "Validator",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",

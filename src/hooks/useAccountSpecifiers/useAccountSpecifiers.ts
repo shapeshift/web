@@ -12,7 +12,6 @@ import {
   supportsOsmosis
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import isEqual from 'lodash/isEqual'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
@@ -115,12 +114,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
             break
         }
       }
-      /*
-       * we only want to set this object once, i.e. when the wallet connects
-       * do a deep equal comparison here and only set the account specifiers if they're
-       * different
-       */
-      if (!isEqual(acc, accountSpecifiers)) setAccountSpecifiers(acc)
+      setAccountSpecifiers(acc)
     } catch (e) {
       console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
     } finally {
@@ -130,12 +124,11 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
 
   const getAccountSpecifiersByChainId = useCallback(
     (chainId: CAIP2): AccountSpecifierMap[] => {
-      const chainAccountSpecifiers = accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
+      return accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
         const [_chainId, accountSpecifier] = Object.entries(cur)[0]
         if (_chainId !== chainId) return acc
         return acc.concat({ [chainId]: accountSpecifier })
       }, [])
-      return chainAccountSpecifiers
     },
     [accountSpecifiers]
   )

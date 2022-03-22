@@ -2,8 +2,7 @@ import { Middleware } from '@reduxjs/toolkit'
 
 const log = (message: string, obj: unknown, featureFlag: boolean) => {
   if (featureFlag) {
-    // eslint-disable-next-line no-console
-    console.log(message, obj)
+    console.info(message, obj)
   }
 }
 

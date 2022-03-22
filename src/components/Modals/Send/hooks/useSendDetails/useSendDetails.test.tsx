@@ -122,6 +122,13 @@ describe('useSendDetails', () => {
         buildSendTransaction: () => ({
           txToSign: {}
         })
+      }),
+      byChainId: () => ({
+        getAddress: () => '0xMyWalletsAddress',
+        getFeeData: () => estimatedFees,
+        buildSendTransaction: () => ({
+          txToSign: {}
+        })
       })
     }))
     ;(ensLookup as unknown as jest.Mock<unknown>).mockImplementation(async () => ({

@@ -22,6 +22,7 @@ export type AppSettings = {
   shouldAutoLunch: boolean
   shouldAutoStartBridge: boolean
   shouldMinimizeToTray: boolean
+  shouldAutoUpdate: boolean
   bridgeApiPort: number
 }
 
@@ -33,6 +34,7 @@ export const AppSettingsModal = () => {
     shouldAutoLunch: true,
     shouldAutoStartBridge: true,
     shouldMinimizeToTray: true,
+    shouldAutoUpdate: true,
     bridgeApiPort: 1646
   })
 

@@ -10,6 +10,7 @@ export class Settings {
     public shouldAutoLunch = true
     public shouldAutoStartBridge = true
     public shouldMinimizeToTray = true
+    public shouldAutoUpdate = true
     public bridgeApiPort = 1646
 
     constructor() {
@@ -27,6 +28,7 @@ export class Settings {
                 shouldAutoLunch: this.shouldAutoLunch,
                 shouldAutoStartBridge: this.shouldAutoStartBridge,
                 shouldMinimizeToTray: this.shouldMinimizeToTray,
+                shouldAutoUpdate: this.shouldAutoUpdate,
                 bridgeApiPort: this.bridgeApiPort
             })
         })
@@ -34,28 +36,34 @@ export class Settings {
 
 
     loadSettingsFromDb = () => new Promise<Settings>((resolve, reject) => {
-        db.findOne({ type: 'settings' }, (err, doc) => {
+        db.findOne({ type: 'settings' }, async (err, doc) => {
             if (!doc) {
                 resolve(this)
                 return this.syncSettingsWithDB()
             }
 
+            if (!doc.settings.shouldAutoLunch || !doc.settings.shouldAutoStartBridge ||
+                !doc.settings.shouldMinimizeToTray || !doc.settings.shouldAutoUpdate ||
+                !doc.settings.bridgeApiPort) await this.syncSettingsWithDB()
+
             this.shouldAutoLunch = doc.settings.shouldAutoLunch
             this.shouldAutoStartBridge = doc.settings.shouldAutoStartBridge
             this.shouldMinimizeToTray = doc.settings.shouldMinimizeToTray
+            this.shouldAutoUpdate = doc.settings.shouldAutoUpdate
             this.bridgeApiPort = doc.settings.bridgeApiPort
             resolve(this)
         })
     })
 
 
-    private syncSettingsWithDB() {
+    private syncSettingsWithDB = () => new Promise<void>((resolve, reject) => {
         db.findOne({ type: 'settings' }, (err, doc) => {
             if (!doc) return db.insert({
                 type: 'settings', settings: {
                     shouldAutoLunch: this.shouldAutoLunch,
                     shouldAutoStartBridge: this.shouldAutoStartBridge,
                     shouldMinimizeToTray: this.shouldMinimizeToTray,
+                    shouldAutoUpdate: this.shouldAutoUpdate,
                     bridgeApiPort: this.bridgeApiPort
                 }
             })
@@ -65,11 +73,13 @@ export class Settings {
                     shouldAutoLunch: this.shouldAutoLunch,
                     shouldAutoStartBridge: this.shouldAutoStartBridge,
                     shouldMinimizeToTray: this.shouldMinimizeToTray,
+                    shouldAutoUpdate: this.shouldAutoUpdate,
                     bridgeApiPort: this.bridgeApiPort
                 }
             })
+            resolve()
         })
-    }
+    })
 
     setShouldAutoLunch(value: boolean, bulk = false) {
         this.shouldAutoLunch = value
@@ -91,6 +101,11 @@ export class Settings {
         if (!bulk) this.syncSettingsWithDB()
     }
 
+    setShouldAutoUpdate(value: boolean, bulk = false) {
+        this.shouldAutoUpdate = value
+        if (!bulk) this.syncSettingsWithDB()
+    }
+
     async setBridgeApiPort(value: number, bulk = false) {
         this.bridgeApiPort = value
         if (bridgeRunning) {
@@ -103,16 +118,18 @@ export class Settings {
         if (!bulk) this.syncSettingsWithDB()
     }
 
-    updateBulkSettings({ shouldAutoLunch, shouldAutoStartBridge, shouldMinimizeToTray, bridgeApiPort }: {
+    updateBulkSettings({ shouldAutoLunch, shouldAutoStartBridge, shouldMinimizeToTray, shouldAutoUpdate, bridgeApiPort }: {
         shouldAutoLunch?: boolean,
         shouldAutoStartBridge?: boolean,
         shouldMinimizeToTray?: boolean,
+        shouldAutoUpdate?: boolean,
         bridgeApiPort?: number
     }) {
         console.log(shouldAutoLunch, shouldAutoStartBridge, shouldMinimizeToTray, bridgeApiPort)
         if (shouldAutoLunch !== undefined) this.setShouldAutoLunch(shouldAutoLunch, true)
         if (shouldAutoStartBridge !== undefined) this.setShouldAutoStartBridge(shouldAutoStartBridge, true)
         if (shouldMinimizeToTray !== undefined) this.setShouldMinimizeToTray(shouldMinimizeToTray, true)
+        if (shouldAutoUpdate !== undefined) this.setShouldAutoUpdate(shouldAutoUpdate, true)
         if (bridgeApiPort !== undefined) this.setBridgeApiPort(bridgeApiPort, true)
         this.syncSettingsWithDB()
     }

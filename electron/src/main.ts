@@ -63,7 +63,7 @@ Sentry.init({ dsn: process.env.SENTRY_DSN });
 import { update_keepkey_status } from './keepkey'
 import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
-import { createTray } from './tray'
+import { createTray, tray } from './tray'
 import { isWin, isLinux, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
 import { pairWalletConnect } from './connect'
@@ -227,7 +227,7 @@ app.setAsDefaultProtocolClient('keepkey')
 
 app.on('ready', async () => {
     try {
-        createTray()
+        if (!tray) createTray()
     } catch (e) {
         log.error('Failed to create tray! e: ', e)
     }

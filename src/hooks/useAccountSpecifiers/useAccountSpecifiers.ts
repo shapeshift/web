@@ -13,7 +13,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import isEqual from 'lodash/isEqual'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -22,14 +22,17 @@ import { selectAssetIds, selectAssets } from 'state/slices/selectors'
 
 // the value is an xpub/ypub/zpub, or eth pubkey, used to query unchained
 export type AccountSpecifierMap = { [k: CAIP2]: string }
-type UseAccountSpecifiers = () => AccountSpecifierMap[]
+type UseAccountSpecifiers = () => {
+  accountSpecifiers: AccountSpecifierMap[]
+  getAccountSpecifiersByChainId(chainId: CAIP2): AccountSpecifierMap[]
+}
 
 export const useAccountSpecifiers: UseAccountSpecifiers = () => {
   const [accountSpecifiers, setAccountSpecifiers] = useState<AccountSpecifierMap[]>([])
   const [loading, setLoading] = useState(false)
   const chainAdapter = useChainAdapters()
   // Needed to trigger if we add new chain adapters from a plugin
-  const numSupportedChainAdapters = chainAdapter.getSupportedAdapters().length
+  const numSupportedChains = chainAdapter.getSupportedChains().length
   const {
     state: { wallet, walletInfo }
   } = useWallet()
@@ -43,12 +46,11 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     if (!wallet) return
     try {
       setLoading(true)
-      const supportedAdapters = chainAdapter.getSupportedAdapters()
+      const supportedChains = chainAdapter.getSupportedChains()
       const acc: AccountSpecifierMap[] = []
 
-      for (const getAdapter of supportedAdapters) {
-        const adapter = getAdapter()
-        const chain = adapter.getType()
+      for (const chain of supportedChains) {
+        const adapter = chainAdapter.byChain(chain)
 
         switch (chain) {
           // TODO: Handle Cosmos ChainType here
@@ -126,6 +128,18 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     }
   }
 
+  const getAccountSpecifiersByChainId = useCallback(
+    (chainId: CAIP2): AccountSpecifierMap[] => {
+      const chainAccountSpecifiers = accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
+        const [_chainId, accountSpecifier] = Object.entries(cur)[0]
+        if (_chainId !== chainId) return acc
+        return acc.concat({ [chainId]: accountSpecifier })
+      }, [])
+      return chainAccountSpecifiers
+    },
+    [accountSpecifiers]
+  )
+
   useEffect(() => {
     if (!(wallet && deviceId && assetIds.length)) return
 
@@ -135,7 +149,7 @@ export const useAccountSpecifiers: UseAccountSpecifiers = () => {
     )
     // getAccountSpecifiers and loading causes furious renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deviceId, assetIds, numSupportedChainAdapters, wallet])
+  }, [deviceId, assetIds, numSupportedChains, wallet])
 
-  return accountSpecifiers
+  return { accountSpecifiers, getAccountSpecifiersByChainId }
 }

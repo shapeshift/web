@@ -81,7 +81,7 @@ describe('getTransferByAsset', () => {
 
 describe('isSupportedContract', () => {
   it('returns true for being supported', () => {
-    createMockEthTxs('0xcafe').forEach(tx => expect(isSupportedContract(tx)).toBeTruthy())
+    createMockEthTxs('0xcafe').forEach(tx => expect(isSupportedContract(tx)).toBe(true))
   })
 
   it('returns false when unsupported', () => {
@@ -90,11 +90,11 @@ describe('isSupportedContract', () => {
         tx.data.method += `-${idx}`
         return tx
       })
-      .forEach(tx => expect(isSupportedContract(tx)).toBeFalsy())
+      .forEach(tx => expect(isSupportedContract(tx)).toBe(false))
   })
 
   it('returns false for undefined', () => {
     const tx = { data: { method: undefined }} as Tx
-    expect(isSupportedContract(tx)).toBeFalsy()
+    expect(isSupportedContract(tx)).toBe(false)
   })
 })

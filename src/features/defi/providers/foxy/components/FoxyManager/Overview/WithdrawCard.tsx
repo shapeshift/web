@@ -26,7 +26,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
     history.push('/claim')
   }
 
-  if (hasClaim) {
+  if (!hasClaim) {
     return <Text color='gray.500' translation='defi.modals.foxyOverview.emptyWithdraws' />
   }
 

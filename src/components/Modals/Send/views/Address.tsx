@@ -10,6 +10,7 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
+import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos/CosmosChainAdapter'
 import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/ethereum/EthereumChainAdapter'
 import get from 'lodash/get'
 import { useState } from 'react'
@@ -29,6 +30,8 @@ import { SendRoutes } from '../Send'
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
+  const [isValidatingCosmosAddress, setIsValidatingCosmosAddress] = useState(false)
+  const isValidating = isValidatingEnsName || isValidatingCosmosAddress
   const history = useHistory()
   const translate = useTranslate()
   const {
@@ -82,6 +85,12 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
+                  if (adapter instanceof CosmosChainAdapter) {
+                    setIsValidatingCosmosAddress(true)
+                    const validAddress = await adapter.validateAddress(value)
+                    setIsValidatingCosmosAddress(false)
+                    return validAddress.valid || 'common.invalidAddress'
+                  }
                   const validAddress = await adapter.validateAddress(value)
                   if (adapter instanceof EthereumChainAdapter) {
                     const validEnsAddress = await adapter.validateEnsAddress(value)
@@ -115,8 +124,8 @@ export const Address = () => {
           <Button
             isFullWidth
             isDisabled={!address || addressError}
-            isLoading={isValidatingEnsName}
-            colorScheme={addressError && !isValidatingEnsName ? 'red' : 'blue'}
+            isLoading={isValidating}
+            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}
             data-test='send-address-next-button'

@@ -44,7 +44,7 @@ export const TransactionReceive = ({
         </Row>
         <Row title='receivedFrom'>
           <Address
-            explorerTxLink={txDetails.explorerTxLink}
+            explorerAddressLink={txDetails.explorerAddressLink}
             address={txDetails.from}
             ens={txDetails.ensFrom}
           />

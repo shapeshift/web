@@ -21,6 +21,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
   const [foxy, setFoxy] = useState<FoxyApi | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const adapters = useChainAdapters()
+  const numSupportedChainAdapters = adapters.getSupportedChains().length
 
   useEffect(() => {
     ;(async () => {
@@ -39,7 +40,7 @@ export const FoxyProvider: React.FC = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [adapters])
+  }, [adapters, numSupportedChainAdapters])
 
   return <FoxyContext.Provider value={{ foxy, loading }}>{children}</FoxyContext.Provider>
 }

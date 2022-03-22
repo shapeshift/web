@@ -59,10 +59,8 @@ body:
     id: stakeholder
     attributes:
       label: Sponsor / stakeholder
-      description: "Who can the bounty huter go to for questions and support?"
+      description: "To whom can the bounty hunter go to for questions and support?"
       placeholder: "@github_handle"
-    validations:
-      required: true
   - type: textarea
     id: bounty-hunters
     attributes:

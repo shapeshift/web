@@ -10,6 +10,7 @@ import {
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
+import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
@@ -108,8 +109,8 @@ export const KeepKeyMenuRoutes = () => {
         </MenuGroup>
         <MenuGroup title={'Advanced'} ml={3} color='gray.500'>
           <ExpandedMenuItem
+            onClick={handleChangeTimeoutClick}
             label={translate('walletProvider.keepKey.settings.menuLabels.deviceTimeout')}
-            value='10 Minutes'
             hasSubmenu={true}
           />
           <ExpandedMenuItem
@@ -139,7 +140,7 @@ export const KeepKeyMenuRoutes = () => {
       <Route exact path={WalletConnectedRoutes.KeepKey} component={keepKeyMenu} />
       <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={ChangeLabel} />
       <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={ChangePin} />
-      <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangePin} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangeTimeout} />
     </>
   )
 }

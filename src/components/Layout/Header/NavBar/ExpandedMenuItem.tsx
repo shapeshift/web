@@ -8,7 +8,7 @@ import { RawText } from 'components/Text'
 
 type ExpandedMenuItemProps = {
   label: string | undefined
-  value: string | undefined
+  value?: string
   valueDisposition?: 'positive' | 'neutral' | 'negative' | 'info'
   badge?: string
   badgeColor?: ThemeTypings['colorSchemes']

@@ -11,7 +11,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
-import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
 
 enum FoxyPath {
   Deposit = '/defi/token_staking/ShapeShift/deposit',
@@ -49,13 +48,6 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
             <MemoryRouter>
               <SlideTransition>
                 <FoxyDeposit api={foxy} />
-              </SlideTransition>
-            </MemoryRouter>
-          </Route>
-          <Route path={FoxyPath.Withdraw}>
-            <MemoryRouter>
-              <SlideTransition>
-                <FoxyWithdraw api={foxy} />
               </SlideTransition>
             </MemoryRouter>
           </Route>

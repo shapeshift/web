@@ -185,12 +185,16 @@ export const Details = () => {
         <FormControl mt={6}>
           <Box display='flex' alignItems='center' justifyContent='space-between'>
             <FormLabel color='gray.500' display='flex' alignItems='center'>
-              {translate('modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol })}
+              <Text
+                translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
+              />
               <Tooltip
+                placement='right'
                 label={translate('modals.send.sendForm.memoExplainer', {
                   assetSymbol: asset.symbol
                 })}
-                px={4}
+                fontSize='md'
+                pr={4}
               >
                 <Box ml='5px'>
                   <FaInfoCircle />

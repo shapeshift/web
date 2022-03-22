@@ -26,7 +26,9 @@ export const ChangeLabel = () => {
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
       <SubmenuHeader
-        title={translate('walletProvider.keepKey.settings.headings.deviceLabel')}
+        title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
+          setting: 'Label'
+        })}
         description={translate('walletProvider.keepKey.settings.descriptions.label')}
       />
       {keepKeyUpdateStatus && (
@@ -40,8 +42,12 @@ export const ChangeLabel = () => {
         >
           <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
           {keepKeyUpdateStatus === 'success'
-            ? translate('walletProvider.keepKey.settings.descriptions.labelUpdateSuccess')
-            : translate('walletProvider.keepKey.settings.descriptions.labelUpdateFailed')}
+            ? translate('walletProvider.keepKey.settings.descriptions.updateSuccess', {
+                setting: 'label'
+              })
+            : translate('walletProvider.keepKey.settings.descriptions.updateFailed', {
+                setting: 'label'
+              })}
         </Alert>
       )}
       <Input
@@ -59,7 +65,10 @@ export const ChangeLabel = () => {
         <Flex>
           <InfoIcon color='blue.200' mt={1} />
           <Text
-            translation='walletProvider.keepKey.settings.descriptions.labelButtonPrompt'
+            translation={[
+              'walletProvider.keepKey.settings.descriptions.buttonPrompt',
+              { setting: 'label' }
+            ]}
             ml={3}
             fontWeight='medium'
             color='blue.200'
@@ -67,7 +76,7 @@ export const ChangeLabel = () => {
         </Flex>
       ) : (
         <Button colorScheme='blue' size='sm' onClick={handleChangeLabelInitializeEvent}>
-          {translate('walletProvider.keepKey.settings.actions.updateLabel')}
+          {translate('walletProvider.keepKey.settings.actions.update', { setting: 'label' })}
         </Button>
       )}
     </Flex>

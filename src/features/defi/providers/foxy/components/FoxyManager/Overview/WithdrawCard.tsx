@@ -23,9 +23,11 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
     history.push('/claim')
   }
 
-  return hasClaim ? (
-    <Text color='gray.500' translation='defi.modals.foxyOverview.emptyWithdraws' />
-  ) : (
+  if (!hasClaim) {
+    return <Text color='gray.500' translation='defi.modals.foxyOverview.emptyWithdraws' />
+  }
+
+  return (
     <Button
       variant='input'
       isFullWidth

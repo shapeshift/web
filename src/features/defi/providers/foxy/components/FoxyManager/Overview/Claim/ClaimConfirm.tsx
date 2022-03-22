@@ -1,4 +1,13 @@
-import { Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  Link,
+  ModalBody,
+  ModalFooter,
+  Skeleton,
+  SkeletonText,
+  Stack,
+  useToast
+} from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
@@ -8,7 +17,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -40,7 +48,7 @@ export const ClaimConfirm = ({
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
   const [gasFee, setGasFee] = useState<GasFeeProps>({ cryptoAmount: '0', fiatAmount: '0' })
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState<boolean>(false)
   const chainAdapterManager = useChainAdapters()
   const { foxy } = useFoxy()
   const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
@@ -61,31 +69,45 @@ export const ClaimConfirm = ({
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
+  const toast = useToast()
+
   const handleConfirm = async () => {
     if (!walletState.wallet || !contractAddress || !userAddress || !foxy) return
-    const [txid, gasPrice] = await Promise.all([
-      foxy.claimWithdraw({
-        claimAddress: userAddress,
+    setLoading(true)
+    try {
+      const [txid, gasPrice] = await Promise.all([
+        foxy.claimWithdraw({
+          claimAddress: userAddress,
+          userAddress,
+          wallet: walletState.wallet,
+          contractAddress
+        }),
+        foxy.getGasPrice()
+      ])
+      history.push('/status', {
+        txid,
+        assetId,
+        amount,
         userAddress,
-        wallet: walletState.wallet,
-        contractAddress
-      }),
-      foxy.getGasPrice()
-    ])
-    history.push('/status', {
-      txid,
-      assetId,
-      amount,
-      userAddress,
-      gasPrice,
-      estimatedGas: gasFee.cryptoAmount,
-      chain
-    })
+        gasPrice,
+        estimatedGas: gasFee.cryptoAmount,
+        chain
+      })
+    } catch (error) {
+      console.error('ClaimWithdraw:handleConfirm error', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error'
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     ;(async () => {
-      setLoading(true)
       try {
         if (!walletState.wallet || !contractAddress || !foxy) return
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
@@ -105,8 +127,6 @@ export const ClaimConfirm = ({
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyClaim error:', error)
-      } finally {
-        setLoading(false)
       }
     })()
   }, [
@@ -117,14 +137,6 @@ export const ClaimConfirm = ({
     foxy,
     walletState.wallet
   ])
-
-  if (loading) {
-    return (
-      <Center minW='350px' minH='350px'>
-        <CircularProgress isIndeterminate />
-      </Center>
-    )
-  }
 
   return (
     <SlideTransition>
@@ -149,14 +161,16 @@ export const ClaimConfirm = ({
               <Text translation='defi.modals.claim.claimToAddress' />
             </Row.Label>
             <Row.Value>
-              <Link
-                isExternal
-                color='blue.500'
-                // TODO:(ryankk) create explorer links given a link template and a value
-                href={`${asset?.explorerAddressLink}${userAddress}`}
-              >
-                <MiddleEllipsis address={userAddress} />
-              </Link>
+              <Skeleton minWidth='100px' isLoaded={!!userAddress}>
+                <Link
+                  isExternal
+                  color='blue.500'
+                  // TODO:(ryankk) create explorer links given a link template and a value
+                  href={`${asset?.explorerAddressLink}${userAddress}`}
+                >
+                  <MiddleEllipsis address={userAddress} />
+                </Link>
+              </Skeleton>
             </Row.Value>
           </Row>
           <Row>
@@ -164,21 +178,23 @@ export const ClaimConfirm = ({
               <Text translation='common.estimatedGas' />
             </Row.Label>
             <Row.Value>
-              <Stack textAlign='right' spacing={0}>
-                <Amount.Fiat value={gasFee.fiatAmount} />
-                <Amount.Crypto
-                  color='gray.500'
-                  value={gasFee.cryptoAmount}
-                  symbol={feeAsset.symbol}
-                />
-              </Stack>
+              <SkeletonText noOfLines={2} isLoaded={!!gasFee.fiatAmount}>
+                <Stack textAlign='right' spacing={0}>
+                  <Amount.Fiat value={gasFee.fiatAmount} />
+                  <Amount.Crypto
+                    color='gray.500'
+                    value={gasFee.cryptoAmount}
+                    symbol={feeAsset.symbol}
+                  />
+                </Stack>
+              </SkeletonText>
             </Row.Value>
           </Row>
           <Stack direction='row' width='full' justifyContent='space-between'>
             <Button size='lg' onClick={onBack}>
               {translate('common.cancel')}
             </Button>
-            <Button size='lg' colorScheme='blue' onClick={handleConfirm}>
+            <Button size='lg' colorScheme='blue' onClick={handleConfirm} isLoading={loading}>
               {translate('defi.modals.claim.confirmClaim')}
             </Button>
           </Stack>

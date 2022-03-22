@@ -533,8 +533,7 @@
           "updateAvailable": "Update available"
         },
         "headings": {
-          "devicePin": "Device PIN",
-          "deviceLabel": "Device Label",
+          "deviceSetting": "Device %{setting}",
           "enterPin": "Enter current PIN",
           "setPin": "Set a new PIN",
           "confirmPin": "Confirm new PIN"
@@ -542,16 +541,12 @@
         "descriptions": {
           "pin": "The PIN is a combination of up to 9 numbers that you select after initializing your KeepKey. A PIN protects your device against unauthorized use in the event your KeepKey falls into the wrong hands.",
           "label": "Labelling each of devices allows you to easily distinguish one from the other.",
-          "pinButtonPrompt": "Press and hold the button on your KeepKey to change your PIN.",
-          "labelButtonPrompt": "Press and hold the button on your KeepKey to change the device label.",
-          "pinUpdateSuccess": "PIN successfully updated!",
-          "pinUpdateFailed": "An error occurred whilst updating the PIN.",
-          "labelUpdateSuccess": "Label successfully updated!",
-          "labelUpdateFailed": "An error occurred whilst updating the label."
+          "buttonPrompt": "Press and hold the button on your KeepKey to change the device ${setting}.",
+          "updateSuccess": "%{setting} successfully updated!",
+          "updateFailed": "An error occurred whilst updating the %{setting}."
         },
         "actions": {
-          "updatePin": "Update PIN",
-          "updateLabel": "Update label"
+          "update": "Update %{setting}"
         }
       }
     },

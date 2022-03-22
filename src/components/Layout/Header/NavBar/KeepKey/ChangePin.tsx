@@ -32,15 +32,22 @@ export const ChangePin = () => {
           >
             <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
             {keepKeyUpdateStatus === 'success'
-              ? translate('walletProvider.keepKey.settings.descriptions.pinUpdateSuccess')
-              : translate('walletProvider.keepKey.settings.descriptions.pinUpdateFailed')}
+              ? translate('walletProvider.keepKey.settings.descriptions.updateSuccess', {
+                  setting: 'PIN'
+                })
+              : translate('walletProvider.keepKey.settings.descriptions.updateFailed', {
+                  setting: 'PIN'
+                })}
           </Alert>
         )}
         {awaitingButtonPress ? (
           <Flex>
             <InfoIcon color='blue.200' mt={1} />
             <Text
-              translation='walletProvider.keepKey.settings.descriptions.pinButtonPrompt'
+              translation={[
+                'walletProvider.keepKey.settings.descriptions.buttonPrompt',
+                { setting: 'PIN' }
+              ]}
               ml={3}
               fontWeight='medium'
               color='blue.200'
@@ -48,7 +55,7 @@ export const ChangePin = () => {
           </Flex>
         ) : (
           <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
-            {translate('walletProvider.keepKey.settings.actions.updatePin')}
+            {translate('walletProvider.keepKey.settings.actions.update', { setting: 'PIN' })}
           </Button>
         )}
       </>
@@ -58,7 +65,9 @@ export const ChangePin = () => {
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
       <SubmenuHeader
-        title={translate('walletProvider.keepKey.settings.headings.devicePin')}
+        title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
+          setting: 'PIN'
+        })}
         description={translate('walletProvider.keepKey.settings.descriptions.pin')}
       />
       {renderPinState}

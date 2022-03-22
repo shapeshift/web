@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.2.1...@shapeshiftoss/types-v2.3.0) (2022-03-22)
+
+
+### Features
+
+* accept memo in buildSendTransaction ([#467](https://github.com/shapeshift/lib/issues/467)) ([bbbaf46](https://github.com/shapeshift/lib/commit/bbbaf46ce2003cdab86fa60747d15b708037c616))
+
 # [@shapeshiftoss/types-v2.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.2.0...@shapeshiftoss/types-v2.2.1) (2022-03-22)
 
 

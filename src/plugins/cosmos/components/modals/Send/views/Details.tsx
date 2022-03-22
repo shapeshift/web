@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import isNil from 'lodash/isNil'
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -35,18 +35,19 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { SendFormFields as CosmosSendFormFields, SendInput } from '../Form'
 
-const MAX_MEMO_LENGTH = 14
+const MAX_MEMO_LENGTH = 257
 
 export const Details = () => {
   const { control } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
 
-  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError } = useWatch({
-    control
-  })
+  const { asset, cryptoAmount, cryptoSymbol, fiatAmount, fiatSymbol, amountFieldError, memo } =
+    useWatch({
+      control
+    })
 
-  const [remainingMemoChars, setRemainingMemoChars] = useState(14)
+  const remainingMemoChars = useMemo(() => MAX_MEMO_LENGTH - Number(memo?.length), [memo])
   const memoFieldError = remainingMemoChars < 0 && 'Characters Limit Exceeded'
 
   const { send } = useModal()
@@ -213,10 +214,7 @@ export const Details = () => {
             render={({ field: { onChange, value } }) => (
               <Input
                 size='lg'
-                onChange={({ target: { value } }) => {
-                  onChange(value)
-                  setRemainingMemoChars(MAX_MEMO_LENGTH - value.length)
-                }}
+                onChange={({ target: { value } }) => onChange(value)}
                 value={value}
                 type='text'
                 variant='filled'

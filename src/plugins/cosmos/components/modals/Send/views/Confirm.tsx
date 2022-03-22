@@ -19,15 +19,15 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { useSendFees } from 'components/Modals/Send/hooks/useSendFees/useSendFees'
+import { SendRoutes } from 'components/Modals/Send/Send'
+import { TxFeeRadioGroup } from 'components/Modals/Send/TxFeeRadioGroup'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendInput } from '../Form'
-import { useSendFees } from '../hooks/useSendFees/useSendFees'
-import { SendRoutes } from '../Send'
-import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 export type FeePrice = {
   [key in chainAdapters.FeeDataKey]: {
@@ -43,7 +43,7 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { ensName, address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType } = useWatch({
+  const { address, asset, cryptoAmount, cryptoSymbol, fiatAmount, feeType, memo } = useWatch({
     control
   })
   const { fees } = useSendFees()
@@ -93,7 +93,17 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              <MiddleEllipsis address={ensName || address} />
+              <MiddleEllipsis address={address} />
+            </Row.Value>
+          </Row>
+          <Row>
+            <Row.Label>
+              <Text
+                translation={['modals.send.sendForm.assetMemo', { assetSymbol: asset.symbol }]}
+              />
+            </Row.Label>
+            <Row.Value>
+              <RawText>{memo}</RawText>
             </Row.Value>
           </Row>
           <FormControl mt={4}>

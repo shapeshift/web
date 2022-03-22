@@ -85,7 +85,8 @@ export class ChainAdapter
         bip44Params = CosmosSdkBaseAdapter.defaultBIP44Params,
         chainSpecific: { gas, fee },
         sendMax = false,
-        value
+        value,
+        memo = ''
       } = tx
 
       if (!to) throw new Error('CosmosChainAdapter: to is required')
@@ -127,7 +128,7 @@ export class ChainAdapter
           }
         ],
         signatures: [],
-        memo: ''
+        memo
       }
 
       const txToSign: CosmosSignTx = {

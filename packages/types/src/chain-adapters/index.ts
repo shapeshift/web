@@ -170,6 +170,7 @@ export type BuildSendTxInput<T extends ChainTypes> = {
   wallet: HDWallet
   bip44Params?: BIP44Params // TODO maybe these shouldnt be optional
   sendMax?: boolean
+  memo?: string
 } & ChainSpecificBuildTxData<T>
 
 type ChainSpecificBuildTxData<T> = ChainSpecific<

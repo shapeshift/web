@@ -1,8 +1,9 @@
-import { Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
+import { Center, Flex, ModalBody, ModalFooter, Stack, Tag } from '@chakra-ui/react'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 import { Asset } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
@@ -20,7 +21,13 @@ export const FoxyDetails = ({ api, contractAddress, asset, rewardAsset }: FoxyDe
   const { opportunities } = useFoxyBalances()
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
   const apy = bnOrZero(opportunity?.apy).times(100).toString()
-  if (!opportunity) return null
+  if (!opportunity) {
+    return (
+      <Center minW='350px' minH='350px'>
+        <CircularProgress isIndeterminate />
+      </Center>
+    )
+  }
   return (
     <Flex
       width='full'

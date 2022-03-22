@@ -161,6 +161,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
+          type: state.withdraw.withdrawType,
           tokenContractAddress: tokenId,
           userAddress: state.userAddress,
           contractAddress,

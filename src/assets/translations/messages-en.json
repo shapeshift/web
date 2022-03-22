@@ -4,6 +4,7 @@
     "next": "Next",
     "error": "Error",
     "cancel": "Cancel",
+    "close": "Close",
     "continue": "Continue",
     "confirm": "Confirm",
     "reject": "Reject",
@@ -11,6 +12,7 @@
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
+    "estimatedGas": "Estimated Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "unresolvableEnsDomain": "Cannot resolve ENS domain",
@@ -163,7 +165,8 @@
       },
       "claim": {
         "claimAmount": "Claim Amount",
-        "claimToAddress": "Claim To Address"
+        "claimToAddress": "Claim To Address",
+        "confirmClaim": "Confirm Claim"
       }
     },
     "amountToStake": "Amount to Stake",

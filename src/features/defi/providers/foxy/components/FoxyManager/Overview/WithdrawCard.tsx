@@ -20,7 +20,7 @@ export const WithdrawCard = ({ asset, ...rest }: WithdrawCardProps) => {
   const textColor = useColorModeValue('black', 'white')
 
   const handleClick = () => {
-    history.push('/claim/confirm')
+    history.push('/claim')
   }
 
   return hasClaim ? (

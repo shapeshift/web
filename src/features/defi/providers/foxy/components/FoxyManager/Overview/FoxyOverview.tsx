@@ -9,26 +9,16 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import { matchPath, Route, Switch, useLocation } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { RouteSteps } from 'components/RouteSteps/RouteSteps'
+import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { Claim } from './Claim/Claim'
 import { FoxyDetails } from './FoxyDetails'
 import { FoxyEmpty } from './FoxyEmpty'
-
-enum OverviewPath {
-  Overview = '/',
-  Claim = '/claim',
-  ClaimStatus = '/claim/status'
-}
-
-export const routes = [
-  { step: 0, path: OverviewPath.Claim, label: 'Confirm' },
-  { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' }
-]
 
 type FoxyOverViewProps = {
   api: FoxyApi
@@ -48,6 +38,7 @@ export const FoxyOverview = ({ api }: FoxyOverViewProps) => {
   })
   const { chain, contractAddress, tokenId, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const foxyBalance = bnOrZero(opportunity?.balance)
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
   const stakingAssetCAIP19 = caip19.toCAIP19({
@@ -78,27 +69,29 @@ export const FoxyOverview = ({ api }: FoxyOverViewProps) => {
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             <Route exact path='/'>
-              <FoxyEmpty
-                assets={[stakingAsset, rewardAsset]}
-                apy={bnOrZero(opportunity?.apy).times(100).toString()}
-                onClick={() =>
-                  browserHistory.push({
-                    ...browserLocation,
-                    pathname: `/defi/${match?.params.earnType}/${match?.params.provider}/deposit/`
-                  })
-                }
-              />
-              <FoxyDetails
-                api={api}
-                contractAddress={contractAddress}
-                asset={stakingAsset}
-                rewardAsset={rewardAsset}
-              />
+              <SlideTransition>
+                {foxyBalance.gt(0) ? (
+                  <FoxyDetails
+                    api={api}
+                    contractAddress={contractAddress}
+                    asset={stakingAsset}
+                    rewardAsset={rewardAsset}
+                  />
+                ) : (
+                  <FoxyEmpty
+                    assets={[stakingAsset, rewardAsset]}
+                    apy={bnOrZero(opportunity?.apy).times(100).toString()}
+                    onClick={() =>
+                      browserHistory.push({
+                        ...browserLocation,
+                        pathname: `/defi/${match?.params.earnType}/${match?.params.provider}/deposit/`
+                      })
+                    }
+                  />
+                )}
+              </SlideTransition>
             </Route>
-            <Route exact path='/claim/confirm'>
-              <RouteSteps routes={routes} location={location} />
-              <p>Confirm Claim</p>
-            </Route>
+            <Route exact path='/claim' component={Claim} />
           </Switch>
         </AnimatePresence>
       </Flex>

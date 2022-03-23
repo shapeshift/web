@@ -63,7 +63,7 @@ export const isSupportedContract = (tx: Tx) =>
  * trade (i.e. some account sells to pool A and buys from pool B).
  *
  * @param buyTransfer transfer with TxType.Receive
- * @param sellTransfer transfer with Tx.Type.Send
+ * @param sellTransfer transfer with TxType.Send
  * @returns boolean
  */
 export const isTradeContract = (

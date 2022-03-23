@@ -54,6 +54,14 @@ export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdap
 export const isSupportedContract = (tx: Tx) =>
   tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
+export const isTradeContract = (
+  buyTx: chainAdapters.TxTransfer,
+  sellTx: chainAdapters.TxTransfer
+) => {
+  // user (to a) -> user (from b) && pool a    !== pool b
+  return sellTx.from === buyTx.to && sellTx.to !== buyTx.from
+}
+
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const method = tx.data?.method
@@ -112,9 +120,10 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
   }, [from, to])
+  const backupType = buyTx && sellTx && isTradeContract(buyTx, sellTx) ? TradeType.Trade : ''
   const type = isSupportedContract(tx)
     ? TxType.Contract
-    : standardTx?.type ?? tx.tradeDetails?.type ?? ''
+    : standardTx?.type ?? tx.tradeDetails?.type ?? backupType
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
   const explorerTxLink =

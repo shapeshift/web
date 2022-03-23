@@ -4,8 +4,11 @@ import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
-import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import {
+  AccountSpecifier,
+  AccountSpecifierMap
+} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds } from './utils'
 
@@ -159,7 +162,7 @@ export const txHistory = createSlice({
   }
 })
 
-type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifier }
+type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',

@@ -9,8 +9,8 @@ import {
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { EthSend } from 'test/mocks/txs'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 

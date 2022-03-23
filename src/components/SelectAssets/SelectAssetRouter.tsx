@@ -1,7 +1,7 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter, Route, RouteComponentProps, Switch, useLocation } from 'react-router-dom'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { SelectAssetView } from './SelectAssetView'
 

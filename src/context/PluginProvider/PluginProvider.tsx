@@ -1,12 +1,12 @@
-import { useState, useEffect, useContext } from 'react'
+import { ChainAdapter, ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { ChainAdapterManager, ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { PluginManager, Plugin } from 'plugins'
+import { Plugin, PluginManager } from 'plugins'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import React, { createContext } from 'react'
 import { useSelector } from 'react-redux'
-import { selectFeatureFlags } from 'state/slices/selectors'
 import { Route } from 'Routes/helpers'
 import { partitionCompareWith } from 'lib/utils'
+import { selectFeatureFlags } from 'state/slices/selectors'
 
 type PluginProviderProps = {
   children: React.ReactNode
@@ -23,13 +23,29 @@ const activePlugins = ['bitcoin', 'cosmos', 'ethereum']
 
 const PluginContext = createContext<PluginProviderContextProps | null>(null)
 
-export const chainAdapterManager = new ChainAdapterManager({})
+// don't export me, access me through the getter
+let _chainAdapterManager: ChainAdapterManager | undefined
+
+// we need to be able to access this outside react
+export const getChainAdapters = (): ChainAdapterManager => {
+  if (!_chainAdapterManager) _chainAdapterManager = new ChainAdapterManager({})
+  return _chainAdapterManager
+}
 
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [pluginManager] = useState(new PluginManager())
   const [plugins, setPlugins] = useState<[string, Plugin][] | null>(null)
   const [supportedChains, setSupportedChains] = useState<ChainTypes[]>([])
   const featureFlags = useSelector(selectFeatureFlags)
+
+  // a referentially stable, reactive reference to the chain adapter manager singleton
+  const chainAdapterManagerRef = useRef<ChainAdapterManager>(getChainAdapters())
+
+  // a memoized version of the current version of the ref to be made available on the context
+  const chainAdapterManager = useMemo(
+    () => chainAdapterManagerRef.current,
+    [chainAdapterManagerRef]
+  )
 
   useEffect(() => {
     ;(async () => {
@@ -52,8 +68,6 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     if (!plugins) return
 
     let routes: Route[] = []
-    // keep track of what's currently registered
-    const currentChainAdapters = chainAdapterManager.getSupportedChains()
 
     // newly registered will be default + what comes from plugins
     const newChainAdapters: { [k in ChainTypes]?: () => ChainAdapter<ChainTypes> } = {}
@@ -78,22 +92,22 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     // unregister the difference between what we had, and now have after loading plugins
     partitionCompareWith<ChainTypes>(
-      currentChainAdapters,
+      chainAdapterManager.getSupportedChains(),
       Object.keys(newChainAdapters) as ChainTypes[],
       {
         add: chain => {
           const factory = newChainAdapters[chain]
-          if (factory) chainAdapterManager.addChain(chain, factory)
+          if (factory) getChainAdapters().addChain(chain, factory)
         },
         remove: chain => {
-          chainAdapterManager.byChain(chain).closeTxs()
-          chainAdapterManager.removeChain(chain)
+          getChainAdapters().byChain(chain).closeTxs()
+          getChainAdapters().removeChain(chain)
         }
       }
     )
 
-    setSupportedChains(chainAdapterManager.getSupportedChains())
-  }, [plugins])
+    setSupportedChains(getChainAdapters().getSupportedChains())
+  }, [chainAdapterManager, featureFlags, plugins, pluginManager])
 
   if (!plugins) return <></>
 
@@ -108,4 +122,10 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 }
 
 export const usePlugins = () => useContext(PluginContext)
-export const useChainAdapters = () => useContext(PluginContext)?.chainAdapterManager
+export const useChainAdapters = () => {
+  const context = useContext(PluginContext)
+  if (!context) {
+    throw new Error('PluginProvider: trying to access useChainAdapters outside the PluginProvider')
+  }
+  return context.chainAdapterManager
+}

@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { fromBaseUnit } from 'lib/math'
 
 import { TradeActions, useSwapper } from './useSwapper'

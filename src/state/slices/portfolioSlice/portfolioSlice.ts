@@ -5,10 +5,10 @@ import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
-import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
+import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { accountToPortfolio } from './utils'
 
@@ -161,7 +161,7 @@ export const portfolio = createSlice({
   }
 })
 
-type GetAccountArgs = { accountSpecifierMap: AccountSpecifier }
+type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
 
 export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',

@@ -1,14 +1,9 @@
-import isEmpty from 'lodash/isEmpty'
-import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAssetIds, selectAccountSpecifiers } from 'state/slices/selectors'
-import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { AssetNamespace, AssetReference, caip2, caip19 } from '@shapeshiftoss/caip'
+import {
+  convertXpubVersion,
+  toRootDerivationPath,
+  utxoAccountParams
+} from '@shapeshiftoss/chain-adapters'
 import {
   bip32ToAddressNList,
   supportsBTC,
@@ -16,16 +11,22 @@ import {
   supportsETH,
   supportsOsmosis
 } from '@shapeshiftoss/hdwallet-core'
-import { AssetNamespace, AssetReference, CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
-import { selectAssetIds, selectAssets } from 'state/slices/selectors'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import isEmpty from 'lodash/isEmpty'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import {
-  convertXpubVersion,
-  toRootDerivationPath,
-  utxoAccountParams
-} from '@shapeshiftoss/chain-adapters'
-
-export type AccountSpecifierMap = { [k: CAIP2]: string }
+  AccountSpecifierMap,
+  accountSpecifiers
+} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectAccountSpecifiers, selectPortfolioAssetIds } from 'state/slices/selectors'
+import { selectAssets } from 'state/slices/selectors'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -41,7 +42,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const dispatch = useDispatch()
   const chainAdapter = useChainAdapters()
   const {
-    state: { wallet, walletInfo }
+    state: { wallet }
   } = useWallet()
   const assetsById = useSelector(selectAssets)
 
@@ -73,9 +74,10 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   }, [dispatch, accountSpecifiersList])
 
   useEffect(() => {
-    console.log({ wallet, supportedChains: chainAdapter.getSupportedChains() })
+    console.info({ wallet, supportedChains: chainAdapter.getSupportedChains() })
+    if (!wallet) return
+    if (isEmpty(assetsById)) return
     ;(async () => {
-      if (!wallet) return
       try {
         const supportedChains = chainAdapter.getSupportedChains()
         const acc: AccountSpecifierMap[] = []
@@ -152,7 +154,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
       }
     })()
-  }, [chainAdapter, wallet])
+  }, [assetsById, chainAdapter, dispatch, wallet])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

@@ -1,8 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import { AssetDataSource, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 import { SendFormFields, SendInput } from '../../Form'

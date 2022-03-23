@@ -1,24 +1,23 @@
-import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import { CAIP2 } from '@shapeshiftoss/caip'
+import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdByAddress,
+  selectAccountSpecifiers,
   selectAssets,
   selectTxHistoryStatus,
-  selectTxIds,
-  selectAccountSpecifiers,
-  selectAccountSpecifiersByChainId
+  selectTxIds
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppSelector } from 'state/store'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 type TransactionsProviderProps = {
   children: React.ReactNode
@@ -36,8 +35,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   const txIds = useAppSelector(selectTxIds)
 
   const getAccountSpecifiersByChainId = useCallback(
-    (chainId: CAIP2): AccountSpecifier[] => {
-      return accountSpecifiers.reduce<AccountSpecifier[]>((acc, cur) => {
+    (chainId: CAIP2): AccountSpecifierMap[] => {
+      return accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
         const [_chainId, accountSpecifier] = Object.entries(cur)[0]
         if (_chainId !== chainId) return acc
         return acc.concat({ [chainId]: accountSpecifier })

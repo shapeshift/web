@@ -1,6 +1,6 @@
 import { Middleware } from '@reduxjs/toolkit'
 
-const log = (message: string, obj: unknown, featureFlag: boolean) => {
+const log = (message: string, obj: Record<string, unknown>, featureFlag: boolean) => {
   if (featureFlag) {
     console.info(message, obj)
   }

@@ -7,6 +7,7 @@ import { reportWebVitals } from 'lib/reportWebVitals'
 
 import { App } from './App'
 import { AppProviders } from './AppProviders'
+import { setupSentry } from 'lib/setupSentry'
 
 ReactDOM.render(
   <React.StrictMode>
@@ -24,3 +25,6 @@ reportWebVitals(x => console.info('reportWebVitals', x))
 
 // Because ASCII Art
 renderConsoleArt()
+
+// setup sentry
+// setupSentry()

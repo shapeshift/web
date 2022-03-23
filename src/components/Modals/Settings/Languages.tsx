@@ -9,8 +9,8 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { locales } from './constants'
-import { getLocaleLabel } from './utils'
+import { locales } from '../../../assets/translations/constants'
+import { getLocaleLabel } from '../../../assets/translations/utils'
 
 export const Languages = (props: RouteComponentProps) => {
   const dispatch = useAppDispatch()
@@ -18,7 +18,7 @@ export const Languages = (props: RouteComponentProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const translate = useTranslate()
   const otherLocales = locales.filter(l => l.key !== selectedLocale)
-  const goBack = () => history.goBack()
+  const { goBack } = history
 
   return (
     <SlideTransition>

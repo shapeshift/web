@@ -22,10 +22,10 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { SettingsRoutes } from './Settings'
 import { SettingsListItem } from './SettingsListItem'
-import { getLocaleLabel } from './utils'
 
 type SettingsListProps = {
   appHistory: RouteComponentProps['history']

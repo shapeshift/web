@@ -432,9 +432,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
          * if fiatAmount is less than the selected threshold,
          * continue to the next asset balance by returning acc
          */
-        if (fiatAmount.isLessThan(bnOrZero(balanceThreshold))) {
-          return acc
-        }
+        if (fiatAmount.isLessThan(bnOrZero(balanceThreshold))) return acc
         const allocation = fiatAmount.div(bnOrZero(totalPortfolioFiatBalance)).times(100).toNumber()
         const priceChange = marketData[assetId]?.changePercent24Hr
         const data = {

@@ -6,7 +6,7 @@ import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
@@ -40,17 +40,13 @@ export const supportedAccountTypes = {
  * and addresses, and also preempts supporting more than accountIndex 0 in future
  */
 
-// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
-// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
-export type AccountSpecifier = string
-
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
-    [k: AccountSpecifier]: CAIP19[]
+    [k: string]: CAIP19[]
   }
   // a list of accounts in this portfolio
-  ids: AccountSpecifier[]
+  ids: string[]
 }
 
 export type PortfolioBalancesById = {
@@ -71,12 +67,12 @@ export type PortfolioAssets = {
 
 export type PortfolioAccountBalances = {
   byId: {
-    [k: AccountSpecifier]: {
+    [k: string]: {
       // these are granular balances of this asset for this account
       [k: CAIP19]: string // balance for asset in base units
     }
   }
-  ids: AccountSpecifier[]
+  ids: string[]
 }
 
 export type PortfolioAccountSpecifiers = {
@@ -84,9 +80,9 @@ export type PortfolioAccountSpecifiers = {
     // this maps an account identifier to a list of addresses
     // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
     // in account based chains, this is a 1:1 mapping, i.e. the account is the address
-    [k: AccountSpecifier]: CAIP10[]
+    [k: string]: CAIP10[]
   }
-  ids: AccountSpecifier[]
+  ids: string[]
 }
 
 export type Portfolio = {
@@ -165,7 +161,7 @@ export const portfolio = createSlice({
   }
 })
 
-type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap }
+type GetAccountArgs = { accountSpecifierMap: AccountSpecifier }
 
 export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',

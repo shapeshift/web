@@ -1,11 +1,31 @@
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAssetIds } from 'state/slices/selectors'
+import { selectPortfolioAssetIds, selectAccountSpecifiers } from 'state/slices/selectors'
+import { accountSpecifiers } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import {
+  bip32ToAddressNList,
+  supportsBTC,
+  supportsCosmos,
+  supportsETH,
+  supportsOsmosis
+} from '@shapeshiftoss/hdwallet-core'
+import { AssetNamespace, AssetReference, CAIP2, caip2, caip19 } from '@shapeshiftoss/caip'
+import { selectAssetIds, selectAssets } from 'state/slices/selectors'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  convertXpubVersion,
+  toRootDerivationPath,
+  utxoAccountParams
+} from '@shapeshiftoss/chain-adapters'
+
+export type AccountSpecifierMap = { [k: CAIP2]: string }
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -19,6 +39,12 @@ import { selectPortfolioAssetIds } from 'state/slices/selectors'
  */
 export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch()
+  const chainAdapter = useChainAdapters()
+  const {
+    state: { wallet, walletInfo }
+  } = useWallet()
+  const assetsById = useSelector(selectAssets)
+
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
   useGetAssetsQuery()
@@ -27,24 +53,106 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
-  const { accountSpecifiers } = useAccountSpecifiers()
+  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination
   useEffect(() => {
-    if (isEmpty(accountSpecifiers)) return
+    if (isEmpty(accountSpecifiersList)) return
     // clear the old portfolio, we have different non null data, we're switching wallet
     console.info('dispatching portfolio clear action')
     dispatch(portfolio.actions.clear())
     // fetch each account
-    accountSpecifiers.forEach(accountSpecifierMap => {
+    accountSpecifiersList.forEach(accountSpecifierMap => {
       // forceRefetch is enabled here to make sure that we always have the latest wallet information
       // it also forces queryFn to run and that's needed for the wallet info to be dispatched
       dispatch(
         portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
       )
     })
-  }, [dispatch, accountSpecifiers])
+  }, [dispatch, accountSpecifiersList])
+
+  useEffect(() => {
+    console.log({ wallet, supportedChains: chainAdapter.getSupportedChains() })
+    ;(async () => {
+      if (!wallet) return
+      try {
+        const supportedChains = chainAdapter.getSupportedChains()
+        const acc: AccountSpecifierMap[] = []
+
+        for (const chain of supportedChains) {
+          const adapter = chainAdapter.byChain(chain)
+
+          switch (chain) {
+            // TODO: Handle Cosmos ChainType here
+            case ChainTypes.Ethereum: {
+              if (!supportsETH(wallet)) continue
+              const pubkey = await adapter.getAddress({ wallet })
+              if (!pubkey) continue
+              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
+              acc.push({ [CAIP2]: pubkey })
+              break
+            }
+            case ChainTypes.Bitcoin: {
+              if (!supportsBTC(wallet)) continue
+              const CAIP19 = caip19.toCAIP19({
+                chain,
+                network: NetworkTypes.MAINNET,
+                assetNamespace: AssetNamespace.Slip44,
+                assetReference: AssetReference.Bitcoin
+              })
+              const bitcoin = assetsById[CAIP19]
+
+              if (!bitcoin) continue
+              for (const accountType of supportedAccountTypes.bitcoin) {
+                const accountParams = utxoAccountParams(bitcoin, accountType, 0)
+                const { bip44Params, scriptType } = accountParams
+                const pubkeys = await wallet.getPublicKeys([
+                  {
+                    coin: adapter.getType(),
+                    addressNList: bip32ToAddressNList(toRootDerivationPath(bip44Params)),
+                    curve: 'secp256k1',
+                    scriptType
+                  }
+                ])
+                if (!pubkeys?.[0]?.xpub) {
+                  throw new Error(`usePubkeys: error getting bitcoin xpub`)
+                }
+                const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
+
+                if (!pubkey) continue
+                const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
+                acc.push({ [CAIP2]: pubkey })
+              }
+              break
+            }
+            case ChainTypes.Cosmos: {
+              if (!supportsCosmos(wallet)) continue
+              const pubkey = await adapter.getAddress({ wallet })
+              if (!pubkey) continue
+              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
+              acc.push({ [CAIP2]: pubkey })
+              break
+            }
+            case ChainTypes.Osmosis: {
+              if (!supportsOsmosis(wallet)) continue
+              const pubkey = await adapter.getAddress({ wallet })
+              if (!pubkey) continue
+              const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
+              acc.push({ [CAIP2]: pubkey })
+              break
+            }
+            default:
+              break
+          }
+        }
+
+        dispatch(accountSpecifiers.actions.setAccountSpecifiers(acc))
+      } catch (e) {
+        console.error('useAccountSpecifiers:getAccountSpecifiers:Error', e)
+      }
+    })()
+  }, [chainAdapter, wallet])
 
   // we only prefetch market data for the top 1000 assets
   // once the portfolio has loaded, check we have market data

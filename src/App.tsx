@@ -18,7 +18,7 @@ import { Route } from './Routes/helpers'
 import { useAppSelector } from './state/store'
 
 export const App = () => {
-  const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
+  const [pluginRoutes, setPluginRoutes] = useState<Route[] | null>(null)
   const chainAdapterManager = useChainAdapters()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
@@ -111,6 +111,8 @@ export const App = () => {
       toastIdRef.current = toastId
     }
   }, [shouldUpdate, toast, translate])
+
+  if (!pluginRoutes) return null
 
   return <Routes additionalRoutes={pluginRoutes} />
 }

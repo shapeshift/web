@@ -4,6 +4,7 @@ import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { preferences } from './slices/preferencesSlice/preferencesSlice'
+import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 export const slices = {
@@ -11,7 +12,8 @@ export const slices = {
   marketData,
   txHistory,
   portfolio,
-  preferences
+  preferences,
+  accountSpecifiers
 }
 
 export const sliceReducers = {
@@ -19,7 +21,8 @@ export const sliceReducers = {
   marketData: marketData.reducer,
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
-  preferences: preferences.reducer
+  preferences: preferences.reducer,
+  accountSpecifiers: accountSpecifiers.reducer
 }
 
 export const apiSlices = {

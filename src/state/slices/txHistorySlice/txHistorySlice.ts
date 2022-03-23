@@ -5,8 +5,7 @@ import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds } from './utils'
 
@@ -47,7 +46,7 @@ export type TxIdByAssetId = {
 }
 
 export type TxIdByAccountId = {
-  [k: AccountSpecifier]: TxId[]
+  [k: string]: TxId[]
 }
 
 // before the wallet is connected, we're idle
@@ -160,7 +159,7 @@ export const txHistory = createSlice({
   }
 })
 
-type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
+type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifier }
 
 export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',

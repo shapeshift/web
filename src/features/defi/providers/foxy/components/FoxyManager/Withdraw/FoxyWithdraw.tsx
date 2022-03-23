@@ -122,17 +122,19 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
     if (!state.userAddress || !tokenId) return
     try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateWithdrawGas({
-          tokenContractAddress: tokenId,
-          contractAddress,
-          amountDesired: bnOrZero(withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          userAddress: state.userAddress
-        }),
-        api.getGasPrice()
-      ])
+      const gasLimit = ''
+      const gasPrice = ''
+      // const [gasLimit, gasPrice] = await Promise.all([
+      //   api.estimateWithdrawGas({
+      //     tokenContractAddress: tokenId,
+      //     contractAddress,
+      //     amountDesired: bnOrZero(withdraw.cryptoAmount)
+      //       .times(`1e+${asset.precision}`)
+      //       .decimalPlaces(0),
+      //     userAddress: state.userAddress
+      //   }),
+      //   api.getGasPrice()
+      // ])
       const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
       return returVal
     } catch (error) {
@@ -159,18 +161,20 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
-      const [txid, gasPrice] = await Promise.all([
-        api.withdraw({
-          tokenContractAddress: tokenId,
-          userAddress: state.userAddress,
-          contractAddress,
-          wallet: walletState.wallet,
-          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0)
-        }),
-        api.getGasPrice()
-      ])
+    const txid = ''
+    const gasPrice = ''
+      // const [txid, gasPrice] = await Promise.all([
+      //   api.withdraw({
+      //     tokenContractAddress: tokenId,
+      //     userAddress: state.userAddress,
+      //     contractAddress,
+      //     wallet: walletState.wallet,
+      //     amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+      //       .times(`1e+${asset.precision}`)
+      //       .decimalPlaces(0)
+      //   }),
+      //   api.getGasPrice()
+      // ])
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       history.push(WithdrawPath.Status)
 

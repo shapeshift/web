@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createTransform } from 'redux-persist'
 import { simpleLocale } from 'lib/browserLocale'
 
 import { getConfig } from '../../../config'
@@ -26,10 +25,8 @@ const initialState: Preferences = {
   balanceThreshold: '0'
 }
 
-const reducerName = 'preferences'
-
 export const preferences = createSlice({
-  name: reducerName,
+  name: 'preferences',
   initialState,
   reducers: {
     clearFeatureFlags: state => {
@@ -46,16 +43,3 @@ export const preferences = createSlice({
     }
   }
 })
-
-// https://github.com/rt2zz/redux-persist#transforms
-export const ignoreFeatureFlagsTransform = createTransform(
-  // transform state on its way to being serialized and persisted.
-  (inboundState: Preferences) => inboundState,
-  // transform state being rehydrated
-  (outboundState: Preferences) => {
-    // ignore persisted featureFlags state
-    return { ...outboundState, featureFlags: initialState.featureFlags }
-  },
-  // define which reducers this transform gets called for.
-  { whitelist: [reducerName] }
-)

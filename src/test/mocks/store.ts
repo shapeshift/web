@@ -49,7 +49,12 @@ export const mockStore: ReduxState = {
       GemRamp: false
     },
     selectedLocale: 'en',
-    balanceThreshold: '0'
+    balanceThreshold: '0',
+    // the following object is required by redux-persist
+    _persist: {
+      version: 0,
+      rehydrated: false
+    }
   },
   assets: {
     byId: {},

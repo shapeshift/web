@@ -9,13 +9,11 @@ import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as portfolioSelectors from './slices/portfolioSlice/selectors'
-import { ignoreFeatureFlagsTransform } from './slices/preferencesSlice/preferencesSlice'
 
 const persistConfig = {
   key: 'root',
-  whitelist: ['preferences'],
-  storage: localforage,
-  transforms: [ignoreFeatureFlagsTransform]
+  whitelist: [''],
+  storage: localforage
 }
 
 registerSelectors(portfolioSelectors)

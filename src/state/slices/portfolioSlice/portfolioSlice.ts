@@ -8,8 +8,8 @@ import isEmpty from 'lodash/isEmpty'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
-import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
+import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountToPortfolio } from './utils'
 
 // TODO(0xdef1cafe): this needs a better home, probably in chain adapters
@@ -40,13 +40,17 @@ export const supportedAccountTypes = {
  * and addresses, and also preempts supporting more than accountIndex 0 in future
  */
 
+// const ethAccountSpecifier: string = eip155:1:0xdef1...cafe
+// const btcAccountSpecifier: string = 'bip122:000000000019d6689c085ae165831e93:xpub...'
+export type AccountSpecifier = string
+
 export type PortfolioAccounts = {
   byId: {
     // asset ids belonging to an account
-    [k: string]: CAIP19[]
+    [k: AccountSpecifier]: CAIP19[]
   }
   // a list of accounts in this portfolio
-  ids: string[]
+  ids: AccountSpecifier[]
 }
 
 export type PortfolioBalancesById = {
@@ -67,12 +71,12 @@ export type PortfolioAssets = {
 
 export type PortfolioAccountBalances = {
   byId: {
-    [k: string]: {
+    [k: AccountSpecifier]: {
       // these are granular balances of this asset for this account
       [k: CAIP19]: string // balance for asset in base units
     }
   }
-  ids: string[]
+  ids: AccountSpecifier[]
 }
 
 export type PortfolioAccountSpecifiers = {
@@ -80,9 +84,9 @@ export type PortfolioAccountSpecifiers = {
     // this maps an account identifier to a list of addresses
     // in the case of utxo chains, an account (e.g. xpub/ypub/zpub) can have multiple addresses
     // in account based chains, this is a 1:1 mapping, i.e. the account is the address
-    [k: string]: CAIP10[]
+    [k: AccountSpecifier]: CAIP10[]
   }
-  ids: string[]
+  ids: AccountSpecifier[]
 }
 
 export type Portfolio = {

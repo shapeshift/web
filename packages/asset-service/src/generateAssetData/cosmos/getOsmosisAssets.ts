@@ -3,7 +3,7 @@ import axios from 'axios'
 
 import { getRenderedIdenticonBase64, IdenticonOptions } from '../../service/GenerateAssetIcon'
 
-type AssetList = {
+type OsmoAsset = {
   description: string
   denom_units: {
     denom: string
@@ -19,11 +19,16 @@ type AssetList = {
     svg: string
   }
   coingecko_id: string
+  ibc?: {
+    source_channel: string
+    dst_channel: string
+    source_denom: string
+  }
 }
 
 type OsmosisAssetList = {
   chain_id: string
-  assets: AssetList[]
+  assets: OsmoAsset[]
 }
 
 export const getOsmosisAssets = async (): Promise<Asset[]> => {
@@ -48,14 +53,17 @@ export const getOsmosisAssets = async (): Promise<Asset[]> => {
       assetReference = current.base.split('/')[1]
     }
 
+    // if an asset has an ibc object, it's bridged, so label it as e.g. ATOM on Osmosis
+    const getName = (a: OsmoAsset): string => (a.ibc ? `${a.name} on Osmosis` : a.name)
+
     const assetDatum = {
       caip19: `cosmos:osmosis-1/${assetNamespace}:${assetReference}`,
       caip2: 'cosmos:osmosis-1',
-      chain: ChainTypes.Cosmos,
+      chain: ChainTypes.Osmosis,
       dataSource: AssetDataSource.CoinGecko,
       network: NetworkTypes.OSMOSIS_MAINNET,
       symbol: current.symbol,
-      name: current.name,
+      name: getName(current),
       precision,
       slip44: 60,
       color: '#FFFFFF',

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/asset-service-v2.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.3...@shapeshiftoss/asset-service-v2.2.0) (2022-03-23)
+
+
+### Features
+
+* label ibc voucher assets as Asset on Osmosis ([#477](https://github.com/shapeshift/lib/issues/477)) ([947e654](https://github.com/shapeshift/lib/commit/947e654fb7cbce1f1c2635295737571042357509))
+
 # [@shapeshiftoss/asset-service-v2.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.2...@shapeshiftoss/asset-service-v2.1.3) (2022-03-23)
 
 # [@shapeshiftoss/asset-service-v2.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.1...@shapeshiftoss/asset-service-v2.1.2) (2022-03-22)

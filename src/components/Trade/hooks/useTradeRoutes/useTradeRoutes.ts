@@ -1,4 +1,5 @@
 import { Asset, ChainTypes, SwapperType } from '@shapeshiftoss/types'
+import isEmpty from 'lodash/isEmpty'
 import { useCallback, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useSelector } from 'react-redux'
@@ -21,6 +22,8 @@ export const useTradeRoutes = (): {
   const feeAsset = assets['eip155:1/slip44:60']
 
   const setDefaultAssets = useCallback(async () => {
+    // wait for assets to be loaded
+    if (isEmpty(assets) || !feeAsset) return
     try {
       const [sellAssetId, buyAssetId] = getDefaultPair()
       const sellAsset = assets[sellAssetId]
@@ -32,7 +35,7 @@ export const useTradeRoutes = (): {
         })
         setValue('sellAsset.currency', sellAsset)
         setValue('buyAsset.currency', buyAsset)
-        getQuote({
+        await getQuote({
           amount: '0',
           sellAsset: { currency: sellAsset },
           buyAsset: { currency: buyAsset },
@@ -46,7 +49,7 @@ export const useTradeRoutes = (): {
 
   useEffect(() => {
     setDefaultAssets()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [assets, feeAsset]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSellClick = useCallback(
     async (asset: Asset) => {
@@ -59,7 +62,7 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({
+        await getQuote({
           amount: sellAsset.amount ?? '0',
           sellAsset,
           buyAsset,
@@ -86,7 +89,7 @@ export const useTradeRoutes = (): {
         setValue('action', action)
         setValue('quote', undefined)
         await getBestSwapper({ sellAsset, buyAsset })
-        getQuote({
+        await getQuote({
           amount: buyAsset.amount ?? '0',
           sellAsset,
           buyAsset,

@@ -55,11 +55,11 @@ export const isSupportedContract = (tx: Tx) =>
   tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
 export const isTradeContract = (
-  buyTx: chainAdapters.TxTransfer,
-  sellTx: chainAdapters.TxTransfer
+  buyTransfer: chainAdapters.TxTransfer,
+  sellTransfer: chainAdapters.TxTransfer
 ) => {
   // user (to a) -> user (from b) && pool a    !== pool b
-  return sellTx.from === buyTx.to && sellTx.to !== buyTx.from
+  return sellTransfer.from === buyTransfer.to && sellTransfer.to !== buyTransfer.from
 }
 
 export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {

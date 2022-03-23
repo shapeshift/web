@@ -4,7 +4,7 @@ import { Redirect, useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
+import { selectAccountSpecifierStrings } from 'state/slices/selectors'
 export type MatchParams = {
   accountId: AccountSpecifier
   assetId: CAIP19
@@ -23,8 +23,9 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
    * so we'll redirect user to the "accounts" page,
    * in order to choose the account from beginning.
    */
-  const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
-  if (!sortedAccountIds.includes(accountId)) return <Redirect to='/accounts' />
+  const accountSpecifierStrings = useSelector(selectAccountSpecifierStrings)
+  const isCurrentAccountIdOwner = Boolean(accountSpecifierStrings.includes(accountId))
+  if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 
   const caip19 = assetId ? decodeURIComponent(assetId) : null
   if (!caip19) return null

@@ -6,36 +6,22 @@ export enum WalletConnectedRoutes {
   KeepKey = '/connected/keepkey',
   KeepKeyPin = '/connected/keepkey/pin',
   KeepKeyLabel = '/connected/keepkey/label',
-  KeepKeyTimeout = '/connected/keepkey/timeout'
+  KeepKeyTimeout = '/connected/keepkey/timeout',
+  KeepKeyPinCaching = '/connected/keepkey/pin-caching',
+  KeepKeyPassphrase = '/connected/keepkey/passphrase'
 }
 
 export const useMenuRoutes = () => {
   const history = useHistory()
+
   const handleBackClick = useCallback(() => history.goBack(), [history])
-  const handleKeepKeyClick = useCallback(
-    () => history.push(WalletConnectedRoutes.KeepKey),
-    [history]
-  )
-  const handleChangePinClick = useCallback(
-    () => history.push(WalletConnectedRoutes.KeepKeyPin),
-    [history]
-  )
-
-  const handleChangeLabelClick = useCallback(
-    () => history.push(WalletConnectedRoutes.KeepKeyLabel),
-    [history]
-  )
-
-  const handleChangeTimeoutClick = useCallback(
-    () => history.push(WalletConnectedRoutes.KeepKeyTimeout),
+  const navigateToRoute = useCallback(
+    (route: WalletConnectedRoutes) => history.push(route),
     [history]
   )
 
   return {
-    handleKeepKeyClick,
     handleBackClick,
-    handleChangePinClick,
-    handleChangeLabelClick,
-    handleChangeTimeoutClick
+    navigateToRoute
   }
 }

@@ -18,7 +18,7 @@ import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKe
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const KeepKeyMenuRoutes = () => {
-  const { handleChangePinClick, handleChangeLabelClick, handleChangeTimeoutClick } = useMenuRoutes()
+  const { navigateToRoute } = useMenuRoutes()
   const translate = useTranslate()
   const { wallet, versions } = useKeepKeyWallet()
   const { state } = useWallet()
@@ -94,13 +94,13 @@ export const KeepKeyMenuRoutes = () => {
           />
           <MenuDivider />
           <ExpandedMenuItem
-            onClick={handleChangeLabelClick}
+            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyLabel)}
             label='Label'
             value={walletInfo?.name}
             hasSubmenu={true}
           />
           <ExpandedMenuItem
-            onClick={handleChangePinClick}
+            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPin)}
             label={translate('walletProvider.keepKey.settings.menuLabels.pin')}
             value='********'
             hasSubmenu={true}
@@ -109,7 +109,7 @@ export const KeepKeyMenuRoutes = () => {
         </MenuGroup>
         <MenuGroup title={'Advanced'} ml={3} color='gray.500'>
           <ExpandedMenuItem
-            onClick={handleChangeTimeoutClick}
+            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyTimeout)}
             label={translate('walletProvider.keepKey.settings.menuLabels.deviceTimeout')}
             hasSubmenu={true}
           />

@@ -19,7 +19,7 @@ export const WalletConnectedMenuRoutes = ({
   isConnected,
   type
 }: WalletConnectedProps) => {
-  const { handleKeepKeyClick } = useMenuRoutes()
+  const { navigateToRoute } = useMenuRoutes()
   const location = useLocation()
   const translate = useTranslate()
   const keepKey = useKeepKeyWallet()
@@ -29,7 +29,9 @@ export const WalletConnectedMenuRoutes = ({
       <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
         <MenuItem
           closeOnSelect={!keepKey.wallet}
-          onClick={keepKey.wallet ? handleKeepKeyClick : undefined}
+          onClick={
+            keepKey.wallet ? () => navigateToRoute(WalletConnectedRoutes.Connected) : undefined
+          }
           icon={<WalletImage walletInfo={walletInfo} />}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center'>

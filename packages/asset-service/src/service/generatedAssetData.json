@@ -36196,7 +36196,7 @@
         "caip19": "eip155:1/erc20:0x61fcabb591d63d00e897a67c64658d376fead816",
         "caip2": "eip155:1",
         "dataSource": "coingecko",
-        "name": "FOX Yield",
+        "name": "FOX Yieldy",
         "precision": 18,
         "tokenId": "0x61fcabb591d63d00e897a67c64658d376fead816",
         "contractType": "erc20",

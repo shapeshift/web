@@ -16,7 +16,7 @@ export const getFoxyToken = (): TokenAsset[] => {
     }),
     caip2: caip2.toCAIP2({ chain, network }),
     dataSource: AssetDataSource.CoinGecko,
-    name: 'FOX Yield',
+    name: 'FOX Yieldy',
     precision: 18,
     tokenId: assetReference,
     contractType: assetNamespace,

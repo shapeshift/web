@@ -42,7 +42,8 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
-    "settings": "Settings"
+    "settings": "Settings",
+    "legalDated": "Dated: January 2022"
   },
   "updateToast": {
     "body": "A new version of the app is available",

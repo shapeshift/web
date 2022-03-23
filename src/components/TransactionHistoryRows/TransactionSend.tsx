@@ -44,7 +44,7 @@ export const TransactionSend = ({
         </Row>
         <Row title='sentTo'>
           <Address
-            explorerTxLink={txDetails.explorerTxLink}
+            explorerAddressLink={txDetails.explorerAddressLink}
             address={txDetails.to}
             ens={txDetails.ensTo}
           />

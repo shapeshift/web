@@ -30,7 +30,7 @@ export const WalletConnectedMenuRoutes = ({
         <MenuItem
           closeOnSelect={!keepKey.wallet}
           onClick={
-            keepKey.wallet ? () => navigateToRoute(WalletConnectedRoutes.Connected) : undefined
+            keepKey.wallet ? () => navigateToRoute(WalletConnectedRoutes.KeepKey) : undefined
           }
           icon={<WalletImage walletInfo={walletInfo} />}
         >

@@ -149,8 +149,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
      *
      * more options: https://www.electronjs.org/docs/api/browser-window
      */
-    const preloadPath = path.join(__dirname, './preload.js')
-    log.info('preloadPath', preloadPath)
 
     windows.mainWindow = new BrowserWindow({
         width: isDev ? 960 : 460,
@@ -162,7 +160,6 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             nodeIntegration: true,
             contextIsolation: false,
             // offscreen: true,
-            preload: preloadPath,
             devTools: true
         }
     })

@@ -225,22 +225,22 @@ export const AppSettingsModal = () => {
                   updateState === UpdateState.UNCHECKED
                     ? checkUpdates
                     : updateState === UpdateState.AVAILABLE
-                      ? downloadUpdates
-                      : updateState === UpdateState.DOWNLOADED
-                        ? installUpdates
-                        : checkUpdates
+                    ? downloadUpdates
+                    : updateState === UpdateState.DOWNLOADED
+                    ? installUpdates
+                    : checkUpdates
                 }
                 isDisabled={updateState === UpdateState.LATEST}
                 colorScheme={
                   updateState === UpdateState.UNCHECKED
                     ? 'gray'
                     : updateState === UpdateState.AVAILABLE
-                      ? 'blue'
-                      : updateState === UpdateState.DOWNLOADED
-                        ? 'red'
-                        : updateState === UpdateState.LATEST
-                          ? 'green'
-                          : 'gray'
+                    ? 'blue'
+                    : updateState === UpdateState.DOWNLOADED
+                    ? 'red'
+                    : updateState === UpdateState.LATEST
+                    ? 'green'
+                    : 'gray'
                 }
                 isLoading={
                   updateState === UpdateState.CHECKING || updateState === UpdateState.DOWNLOADING

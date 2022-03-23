@@ -25,8 +25,8 @@ export enum Direction {
 
 export interface TxDetails {
   tx: Tx
-  buyTx?: TxTransfer
-  sellTx?: TxTransfer
+  buyTransfer?: TxTransfer
+  sellTransfer?: TxTransfer
   tradeTx?: TxTransfer
   feeAsset?: Asset
   buyAsset?: Asset
@@ -48,17 +48,28 @@ export interface TxDetails {
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getBuyTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Receive)
-export const getSellTx = (tx: Tx) => tx.transfers.find(t => t.type === chainAdapters.TxType.Send)
+export const getBuyTransfer = (tx: Tx) =>
+  tx.transfers.find(t => t.type === chainAdapters.TxType.Receive)
+export const getSellTransfer = (tx: Tx) =>
+  tx.transfers.find(t => t.type === chainAdapters.TxType.Send)
 
 export const isSupportedContract = (tx: Tx) =>
   tx.data?.method ? SUPPORTED_CONTRACT_METHODS.has(tx.data?.method) : false
 
+/**
+ * isTradeContract
+ *
+ * Returns true when a tx has transfers matching the generalized idea of a
+ * trade (i.e. some account sells to pool A and buys from pool B).
+ *
+ * @param buyTransfer transfer with TxType.Receive
+ * @param sellTransfer transfer with Tx.Type.Send
+ * @returns boolean
+ */
 export const isTradeContract = (
   buyTransfer: chainAdapters.TxTransfer,
   sellTransfer: chainAdapters.TxTransfer
-) => {
-  // user (to a) -> user (from b) && pool a    !== pool b
+): boolean => {
   return sellTransfer.from === buyTransfer.to && sellTransfer.to !== buyTransfer.from
 }
 
@@ -67,8 +78,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const method = tx.data?.method
 
   const standardTx = getStandardTx(tx)
-  const buyTx = getBuyTx(tx)
-  const sellTx = getSellTx(tx)
+  const buyTransfer = getBuyTransfer(tx)
+  const sellTransfer = getSellTransfer(tx)
 
   const direction: Direction | undefined = (() => {
     switch (method) {
@@ -86,7 +97,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     }
   })()
 
-  const tradeTx = activeAsset?.caip19 === sellTx?.caip19 ? sellTx : buyTx
+  const tradeTx = activeAsset?.caip19 === sellTransfer?.caip19 ? sellTransfer : buyTransfer
 
   const standardAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, standardTx?.caip19 ?? '')
@@ -94,13 +105,13 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
 
   // stables need precision of eth (18) rather than 10
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, tx.fee?.caip19 ?? ''))
-  const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTx?.caip19 ?? ''))
-  const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTx?.caip19 ?? ''))
+  const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTransfer?.caip19 ?? ''))
+  const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTransfer?.caip19 ?? ''))
   const sourceMarketData = useAppSelector(state =>
-    selectMarketDataById(state, sellTx?.caip19 ?? '')
+    selectMarketDataById(state, sellTransfer?.caip19 ?? '')
   )
   const destinationMarketData = useAppSelector(state =>
-    selectMarketDataById(state, buyTx?.caip19 ?? '')
+    selectMarketDataById(state, buyTransfer?.caip19 ?? '')
   )
   const feeMarketData = useAppSelector(state => selectMarketDataById(state, tx.fee?.caip19 ?? ''))
   const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
@@ -120,10 +131,13 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
       !reverseToLookup.error && setEnsTo(reverseToLookup.name)
     })()
   }, [from, to])
-  const backupType = buyTx && sellTx && isTradeContract(buyTx, sellTx) ? TradeType.Trade : ''
+  const tradeType =
+    buyTransfer && sellTransfer && isTradeContract(buyTransfer, sellTransfer)
+      ? TradeType.Trade
+      : undefined
   const type = isSupportedContract(tx)
     ? TxType.Contract
-    : standardTx?.type ?? tx.tradeDetails?.type ?? backupType
+    : standardTx?.type ?? tx.tradeDetails?.type ?? tradeType ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18
   const explorerTxLink =
@@ -136,8 +150,8 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
 
   return {
     tx,
-    buyTx,
-    sellTx,
+    buyTransfer,
+    sellTransfer,
     tradeTx,
     feeAsset,
     buyAsset,

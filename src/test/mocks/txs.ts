@@ -372,6 +372,36 @@ export const uniswapUsdcFox = {
   txid: '0xa6b1b97f3822c83f0efdd5835ef08094a1f9e367ed70986168bd6a1e91919959'
 }
 
+export const cow = {
+  address: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
+  blockHash: '0x756d964fd1e6814ede7a6266e15ea76f85e87974cd5dfad737f7d8df8d1f1bf4',
+  blockHeight: 14432191,
+  blockTime: 1647899121,
+  caip2: 'eip155:1',
+  chain: ChainTypes.Ethereum,
+  confirmations: 6592,
+  fee: undefined,
+  status: chainAdapters.TxStatus.Confirmed,
+  tradeDetails: undefined,
+  transfers: [
+    {
+      caip19: 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+      from: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
+      to: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
+      type: chainAdapters.TxType.Send,
+      value: '24874176864645602'
+    },
+    {
+      caip19: 'eip155:1/erc20:0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+      from: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41',
+      to: '0x716EEE1925844D761A5aA2f6B8A3dCbe4426Be01',
+      type: chainAdapters.TxType.Receive,
+      value: '3000000000000000000'
+    }
+  ],
+  txid: '0x07406bb5be2534849bf8de5662a239035c993599b1857b52ae6aefa39126b2f4'
+}
+
 /**
  * These are in block/blockTime order
  */

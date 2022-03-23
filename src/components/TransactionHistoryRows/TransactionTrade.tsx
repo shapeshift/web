@@ -58,7 +58,7 @@ export const TransactionTrade = ({
         {txDetails.sellAsset && (
           <Row title='youSent'>
             <Amount
-              value={txDetails.sellTx?.value ?? '0'}
+              value={txDetails.sellTransfer?.value ?? '0'}
               precision={txDetails.sellAsset.precision}
               symbol={txDetails.sellAsset.symbol}
             />
@@ -83,7 +83,7 @@ export const TransactionTrade = ({
         {txDetails.buyAsset && (
           <Row title='youReceived'>
             <Amount
-              value={txDetails.buyTx?.value ?? '0'}
+              value={txDetails.buyTransfer?.value ?? '0'}
               precision={txDetails.buyAsset.precision}
               symbol={txDetails.buyAsset.symbol}
             />

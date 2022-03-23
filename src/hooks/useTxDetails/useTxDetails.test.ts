@@ -1,8 +1,8 @@
 import { chainAdapters } from '@shapeshiftoss/types'
 import { BtcSend, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
-  getBuyTx,
-  getSellTx,
+  getBuyTransfer,
+  getSellTransfer,
   getStandardTx,
   isTradeContract
 } from 'hooks/useTxDetails/useTxDetails'
@@ -14,19 +14,19 @@ describe('getStandardTx', () => {
   })
 })
 
-describe('getBuyTx', () => {
+describe('getBuyTransfer', () => {
   it('returns the expected values', () => {
-    expect(getBuyTx(EthSend)).toEqual(undefined)
-    expect(getBuyTx(EthReceive)).toEqual(EthReceive.transfers[0])
-    expect(getBuyTx(TradeTx)).toEqual(TradeTx.transfers[0])
+    expect(getBuyTransfer(EthSend)).toEqual(undefined)
+    expect(getBuyTransfer(EthReceive)).toEqual(EthReceive.transfers[0])
+    expect(getBuyTransfer(TradeTx)).toEqual(TradeTx.transfers[0])
   })
 })
 
-describe('getSellTx', () => {
+describe('getSellTransfer', () => {
   it('returns the expected values', () => {
-    expect(getSellTx(EthSend)).toEqual(EthSend.transfers[0])
-    expect(getSellTx(EthReceive)).toEqual(undefined)
-    expect(getSellTx(TradeTx)).toEqual(TradeTx.transfers[1])
+    expect(getSellTransfer(EthSend)).toEqual(EthSend.transfers[0])
+    expect(getSellTransfer(EthReceive)).toEqual(undefined)
+    expect(getSellTransfer(TradeTx)).toEqual(TradeTx.transfers[1])
   })
 })
 
@@ -56,7 +56,7 @@ describe('isTradeContract', () => {
     expect(isTradeContract(buy, sell)).toEqual(false)
   })
 
-  it('returns false when sellTx.to === buyTx.from', () => {
+  it('returns false when sellTransfer.to === buyTransfer.from', () => {
     const account = '0xfoxy'
     const pool = '0xpool'
     const buy = {

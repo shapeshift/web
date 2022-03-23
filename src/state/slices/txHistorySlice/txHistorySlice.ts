@@ -49,7 +49,7 @@ export type TxIdByAssetId = {
 }
 
 export type TxIdByAccountId = {
-  [k: string]: TxId[]
+  [k: AccountSpecifier]: TxId[]
 }
 
 // before the wallet is connected, we're idle

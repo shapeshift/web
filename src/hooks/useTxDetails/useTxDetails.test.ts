@@ -94,7 +94,7 @@ describe('isSupportedContract', () => {
   })
 
   it('returns false for undefined', () => {
-    const tx = { data: { method: undefined }} as Tx
+    const tx = { data: { method: undefined } } as Tx
     expect(isSupportedContract(tx)).toBe(false)
   })
 })

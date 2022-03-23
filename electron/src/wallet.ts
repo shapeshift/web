@@ -47,11 +47,11 @@ export const getDevice = async function (keyring: Keyring): Promise<GetDeviceRet
         //log.error(tag,"*** e: ",e.toString())
         log.info("failed to get device: ", e.message)
         if (e.message.indexOf("no devices found") >= 0) {
-            return new Error("No devices")
+            throw new Error("No devices")
         } else if (e.message.indexOf("claimInterface") >= 0) {
-            return new Error("Unable to claim!")
+            throw new Error("Unable to claim!")
         } else {
-            return new Error(e)
+            throw new Error(e)
         }
     }
 }

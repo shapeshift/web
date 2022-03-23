@@ -15,7 +15,7 @@ import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keep
 import { getDevice } from '../wallet'
 import { windows } from '../main'
 import Hardware from "@keepkey/keepkey-hardware-hid"
-import {set_out_of_date_bootloader} from "../state";
+import { set_out_of_date_bootloader } from "../state";
 
 const appExpress = express()
 appExpress.use(cors())
@@ -52,16 +52,16 @@ export let bridgeRunning = false
  */
 
 export const STATE_ENGINE = {
-    "error" : -1,
-    "preInit" : 0,
-    "no devices" : 1,
-    "Bootloader mode" : 2,
-    "Bootloader out of date" : 3,
-    "updating bootloader" : 4,
-    "Firmware out of date" : 5,
-    "updating firmware" : 6,
-    "device connected" : 7,
-    "bridge online" : 8
+    "error": -1,
+    "preInit": 0,
+    "no devices": 1,
+    "Bootloader mode": 2,
+    "Bootloader out of date": 3,
+    "updating bootloader": 4,
+    "Firmware out of date": 5,
+    "updating firmware": 6,
+    "device connected": 7,
+    "bridge online": 8
 }
 
 export const STATES = [
@@ -115,10 +115,10 @@ const base64toHEX = (base64) => {
     var raw = atob(base64);
     var HEX = '';
 
-    for (let i = 0; i < raw.length; i++ ) {
+    for (let i = 0; i < raw.length; i++) {
         var _hex = raw.charCodeAt(i).toString(16)
 
-        HEX += (_hex.length==2?_hex:'0'+_hex);
+        HEX += (_hex.length == 2 ? _hex : '0' + _hex);
     }
 
     return HEX
@@ -127,6 +127,58 @@ const base64toHEX = (base64) => {
 export const start_bridge = (port?: number) => new Promise<void>(async (resolve, reject) => {
     let tag = " | start_bridge | "
     try {
+        try {
+            keepkey.keyring = new Keyring()
+            const device = await getDevice(keepkey.keyring)
+            log.info(tag, "device: ", device)
+            //@ts-ignore
+            log.info(tag, "device.features.bootloaderHash: ", device?.wallet?.features?.bootloaderHash)
+
+            //verify bootloader
+            //@ts-ignore
+            const decodedHash = base64toHEX(device?.wallet?.features?.bootloaderHash)
+            log.info(tag, "decodedHash: ", decodedHash)
+            let bootloaderVersion = bootloaderHashToVersion[decodedHash]
+            log.info(tag, "*bootloaderVersion: ", bootloaderVersion)
+
+            let latestFirmware = await Hardware.getLatestFirmwareData()
+            log.info(tag, "latestFirmware: ", latestFirmware)
+            log.info(tag, "latestFirmware.bootloader.version: ", latestFirmware.bootloader.version)
+
+            //if bootloader needs update
+            if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
+                log.info("Out of date bootloader!")
+                // windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
+                //@ts-ignore
+                await set_out_of_date_bootloader(device?.wallet?.features)
+            }
+
+            if (device instanceof Error) {
+                console.log('wallet instance of error', device)
+                return resolve()
+            }
+            keepkey.device = device.device
+            keepkey.wallet = device.wallet
+            keepkey.transport = device.transport
+        } catch (e) {
+            console.log('unable to get device', e)
+            keepkey.STATE = 1
+            keepkey.STATUS = `no devices`
+            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
+            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
+            return resolve()
+        }
+
+        if (keepkey.device) {
+            if (!keepkey.transport) {
+                console.log('unable to get transport')
+                server.close()
+                return resolve()
+            }
+        } else {
+            log.info('Can not start! waiting for device connect')
+        }
+
 
         let API_PORT = port || 1646
 
@@ -164,12 +216,13 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             server = appExpress.listen(API_PORT, () => {
                 windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)
-                windows?.mainWindow?.webContents.send('closeHardwareError', { })
+                windows?.mainWindow?.webContents.send('closeHardwareError', {})
                 // keepkey.STATE = 3
                 // keepkey.STATUS = 'bridge online'
                 // windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
                 // windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
                 updateMenu(keepkey.STATE)
+                resolve()
             })
         } catch (e) {
             keepkey.STATE = -1
@@ -182,69 +235,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
 
         bridgeRunning = true
 
-        try {
-            keepkey.keyring = new Keyring()
-            const device = await getDevice(keepkey.keyring)
-            log.info(tag, "device: ", device)
-            //@ts-ignore
-            log.info(tag, "device.features.bootloaderHash: ", device?.wallet?.features?.bootloaderHash)
-
-            //verify bootloader
-            //@ts-ignore
-            const decodedHash = base64toHEX(device?.wallet?.features?.bootloaderHash)
-            log.info(tag, "decodedHash: ", decodedHash)
-            let bootloaderVersion = bootloaderHashToVersion[decodedHash]
-            log.info(tag, "*bootloaderVersion: ", bootloaderVersion)
-
-            let latestFirmware = await Hardware.getLatestFirmwareData()
-            log.info(tag, "latestFirmware: ", latestFirmware)
-            log.info(tag, "latestFirmware.bootloader.version: ", latestFirmware.bootloader.version)
-
-            //if bootloader needs update
-            if (bootloaderVersion && bootloaderVersion !== latestFirmware.bootloader.version) {
-                log.info("Out of date bootloader!")
-                // windows?.mainWindow?.webContents.send('openBootloaderUpdate', { })
-                //@ts-ignore
-                await set_out_of_date_bootloader(device?.wallet?.features)
-            }
-
-            if (device instanceof Error) {
-                console.log('wallet instance of error', device)
-                return resolve()
-            }
-            resolve()
-            keepkey.device = device.device
-            keepkey.wallet = device.wallet
-            keepkey.transport = device.transport
-        } catch (e) {
-            resolve()
-            console.log('unable to get device', e)
-            keepkey.STATE = 1
-            keepkey.STATUS = `no devices`
-            windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
-            windows.mainWindow?.webContents.send('setKeepKeyStatus', { status: keepkey.STATUS })
-            return
-        }
-
-        if (keepkey.device) {
-            if (!keepkey.transport) {
-                console.log('unable to get transport')
-                return
-            }
-        } else {
-            log.info('Can not start! waiting for device connect')
-        }
-
-
-        const device = await getDevice(keepkey.keyring)
-
-        if (device instanceof Error) {
-            console.log('wallet instance of error', device)
-            return
-        }
-        keepkey.wallet = device.wallet
-
-        resolve()
 
     } catch (e) {
         log.error(e)

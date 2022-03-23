@@ -434,11 +434,20 @@ ipcMain.on('@bridge/stop', async event => {
 
 ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
+    console.log(tag)
+    console.log(bridgeRunning)
     try {
-        if (!bridgeRunning) start_bridge(settings.bridgeApiPort)
+        if (!bridgeRunning) {
+            await start_bridge(settings.bridgeApiPort)
+            setTimeout(() => event.sender.send('@bridge/start'), 1000)
+        }
     } catch (e) {
         log.error(tag, e)
     }
+})
+
+ipcMain.on('@bridge/running', (event, data) => {
+    event.sender.send('@bridge/running', bridgeRunning)
 })
 
 ipcMain.on('@connect/pair', async (event, data) => {

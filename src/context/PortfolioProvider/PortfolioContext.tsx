@@ -73,8 +73,18 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     })
   }, [dispatch, accountSpecifiersList])
 
+  /**
+   * this was previously known as the useAccountSpecifiers hook
+   * this has recently been moved into redux state, as hooks are not singletons,
+   * and we needed to call useAccountSpecifiers in multiple places, namely here
+   * in the portfolio context, and in the transactions provider
+   *
+   * this effect now sets this globally in state, and it can be consumed via
+   * the selectAccountSpecifiers selector
+   *
+   * break this at your peril
+   */
   useEffect(() => {
-    console.info({ wallet, supportedChains: chainAdapter.getSupportedChains() })
     if (!wallet) return
     if (isEmpty(assetsById)) return
     ;(async () => {

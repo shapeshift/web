@@ -1,3 +1,5 @@
+# [@shapeshiftoss/asset-service-v2.1.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.2...@shapeshiftoss/asset-service-v2.1.3) (2022-03-23)
+
 # [@shapeshiftoss/asset-service-v2.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.1...@shapeshiftoss/asset-service-v2.1.2) (2022-03-22)
 
 # [@shapeshiftoss/asset-service-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/asset-service-v2.1.0...@shapeshiftoss/asset-service-v2.1.1) (2022-03-22)

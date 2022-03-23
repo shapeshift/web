@@ -5,7 +5,7 @@ import { bridgeRunning, start_bridge, stop_bridge } from './bridge'
 import { assetsDirectory } from './constants'
 import { createWindow, windows } from './main'
 
-let tray: Tray
+export let tray: Tray
 const lightDark = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
 
 
@@ -88,7 +88,7 @@ export const createTray = () => {
     const trayIcon = `${lightDark}/keepKey/unknown.png`
     tray = new Tray(nativeImage.createFromPath(path.join(assetsDirectory, trayIcon)))
     const contextMenu = Menu.buildFromTemplate(menuTemplate)
-    Menu.setApplicationMenu(contextMenu)
+    tray.setContextMenu(contextMenu)
 }
 
 export const updateMenu = status => {

@@ -37,14 +37,17 @@ export const selectPortfolioFiatBalances = createSelector(
   selectAssets,
   selectMarketData,
   selectPortfolioAssetBalances,
-  (assetsById, marketData, balances) =>
+  selectBalanceThreshold,
+  (assetsById, marketData, balances, balanceThreshold) =>
     Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
       (acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-        const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price)).toFixed(2)
-        acc[assetId] = assetFiatBalance
+        const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
+        if (assetFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+        // second parameter of toFixed is for rounding down instead of up
+        acc[assetId] = assetFiatBalance.toFixed(2, 1)
         return acc
       },
       {}
@@ -246,13 +249,18 @@ export const selectPortfolioAssetBalancesSortedFiat = createSelector(
 
 export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
   selectPortfolioFiatAccountBalances,
-  (portfolioFiatAccountBalances): { [k: AccountSpecifier]: { [k: CAIP19]: string } } => {
+  selectBalanceThreshold,
+  (
+    portfolioFiatAccountBalances,
+    balanceThreshold
+  ): { [k: AccountSpecifier]: { [k: CAIP19]: string } } => {
     return Object.entries(portfolioFiatAccountBalances).reduce<{
       [k: AccountSpecifier]: { [k: CAIP19]: string }
     }>((acc, [accountId, assetBalanceObj]) => {
       const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
         .reduce<{ [k: CAIP19]: string }>((acc, [assetId, assetFiatBalance]) => {
+          if (bnOrZero(assetFiatBalance).isLessThan(bnOrZero(balanceThreshold))) return acc
           acc[assetId] = assetFiatBalance
           return acc
         }, {})
@@ -280,17 +288,18 @@ export const selectPortfolioAllocationPercent = createSelector(
 
 export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
   selectPortfolioFiatAccountBalances,
-  accountBalances => {
+  selectBalanceThreshold,
+  (accountBalances, balanceThreshold) => {
     return Object.entries(accountBalances).reduce<{ [k: AccountSpecifier]: string }>(
       (acc, [accountId, balanceObj]) => {
         const totalAccountFiatBalance = Object.values(balanceObj).reduce(
           (totalBalance, currentBalance) => {
-            return bnOrZero(bn(totalBalance).plus(bn(currentBalance))).toFixed(2)
+            return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
           },
-          '0'
+          bn('0')
         )
-
-        acc[accountId] = totalAccountFiatBalance
+        if (totalAccountFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+        acc[accountId] = totalAccountFiatBalance.toFixed(2, 1)
         return acc
       },
       {}
@@ -362,11 +371,17 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAccountIdParam,
   selectAssets,
-  (accountAssets, accountId, assets) => {
+  selectBalanceThreshold,
+  (accountAssets, accountId, assets, balanceThreshold) => {
     const assetsByAccountIds = accountAssets?.[accountId] ?? {}
-    return Object.keys(assetsByAccountIds).filter(
-      assetId => !FEE_ASSET_IDS.includes(assetId) && assets[assetId]
-    )
+    return Object.entries(assetsByAccountIds)
+      .filter(
+        ([assetId, assetFiatBalance]) =>
+          !FEE_ASSET_IDS.includes(assetId) &&
+          assets[assetId] &&
+          bnOrZero(assetFiatBalance).isGreaterThanOrEqualTo(bnOrZero(balanceThreshold))
+      )
+      .map(([assetId]) => assetId)
   }
 )
 

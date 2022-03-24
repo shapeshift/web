@@ -3,14 +3,14 @@ import { ModalCloseButton, Skeleton } from '@chakra-ui/react'
 import { caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
+import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
-import { OverviewHeader } from 'plugins/cosmos/components/OverviewHeader/OverviewHeader'
-import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
-import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
 import { useEffect, useMemo, useState } from 'react'
+import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -108,8 +108,7 @@ export const Overview = ({ assetId }: StakedProps) => {
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <Box pt='38px' pb='70px' px='34px'>
-        <ModalCloseButton borderRadius='full' />
+      <Box p='22px'>
         <Flex
           direction='column'
           maxWidth='595px'

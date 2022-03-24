@@ -1,6 +1,6 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
-import { Button, FormControl, ModalHeader, Text as CText, Tooltip } from '@chakra-ui/react'
+import { Button, FormControl, Link, ModalFooter, Text as CText, Tooltip } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
@@ -14,8 +14,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-
-import { StakingPath } from '../StakingCommon'
+import { StakeRoutes } from '../Staking'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -64,7 +63,11 @@ export const StakeConfirm = ({
 
   const memoryHistory = useHistory()
   const onSubmit = (_: any) => {
-    memoryHistory.push(StakingPath.Broadcast)
+    memoryHistory.push(StakeRoutes.StakeBroadcast, {
+      cryptoAmount: cryptoStakeAmount,
+      fiatRate,
+      apr
+    })
   }
 
   const cryptoYield = calculateYearlyYield(apr, cryptoStakeAmount.toPrecision())
@@ -92,7 +95,6 @@ export const StakeConfirm = ({
           alignItems='center'
           justifyContent='space-between'
         >
-          <ModalHeader textAlign='center'>{translate('defi.confirmDetails')}</ModalHeader>
           <Flex width='100%' mb='20px' justifyContent='space-between'>
             <Text color='gray.500' translation={'defi.stake'} />
             <Flex direction='column' alignItems='flex-end'>
@@ -115,7 +117,9 @@ export const StakeConfirm = ({
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
-            <CText>{DEFAULT_VALIDATOR_NAME}</CText>
+            <Link color={'blue.200'} target='_blank' href='#'>
+              {DEFAULT_VALIDATOR_NAME}
+            </Link>
           </Flex>
           <Flex width='100%' mb='35px' justifyContent='space-between'>
             <Text translation={'defi.averageApr'} color='gray.500' />
@@ -161,19 +165,23 @@ export const StakeConfirm = ({
               }}
             />
           </FormControl>
-          <Text
-            textAlign='center'
-            fontSize='sm'
-            fontWeight='semibold'
-            translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
-            mb='18px'
-          />
-          <Button colorScheme={'blue'} mb={2} size='lg' type='submit' width='full'>
-            <Text translation={'defi.confirmAndBroadcast'} />
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            <Text translation='common.cancel' />
-          </Button>
+          <ModalFooter width='100%' py='0' px='0' flexDir='column' textAlign='center' mt={1}>
+            <Text
+              textAlign='left'
+              fontSize='sm'
+              color='gray.500'
+              translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
+              mb='18px'
+            />
+            <Flex width='full' justifyContent='space-between'>
+              <Button onClick={onCancel} size='lg' variant='ghost'>
+                <Text translation='common.cancel' />
+              </Button>
+              <Button colorScheme={'blue'} mb={2} size='lg' type='submit'>
+                <Text translation={'defi.confirmAndBroadcast'} />
+              </Button>
+            </Flex>
+          </ModalFooter>
         </Flex>
       </SlideTransition>
     </FormProvider>

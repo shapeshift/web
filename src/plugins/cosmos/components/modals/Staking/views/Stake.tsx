@@ -1,9 +1,12 @@
 import { Flex } from '@chakra-ui/layout'
 import {
+  Box,
   Button,
   Divider,
   FormControl,
   FormHelperText,
+  Grid,
+  GridItem,
   Link,
   Text as CText,
   useColorModeValue,
@@ -14,20 +17,18 @@ import { Asset, MarketData } from '@shapeshiftoss/types'
 import get from 'lodash/get'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
-import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { Field, InputType, StakeRoutes, StakingAction, StakingValues } from '../StakingCommon'
+import { Field, InputType, StakeRoutes, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string
@@ -76,15 +77,13 @@ export const Stake = ({
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-
-  const { cosmosStaking } = useModal()
+  const holderBg = useColorModeValue('gray.100', 'gray.700')
 
   const memoryHistory = useHistory()
 
   const onSubmit = (_: any) => {
     memoryHistory.push(StakeRoutes.StakeConfirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount),
-      assetId,
       fiatRate: bnOrZero(marketData.price),
       apr
     })
@@ -94,10 +93,6 @@ export const Stake = ({
   const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toPrecision()
 
   const translate = useTranslate()
-
-  const handleCancel = () => {
-    cosmosStaking.close()
-  }
 
   const handlePercentClick = (_percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(_percent)
@@ -155,21 +150,22 @@ export const Stake = ({
         alignItems='center'
         justifyContent='space-between'
       >
-        <CosmosActionButtons asset={asset} activeAction={StakingAction.Stake} px='6px' py='6px' />
         <AssetHoldingsCard
+          bg={holderBg}
           py='8px'
-          my={6}
+          mb={6}
           assetSymbol={asset.symbol}
           assetName={asset.name}
           cryptoAmountAvailable={cryptoAmountAvailable}
           fiatAmountAvailable={fiatAmountAvailable}
         />
-        <FormControl>
+        <FormControl mb={6}>
           <AmountToStake
-            values={values}
+            values={{ fiatAmount: fiatAmountAvailable, cryptoAmount: cryptoAmountAvailable }}
             isCryptoField={activeField === InputType.Crypto}
             asset={asset}
             onInputToggle={handleInputToggle}
+            p='1px'
           />
           <VStack
             bg={bgColor}
@@ -192,47 +188,57 @@ export const Stake = ({
               control={control}
             />
             <PercentOptionsRow onPercentClick={handlePercentClick} percent={percent} />
-            <EstimatedReturnsRow
-              px={4}
-              py={4}
-              assetSymbol={asset.symbol}
-              cryptoYield={cryptoYield}
-              fiatYield={fiatYield}
-            />
+            <Box width='100%' pb='12px'>
+              <EstimatedReturnsRow
+                px={4}
+                py={4}
+                mb='8px'
+                assetSymbol={asset.symbol}
+                cryptoYield={cryptoYield}
+                fiatYield={fiatYield}
+              />
+              <FormHelperText textAlign='center'>
+                <Text fontSize='14px' translation='defi.modals.staking.estimateDisclaimer' />
+              </FormHelperText>
+            </Box>
           </VStack>
-          <Flex direction='column' alignItems='center'>
-            <FormHelperText pb={2} mb='30px' mt='10px'>
-              <Text fontSize='12px' translation='defi.modals.staking.estimateDisclaimer' />
-            </FormHelperText>
-          </Flex>
         </FormControl>
-        <CText fontSize='12px' color='gray.500' mb='20px' width='full' textAlign='center'>
-          {`${translate('defi.modals.staking.byContinuing')} `}
-          <Link
-            color='blue.500'
-            target='_blank'
-            href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
-          >
-            {`${translate('defi.modals.staking.risks')}`}
-          </Link>
-          {` ${translate('defi.modals.staking.ofParticipating')} `}
-          <Link color='blue.500' target='_blank' href='/legal/privacy-policy'>
-            {`${translate('defi.modals.staking.terms')}.`}
-          </Link>
-        </CText>
-        <Button
-          colorScheme={fieldError ? 'red' : 'blue'}
-          isDisabled={!isValid}
-          mb={2}
-          size='lg'
-          type='submit'
-          width='full'
-        >
-          <Text translation={fieldError ?? 'common.continue'} />
-        </Button>
-        <Button onClick={handleCancel} size='lg' variant='ghost' width='full'>
-          <Text translation='common.cancel' />
-        </Button>
+        <Grid templateColumns='repeat(6, 1fr)' gap={2}>
+          <GridItem colSpan={4}>
+            <CText fontSize='14px' color='gray.500' mb='20px' lineHeight='1.3'>
+              {`${translate('defi.modals.staking.byContinuing')} `}
+              <Link
+                color={'blue.200'}
+                fontWeight='bold'
+                target='_blank'
+                href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
+              >
+                {`${translate('defi.modals.staking.risks')}`}
+              </Link>
+              {` ${translate('defi.modals.staking.ofParticipating')} `}
+              <Link
+                color={'blue.200'}
+                fontWeight='bold'
+                target='_blank'
+                href='/legal/privacy-policy'
+              >
+                {`${translate('defi.modals.staking.terms')}.`}
+              </Link>
+            </CText>
+          </GridItem>
+          <GridItem colSpan={2}>
+            <Button
+              colorScheme={fieldError ? 'red' : 'blue'}
+              isDisabled={!isValid}
+              mb={2}
+              size='lg'
+              type='submit'
+              width='full'
+            >
+              <Text translation={fieldError ?? 'common.continue'} />
+            </Button>
+          </GridItem>
+        </Grid>
       </Flex>
     </SlideTransition>
   )

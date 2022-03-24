@@ -25,20 +25,16 @@ export const AssetHoldingsCard = ({
         <AssetIcon src={osmosis} boxSize='40px' />
         <Box ml={2}>
           <CText fontWeight='bold' lineHeight='1' mb={1}>
-            {assetSymbol}
-          </CText>
-          <CText color='gray.500' lineHeight='1'>
             {assetName}
           </CText>
-        </Box>
-        <Box ml='auto' textAlign='right'>
-          <Amount.Fiat fontWeight='medium' lineHeight='1' mb={1} value={fiatAmountAvailable} />
-          <Amount.Crypto
-            color='gray.500'
-            lineHeight='1'
-            symbol={assetSymbol}
-            value={cryptoAmountAvailable}
-          />
+          <CText color='gray.500' lineHeight='1'>
+            <Amount.Crypto
+              color='gray.500'
+              lineHeight='1'
+              symbol={assetSymbol}
+              value={cryptoAmountAvailable}
+            />
+          </CText>
         </Box>
       </Flex>
     </Card.Body>

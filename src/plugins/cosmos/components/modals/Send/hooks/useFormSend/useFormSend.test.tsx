@@ -14,7 +14,7 @@ jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()
 }))
 
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
 

@@ -31,7 +31,7 @@ jest.mock('@shapeshiftoss/market-service', () => ({
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('context/WalletProvider/WalletProvider')
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('lib/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/selectors', () => ({

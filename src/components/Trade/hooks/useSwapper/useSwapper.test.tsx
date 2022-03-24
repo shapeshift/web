@@ -14,7 +14,7 @@ jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 
 function setup({
   action = TradeActions.SELL,

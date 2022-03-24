@@ -38,6 +38,7 @@ export const useKeepKeyWallet = () => {
   const { type, wallet, keyring } = walletState
   const [keepKeyWallet, setKeepKeyWallet] = useState<KeepKeyHDWallet | undefined>()
   const [pinCaching, setPinCaching] = useState<boolean>()
+  const [passphrase, setPassphrase] = useState<boolean>()
   const [versions, setVersions] = useState<Versions>()
   const isKeepKey = type === KeyManager.KeepKey
 
@@ -53,6 +54,7 @@ export const useKeepKeyWallet = () => {
     ;(async () => {
       const keepKey = wallet as KeepKeyHDWallet
       setKeepKeyWallet(keepKey)
+      setPassphrase(keepKey.features?.passphraseProtection)
       setPinCaching(
         keepKey?.features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled
       )
@@ -88,5 +90,11 @@ export const useKeepKeyWallet = () => {
     })()
   }, [isKeepKey, wallet])
 
-  return { wallet: keepKeyWallet, versions, keyring, pinCaching, setPinCaching }
+  return {
+    wallet: keepKeyWallet,
+    versions,
+    keyring,
+    pinCaching,
+    passphrase
+  }
 }

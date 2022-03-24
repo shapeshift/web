@@ -1,5 +1,7 @@
 import { createLogger } from 'redux-logger'
+import { ReduxState } from 'state/reducer'
 
-export const logging = createLogger({
-  predicate: getState => getState()?.preferences?.featureFlags?.ReduxLogging
+export const loggingMiddleware = createLogger({
+  predicate: (getState: () => ReduxState) => getState()?.preferences?.featureFlags?.ReduxLogging,
+  diff: true
 })

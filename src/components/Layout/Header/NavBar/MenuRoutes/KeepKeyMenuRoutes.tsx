@@ -80,8 +80,7 @@ export const KeepKeyMenuRoutes = () => {
           <ExpandedMenuItem
             label={translate('walletProvider.keepKey.settings.menuLabels.bootloader')}
             value={getUpdateText(versions?.bootloader.updateAvailable)}
-            // badge={versions?.bootloader.device}
-            badge='TODO'
+            badge={versions?.bootloader.device}
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
           />

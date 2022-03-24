@@ -40,6 +40,13 @@ export const useKeepKeyWallet = () => {
   const [versions, setVersions] = useState<Versions>()
   const isKeepKey = type === KeyManager.KeepKey
 
+  const getBootloaderVersion = (keepKey: KeepKeyHDWallet, releases: FirmwareReleases): string => {
+    const hash = keepKey.features?.bootloaderHash.toString() ?? ''
+    const buffer = Buffer.from(hash, 'base64')
+    const hex = buffer.toString('hex')
+    return releases.hashes.bootloader[hex.toLowerCase()]
+  }
+
   useEffect(() => {
     if (!(wallet && isKeepKey)) return
     ;(async () => {
@@ -55,16 +62,16 @@ export const useKeepKeyWallet = () => {
         }
       )
       setKeepKeyWallet(keepKey)
-      const deviceBootloader = keepKey.features?.bootloaderHash.toString() ?? '' // FIXME - hash -> semver
+      const bootloaderVersion = getBootloaderVersion(keepKey, releases)
       const latestBootloader = releases.latest.bootloader.version
       const deviceFirmware = await keepKey.getFirmwareVersion()
       const latestFirmware = releases.latest.firmware.version
 
       const versions: Versions = {
         bootloader: {
-          device: deviceBootloader,
+          device: bootloaderVersion,
           latest: latestBootloader,
-          updateAvailable: deviceBootloader !== latestBootloader
+          updateAvailable: bootloaderVersion !== latestBootloader
         },
         firmware: {
           device: deviceFirmware,

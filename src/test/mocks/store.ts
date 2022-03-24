@@ -42,6 +42,9 @@ export const mockStore: ReduxState = {
       ids: []
     }
   },
+  accountSpecifiers: {
+    accountSpecifiers: []
+  },
   preferences: {
     featureFlags: {
       CosmosInvestor: false,

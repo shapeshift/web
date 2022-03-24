@@ -48,7 +48,7 @@ type TransactionGenericRowProps = {
   showDateAndGuide?: boolean
   compactMode?: boolean
   assets: TransactionRowAsset[]
-  fee: TransactionRowAsset
+  fee?: TransactionRowAsset
   txid: TxId
   blockTime: number
   explorerTxLink: string
@@ -157,29 +157,31 @@ export const TransactionGenericRow = ({
         {!compactMode && isLargerThanXl && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
             {showDateAndGuide && <Guide title='fee' />}
-            <Flex alignItems='center' width='full'>
-              <Box flex={1}>
-                <Amount.Crypto
-                  color='inherit'
-                  fontWeight='bold'
-                  value={fromBaseUnit(fee.amount, fee.precision)}
-                  symbol={fee.symbol}
-                  maximumFractionDigits={6}
-                />
-                <Amount.Fiat
-                  color='gray.500'
-                  fontSize='sm'
-                  lineHeight='1'
-                  value={
-                    fee.amount
-                      ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
-                          .times(fee.currentPrice ?? 0)
-                          .toString()
-                      : '0'
-                  }
-                />
-              </Box>
-            </Flex>
+            {fee && (
+              <Flex alignItems='center' width='full'>
+                <Box flex={1}>
+                  <Amount.Crypto
+                    color='inherit'
+                    fontWeight='bold'
+                    value={fromBaseUnit(fee.amount, fee.precision)}
+                    symbol={fee.symbol}
+                    maximumFractionDigits={6}
+                  />
+                  <Amount.Fiat
+                    color='gray.500'
+                    fontSize='sm'
+                    lineHeight='1'
+                    value={
+                      fee.amount
+                        ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
+                            .times(fee.currentPrice ?? 0)
+                            .toString()
+                        : '0'
+                    }
+                  />
+                </Box>
+              </Flex>
+            )}
           </Flex>
         )}
         {!compactMode && isLargerThanLg && (

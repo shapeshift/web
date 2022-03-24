@@ -1,4 +1,7 @@
+import isEmpty from 'lodash/isEmpty'
+
 import { KeyManager } from './config'
+
 /**
  * Defining storage up here,
  * so it can be changed to other storage types easily
@@ -14,6 +17,10 @@ const LOCAL_WALLET_DEVICE_ID = 'localWalletDeviceId'
 const LOCAL_NATIVE_WALLET_NAME = 'localNativeWalletName'
 
 export const setLocalWalletTypeAndDeviceId = (type: KeyManager, deviceId: string) => {
+  // If passed invalid data, clear local wallet data
+  if (isEmpty(type) || isEmpty(deviceId)) {
+    return clearLocalWallet()
+  }
   storage.set(LOCAL_WALLET_TYPE, type)
   storage.set(LOCAL_WALLET_DEVICE_ID, deviceId)
 }

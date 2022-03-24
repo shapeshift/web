@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.7.2...@shapeshiftoss/chain-adapters-v2.8.0) (2022-03-24)
+
+
+### Features
+
+* return staking details for cosmos type accounts ([#479](https://github.com/shapeshift/lib/issues/479)) ([0d0712a](https://github.com/shapeshift/lib/commit/0d0712a13fa338b9fe700c2a496f34da29509328))
+
 # [@shapeshiftoss/chain-adapters-v2.7.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.7.1...@shapeshiftoss/chain-adapters-v2.7.2) (2022-03-24)
 
 # [@shapeshiftoss/chain-adapters-v2.7.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.7.0...@shapeshiftoss/chain-adapters-v2.7.1) (2022-03-24)

@@ -1,14 +1,15 @@
 import { InfoIcon } from '@chakra-ui/icons'
-import { Alert, AlertIcon, Button, Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { useKeepKeyMenuEventHandler } from 'components/Layout/Header/NavBar/hooks/useKeepKeyMenuEventHandler'
+import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 
 export const ChangePin = () => {
   const translate = useTranslate()
-  const { awaitingButtonPress, setAwaitingButtonPress, keepKeyUpdateStatus, handleKeepKeyEvents } =
+  const { awaitingButtonPress, setAwaitingButtonPress, handleKeepKeyEvents } =
     useKeepKeyMenuEventHandler()
   const { wallet } = useKeepKeyWallet()
 
@@ -21,25 +22,7 @@ export const ChangePin = () => {
   const renderPinState: JSX.Element = (() => {
     return (
       <>
-        {keepKeyUpdateStatus && (
-          <Alert
-            status={keepKeyUpdateStatus === 'success' ? 'success' : 'error'}
-            borderRadius='lg'
-            mb={3}
-            fontWeight='semibold'
-            color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'}
-            fontSize='sm'
-          >
-            <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
-            {keepKeyUpdateStatus === 'success'
-              ? translate('walletProvider.keepKey.settings.descriptions.updateSuccess', {
-                  setting: 'PIN'
-                })
-              : translate('walletProvider.keepKey.settings.descriptions.updateFailed', {
-                  setting: 'PIN'
-                })}
-          </Alert>
-        )}
+        <ShowUpdateStatus setting='PIN' />
         {awaitingButtonPress ? (
           <Flex>
             <InfoIcon color='blue.200' mt={1} />

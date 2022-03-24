@@ -3642,10 +3642,10 @@
     schema-utils "^3.0.0"
     source-map "^0.7.3"
 
-"@popperjs/core@^2.5.4", "@popperjs/core@^2.6.0", "@popperjs/core@^2.9.3":
-  version "2.10.2"
-  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.10.2.tgz#0798c03351f0dea1a5a4cabddf26a55a7cbee590"
-  integrity sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==
+"@popperjs/core@^2.5.4", "@popperjs/core@^2.6.0", "@popperjs/core@^2.9.2", "@popperjs/core@^2.9.3":
+  version "2.11.2"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.2.tgz#830beaec4b4091a9e9398ac50f865ddea52186b9"
+  integrity sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==
 
 "@portis/web3@3.0.10":
   version "3.0.10"
@@ -3789,10 +3789,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.0.0.tgz#b1101e73d190e3c3d60b9d2591d3ebb24b56f0dd"
-  integrity sha512-NKmplIwwhnFVUM4/SX5Ua7ekh70dGFuMIXtFYgkxttM/MY63YksZOSScEZQysNEJPUGARlb/5xMX4R0rya13KA==
+"@shapeshiftoss/asset-service@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.2.0.tgz#8e2777698eaa199029ad62b1c38d57ddb4d26248"
+  integrity sha512-2wfZeVhWIoal5U7uiLBpA/J6tqXjUtDsh+iWxKYArOJylPzDsvah2LNV5AunDi0KuCG9hCW00TPLG6Kjs2mFgA==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -3821,10 +3821,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.1.0.tgz#9316d52ca4aefabd6b7af318e3113004628ffffa"
-  integrity sha512-9Smqj1XvpfZ0K2wgTs7264nEXpFyNunllsaOxmfW8GSjcaLQCsirdv1En+ssNoHa8UjsUFC1a8v0UGedDrbi7g==
+"@shapeshiftoss/blockbook@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.2.0.tgz#6bf36595bec95e2f49096c68f1cc146073e2274c"
+  integrity sha512-n4sigF4BXTq79r/SjjCRz35BMXr44/IosSwk4klfbNLp12xhfy+jA6XEQ8pavmkSQX1ctplCBgycIMMH4yUEhw==
   dependencies:
     axios "^0.26.0"
     express "^4.17.1"
@@ -3832,17 +3832,18 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.0.0.tgz#6aba7a86eb0cb27576ae6d62dd9257e3d754d8a1"
-  integrity sha512-R3KpNrJFF4hibcZpBD81ANKJWmj5HuvYtVg59UVccUYWU3eNn5SNYkl+zukDvSnXcewwzJ0ukpcKHeSictpe6A==
+"@shapeshiftoss/caip@^2.0.0", "@shapeshiftoss/caip@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.0.tgz#1a483beec633c824936ca26bc07ca9be15d2cdf2"
+  integrity sha512-XrsdnHGup+vtyY7mjhdm2ZGZQt25CKOQpjlIHlLIjm49vuXW3IG91O9puw5d2VWifE59S7HTLDO3O9S2HD1b6g==
 
-"@shapeshiftoss/chain-adapters@^2.4.1":
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.4.1.tgz#97a77b061fac4b9fb7e19386647e0c9bfc5044fc"
-  integrity sha512-ngwryNKIsrKHHWZFqf3Oc9STSZlRXH7B6aWz1yrt37zwuhYSX5UE9XRcr9vmpRax9QuF313lpoyIMl6hpMxxfA==
+"@shapeshiftoss/chain-adapters@^2.7.1":
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.7.1.tgz#d585dfb66a8e62dd21436614eb841a744b6a1dfb"
+  integrity sha512-6If11uT+mM5cUb+X8R+zX00TD+jSlkKEyQ1uN/H+XCzT4TNuYthOcUQjOUOcgdAffqIFm57MD3Er2MCZ/DTxvA==
   dependencies:
     axios "^0.26.0"
+    bech32 "^2.0.0"
     bignumber.js "^9.0.1"
     bitcoinjs-lib "^5.2.0"
     coinselect "^3.1.12"
@@ -3986,26 +3987,26 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-yearn@^1.3.3":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.4.1.tgz#62321c08bb9f132956e31ac920a72616b727ace8"
-  integrity sha512-XHXt0CDPotPh2M9046o+jW7AYsh1FL8jzOsdSoyEzrJvZsVAbe6fg+JPMp+UDZbMLJFTxc0hfmFhhHar7/YywQ==
+"@shapeshiftoss/investor-yearn@^1.4.3":
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.4.3.tgz#1238dc8f4b71bce75a9c51027a091114fb3cdc7b"
+  integrity sha512-JN3dfejEw+wTxRqPhgpQ6f6198no8IUJ5bVXiSxkqKsBb5XfjUIZIE6H2Mx9X96hVPxtdXXezi2Ou1mvKZ5uWQ==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
-    "@yfi/sdk" "^1.0.29"
+    "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"
     lodash "^4.17.21"
     web3 "^1.7.0"
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/market-service@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-2.0.3.tgz#10f34b66179c12f7ac698a0b927b24066bd9aac8"
-  integrity sha512-bVaAe607bqT7gquUMi/nIZ8N+Dk9zDoNsJTFkSPnIJ5Zxa0uy5j0u8vqKZxI/OrZgAkCeQpSWUj58MT8/LzR9g==
+"@shapeshiftoss/market-service@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-2.1.0.tgz#2b4363d4c63bd81cd8217bbdc34654273df02d88"
+  integrity sha512-uXVj+qxTOS1a2Vw9Y7rgQ95VHhrIcRzK/zNYOvHOwj5c6f7jeWxqm7I/07U1n/69krxAGm2xtsHGgbVlqMRofg==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
-    "@yfi/sdk" "^1.0.29"
+    "@yfi/sdk" "^1.0.30"
     axios "^0.26.0"
     axios-rate-limit "^1.3.0"
     bignumber.js "^9.0.1"
@@ -4023,32 +4024,27 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.0.0.tgz#9ce58f6d22f61e8f3cbdcae551d2641ae3160182"
-  integrity sha512-TiYLYT9D/hjEvgNMdUylzsfcQtvo9voMnv54Y4lCGMb7W7JXX1RsfK0GTNOVmSg0eEtwoE3/PaiQEZf7CjtR/w==
+"@shapeshiftoss/swapper@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.0.2.tgz#213056e5ee59a31660583be0ea4b6b314004463d"
+  integrity sha512-+AFw2SCFCTpnpm87cHon84xcWrgGkyObhCCYM7mgmls7iz81QxVYULb9MX/KI8swp3ZWd5jwgcXeBKqd/xv1gQ==
   dependencies:
     axios "^0.26.0"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.0.0.tgz#de64b40bc777551d83c0938a319ba805069caf10"
-  integrity sha512-1NOcxKikRX9T8JRu6d+cSvaWscrnVzqanOrDhPkCzDfjmqZQ5JgVR1dz7bTN6s83oZiRcM80zAIfX9lJ06cHTg==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.3.0.tgz#67aeb0a8a1a77ec693a3df2414a8874bc8be1382"
+  integrity sha512-Emc6adG6um8wVm+p7hHdeqbDKgWaZxrgCB0ir64QAF1wKlzHZnHORzxReUro7zTb0uM2K10mSzwQcuovJ2Y4/Q==
 
-"@shapeshiftoss/types@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.1.0.tgz#6704f709f2650da671f212278687d32143269a10"
-  integrity sha512-4v7ZyV6LvUZ3z0rTntNxyivpuzhwrAO6lYlxkSNcfoMlrAOiZp9a93QeYFs8enQgphZ3V7giO13LXAEyBWDKpw==
-
-"@shapeshiftoss/unchained-client@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.1.0.tgz#797e4a4e4450e1d4a0595c45ee6314a6d6c48391"
-  integrity sha512-pMasi+t6HxYoWjp6p64LgzMKtrOZ0LJDpdcroJInno7zo59XEXD0y2Elu+7PkqKfk0xYZWF/IWxf2KlipZFilw==
+"@shapeshiftoss/unchained-client@^6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.2.0.tgz#ce0d56d1542e2fc51589ab182b640761d00ef2b4"
+  integrity sha512-SkM1KtjPv3s6A0oMjuKgjNiTkCztM/g3JmFU9/ihgWi258oKPmaum7E00Rwn+MzIhDJ00zsX5d7M0r6jJ+O9dQ==
   dependencies:
-    "@shapeshiftoss/blockbook" "^6.1.0"
+    "@shapeshiftoss/blockbook" "^6.2.0"
     "@shapeshiftoss/caip" "^2.0.0"
     "@shapeshiftoss/types" "^2.0.0"
     "@yfi/sdk" "^1.0.30"
@@ -5768,6 +5764,16 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
+"@types/react-datepicker@^4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@types/react-datepicker/-/react-datepicker-4.3.4.tgz#1cccf5acfb8672fce08940d1cf69e664500ea63d"
+  integrity sha512-5nTTz37KdTUgMZ1AAxztMWNtEnIMVRo8oCAEhIv0a6uUqDjvSKaMyPRpBV+8chi6f/A8wlTKJIpojpXca2dx3A==
+  dependencies:
+    "@popperjs/core" "^2.9.2"
+    "@types/react" "*"
+    date-fns "^2.0.1"
+    react-popper "^2.2.5"
+
 "@types/react-dom@*", "@types/react-dom@>=16.9.0", "@types/react-dom@^17.0.11":
   version "17.0.11"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.11.tgz#e1eadc3c5e86bdb5f7684e00274ae228e7bcc466"
@@ -6546,17 +6552,6 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
-
-"@yfi/sdk@^1.0.29":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.1.1.tgz#237899a175fe177e13b1f98111811027da01602d"
-  integrity sha512-UObLdc6T3DJpp7rUKLqM7eit62v4CBMRI2pcXgFLJ2PJraCLlpG+pUSxxwFFZLLgTavfqwleMvo8xML3gnnsbg==
-  dependencies:
-    bignumber.js "9.0.1"
-    cross-fetch "3.1.4"
-    dotenv "10.0.0"
-    emittery "0.8.1"
-    type-fest "1.2.1"
 
 "@yfi/sdk@^1.0.30":
   version "1.2.0"
@@ -7577,6 +7572,11 @@ bech32@1.1.4, bech32@^1.1.2, bech32@^1.1.3, bech32@^1.1.4:
   resolved "https://registry.yarnpkg.com/bech32/-/bech32-1.1.4.tgz#e38c9f37bf179b8eb16ae3a772b40c356d4832e9"
   integrity sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==
 
+bech32@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/bech32/-/bech32-2.0.0.tgz#078d3686535075c8c79709f054b1b226a133b355"
+  integrity sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==
+
 better-opn@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/better-opn/-/better-opn-2.1.1.tgz#94a55b4695dc79288f31d7d0e5f658320759f7c6"
@@ -8506,7 +8506,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.3.1:
+classnames@^2.2.6, classnames@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
   integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
@@ -9660,6 +9660,11 @@ data-urls@^2.0.0:
     abab "^2.0.3"
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
+
+date-fns@^2.0.1, date-fns@^2.24.0:
+  version "2.28.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.28.0.tgz#9570d656f5fc13143e50c975a3b6bbeb46cd08b2"
+  integrity sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==
 
 dayjs@^1.10.4, dayjs@^1.10.6:
   version "1.10.7"
@@ -11614,6 +11619,11 @@ file-loader@^6.2.0:
   dependencies:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
+
+file-saver@^2.0.2:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.5.tgz#d61cfe2ce059f414d899e9dd6d4107ee25670c38"
+  integrity sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==
 
 file-system-cache@^1.0.5:
   version "1.0.5"
@@ -15884,9 +15894,9 @@ node-fetch@^2.6.0, node-fetch@^2.6.1:
     whatwg-url "^5.0.0"
 
 node-forge@^1.2.0:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.2.1.tgz#82794919071ef2eb5c509293325cec8afd0fd53c"
-  integrity sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.3.0.tgz#37a874ea723855f37db091e6c186e5b67a01d4b2"
+  integrity sha512-08ARB91bUi6zNKzVmaj3QO7cr397uiDT2nJ63cHjyNtCTWIgvS47j3eT0WfzUwS9+6Z5YshRaoasFkXCKrIYbA==
 
 node-gyp-build@^4.2.0, node-gyp-build@^4.3.0:
   version "4.3.0"
@@ -17907,6 +17917,18 @@ react-countdown-circle-timer@^2.5.4:
   dependencies:
     use-elapsed-time "2.1.8"
 
+react-datepicker@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-4.7.0.tgz#75e03b0a6718b97b84287933307faf2ed5f03cf4"
+  integrity sha512-FS8KgbwqpxmJBv/bUdA42MYqYZa+fEYcpc746DZiHvVE2nhjrW/dg7c5B5fIUuI8gZET6FOzuDgezNcj568Czw==
+  dependencies:
+    "@popperjs/core" "^2.9.2"
+    classnames "^2.2.6"
+    date-fns "^2.24.0"
+    prop-types "^15.7.2"
+    react-onclickoutside "^6.12.0"
+    react-popper "^2.2.5"
+
 react-dev-utils@^12.0.0:
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-12.0.0.tgz#4eab12cdb95692a077616770b5988f0adf806526"
@@ -18067,12 +18089,26 @@ react-is@^16.13.1, react-is@^16.6.0, react-is@^16.7.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-json-csv@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/react-json-csv/-/react-json-csv-2.0.0.tgz#200275a80122de65986a0165d59a0f65934e0c95"
+  integrity sha512-hbTBVWsEe/Nqz9By0GHBizoWO91pNNVHiiTVW2E8ZRyIqMRl3yBhWmfErW/VCNccCPvVz6dT3SelfNDbrYd86w==
+  dependencies:
+    file-saver "^2.0.2"
+    prop-types "^15.7.2"
+    react "^16.13.1"
+
 react-number-format@^4.8.0:
   version "4.8.0"
   resolved "https://registry.yarnpkg.com/react-number-format/-/react-number-format-4.8.0.tgz#2ec5efbe7f45c4b1b8951d34774f30e4c69040a4"
   integrity sha512-oGGiQpqzvKTR5PD2/AJbyUsci8jyupaoKxpuSPevjpWHMhFkUtmo390t+EIpJOgnuAHZogLu6PHiXgb/OXETKA==
   dependencies:
     prop-types "^15.7.2"
+
+react-onclickoutside@^6.12.0:
+  version "6.12.1"
+  resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-6.12.1.tgz#92dddd28f55e483a1838c5c2930e051168c1e96b"
+  integrity sha512-a5Q7CkWznBRUWPmocCvE8b6lEYw1s6+opp/60dCunhO+G6E4tDTO2Sd2jKE+leEnnrLAE2Wj5DlDHNqj5wPv1Q==
 
 react-polyglot@^0.7.2:
   version "0.7.2"
@@ -18091,7 +18127,7 @@ react-popper-tooltip@^3.1.1:
     "@popperjs/core" "^2.5.4"
     react-popper "^2.2.4"
 
-react-popper@^2.2.4:
+react-popper@^2.2.4, react-popper@^2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.2.5.tgz#1214ef3cec86330a171671a4fbcbeeb65ee58e96"
   integrity sha512-kxGkS80eQGtLl18+uig1UIf9MKixFSyPxglsgLBxlYnyDf65BiY9B3nZSc6C9XUNDgStROB0fMQlTEz1KxGddw==
@@ -18323,6 +18359,15 @@ react-window@^1.8.6:
   dependencies:
     "@babel/runtime" "^7.0.0"
     memoize-one ">=3.1.1 <6"
+
+react@^16.13.1:
+  version "16.14.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
+  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
 
 react@^17.0.2:
   version "17.0.2"

@@ -1,5 +1,14 @@
 import union from 'lodash/union'
-import { FaLock, FaRocket, FaTable, FaTractor, FaWallet, FaWater } from 'react-icons/fa'
+import {
+  FaFlag,
+  FaHistory,
+  FaLock,
+  FaRocket,
+  FaTable,
+  FaTractor,
+  FaWallet,
+  FaWater
+} from 'react-icons/fa'
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
@@ -23,6 +32,7 @@ import { Flags } from 'pages/Flags/Flags'
 import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
 import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
+import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import { generateAppRoutes, Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
@@ -138,6 +148,19 @@ export const routes: Array<NestedRoute> = [
         disable: true
       }
     ]
+  },
+  {
+    path: '/transaction-history',
+    label: 'navBar.transactionHistory',
+    icon: <FaHistory />,
+    main: TransactionHistory
+  },
+  {
+    path: '/flags',
+    label: 'navBar.featureFlags',
+    icon: <FaFlag />,
+    hide: window.location.hostname !== 'localhost',
+    main: Flags
   }
 ]
 

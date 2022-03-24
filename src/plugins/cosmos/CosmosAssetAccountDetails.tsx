@@ -5,8 +5,8 @@ import { AssetAccounts } from 'components/AssetAccounts/AssetAccounts'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
-import { TxHistory } from 'components/TxHistory'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AssetChart } from '../../components/AssetHeader/AssetChart'
 import { AssetDescription } from '../../components/AssetHeader/AssetDescription'
@@ -35,7 +35,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
           {cosmosInvestorFlag && <StakingOpportunities />}
-          <TxHistory assetId={caip19} accountId={accountId} />
+          <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard />

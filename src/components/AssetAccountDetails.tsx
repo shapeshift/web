@@ -1,9 +1,9 @@
 import { Stack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Route } from 'Routes/helpers'
-import { TxHistory } from 'components/TxHistory'
+import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -36,7 +36,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           <AssetAccounts assetId={caip19} accountId={accountId} />
           <EarnOpportunities assetId={caip19} accountId={accountId} />
           <UnderlyingToken assetId={caip19} accountId={accountId} />
-          <TxHistory assetId={caip19} accountId={accountId} />
+          <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
           <TradeCard />

@@ -23,6 +23,7 @@ export const mockStore: ReduxState = {
   assetApi: mockApiFactory('assetApi' as const),
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
+  txHistoryApi: mockApiFactory('txHistoryApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -41,10 +42,14 @@ export const mockStore: ReduxState = {
       ids: []
     }
   },
+  accountSpecifiers: {
+    accountSpecifiers: []
+  },
   preferences: {
     featureFlags: {
       CosmosInvestor: false,
-      CosmosPlugin: false
+      CosmosPlugin: false,
+      GemRamp: false
     }
   },
   assets: {

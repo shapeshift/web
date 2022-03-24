@@ -4,22 +4,22 @@ import { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { Route } from '../Routes/helpers'
 
-const activePlugins = ['cosmos']
+const activePlugins = ['bitcoin', 'cosmos', 'ethereum']
 
 export type Plugins = [caip2: string, chain: Plugin][]
 export type RegistrablePlugin = { register: () => Plugins }
 
 export interface Plugin {
   name: string
-  icon: JSX.Element
+  icon?: JSX.Element
   featureFlag?: keyof FeatureFlags
   providers?: {
     chainAdapters?: Array<[ChainTypes, () => ChainAdapter<ChainTypes>]>
   }
-  routes: Route[]
+  routes?: Route[]
 }
 
-class PluginManager {
+export class PluginManager {
   #pluginManager = new Map<string, Plugin>()
 
   clear(): void {

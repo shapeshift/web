@@ -12,7 +12,7 @@ import * as portfolioSelectors from './slices/portfolioSlice/selectors'
 
 const persistConfig = {
   key: 'root',
-  blacklist: ['portfolio', 'assetApi', 'marketApi', 'portfolioApi'],
+  whitelist: [''],
   storage: localforage
 }
 
@@ -27,6 +27,7 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(slices.marketData.actions.clear())
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
+  store.dispatch(slices.accountSpecifiers.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

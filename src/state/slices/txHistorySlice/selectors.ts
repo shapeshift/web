@@ -6,21 +6,19 @@ import values from 'lodash/values'
 import { createSelector } from 'reselect'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
 
+import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
 export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId)
 export const selectTxs = (state: ReduxState) => state.txHistory.byId
-export const selectTxIds = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.txHistory.ids,
-  ids => ids
-)
+export const selectTxIds = (state: ReduxState) => state.txHistory.ids
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.status
 
 export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
 
 const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
+const selectTxIdsParam = (_state: ReduxState, txIds: TxId[]) => txIds
 
 export const selectTxsByAccountIds = createSelector(
   selectTxs,
@@ -58,6 +56,75 @@ export const selectTxById = createSelector(
   (state: ReduxState) => state.txHistory.byId,
   (_state: ReduxState, txId: string) => txId,
   (txsById, txId) => txsById[txId]
+)
+
+export const selectTxDateByIds = createDeepEqualOutputSelector(
+  selectTxIdsParam,
+  selectTxs,
+  (txIds: TxId[], txs) =>
+    txIds.map((txId: TxId) => ({ txId, date: txs[txId].blockTime })).sort((a, b) => b.date - a.date)
+)
+
+type TxHistoryPageFilter = {
+  fromDate: number | null
+  toDate: number | null
+  types: string[] | null
+  matchingAssets: CAIP19[] | null
+}
+
+const selectDateParamFromFilter = (
+  _state: ReduxState,
+  { fromDate, toDate }: TxHistoryPageFilter
+) => ({ fromDate, toDate })
+
+const selectTransactionTypesParamFromFilter = (
+  _state: ReduxState,
+  { types }: TxHistoryPageFilter
+) => types ?? []
+
+const selectMatchingAssetsParamFromFilter = (
+  _state: ReduxState,
+  { matchingAssets }: TxHistoryPageFilter
+) => matchingAssets
+
+export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
+  selectTxs,
+  selectTxIds,
+  selectMatchingAssetsParamFromFilter,
+  selectDateParamFromFilter,
+  selectTransactionTypesParamFromFilter,
+  (txs, txIds, matchingAssets, { fromDate, toDate }, types): TxId[] => {
+    if (!matchingAssets && !fromDate && !toDate && !types.length) return txIds
+    const transactions = Object.entries(txs)
+    const filteredBasedOnFromDate = fromDate
+      ? transactions.filter(([, tx]) => tx.blockTime > fromDate).map(([txId]) => txId)
+      : txIds
+    const filteredBasedOnToDate = toDate
+      ? transactions.filter(([, tx]) => tx.blockTime < toDate).map(([txId]) => txId)
+      : txIds
+    const filteredBasedOnMatchingAssets = matchingAssets
+      ? transactions
+          .filter(([, tx]) =>
+            tx.transfers.find(transfer => matchingAssets.includes(transfer.caip19))
+          )
+          .map(([txId]) => txId)
+      : txIds
+    const filteredBasedOnType = types.length
+      ? transactions
+          .filter(([, tx]) => {
+            if (tx.transfers.length === 1) return types.includes(tx.transfers[0].type)
+            if (tx.tradeDetails) return types.includes(tx.tradeDetails.type)
+            return false
+          })
+          .map(([txId]) => txId)
+      : txIds
+    return intersection(
+      filteredBasedOnFromDate,
+      filteredBasedOnToDate,
+      filteredBasedOnMatchingAssets,
+      filteredBasedOnType
+    )
+  }
 )
 
 export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId

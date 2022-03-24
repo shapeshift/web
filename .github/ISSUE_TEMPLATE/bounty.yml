@@ -16,9 +16,9 @@ body:
   - type: textarea
     id: reference
     attributes:
-      label: Reference
-      description: An explanation as to where the bounty hunter should look or code that is affected
-      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps here if applicable.
+      label: References and additional details
+      description: An explanation as to where the bounty hunter should look or code that is affected. Include any relevent transaction IDs and replication steps.
+      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps and transaction IDs here if applicable.
     validations:
       required: true
   - type: textarea
@@ -34,7 +34,7 @@ body:
     attributes:
       label: Need By Date
       description: Does this bounty have a hard due date for completion?
-      placeholder: NA
+      placeholder: Enter a date if applicable.
     validations:
       required: false
   - type: textarea
@@ -55,6 +55,12 @@ body:
           required: true
         - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
           required: true
+  - type: input
+    id: stakeholder
+    attributes:
+      label: Sponsor / Stakeholder
+      description: "To whom can the bounty hunter go to for questions and support?"
+      placeholder: "github_handle or discord_handle"
   - type: textarea
     id: bounty-hunters
     attributes:

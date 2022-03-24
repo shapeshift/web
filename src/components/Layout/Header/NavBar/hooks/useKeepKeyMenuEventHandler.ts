@@ -11,6 +11,10 @@ export const useKeepKeyMenuEventHandler = () => {
   >()
 
   const handleKeepKeyEvents = () => {
+    keyring.on(['KeepKey', '*', MessageType.BUTTONREQUEST.toString()], () =>
+      setAwaitingButtonPress(true)
+    )
+
     keyring.on(['KeepKey', '*', MessageType.PINMATRIXREQUEST.toString()], () =>
       setAwaitingButtonPress(false)
     )

@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/layout'
 import { Button, Flex, Text } from '@chakra-ui/react'
+import { upperFirst } from 'lodash'
 import { useMenuRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 
 type ExpandedMenuItemProps = {
@@ -17,7 +18,7 @@ export const SubmenuHeader = ({ title, description }: ExpandedMenuItemProps) => 
           <ArrowBackIcon color='lightgrey' />
         </Button>
         <Center fontWeight='bold' color='white' fontSize='sm' flex={1} pr={7}>
-          {title}
+          {upperFirst(title)}
         </Center>
       </Flex>
       {description && (

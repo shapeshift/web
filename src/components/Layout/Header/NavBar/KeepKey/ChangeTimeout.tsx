@@ -1,11 +1,9 @@
-import { InfoIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
-import { useKeepKeyMenuEventHandler } from 'components/Layout/Header/NavBar/hooks/useKeepKeyMenuEventHandler'
+import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio, RadioOption } from 'components/Radio/Radio'
-import { Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 
 export enum Timeout {
@@ -19,8 +17,6 @@ export enum Timeout {
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
-  const { awaitingButtonPress, setAwaitingButtonPress, handleKeepKeyEvents } =
-    useKeepKeyMenuEventHandler()
   const { wallet } = useKeepKeyWallet()
 
   const options: RadioOption<Timeout>[] = [
@@ -52,10 +48,9 @@ export const ChangeTimeout = () => {
 
   const handleChangeTimeoutInitializeEvent = async (value: Timeout) => {
     const parsedTimeout = value ? parseInt(value) : parseInt(Timeout.TenMinutes)
-    handleKeepKeyEvents()
-    setAwaitingButtonPress(true)
     await wallet?.applySettings({ autoLockDelayMs: parsedTimeout })
   }
+  const setting = 'timeout'
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
@@ -66,20 +61,7 @@ export const ChangeTimeout = () => {
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
       <ShowUpdateStatus setting='timeout' />
-      {awaitingButtonPress ? (
-        <Flex>
-          <InfoIcon color='blue.200' mt={1} />
-          <Text
-            translation={[
-              'walletProvider.keepKey.settings.descriptions.buttonPrompt',
-              { setting: 'timeout' }
-            ]}
-            ml={3}
-            fontWeight='medium'
-            color='blue.200'
-          />
-        </Flex>
-      ) : (
+      <AwaitKeepKey setting={setting}>
         <Radio
           options={options}
           onChange={handleChangeTimeoutInitializeEvent}
@@ -93,7 +75,7 @@ export const ChangeTimeout = () => {
             spacing: '0'
           }}
         />
-      )}
+      </AwaitKeepKey>
     </Flex>
   )
 }

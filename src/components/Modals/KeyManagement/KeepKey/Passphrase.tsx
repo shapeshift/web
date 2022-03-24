@@ -36,8 +36,9 @@ export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
       return close()
     } catch (e) {
       setError('modals.keepKey.passphrase.error')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

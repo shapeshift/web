@@ -1,31 +1,26 @@
 import { Flex, FormControl, FormLabel, Switch } from '@chakra-ui/react'
-import * as Types from '@keepkey/device-protocol/lib/types_pb'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 
-export const ChangePinCaching = () => {
+export const ChangePassphrase = () => {
   const translate = useTranslate()
-  const { wallet, pinCaching } = useKeepKeyWallet()
+  const { wallet, passphrase } = useKeepKeyWallet()
 
   const handleToggle = async () => {
-    if (pinCaching !== undefined) {
-      const newPinCachingPolicy: Required<Types.PolicyType.AsObject> = {
-        policyName: 'Pin Caching',
-        enabled: !pinCaching
-      }
-      await wallet?.applyPolicy(newPinCachingPolicy)
+    if (passphrase !== undefined) {
+      await wallet?.applySettings({ usePassphrase: !passphrase })
     } else return
   }
-  const setting = 'PIN caching'
+  const setting = 'Passphrase'
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
       <SubmenuHeader
-        title={translate('walletProvider.keepKey.settings.headings.pinCaching')}
-        description={translate('walletProvider.keepKey.settings.descriptions.pinCaching')}
+        title={translate('walletProvider.keepKey.settings.headings.passphrase')}
+        description={translate('walletProvider.keepKey.settings.descriptions.passphrase')}
       />
       <ShowUpdateStatus setting={setting} />
       <AwaitKeepKey setting={setting}>
@@ -35,7 +30,7 @@ export const ChangePinCaching = () => {
               setting
             })}
           </FormLabel>
-          <Switch id='pin-caching' isChecked={pinCaching} onChange={handleToggle} />
+          <Switch id='passphrase' isChecked={passphrase} onChange={handleToggle} />
         </FormControl>
       </AwaitKeepKey>
     </Flex>

@@ -46,7 +46,7 @@ const CosmosUnstakingRouter = ({
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
-      <Flex minWidth={{ base: '100%' }} flexDirection='column'>
+        <Flex minWidth={{ base: '100%' }} flexDirection='column'>
           <RouteSteps
             assetSymbol={asset.symbol}
             action={StakingAction.Unstake}

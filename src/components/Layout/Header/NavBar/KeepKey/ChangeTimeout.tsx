@@ -1,7 +1,8 @@
 import { InfoIcon } from '@chakra-ui/icons'
-import { Alert, AlertIcon, Flex } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { useKeepKeyMenuEventHandler } from 'components/Layout/Header/NavBar/hooks/useKeepKeyMenuEventHandler'
+import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio, RadioOption } from 'components/Radio/Radio'
 import { Text } from 'components/Text'
@@ -18,7 +19,7 @@ export enum Timeout {
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
-  const { awaitingButtonPress, setAwaitingButtonPress, keepKeyUpdateStatus, handleKeepKeyEvents } =
+  const { awaitingButtonPress, setAwaitingButtonPress, handleKeepKeyEvents } =
     useKeepKeyMenuEventHandler()
   const { wallet } = useKeepKeyWallet()
 
@@ -64,25 +65,7 @@ export const ChangeTimeout = () => {
         })}
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
-      {keepKeyUpdateStatus && (
-        <Alert
-          status={keepKeyUpdateStatus === 'success' ? 'success' : 'error'}
-          borderRadius='lg'
-          mb={3}
-          fontWeight='semibold'
-          color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'}
-          fontSize='sm'
-        >
-          <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
-          {keepKeyUpdateStatus === 'success'
-            ? translate('walletProvider.keepKey.settings.descriptions.updateSuccess', {
-                setting: 'Timeout'
-              })
-            : translate('walletProvider.keepKey.settings.descriptions.updateFailed', {
-                setting: 'timeout'
-              })}
-        </Alert>
-      )}
+      <ShowUpdateStatus setting='timeout' />
       {awaitingButtonPress ? (
         <Flex>
           <InfoIcon color='blue.200' mt={1} />

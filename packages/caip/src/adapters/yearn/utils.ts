@@ -10,7 +10,7 @@ import { AssetNamespace, toCAIP19 } from '../../caip19/caip19'
 
 const network = 1 // 1 for mainnet
 const provider = new JsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
-const yearnSdk = new Yearn(network, { provider, disableAllowlist: true })
+const yearnSdk = new Yearn(network, { provider })
 
 export const writeFiles = async (data: Record<string, Record<string, string>>) => {
   const path = './src/adapters/yearn/generated/'

@@ -4,4 +4,4 @@ import { Yearn } from '@yfi/sdk'
 // YearnVaultMarketCapService deps
 const network = 1 // 1 for mainnet
 const provider = new JsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
-export const yearnSdk = new Yearn(network, { provider, disableAllowlist: true })
+export const yearnSdk = new Yearn(network, { provider })

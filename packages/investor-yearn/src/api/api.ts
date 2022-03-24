@@ -50,7 +50,7 @@ export class YearnVaultApi {
     this.provider = new Web3.providers.HttpProvider(providerUrl)
     this.jsonRpcProvider = new JsonRpcProvider(providerUrl)
     this.web3 = new Web3(this.provider)
-    this.yearnSdk = new Yearn(network, { provider: this.jsonRpcProvider, disableAllowlist: true })
+    this.yearnSdk = new Yearn(network, { provider: this.jsonRpcProvider })
     this.ssRouterContract = new this.web3.eth.Contract(ssRouterAbi, ssRouterContractAddress)
     this.vaults = []
   }

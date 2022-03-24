@@ -21,7 +21,7 @@ const main = async (): Promise<void> => {
   const timeframe = HistoryTimeframe.YEAR
   // const caip19 = 'bip122:000000000019d6689c085ae165831e93/slip44:0' // BTC
   // const provider = new JsonRpcProvider('https://daemon.ethereum.shapeshift.com')
-  // const yearnSdk = new Yearn(1, { provider, disableAllowlist: true })
+  // const yearnSdk = new Yearn(1, { provider })
   // const yearnMarketService = new YearnTokenMarketCapService({ yearnSdk })
   // const osmosisMarketService = new OsmosisMarketService()
   const foxyMarketService = new FoxyMarketService()

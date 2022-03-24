@@ -45,7 +45,7 @@ export const selectPortfolioFiatBalances = createSelector(
         const price = marketData[assetId]?.price
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
         const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-        if (assetFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+        if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
         acc[assetId] = assetFiatBalance.toFixed(2)
         return acc
       },
@@ -259,7 +259,7 @@ export const selectPortfolioAssetAccountBalancesSortedFiat = createSelector(
       const sortedAssetsByFiatBalances = Object.entries(assetBalanceObj)
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
         .reduce<{ [k: CAIP19]: string }>((acc, [assetId, assetFiatBalance]) => {
-          if (bnOrZero(assetFiatBalance).isLessThan(bnOrZero(balanceThreshold))) return acc
+          if (bnOrZero(assetFiatBalance).lt(bnOrZero(balanceThreshold))) return acc
           acc[assetId] = assetFiatBalance
           return acc
         }, {})
@@ -297,7 +297,7 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
           },
           bn('0')
         )
-        if (totalAccountFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+        if (totalAccountFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
         acc[accountId] = totalAccountFiatBalance.toFixed(2)
         return acc
       },
@@ -378,7 +378,7 @@ export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
         ([assetId, assetFiatBalance]) =>
           !FEE_ASSET_IDS.includes(assetId) &&
           assets[assetId] &&
-          bnOrZero(assetFiatBalance).isGreaterThanOrEqualTo(bnOrZero(balanceThreshold))
+          bnOrZero(assetFiatBalance).gte(bnOrZero(balanceThreshold))
       )
       .map(([assetId]) => assetId)
   }
@@ -424,7 +424,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createSelector(
             },
             bn('0')
           )
-          if (totalAccountFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+          if (totalAccountFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
           acc.push(accountId)
         }
         return acc
@@ -473,7 +473,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
          * if fiatAmount is less than the selected threshold,
          * continue to the next asset balance by returning acc
          */
-        if (fiatAmount.isLessThan(bnOrZero(balanceThreshold))) return acc
+        if (fiatAmount.lt(bnOrZero(balanceThreshold))) return acc
         const allocation = fiatAmount.div(bnOrZero(totalPortfolioFiatBalance)).times(100).toNumber()
         const priceChange = marketData[assetId]?.changePercent24Hr
         const data = {

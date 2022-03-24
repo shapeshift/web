@@ -19,7 +19,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
-import { BalanceThreshold } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectBalanceThreshold,
   selectPortfolioAssets,
@@ -156,7 +155,7 @@ type FiatBalanceAtBucketArgs = {
   priceHistoryData: {
     [k: CAIP19]: HistoryData[]
   }
-  balanceThreshold: BalanceThreshold
+  balanceThreshold: string
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
@@ -180,7 +179,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     }
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
-    if (assetFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+    if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
     return acc.plus(assetFiatBalance)
   }, bn(0))
 
@@ -192,7 +191,7 @@ type CalculateBucketPricesArgs = {
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
-  balanceThreshold: BalanceThreshold
+  balanceThreshold: string
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]

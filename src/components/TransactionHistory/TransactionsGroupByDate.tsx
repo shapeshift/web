@@ -1,6 +1,7 @@
-import { Box, useColorModeValue } from '@chakra-ui/react'
+import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { Fragment, useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -20,8 +21,19 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
   txIds,
   useCompactMode = false
 }) => {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [parentWidth, setParentWidth] = useState(0)
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
   const borderTopColor = useColorModeValue('gray.100', 'gray.750')
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(event => {
+      setParentWidth(event[0].contentBoxSize[0].inlineSize)
+    })
+
+    if (ref.current) {
+      resizeObserver.observe(ref.current)
+    }
+  }, [ref])
   const txRows = useMemo(() => {
     const groups: TransactionGroup[] = []
     for (let index = 0; index < transactions.length; index++) {
@@ -36,20 +48,29 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
         groups.push({ date: transactionDate, txIds: [transaction.txId] })
       }
     }
-    return groups.map((group: TransactionGroup) => (
-      <Fragment key={group.date}>
-        <Box borderTopWidth={1} borderColor={borderTopColor} mx={-2} />
+    return groups
+  }, [transactions])
+
+  const renderTxRows = useMemo(() => {
+    return txRows.map((group: TransactionGroup) => (
+      <Stack px={2} spacing={0} key={group.date}>
+        {!useCompactMode && <TransactionDate blockTime={group.date} />}
         {group.txIds?.map((txId: TxId, index: number) => (
           <TransactionRow
             key={txId}
             txId={txId}
             useCompactMode={useCompactMode}
             showDateAndGuide={index === 0}
+            parentWidth={parentWidth}
           />
         ))}
-      </Fragment>
+      </Stack>
     ))
-  }, [borderTopColor, transactions, useCompactMode])
+  }, [parentWidth, txRows, useCompactMode])
 
-  return <>{txRows}</>
+  return (
+    <Stack ref={ref} divider={<StackDivider borderColor={borderTopColor} />}>
+      {renderTxRows}
+    </Stack>
+  )
 }

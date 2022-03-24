@@ -733,6 +733,10 @@
     "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
-    "unknownType": "Transaction"
+    "unknownType": "Transaction",
+    "from": "From",
+    "to": "To",
+    "for": "For",
+    "transfers": "Transfers"
   }
 }

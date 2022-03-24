@@ -1,4 +1,4 @@
-import { Box, Collapse, Flex } from '@chakra-ui/react'
+import { Collapse, Stack, StackDivider } from '@chakra-ui/react'
 import { ReactNode } from 'react'
 
 export const TransactionDetailsContainer = ({
@@ -11,15 +11,19 @@ export const TransactionDetailsContainer = ({
   compactMode: boolean
 }) => (
   <Collapse in={isOpen} unmountOnExit>
-    <Box pl={{ base: 2, lg: 10 }} pr={{ base: 2, lg: 10 }} pb={6}>
-      <Flex
-        flexDir={{ base: 'column', lg: compactMode ? 'column' : 'row' }}
-        flexWrap='wrap'
-        pl={{ base: 1, lg: 3 }}
-        mb={{ base: 0, lg: 3 }}
-      >
-        {children}
-      </Flex>
-    </Box>
+    <Stack
+      direction={{ base: 'column', lg: compactMode ? 'column' : 'row' }}
+      spacing={4}
+      divider={<StackDivider />}
+      mx={-4}
+      pl={{ base: 4, lg: 6 }}
+      pr={4}
+      pb={{ base: 4, lg: compactMode ? 4 : 0 }}
+      alignItems='flex-start'
+      borderTopWidth={1}
+      borderColor='gray.750'
+    >
+      {children}
+    </Stack>
   </Collapse>
 )

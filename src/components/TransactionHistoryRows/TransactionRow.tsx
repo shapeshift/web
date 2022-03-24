@@ -4,7 +4,7 @@ import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
@@ -21,23 +21,28 @@ export type TransactionRowProps = {
   compactMode: boolean
   isOpen: boolean
   toggleOpen: Function
+  parentWidth: number
 }
 
 export const TransactionRow = ({
   txId,
   activeAsset,
   showDateAndGuide = false,
-  useCompactMode = false
+  useCompactMode = false,
+  parentWidth
 }: {
   txId: string
   activeAsset?: Asset
   showDateAndGuide?: boolean
   useCompactMode?: boolean
+  parentWidth: number
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
+  const rowActiveBg = useColorModeValue('gray.50', 'blackAlpha.300')
   const txDetails = useTxDetails(txId, activeAsset)
+
   const renderTransactionType = (
     txDetails: TxDetails,
     showDateAndGuide: boolean,
@@ -48,7 +53,8 @@ export const TransactionRow = ({
       showDateAndGuide,
       compactMode: useCompactMode,
       toggleOpen,
-      isOpen
+      isOpen,
+      parentWidth
     }
     switch (txDetails.type || txDetails.direction) {
       case TxType.Send:
@@ -64,7 +70,13 @@ export const TransactionRow = ({
     }
   }
   return (
-    <Box width='full' px={4} rounded='lg' _hover={{ bg: rowHoverBg }}>
+    <Box
+      width='full'
+      px={4}
+      rounded='lg'
+      _hover={{ bg: rowHoverBg }}
+      bg={isOpen ? rowActiveBg : 'inherit'}
+    >
       {renderTransactionType(txDetails, showDateAndGuide, useCompactMode)}
     </Box>
   )

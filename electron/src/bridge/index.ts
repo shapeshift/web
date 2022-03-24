@@ -156,7 +156,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
         bridgeRunning = true
 
         try {
-            log.info("Starting Hardware Contoller")
+            log.info("Starting Hardware Controller")
             //start hardware controller
             //sub ALL events
             let controller = new Controller.KeepKey({})
@@ -169,6 +169,10 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 keepkey.STATUS = event.status
 
                 switch (event.state) {
+                    case 0:
+                        log.info(tag,"No Devices connected")
+                        windows?.mainWindow?.webContents.send('openHardwareError', { error: event.error, code: event.code, event })
+                        break;
                     case 4:
                         //launch init seed window
                         break;
@@ -193,10 +197,12 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             controller.events.on('logs',function(event){
                 log.info("logs event: ",event)
                 if(event.bootloaderUpdateNeeded){
+                    log.info(tag,"Open Bootloader Update")
                     windows?.mainWindow?.webContents.send('openBootloaderUpdate', event)
                 }
 
                 if(event.firmwareUpdateNeeded){
+                    log.info(tag,"Open Firmware Update")
                     windows?.mainWindow?.webContents.send('openFirmwareUpdate', event)
                 }
             })

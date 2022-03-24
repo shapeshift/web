@@ -467,7 +467,6 @@ ipcMain.on('@bridge/start', async event => {
     try {
         if (!bridgeRunning) {
             await start_bridge(settings.bridgeApiPort)
-            setTimeout(() => event.sender.send('@bridge/start'), 1000)
         }
     } catch (e) {
         log.error(tag, e)

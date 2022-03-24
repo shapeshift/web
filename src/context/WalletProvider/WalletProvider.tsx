@@ -327,6 +327,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('openBootloaderUpdate', (event, data) => {
+      console.log("openBootloaderUpdate")
       bootloader.open({})
     })
 

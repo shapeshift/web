@@ -156,7 +156,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
         bridgeRunning = true
 
         try {
-
+            log.info("Starting Hardware Contoller")
             //start hardware controller
             //sub ALL events
             let controller = new Controller.KeepKey({})
@@ -164,6 +164,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
 
             //state
             controller.events.on('state',function(event){
+                log.info("state change: ",event)
                 keepkey.STATE = event.state
                 keepkey.STATUS = event.status
 
@@ -183,11 +184,13 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
 
             //errors
             controller.events.on('error',function(event){
+                log.info("error event: ",event)
                 windows?.mainWindow?.webContents.send('openHardwareError', { error: event.error, code: event.code, event })
             })
 
             //logs
             controller.events.on('logs',function(event){
+                log.info("logs event: ",event)
                 if(event.bootloaderUpdateNeeded){
                     windows?.mainWindow?.webContents.send('openBootloaderUpdate', event)
                 }

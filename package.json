@@ -36,7 +36,7 @@
     "@visx/shape": "^2.4.0",
     "@visx/tooltip": "^2.8.0",
     "allsettled-polyfill": "^1.0.4",
-    "axios": "^0.24.0",
+    "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "bip39": "^3.0.4",
     "browserify-zlib": "^0.2.0",

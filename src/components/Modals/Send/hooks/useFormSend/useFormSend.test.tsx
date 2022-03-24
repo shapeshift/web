@@ -9,8 +9,8 @@ import {
 import { renderHook } from '@testing-library/react-hooks'
 import * as reactRedux from 'react-redux'
 import { EthSend } from 'test/mocks/txs'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 
@@ -23,7 +23,7 @@ jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()
 }))
 
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
 

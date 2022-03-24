@@ -173,6 +173,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         //launch init seed window
                         break;
                     case 5:
+                        log.info("Setting device controller: ",controller)
                         keepkey.device = controller.device
                         keepkey.wallet = controller.wallet
                         keepkey.transport = controller.transport

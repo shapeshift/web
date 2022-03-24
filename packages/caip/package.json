@@ -35,6 +35,6 @@
   "devDependencies": {
     "@shapeshiftoss/types": "^2.1.0",
     "@yfi/sdk": "^1.0.30",
-    "axios": "^0.26.0"
+    "axios": "^0.26.1"
   }
 }

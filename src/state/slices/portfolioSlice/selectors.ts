@@ -108,10 +108,19 @@ export const selectPortfolioFiatAccountBalances = createSelector(
 )
 
 export const selectPortfolioTotalFiatBalance = createSelector(
-  selectPortfolioFiatBalances,
+  selectPortfolioFiatAccountBalances,
   (portfolioFiatBalances): string =>
     Object.values(portfolioFiatBalances)
-      .reduce((acc, assetFiatBalance) => acc.plus(bnOrZero(assetFiatBalance)), bn(0))
+      .reduce(
+        (acc, accountFiatBalance) =>
+          acc.plus(
+            Object.values(accountFiatBalance).reduce(
+              (acc, assetsFiatBalance) => acc.plus(bnOrZero(assetsFiatBalance)),
+              bn(0)
+            )
+          ),
+        bn(0)
+      )
       .toFixed(2)
 )
 

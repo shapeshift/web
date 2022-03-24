@@ -60,9 +60,7 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             <Switch isChecked={isLightMode} pointerEvents='none' />
           </SettingsListItem>
           <Divider my={1} />
-          {/* TODO(stackedQ): the following condition should be removed after
-          implementing language translations and balance threshold functionality
-          for assets page, accounts page, and portfolio charts, balances, and assets. */}
+          {/* TODO: remove the following condition when fallback locale is ready */}
           {false && (
             <>
               <SettingsListItem
@@ -78,16 +76,16 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
                 </Flex>
               </SettingsListItem>
               <Divider my={1} />
-              <SettingsListItem
-                label='modals.settings.balanceThreshold'
-                icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}
-                tooltipText='modals.settings.balanceThresholdTooltip'
-              >
-                <BalanceThresholdInput />
-              </SettingsListItem>
-              <Divider my={1} />
             </>
           )}
+          <SettingsListItem
+            label='modals.settings.balanceThreshold'
+            icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}
+            tooltipText='modals.settings.balanceThresholdTooltip'
+          >
+            <BalanceThresholdInput />
+          </SettingsListItem>
+          <Divider my={1} />
           <SettingsListItem
             label='common.terms'
             onClick={() => closeModalAndNavigateTo('/legal/terms-of-service')}

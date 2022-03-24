@@ -29,8 +29,6 @@ import {
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-const { TxType } = chainAdapters
-
 type PriceAtBlockTimeArgs = {
   date: number
   assetPriceHistoryData: HistoryData[]
@@ -228,11 +226,11 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         const transferValue = bnOrZero(transfer.value)
 
         switch (transfer.type) {
-          case TxType.Send:
+          case chainAdapters.TxType.Send:
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
-          case TxType.Receive:
+          case chainAdapters.TxType.Receive:
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break

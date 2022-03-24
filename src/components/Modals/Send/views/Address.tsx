@@ -27,11 +27,6 @@ import { AddressInput } from '../AddressInput/AddressInput'
 import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
 
-const {
-  cosmos: { ChainAdapter: CosmosChainAdapter }
-} = cosmossdk
-const { ChainAdapter: EthereumChainAdapter } = ethereum
-
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
   const [isValidatingCosmosAddress, setIsValidatingCosmosAddress] = useState(false)
@@ -89,14 +84,14 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
-                  if (adapter instanceof CosmosChainAdapter) {
+                  if (adapter instanceof cosmossdk.cosmos.ChainAdapter) {
                     setIsValidatingCosmosAddress(true)
                     const validAddress = await adapter.validateAddress(value)
                     setIsValidatingCosmosAddress(false)
                     return validAddress.valid || 'common.invalidAddress'
                   }
                   const validAddress = await adapter.validateAddress(value)
-                  if (adapter instanceof EthereumChainAdapter) {
+                  if (adapter instanceof ethereum.ChainAdapter) {
                     const validEnsAddress = await adapter.validateEnsAddress(value)
                     if (validEnsAddress.valid) {
                       // Verify that the ENS name resolves to an address

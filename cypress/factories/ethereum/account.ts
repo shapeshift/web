@@ -1,8 +1,6 @@
 import { ethereum } from '@shapeshiftoss/unchained-client'
 
-type EthereumAccount = ethereum.EthereumAccount
-
-export const makeEthAccount = (): EthereumAccount => {
+export const makeEthAccount = (): ethereum.EthereumAccount => {
   return {
     balance: '14',
     unconfirmedBalance: '3',

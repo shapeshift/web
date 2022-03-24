@@ -24,8 +24,6 @@ import { Text } from 'components/Text'
 import { DatePicker } from './components/DatePicker/DatePicker'
 import { FilterGroup } from './components/FilterGroup'
 
-const { TradeType, TxType } = chainAdapters
-
 const customRangeOption: string = 'customRange'
 
 export enum FilterFormFields {
@@ -182,9 +180,9 @@ export const TransactionHistoryFilter = ({
                 title='transactionHistory.filters.categories'
                 allowMultipleOptions
                 options={[
-                  ['transactionHistory.filters.send', TxType.Send],
-                  ['transactionHistory.filters.trade', TradeType.Trade],
-                  ['transactionHistory.filters.receive', TxType.Receive]
+                  ['transactionHistory.filters.send', chainAdapters.TxType.Send],
+                  ['transactionHistory.filters.trade', chainAdapters.TradeType.Trade],
+                  ['transactionHistory.filters.receive', chainAdapters.TxType.Receive]
                 ]}
               />
               <Flex justifyContent='center' alignItems='center'>

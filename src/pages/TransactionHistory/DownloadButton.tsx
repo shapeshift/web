@@ -18,8 +18,6 @@ import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-const { TxType } = chainAdapters
-
 type ReportRow = {
   txid: TxId
   type: string
@@ -65,7 +63,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const transaction = allTxs[txId]
       const standardTx = getStandardTx(transaction)
       const txType = isSupportedContract(transaction)
-        ? TxType.Contract
+        ? chainAdapters.TxType.Contract
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
       const buyTx = getBuyTx(transaction)
       const sellTx = getSellTx(transaction)

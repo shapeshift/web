@@ -1,8 +1,6 @@
 import { bitcoin } from '@shapeshiftoss/unchained-client'
 
-type BitcoinAccount = bitcoin.BitcoinAccount
-
-export const makeXpubAccount = (): BitcoinAccount => {
+export const makeXpubAccount = (): bitcoin.BitcoinAccount => {
   return {
     pubkey:
       'xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiKrhko4egpiMZbpiaQL2jkwSB1icqYh2cfDfVxdx4df189oLKnC5fSwqPfgyP3hooxujYzAu3fDVmz',

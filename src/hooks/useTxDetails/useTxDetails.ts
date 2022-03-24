@@ -6,12 +6,6 @@ import { selectAssetByCAIP19, selectMarketDataById, selectTxById } from 'state/s
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-const { TxType: TxTypeEnum } = chainAdapters
-
-type TradeType = chainAdapters.TradeType
-type TxTransfer = chainAdapters.TxTransfer
-type TxType = chainAdapters.TxType
-
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
 const SUPPORTED_CONTRACT_METHODS = new Set([
   'deposit',
@@ -30,9 +24,9 @@ export enum Direction {
 
 export interface TxDetails {
   tx: Tx
-  buyTx?: TxTransfer
-  sellTx?: TxTransfer
-  tradeTx?: TxTransfer
+  buyTx?: chainAdapters.TxTransfer
+  sellTx?: chainAdapters.TxTransfer
+  tradeTx?: chainAdapters.TxTransfer
   feeAsset?: Asset
   buyAsset?: Asset
   sellAsset?: Asset
@@ -41,7 +35,7 @@ export interface TxDetails {
   ensTo?: string
   from: string
   ensFrom?: string
-  type: TradeType | TxType | ''
+  type: chainAdapters.TradeType | chainAdapters.TxType | ''
   symbol: string
   precision: number
   explorerTxLink: string
@@ -118,7 +112,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     })()
   }, [from, to])
   const type = isSupportedContract(tx)
-    ? TxTypeEnum.Contract
+    ? chainAdapters.TxType.Contract
     : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18

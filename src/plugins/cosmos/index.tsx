@@ -7,10 +7,6 @@ import { AssetIcon } from 'components/AssetIcon'
 
 import { CosmosAsset } from './CosmosAsset'
 
-const {
-  cosmos: { ChainAdapter: CosmosChainAdapter }
-} = cosmossdk
-
 export function register(): Plugins {
   return [
     [
@@ -34,7 +30,10 @@ export function register(): Plugins {
                   getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
                 )
 
-                return new CosmosChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
+                return new cosmossdk.cosmos.ChainAdapter({
+                  providers: { http, ws },
+                  coinName: 'Cosmos'
+                })
               }
             ]
           ]

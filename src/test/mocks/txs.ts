@@ -1,8 +1,6 @@
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
-const { TradeType } = chainAdapters
-
 export const EthSend: Tx = {
   address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
   blockHash: '0x5edb4bbd1c33026053bd886b898bf6424b36e4b8fe3f4c8e2b6abc83079ed89b',
@@ -118,7 +116,7 @@ export const TradeTx: Tx = {
   status: chainAdapters.TxStatus.Confirmed,
   tradeDetails: {
     dexName: '',
-    type: TradeType.Trade
+    type: chainAdapters.TradeType.Trade
   },
   transfers: [
     {

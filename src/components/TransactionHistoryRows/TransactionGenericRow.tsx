@@ -17,17 +17,15 @@ import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
-const { TradeType, TxType } = chainAdapters
-
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
-    case TxType.Send:
+    case chainAdapters.TxType.Send:
     case Direction.Outbound:
       return <ArrowUpIcon />
-    case TxType.Receive:
+    case chainAdapters.TxType.Receive:
     case Direction.Inbound:
       return <ArrowDownIcon color='green.500' />
-    case TradeType.Trade:
+    case chainAdapters.TradeType.Trade:
       return <FaExchangeAlt />
     case Direction.InPlace:
       return <FaThumbsUp />

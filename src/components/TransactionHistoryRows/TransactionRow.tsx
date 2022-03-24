@@ -14,8 +14,6 @@ import { TxDetails, useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 dayjs.extend(relativeTime)
 dayjs.extend(localizedFormat)
 
-const { TradeType, TxType } = chainAdapters
-
 export type TransactionRowProps = {
   txDetails: TxDetails
   showDateAndGuide?: boolean
@@ -52,13 +50,13 @@ export const TransactionRow = ({
       isOpen
     }
     switch (txDetails.type || txDetails.direction) {
-      case TxType.Send:
+      case chainAdapters.TxType.Send:
         return <TransactionSend {...props} />
-      case TxType.Receive:
+      case chainAdapters.TxType.Receive:
         return <TransactionReceive {...props} />
-      case TradeType.Trade:
+      case chainAdapters.TradeType.Trade:
         return <TransactionTrade {...props} />
-      case TxType.Contract:
+      case chainAdapters.TxType.Contract:
         return <TransactionContract {...props} />
       default:
         return <UnknownTransaction {...props} />

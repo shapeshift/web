@@ -3,7 +3,11 @@ import { upperFirst } from 'lodash'
 import { useTranslate } from 'react-polyglot'
 import { useKeepKeyMenuEventHandler } from 'components/Layout/Header/NavBar/hooks/useKeepKeyMenuEventHandler'
 
-export const ShowUpdateStatus = ({ setting }: { setting: string }) => {
+export type ShowUpdateStatusProps = {
+  setting: string
+}
+
+export const ShowUpdateStatus = ({ setting }: ShowUpdateStatusProps) => {
   const translate = useTranslate()
   const { handleKeepKeyEvents, keepKeyUpdateStatus } = useKeepKeyMenuEventHandler()
 

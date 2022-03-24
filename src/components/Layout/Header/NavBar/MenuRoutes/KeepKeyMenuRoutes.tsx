@@ -10,13 +10,13 @@ import {
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
+import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
 
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()

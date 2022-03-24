@@ -1,5 +1,7 @@
-import { KeyManager } from './config'
 import isEmpty from 'lodash/isEmpty'
+
+import { KeyManager } from './config'
+
 /**
  * Defining storage up here,
  * so it can be changed to other storage types easily

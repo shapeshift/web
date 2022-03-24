@@ -1201,7 +1201,7 @@
     eventemitter2 "^5.0.1"
     rxjs "^6.4.0"
 
-"@bithighlander/hdwallet-keepkey-nodehid@2.14.3":
+"@bithighlander/hdwallet-keepkey-nodehid@^2.14.3":
   version "2.14.3"
   resolved "https://registry.yarnpkg.com/@bithighlander/hdwallet-keepkey-nodehid/-/hdwallet-keepkey-nodehid-2.14.3.tgz#a190824a702e2037fbb376a7219c4ab4946bba58"
   integrity sha512-GNHs31FZnnaquptCp59nEJbp1EEYPHdy9qsRaquLKsq4khgZ/7ju7PJCZ17ETh94IVBVPe1pE70S45vJzncdNQ==
@@ -3446,15 +3446,18 @@
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
 
-"@keepkey/keepkey-hardware-hid@8.1.18":
-  version "8.1.18"
-  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-hid/-/keepkey-hardware-hid-8.1.18.tgz#f168f79d7d6afdd7a2ea1eb427f118f1177d7307"
-  integrity sha512-49za5WQw0XvTLKLULaTCFiQTR7PniK19Unk7Ku8lr/SDKpsa1F/vnYy3mK4nzfXjxYazT9+z0lQTN6me+1J0pg==
+"@keepkey/keepkey-hardware-controller@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-controller/-/keepkey-hardware-controller-0.0.1.tgz#82f2366118657949bdae1c960084e67dfc1e7fa8"
+  integrity sha512-Je1rY4dViG4c5KQJOTLQWimJm1xpjXvFIxSYKJRRzHqzJXA6ltMUTYV5hFP2Xi9JMbRgvjmcUxblHb9bKtJnPg==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@bithighlander/hdwallet-core" "2.14.2"
-    "@bithighlander/hdwallet-keepkey-nodehid" "2.14.3"
+    "@bithighlander/hdwallet-keepkey-nodehid" "^2.14.3"
     "@pioneer-platform/loggerdog" "^8.1.5"
+    "@shapeshiftoss/hdwallet-core" "^1.19.0"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.19.0"
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb" "^1.19.0"
     "@types/bytebuffer" "^5.0.42"
     "@types/google-protobuf" "^3.7.4"
     "@types/node" "^13.13.48"
@@ -3467,6 +3470,8 @@
     request-promise "^4.2.6"
     ts-node "^8.10.2"
     typescript "^3.9.7"
+    usb "1.9.2"
+    webusb "^2.2.0"
 
 "@malept/cross-spawn-promise@^1.1.0":
   version "1.1.1"
@@ -22724,7 +22729,7 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
-usb@^1.6.0:
+usb@1.9.2, usb@^1.6.0:
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/usb/-/usb-1.9.2.tgz#fb6b36f744ecc707a196c45a6ec72442cb6f2b73"
   integrity sha512-dryNz030LWBPAf6gj8vyq0Iev3vPbCLHCT8dBw3gQRXRzVNsIdeuU+VjPp3ksmSPkeMAl1k+kQ14Ij0QHyeiAg==

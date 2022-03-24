@@ -41,7 +41,6 @@ import { autoUpdater } from 'electron-updater'
 import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
-import axios from 'axios'
 log.transports.file.level = "debug";
 autoUpdater.logger = log;
 
@@ -58,14 +57,11 @@ const Unchained = require('openapi-client-axios').default;
 
 import fs from 'fs'
 //Modules
-import { update_keepkey_status } from './keepkey'
 import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray } from './tray'
 import { isWin, isLinux, isMac, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
-import { getDevice } from './wallet'
-import { Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { pairWalletConnect } from './connect'
 import { Settings } from './settings'
 
@@ -455,34 +451,6 @@ ipcMain.on('@app/start', async (event, data) => {
     try {
         log.info(tag, 'event: onStartApp: ', data)
 
-        try {
-
-            usb.on('attach', function (device) {
-                try {
-                    log.info('attach device: ', device)
-                    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
-                    if (!bridgeRunning) start_bridge()
-                    update_keepkey_status()
-                } catch (e) {
-                    log.error(e)
-                }
-            })
-
-            usb.on('detach', function (device) {
-                try {
-                    log.info('detach device: ', device)
-                    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
-                    //stop_bridge(event)
-                    update_keepkey_status()
-                } catch (e) {
-                    log.error(e)
-                }
-            })
-
-        } catch (e) {
-            log.error(e)
-        }
-
         //load DB
         try {
             log.info(tag, 2)
@@ -515,13 +483,6 @@ ipcMain.on('@app/start', async (event, data) => {
 
         } catch (e) {
             log.error('Failed to create tray! e: ', e)
-        }
-
-        //onStart
-        try {
-            update_keepkey_status()
-        } catch (e) {
-            log.error(e)
         }
 
         try {

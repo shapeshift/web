@@ -22,8 +22,6 @@ import { Row } from '../../Row/Row'
 
 export const FirmwareModal = () => {
   const { keepkey } = useWallet()
-  const [loading, setLoading] = useState(false)
-  const [loadingFirmware, setLoadingFirmware] = useState(false)
   const { firmware } = useModal()
   const { close, isOpen } = firmware
 
@@ -37,7 +35,7 @@ export const FirmwareModal = () => {
 
   const HandleUpdateFirmware = async () => {
     console.info('Updating firmware (firmware modal)')
-    setLoadingFirmware(true)
+    // setLoadingFirmware(true)
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
 
@@ -61,7 +59,7 @@ export const FirmwareModal = () => {
         </ModalHeader>
         <ModalBody>
           <div>
-            {loading ? (
+            {false ? (
               <div>
                 <Spinner />
               </div>
@@ -76,7 +74,6 @@ export const FirmwareModal = () => {
                       size='lg'
                       colorScheme='blue'
                       onClick={HandleUpdateFirmware}
-                      disabled={loadingFirmware}
                     >
                       <Text translation={'modals.firmware.continue'} />
                     </Button>

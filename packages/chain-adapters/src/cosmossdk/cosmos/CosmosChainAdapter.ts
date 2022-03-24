@@ -1,4 +1,4 @@
-import { caip2 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import {
   bip32ToAddressNList,
   CosmosSignTx,
@@ -19,6 +19,8 @@ export class ChainAdapter
 {
   protected readonly supportedChainIds = ['cosmos:cosmoshub-4', 'cosmos:vega-testnet']
   protected readonly chainId = this.supportedChainIds[0]
+  protected readonly assetId: CAIP19
+
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
     coinType: 118,
@@ -27,6 +29,15 @@ export class ChainAdapter
 
   constructor(args: ChainAdapterArgs) {
     super(args)
+
+    const { chain, network } = caip2.fromCAIP2(this.chainId)
+
+    this.assetId = caip19.toCAIP19({
+      chain,
+      network,
+      assetNamespace: AssetNamespace.Slip44,
+      assetReference: AssetReference.Cosmos
+    })
 
     this.parser = new unchained.cosmos.TransactionParser({ chainId: this.chainId })
   }

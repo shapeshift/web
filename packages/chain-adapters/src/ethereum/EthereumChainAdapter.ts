@@ -23,7 +23,7 @@ import erc20Abi from './erc20Abi.json'
 export interface ChainAdapterArgs {
   providers: {
     http: unchained.ethereum.V1Api
-    ws: unchained.ws.Client<unchained.SequencedTx>
+    ws: unchained.ws.Client<unchained.ethereum.ParsedTx>
   }
   chainId?: CAIP2
 }
@@ -38,7 +38,7 @@ async function getErc20Data(to: string, value: string, contractAddress?: string)
 export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
   private readonly providers: {
     http: unchained.ethereum.V1Api
-    ws: unchained.ws.Client<unchained.SequencedTx>
+    ws: unchained.ws.Client<unchained.ethereum.ParsedTx>
   }
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,

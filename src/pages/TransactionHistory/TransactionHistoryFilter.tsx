@@ -13,7 +13,7 @@ import {
   useColorModeValue,
   useOutsideClick
 } from '@chakra-ui/react'
-import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useRef, useState } from 'react'
 import { FieldValues, useForm } from 'react-hook-form'
@@ -23,6 +23,8 @@ import { Text } from 'components/Text'
 
 import { DatePicker } from './components/DatePicker/DatePicker'
 import { FilterGroup } from './components/FilterGroup'
+
+const { TradeType, TxType } = chainAdapters
 
 const customRangeOption: string = 'customRange'
 

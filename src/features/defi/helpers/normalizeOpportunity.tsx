@@ -1,5 +1,4 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { AssetNamespace } from '@shapeshiftoss/caip/dist/caip19/caip19'
 import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -8,6 +7,8 @@ import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
 import { DefiType } from '../contexts/DefiManagerProvider/DefiManagerProvider'
+
+const { AssetNamespace } = caip19
 
 export type EarnOpportunityType = {
   type?: string

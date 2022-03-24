@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
-import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { Fragment } from 'react'
 import { FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { IoIosArrowRoundForward } from 'react-icons/io'
@@ -16,6 +16,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
+
+const { TradeType, TxType } = chainAdapters
 
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {

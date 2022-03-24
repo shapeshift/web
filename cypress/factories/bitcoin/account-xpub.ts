@@ -1,4 +1,6 @@
-import { BitcoinAccount } from '@shapeshiftoss/unchained-client/dist/generated/bitcoin'
+import { bitcoin } from '@shapeshiftoss/unchained-client'
+
+type BitcoinAccount = bitcoin.BitcoinAccount
 
 export const makeXpubAccount = (): BitcoinAccount => {
   return {

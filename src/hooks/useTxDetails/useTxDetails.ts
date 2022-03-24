@@ -1,11 +1,16 @@
 import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
-import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
 import { selectAssetByCAIP19, selectMarketDataById, selectTxById } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
+
+const { TxType: TxTypeEnum } = chainAdapters
+
+type TradeType = chainAdapters.TradeType
+type TxTransfer = chainAdapters.TxTransfer
+type TxType = chainAdapters.TxType
 
 // Adding a new supported method? Also update transactionRow.parser translations accordingly
 const SUPPORTED_CONTRACT_METHODS = new Set([
@@ -113,7 +118,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     })()
   }, [from, to])
   const type = isSupportedContract(tx)
-    ? TxType.Contract
+    ? TxTypeEnum.Contract
     : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18

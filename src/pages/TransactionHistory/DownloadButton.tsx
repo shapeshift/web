@@ -1,5 +1,5 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useJsonToCsv } from 'react-json-csv'
@@ -17,6 +17,8 @@ import { selectAssetsByMarketCap, selectTxs } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
+
+const { TxType } = chainAdapters
 
 type ReportRow = {
   txid: TxId

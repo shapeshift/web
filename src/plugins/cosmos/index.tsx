@@ -1,4 +1,4 @@
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -6,6 +6,10 @@ import { Plugins } from 'plugins'
 import { AssetIcon } from 'components/AssetIcon'
 
 import { CosmosAsset } from './CosmosAsset'
+
+const {
+  cosmos: { ChainAdapter: CosmosChainAdapter }
+} = cosmossdk
 
 export function register(): Plugins {
   return [

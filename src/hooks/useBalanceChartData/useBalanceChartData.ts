@@ -1,6 +1,6 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
-import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -28,6 +28,8 @@ import {
 } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
+
+const { TxType } = chainAdapters
 
 type PriceAtBlockTimeArgs = {
   date: number

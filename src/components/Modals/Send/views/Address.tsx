@@ -10,8 +10,7 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos/CosmosChainAdapter'
-import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/ethereum/EthereumChainAdapter'
+import { cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -27,6 +26,11 @@ import { ensLookup, ensReverseLookup } from 'lib/ens'
 import { AddressInput } from '../AddressInput/AddressInput'
 import { SendFormFields, SendInput } from '../Form'
 import { SendRoutes } from '../Send'
+
+const {
+  cosmos: { ChainAdapter: CosmosChainAdapter }
+} = cosmossdk
+const { ChainAdapter: EthereumChainAdapter } = ethereum
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)

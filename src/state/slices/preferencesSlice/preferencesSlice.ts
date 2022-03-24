@@ -7,6 +7,7 @@ export type FeatureFlags = {
   CosmosInvestor: boolean
   CosmosPlugin: boolean
   GemRamp: boolean
+  ReduxLogging: boolean
 }
 
 export type Preferences = {
@@ -19,7 +20,8 @@ const initialState: Preferences = {
   featureFlags: {
     CosmosInvestor: getConfig().REACT_APP_FEATURE_COSMOS_INVESTOR,
     CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS,
-    GemRamp: getConfig().REACT_APP_FEATURE_GEM_RAMP
+    GemRamp: getConfig().REACT_APP_FEATURE_GEM_RAMP,
+    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0'

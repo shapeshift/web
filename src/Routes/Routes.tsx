@@ -1,4 +1,5 @@
 import union from 'lodash/union'
+import { createContext, useContext, useMemo } from 'react'
 import {
   FaFlag,
   FaHistory,
@@ -9,10 +10,11 @@ import {
   FaWallet,
   FaWater
 } from 'react-icons/fa'
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
+import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
@@ -170,51 +172,69 @@ function useLocationBackground() {
   return { background, location }
 }
 
-export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
+export interface IRouteContext {
+  appRoutes: NestedRoute[]
+  currentRoute: NestedRoute | void
+}
+
+const RouteContext = createContext<IRouteContext | null>(null)
+
+export const AppRouteProvider: React.FC = ({ children }) => {
+  const location = useLocation()
+  const { routes: pluginRoutes } = usePlugins()
+
+  const appRoutes = useMemo(() => {
+    return generateAppRoutes(union(pluginRoutes, routes))
+  }, [pluginRoutes])
+
+  const currentRoute = useMemo(() => {
+    return appRoutes.find(e => matchPath(location.pathname, { path: e.path, exact: true }))
+  }, [appRoutes, location.pathname])
+
+  return (
+    <RouteContext.Provider value={{ currentRoute, appRoutes }}>{children}</RouteContext.Provider>
+  )
+}
+
+export const useAppRoutes = (): IRouteContext =>
+  useContext(RouteContext as React.Context<IRouteContext>)
+
+export const Routes = () => {
   const { background, location } = useLocationBackground()
   const { state } = useWallet()
+  const { appRoutes } = useAppRoutes()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
-
-  const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
 
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
+        const MainComponent = route.main
         return (
           <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
-            <Layout route={route} />
+            <Layout>{MainComponent && <MainComponent />}</Layout>
           </PrivateRoute>
         )
       })}
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>
+      <Route path='/connect-wallet'>
+        <ConnectWallet />
+      </Route>
       <Route path={'/legal/terms-of-service'}>
-        <Layout
-          route={{
-            path: '/legal/terms-of-service',
-            label: 'Terms of Service',
-            main: TermsOfService
-          }}
-        />
+        <Layout>
+          <TermsOfService />
+        </Layout>
       </Route>
       <Route path={'/legal/privacy-policy'}>
-        <Layout
-          route={{
-            path: '/legal/privacy-policy',
-            label: 'Privacy Policy',
-            main: PrivacyPolicy
-          }}
-        />
+        <Layout>
+          <PrivacyPolicy />
+        </Layout>
       </Route>
       <Route path='/flags'>
-        <Layout
-          route={{
-            path: '/flags',
-            label: 'Flags',
-            main: Flags
-          }}
-        />
+        <Layout>
+          <Flags />
+        </Layout>
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

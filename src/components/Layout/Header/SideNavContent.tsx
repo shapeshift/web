@@ -14,7 +14,6 @@ import { FaMoon } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Link as RouterLink } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { RawText, Text } from 'components/Text'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/selectors'
@@ -27,7 +26,6 @@ import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
 type HeaderContentProps = {
-  route?: Route
   isCompact?: boolean
 } & FlexProps
 

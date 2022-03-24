@@ -5,6 +5,7 @@ import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
+import { AppRouteProvider } from 'Routes/Routes'
 import { ScrollToTop } from 'Routes/ScrollToTop'
 import { translations } from 'assets/translations'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -38,15 +39,17 @@ export function AppProviders({ children }: ProvidersProps) {
               <BrowserRouterProvider>
                 <I18n locale={locale} messages={messages}>
                   <WalletProvider>
-                    <PortfolioProvider>
-                      <MarketDataProvider>
-                        <TransactionsProvider>
-                          <ModalProvider>
-                            <DefiManagerProvider>{children}</DefiManagerProvider>
-                          </ModalProvider>
-                        </TransactionsProvider>
-                      </MarketDataProvider>
-                    </PortfolioProvider>
+                    <AppRouteProvider>
+                      <PortfolioProvider>
+                        <MarketDataProvider>
+                          <TransactionsProvider>
+                            <ModalProvider>
+                              <DefiManagerProvider>{children}</DefiManagerProvider>
+                            </ModalProvider>
+                          </TransactionsProvider>
+                        </MarketDataProvider>
+                      </PortfolioProvider>
+                    </AppRouteProvider>
                   </WalletProvider>
                 </I18n>
               </BrowserRouterProvider>

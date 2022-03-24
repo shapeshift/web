@@ -1,5 +1,3 @@
-import union from 'lodash/union'
-import { createContext, useContext, useMemo } from 'react'
 import {
   FaFlag,
   FaHistory,
@@ -10,11 +8,11 @@ import {
   FaWallet,
   FaWater
 } from 'react-icons/fa'
-import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
@@ -36,7 +34,7 @@ import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
-import { generateAppRoutes, Route as NestedRoute } from './helpers'
+import { Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
 export const routes: Array<NestedRoute> = [
@@ -172,37 +170,10 @@ function useLocationBackground() {
   return { background, location }
 }
 
-export interface IRouteContext {
-  appRoutes: NestedRoute[]
-  currentRoute: NestedRoute | void
-}
-
-const RouteContext = createContext<IRouteContext | null>(null)
-
-export const AppRouteProvider: React.FC = ({ children }) => {
-  const location = useLocation()
-  const { routes: pluginRoutes } = usePlugins()
-
-  const appRoutes = useMemo(() => {
-    return generateAppRoutes(union(pluginRoutes, routes))
-  }, [pluginRoutes])
-
-  const currentRoute = useMemo(() => {
-    return appRoutes.find(e => matchPath(location.pathname, { path: e.path, exact: true }))
-  }, [appRoutes, location.pathname])
-
-  return (
-    <RouteContext.Provider value={{ currentRoute, appRoutes }}>{children}</RouteContext.Provider>
-  )
-}
-
-export const useAppRoutes = (): IRouteContext =>
-  useContext(RouteContext as React.Context<IRouteContext>)
-
 export const Routes = () => {
   const { background, location } = useLocationBackground()
   const { state } = useWallet()
-  const { appRoutes } = useAppRoutes()
+  const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
 
   return (

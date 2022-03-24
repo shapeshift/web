@@ -4,7 +4,6 @@ import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
-import { AppRouteProvider } from 'Routes/Routes'
 import { ScrollToTop } from 'Routes/ScrollToTop'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
@@ -34,17 +33,15 @@ export function AppProviders({ children }: ProvidersProps) {
               <BrowserRouterProvider>
                 <I18nProvider>
                   <WalletProvider>
-                    <AppRouteProvider>
-                      <PortfolioProvider>
-                        <MarketDataProvider>
-                          <TransactionsProvider>
-                            <ModalProvider>
-                              <DefiManagerProvider>{children}</DefiManagerProvider>
-                            </ModalProvider>
-                          </TransactionsProvider>
-                        </MarketDataProvider>
-                      </PortfolioProvider>
-                    </AppRouteProvider>
+                    <PortfolioProvider>
+                      <MarketDataProvider>
+                        <TransactionsProvider>
+                          <ModalProvider>
+                            <DefiManagerProvider>{children}</DefiManagerProvider>
+                          </ModalProvider>
+                        </TransactionsProvider>
+                      </MarketDataProvider>
+                    </PortfolioProvider>
                   </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>

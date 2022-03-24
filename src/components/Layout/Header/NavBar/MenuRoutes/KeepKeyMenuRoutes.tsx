@@ -9,6 +9,7 @@ import {
   WalletConnectedRoutes
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { ChangeLabel } from 'components/Layout/Header/NavBar/KeepKey/ChangeLabel'
+import { ChangePassphrase } from 'components/Layout/Header/NavBar/KeepKey/ChangePassphrase'
 import { ChangePin } from 'components/Layout/Header/NavBar/KeepKey/ChangePin'
 import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
 import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTimeout'
@@ -17,7 +18,6 @@ import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { ChangePassphrase } from "components/Layout/Header/NavBar/KeepKey/ChangePassphrase";
 
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()
@@ -36,6 +36,10 @@ export const KeepKeyMenuRoutes = () => {
     return updateAvailable
       ? translate('walletProvider.keepKey.settings.status.updateAvailable')
       : translate('walletProvider.keepKey.settings.status.upToDate')
+  }
+
+  const wipeDevice = async () => {
+    await wallet?.wipe()
   }
 
   const keepKeyMenu = () => {
@@ -129,7 +133,7 @@ export const KeepKeyMenuRoutes = () => {
             hasSubmenu={true}
           />
           <MenuDivider />
-          <MenuItem color='red.500' icon={<CloseIcon />}>
+          <MenuItem onClick={wipeDevice} color='red.500' icon={<CloseIcon />}>
             {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
           </MenuItem>
         </MenuGroup>

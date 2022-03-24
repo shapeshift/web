@@ -13,11 +13,7 @@ import { InitialState, useWallet, WalletActions } from 'context/WalletProvider/W
 import { ensReverseLookup } from 'lib/ens'
 
 type WalletImageProps = Pick<InitialState, 'walletInfo'>
-export const entries = [
-  WalletConnectedRoutes.Connected,
-  WalletConnectedRoutes.KeepKey,
-  WalletConnectedRoutes.KeepKeyPin
-]
+export const entries = [WalletConnectedRoutes.Connected]
 
 export const WalletImage = ({ walletInfo }: WalletImageProps) => {
   const Icon = walletInfo?.icon

@@ -19,7 +19,7 @@ export interface Plugin {
   routes?: Route[]
 }
 
-class PluginManager {
+export class PluginManager {
   #pluginManager = new Map<string, Plugin>()
 
   clear(): void {

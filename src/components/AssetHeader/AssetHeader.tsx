@@ -3,7 +3,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAccountIdsByAssetId,
   selectAssetByCAIP19,

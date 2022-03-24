@@ -46,8 +46,7 @@ export const selectPortfolioFiatBalances = createSelector(
         const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
         const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
         if (assetFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
-        // second parameter of toFixed is for rounding down instead of up
-        acc[assetId] = assetFiatBalance.toFixed(2, 1)
+        acc[assetId] = assetFiatBalance.toFixed(2)
         return acc
       },
       {}
@@ -299,7 +298,7 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
           bn('0')
         )
         if (totalAccountFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
-        acc[accountId] = totalAccountFiatBalance.toFixed(2, 1)
+        acc[accountId] = totalAccountFiatBalance.toFixed(2)
         return acc
       },
       {}
@@ -409,6 +408,33 @@ export const selectAccountIdsByAssetId = createSelector(
   findAccountsByAssetId
 )
 
+export const selectAccountIdsByAssetIdAboveBalanceThreshold = createSelector(
+  selectPortfolioAccounts,
+  selectAssetIdParam,
+  selectPortfolioFiatAccountBalances,
+  selectBalanceThreshold,
+  (portfolioAccounts, assetId, accountBalances, balanceThreshold) => {
+    const accounts = findAccountsByAssetId(portfolioAccounts, assetId)
+    const aboveThreshold = Object.entries(accountBalances).reduce<AccountSpecifier[]>(
+      (acc, [accountId, balanceObj]) => {
+        if (accounts.includes(accountId)) {
+          const totalAccountFiatBalance = Object.values(balanceObj).reduce(
+            (totalBalance, currentBalance) => {
+              return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
+            },
+            bn('0')
+          )
+          if (totalAccountFiatBalance.isLessThan(bnOrZero(balanceThreshold))) return acc
+          acc.push(accountId)
+        }
+        return acc
+      },
+      []
+    )
+    return aboveThreshold
+  }
+)
+
 export type AccountRowData = {
   name: string
   icon: string
@@ -455,8 +481,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
           name,
           icon,
           symbol,
-          // second parameter is for rounding down instead of up
-          fiatAmount: fiatAmount.toFixed(2, 1),
+          fiatAmount: fiatAmount.toFixed(2),
           cryptoAmount,
           allocation,
           price,

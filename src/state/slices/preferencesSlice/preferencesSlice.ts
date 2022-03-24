@@ -9,10 +9,12 @@ export type FeatureFlags = {
   GemRamp: boolean
 }
 
+export type BalanceThreshold = string
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
-  balanceThreshold: string
+  balanceThreshold: BalanceThreshold
 }
 
 const initialState: Preferences = {
@@ -38,7 +40,7 @@ export const preferences = createSlice({
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
       state.selectedLocale = payload.locale
     },
-    setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
+    setBalanceThreshold(state, { payload }: { payload: { threshold: BalanceThreshold } }) {
       state.balanceThreshold = payload.threshold
     }
   }

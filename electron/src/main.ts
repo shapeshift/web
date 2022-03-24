@@ -41,6 +41,11 @@ import { autoUpdater } from 'electron-updater'
 import { app, BrowserWindow, nativeTheme, ipcMain, shell } from 'electron'
 import usb from 'usb'
 import AutoLaunch from 'auto-launch'
+import * as Sentry from "@sentry/electron";
+import { config as dotenvConfig } from 'dotenv'
+
+dotenvConfig()
+
 log.transports.file.level = "debug";
 autoUpdater.logger = log;
 
@@ -52,15 +57,13 @@ let {
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
-const Unchained = require('openapi-client-axios').default;
-
-
-import fs from 'fs'
+Sentry.init({ dsn: process.env.SENTRY_DSN });
+Sentry.init({ dsn: process.env.SENTRY_DSN });
 //Modules
 import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
-import { createTray } from './tray'
-import { isWin, isLinux, isMac, ALLOWED_HOSTS } from './constants'
+import { createTray, tray } from './tray'
+import { isWin, isLinux, ALLOWED_HOSTS } from './constants'
 import { db } from './db'
 import { pairWalletConnect } from './connect'
 import { Settings } from './settings'
@@ -145,6 +148,9 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
      *
      * more options: https://www.electronjs.org/docs/api/browser-window
      */
+    const preloadPath = path.join(__dirname, './preload.js')
+    log.info('preloadPath', preloadPath)
+
     windows.mainWindow = new BrowserWindow({
         width: isDev ? 1960 : 960,
         height: 780,
@@ -155,6 +161,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
             nodeIntegration: true,
             contextIsolation: false,
             // offscreen: true,
+            preload: preloadPath,
             devTools: true
         }
     })
@@ -219,15 +226,16 @@ app.setAsDefaultProtocolClient('keepkey')
 
 app.on('ready', async () => {
     try {
-        createTray()
+        if (!tray) createTray()
     } catch (e) {
         log.error('Failed to create tray! e: ', e)
     }
 
     createSplashWindow()
-    settings.loadSettingsFromDb().then(async () => {
+    settings.loadSettingsFromDb().then(async (settings) => {
+        autoUpdater.autoDownload = settings.shouldAutoUpdate
         if (!windows.splash) return
-        if (isDev || isLinux) skipUpdateCheck(windows.splash)
+        if (isDev || isLinux || !settings.shouldAutoUpdate) skipUpdateCheck(windows.splash)
         if (!isDev && !isLinux) await autoUpdater.checkForUpdates()
     })
 })
@@ -263,6 +271,7 @@ app.on('before-quit', async () => {
 })
 
 autoUpdater.on("update-available", (info) => {
+    if (skipUpdateCheckCompleted) return
     if (!windows.splash) return
     windows.splash.webContents.send("@update/download", info);
     // skip the update if it takes more than 1 minute
@@ -274,6 +283,7 @@ autoUpdater.on("update-available", (info) => {
 
 
 autoUpdater.on("download-progress", (progress) => {
+    if (skipUpdateCheckCompleted) return
     let prog = Math.floor(progress.percent);
     if (windows.splash) windows.splash.webContents.send("@update/percentage", prog);
     if (windows.splash) windows.splash.setProgressBar(prog / 100);
@@ -285,6 +295,7 @@ autoUpdater.on("download-progress", (progress) => {
 
 
 autoUpdater.on("update-downloaded", () => {
+    if (skipUpdateCheckCompleted) return
     if (windows.splash) windows.splash.webContents.send("@update/relaunch");
     // stop timeout that skips the update
     if (skipUpdateTimeout) {
@@ -297,12 +308,14 @@ autoUpdater.on("update-downloaded", () => {
 
 
 autoUpdater.on("update-not-available", () => {
+    if (skipUpdateCheckCompleted) return
     if (!windows.splash) return
     skipUpdateCheck(windows.splash);
 });
 
 
 autoUpdater.on("error", () => {
+    if (skipUpdateCheckCompleted) return
     if (!windows.splash) return
     skipUpdateCheck(windows.splash);
 });
@@ -378,6 +391,25 @@ ipcMain.on("@app/version", (event, _data) => {
     event.sender.send("@app/version", app.getVersion());
 })
 
+ipcMain.on('@app/sentry-dsn', (event, data) => {
+    event.sender.send('@app/sentry-dsn', process.env.SENTRY_DSN)
+})
+
+ipcMain.on('@app/update', async (event, data) => {
+    if (isDev) return event.sender.send('@app/update', { updateInfo: { version: app.getVersion() } })
+    const update = await autoUpdater.checkForUpdates()
+    event.sender.send('@app/update', update)
+})
+
+ipcMain.on('@app/download-updates', async (event, data) => {
+    await autoUpdater.downloadUpdate()
+    event.sender.send('@app/download-updates')
+})
+
+ipcMain.on('@app/install-updates', async (event, data) => {
+    autoUpdater.quitAndInstall()
+})
+
 const skipUpdateCheck = (splash: BrowserWindow) => {
     createWindow();
     splash.webContents.send("@update/notfound");
@@ -430,11 +462,20 @@ ipcMain.on('@bridge/stop', async event => {
 
 ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
+    console.log(tag)
+    console.log(bridgeRunning)
     try {
-        if (!bridgeRunning) start_bridge(settings.bridgeApiPort)
+        if (!bridgeRunning) {
+            await start_bridge(settings.bridgeApiPort)
+            setTimeout(() => event.sender.send('@bridge/start'), 1000)
+        }
     } catch (e) {
         log.error(tag, e)
     }
+})
+
+ipcMain.on('@bridge/running', (event, data) => {
+    event.sender.send('@bridge/running', bridgeRunning)
 })
 
 ipcMain.on('@connect/pair', async (event, data) => {

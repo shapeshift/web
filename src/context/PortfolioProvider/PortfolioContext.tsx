@@ -24,10 +24,14 @@ import {
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  portfolio,
+  portfolioApi,
+  supportedAccountTypes
+} from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountSpecifiers,
+  selectAssetIds,
   selectAssets,
   selectPortfolioAssetIds,
   selectTxHistoryStatus,
@@ -52,6 +56,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     state: { wallet }
   } = useWallet()
   const assetsById = useSelector(selectAssets)
+  const assetIds = useSelector(selectAssetIds)
 
   // immediately load all assets, before the wallet is even connected,
   // so the app is functional and ready
@@ -245,5 +250,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
 
-  return <>{children}</>
+  // If the assets aren't loaded, then the app isn't ready to render
+  // This fixes issues with refreshes on pages that expect assets to already exist
+  return assetIds.length ? <>{children}</> : <></>
 }

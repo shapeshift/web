@@ -42,6 +42,7 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
+    "settings": "Settings",
     "legalDated": "Dated: January 2022"
   },
   "updateToast": {
@@ -472,6 +473,12 @@
     },
     "connect": {
       "loadingText": "Pairing Wallet"
+    },
+    "settings": {
+      "settings": "Settings",
+      "language": "Language",
+      "balanceThreshold": "Balance Threshold",
+      "balanceThresholdTooltip": "Hide balances below this value"
     }
   },
   "walletProvider": {

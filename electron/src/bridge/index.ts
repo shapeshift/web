@@ -177,6 +177,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         //launch init seed window
                         break;
                     case 5:
+                        windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
                         log.info("Setting device controller: ",controller)
                         keepkey.device = controller.device
                         keepkey.wallet = controller.wallet

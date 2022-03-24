@@ -26,7 +26,8 @@ const validators = {
   REACT_APP_FEATURE_COSMOS_INVESTOR: bool({ default: false }),
   REACT_APP_FEATURE_PLUGIN_BITCOIN: bool({ default: false }),
   REACT_APP_FEATURE_PLUGIN_COSMOS: bool({ default: false }),
-  REACT_APP_FEATURE_GEM_RAMP: bool({ default: false })
+  REACT_APP_FEATURE_GEM_RAMP: bool({ default: false }),
+  REACT_APP_REDUX_LOGGING: bool({ default: false })
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

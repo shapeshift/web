@@ -234,6 +234,14 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
+          case TxType.Delegate:
+            // we don't need to do anything with balance charts here becuase this type of tx
+            // will only be delegating coins to a validator and now gaining/losing funds
+            break
+          case TxType.Undelegate:
+            // we don't need to do anything with balance charts here becuase this type of tx
+            // will only be undelegating coins to a validator and now gaining/losing funds
+            break
           default: {
             console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }

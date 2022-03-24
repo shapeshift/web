@@ -8,6 +8,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { StakingAction } from '../Staking'
+import { UnstakeBroadcast } from './UnstakeBroadcast'
 import { UnstakeConfirm } from './UnstakeConfirm'
 
 type UnstakingConfirmProps = {
@@ -45,14 +46,14 @@ const CosmosUnstakingRouter = ({
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location} key={location.key}>
-        <Flex minWidth={{ base: '100%', xl: '500px' }} flexDir={{ base: 'column', lg: 'row' }}>
+      <Flex minWidth={{ base: '100%' }} flexDirection='column'>
           <RouteSteps
             assetSymbol={asset.symbol}
             action={StakingAction.Unstake}
-            px={23}
-            py={43}
             routes={withdrawRoutes}
             location={location}
+            px={{ sm: '120px' }}
+            borderTopRadius='12px'
           />
           <Flex
             flexDir='column'
@@ -70,7 +71,12 @@ const CosmosUnstakingRouter = ({
                 />
               </Route>
               <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
-                TODO Unstaking Broadcast component
+                <UnstakeBroadcast
+                  assetId={assetId}
+                  cryptoUnstakeAmount={cryptoAmount}
+                  fiatRate={fiatRate}
+                  isLoading={true}
+                />
               </Route>
             </Flex>
           </Flex>

@@ -1,14 +1,16 @@
+import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
 import isEmpty from 'lodash/isEmpty'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { useAccountSpecifiers } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAccountIdByAddress,
+  selectAccountSpecifiers,
   selectAssets,
   selectTxHistoryStatus,
   selectTxIds
@@ -28,9 +30,20 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
+  const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
-  const { accountSpecifiers, getAccountSpecifiersByChainId } = useAccountSpecifiers()
+
+  const getAccountSpecifiersByChainId = useCallback(
+    (chainId: CAIP2): AccountSpecifierMap[] => {
+      return accountSpecifiers.reduce<AccountSpecifierMap[]>((acc, cur) => {
+        const [_chainId, accountSpecifier] = Object.entries(cur)[0]
+        if (_chainId !== chainId) return acc
+        return acc.concat({ [chainId]: accountSpecifier })
+      }, [])
+    },
+    [accountSpecifiers]
+  )
 
   useEffect(() => {
     if (!wallet) return

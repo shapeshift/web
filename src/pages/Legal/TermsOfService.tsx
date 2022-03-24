@@ -10,7 +10,7 @@ export const TermsOfService = () => {
           <Center flexDirection={'column'}>
             <Text as='h3' translation={'connectWalletPage.shapeshift'} />
             <Text as='h1' translation={'common.terms'} />
-            <Text as='h3' translation={'Dated: January 2022'} mt={4} />
+            <Text as='h3' translation={'common.legalDated'} mt={4} />
           </Center>
           <RawText as='p'>WELCOME TO THE DECENTRALIZED SHAPESHIFT PLATFORM!</RawText>
           <RawText as='p'>

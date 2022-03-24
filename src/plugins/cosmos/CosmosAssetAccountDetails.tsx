@@ -6,7 +6,7 @@ import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AssetChart } from '../../components/AssetHeader/AssetChart'
 import { AssetDescription } from '../../components/AssetHeader/AssetDescription'

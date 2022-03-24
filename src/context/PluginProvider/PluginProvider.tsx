@@ -6,7 +6,7 @@ import React, { createContext } from 'react'
 import { useSelector } from 'react-redux'
 import { Route } from 'Routes/helpers'
 import { partitionCompareWith } from 'lib/utils'
-import { selectFeatureFlags } from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 type PluginProviderProps = {
   children: React.ReactNode

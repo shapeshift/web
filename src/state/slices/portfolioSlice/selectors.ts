@@ -6,7 +6,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssets, selectMarketData } from 'state/slices/selectors'
+import { selectAssets, selectBalanceThreshold, selectMarketData } from 'state/slices/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -411,7 +411,14 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectMarketData,
   selectPortfolioAssetBalances,
   selectPortfolioTotalFiatBalance,
-  (assetsById, marketData, balances, totalPortfolioFiatBalance): AccountRowData[] => {
+  selectBalanceThreshold,
+  (
+    assetsById,
+    marketData,
+    balances,
+    totalPortfolioFiatBalance,
+    balanceThreshold
+  ): AccountRowData[] => {
     const assetRows = Object.entries(balances).reduce<AccountRowData[]>(
       (acc, [assetId, baseUnitBalance]) => {
         const name = assetsById[assetId]?.name
@@ -420,18 +427,21 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         const precision = assetsById[assetId]?.precision
         const price = marketData[assetId]?.price
         const cryptoAmount = fromBaseUnit(baseUnitBalance, precision)
-        const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price)).toFixed(2)
-        const allocation = bnOrZero(fiatAmount)
-          .div(bnOrZero(totalPortfolioFiatBalance))
-          .times(100)
-          .toNumber()
+        const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
+        /**
+         * if fiatAmount is less than the selected threshold,
+         * continue to the next asset balance by returning acc
+         */
+        if (fiatAmount.isLessThan(bnOrZero(balanceThreshold))) return acc
+        const allocation = fiatAmount.div(bnOrZero(totalPortfolioFiatBalance)).times(100).toNumber()
         const priceChange = marketData[assetId]?.changePercent24Hr
         const data = {
           assetId,
           name,
           icon,
           symbol,
-          fiatAmount,
+          // second parameter is for rounding down instead of up
+          fiatAmount: fiatAmount.toFixed(2, 1),
           cryptoAmount,
           allocation,
           price,

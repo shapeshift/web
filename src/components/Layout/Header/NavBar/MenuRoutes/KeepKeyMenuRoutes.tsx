@@ -16,6 +16,7 @@ import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
 import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { ChangePinCaching } from 'components/Layout/Header/NavBar/KeepKey/ChangePinCaching'
 
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()
@@ -113,12 +114,14 @@ export const KeepKeyMenuRoutes = () => {
             hasSubmenu={true}
           />
           <ExpandedMenuItem
+            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPinCaching)}
             label={translate('walletProvider.keepKey.settings.menuLabels.pinCaching')}
             hasSubmenu={true}
             value={getBooleanLabel(wallet.features.pinCached)}
             valueDisposition={wallet.features.pinCached ? 'positive' : 'neutral'}
           />
           <ExpandedMenuItem
+            onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}
             label={translate('walletProvider.keepKey.settings.menuLabels.passphrase')}
             value={getBooleanLabel(wallet.features.passphraseProtection)}
             valueDisposition={wallet.features.passphraseProtection ? 'positive' : 'neutral'}
@@ -140,6 +143,8 @@ export const KeepKeyMenuRoutes = () => {
       <Route exact path={WalletConnectedRoutes.KeepKeyLabel} component={ChangeLabel} />
       <Route exact path={WalletConnectedRoutes.KeepKeyPin} component={ChangePin} />
       <Route exact path={WalletConnectedRoutes.KeepKeyTimeout} component={ChangeTimeout} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyPinCaching} component={ChangePinCaching} />
+      <Route exact path={WalletConnectedRoutes.KeepKeyPassphrase} component={ChangePinCaching} />
     </>
   )
 }

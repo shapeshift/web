@@ -1,4 +1,4 @@
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey/dist/keepkey'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { KeyManager } from 'context/WalletProvider/config'
@@ -37,6 +37,7 @@ export const useKeepKeyWallet = () => {
   const { state: walletState } = useWallet()
   const { type, wallet, keyring } = walletState
   const [keepKeyWallet, setKeepKeyWallet] = useState<KeepKeyHDWallet | undefined>()
+  const [pinCaching, setPinCaching] = useState<boolean>()
   const [versions, setVersions] = useState<Versions>()
   const isKeepKey = type === KeyManager.KeepKey
 
@@ -51,6 +52,10 @@ export const useKeepKeyWallet = () => {
     if (!(wallet && isKeepKey)) return
     ;(async () => {
       const keepKey = wallet as KeepKeyHDWallet
+      setKeepKeyWallet(keepKey)
+      setPinCaching(
+        keepKey?.features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled
+      )
 
       const { data: releases } = await axios.get<FirmwareReleases>(
         'https://ipfs.io/ipfs/QmYUKEeGTeGyLonyGuXaYbq7dtouRFE2FpsAZAKYVZq3Vj',
@@ -61,7 +66,7 @@ export const useKeepKeyWallet = () => {
           }
         }
       )
-      setKeepKeyWallet(keepKey)
+
       const bootloaderVersion = getBootloaderVersion(keepKey, releases)
       const latestBootloader = releases.latest.bootloader.version
       const deviceFirmware = await keepKey.getFirmwareVersion()
@@ -83,5 +88,5 @@ export const useKeepKeyWallet = () => {
     })()
   }, [isKeepKey, wallet])
 
-  return { wallet: keepKeyWallet, versions, keyring }
+  return { wallet: keepKeyWallet, versions, keyring, pinCaching, setPinCaching }
 }

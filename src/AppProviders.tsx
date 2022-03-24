@@ -6,10 +6,10 @@ import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
-import { ChainAdaptersProvider } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { I18nProvider } from 'context/I18nProvider/I18nProvider'
 import { MarketDataProvider } from 'context/MarketDataProvider/MarketDataProvider'
 import { ModalProvider } from 'context/ModalProvider/ModalProvider'
+import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
@@ -24,15 +24,15 @@ type ProvidersProps = {
 export function AppProviders({ children }: ProvidersProps) {
   return (
     <ReduxProvider store={store}>
-      <ChakraProvider theme={theme}>
-        <ColorModeScript />
-        <PersistGate loading={<SplashScreen />} persistor={persistor}>
-          <BrowserRouter>
-            <ScrollToTop />
-            <BrowserRouterProvider>
-              <I18nProvider>
-                <WalletProvider>
-                  <ChainAdaptersProvider>
+      <PluginProvider>
+        <ChakraProvider theme={theme}>
+          <ColorModeScript />
+          <PersistGate loading={<SplashScreen />} persistor={persistor}>
+            <BrowserRouter>
+              <ScrollToTop />
+              <BrowserRouterProvider>
+                <I18nProvider>
+                  <WalletProvider>
                     <PortfolioProvider>
                       <MarketDataProvider>
                         <TransactionsProvider>
@@ -42,13 +42,13 @@ export function AppProviders({ children }: ProvidersProps) {
                         </TransactionsProvider>
                       </MarketDataProvider>
                     </PortfolioProvider>
-                  </ChainAdaptersProvider>
-                </WalletProvider>
-              </I18nProvider>
-            </BrowserRouterProvider>
-          </BrowserRouter>
-        </PersistGate>
-      </ChakraProvider>
+                  </WalletProvider>
+                </I18nProvider>
+              </BrowserRouterProvider>
+            </BrowserRouter>
+          </PersistGate>
+        </ChakraProvider>
+      </PluginProvider>
     </ReduxProvider>
   )
 }

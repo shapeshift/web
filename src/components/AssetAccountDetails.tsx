@@ -3,7 +3,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'

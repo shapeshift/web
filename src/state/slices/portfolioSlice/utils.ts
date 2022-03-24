@@ -13,7 +13,8 @@ import last from 'lodash/last'
 import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { AccountSpecifier, initialState, Portfolio } from './portfolioSlice'
+import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
+import { initialState, Portfolio } from './portfolioSlice'
 
 export type UtxoParamsAndAccountType = {
   utxoParams: { scriptType: BTCInputScriptType; bip44Params: BIP44Params }

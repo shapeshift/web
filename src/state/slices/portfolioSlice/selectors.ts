@@ -8,8 +8,8 @@ import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssets, selectBalanceThreshold, selectMarketData } from 'state/slices/selectors'
 
+import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
-  AccountSpecifier,
   PortfolioAccountBalances,
   PortfolioAccountSpecifiers,
   PortfolioAssetBalances,

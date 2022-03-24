@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
 import { mocked } from 'ts-jest/utils'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 import { fromBaseUnit } from 'lib/math'
@@ -31,7 +31,7 @@ jest.mock('@shapeshiftoss/market-service', () => ({
 jest.mock('react-hook-form')
 jest.mock('react-router-dom', () => ({ useHistory: jest.fn() }))
 jest.mock('context/WalletProvider/WalletProvider')
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('lib/ens', () => ({ ensLookup: jest.fn() }))
 
 jest.mock('state/slices/selectors', () => ({

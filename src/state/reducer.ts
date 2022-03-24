@@ -2,6 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import localforage from 'localforage'
 import { persistReducer } from 'redux-persist'
 
+import { accountSpecifiers } from './slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from './slices/portfolioSlice/portfolioSlice'
@@ -13,7 +14,8 @@ export const slices = {
   marketData,
   txHistory,
   portfolio,
-  preferences
+  preferences,
+  accountSpecifiers
 }
 
 const preferencesPersistConfig = {
@@ -27,7 +29,8 @@ export const sliceReducers = {
   marketData: marketData.reducer,
   txHistory: txHistory.reducer,
   portfolio: portfolio.reducer,
-  preferences: persistReducer(preferencesPersistConfig, preferences.reducer)
+  preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
+  accountSpecifiers: accountSpecifiers.reducer
 }
 
 export const apiSlices = {

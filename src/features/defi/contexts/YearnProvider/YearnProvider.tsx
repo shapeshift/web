@@ -2,7 +2,7 @@ import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { useContext, useEffect, useState } from 'react'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 type YearnContextProps = {
   loading: boolean

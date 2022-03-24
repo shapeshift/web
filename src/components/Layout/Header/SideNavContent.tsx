@@ -1,21 +1,9 @@
-import { ChatIcon, SunIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Flex,
-  FlexProps,
-  HStack,
-  Link,
-  Stack,
-  useColorMode,
-  useColorModeValue,
-  useMediaQuery
-} from '@chakra-ui/react'
-import { FaMoon } from 'react-icons/fa'
+import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
+import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Link as RouterLink } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
-import { RawText, Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { breakpoints } from 'theme/theme'
@@ -32,11 +20,10 @@ type HeaderContentProps = {
 } & FlexProps
 
 export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
-  const { toggleColorMode } = useColorMode()
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const isActive = useColorModeValue(false, true)
   const gemRampFlag = useSelector((state: ReduxState) => selectFeatureFlag(state, 'GemRamp'))
+  const { settings } = useModal()
 
   return (
     <Flex
@@ -69,9 +56,9 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
         <MainNavLink
           variant='ghost'
           isCompact={isCompact}
-          onClick={toggleColorMode}
-          label={translate(isActive ? 'common.lightTheme' : 'common.darkTheme')}
-          leftIcon={isActive ? <SunIcon /> : <FaMoon />}
+          onClick={() => settings.open({})}
+          label={translate('common.settings')}
+          leftIcon={<SettingsIcon />}
         />
         <MainNavLink
           leftIcon={<ChatIcon />}
@@ -83,21 +70,6 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
           isExternal
           href='https://shapeshift.notion.site/Submit-Feedback-or-a-Feature-Request-af48a25fea574da4a05a980c347c055b'
         />
-        <HStack
-          display={{ base: 'none', '2xl': 'flex' }}
-          divider={<RawText mx={1}>•</RawText>}
-          fontSize='sm'
-          px={4}
-          mt={4}
-          color='gray.500'
-        >
-          <Link as={RouterLink} justifyContent='flex-start' to='/legal/terms-of-service'>
-            <Text translation='common.terms' />
-          </Link>
-          <Link as={RouterLink} to='/legal/privacy-policy'>
-            <Text translation='common.privacy' />
-          </Link>
-        </HStack>
       </Stack>
     </Flex>
   )

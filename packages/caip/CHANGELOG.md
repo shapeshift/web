@@ -1,3 +1,10 @@
+# [@shapeshiftoss/caip-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.1.0...@shapeshiftoss/caip-v2.1.1) (2022-03-24)
+
+
+### Bug Fixes
+
+* fix yearn sdk instantiation ([#481](https://github.com/shapeshift/lib/issues/481)) ([fac8a33](https://github.com/shapeshift/lib/commit/fac8a339f193813e9074953f38d27fbf6b3ea6df))
+
 # [@shapeshiftoss/caip-v2.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/caip-v2.0.2...@shapeshiftoss/caip-v2.1.0) (2022-03-16)
 
 

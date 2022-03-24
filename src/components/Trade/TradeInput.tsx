@@ -162,7 +162,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     })
   }
 
-  const switchAssets = () => {
+  const switchAssets = async () => {
     const currentSellAsset = getValues('sellAsset')
     const currentBuyAsset = getValues('buyAsset')
     const action = currentBuyAsset.amount ? TradeActions.SELL : undefined
@@ -170,7 +170,7 @@ export const TradeInput = ({ history }: RouterProps) => {
     setValue('sellAsset', currentBuyAsset)
     setValue('buyAsset', currentSellAsset)
     setValue('quote', undefined)
-    getQuote({
+    await getQuote({
       amount: currentBuyAsset.amount ?? '0',
       sellAsset: currentBuyAsset,
       buyAsset: currentSellAsset,

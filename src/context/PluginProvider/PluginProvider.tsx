@@ -17,11 +17,10 @@ type PluginProviderContextProps = {
   plugins: [string, Plugin][]
   chainAdapterManager: ChainAdapterManager
   supportedChains: ChainTypes[]
+  routes: Route[]
 }
 
 const activePlugins = ['bitcoin', 'cosmos', 'ethereum']
-
-const PluginContext = createContext<PluginProviderContextProps | null>(null)
 
 // don't export me, access me through the getter
 let _chainAdapterManager: ChainAdapterManager | undefined
@@ -32,10 +31,19 @@ export const getChainAdapters = (): ChainAdapterManager => {
   return _chainAdapterManager
 }
 
+const PluginContext = createContext<PluginProviderContextProps>({
+  pluginManager: {} as PluginManager,
+  plugins: [],
+  chainAdapterManager: getChainAdapters(),
+  supportedChains: [],
+  routes: []
+})
+
 export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element => {
   const [pluginManager] = useState(new PluginManager())
   const [plugins, setPlugins] = useState<[string, Plugin][] | null>(null)
   const [supportedChains, setSupportedChains] = useState<ChainTypes[]>([])
+  const [routes, setRoutes] = useState<Route[]>([])
   const featureFlags = useSelector(selectFeatureFlags)
 
   // a referentially stable, reactive reference to the chain adapter manager singleton
@@ -67,7 +75,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
   useEffect(() => {
     if (!plugins) return
 
-    let routes: Route[] = []
+    let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
     const newChainAdapters: { [k in ChainTypes]?: () => ChainAdapter<ChainTypes> } = {}
@@ -79,7 +87,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
         // routes providers
         if (plugin.routes) {
-          routes = routes.concat(plugin.routes)
+          pluginRoutes = pluginRoutes.concat(plugin.routes)
         }
 
         // chain adapters providers
@@ -106,6 +114,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       }
     )
 
+    setRoutes(pluginRoutes)
     setSupportedChains(getChainAdapters().getSupportedChains())
   }, [chainAdapterManager, featureFlags, plugins, pluginManager])
 
@@ -115,7 +124,8 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     plugins,
     pluginManager,
     chainAdapterManager,
-    supportedChains
+    supportedChains,
+    routes
   }
 
   return <PluginContext.Provider value={values}>{children}</PluginContext.Provider>

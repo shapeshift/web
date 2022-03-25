@@ -46,7 +46,6 @@ async function getFoxyOpportunities(balances: PortfolioBalancesById, api: FoxyAp
   const acc: Record<string, FoxyOpportunity> = {}
   const opps = await api.getFoxyOpportunities()
   for (let index = 0; index < opps.length; index++) {
-    // TODO: caip indentifiers in vaults
     const opportunity = opps[index]
     const rewardTokenCaip19 = caip19.toCAIP19({
       chain: opportunity.chain,

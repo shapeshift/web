@@ -83,19 +83,32 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
 
 const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] => {
   return foxies.map(foxy => {
+    const {
+      provider,
+      contractAddress,
+      stakingToken: tokenAddress,
+      rewardToken: rewardAddress,
+      tvl,
+      apy,
+      expired,
+      chain,
+      tokenCaip19: assetId,
+      fiatAmount,
+      cryptoAmount
+    } = foxy
     return {
       type: DefiType.TokenStaking,
-      provider: foxy.provider,
-      contractAddress: foxy.contractAddress,
-      tokenAddress: foxy.stakingToken,
-      rewardAddress: foxy.rewardToken,
-      tvl: bnOrZero(foxy.tvl).toString(),
-      apy: foxy.apy,
-      expired: foxy.expired,
-      chain: foxy.chain,
-      assetId: foxy.tokenCaip19,
-      fiatAmount: foxy.fiatAmount,
-      cryptoAmount: foxy.cryptoAmount
+      provider,
+      contractAddress,
+      tokenAddress,
+      rewardAddress,
+      tvl: bnOrZero(tvl).toString(),
+      apy,
+      expired,
+      chain,
+      assetId,
+      fiatAmount,
+      cryptoAmount
     }
   })
 }

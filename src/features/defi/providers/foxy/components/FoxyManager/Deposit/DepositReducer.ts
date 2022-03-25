@@ -122,7 +122,7 @@ type FoxyDepositActions =
 export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => {
   switch (action.type) {
     case FoxyDepositActionType.SET_OPPORTUNITY:
-      return { ...state, vault: { ...state.foxyOpportunity, ...action.payload } }
+      return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload } }
     case FoxyDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case FoxyDepositActionType.SET_DEPOSIT:

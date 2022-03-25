@@ -326,9 +326,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)

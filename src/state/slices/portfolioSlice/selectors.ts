@@ -19,7 +19,12 @@ import {
 import { accountIdToFeeAssetId, findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
-const FEE_ASSET_IDS = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
+const FEE_ASSET_IDS = [
+  'eip155:1/slip44:60',
+  'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  'cosmos:cosmoshub-4/slip44:118',
+  'cosmos:osmosis-1/slip44:118'
+]
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
   (state: ReduxState): PortfolioAssetBalances['ids'] => state.portfolio.assetBalances.ids,

@@ -68,7 +68,7 @@ export const UnknownTransaction = ({
         {txDetails.to && (
           <Row title='sentTo'>
             <Address
-              explorerTxLink={txDetails.explorerTxLink}
+              explorerAddressLink={txDetails.explorerAddressLink}
               address={txDetails.to}
               ens={txDetails.ensTo}
             />
@@ -95,7 +95,7 @@ export const UnknownTransaction = ({
         {txDetails.from && (
           <Row title='receivedFrom'>
             <Address
-              explorerTxLink={txDetails.explorerTxLink}
+              explorerAddressLink={txDetails.explorerAddressLink}
               address={txDetails.from}
               ens={txDetails.ensFrom}
             />

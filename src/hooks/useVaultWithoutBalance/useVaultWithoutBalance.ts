@@ -1,5 +1,6 @@
 import { getSupportedVaults, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { useYearn } from 'features/defi/contexts/YearnProvider/YearnProvider'
+import filter from 'lodash/filter'
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -35,7 +36,11 @@ export function useVaultWithoutBalance(): UseVaultWithoutBalanceReturn {
       setLoading(true)
       try {
         const yearnVaults = await getSupportedVaults()
-        setVaults(yearnVaults)
+        // Filter out all vaults with 0 USDC TVL value
+        const vaultsWithTVL = filter(yearnVaults, vault =>
+          bnOrZero(vault.underlyingTokenBalance.amountUsdc).gt(0)
+        )
+        setVaults(vaultsWithTVL)
       } catch (error) {
         console.error('error getting supported yearn vaults', error)
       } finally {

@@ -1,6 +1,6 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {
   selectAssetByCAIP19,
   selectPortfolioAssetIdsByAccountIdExcludeFeeAsset

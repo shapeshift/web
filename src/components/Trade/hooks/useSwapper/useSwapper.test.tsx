@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { ETH, ETHCHAIN_QUOTE, ETHCHAIN_QUOTE_FEES, FOX, MIN_MAX, USDC, WETH } from 'test/constants'
 import { TestProviders } from 'test/TestProviders'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { fromBaseUnit } from 'lib/math'
 
 import { TradeActions, useSwapper } from './useSwapper'
@@ -14,7 +14,7 @@ jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('lodash/debounce')
 jest.mock('@shapeshiftoss/swapper')
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 
 function setup({
   action = TradeActions.SELL,
@@ -63,7 +63,6 @@ describe('useSwapper', () => {
   beforeEach(() => {
     ;(useChainAdapters as jest.Mock<unknown>).mockImplementation(() => ({
       byChain: jest.fn(),
-      getSupportedAdapters: jest.fn(),
       addChain: jest.fn(),
       getSupportedChains: jest.fn()
     }))

@@ -2,11 +2,11 @@ import { Button, Link, useColorModeValue } from '@chakra-ui/react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 export const Address = ({
-  explorerTxLink,
+  explorerAddressLink,
   address,
   ens
 }: {
-  explorerTxLink: string
+  explorerAddressLink: string
   address: string
   ens?: string
 }) => (
@@ -14,7 +14,7 @@ export const Address = ({
     isExternal
     color={useColorModeValue('blue.400', 'blue.200')}
     _hover={{ textDecoration: 'none' }}
-    href={`${explorerTxLink}${ens || address}`}
+    href={`${explorerAddressLink}${ens || address}`}
     onClick={e => {
       // don't trigger parent onClick
       e.stopPropagation()

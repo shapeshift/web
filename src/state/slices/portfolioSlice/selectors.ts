@@ -366,7 +366,7 @@ export const selectPortfolioAssetIdsByAccountId = createSelector(
 )
 
 // @TODO: remove this assets check once we filter the portfolio on the way in
-export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createSelector(
+export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createDeepEqualOutputSelector(
   selectPortfolioAssetAccountBalancesSortedFiat,
   selectAccountIdParam,
   selectAssets,
@@ -408,7 +408,7 @@ export const selectAccountIdsByAssetId = createSelector(
   findAccountsByAssetId
 )
 
-export const selectAccountIdsByAssetIdAboveBalanceThreshold = createSelector(
+export const selectAccountIdsByAssetIdAboveBalanceThreshold = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   selectAssetIdParam,
   selectPortfolioFiatAccountBalances,
@@ -422,7 +422,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createSelector(
             (totalBalance, currentBalance) => {
               return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
             },
-            bn('0')
+            bnOrZero('0')
           )
           if (totalAccountFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
           acc.push(accountId)

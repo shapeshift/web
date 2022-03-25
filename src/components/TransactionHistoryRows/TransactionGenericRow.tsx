@@ -76,9 +76,11 @@ export const TransactionGenericRow = ({
   const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
 
   let columns = '1fr'
+  let dateFormat = 'MM/DD/YYYY hh:mm A'
 
   if (isLargerThanSm) {
     columns = '1fr 2fr'
+    dateFormat = 'hh:mm A'
   }
   if (isLargerThanMd) {
     columns = '1fr 2fr'
@@ -120,7 +122,7 @@ export const TransactionGenericRow = ({
                   title ? title : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
                 }
               />
-              <TransactionTime blockTime={blockTime} />
+              <TransactionTime blockTime={blockTime} format={dateFormat} />
             </Stack>
           </Flex>
         </Flex>

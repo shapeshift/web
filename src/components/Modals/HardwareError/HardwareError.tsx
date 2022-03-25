@@ -16,7 +16,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 import { getAssetUrl } from '../../../lib/getAssetUrl'
 
-export const HardwareErrorModal = (error:any) => {
+export const HardwareErrorModal = (error: any) => {
   const { hardwareError } = useModal()
   const { close, isOpen } = hardwareError
 
@@ -55,32 +55,26 @@ export const HardwareErrorModal = (error:any) => {
         <ModalCloseButton ml='auto' borderRadius='full' position='static' />
         <ModalBody>
           {error.errorCode === 1 ? (
-              <div>
-                <ModalHeader>
-                  <Text translation={'modals.hardware.headerConnect'} />
-                </ModalHeader>
-                <Image src={kkConnect} alt='reconnect Device!' />
-                <Text translation={'modals.hardware.reconnect'} />
+            <div>
+              <ModalHeader>
+                <Text translation={'modals.hardware.headerConnect'} />
+              </ModalHeader>
+              <Image src={kkConnect} alt='reconnect Device!' />
+              <Text translation={'modals.hardware.reconnect'} />
 
-                <Button
-                    isFullWidth
-                    size='lg'
-                    colorScheme='blue'
-                    onClick={HandleTroubleShoot}
-                >
-                  <Text translation={'modals.hardware.troubleshoot'} />
-                </Button>
-              </div>
+              <Button isFullWidth size='lg' colorScheme='blue' onClick={HandleTroubleShoot}>
+                <Text translation={'modals.hardware.troubleshoot'} />
+              </Button>
+            </div>
           ) : (
-              <div>
-                <ModalHeader>
-                  <Text translation={'modals.hardware.headerConnect'} />
-                </ModalHeader>
-                <Image src={kkConnect} alt='reconnect Device!' />
-                <Text translation={'modals.hardware.connect'} />
-              </div>
+            <div>
+              <ModalHeader>
+                <Text translation={'modals.hardware.headerConnect'} />
+              </ModalHeader>
+              <Image src={kkConnect} alt='reconnect Device!' />
+              <Text translation={'modals.hardware.connect'} />
+            </div>
           )}
-
         </ModalBody>
       </ModalContent>
     </Modal>

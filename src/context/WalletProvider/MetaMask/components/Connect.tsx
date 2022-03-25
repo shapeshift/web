@@ -9,7 +9,6 @@ import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'
 import { LocationState } from '../../NativeWallet/types'
 import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
-import { ipcRenderer } from 'electron'
 
 export interface MetaMaskSetupProps
   extends RouteComponentProps<

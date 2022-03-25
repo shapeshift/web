@@ -9,7 +9,11 @@ export const MarketDataUnavailable = () => {
       <IconCircle boxSize={8} color='blue.300' background='transparent'>
         <FaInfoCircle />
       </IconCircle>
-      <Text color='blue.300' translation='feedbacks.marketDataUnavailable' fontWeight='semibold' />
+      <Text
+        color='blue.300'
+        translation='assets.assetDetails.assetHeader.marketDataUnavailable'
+        fontWeight='semibold'
+      />
     </Alert>
   )
 }

@@ -168,7 +168,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
-          // tokenContractAddress: tokenId,
           tokenContractAddress: tokenId,
           contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)

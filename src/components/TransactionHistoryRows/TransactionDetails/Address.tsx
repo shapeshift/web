@@ -24,7 +24,7 @@ export const Address = ({
       height='auto'
       fontFamily='monospace'
       _hover={{ bg: 'transparent' }}
-      fontSize={{ base: 'sm', md: 'md' }}
+      fontSize='inherit'
     >
       <MiddleEllipsis address={ens || address} />
     </Button>

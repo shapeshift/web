@@ -17,7 +17,8 @@ export const TransactionTrade = ({
   showDateAndGuide,
   compactMode,
   isOpen,
-  toggleOpen
+  toggleOpen,
+  parentWidth
 }: TransactionRowProps) => {
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
@@ -35,6 +36,7 @@ export const TransactionTrade = ({
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
+        parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />

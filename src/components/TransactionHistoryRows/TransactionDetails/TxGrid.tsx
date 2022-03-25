@@ -4,7 +4,7 @@ export const TxGrid: React.FC<{ compactMode?: boolean }> = ({ compactMode, child
   return (
     <SimpleGrid
       spacing={{ base: 4, lg: compactMode ? 4 : 6 }}
-      py={{ base: 4, lg: compactMode ? 4 : 6 }}
+      py={{ base: 0, lg: compactMode ? 0 : 6 }}
       minChildWidth='200px'
       flex={1}
       width='full'

@@ -20,7 +20,7 @@ export const TransactionLink = ({
     onClick={e => e.stopPropagation()}
     p={0}
     height='auto'
-    fontSize={{ base: 'sm', md: 'md' }}
+    fontSize='inherit'
     _hover={{ bg: 'transparent' }}
   >
     <MiddleEllipsis address={txid} />

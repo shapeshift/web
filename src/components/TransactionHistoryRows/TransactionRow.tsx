@@ -4,7 +4,7 @@ import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { MutableRefObject, useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { TransactionContract } from 'components/TransactionHistoryRows/TransactionContract'
 import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
 import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
@@ -40,7 +40,7 @@ export const TransactionRow = ({
   const [isOpen, setIsOpen] = useState(false)
   const toggleOpen = () => setIsOpen(!isOpen)
   const rowHoverBg = useColorModeValue('gray.100', 'gray.750')
-  const rowActiveBg = useColorModeValue('gray.50', 'blackAlpha.300')
+  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const txDetails = useTxDetails(txId, activeAsset)
 
   const renderTransactionType = (
@@ -72,10 +72,11 @@ export const TransactionRow = ({
   return (
     <Box
       width='full'
-      px={4}
       rounded='lg'
       _hover={{ bg: rowHoverBg }}
-      bg={isOpen ? rowActiveBg : 'inherit'}
+      bg={isOpen ? rowHoverBg : 'transparent'}
+      borderColor={isOpen ? borderColor : 'transparent'}
+      borderWidth={1}
     >
       {renderTransactionType(txDetails, showDateAndGuide, useCompactMode)}
     </Box>

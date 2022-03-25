@@ -9,10 +9,10 @@ export const Row = ({
 }: { title: string; children: React.ReactNode } & BoxProps) => {
   return (
     <RowStyle alignItems='center' {...rest}>
-      <RowStyle.Label fontSize={{ base: 'sm', lg: 'md' }}>
+      <RowStyle.Label>
         <Text translation={`transactionHistory.${title}`} />
       </RowStyle.Label>
-      <RowStyle.Value fontSize={{ base: 'sm', lg: 'md' }}>{children}</RowStyle.Value>
+      <RowStyle.Value>{children}</RowStyle.Value>
     </RowStyle>
   )
 }

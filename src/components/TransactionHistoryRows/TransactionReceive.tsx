@@ -1,4 +1,3 @@
-import { Address } from './TransactionDetails/Address'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -15,7 +14,8 @@ export const TransactionReceive = ({
   showDateAndGuide,
   compactMode,
   toggleOpen,
-  isOpen
+  isOpen,
+  parentWidth
 }: TransactionRowProps) => {
   return (
     <>
@@ -30,6 +30,7 @@ export const TransactionReceive = ({
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
+        parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />

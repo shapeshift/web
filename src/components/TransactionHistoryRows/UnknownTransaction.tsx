@@ -1,6 +1,5 @@
 import { SwapperType } from '@shapeshiftoss/types'
 
-import { Address } from './TransactionDetails/Address'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -18,7 +17,8 @@ export const UnknownTransaction = ({
   showDateAndGuide,
   compactMode,
   isOpen,
-  toggleOpen
+  toggleOpen,
+  parentWidth
 }: TransactionRowProps) => {
   let assets = []
   if (txDetails.sellAsset) assets.push(parseRelevantAssetFromTx(txDetails, AssetTypes.Source))
@@ -37,12 +37,13 @@ export const UnknownTransaction = ({
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
+        parentWidth={parentWidth}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         {txDetails.tx.transfers.length > 0 && (
           <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
         )}
-        <TxGrid>
+        <TxGrid compactMode={compactMode}>
           <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />

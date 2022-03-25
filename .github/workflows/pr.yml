@@ -29,14 +29,14 @@ jobs:
       REACT_APP_GEM_API_KEY: bb4164a72246dae1e03010d664d6cdae4e19b2554de02e3bf6c3cd30aa7e359e
       REACT_APP_GEM_ENV: production
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: Set node version
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: 16
           cache: yarn
+      - run: node -v
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Cache dependencies
         uses: actions/cache@v2

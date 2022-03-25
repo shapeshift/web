@@ -1,3 +1,18 @@
+import { AssetNamespace, AssetReference, caip2, caip19 } from '@shapeshiftoss/caip'
+import {
+  convertXpubVersion,
+  toRootDerivationPath,
+  utxoAccountParams
+} from '@shapeshiftoss/chain-adapters'
+import {
+  bip32ToAddressNList,
+  supportsBTC,
+  supportsCosmos,
+  supportsETH,
+  supportsOsmosis
+} from '@shapeshiftoss/hdwallet-core'
+import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ipcRenderer } from 'electron'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -48,8 +63,8 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   // this is needed to sort assets by market cap
   // and covers most assets users will have
   useFindAllQuery()
-  const accountSpecifiers = useAccountSpecifiers()
-  ipcRenderer.send('@account/info', accountSpecifiers)
+  const accountSpecifiersList = useSelector(selectAccountSpecifiers)
+  ipcRenderer.send('@account/info', accountSpecifiersList)
 
   // once the wallet is connected, reach out to unchained to fetch
   // accounts for each chain/account specifier combination

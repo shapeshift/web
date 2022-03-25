@@ -4,6 +4,7 @@ import {
   Divider,
   FormControl,
   ModalFooter,
+  Stack,
   Text as CText,
   useColorModeValue,
   VStack
@@ -222,7 +223,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
           <Divider />
 
           <ModalFooter width='100%' py='0' px='0' flexDir='column' textAlign='center' mt={1}>
-            <Flex width='full' justifyContent='space-between'>
+            <Stack direction='row' width='full' justifyContent='space-between'>
               <Button onClick={handleCancel} size='lg' variant='ghost'>
                 <Text translation='common.cancel' />
               </Button>
@@ -235,7 +236,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
               >
                 <Text translation={fieldError || 'common.continue'} />
               </Button>
-            </Flex>
+            </Stack>
           </ModalFooter>
         </Flex>
       </Box>

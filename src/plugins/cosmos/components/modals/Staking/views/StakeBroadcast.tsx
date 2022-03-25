@@ -1,6 +1,6 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
-import { Button, Link, ModalFooter, Text as CText, Tooltip } from '@chakra-ui/react'
+import { Button, Link, ModalFooter, Stack, Text as CText, Tooltip } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
@@ -166,14 +166,14 @@ export const StakeBroadcast = ({
               translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
               mb='18px'
             />
-            <Flex width='full' justifyContent='space-between'>
+            <Stack direction='row' width='full' justifyContent='space-between'>
               <Button onClick={onCancel} size='lg' variant='ghost'>
                 <Text translation='common.cancel' />
               </Button>
               <Button colorScheme={'blue'} mb={2} size='lg' type='submit'>
                 <Text translation={'defi.confirmAndBroadcast'} />
               </Button>
-            </Flex>
+            </Stack>
           </ModalFooter>
         </Flex>
       </SlideTransition>

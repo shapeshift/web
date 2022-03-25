@@ -42,7 +42,7 @@ export const CosmosActionButtons = ({
   })
 
   return (
-    <Flex width='100%' borderRadius='12px' my='12px' justifyContent='center' {...styleProps}>
+    <Flex width='100%' borderRadius='12px' justifyContent='center' {...styleProps}>
       <Button
         colorScheme='blue'
         variant={!isOverview ? 'ghost' : 'ghost-filled'}

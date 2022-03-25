@@ -5,6 +5,7 @@ import {
   FormControl,
   ModalFooter,
   ModalHeader,
+  Stack,
   Text as CText,
   Tooltip
 } from '@chakra-ui/react'
@@ -137,7 +138,7 @@ export const ClaimConfirm = ({
             translation='defi.modals.claim.rewardDepositInfo'
           />
           <ModalFooter width='100%' p='0' flexDir='column' textAlign='center' mt={10}>
-            <Flex width='full' justifyContent='space-between'>
+            <Stack direction='row' width='full' justifyContent='space-between'>
               <Button
                 onClick={handleCancel}
                 size='lg'
@@ -150,7 +151,7 @@ export const ClaimConfirm = ({
               <Button colorScheme={'blue'} mb={2} size='lg' type='submit' fontWeight='normal'>
                 <Text translation={'defi.modals.claim.confirmAndClaim'} />
               </Button>
-            </Flex>
+            </Stack>
           </ModalFooter>
         </Flex>
       </SlideTransition>

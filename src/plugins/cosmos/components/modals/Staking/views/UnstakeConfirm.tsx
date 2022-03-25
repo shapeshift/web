@@ -5,6 +5,7 @@ import {
   FormControl,
   ModalFooter,
   ModalHeader,
+  Stack,
   Text as CText,
   Tooltip
 } from '@chakra-ui/react'
@@ -152,14 +153,14 @@ export const UnstakeConfirm = ({
               translation={['defi.unbondInfoItWillTakeShort', { unbondingDays: '14' }]}
               mb='18px'
             />
-            <Flex width='full' justifyContent='space-between'>
+            <Stack direction='row' width='full' justifyContent='space-between'>
               <Button onClick={onCancel} size='lg' variant='ghost'>
                 <Text translation='common.cancel' />
               </Button>
               <Button colorScheme={'blue'} mb={2} size='lg' type='submit'>
-                <Text translation={'defi.confirmAndBroadcast'} />
+                <Text translation={'defi.signAndBroadcast'} />
               </Button>
-            </Flex>
+            </Stack>
           </ModalFooter>
         </Flex>
       </AnimatePresence>

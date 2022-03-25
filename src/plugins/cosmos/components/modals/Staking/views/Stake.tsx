@@ -77,7 +77,7 @@ export const Stake = ({
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const holderBg = useColorModeValue('gray.100', 'gray.750')
+  const holderBg = useColorModeValue('gray.100', 'gray.800')
 
   const memoryHistory = useHistory()
 

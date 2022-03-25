@@ -1,18 +1,20 @@
 import {
+  Heading,
   Modal,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Stack,
   useColorModeValue
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -88,6 +90,7 @@ export const entries = [
 const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   const location = useLocation<StakingConfirmProps>()
   const history = useHistory()
+  const translate = useTranslate()
 
   const isOverview = matchPath(location.pathname, {
     path: StakeRoutes.Overview,
@@ -117,7 +120,6 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   }
 
   const headerBg = useColorModeValue('gray.50', 'gray.800')
-  const headerBorder = useColorModeValue('gray.100', 'gray.750')
 
   const initialRef = useRef<HTMLInputElement>(null)
   const { cosmosStaking } = useModal()
@@ -142,42 +144,19 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
     <Modal isOpen={isOpen} onClose={handleClose} isCentered initialFocusRef={initialRef}>
       <ModalOverlay />
       <ModalContent width='100%' maxWidth='440px'>
-        <ModalHeader
-          textAlign='center'
-          bg={headerBg}
-          borderBottomWidth='1px'
-          borderColor={headerBorder}
-          borderTopRadius='xl'
-        >
-          <Text
-            translation={
-              !isClaim ? ['defi.assetStaking', { assetName: asset.symbol }] : 'defi.claimAsset'
-            }
-            pb={isClaim ? '12px' : '0'}
-          />
-          {!isClaim && (
-            <CosmosActionButtons
-              asset={asset}
-              px='6px'
-              py={isOverview ? '0' : '6px'}
-              mb={isOverview ? '0' : '12px'}
-            />
-          )}
-          {!isOverview && (
-            <RouteSteps
-              assetSymbol={asset.symbol}
-              px={{
-                base: '30px',
-                md: isClaim ? '110px' : '50px'
-              }}
-              pb='0'
-              bg='none'
-              border='none'
-              routes={getCurrentSteps()}
-              location={location}
-            />
-          )}
+        <ModalHeader textAlign='center' bg={headerBg} borderTopRadius='xl'>
+          <Stack width='full' alignItems='center' spacing={2}>
+            <Heading textTransform='capitalize' textAlign='center' fontSize='md'>
+              {!isClaim
+                ? translate('defi.assetStaking', { assetName: asset.symbol })
+                : translate('defi.claimAsset')}
+            </Heading>
+            {!isClaim && <CosmosActionButtons asset={asset} />}
+          </Stack>
         </ModalHeader>
+        {!isOverview && (
+          <RouteSteps assetSymbol={asset.symbol} routes={getCurrentSteps()} location={location} />
+        )}
         <ModalCloseButton borderRadius='full' />
         <Switch location={location}>
           <Route exact key={StakeRoutes.Stake} path={StakeRoutes.Stake}>

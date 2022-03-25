@@ -10,7 +10,7 @@ import {
   ModalHeader,
   Stack
 } from '@chakra-ui/react'
-import { ChainAdapter as EthereumChainAdapter } from '@shapeshiftoss/chain-adapters/dist/ethereum/EthereumChainAdapter'
+import { cosmossdk, ethereum } from '@shapeshiftoss/chain-adapters'
 import get from 'lodash/get'
 import { useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -19,8 +19,8 @@ import { useHistory } from 'react-router-dom'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { ensLookup, ensReverseLookup } from 'lib/ens'
 
 import { AddressInput } from '../AddressInput/AddressInput'
@@ -29,6 +29,8 @@ import { SendRoutes } from '../Send'
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)
+  const [isValidatingCosmosAddress, setIsValidatingCosmosAddress] = useState(false)
+  const isValidating = isValidatingEnsName || isValidatingCosmosAddress
   const history = useHistory()
   const translate = useTranslate()
   const {
@@ -82,8 +84,14 @@ export const Address = () => {
               required: true,
               validate: {
                 validateAddress: async (value: string) => {
+                  if (adapter instanceof cosmossdk.cosmos.ChainAdapter) {
+                    setIsValidatingCosmosAddress(true)
+                    const validAddress = await adapter.validateAddress(value)
+                    setIsValidatingCosmosAddress(false)
+                    return validAddress.valid || 'common.invalidAddress'
+                  }
                   const validAddress = await adapter.validateAddress(value)
-                  if (adapter instanceof EthereumChainAdapter) {
+                  if (adapter instanceof ethereum.ChainAdapter) {
                     const validEnsAddress = await adapter.validateEnsAddress(value)
                     if (validEnsAddress.valid) {
                       // Verify that the ENS name resolves to an address
@@ -115,8 +123,8 @@ export const Address = () => {
           <Button
             isFullWidth
             isDisabled={!address || addressError}
-            isLoading={isValidatingEnsName}
-            colorScheme={addressError && !isValidatingEnsName ? 'red' : 'blue'}
+            isLoading={isValidating}
+            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'
             onClick={handleNext}
             data-test='send-address-next-button'

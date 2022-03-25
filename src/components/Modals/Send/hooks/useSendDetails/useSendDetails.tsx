@@ -1,11 +1,12 @@
 import { convertXpubVersion, toRootDerivationPath } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
+import { FeeDataEstimate } from '@shapeshiftoss/types/dist/chain-adapters'
 import { debounce } from 'lodash'
 import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ensLookup } from 'lib/ens'
@@ -96,12 +97,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       .toFixed(0)
 
     switch (values.asset.chain) {
-      // TODO: Handle Cosmos ChainType here
+      case ChainTypes.Cosmos: {
+        const cosmosChainAdapter = await chainAdapterManager.byChainId('cosmos:cosmoshub-4')
+        return cosmosChainAdapter.getFeeData({})
+      }
+      case ChainTypes.Osmosis: {
+        // TODO(gomes): implement Osmosis support
+        return {} as FeeDataEstimate<ChainTypes>
+      }
       case ChainTypes.Ethereum: {
         const from = await adapter.getAddress({
           wallet
         })
-        const ethereumChainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+        const ethereumChainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const to = isEthAddress(values.address)
           ? values.address
           : ((await ensLookup(values.address)).address as string)
@@ -130,7 +138,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
         const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-        const bitcoinChainAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
+        const bitcoinChainAdapter = await chainAdapterManager.byChainId(
+          'bip122:000000000019d6689c085ae165831e93'
+        )
         return bitcoinChainAdapter.getFeeData({
           to: values.address,
           value,
@@ -192,9 +202,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       let fastFee: string = ''
       let adapterFees
       switch (chain) {
-        // TODO: Handle Cosmos ChainType here
+        case ChainTypes.Cosmos: {
+          const cosmosAdapter = await chainAdapterManager.byChainId('cosmos:cosmoshub-4')
+          adapterFees = await cosmosAdapter.getFeeData({})
+          fastFee = adapterFees.fast.txFee
+          break
+        }
         case ChainTypes.Ethereum: {
-          const ethAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
+          const ethAdapter = await chainAdapterManager.byChainId('eip155:1')
           const contractAddress = tokenId
           const value = assetBalance
           adapterFees = await ethAdapter.getFeeData({
@@ -224,7 +239,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
           if (!pubkeys?.[0]?.xpub) throw new Error('no pubkeys')
           const pubkey = convertXpubVersion(pubkeys[0].xpub, accountType)
-          const btcAdapter = chainAdapterManager.byChain(ChainTypes.Bitcoin)
+          const btcAdapter = await chainAdapterManager.byChainId(
+            'bip122:000000000019d6689c085ae165831e93'
+          )
           const value = assetBalance
           adapterFees = await btcAdapter.getFeeData({
             to,

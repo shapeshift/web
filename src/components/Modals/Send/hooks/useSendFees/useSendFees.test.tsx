@@ -15,7 +15,8 @@ jest.mock('state/slices/selectors', () => ({
   selectAssetByCAIP19: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
   selectFeeAssetById: (_state: ReduxState, _id: CAIP19) => mockEthAsset,
   selectMarketDataById: () => mockEthAsset,
-  selectAssets: jest.fn()
+  selectAssets: jest.fn(),
+  selectBalanceThreshold: jest.fn()
 }))
 
 const fees = {

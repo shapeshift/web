@@ -4217,7 +4217,7 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.4.0.tgz#1eaf0b4bd7abb81725e9fff67c6da575aa7af96c"
   integrity sha512-DwST061wYr3HOn469F4dzSm3lmcG+CvXRDiBHa7VzkgQ3ywuOqjXDh9dXVvOoWpWD6hxCfKegsLgVBuM3gU9XA==
 
-"@shapeshiftoss/unchained-client@^6.2.0":
+"@shapeshiftoss/unchained-client@^6.5.0":
   version "6.5.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.5.0.tgz#ca786e21e57879412a6c335db41198f45dd40420"
   integrity sha512-SSQZodTLlgZI9FUhXK0pm493V7zme1ooICL3Zis+vhuAEeeuyUqCQaf3vze9GT3/NFtt/21EL00yGMwunVHWow==

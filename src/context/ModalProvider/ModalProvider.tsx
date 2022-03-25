@@ -17,6 +17,7 @@ import { PairedAppsModal } from 'components/Modals/PairedApps/PairedApps'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
+import { TroubleshootModal } from 'components/Modals/Troubleshoot/Troubleshoot'
 import { WalletConnectModal } from 'components/Modals/WalletConnect/WalletConnect'
 
 // to add new modals, add a new key: value pair below
@@ -39,7 +40,8 @@ const MODALS = {
   cosmosStaking: StakingModal,
   walletConnect: WalletConnectModal,
   hardwareError: HardwareErrorModal,
-  appSettings: AppSettingsModal
+  appSettings: AppSettingsModal,
+  troubleshoot: TroubleshootModal
 }
 
 // state

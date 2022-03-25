@@ -11,7 +11,7 @@ export const shared: {
         balances: []
     },
     eventIPC: null,
-    KEEPKEY_FEATURES: {}
+    KEEPKEY_FEATURES: {},
 }
 
 export type userType = {

@@ -4,13 +4,13 @@ import { Button, FormControl, ModalHeader, Text as CText, Tooltip } from '@chakr
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
+import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -81,7 +81,7 @@ export const StakeConfirm = ({
   }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <SlideTransition>
         <Flex
           as='form'
           pt='14px'
@@ -175,7 +175,7 @@ export const StakeConfirm = ({
             <Text translation='common.cancel' />
           </Button>
         </Flex>
-      </AnimatePresence>
+      </SlideTransition>
     </FormProvider>
   )
 }

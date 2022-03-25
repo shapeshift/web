@@ -58,6 +58,8 @@ export interface InitialState {
   type: KeyManager | null
   initialRoute: string | null
   walletInfo: WalletInfo | null
+  keepkeyStatus: string | null
+  keepkeyState: any //TODO why cant this be number?
   keepkey: any
   isConnected: boolean
   modal: boolean
@@ -69,6 +71,8 @@ const initialState: InitialState = {
   adapters: null,
   wallet: null,
   type: null,
+  keepkeyStatus: null,
+  keepkeyState: 0,
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
@@ -153,6 +157,10 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
       return { ...state, type: action.payload }
+    case WalletActions.SET_KEEPKEY_STATUS:
+      return { ...state, keepkeyStatus: action.payload }
+    case WalletActions.SET_KEEPKEY_STATE:
+      return { ...state, keepkeyState: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_WALLET_MODAL:
@@ -227,6 +235,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   //onStart()
   useEffect(() => {
     if (!state.wallet) {
+      hardwareError.open({})
       console.info('Starting bridge')
       ipcRenderer.send('@app/start', {
         username: keepkey.username,
@@ -311,7 +320,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
 
     ipcRenderer.on('openHardwareError', (event, data) => {
-      hardwareError.open({})
+      hardwareError.open(data)
     })
 
     ipcRenderer.on('closeHardwareError', (event, data) => {
@@ -321,6 +330,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     ipcRenderer.on('openBootloaderUpdate', (event, data) => {
       bootloader.open({})
     })
+
+    ipcRenderer.on('closeBootloaderUpdate', (event, data) => {
+      bootloader.close()
+    })
+
     //HDwallet API
     //TODO moveme into own file
     ipcRenderer.on('@hdwallet/getPublicKeys', async (event, data) => {
@@ -588,26 +602,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 } else {
                   /**
                    * The KeepKey wallet is disconnected,
-                   * we're going to show user that a Keepkey wallet is in
-                   * disconnected mode.
+                   * because the accounts are not persisted, the app cannot load without getting pub keys from the
+                   * wallet.
                    */
-                  const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
-                  dispatch({
-                    type: WalletActions.SET_WALLET,
-                    payload: {
-                      /**
-                       * We should create a placeholder wallet so that app could work properly,
-                       * note that once user connects the KeepKey wallet back, this wallet will be
-                       * replaced by the real one.
-                       */
-                      wallet: {} as HDWallet,
-                      name,
-                      icon,
-                      deviceId: localWalletDeviceId,
-                      meta: { label: name }
-                    }
-                  })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+                  // TODO(ryankk): If persist is turned back on, we can restore the previous deleted code.
+                  disconnect()
                 }
               } catch (e) {
                 disconnect()
@@ -620,13 +619,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
                 try {
                   await localPortisWallet.initialize()
+                  const deviceId = await localPortisWallet.getDeviceID()
                   dispatch({
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localPortisWallet,
                       name,
                       icon,
-                      deviceId: localWalletDeviceId || 'test'
+                      deviceId
                     }
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
@@ -646,13 +646,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 try {
                   await localMetaMaskWallet.initialize()
+                  const deviceId = await localMetaMaskWallet.getDeviceID()
                   dispatch({
                     type: WalletActions.SET_WALLET,
                     payload: {
                       wallet: localMetaMaskWallet,
                       name,
                       icon,
-                      deviceId: localWalletDeviceId as string
+                      deviceId
                     }
                   })
                   dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })

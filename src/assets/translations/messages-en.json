@@ -45,7 +45,9 @@
     "appSettings": "App Settings",
     "copied": "Copied to clipboard.",
     "copyFailed": "Failed to copy to clipboard",
-    "copyFailedDescription": "Please copy manually"
+    "copyFailedDescription": "Please copy manually",
+    "viewAsset": "View Asset",
+    "legalDated": "Dated: January 2022"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -151,11 +153,19 @@
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
         }
+      },
+      "claim": {
+        "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
+        "title": "Claim Staking Rewards",
+        "confirmAndClaim": "Confirm & Claim",
+        "rewardAmount": "Reward Amount",
+        "claimingRewards": "Claiming Rewards"
       }
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",
+    "broadcastingTransaction": "Broadcasting Transaction",
     "validator": "Validator",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
@@ -170,6 +180,7 @@
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Claim Staking Rewards",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",
@@ -236,6 +247,7 @@
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
     "foxToken": "FOX Token",
+    "featureFlags": "Feature Flags",
     "apps": "Supported Apps"
   },
   "apps": {
@@ -338,8 +350,15 @@
         "button": "Submit Passphrase"
       }
     },
+    "troubleshoot": {
+      "header": "troubleshoot your KeepKey",
+      "button": "Restart App"
+    },
     "hardware": {
-      "header": "Hardware Error!",
+      "headerError": "Hardware Error!",
+      "headerConnect": "No Device Found!",
+      "troubleshoot": "troubleshoot",
+      "connect": "Please connect your KeepKey to continue.",
       "reconnect": "Please disconnect, and reconnect your KeepKey to continue."
     },
     "initialize": {
@@ -361,6 +380,7 @@
       "header": "Firmware Update Required for Your KeepKey!",
       "firmwareUpdate": "Updating your device's Firmware",
       "update": "check KeepKey Status",
+      "cta": "Please disconnect, hold down button, and reconnect device to enter bootloader mode to continue.",
       "continue": "approve and continue",
       "firmwareNeeded": "to continue you must updater your firmware!",
       "firmware": "Firmware version"

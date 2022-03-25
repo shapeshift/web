@@ -58,9 +58,8 @@ let {
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
 Sentry.init({ dsn: process.env.SENTRY_DSN });
-
+Sentry.init({ dsn: process.env.SENTRY_DSN });
 //Modules
-import { update_keepkey_status } from './keepkey'
 import { bridgeRunning, keepkey, start_bridge, stop_bridge } from './bridge'
 import { shared } from './shared'
 import { createTray, tray } from './tray'
@@ -151,7 +150,7 @@ export const createWindow = () => new Promise<boolean>(async (resolve, reject) =
      */
 
     windows.mainWindow = new BrowserWindow({
-        width: isDev ? 960 : 460,
+        width: isDev ? 1960 : 960,
         height: 780,
         show: false,
         backgroundColor: 'white',
@@ -460,11 +459,19 @@ ipcMain.on('@bridge/stop', async event => {
 
 ipcMain.on('@bridge/start', async event => {
     const tag = TAG + ' | onStartBridge | '
+    console.log(tag)
+    console.log(bridgeRunning)
     try {
-        if (!bridgeRunning) start_bridge(settings.bridgeApiPort)
+        if (!bridgeRunning) {
+            await start_bridge(settings.bridgeApiPort)
+        }
     } catch (e) {
         log.error(tag, e)
     }
+})
+
+ipcMain.on('@bridge/running', (event, data) => {
+    event.sender.send('@bridge/running', bridgeRunning)
 })
 
 ipcMain.on('@connect/pair', async (event, data) => {
@@ -480,34 +487,6 @@ ipcMain.on('@app/start', async (event, data) => {
     const tag = TAG + ' | onStartApp | '
     try {
         log.info(tag, 'event: onStartApp: ', data)
-
-        try {
-
-            usb.on('attach', function (device) {
-                try {
-                    log.info('attach device: ', device)
-                    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('attach', { device })
-                    if (!bridgeRunning) start_bridge()
-                    update_keepkey_status()
-                } catch (e) {
-                    log.error(e)
-                }
-            })
-
-            usb.on('detach', function (device) {
-                try {
-                    log.info('detach device: ', device)
-                    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send('detach', { device })
-                    //stop_bridge(event)
-                    update_keepkey_status()
-                } catch (e) {
-                    log.error(e)
-                }
-            })
-
-        } catch (e) {
-            log.error(e)
-        }
 
         //load DB
         try {
@@ -541,13 +520,6 @@ ipcMain.on('@app/start', async (event, data) => {
 
         } catch (e) {
             log.error('Failed to create tray! e: ', e)
-        }
-
-        //onStart
-        try {
-            update_keepkey_status()
-        } catch (e) {
-            log.error(e)
         }
 
         try {

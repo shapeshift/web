@@ -2,58 +2,24 @@ import { Alert, AlertDescription } from '@chakra-ui/alert'
 import { Button } from '@chakra-ui/button'
 import { ToastId, useToast } from '@chakra-ui/toast'
 import { ipcRenderer } from 'electron'
-import { pluginManager, registerPlugins } from 'plugins'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
 import { PairingProps } from 'components/Modals/Pair/Pair'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
-import { selectFeatureFlags } from 'state/slices/selectors'
-
-import { useChainAdapters } from './context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { Route } from './Routes/helpers'
-import { useAppSelector } from './state/store'
 
 export const App = () => {
-  const [pluginRoutes, setPluginRoutes] = useState<Route[]>([])
-  const chainAdapterManager = useChainAdapters()
+  const { routes } = usePlugins()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
   const updateId = 'update-app'
   const translate = useTranslate()
-  const featureFlags = useAppSelector(selectFeatureFlags)
   const { pair } = useModal()
-
-  useEffect(() => {
-    registerPlugins()
-      .then(() => {
-        let routes: Route[] = []
-
-        // Register Chain Adapters
-        for (const [, plugin] of pluginManager.entries()) {
-          // Ignore plugins that have their feature flag disabled
-          // If no featureFlag is present, then we assume it's enabled
-          if (!plugin.featureFlag || featureFlags[plugin.featureFlag]) {
-            // Routes
-            routes = routes.concat(plugin.routes)
-            // Chain Adapters
-            plugin.providers?.chainAdapters?.forEach(([chain, factory]) => {
-              chainAdapterManager.addChain(chain, factory)
-            })
-          }
-        }
-
-        setPluginRoutes(routes)
-      })
-      .catch(e => {
-        console.error('RegisterPlugins', e)
-        setPluginRoutes([])
-      })
-  }, [setPluginRoutes, chainAdapterManager, featureFlags])
 
   useEffect(() => {
     ipcRenderer.on('@modal/pair', (event, data: PairingProps) => {
@@ -93,5 +59,5 @@ export const App = () => {
     }
   }, [shouldUpdate, toast, translate])
 
-  return <Routes additionalRoutes={pluginRoutes} />
+  return <Routes additionalRoutes={routes} />
 }

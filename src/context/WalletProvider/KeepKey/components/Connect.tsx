@@ -131,15 +131,16 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       }
     }
     setLoading(false)
-  }, [state.adapters])
+  }, [state.adapters, dispatch, history, initialize, state.keyring])
 
-  let tries = 0
   useEffect(() => {
+    let tries = 0
     ipcRenderer.removeAllListeners('@bridge/running')
     ipcRenderer.removeAllListeners('@bridge/start')
     ipcRenderer.on('@bridge/running', async (event, bridgeRunning) => {
       if (tries > 0) {
         setLoading(false)
+        setErrorLoading('walletProvider.keepKey.connect.conflictingApp')
         return (tries = 0)
       }
       tries++
@@ -158,7 +159,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
     ipcRenderer.on('@bridge/start', async (event, data) => {
       ipcRenderer.send('@bridge/running')
     })
-  }, [pairDevice])
+  }, [pairDevice, connect])
 
   return (
     <>

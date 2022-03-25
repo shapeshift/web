@@ -22,6 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+    - name: Set node version
+      uses: actions/setup-node@v2
+      with:
+        node-version-file: '.nvmrc'
+
       # Restore the previous yarn modules and Cypress binary archives.
       # Any updated archives will be saved automatically after the entire
       # workflow successfully finishes.

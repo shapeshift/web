@@ -33,6 +33,9 @@ jobs:
   test-chrome:
     name: Run Cypress
     runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node16.13.2-chrome97-ff96
+      options: --user 1001
     strategy:
       # When one test fails, do not cancel the other
       # containers, because this will kill Cypress processes,

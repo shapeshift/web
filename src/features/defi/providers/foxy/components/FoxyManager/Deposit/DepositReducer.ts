@@ -1,4 +1,3 @@
-// import { SupportedFoxyVault, YearnVault } from '@shapeshiftoss/investor-yearn'
 import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'

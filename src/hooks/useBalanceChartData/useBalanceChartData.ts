@@ -1,6 +1,6 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
-import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -210,7 +210,8 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       if (tx.fee && assetIds.includes(tx.fee.caip19)) {
         // balance history being built in descending order, so fee means we had more before
         // TODO(0xdef1cafe): this is awful but gets us out of trouble
-        if (tx.chain === ChainTypes.Ethereum) {
+        // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
+        if (tx.chain !== ChainTypes.Bitcoin) {
           bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
             bnOrZero(tx.fee.value)
           )
@@ -226,11 +227,11 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         const transferValue = bnOrZero(transfer.value)
 
         switch (transfer.type) {
-          case TxType.Send:
+          case chainAdapters.TxType.Send:
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
-          case TxType.Receive:
+          case chainAdapters.TxType.Receive:
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break

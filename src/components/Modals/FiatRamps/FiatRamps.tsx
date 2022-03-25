@@ -40,6 +40,11 @@ export enum FiatRampsRoutes {
 
 export const entries = [FiatRampsRoutes.Select, FiatRampsRoutes.Gem]
 
+export enum FiatRampAction {
+  Buy = 'buy',
+  Sell = 'sell'
+}
+
 export const FiatRampsModal = () => {
   const { fiatRamps } = useModal()
   const { close, isOpen } = fiatRamps

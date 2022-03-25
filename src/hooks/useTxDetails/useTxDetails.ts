@@ -1,5 +1,4 @@
 import { Asset, chainAdapters, MarketData } from '@shapeshiftoss/types'
-import { TradeType, TxTransfer, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { useEffect, useState } from 'react'
 import { ensReverseLookup } from 'lib/ens'
 import { ReduxState } from 'state/reducer'
@@ -25,9 +24,9 @@ export enum Direction {
 
 export interface TxDetails {
   tx: Tx
-  buyTx?: TxTransfer
-  sellTx?: TxTransfer
-  tradeTx?: TxTransfer
+  buyTx?: chainAdapters.TxTransfer
+  sellTx?: chainAdapters.TxTransfer
+  tradeTx?: chainAdapters.TxTransfer
   feeAsset?: Asset
   buyAsset?: Asset
   sellAsset?: Asset
@@ -36,7 +35,7 @@ export interface TxDetails {
   ensTo?: string
   from: string
   ensFrom?: string
-  type: TradeType | TxType | ''
+  type: chainAdapters.TradeType | chainAdapters.TxType | ''
   symbol: string
   precision: number
   explorerTxLink: string
@@ -113,7 +112,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     })()
   }, [from, to])
   const type = isSupportedContract(tx)
-    ? TxType.Contract
+    ? chainAdapters.TxType.Contract
     : standardTx?.type ?? tx.tradeDetails?.type ?? ''
   const symbol = standardAsset?.symbol ?? tradeAsset?.symbol ?? ''
   const precision = standardAsset?.precision ?? tradeAsset?.precision ?? 18

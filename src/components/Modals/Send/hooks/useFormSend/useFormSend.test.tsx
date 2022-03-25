@@ -17,7 +17,10 @@ import { ensLookup } from 'lib/ens'
 import { SendFormFields, SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
 
-jest.mock('@chakra-ui/react')
+jest.mock('@chakra-ui/react', () => ({
+  ...jest.requireActual('@chakra-ui/react'),
+  useToast: jest.fn()
+}))
 jest.mock('react-hook-form')
 jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()

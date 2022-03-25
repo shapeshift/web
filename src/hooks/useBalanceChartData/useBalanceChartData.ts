@@ -16,12 +16,9 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  AccountSpecifier,
-  PortfolioAssets,
-  PortfolioBalancesById
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId,

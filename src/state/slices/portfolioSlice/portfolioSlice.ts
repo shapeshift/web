@@ -5,11 +5,11 @@ import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
-import { getChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
-import { AccountSpecifierMap } from 'hooks/useAccountSpecifiers/useAccountSpecifiers'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
+import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { accountToPortfolio } from './utils'
 
 // TODO(0xdef1cafe): this needs a better home, probably in chain adapters

@@ -30,7 +30,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting }
-  } = useForm()
+  } = useForm({ shouldUnregister: true })
 
   const translate = useTranslate()
 

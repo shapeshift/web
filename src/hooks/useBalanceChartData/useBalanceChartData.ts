@@ -210,7 +210,8 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       if (tx.fee && assetIds.includes(tx.fee.caip19)) {
         // balance history being built in descending order, so fee means we had more before
         // TODO(0xdef1cafe): this is awful but gets us out of trouble
-        if (tx.chain === ChainTypes.Ethereum) {
+        // NOTE: related to utxo balance tracking, just ignoring bitcoin for now as our only utxo chain support
+        if (tx.chain !== ChainTypes.Bitcoin) {
           bucket.balance.crypto[tx.fee.caip19] = bucket.balance.crypto[tx.fee.caip19].plus(
             bnOrZero(tx.fee.value)
           )

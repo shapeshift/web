@@ -1,10 +1,8 @@
-// import { SupportedFoxyVault, YearnVault } from '@shapeshiftoss/investor-yearn'
 import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
-// TODO: fill in type
 type SupportedFoxyOpportunity = {
   type: DefiType
   provider: string
@@ -123,7 +121,7 @@ type FoxyDepositActions =
 export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => {
   switch (action.type) {
     case FoxyDepositActionType.SET_OPPORTUNITY:
-      return { ...state, vault: { ...state.foxyOpportunity, ...action.payload } }
+      return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload } }
     case FoxyDepositActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
     case FoxyDepositActionType.SET_DEPOSIT:

@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { NetworkTypes } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
@@ -38,7 +38,7 @@ import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
@@ -82,37 +82,36 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId } = query
+  const { chain, contractAddress, tokenId, rewardId } = query
   const alertText = useColorModeValue('blue.800', 'white')
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetCAIP19 = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetCAIP19 = caip19.toCAIP19({
+  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
+  const feeAssetId = caip19.toCAIP19({
     chain,
     network,
     assetNamespace: AssetNamespace.Slip44,
     assetReference: AssetReference.Ethereum
   })
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetCAIP19))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
-  const vaultCAIP19 = caip19.toCAIP19({
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
+  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const contractAssetId = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
-    assetReference: contractAddress
+    assetReference: rewardId
   })
-  const vaultAsset = useAppSelector(state => selectAssetByCAIP19(state, vaultCAIP19))
+  const contractAsset = useAppSelector(state => selectAssetByCAIP19(state, contractAssetId))
 
   // user info
   const chainAdapterManager = useChainAdapters()
-  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
   const loading = useSelector(selectPortfolioLoading)
 
   // notify
@@ -122,6 +121,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     ;(async () => {
       try {
         if (!walletState.wallet || !contractAddress) return
+        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const [address, foxyOpportunity, pricePerShare] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress),
@@ -138,7 +138,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         console.error('FoxyDeposit error:', error)
       }
     })()
-  }, [api, chainAdapter, contractAddress, walletState.wallet])
+  }, [api, chainAdapterManager, contractAddress, walletState.wallet])
 
   const getApproveGasEstimate = async () => {
     if (!state.userAddress || !tokenId) return
@@ -168,7 +168,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
-          // tokenContractAddress: tokenId,
           tokenContractAddress: tokenId,
           contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)
@@ -233,7 +232,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const handleApprove = async () => {
-    // TODO: wire this back up after testing
     if (!tokenId || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
@@ -328,9 +326,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  const handleCancel = history.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
@@ -350,24 +346,26 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    // const apy = state.foxyOpportunity.metadata?.apy?.net_apy
-    const apy = '.2'
+    const apy = state.foxyOpportunity.apy
     const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
     const annualYieldFiat = annualYieldCrypto.times(marketData.price)
 
-    let statusIcon: React.ReactElement = <ArrowForwardIcon />
-    let statusText = StatusTextEnum.pending
-    let statusBg = defaultStatusBg
-    if (state.deposit.txStatus === 'success') {
-      statusText = StatusTextEnum.success
-      statusIcon = <CheckIcon color='white' />
-      statusBg = 'green.500'
-    }
-    if (state.deposit.txStatus === 'failed') {
-      statusText = StatusTextEnum.failed
-      statusIcon = <CloseIcon color='white' />
-      statusBg = 'red.500'
-    }
+    const { statusIcon, statusText, statusBg } = (() => {
+      let statusIcon: React.ReactElement = <ArrowForwardIcon />
+      let statusText = StatusTextEnum.pending
+      let statusBg = defaultStatusBg
+      if (state.deposit.txStatus === 'success') {
+        statusText = StatusTextEnum.success
+        statusIcon = <CheckIcon color='white' />
+        statusBg = 'green.500'
+      }
+      if (state.deposit.txStatus === 'failed') {
+        statusText = StatusTextEnum.failed
+        statusIcon = <CloseIcon color='white' />
+        statusBg = 'red.500'
+      }
+      return { statusIcon, statusText, statusBg }
+    })()
 
     switch (route.path) {
       case DepositPath.Deposit:
@@ -406,7 +404,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
               .times(feeMarketData.price)
               .toFixed(2)}
             loading={state.loading}
-            loadingText='Approve on Wallet'
+            loadingText={translate('common.approveOnWallet')}
             learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
             preFooter={
               <Alert status='info' borderRadius='lg' color='blue.500'>
@@ -434,10 +432,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                 fiatAmount: state.deposit.fiatAmount
               },
               {
-                ...vaultAsset,
+                ...contractAsset,
                 color: '#FFFFFF',
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-                  // .div(bnOrZero(state.pricePerShare).div(`1e+${state.foxyOpportunity.decimals}`))
                   .div(bnOrZero(1).div(1))
                   .toString(),
                 fiatAmount: state.deposit.fiatAmount
@@ -457,7 +454,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.depositTo' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Foxy Finance</Row.Value>
+                <Row.Value fontWeight='bold'>
+                  <MiddleEllipsis address={state.foxyOpportunity.contractAddress || ''} />
+                </Row.Value>
               </Row>
               <Row>
                 <Row.Label>
@@ -532,9 +531,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                 fiatAmount: state.deposit.fiatAmount
               },
               {
-                ...vaultAsset,
+                ...contractAsset,
                 cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-                  // .div(bnOrZero(state.pricePerShare).div(`1e+${state.foxyOpportunity.decimals}`))
                   .div(bnOrZero(1).div(1))
                   .toString(),
                 fiatAmount: state.deposit.fiatAmount

@@ -25,7 +25,7 @@
     "@shapeshiftoss/hdwallet-native-vault": "^1.19.0",
     "@shapeshiftoss/hdwallet-portis": "^1.19.0",
     "@shapeshiftoss/investor-yearn": "^1.4.4",
-    "@shapeshiftoss/investor-foxy": "^1.0.0",
+    "@shapeshiftoss/investor-foxy": "^1.0.2",
     "@shapeshiftoss/market-service": "^2.1.1",
     "@shapeshiftoss/swapper": "^2.0.2",
     "@shapeshiftoss/types": "^2.3.0",

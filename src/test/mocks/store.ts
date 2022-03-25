@@ -51,6 +51,7 @@ export const mockStore: ReduxState = {
       CosmosPlugin: false,
       FoxyInvestor: false,
       GemRamp: false,
+      FoxyInvestor: false,
       ReduxLogging: false
     },
     selectedLocale: 'en',

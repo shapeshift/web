@@ -8,7 +8,6 @@ import { Location } from 'history'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
 import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
@@ -60,7 +59,7 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
             </MemoryRouter>
           </Route>
           <Route path={FoxyPath.Overview}>
-            <RawText>Overview</RawText>
+            <></>
           </Route>
         </Switch>
       </AnimatePresence>

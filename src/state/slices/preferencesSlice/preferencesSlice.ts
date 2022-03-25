@@ -23,6 +23,7 @@ const initialState: Preferences = {
     CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS,
     FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
     GemRamp: getConfig().REACT_APP_FEATURE_GEM_RAMP,
+    FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING
   },
   selectedLocale: simpleLocale(),

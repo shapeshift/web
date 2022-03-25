@@ -8,7 +8,7 @@ import {
 } from '@chakra-ui/react'
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { ipcRenderer } from 'electron'
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
@@ -22,9 +22,9 @@ import { FailureType, MessageType } from '../KeepKeyTypes'
 
 export interface KeepKeySetupProps
   extends RouteComponentProps<
-    {},
-    any, // history
-    LocationState
+  {},
+  any, // history
+  LocationState
   > {
   dispatch: React.Dispatch<ActionTypes>
 }
@@ -47,14 +47,14 @@ const translateError = (event: Event) => {
 }
 
 export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
-  const { dispatch, state } = useWallet()
+  const { dispatch, state, connect } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { initialize } = useModal()
   // eslint-disable-next-line no-sequences
   const setErrorLoading = (e: string | null) => (setError(e), setLoading(false))
 
-  const pairDevice = async () => {
+  const pairDevice = useCallback(async () => {
     setError(null)
     setLoading(true)
     if (state.adapters && !state.adapters.has(KeyManager.KeepKey)) {
@@ -119,7 +119,34 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       }
     }
     setLoading(false)
-  }
+  }, [state.adapters])
+
+  let tries = 0
+  useEffect(() => {
+    ipcRenderer.removeAllListeners('@bridge/running')
+    ipcRenderer.removeAllListeners('@bridge/start')
+    ipcRenderer.on('@bridge/running', async (event, bridgeRunning) => {
+      if (tries > 0) {
+        setLoading(false)
+        return tries = 0
+      }
+      tries++
+
+      if (!bridgeRunning) {
+        ipcRenderer.send('@bridge/start')
+      } else {
+        await connect(KeyManager.KeepKey)
+        ipcRenderer.removeAllListeners('@bridge/running')
+        ipcRenderer.removeAllListeners('@bridge/start')
+        pairDevice()
+        return tries = 0
+      }
+    })
+
+    ipcRenderer.on('@bridge/start', async (event, data) => {
+      ipcRenderer.send('@bridge/running')
+    })
+  }, [pairDevice])
 
   return (
     <>
@@ -128,7 +155,12 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
-        <Button isFullWidth colorScheme='blue' onClick={pairDevice} disabled={loading}>
+
+        <Button isFullWidth colorScheme='blue' onClick={() => {
+          ipcRenderer.send('@bridge/running')
+          setLoading(true)
+        }
+        } disabled={loading}>
           {loading ? (
             <CircularProgress size='5' />
           ) : (

@@ -22,7 +22,6 @@ import { Row } from '../../Row/Row'
 
 export const FirmwareModal = () => {
   const { keepkey } = useWallet()
-  const [loading, setLoading] = useState(false)
   const { firmware } = useModal()
   const { close, isOpen } = firmware
 
@@ -36,7 +35,7 @@ export const FirmwareModal = () => {
 
   const HandleUpdateFirmware = async () => {
     console.info('Updating firmware (firmware modal)')
-    setLoading(true)
+    // setLoadingFirmware(true)
     ipcRenderer.send('@keepkey/update-firmware', {})
   }
 
@@ -60,7 +59,7 @@ export const FirmwareModal = () => {
         </ModalHeader>
         <ModalBody>
           <div>
-            {loading ? (
+            {false ? (
               <div>
                 <Spinner />
               </div>
@@ -68,14 +67,13 @@ export const FirmwareModal = () => {
               <div>
                 {keepkey.isInUpdaterMode ? (
                   <div>
-                    <h2>Updating Firmware</h2>
+                    <Text translation={'modals.firmware.firmwareUpdate'} />
                     <small>click to perform action</small>
                     <Button
                       isFullWidth
                       size='lg'
                       colorScheme='blue'
                       onClick={HandleUpdateFirmware}
-                      disabled={loading}
                     >
                       <Text translation={'modals.firmware.continue'} />
                     </Button>
@@ -83,9 +81,6 @@ export const FirmwareModal = () => {
                   </div>
                 ) : (
                   <div>
-                    <h3>
-                      <Text translation={'modals.bootloader.cta'} />
-                    </h3>
                     <Row>
                       <Row.Label>
                         <Text translation={'modals.firmware.bootloader'} />
@@ -100,8 +95,7 @@ export const FirmwareModal = () => {
                     </Row>
                     <Image src={kkConnect} alt='Approve Transaction On Device!' />
                     <small>
-                      Please disconnect, hold down button, and reconnect device to enter bootloader
-                      mode to continue.
+                      <Text translation={'modals.firmware.cta'} />
                     </small>
                   </div>
                 )}

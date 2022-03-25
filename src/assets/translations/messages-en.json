@@ -338,8 +338,15 @@
         "button": "Submit Passphrase"
       }
     },
+    "troubleshoot": {
+      "header": "troubleshoot your KeepKey",
+      "button": "Restart App"
+    },
     "hardware": {
-      "header": "Hardware Error!",
+      "headerError": "Hardware Error!",
+      "headerConnect": "No Device Found!",
+      "troubleshoot": "troubleshoot",
+      "connect": "Please connect your KeepKey to continue.",
       "reconnect": "Please disconnect, and reconnect your KeepKey to continue."
     },
     "initialize": {
@@ -361,6 +368,7 @@
       "header": "Firmware Update Required for Your KeepKey!",
       "firmwareUpdate": "Updating your device's Firmware",
       "update": "check KeepKey Status",
+      "cta": "Please disconnect, hold down button, and reconnect device to enter bootloader mode to continue.",
       "continue": "approve and continue",
       "firmwareNeeded": "to continue you must updater your firmware!",
       "firmware": "Firmware version"

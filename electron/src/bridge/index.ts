@@ -9,7 +9,7 @@ import log from 'electron-log'
 import { Device } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
 import { Server } from 'http'
-import { ipcMain } from 'electron'
+import { ipcMain, app } from 'electron'
 import { updateMenu } from '../tray'
 import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
@@ -47,55 +47,6 @@ export const keepkey: {
     keyring: null,
     wallet: null
 }
-
-ipcMain.on('@keepkey/update-firmware', async event => {
-    const tag = TAG + ' | onUpdateFirmware | '
-    try {
-        log.info(tag," checkpoint !!!!")
-        let result = await Controller.getLatestFirmwareData()
-        log.info(tag," result: ",result)
-
-        let firmware = await Controller.downloadFirmware(result.firmware.url)
-        if(!firmware) throw Error("Failed to load firmware from url!")
-
-        const updateResponse = await Controller.loadFirmware(firmware)
-        log.info(tag, "updateResponse: ", updateResponse)
-
-        event.sender.send('onCompleteFirmwareUpload', {
-            bootloader: true,
-            success: true
-        })
-    } catch (e) {
-        log.error(tag, e)
-    }
-})
-
-ipcMain.on('@keepkey/update-bootloader', async event => {
-    const tag = TAG + ' | onUpdateBootloader | '
-    try {
-        log.info(tag, "checkpoint: ")
-        let result = await Controller.getLatestFirmwareData()
-        let firmware = await Controller.downloadFirmware(result.bootloader.url)
-        const updateResponse = await Controller.loadFirmware(firmware)
-        log.info(tag, "updateResponse: ", updateResponse)
-        event.sender.send('onCompleteBootloaderUpload', {
-            bootloader: true,
-            success: true
-        })
-    } catch (e) {
-        log.error(tag, e)
-    }
-})
-
-ipcMain.on('@keepkey/info', async (event, data) => {
-    const tag = TAG + ' | onKeepKeyInfo | '
-    try {
-        shared.KEEPKEY_FEATURES = data
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
 
 export const start_bridge = (port?: number) => new Promise<void>(async (resolve, reject) => {
     let tag = " | start_bridge | "
@@ -160,7 +111,6 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             //start hardware controller
             //sub ALL events
             let controller = new Controller.KeepKey({})
-            controller.init()
 
             //state
             controller.events.on('state',function(event){
@@ -171,10 +121,22 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 switch (event.state) {
                     case 0:
                         log.info(tag,"No Devices connected")
+                        windows?.mainWindow?.webContents.send('closeBootloaderUpdate', {})
+                        windows?.mainWindow?.webContents.send('closeFirmwareUpdate', {})
                         windows?.mainWindow?.webContents.send('openHardwareError', { error: event.error, code: event.code, event })
                         break;
+                    case 1:
+                        windows.mainWindow?.webContents.send('setUpdaterMode', true)
+                        break;
                     case 4:
-                        //launch init seed window
+                        windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
+                        windows?.mainWindow?.webContents.send('closeBootloaderUpdate', {})
+                        windows?.mainWindow?.webContents.send('closeFirmwareUpdate', {})
+                        //launch init seed window?
+                        log.info("Setting device controller: ",controller)
+                        keepkey.device = controller.device
+                        keepkey.wallet = controller.wallet
+                        keepkey.transport = controller.transport
                         break;
                     case 5:
                         windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
@@ -199,14 +161,75 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 log.info("logs event: ",event)
                 if(event.bootloaderUpdateNeeded){
                     log.info(tag,"Open Bootloader Update")
+                    windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
                     windows?.mainWindow?.webContents.send('openBootloaderUpdate', event)
                 }
 
                 if(event.firmwareUpdateNeeded){
                     log.info(tag,"Open Firmware Update")
+                    windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
                     windows?.mainWindow?.webContents.send('openFirmwareUpdate', event)
                 }
             })
+            //Init MUST be AFTER listeners are made (race condition)
+            controller.init()
+
+            //
+            ipcMain.on('@keepkey/update-firmware', async event => {
+                const tag = TAG + ' | onUpdateFirmware | '
+                try {
+                    log.info(tag," checkpoint !!!!")
+                    let result = await controller.getLatestFirmwareData()
+                    log.info(tag," result: ",result)
+
+                    let firmware = await controller.downloadFirmware(result.firmware.url)
+                    if(!firmware) throw Error("Failed to load firmware from url!")
+
+                    const updateResponse = await controller.loadFirmware(firmware)
+                    log.info(tag, "updateResponse: ", updateResponse)
+
+                    event.sender.send('onCompleteFirmwareUpload', {
+                        bootloader: true,
+                        success: true
+                    })
+                    app.quit();
+                    app.relaunch();
+                } catch (e) {
+                    log.error(tag, e)
+                    app.quit();
+                    app.relaunch();
+                }
+            })
+
+            ipcMain.on('@keepkey/update-bootloader', async event => {
+                const tag = TAG + ' | onUpdateBootloader | '
+                try {
+                    log.info(tag, "checkpoint: ")
+                    let result = await controller.getLatestFirmwareData()
+                    let firmware = await controller.downloadFirmware(result.bootloader.url)
+                    const updateResponse = await controller.loadFirmware(firmware)
+                    log.info(tag, "updateResponse: ", updateResponse)
+                    event.sender.send('onCompleteBootloaderUpload', {
+                        bootloader: true,
+                        success: true
+                    })
+                } catch (e) {
+                    log.error(tag, e)
+                    app.quit();
+                    app.relaunch();
+                }
+            })
+
+            ipcMain.on('@keepkey/info', async (event, data) => {
+                const tag = TAG + ' | onKeepKeyInfo | '
+                try {
+                    shared.KEEPKEY_FEATURES = data
+                } catch (e) {
+                    log.error('e: ', e)
+                    log.error(tag, e)
+                }
+            })
+
         } catch (e) {
             log.error(e)
         }

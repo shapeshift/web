@@ -3446,10 +3446,10 @@
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
 
-"@keepkey/keepkey-hardware-controller@^0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-controller/-/keepkey-hardware-controller-0.0.7.tgz#68e5cb951fea37de68998d2c5354adccb25d1e4f"
-  integrity sha512-RSMwgIBhFdmNrgU8a3ov2F1GpUBFeVNS+QWsIQO1uFO81kjYEaVxmFgGC8GgMF2nYdUcdk5UjKvkZ6hAgB8wYw==
+"@keepkey/keepkey-hardware-controller@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-controller/-/keepkey-hardware-controller-0.0.8.tgz#e7be3ef9e29a8fd9bffd8c7dcb5a2821756d3455"
+  integrity sha512-NKdka7tyfejv9jGAEkplEUbLQOAHBg07W7ZT9NskKDi5jqrTmVX3bJj3xHm2RrAd8ENeWLmVMAoxaTFHB91hrQ==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@bithighlander/hdwallet-core" "2.14.2"

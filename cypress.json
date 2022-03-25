@@ -7,7 +7,7 @@
   "defaultCommandTimeout": 25000,
   "autorecord": {
     "forceRecord": false,
-    "cleanMocks": true
+    "cleanMocks": false
   },
   "env": {
     "testPublicKey": "0xfDCa77f9dBBc6D29970E9E0b0Ef5e5Bc45C8fCde",

@@ -1,6 +1,6 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
-import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -226,11 +226,11 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         const transferValue = bnOrZero(transfer.value)
 
         switch (transfer.type) {
-          case TxType.Send:
+          case chainAdapters.TxType.Send:
             // we're going backwards, so a send means we had more before
             bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
-          case TxType.Receive:
+          case chainAdapters.TxType.Receive:
             // we're going backwards, so a receive means we had less before
             bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break

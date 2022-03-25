@@ -1,5 +1,4 @@
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
-import { TradeType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
@@ -117,7 +116,7 @@ export const TradeTx: Tx = {
   status: chainAdapters.TxStatus.Confirmed,
   tradeDetails: {
     dexName: '',
-    type: TradeType.Trade
+    type: chainAdapters.TradeType.Trade
   },
   transfers: [
     {

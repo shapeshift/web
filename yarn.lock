@@ -3790,10 +3790,10 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.1.0.tgz#7f698254aadf921e48dda8c0a6b304026b8a9323"
   integrity sha512-JLo+Y592QzIE+q7Dl2pMUtt4q8SKYI5jDrZxrozEQxnGVOyYE+GWK9eLkwTaeN9DDctlaRAQ3TBmzZ1qdLE30A==
 
-"@shapeshiftoss/asset-service@^2.2.1":
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.2.1.tgz#abacd9bbe7f84274821fd5639eb0a3bfdad30d02"
-  integrity sha512-0jeW9kmGlOOLMmmlTo9EJKXClyrySpDDxgcvHpRUKkz1FQud3AD+ujoJ3BUnUBYo53PqerDIFXDw6fDKVG7YTw==
+"@shapeshiftoss/asset-service@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.2.2.tgz#b4afc58a9a5bf6b11e73471be7f7b3944635bee0"
+  integrity sha512-ZEzuzHpCXuleze1XQmRNgJmnWSwq2VQYXdY7CKfWxLfhGkf6ZJt9DlDatzqeNRnscP7VvgrjrZIeQL6AjGf5qg==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"
@@ -3833,15 +3833,15 @@
     tsoa "^3.4.0"
     ws "^8.3.0"
 
-"@shapeshiftoss/caip@^2.0.0", "@shapeshiftoss/caip@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.1.tgz#be8f3397552c445b32e6cbcef12cc39acd191da9"
-  integrity sha512-vGTPnGibD+YMHXNKes5V6dqr5N729wo584dc3fkfSfOOBEdJLr9aJlBLSHDj9jBf/POHB4IsxWz/lPvs1lXc+Q==
+"@shapeshiftoss/caip@^2.0.0", "@shapeshiftoss/caip@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.2.tgz#61aee46519ccbcd5ee5db2ca5d44d893a79644bc"
+  integrity sha512-7t4Q49KtySfGZiTYyfOUcUMcOIYGoHn4/5fSaUVTi2oR4i2LJxAKsX1iNzBz1UOBytVIbQIUknG3jIFvQCb25A==
 
-"@shapeshiftoss/chain-adapters@^2.7.1":
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.7.1.tgz#d585dfb66a8e62dd21436614eb841a744b6a1dfb"
-  integrity sha512-6If11uT+mM5cUb+X8R+zX00TD+jSlkKEyQ1uN/H+XCzT4TNuYthOcUQjOUOcgdAffqIFm57MD3Er2MCZ/DTxvA==
+"@shapeshiftoss/chain-adapters@^2.7.2":
+  version "2.7.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.7.2.tgz#2cec40246b61e6a740a607a7c3e743e4b8f6cfb3"
+  integrity sha512-qvx2tsmDucCOzSPZKrJmB/+bgNDKc3cOaFQZIklZA2wn2IbZEnlX1blb9rD3CIjEttjZ6HFwL1Rnc4BXiGmyCg==
   dependencies:
     axios "^0.26.0"
     bech32 "^2.0.0"

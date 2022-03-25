@@ -62,7 +62,7 @@ export const Flags = ({ route }: FlagsPageProps) => {
   }
 
   return (
-    <Main route={route} titleComponent={<FlagHeader />}>
+    <Main titleComponent={<FlagHeader />}>
       <Card>
         <Card.Body>
           <Stack divider={<StackDivider />}>

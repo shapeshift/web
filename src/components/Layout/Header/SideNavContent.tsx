@@ -2,7 +2,6 @@ import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Box, Flex, FlexProps, Link, Stack, useMediaQuery } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route } from 'Routes/helpers'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/selectors'
@@ -15,7 +14,6 @@ import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
 
 type HeaderContentProps = {
-  route?: Route
   isCompact?: boolean
 } & FlexProps
 

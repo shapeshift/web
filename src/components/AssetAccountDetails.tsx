@@ -21,9 +21,9 @@ type AssetDetailsProps = {
   route?: Route
 }
 
-export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: AssetDetailsProps) => {
+export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   return (
-    <Main route={route} titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
+    <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
         alignItems='flex-start'
         spacing={4}

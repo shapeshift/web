@@ -49,7 +49,7 @@ jobs:
       - name: Set node version
         uses: actions/setup-node@v2
         with:
-          node-version: '16.3.1'
+          node-version-file: '.nvmrc'
 
       # Restore the previous yarn modules and Cypress binary archives.
       # Any updated archives will be saved automatically after the entire

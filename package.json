@@ -23,7 +23,6 @@
     "@reduxjs/toolkit": "^1.7.2",
     "@shapeshiftoss/asset-service": "^2.2.0",
     "@sentry/electron": "^3.0.4",
-    "@shapeshiftoss/asset-service": "^2.0.0",
     "@shapeshiftoss/caip": "^2.1.0",
     "@shapeshiftoss/chain-adapters": "^2.7.1",
     "@shapeshiftoss/hdwallet-core": "^1.19.0",

@@ -13,7 +13,6 @@ import {
 import { useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Link, useHistory } from 'react-router-dom'
-import { Route } from 'Routes/helpers'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
@@ -23,7 +22,7 @@ import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 
-export const Header = ({ route }: { route: Route }) => {
+export const Header = () => {
   const { onToggle, isOpen, onClose } = useDisclosure()
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
@@ -103,7 +102,9 @@ export const Header = ({ route }: { route: Route }) => {
       </Flex>
       <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
         <DrawerOverlay />
-        <DrawerContent>{route && <SideNavContent route={route} />}</DrawerContent>
+        <DrawerContent>
+          <SideNavContent />
+        </DrawerContent>
       </Drawer>
     </>
   )

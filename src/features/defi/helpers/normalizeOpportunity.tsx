@@ -1,5 +1,4 @@
 import { CAIP19, caip19 } from '@shapeshiftoss/caip'
-import { AssetNamespace } from '@shapeshiftoss/caip/dist/caip19/caip19'
 import { bnOrZero, SupportedYearnVault } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { USDC_PRECISION } from 'constants/UsdcPrecision'
@@ -30,7 +29,7 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
   const assetIds = useSelector(selectAssetIds)
 
   const network = NetworkTypes.MAINNET
-  const assetNamespace = AssetNamespace.ERC20
+  const assetNamespace = caip19.AssetNamespace.ERC20
   const { vaults: vaultsWithBalances } = useVaultBalances()
   return vaults.reduce<EarnOpportunityType[]>((acc, vault) => {
     let fiatAmount = '0'
@@ -65,7 +64,11 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
     // show vaults that don't have an APY but have a balance
     // don't show vaults that don't have a balance and don't have an APY
     if (assetIds.includes(assetCAIP19)) {
-      if (vault.expired || bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0)) {
+      if (
+        vault.expired ||
+        bnOrZero(vault?.metadata?.apy?.net_apy).isEqualTo(0) ||
+        bnOrZero(vault.underlyingTokenBalance.amountUsdc).isEqualTo(0)
+      ) {
         if (bnOrZero(cryptoAmount).gt(0)) {
           acc.push(data)
         }
@@ -79,19 +82,32 @@ const useTransformVault = (vaults: SupportedYearnVault[]): EarnOpportunityType[]
 
 const transformFoxy = (foxies: MergedFoxyOpportunity[]): EarnOpportunityType[] => {
   return foxies.map(foxy => {
+    const {
+      provider,
+      contractAddress,
+      stakingToken: tokenAddress,
+      rewardToken: rewardAddress,
+      tvl,
+      apy,
+      expired,
+      chain,
+      tokenCaip19: assetId,
+      fiatAmount,
+      cryptoAmount
+    } = foxy
     return {
       type: DefiType.TokenStaking,
-      provider: foxy.provider,
-      contractAddress: foxy.contractAddress,
-      tokenAddress: foxy.stakingToken,
-      rewardAddress: foxy.rewardToken,
-      tvl: bnOrZero(foxy.tvl).toString(),
-      apy: foxy.apy,
-      expired: foxy.expired,
-      chain: foxy.chain,
-      assetId: foxy.tokenCaip19,
-      fiatAmount: foxy.fiatAmount,
-      cryptoAmount: foxy.cryptoAmount
+      provider,
+      contractAddress,
+      tokenAddress,
+      rewardAddress,
+      tvl: bnOrZero(tvl).toString(),
+      apy,
+      expired,
+      chain,
+      assetId,
+      fiatAmount,
+      cryptoAmount
     }
   })
 }

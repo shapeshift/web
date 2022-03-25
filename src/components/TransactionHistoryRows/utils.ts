@@ -11,14 +11,14 @@ export const parseRelevantAssetFromTx = (txDetails: TxDetails, assetType: AssetT
     case AssetTypes.Source:
       return {
         symbol: txDetails.sellAsset?.symbol ?? '',
-        amount: txDetails.sellTx?.value ?? '0',
+        amount: txDetails.sellTransfer?.value ?? '0',
         precision: txDetails.sellAsset?.precision ?? 0,
         currentPrice: txDetails.sourceMarketData?.price
       }
     case AssetTypes.Destination:
       return {
         symbol: txDetails.buyAsset?.symbol ?? '',
-        amount: txDetails.buyTx?.value ?? '0',
+        amount: txDetails.buyTransfer?.value ?? '0',
         precision: txDetails.buyAsset?.precision ?? 0,
         currentPrice: txDetails.destinationMarketData?.price
       }

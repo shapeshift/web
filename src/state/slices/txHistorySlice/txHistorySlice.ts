@@ -1,8 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { CAIP2, CAIP19 } from '@shapeshiftoss/caip'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query'
+import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
+import {
+  AccountSpecifier,
+  AccountSpecifierMap
+} from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { addToIndex, getRelatedAssetIds } from './utils'
 
@@ -39,7 +45,7 @@ export type TxHistoryById = {
  */
 
 export type TxIdByAssetId = {
-  [k: CAIP19]: string[]
+  [k: CAIP19]: TxId[]
 }
 
 export type TxIdByAccountId = {
@@ -60,6 +66,9 @@ export type TxHistory = {
 }
 
 export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
+export type TxsMessage = {
+  payload: { txs: chainAdapters.Transaction<ChainTypes>[]; accountSpecifier: string }
+}
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
@@ -144,6 +153,60 @@ export const txHistory = createSlice({
       state.status = payload
     },
     onMessage: (txState, { payload }: TxMessage) =>
-      updateOrInsert(txState, payload.message, payload.accountSpecifier)
+      updateOrInsert(txState, payload.message, payload.accountSpecifier),
+    upsertTxs: (txState, { payload }: TxsMessage) => {
+      for (const tx of payload.txs) {
+        updateOrInsert(txState, tx, payload.accountSpecifier)
+      }
+    }
   }
+})
+
+type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
+
+export const txHistoryApi = createApi({
+  reducerPath: 'txHistoryApi',
+  // not actually used, only used to satisfy createApi, we use a custom queryFn
+  baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+  // refetch if network connection is dropped, useful for mobile
+  refetchOnReconnect: true,
+  endpoints: build => ({
+    getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
+      queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
+        if (isEmpty(accountSpecifierMap)) {
+          const data = 'getAllTxHistory: No account specifier given to get all tx history'
+          const error = { data, status: 400 }
+          return { error }
+        }
+        const [CAIP2, pubkey] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        const accountSpecifier = `${CAIP2}:${pubkey}`
+        try {
+          let txs: chainAdapters.Transaction<ChainTypes>[] = []
+          const chainAdapters = getChainAdapters()
+          const { chain } = caip2.fromCAIP2(CAIP2)
+          const adapter = chainAdapters.byChain(chain)
+          let currentCursor: string = ''
+          const pageSize = 100
+          do {
+            const { cursor: _cursor, transactions } = await adapter.getTxHistory({
+              cursor: currentCursor,
+              pubkey,
+              pageSize
+            })
+            currentCursor = _cursor
+            txs = [...txs, ...transactions]
+          } while (currentCursor)
+          dispatch(txHistory.actions.upsertTxs({ txs, accountSpecifier }))
+          return { data: txs }
+        } catch (err) {
+          return {
+            error: {
+              data: `getAllTxHistory: An error occurred fetching all tx history for accountSpecifier: ${accountSpecifier}`,
+              status: 500
+            }
+          }
+        }
+      }
+    })
+  })
 })

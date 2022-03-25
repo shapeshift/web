@@ -21,7 +21,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -51,7 +51,6 @@ export const ClaimConfirm = ({
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapterManager = useChainAdapters()
   const { foxy } = useFoxy()
-  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
   const translate = useTranslate()
   const claimAmount = bnOrZero(amount).toString()
@@ -110,6 +109,7 @@ export const ClaimConfirm = ({
     ;(async () => {
       try {
         if (!walletState.wallet || !contractAddress || !foxy) return
+        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
         const gasEstimate = await foxy.estimateClaimWithdrawGas({
@@ -130,7 +130,7 @@ export const ClaimConfirm = ({
       }
     })()
   }, [
-    chainAdapter,
+    chainAdapterManager,
     contractAddress,
     feeAsset.precision,
     feeMarketData.price,

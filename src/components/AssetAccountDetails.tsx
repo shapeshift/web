@@ -3,7 +3,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { Route } from 'Routes/helpers'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
 import { TradeCard } from 'pages/Dashboard/TradeCard'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
@@ -21,9 +21,9 @@ type AssetDetailsProps = {
   route?: Route
 }
 
-export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: AssetDetailsProps) => {
+export const AssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   return (
-    <Main route={route} titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
+    <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
         alignItems='flex-start'
         spacing={4}
@@ -39,7 +39,7 @@ export const AssetAccountDetails = ({ assetId: caip19, accountId, route }: Asset
           <AssetTransactionHistory limit={3} assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
-          <TradeCard />
+          <TradeCard defaultBuyAssetId={caip19} />
           <AssetMarketData assetId={caip19} />
           <AssetDescription assetId={caip19} />
         </Stack>

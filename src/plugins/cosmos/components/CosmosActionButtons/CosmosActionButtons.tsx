@@ -2,46 +2,51 @@ import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { StakeRoutes } from 'plugins/cosmos/components/modals/Staking/Staking'
-import { useHistory } from 'react-router-dom'
+import { matchPath, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 
 type CosmosActionButtonsProps = {
-  activeRoute: StakeRoutes
   asset: Asset
 }
 export const CosmosActionButtons = ({
-  activeRoute,
   asset,
   ...styleProps
 }: CosmosActionButtonsProps & FlexProps) => {
   const history = useHistory()
 
-  const handleClick = (route: StakeRoutes) => {
-    history.push(route)
+  const handleOverviewClick = () => {
+    history.push(StakeRoutes.Overview)
   }
 
-  const isStakeAction = () => {
-    return (
-      activeRoute !== StakeRoutes.Stake &&
-      activeRoute !== StakeRoutes.StakeConfirm &&
-      activeRoute !== StakeRoutes.StakeBroadcast
-    )
+  const handleStakeClick = () => {
+    history.push(StakeRoutes.Stake)
   }
 
-  const isUnstakeAction = () => {
-    return (
-      activeRoute !== StakeRoutes.Unstake &&
-      activeRoute !== StakeRoutes.UnstakeConfirm &&
-      activeRoute !== StakeRoutes.UnstakeBroadcast
-    )
+  const handleUnstakeClick = () => {
+    history.push(StakeRoutes.Unstake)
   }
+
+  const isOverview = matchPath(history.location.pathname, {
+    path: [StakeRoutes.Overview],
+    exact: false
+  })
+
+  const isStake = matchPath(history.location.pathname, {
+    path: [StakeRoutes.Stake],
+    exact: false
+  })
+
+  const isUnstake = matchPath(history.location.pathname, {
+    path: [StakeRoutes.Unstake],
+    exact: false
+  })
 
   return (
     <Flex width='100%' borderRadius='12px' my='12px' justifyContent='center' {...styleProps}>
       <Button
         colorScheme='blue'
-        variant={activeRoute !== StakeRoutes.Overview ? 'ghost' : 'ghost-filled'}
-        onClick={() => handleClick(StakeRoutes.Overview)}
+        variant={!isOverview ? 'ghost' : 'ghost-filled'}
+        onClick={handleOverviewClick}
         mx='2px'
         isDisabled={false}
       >
@@ -49,8 +54,8 @@ export const CosmosActionButtons = ({
       </Button>
       <Button
         colorScheme='blue'
-        variant={isStakeAction() ? 'ghost' : 'ghost-filled'}
-        onClick={() => handleClick(StakeRoutes.Stake)}
+        variant={!isStake ? 'ghost' : 'ghost-filled'}
+        onClick={handleStakeClick}
         isDisabled={false}
         mx='2px'
       >
@@ -58,8 +63,8 @@ export const CosmosActionButtons = ({
       </Button>
       <Button
         colorScheme='blue'
-        onClick={() => handleClick(StakeRoutes.Unstake)}
-        variant={isUnstakeAction() ? 'ghost' : 'ghost-filled'}
+        onClick={handleUnstakeClick}
+        variant={!isUnstake ? 'ghost' : 'ghost-filled'}
         mx='2px'
       >
         <Text translation='defi.unstake' fontWeight='normal' />

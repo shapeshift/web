@@ -62,7 +62,7 @@ export const ClaimConfirm = ({
   const { cosmosStaking } = useModal()
 
   const handleCancel = () => {
-    memoryHistory.push(StakeRoutes.Overview)
+    memoryHistory.goBack()
     cosmosStaking.close()
   }
 

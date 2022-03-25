@@ -88,30 +88,33 @@ export const entries = [
 const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   const location = useLocation<StakingConfirmProps>()
   const history = useHistory()
-  const isConfirmStep = matchPath(location.pathname, {
-    path: [StakeRoutes.UnstakeConfirm],
-    exact: true
-  })
 
   const isOverview = matchPath(location.pathname, {
-    path: [StakeRoutes.Overview, '/'],
+    path: StakeRoutes.Overview,
     exact: true
   })
 
-  const isClaimStep = matchPath(location.pathname, {
+  const isClaim = matchPath(location.pathname, {
     path: [StakeRoutes.ClaimConfirm, StakeRoutes.ClaimBroadcast],
     exact: true
   })
 
-  const isStakeStep = matchPath(location.pathname, {
+  const isStake = matchPath(location.pathname, {
     path: [StakeRoutes.Stake, StakeRoutes.StakeConfirm, StakeRoutes.StakeBroadcast],
     exact: true
   })
 
-  const isUnstakeStep = matchPath(location.pathname, {
+  const isUnstake = matchPath(location.pathname, {
     path: [StakeRoutes.Unstake, StakeRoutes.UnstakeConfirm, StakeRoutes.UnstakeBroadcast],
     exact: true
   })
+
+  const getCurrentSteps = () => {
+    if (isStake) return stakeSteps
+    if (isUnstake) return unstakeSteps
+
+    return claimSteps
+  }
 
   const headerBg = useColorModeValue('gray.50', 'gray.800')
   const headerBorder = useColorModeValue('gray.100', 'gray.750')
@@ -136,13 +139,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   }))(assetId) as Asset
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isCentered
-      initialFocusRef={initialRef}
-      variant={isConfirmStep ? 'fluid' : ''}
-    >
+    <Modal isOpen={isOpen} onClose={handleClose} isCentered initialFocusRef={initialRef}>
       <ModalOverlay />
       <ModalContent width='100%' maxWidth='440px'>
         <ModalHeader
@@ -154,20 +151,13 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
         >
           <Text
             translation={
-              !isClaimStep ? ['defi.assetStaking', { assetName: asset.symbol }] : 'defi.claimAsset'
+              !isClaim ? ['defi.assetStaking', { assetName: asset.symbol }] : 'defi.claimAsset'
             }
-            pb={isClaimStep ? '12px' : '0'}
+            pb={isClaim ? '12px' : '0'}
           />
-          {!isClaimStep && (
+          {!isClaim && (
             <CosmosActionButtons
               asset={asset}
-              activeRoute={
-                isStakeStep
-                  ? StakeRoutes.Stake
-                  : isUnstakeStep
-                  ? StakeRoutes.Unstake
-                  : StakeRoutes.Overview
-              }
               px='6px'
               py={isOverview ? '0' : '6px'}
               mb={isOverview ? '0' : '12px'}
@@ -178,12 +168,12 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               assetSymbol={asset.symbol}
               px={{
                 base: '30px',
-                md: isClaimStep ? '110px' : '50px'
+                md: isClaim ? '110px' : '50px'
               }}
               pb='0'
               bg='none'
               border='none'
-              routes={isStakeStep ? stakeSteps : isUnstakeStep ? unstakeSteps : claimSteps}
+              routes={getCurrentSteps()}
               location={location}
             />
           )}

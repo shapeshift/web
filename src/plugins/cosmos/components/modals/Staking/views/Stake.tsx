@@ -77,7 +77,7 @@ export const Stake = ({
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const holderBg = useColorModeValue('gray.100', 'gray.700')
+  const holderBg = useColorModeValue('gray.100', 'gray.750')
 
   const memoryHistory = useHistory()
 
@@ -155,7 +155,6 @@ export const Stake = ({
           py='8px'
           mb={6}
           assetSymbol={asset.symbol}
-          assetName={asset.name}
           cryptoAmountAvailable={cryptoAmountAvailable}
           fiatAmountAvailable={fiatAmountAvailable}
         />

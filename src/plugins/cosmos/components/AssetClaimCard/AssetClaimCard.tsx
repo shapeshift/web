@@ -12,7 +12,7 @@ type AssetClaimCardProps = {
   cryptoRewardsAmount: BigNumber
   fiatRewardsAmount: BigNumber
   renderButton?: () => JSX.Element
-}
+} & CardProps
 
 export const AssetClaimCard = ({
   assetSymbol,
@@ -21,7 +21,7 @@ export const AssetClaimCard = ({
   fiatRewardsAmount,
   renderButton,
   ...styleProps
-}: AssetClaimCardProps & CardProps) => (
+}: AssetClaimCardProps) => (
   <Card size='sm' width='full' variant='group' {...styleProps}>
     <Card.Body p='10px'>
       <Flex justifyContent='space-between' alignItems='center'>

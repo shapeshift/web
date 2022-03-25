@@ -22,6 +22,8 @@ import {
   FoxyAddressesType,
   FoxyOpportunityInputData,
   InstantUnstakeFeeInput,
+  RebaseEvent,
+  RebaseHistory,
   SignAndBroadcastTx,
   TokenAddressInput,
   TxInput,
@@ -801,5 +803,81 @@ export class FoxyApi {
       ...coolDownInfo,
       releaseTime
     }
+  }
+
+  async getRebaseHistory(input: BalanceInput) {
+    const { tokenContractAddress, userAddress } = input
+    this.verifyAddresses([tokenContractAddress])
+
+    const contract = new this.web3.eth.Contract(foxyAbi, tokenContractAddress)
+    const fromBlock = 14381454 // genesis rebase
+
+    const rebaseEvents = await (async () => {
+      try {
+        const events = (
+          await contract.getPastEvents('LogRebase', {
+            fromBlock,
+            toBlock: 'latest'
+          })
+        ).filter((rebase) => rebase.returnValues.rebase !== '0')
+        return events
+      } catch (e) {
+        console.error(`Failed to get rebase events ${e}`)
+        return undefined
+      }
+    })()
+
+    if (!rebaseEvents) return []
+
+    const events: RebaseEvent[] = rebaseEvents.map((rebaseEvent) => {
+      const {
+        blockNumber,
+        returnValues: { epoch }
+      } = rebaseEvent
+      return {
+        blockNumber,
+        epoch
+      }
+    })
+
+    const results = await Promise.allSettled(
+      events.map(async (event) => {
+        const balance = await (async () => {
+          try {
+            const postRebaseBalance = await contract.methods
+              .balanceOf(userAddress)
+              .call(null, event.blockNumber)
+            const preRebaseBalance = await contract.methods
+              .balanceOf(userAddress)
+              .call(null, event.blockNumber - 1)
+
+            return bnOrZero(postRebaseBalance).minus(preRebaseBalance)
+          } catch (e) {
+            console.error(`Failed to get balance of address ${e}`)
+            return bnOrZero(0)
+          }
+        })()
+
+        const timestamp = await (async () => {
+          try {
+            const block = await this.web3.eth.getBlock(event.blockNumber)
+            return bnOrZero(block.timestamp).toNumber()
+          } catch (e) {
+            console.error(`Failed to get timestamp of block ${e}`)
+            return 0
+          }
+        })()
+        return { balance, timestamp }
+      })
+    )
+
+    const containsAllFulfilled = results.every((result) => result.status === 'fulfilled')
+    const actualResults = results.reduce<RebaseHistory[]>((acc, cur) => {
+      if (cur.status === 'rejected') return acc
+      acc.push(cur.value)
+      return acc
+    }, [])
+
+    return containsAllFulfilled ? actualResults : []
   }
 }

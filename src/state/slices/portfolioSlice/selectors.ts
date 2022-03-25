@@ -169,12 +169,39 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
   }
 )
 
-export const selectPortfolioCryptoBalancesByAccountId = createSelector(
+export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeepEqualOutputSelector(
+  selectAssets,
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
+  selectMarketData,
+  selectBalanceThreshold,
   (_state: ReduxState, accountId?: string) => accountId,
-  (accountBalances, assetBalances, accountId): PortfolioBalancesById =>
-    accountId ? accountBalances[accountId] : assetBalances
+  (
+    assetsById,
+    accountBalances,
+    assetBalances,
+    marketData,
+    balanceThreshold,
+    accountId
+  ): PortfolioBalancesById => {
+    const balances = accountId ? accountBalances[accountId] : assetBalances
+    // if accountBalances is not ready yet, accountBalances[accountId] will be undefined
+    if (!balances) return {}
+    const aboveThresholdBalances = Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
+      (acc, [assetId, baseUnitBalance]) => {
+        const precision = assetsById[assetId]?.precision
+        const price = marketData[assetId]?.price
+        const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
+        const assetFiatBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
+        if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
+        // if it's above the threshold set the original object key and value to result
+        acc[assetId] = baseUnitBalance
+        return acc
+      },
+      {}
+    )
+    return aboveThresholdBalances
+  }
 )
 
 export const selectPortfolioCryptoBalanceByFilter = createSelector(
@@ -295,7 +322,7 @@ export const selectPortfolioTotalFiatBalanceByAccount = createSelector(
           (totalBalance, currentBalance) => {
             return bnOrZero(bn(totalBalance).plus(bn(currentBalance)))
           },
-          bn('0')
+          bnOrZero('0')
         )
         if (totalAccountFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
         acc[accountId] = totalAccountFiatBalance.toFixed(2)

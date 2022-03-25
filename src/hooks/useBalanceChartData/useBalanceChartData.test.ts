@@ -87,7 +87,6 @@ describe('calculateBucketPrices', () => {
     const balances = {
       [foxCaip19]: '0'
     }
-    const balanceThreshold = '0'
     const assetIds = [foxCaip19]
     const timeframe = HistoryTimeframe.YEAR
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
@@ -108,8 +107,7 @@ describe('calculateBucketPrices', () => {
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets,
-      balanceThreshold
+      portfolioAssets
     })
 
     expect(calculatedBuckets[0].balance.crypto[foxCaip19].toFixed(0)).toEqual(value)
@@ -131,7 +129,6 @@ describe('calculateBucketPrices', () => {
     const portfolioAssets: PortfolioAssets = {
       [ethCaip19]: ethereum
     }
-    const balanceThreshold = '0'
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     const buckets = bucketTxs(txs, emptyBuckets)
 
@@ -139,8 +136,7 @@ describe('calculateBucketPrices', () => {
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets,
-      balanceThreshold
+      portfolioAssets
     })
     expect(calculatedBuckets[0].balance.crypto[ethCaip19].toNumber()).toEqual(0)
   })

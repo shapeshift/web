@@ -21,7 +21,7 @@ import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountId,
+  selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryTimeframe,
   selectTxsByFilter
@@ -287,7 +287,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   // dummy assetId - we're only filtering on account
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountId(state, accountId)
+    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId)
   )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

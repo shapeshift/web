@@ -3,7 +3,6 @@ import { ChainTypes } from '@shapeshiftoss/types'
 import { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
-// TODO: fill in type
 type SupportedFoxyOpportunity = {
   type: DefiType
   provider: string

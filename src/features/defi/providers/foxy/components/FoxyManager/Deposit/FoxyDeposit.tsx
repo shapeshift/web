@@ -168,7 +168,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
-          // tokenContractAddress: tokenId,
           tokenContractAddress: tokenId,
           contractAddress,
           amountDesired: bnOrZero(deposit.cryptoAmount)
@@ -233,7 +232,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const handleApprove = async () => {
-    // TODO: wire this back up after testing
     if (!tokenId || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
@@ -328,9 +326,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = () => {
-    browserHistory.goBack()
-  }
+  const handleCancel = browserHistory.goBack
 
   const validateCryptoAmount = (value: string) => {
     const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)

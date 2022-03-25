@@ -128,7 +128,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     wallet,
     chainAdapter,
     accountSpecifiers,
-    getAccountSpecifiersByChainId
+    getAccountSpecifiersByChainId,
+    hardwareError
   ])
 
   /**

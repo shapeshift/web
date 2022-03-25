@@ -11,6 +11,7 @@ import { PairingProps } from 'components/Modals/Pair/Pair'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
+// import { setupSentry } from 'lib/setupSentry'
 
 export const App = () => {
   const { routes } = usePlugins()
@@ -20,6 +21,8 @@ export const App = () => {
   const updateId = 'update-app'
   const translate = useTranslate()
   const { pair } = useModal()
+
+  // useEffect(setupSentry, [])
 
   useEffect(() => {
     ipcRenderer.on('@modal/pair', (event, data: PairingProps) => {

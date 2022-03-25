@@ -15,9 +15,11 @@ import { db } from '../db'
 import { RegisterRoutes } from './routes/routes'
 import { KeepKeyHDWallet, TransportDelegate } from '@shapeshiftoss/hdwallet-keepkey'
 import { windows } from '../main'
-import {updateConfig} from "keepkey-config";
-import {shared} from "../shared";
-let Controller = require("@keepkey/keepkey-hardware-controller")
+import { updateConfig } from "keepkey-config";
+import { shared } from "../shared";
+import { KeepKey } from '@keepkey/keepkey-hardware-controller'
+
+const Controller = new KeepKey({})
 
 const appExpress = express()
 appExpress.use(cors())
@@ -35,17 +37,17 @@ export let bridgeRunning = false
 export const keepkey: {
     STATE: number,
     STATUS: string,
-    device: Device | null,
-    transport: TransportDelegate | null,
-    keyring: Keyring | null,
-    wallet: KeepKeyHDWallet | null
+    device: Device | undefined,
+    transport: TransportDelegate | undefined,
+    keyring: Keyring | undefined,
+    wallet: KeepKeyHDWallet | undefined
 } = {
     STATE: 0,
     STATUS: 'preInit',
-    device: null,
-    transport: null,
-    keyring: null,
-    wallet: null
+    device: undefined,
+    transport: undefined,
+    keyring: undefined,
+    wallet: undefined
 }
 
 export const start_bridge = (port?: number) => new Promise<void>(async (resolve, reject) => {
@@ -88,7 +90,7 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             server = appExpress.listen(API_PORT, () => {
                 windows.mainWindow?.webContents.send('playSound', { sound: 'success' })
                 log.info(`server started at http://localhost:${API_PORT}`)
-                windows?.mainWindow?.webContents.send('closeHardwareError', { })
+                windows?.mainWindow?.webContents.send('closeHardwareError', {})
                 // keepkey.STATE = 3
                 // keepkey.STATUS = 'bridge online'
                 // windows.mainWindow?.webContents.send('setKeepKeyState', { state: keepkey.STATE })
@@ -110,17 +112,15 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
             log.info("Starting Hardware Controller")
             //start hardware controller
             //sub ALL events
-            let controller = new Controller.KeepKey({})
-
             //state
-            controller.events.on('state',function(event){
-                log.info("state change: ",event)
+            Controller.events.on('state', function (event) {
+                log.info("state change: ", event)
                 keepkey.STATE = event.state
                 keepkey.STATUS = event.status
 
                 switch (event.state) {
                     case 0:
-                        log.info(tag,"No Devices connected")
+                        log.info(tag, "No Devices connected")
                         windows?.mainWindow?.webContents.send('closeBootloaderUpdate', {})
                         windows?.mainWindow?.webContents.send('closeFirmwareUpdate', {})
                         windows?.mainWindow?.webContents.send('openHardwareError', { error: event.error, code: event.code, event })
@@ -133,59 +133,59 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                         windows?.mainWindow?.webContents.send('closeBootloaderUpdate', {})
                         windows?.mainWindow?.webContents.send('closeFirmwareUpdate', {})
                         //launch init seed window?
-                        log.info("Setting device controller: ",controller)
-                        keepkey.device = controller.device
-                        keepkey.wallet = controller.wallet
-                        keepkey.transport = controller.transport
+                        log.info("Setting device controller: ", Controller)
+                        keepkey.device = Controller.device
+                        keepkey.wallet = Controller.wallet
+                        keepkey.transport = Controller.transport
                         break;
                     case 5:
                         windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
-                        log.info("Setting device controller: ",controller)
-                        keepkey.device = controller.device
-                        keepkey.wallet = controller.wallet
-                        keepkey.transport = controller.transport
+                        log.info("Setting device Controller: ", Controller)
+                        keepkey.device = Controller.device
+                        keepkey.wallet = Controller.wallet
+                        keepkey.transport = Controller.transport
                         break;
                     default:
-                        //unhandled
+                    //unhandled
                 }
             })
 
             //errors
-            controller.events.on('error',function(event){
-                log.info("error event: ",event)
+            Controller.events.on('error', function (event) {
+                log.info("error event: ", event)
                 windows?.mainWindow?.webContents.send('openHardwareError', { error: event.error, code: event.code, event })
             })
 
             //logs
-            controller.events.on('logs',function(event){
-                log.info("logs event: ",event)
-                if(event.bootloaderUpdateNeeded){
-                    log.info(tag,"Open Bootloader Update")
+            Controller.events.on('logs', function (event) {
+                log.info("logs event: ", event)
+                if (event.bootloaderUpdateNeeded) {
+                    log.info(tag, "Open Bootloader Update")
                     windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
                     windows?.mainWindow?.webContents.send('openBootloaderUpdate', event)
                 }
 
-                if(event.firmwareUpdateNeeded){
-                    log.info(tag,"Open Firmware Update")
+                if (event.firmwareUpdateNeeded) {
+                    log.info(tag, "Open Firmware Update")
                     windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
                     windows?.mainWindow?.webContents.send('openFirmwareUpdate', event)
                 }
             })
             //Init MUST be AFTER listeners are made (race condition)
-            controller.init()
+            Controller.init()
 
             //
             ipcMain.on('@keepkey/update-firmware', async event => {
                 const tag = TAG + ' | onUpdateFirmware | '
                 try {
-                    log.info(tag," checkpoint !!!!")
-                    let result = await controller.getLatestFirmwareData()
-                    log.info(tag," result: ",result)
+                    log.info(tag, " checkpoint !!!!")
+                    let result = await Controller.getLatestFirmwareData()
+                    log.info(tag, " result: ", result)
 
-                    let firmware = await controller.downloadFirmware(result.firmware.url)
-                    if(!firmware) throw Error("Failed to load firmware from url!")
+                    let firmware = await Controller.downloadFirmware(result.firmware.url)
+                    if (!firmware) throw Error("Failed to load firmware from url!")
 
-                    const updateResponse = await controller.loadFirmware(firmware)
+                    const updateResponse = await Controller.loadFirmware(firmware)
                     log.info(tag, "updateResponse: ", updateResponse)
 
                     event.sender.send('onCompleteFirmwareUpload', {
@@ -205,9 +205,9 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 const tag = TAG + ' | onUpdateBootloader | '
                 try {
                     log.info(tag, "checkpoint: ")
-                    let result = await controller.getLatestFirmwareData()
-                    let firmware = await controller.downloadFirmware(result.bootloader.url)
-                    const updateResponse = await controller.loadFirmware(firmware)
+                    let result = await Controller.getLatestFirmwareData()
+                    let firmware = await Controller.downloadFirmware(result.bootloader.url)
+                    const updateResponse = await Controller.loadFirmware(firmware)
                     log.info(tag, "updateResponse: ", updateResponse)
                     event.sender.send('onCompleteBootloaderUpload', {
                         bootloader: true,

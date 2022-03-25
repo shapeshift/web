@@ -24,3 +24,6 @@ reportWebVitals(x => console.info('reportWebVitals', x))
 
 // Because ASCII Art
 renderConsoleArt()
+
+// setup sentry
+// setupSentry()

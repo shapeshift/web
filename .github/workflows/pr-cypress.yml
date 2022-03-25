@@ -42,13 +42,7 @@ jobs:
         # Run 3 copies of the current job in parallel
         # We can continue adding more as our test suite grows
         containers: [1, 2, 3]
-        node: [16]
     steps:
-      - name: Set node version
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-      - run: node -v
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -115,7 +109,7 @@ jobs:
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 180
           browser: electron
-          group: Electron tests on Node v${{ matrix.node }}
+          group: Electron tests
         env:
           CYPRESS_PROJECT_ID: 'vpyrho'
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY || '05f1a79d-0c03-406b-8cf0-ca9ad10fa664' }}

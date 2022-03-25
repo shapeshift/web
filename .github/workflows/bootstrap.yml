@@ -19,11 +19,6 @@ jobs:
       REACT_APP_ETHEREUM_NODE_URL: https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57
       REACT_APP_FEATURE_COSMOS_INVESTOR: false
     steps:
-      - name: Set node version
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - run: node -v
       - name: Checkout
         uses: actions/checkout@v2
 

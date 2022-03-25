@@ -7,6 +7,7 @@ const cspMeta = Object.entries({
     "'self'",
     'http://localhost:1646',
     'http://localhost:1646/exchange/device',
+    'https://registry.walletconnect.com/api/v1/dapps',
     'data:',
     // @shapeshiftoss/swapper@1.15.0: https://github.com/shapeshift/lib/blob/f833ac7f8c70dee801eaa24525336ca6992e5903/packages/swapper/src/swappers/zrx/utils/zrxService.ts#L4
     'https://api.0x.org',

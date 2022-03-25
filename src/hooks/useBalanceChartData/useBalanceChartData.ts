@@ -20,7 +20,6 @@ import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpe
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  selectBalanceThreshold,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId,
   selectPriceHistoriesLoadingByAssetTimeframe,
@@ -155,7 +154,6 @@ type FiatBalanceAtBucketArgs = {
   priceHistoryData: {
     [k: CAIP19]: HistoryData[]
   }
-  balanceThreshold: string
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
@@ -163,8 +161,7 @@ type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
 const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   priceHistoryData,
-  portfolioAssets,
-  balanceThreshold
+  portfolioAssets
 }) => {
   const { balance, end } = bucket
   const date = end.valueOf()
@@ -179,7 +176,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     }
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
-    if (assetFiatBalance.lt(bnOrZero(balanceThreshold))) return acc
     return acc.plus(assetFiatBalance)
   }, bn(0))
 
@@ -191,14 +187,13 @@ type CalculateBucketPricesArgs = {
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
-  balanceThreshold: string
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, portfolioAssets, priceHistoryData, balanceThreshold } = args
+  const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -248,8 +243,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     bucket.balance.fiat = fiatBalanceAtBucket({
       bucket,
       priceHistoryData,
-      portfolioAssets,
-      balanceThreshold
+      portfolioAssets
     })
     buckets[i] = bucket
   }
@@ -295,7 +289,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const balances = useAppSelector(state =>
     selectPortfolioCryptoBalancesByAccountId(state, accountId)
   )
-  const balanceThreshold = useAppSelector(selectBalanceThreshold)
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo }
@@ -348,8 +341,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets,
-      balanceThreshold
+      portfolioAssets
     })
 
     const chartData = bucketsToChartData(calculatedBuckets)
@@ -366,8 +358,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     balances,
     setBalanceChartData,
     portfolioAssets,
-    walletInfo?.deviceId,
-    balanceThreshold
+    walletInfo?.deviceId
   ])
 
   const result = { balanceChartData, balanceChartDataLoading }

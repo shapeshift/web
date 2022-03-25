@@ -34,7 +34,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
             assetId={row.original.assetId}
             subText={row.original.provider}
             showTeaser={showTeaser}
-            postFix={`(${row.original.version})`}
+            postFix={row.original.version && `(${row.original.version})`}
             onClick={() => onClick(row.original)}
           />
         ),
@@ -44,7 +44,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: 'Type',
         accessor: 'type',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value }: { value: string }) => <Tag textTransform='capitalize'>{value}</Tag>
+        Cell: ({ value }: { value: string }) => (
+          <Tag textTransform='capitalize'>{value.replace('_', ' ')}</Tag>
+        )
       },
       {
         Header: 'APY',

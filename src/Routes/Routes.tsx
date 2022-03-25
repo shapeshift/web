@@ -1,4 +1,3 @@
-import union from 'lodash/union'
 import {
   FaFlag,
   FaHistory,
@@ -13,6 +12,7 @@ import { Redirect, Route, Switch, useLocation } from 'react-router-dom'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { Layout } from 'components/Layout/Layout'
+import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { Account } from 'pages/Accounts/Account'
 import { Accounts } from 'pages/Accounts/Accounts'
@@ -34,7 +34,7 @@ import { TermsOfService } from 'pages/Legal/TermsOfService'
 import { NotFound } from 'pages/NotFound/NotFound'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
-import { generateAppRoutes, Route as NestedRoute } from './helpers'
+import { Route as NestedRoute } from './helpers'
 import { PrivateRoute } from './PrivateRoute'
 
 export const routes: Array<NestedRoute> = [
@@ -170,51 +170,42 @@ function useLocationBackground() {
   return { background, location }
 }
 
-export const Routes = (props: { additionalRoutes?: Array<NestedRoute> }) => {
+export const Routes = () => {
   const { background, location } = useLocationBackground()
   const { state } = useWallet()
+  const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
-
-  const appRoutes = generateAppRoutes(union(props?.additionalRoutes, routes))
 
   return (
     <Switch location={background || location}>
       {appRoutes.map((route, index) => {
+        const MainComponent = route.main
         return (
           <PrivateRoute key={index} path={route.path} exact hasWallet={hasWallet}>
-            <Layout route={route} />
+            <Layout>{MainComponent && <MainComponent />}</Layout>
           </PrivateRoute>
         )
       })}
       <Route path='/connect-wallet'>
         <ConnectWallet />
       </Route>
+      <Route path='/connect-wallet'>
+        <ConnectWallet />
+      </Route>
       <Route path={'/legal/terms-of-service'}>
-        <Layout
-          route={{
-            path: '/legal/terms-of-service',
-            label: 'Terms of Service',
-            main: TermsOfService
-          }}
-        />
+        <Layout>
+          <TermsOfService />
+        </Layout>
       </Route>
       <Route path={'/legal/privacy-policy'}>
-        <Layout
-          route={{
-            path: '/legal/privacy-policy',
-            label: 'Privacy Policy',
-            main: PrivacyPolicy
-          }}
-        />
+        <Layout>
+          <PrivacyPolicy />
+        </Layout>
       </Route>
       <Route path='/flags'>
-        <Layout
-          route={{
-            path: '/flags',
-            label: 'Flags',
-            main: Flags
-          }}
-        />
+        <Layout>
+          <Flags />
+        </Layout>
       </Route>
       <Redirect from='/' to='/dashboard' />
       <Route component={NotFound} />

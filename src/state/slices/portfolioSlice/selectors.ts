@@ -164,7 +164,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
     if (accountId && assetId) {
       return fromBaseUnit(
         bnOrZero(accountBalances?.[accountId]?.[assetId]),
-        assets[assetId].precision ?? 0
+        assets[assetId]?.precision ?? 0
       )
     }
 

@@ -1,4 +1,3 @@
-import { Address } from './TransactionDetails/Address'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -54,24 +53,6 @@ export const TransactionContract = ({
               <Text value={txDetails.tx.tradeDetails.dexName} />
             </Row>
           )}
-          {txDetails.sellAsset && (
-            <Row title='youSent'>
-              <Amount
-                value={txDetails.sellTx?.value ?? '0'}
-                precision={txDetails.sellAsset.precision}
-                symbol={txDetails.sellAsset.symbol}
-              />
-            </Row>
-          )}
-          {txDetails.to && (
-            <Row title='sentTo'>
-              <Address
-                explorerAddressLink={txDetails.explorerAddressLink}
-                address={txDetails.to}
-                ens={txDetails.ensTo}
-              />
-            </Row>
-          )}
           {txDetails.feeAsset && (
             <Row title='minerFee'>
               <Amount
@@ -81,27 +62,6 @@ export const TransactionContract = ({
               />
             </Row>
           )}
-          {txDetails.buyAsset && (
-            <Row title='youReceived'>
-              <Amount
-                value={txDetails.buyTx?.value ?? '0'}
-                precision={txDetails.buyAsset.precision}
-                symbol={txDetails.buyAsset.symbol}
-              />
-            </Row>
-          )}
-          {txDetails.from && (
-            <Row title='receivedFrom'>
-              <Address
-                explorerAddressLink={txDetails.explorerAddressLink}
-                address={txDetails.from}
-                ens={txDetails.ensFrom}
-              />
-            </Row>
-          )}
-          <Row title='status'>
-            <Status status={txDetails.tx.status} />
-          </Row>
         </TxGrid>
       </TransactionDetailsContainer>
     </>

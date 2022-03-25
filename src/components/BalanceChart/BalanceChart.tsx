@@ -1,7 +1,9 @@
+import { Box } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { Card } from 'components/Card/Card'
+import { MarketDataUnavailable } from 'components/Feedbacks/MarketDataUnavailable'
 import { Graph } from 'components/Graph/Graph'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
@@ -22,11 +24,12 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   percentChange,
   setPercentChange
 }) => {
-  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
-    assetIds,
-    accountId,
-    timeframe
-  })
+  const { balanceChartData, balanceChartDataLoading, balanceChartDataUnavailable } =
+    useBalanceChartData({
+      assetIds,
+      accountId,
+      timeframe
+    })
 
   useEffect(
     () => setPercentChange(calculatePercentChange(balanceChartData)),
@@ -36,13 +39,19 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
   return (
-    <Card.Body p={0} height='350px'>
-      <Graph
-        color={color}
-        data={balanceChartData}
-        loading={balanceChartDataLoading}
-        isLoaded={!balanceChartDataLoading}
-      />
+    <Card.Body p={0} height={balanceChartDataUnavailable ? undefined : '350px'}>
+      {balanceChartDataUnavailable ? (
+        <Box p={8}>
+          <MarketDataUnavailable />
+        </Box>
+      ) : (
+        <Graph
+          color={color}
+          data={balanceChartData}
+          loading={balanceChartDataLoading}
+          isLoaded={!balanceChartDataLoading}
+        />
+      )}
     </Card.Body>
   )
 }

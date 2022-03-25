@@ -34,15 +34,6 @@ export const selectPriceHistoryByAssetTimeframe = createSelector(
   (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? []
 )
 
-export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
-  selectPriceHistory,
-  (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
-  (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
-  // if we don't have the data it's loading
-  (priceHistory, assetIds, timeframe) =>
-    !assetIds.every(assetId => Boolean(priceHistory[timeframe][assetId]))
-)
-
 const selectPriceHistoryQueryByAssetTimeframe = createSelector(
   (_state: ReduxState, assetId: CAIP19, _timeframe: HistoryTimeframe) => assetId,
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
@@ -61,6 +52,30 @@ export const selectPriceHistoryUnavailableByAssetTimeframe = createSelector(
   selectPriceHistoryQueryByAssetTimeframe,
   (state: ReduxState, querySelector) =>
     querySelector(state).isSuccess && querySelector(state).data?.length === 0
+)
+
+export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
+  (state: ReduxState) => state,
+  (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
+  (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
+  // if one is loading then we consider it loading
+  (state, assetIds, timeframe) =>
+    assetIds.some(assetId => selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe))
+)
+
+export const selectPriceHistoriesUnavailableByAssetTimeframe = createSelector(
+  (state: ReduxState) => state,
+  (_state: ReduxState, assetIds: CAIP19[], _timeframe: HistoryTimeframe) => assetIds,
+  (_state: ReduxState, _assetIds: CAIP19[], timeframe: HistoryTimeframe) => timeframe,
+  // if all is unavailable then we consider it unavailable
+  (state, assetIds, timeframe) => {
+    if (assetIds.length === 0) {
+      return false
+    }
+    return assetIds.every(assetId =>
+      selectPriceHistoryUnavailableByAssetTimeframe(state, assetId, timeframe)
+    )
+  }
 )
 
 export const selectPriceHistoryTimeframe = createSelector(

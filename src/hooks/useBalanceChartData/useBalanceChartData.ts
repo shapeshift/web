@@ -23,6 +23,7 @@ import {
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId,
   selectPriceHistoriesLoadingByAssetTimeframe,
+  selectPriceHistoriesUnavailableByAssetTimeframe,
   selectPriceHistoryTimeframe,
   selectTxsByFilter
 } from 'state/slices/selectors'
@@ -259,6 +260,7 @@ export const bucketsToChartData: BucketsToChartData = buckets => {
 type UseBalanceChartDataReturn = {
   balanceChartData: Array<HistoryData>
   balanceChartDataLoading: boolean
+  balanceChartDataUnavailable: boolean
 }
 
 type UseBalanceChartDataArgs = {
@@ -314,17 +316,24 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const priceHistoryDataLoading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
   )
+  const priceHistoryDataUnavailable = useAppSelector(state =>
+    selectPriceHistoriesUnavailableByAssetTimeframe(state, assetIds, timeframe)
+  )
 
   // loading state
   useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
 
   // calculation
   useEffect(() => {
+    if (priceHistoryDataUnavailable) {
+      return setBalanceChartDataLoading(false)
+    }
+
     // data prep
     const noDeviceId = isNil(walletInfo?.deviceId)
     const noAssetIds = !assetIds.length
-    const noPriceHistory = priceHistoryDataLoading
-    if (noDeviceId || noAssetIds || noPriceHistory) {
+
+    if (noDeviceId || noAssetIds || priceHistoryDataLoading) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -355,9 +364,14 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     balances,
     setBalanceChartData,
     portfolioAssets,
-    walletInfo?.deviceId
+    walletInfo?.deviceId,
+    priceHistoryDataUnavailable
   ])
 
-  const result = { balanceChartData, balanceChartDataLoading }
+  const result = {
+    balanceChartData,
+    balanceChartDataLoading,
+    balanceChartDataUnavailable: priceHistoryDataUnavailable
+  }
   return result
 }

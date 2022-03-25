@@ -33,8 +33,6 @@ jobs:
   test-chrome:
     name: Run Cypress
     runs-on: ubuntu-latest
-    container:
-      image: cypress/browsers:node16.13.2-chrome97-ff96
     strategy:
       # When one test fails, do not cancel the other
       # containers, because this will kill Cypress processes,
@@ -115,8 +113,8 @@ jobs:
           parallel: true
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 180
-          browser: chrome
-          group: 'Chrome tests'
+          browser: electron
+          group: 'Electron tests'
         env:
           CYPRESS_PROJECT_ID: 'vpyrho'
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY || '05f1a79d-0c03-406b-8cf0-ca9ad10fa664' }}

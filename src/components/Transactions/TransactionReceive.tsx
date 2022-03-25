@@ -100,7 +100,7 @@ export const TransactionReceive = ({
             <Row.Value>
               <Amount.Crypto
                 value={fromBaseUnit(
-                  txDetails.sellTx?.value ?? '0',
+                  txDetails.sellTransfer?.value ?? '0',
                   txDetails.sellAsset?.precision ?? 18
                 )}
                 symbol={txDetails.sellAsset?.symbol ?? ''}
@@ -109,7 +109,7 @@ export const TransactionReceive = ({
               <Text translation='transactionRow.for' />
               <Amount.Crypto
                 value={fromBaseUnit(
-                  txDetails.buyTx?.value ?? '0',
+                  txDetails.buyTransfer?.value ?? '0',
                   txDetails.buyAsset?.precision ?? 18
                 )}
                 symbol={txDetails.buyAsset?.symbol ?? ''}

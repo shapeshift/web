@@ -168,6 +168,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     direction,
     sourceMarketData,
     destinationMarketData,
-    feeMarketData,
+    feeMarketData
   }
 }

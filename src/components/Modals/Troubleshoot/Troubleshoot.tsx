@@ -1,6 +1,5 @@
 import {
   Button,
-  Image,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -8,27 +7,22 @@ import {
   ModalHeader,
   ModalOverlay
 } from '@chakra-ui/react'
-import { ipcRenderer } from 'electron'
-import React, { useEffect, useState } from 'react'
-import KeepKeyConnect from 'assets/connect-keepkey.svg'
+import React, { useEffect } from 'react'
+// import KeepKeyConnect from 'assets/connect-keepkey.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-
-import { getAssetUrl } from '../../../lib/getAssetUrl'
 
 export const TroubleshootModal = () => {
   const { troubleshoot } = useModal()
   const { close, isOpen } = troubleshoot
-
-  const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
+  // const [kkConnect, setKKConnect] = useState(KeepKeyConnect)
 
   const HandleTroubleShoot = async () => {
-    //
     close()
   }
 
   useEffect(() => {
-    getAssetUrl(KeepKeyConnect).then(setKKConnect)
+    // getAssetUrl(KeepKeyConnect).then(setKKConnect)
   }, [])
 
   return (
@@ -48,12 +42,7 @@ export const TroubleshootModal = () => {
           <ModalHeader>
             <Text translation={'modals.troubleshoot.header'} />
           </ModalHeader>
-          <Button
-              isFullWidth
-              size='lg'
-              colorScheme='blue'
-              onClick={HandleTroubleShoot}
-          >
+          <Button isFullWidth size='lg' colorScheme='blue' onClick={HandleTroubleShoot}>
             <Text translation={'modals.troubleshoot.button'} />
           </Button>
         </ModalBody>

@@ -69,12 +69,7 @@ export const FirmwareModal = () => {
                   <div>
                     <Text translation={'modals.firmware.firmwareUpdate'} />
                     <small>click to perform action</small>
-                    <Button
-                      isFullWidth
-                      size='lg'
-                      colorScheme='blue'
-                      onClick={HandleUpdateFirmware}
-                    >
+                    <Button isFullWidth size='lg' colorScheme='blue' onClick={HandleUpdateFirmware}>
                       <Text translation={'modals.firmware.continue'} />
                     </Button>
                     <Image src={kkRelease} alt='Approve Transaction On Device!' />

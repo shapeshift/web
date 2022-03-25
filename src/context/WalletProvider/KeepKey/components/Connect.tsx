@@ -22,9 +22,9 @@ import { FailureType, MessageType } from '../KeepKeyTypes'
 
 export interface KeepKeySetupProps
   extends RouteComponentProps<
-  {},
-  any, // history
-  LocationState
+    {},
+    any, // history
+    LocationState
   > {
   dispatch: React.Dispatch<ActionTypes>
 }
@@ -128,7 +128,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
     ipcRenderer.on('@bridge/running', async (event, bridgeRunning) => {
       if (tries > 0) {
         setLoading(false)
-        return tries = 0
+        return (tries = 0)
       }
       tries++
 
@@ -139,7 +139,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
         ipcRenderer.removeAllListeners('@bridge/running')
         ipcRenderer.removeAllListeners('@bridge/start')
         pairDevice()
-        return tries = 0
+        return (tries = 0)
       }
     })
 
@@ -156,11 +156,15 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
       <ModalBody>
         <Text mb={4} color='gray.500' translation={'walletProvider.keepKey.connect.body'} />
 
-        <Button isFullWidth colorScheme='blue' onClick={() => {
-          ipcRenderer.send('@bridge/running')
-          setLoading(true)
-        }
-        } disabled={loading}>
+        <Button
+          isFullWidth
+          colorScheme='blue'
+          onClick={() => {
+            ipcRenderer.send('@bridge/running')
+            setLoading(true)
+          }}
+          disabled={loading}
+        >
           {loading ? (
             <CircularProgress size='5' />
           ) : (

@@ -232,7 +232,6 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const handleApprove = async () => {
-    // TODO: wire this back up after testing
     if (!tokenId || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })

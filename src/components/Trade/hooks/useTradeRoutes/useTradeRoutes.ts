@@ -32,14 +32,11 @@ export const useTradeRoutes = (
 
     // TODO: Create a real whitelist when we support more chains
     const shouldUseDefaultAsset = () => {
-      if (defaultBuyAssetId) {
-        return (
-          assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
-          assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
-        )
-      }
-
-      return false
+      return (
+        defaultBuyAssetId &&
+        assets[defaultBuyAssetId]?.chain === ChainTypes.Ethereum &&
+        assets[defaultBuyAssetId]?.caip19 !== ETHEREUM_CAIP19
+      )
     }
 
     try {

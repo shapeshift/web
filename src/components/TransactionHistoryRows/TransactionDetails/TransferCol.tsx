@@ -26,10 +26,10 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       py={2}
     >
       <Row title='from' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
-        <Address explorerTxLink={asset?.explorerAddressLink} address={transfer.from} />
+        <Address explorerAddressLink={asset?.explorerAddressLink} address={transfer.from} />
       </Row>
       <Row title='to' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
-        <Address explorerTxLink={asset?.explorerAddressLink} address={transfer.to} />
+        <Address explorerAddressLink={asset?.explorerAddressLink} address={transfer.to} />
       </Row>
       <Row title='for' justifyContent='fex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>

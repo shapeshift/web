@@ -1,0 +1,4191 @@
+[
+  [
+    {
+      "address": "0xE14d13d8B3b85aF791b2AADD661cDBd5E6097Db1",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
+      "underlyingTokenBalance": {
+        "amount": "222316148890569106863",
+        "amountUsdc": "4764491551530"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1022958460484249215",
+        "migrationAvailable": true,
+        "latestVaultAddress": "0xdb25cA703181E7484a155DD612b06f57E12Be5F0",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.021883913003423627
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e/logo-128.png",
+        "displayName": "YFI",
+        "defaultDisplayToken": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "migrationContract": "0x1824df8D751704FA10FA371d62A37f9B8772ab90",
+        "migrationTargetVault": "0xdb25cA703181E7484a155DD612b06f57E12Be5F0",
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0xdb25cA703181E7484a155DD612b06f57E12Be5F0",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
+      "underlyingTokenBalance": {
+        "amount": "1408325675784905952030",
+        "amountUsdc": "30182043983602"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1010803955187306874",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xdb25cA703181E7484a155DD612b06f57E12Be5F0",
+        "depositLimit": "36666000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.018306757571512122
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e/logo-128.png",
+        "displayName": "YFI",
+        "defaultDisplayToken": "0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x06325440D014e39736583c165C2963BA99fAf14E",
+      "underlyingTokenBalance": {
+        "amount": "202736041386305786393640",
+        "amountUsdc": "669298886506940"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1080542099208681018",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xdCD90C7f6324cfa40d7169ef80b12031770B4325",
+        "depositLimit": "375000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.055765298586379686,
+          "net_apy": 0.04850838737120227,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.020310870671420345,
+            "boosted_apr": 0.030264601617338696,
+            "base_apr": 0.00266800781559021,
+            "cvx_apr": 0.03499360778194134,
+            "rewards_apr": 0.02359458207836317
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x06325440D014e39736583c165C2963BA99fAf14E/logo-128.png",
+        "displayName": "Curve stETH",
+        "defaultDisplayToken": "0x06325440D014e39736583c165C2963BA99fAf14E",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x986b4AFF588a109c09B50A03f42E4110E29D353F",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c",
+      "underlyingTokenBalance": {
+        "amount": "1220374853748659273141",
+        "amountUsdc": "3887085508041"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1926499395050714908",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x986b4AFF588a109c09B50A03f42E4110E29D353F",
+        "depositLimit": "100000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.012415943564371146,
+          "net_apy": 0.005451336994503666,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.005,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0025427779288202945,
+            "boosted_apr": 0.009922543116467316,
+            "base_apr": 0.003969017246586926,
+            "cvx_apr": 0.013891618171338601,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c/logo-128.png",
+        "displayName": "Curve sETH",
+        "defaultDisplayToken": "0xA3D87FffcE63B53E0d54fAa1cc983B7eB0b74A9c",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xcB550A6D4C8e3517A939BC79d0c7093eb7cF56B5",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+      "underlyingTokenBalance": {
+        "amount": "6028099",
+        "amountUsdc": "2705176095"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "100298611",
+        "migrationAvailable": true,
+        "latestVaultAddress": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
+        "depositLimit": "2100000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "n/a",
+          "gross_apr": 0.02291034945252338,
+          "net_apy": 0.0026226817684653625,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.0026226817684653625
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo-128.png",
+        "displayName": "WBTC",
+        "defaultDisplayToken": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": false,
+        "allowZapOut": true,
+        "migrationContract": "0x1824df8D751704FA10FA371d62A37f9B8772ab90",
+        "migrationTargetVault": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+      "underlyingTokenBalance": {
+        "amount": "153378372762",
+        "amountUsdc": "68830241101871"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "102025562",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xA696a63cc78DfFa1a63E9E50587C197387FF6C7E",
+        "depositLimit": "2100000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.024675964373431093,
+          "net_apy": 0.003954161327942574,
+          "fees": {
+            "performance": 0.156,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.003954161327942574,
+            "inception": 0.021251854463057995
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo-128.png",
+        "displayName": "WBTC",
+        "defaultDisplayToken": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xa9fE4601811213c340e850ea305481afF02f5b28",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "underlyingTokenBalance": {
+        "amount": "732122094011669076852",
+        "amountUsdc": "2331923812595"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1034953289094066424",
+        "migrationAvailable": true,
+        "latestVaultAddress": "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "n/a",
+          "gross_apr": 0.009457202470237291,
+          "net_apy": 0.009501195063411183,
+          "fees": {
+            "performance": 0,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.009501195063411183,
+            "inception": 0.032522221746625
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE/logo-128.png",
+        "displayName": "ETH",
+        "defaultDisplayToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": false,
+        "allowZapOut": true,
+        "migrationContract": "0x1824df8D751704FA10FA371d62A37f9B8772ab90",
+        "migrationTargetVault": "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "underlyingTokenBalance": {
+        "amount": "132461538585889007120583",
+        "amountUsdc": "421910796857614"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1011081904775845744",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xa258C4606Ca8206D8aA700cE2143D7db854D168c",
+        "depositLimit": "300000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.03330250292338163,
+          "net_apy": 0.011335079975207218,
+          "fees": {
+            "performance": 0.1526,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0.0031150872021263876,
+            "month_ago": 0.011335079975207218,
+            "inception": 0.01414088459710472
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE/logo-128.png",
+        "displayName": "ETH",
+        "defaultDisplayToken": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xB8C3B7A2A618C552C23B1E4701109a9E756Bab67",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x111111111117dC0aa78b770fA6A738034120C302",
+      "underlyingTokenBalance": {
+        "amount": "544057597427432143080637",
+        "amountUsdc": "899548095932"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1069476930855410677",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xB8C3B7A2A618C552C23B1E4701109a9E756Bab67",
+        "depositLimit": "2493765000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.02,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.0635633632404744
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x111111111117dC0aa78b770fA6A738034120C302/logo-128.png",
+        "displayName": "1INCH",
+        "defaultDisplayToken": "0x111111111117dC0aa78b770fA6A738034120C302",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0x19D3364A399d251E894aC732651be8B0E4e85001",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "underlyingTokenBalance": {
+        "amount": "2356142966069808858693760",
+        "amountUsdc": "2355662312904"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1096391858455280857",
+        "migrationAvailable": true,
+        "latestVaultAddress": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "n/a",
+          "gross_apr": 0.05953923865794053,
+          "net_apy": 0.06131125736451737,
+          "fees": {
+            "performance": 0,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.06131125736451737,
+            "inception": 0.08112437444377418
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo-128.png",
+        "displayName": "DAI",
+        "defaultDisplayToken": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": false,
+        "allowZapOut": true,
+        "migrationContract": "0x1824df8D751704FA10FA371d62A37f9B8772ab90",
+        "migrationTargetVault": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "underlyingTokenBalance": {
+        "amount": "294850073334686850459879680",
+        "amountUsdc": "294789923919726"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1025711650314554830",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xdA816459F1AB5631232FE5e97a05BBBb94970c95",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.040960555772203464,
+          "net_apy": 0.01694329967852748,
+          "fees": {
+            "performance": 0.1983,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0.01343904567132137,
+            "month_ago": 0.01694329967852748,
+            "inception": 0.03700859318936156
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo-128.png",
+        "displayName": "DAI",
+        "defaultDisplayToken": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xe11ba472F74869176652C35D30dB89854b5ae84D",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x584bC13c7D411c00c01A62e8019472dE68768430",
+      "underlyingTokenBalance": {
+        "amount": "409200036697096641018005",
+        "amountUsdc": "16359817467"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1010986108178110848",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xe11ba472F74869176652C35D30dB89854b5ae84D",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "n/a",
+          "gross_apr": 0.006229164479347244,
+          "net_apy": 0.005621688559676485,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.005621688559676485
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x584bC13c7D411c00c01A62e8019472dE68768430/logo-128.png",
+        "displayName": "HEGIC",
+        "defaultDisplayToken": "0x584bC13c7D411c00c01A62e8019472dE68768430",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": false,
+        "allowZapOut": true,
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "underlyingTokenBalance": {
+        "amount": "94284998494212",
+        "amountUsdc": "94285752774199"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1095910",
+        "migrationAvailable": true,
+        "latestVaultAddress": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:simple",
+          "gross_apr": 0.013047566133624487,
+          "net_apy": -0.004178309277809933,
+          "fees": {
+            "performance": 0.119,
+            "withdrawal": null,
+            "management": 0.0178,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": -0.018068268411057464,
+            "month_ago": -0.004178309277809933,
+            "inception": 0.0807169950198221
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo-128.png",
+        "displayName": "USDC",
+        "defaultDisplayToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "migrationContract": "0x1824df8D751704FA10FA371d62A37f9B8772ab90",
+        "migrationTargetVault": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE",
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "underlyingTokenBalance": {
+        "amount": "330809956241625",
+        "amountUsdc": "330812602721274"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1011876",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xa354F35829Ae975e850e23e9615b11Da1B3dC4DE",
+        "depositLimit": "1000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.031767648539000104,
+          "net_apy": 0.009468400075003158,
+          "fees": {
+            "performance": 0.1991,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0.008754101430445527,
+            "month_ago": 0.009468400075003158,
+            "inception": 0.029900308722357494
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo-128.png",
+        "displayName": "USDC",
+        "defaultDisplayToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x27b7b1ad7288079A66d12350c828D3C00A6F07d7",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
+      "underlyingTokenBalance": {
+        "amount": "279012671129874519200229553",
+        "amountUsdc": "289676814433129"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1111586464607079512",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x27b7b1ad7288079A66d12350c828D3C00A6F07d7",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.060616739403670294,
+          "net_apy": 0.027345146126143697,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0031423532882031147,
+            "boosted_apr": 0.043725639649295045,
+            "base_apr": 0.01749025585971802,
+            "cvx_apr": 0.05736892664029644,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x5282a4eF67D9C33135340fB3289cc1711c13638C/logo-128.png",
+        "displayName": "Curve Iron Bank",
+        "defaultDisplayToken": "0x5282a4eF67D9C33135340fB3289cc1711c13638C",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x625b7DF2fa8aBe21B0A976736CDa4775523aeD1E",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xb19059ebb43466C323583928285a49f558E572Fd",
+      "underlyingTokenBalance": {
+        "amount": "523449495900973174081",
+        "amountUsdc": "23672800591363"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1044028803867019994",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x625b7DF2fa8aBe21B0A976736CDa4775523aeD1E",
+        "depositLimit": "10000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.01605178656678996,
+          "net_apy": 0.012354901615091148,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.000011495204826905692,
+            "boosted_apr": 0.010932170354798283,
+            "base_apr": 0.004372868141919313,
+            "cvx_apr": 0.016120710530299294,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xb19059ebb43466C323583928285a49f558E572Fd/logo-128.png",
+        "displayName": "Curve HBTC",
+        "defaultDisplayToken": "0xb19059ebb43466C323583928285a49f558E572Fd",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x8414Db07a7F743dEbaFb402070AB01a4E0d2E45e",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+      "underlyingTokenBalance": {
+        "amount": "43428685840369535440",
+        "amountUsdc": "1969403951683"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1021625897404512621",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x8414Db07a7F743dEbaFb402070AB01a4E0d2E45e",
+        "depositLimit": "10000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.0018306106235697062,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0006252157639674571,
+            "boosted_apr": 0.0008981710142993247,
+            "base_apr": 0.0003592684057197299,
+            "cvx_apr": 0.0012046416986224702,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3/logo-128.png",
+        "displayName": "Curve sBTC",
+        "defaultDisplayToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x7047F90229a057C13BF847C0744D646CFb6c9E1A",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
+      "underlyingTokenBalance": {
+        "amount": "819681816959616757",
+        "amountUsdc": "37464381826"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1050192668876887395",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x7047F90229a057C13BF847C0744D646CFb6c9E1A",
+        "depositLimit": "10000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.005281041286166133,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0011492407756314993,
+            "boosted_apr": 0.0030077025574353445,
+            "base_apr": 0.0012030810229741377,
+            "cvx_apr": 0.004127057527740448,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x49849C98ae39Fff122806C06791Fa73784FB3675/logo-128.png",
+        "displayName": "Curve renBTC",
+        "defaultDisplayToken": "0x49849C98ae39Fff122806C06791Fa73784FB3675",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xb4D1Be44BfF40ad6e506edf43156577a3f8672eC",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x02d341CcB60fAaf662bC0554d13778015d1b285C",
+      "underlyingTokenBalance": {
+        "amount": "484220828290418959201759",
+        "amountUsdc": "512309510097"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1062183756025662299",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xb4D1Be44BfF40ad6e506edf43156577a3f8672eC",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.012824313304018675,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.011853074475201009,
+            "boosted_apr": 0.0007094042149584948,
+            "base_apr": 0.0002837616859833979,
+            "cvx_apr": 0.000959861518750073,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x02d341CcB60fAaf662bC0554d13778015d1b285C/logo-128.png",
+        "displayName": "Curve sAave",
+        "defaultDisplayToken": "0x02d341CcB60fAaf662bC0554d13778015d1b285C",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xe9Dc63083c464d6EDcCFf23444fF3CFc6886f6FB",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
+      "underlyingTokenBalance": {
+        "amount": "18093995916531597912",
+        "amountUsdc": "816062617469"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1064809822787161625",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xe9Dc63083c464d6EDcCFf23444fF3CFc6886f6FB",
+        "depositLimit": "100000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.0040221674421663245,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0002537613457793686,
+            "boosted_apr": 0.0033642414909371638,
+            "base_apr": 0.0005482981981532447,
+            "cvx_apr": 0.0037959194591323186,
+            "rewards_apr": 0.001993495995554052
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x2fE94ea3d5d4a175184081439753DE15AeF9d614/logo-128.png",
+        "displayName": "Curve oBTC",
+        "defaultDisplayToken": "0x2fE94ea3d5d4a175184081439753DE15AeF9d614",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    }
+  ],
+  [
+    {
+      "address": "0x3c5DF3077BcF800640B5DAE8c91106575a4826E6",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",
+      "underlyingTokenBalance": {
+        "amount": "97465314249226138121",
+        "amountUsdc": "4400240272583"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1044813611982349669",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x3c5DF3077BcF800640B5DAE8c91106575a4826E6",
+        "depositLimit": "100000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.00038806927175794037,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0002853720481401645,
+            "boosted_apr": 0.00007853059007787889,
+            "base_apr": 0.00003141223603115156,
+            "cvx_apr": 0.00010344375321088074,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xDE5331AC4B3630f94853Ff322B66407e0D6331E8/logo-128.png",
+        "displayName": "Curve pBTC",
+        "defaultDisplayToken": "0xDE5331AC4B3630f94853Ff322B66407e0D6331E8",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x5fA5B62c8AF877CB37031e0a3B2f34A78e3C56A6",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA",
+      "underlyingTokenBalance": {
+        "amount": "13982486860588964597910353",
+        "amountUsdc": "14152821515524"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1086624279690531219",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x5fA5B62c8AF877CB37031e0a3B2f34A78e3C56A6",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.05781079227641728,
+          "net_apy": 0.02782165057754551,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.00419400432749284,
+            "boosted_apr": 0.03912110717717209,
+            "base_apr": 0.015648442870868837,
+            "cvx_apr": 0.05526066867223849,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA/logo-128.png",
+        "displayName": "Curve LUSD",
+        "defaultDisplayToken": "0xEd279fDD11cA84bEef15AF5D39BB4d4bEE23F0cA",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x8fA3A9ecd9EFb07A8CE90A6eb014CF3c0E3B32Ef",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x410e3E86ef427e30B9235497143881f717d93c2A",
+      "underlyingTokenBalance": {
+        "amount": "31198695595730883957",
+        "amountUsdc": "1412454932896"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1020753067207344013",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x8fA3A9ecd9EFb07A8CE90A6eb014CF3c0E3B32Ef",
+        "depositLimit": "100000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.000820449302231685,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0007214781989863805,
+            "boosted_apr": 0.00007535474822434367,
+            "base_apr": 0.00003014189928973747,
+            "cvx_apr": 0.00009964710250107524,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x410e3E86ef427e30B9235497143881f717d93c2A/logo-128.png",
+        "displayName": "Curve BBTC",
+        "defaultDisplayToken": "0x410e3E86ef427e30B9235497143881f717d93c2A",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x23D3D0f1c697247d5e0a9efB37d8b0ED0C464f7f",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+      "underlyingTokenBalance": {
+        "amount": "12984001256387010973",
+        "amountUsdc": "586035397646"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1055575157189665574",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x23D3D0f1c697247d5e0a9efB37d8b0ED0C464f7f",
+        "depositLimit": "100000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.01061900184977338,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0009956172417942,
+            "boosted_apr": 0.007204983647622247,
+            "base_apr": 0.002881993459048899,
+            "cvx_apr": 0.009613812930066697,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd/logo-128.png",
+        "displayName": "Curve tBTC",
+        "defaultDisplayToken": "0x64eda51d3Ad40D56b9dFc5554E06F94e1Dd786Fd",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x7Da96a3891Add058AdA2E826306D812C638D87a7",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "underlyingTokenBalance": {
+        "amount": "90442954296641",
+        "amountUsdc": "90712474300444"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1047090",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x7Da96a3891Add058AdA2E826306D812C638D87a7",
+        "depositLimit": "1000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.04523457305119624,
+          "net_apy": 0.021001580413587018,
+          "fees": {
+            "performance": 0.1762,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0.0042945481488023685,
+            "month_ago": 0.021001580413587018,
+            "inception": 0.051208361764053745
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo-128.png",
+        "displayName": "USDT",
+        "defaultDisplayToken": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+      "underlyingTokenBalance": {
+        "amount": "124078599773607756141075229",
+        "amountUsdc": "124976308442969"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1104658182900848597",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xB4AdA607B9d6b2c9Ee07A275e9616B84AC560139",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.07290130489081026,
+          "net_apy": 0.039387001204372364,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0012482594141398629,
+            "boosted_apr": 0.05501804358290224,
+            "base_apr": 0.0220072174331609,
+            "cvx_apr": 0.07210449913875834,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B/logo-128.png",
+        "displayName": "Curve FRAX",
+        "defaultDisplayToken": "0xd632f22692FaC7611d2AA1C0D552930D43CAEd3B",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xFBEB78a723b8087fD2ea7Ef1afEc93d35E8Bed42",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+      "underlyingTokenBalance": {
+        "amount": "186114529310037752232444",
+        "amountUsdc": "2052887739662"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1005778537424014613",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xFBEB78a723b8087fD2ea7Ef1afEc93d35E8Bed42",
+        "depositLimit": "260000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.0413140889411297,
+          "net_apy": 0.019364243918157165,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.019364243918157165,
+            "inception": 0.006566901854360818
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo-128.png",
+        "displayName": "UNI",
+        "defaultDisplayToken": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x8ee57c05741aA9DB947A744E713C15d4d19D8822",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
+      "underlyingTokenBalance": {
+        "amount": "291702072147018116363790",
+        "amountUsdc": "330321092882"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1037543151620321546",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x8ee57c05741aA9DB947A744E713C15d4d19D8822",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.044296979704897765,
+          "net_apy": 0.016605210812759896,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.012623234091800883,
+            "boosted_apr": 0.021673331451616176,
+            "base_apr": 0.00866933258064647,
+            "cvx_apr": 0.03127890467722125,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B/logo-128.png",
+        "displayName": "Curve yBUSD",
+        "defaultDisplayToken": "0x3B3Ac5386837Dc563660FB6a0937DFAa5924333B",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xD6Ea40597Be05c201845c0bFd2e96A60bACde267",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+      "underlyingTokenBalance": {
+        "amount": "9220492444462956937416195",
+        "amountUsdc": "10165565258543"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1028483826070401658",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xD6Ea40597Be05c201845c0bFd2e96A60bACde267",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.05122478019818999,
+          "net_apy": 0.024189101087614982,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.023345540124806163,
+            "boosted_apr": 0.0195832790435229,
+            "base_apr": 0.00783331161740916,
+            "cvx_apr": 0.027380132768988704,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2/logo-128.png",
+        "displayName": "Curve Compound",
+        "defaultDisplayToken": "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x2a38B9B0201Ca39B17B460eD2f11e4929559071E",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
+      "underlyingTokenBalance": {
+        "amount": "1119499633225617314935970",
+        "amountUsdc": "1146381058418"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1068271583907656497",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x2a38B9B0201Ca39B17B460eD2f11e4929559071E",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.025707659086802392,
+          "net_apy": 0.0010177512630289431,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.006234043950770873,
+            "boosted_apr": 0.012338199857031655,
+            "base_apr": 0.004935279942812662,
+            "cvx_apr": 0.019352967883666833,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xD2967f45c4f384DEEa880F807Be904762a3DeA07/logo-128.png",
+        "displayName": "Curve GUSD",
+        "defaultDisplayToken": "0xD2967f45c4f384DEEa880F807Be904762a3DeA07",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x4B5BfD52124784745c1071dcB244C6688d2533d3",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8",
+      "underlyingTokenBalance": {
+        "amount": "5229513749210849210574671",
+        "amountUsdc": "5948305184526"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1000926978583979100",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x4B5BfD52124784745c1071dcB244C6688d2533d3",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.029265108138617713,
+          "net_apy": 0.004965136354629696,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0118883161803085,
+            "boosted_apr": 0.009830335188925692,
+            "base_apr": 0.003932134075570277,
+            "cvx_apr": 0.0171726382056701,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8/logo-128.png",
+        "displayName": "Curve yCRV",
+        "defaultDisplayToken": "0xdF5e0e81Dff6FAF3A7e52BA697820c5e32D806A8",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x84E13785B5a27879921D6F685f041421C7F482dA",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+      "underlyingTokenBalance": {
+        "amount": "2839922045269808616808185",
+        "amountUsdc": "2897740018189"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1034694051643034849",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x84E13785B5a27879921D6F685f041421C7F482dA",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.01843461248203293,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.002114978300040704,
+            "boosted_apr": 0.011553524896037256,
+            "base_apr": 0.004621409958414902,
+            "cvx_apr": 0.01640825325507612,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490/logo-128.png",
+        "displayName": "Curve 3Crv",
+        "defaultDisplayToken": "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xf8768814b88281DE4F532a3beEfA5b85B69b9324",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xEcd5e75AFb02eFa118AF914515D6521aaBd189F1",
+      "underlyingTokenBalance": {
+        "amount": "7301868323561755572539",
+        "amountUsdc": "7338180514"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1159352215129510958",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xf8768814b88281DE4F532a3beEfA5b85B69b9324",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.017295926285750385,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0011473461910918026,
+            "boosted_apr": 0.01230939920056238,
+            "base_apr": 0.004923759680224952,
+            "cvx_apr": 0.01613007331647677,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xEcd5e75AFb02eFa118AF914515D6521aaBd189F1/logo-128.png",
+        "displayName": "Curve TUSD",
+        "defaultDisplayToken": "0xEcd5e75AFb02eFa118AF914515D6521aaBd189F1",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x6Ede7F19df5df6EF23bD5B9CeDb651580Bdf56Ca",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a",
+      "underlyingTokenBalance": {
+        "amount": "2334256267336306501436714",
+        "amountUsdc": "2345969565285"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1056249448511729681",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x6Ede7F19df5df6EF23bD5B9CeDb651580Bdf56Ca",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.05478406968857352,
+          "net_apy": 0.0229418533489969,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0040242460441348715,
+            "boosted_apr": 0.03843694537535633,
+            "base_apr": 0.015374778150142532,
+            "cvx_apr": 0.0505563723629511,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a/logo-128.png",
+        "displayName": "Curve BUSD",
+        "defaultDisplayToken": "0x4807862AA8b2bF68830e4C8dc86D0e9A998e085a",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x30FCf7c6cDfC46eC237783D94Fc78553E79d4E9C",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
+      "underlyingTokenBalance": {
+        "amount": "977052934750570287683728",
+        "amountUsdc": "990442468168"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1075715924583896002",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x30FCf7c6cDfC46eC237783D94Fc78553E79d4E9C",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.03748702262972414,
+          "net_apy": 0.008890377383915071,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0008632619039790068,
+            "boosted_apr": 0.025913166476229186,
+            "base_apr": 0.010365266590491674,
+            "cvx_apr": 0.03659217209758945,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3a664Ab939FD8482048609f652f9a0B0677337B9/logo-128.png",
+        "displayName": "Curve DUSD",
+        "defaultDisplayToken": "0x3a664Ab939FD8482048609f652f9a0B0677337B9",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x1C6a9783F812b3Af3aBbf7de64c3cD7CC7D1af44",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x94e131324b6054c0D789b190b2dAC504e4361b53",
+      "underlyingTokenBalance": {
+        "amount": "153421479893747151233608",
+        "amountUsdc": "160945422689"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1064649056065987869",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x1C6a9783F812b3Af3aBbf7de64c3cD7CC7D1af44",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.03751441066464278,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.03751441066464278,
+            "boosted_apr": 0.07504271428702139,
+            "base_apr": 0.03001708571480856,
+            "cvx_apr": 0.12378957205852242,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x94e131324b6054c0D789b190b2dAC504e4361b53/logo-128.png",
+        "displayName": "Curve UST",
+        "defaultDisplayToken": "0x94e131324b6054c0D789b190b2dAC504e4361b53",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+      "underlyingTokenBalance": {
+        "amount": "591694038984932778204496",
+        "amountUsdc": "601154043280"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1074406447008145284",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x8cc94ccd0f3841a468184aCA3Cc478D2148E1757",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.07379820015948746,
+          "net_apy": 0.03751416184982378,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.001101026555202722,
+            "boosted_apr": 0.05596410683964755,
+            "base_apr": 0.02238564273585902,
+            "cvx_apr": 0.07335072739047621,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x1AEf73d49Dedc4b1778d0706583995958Dc862e6/logo-128.png",
+        "displayName": "Curve mUSD",
+        "defaultDisplayToken": "0x1AEf73d49Dedc4b1778d0706583995958Dc862e6",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xa5cA62D95D24A4a350983D5B8ac4EB8638887396",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+      "underlyingTokenBalance": {
+        "amount": "83540325351271261229568",
+        "amountUsdc": "83540993673"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1040985753098674391",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xa5cA62D95D24A4a350983D5B8ac4EB8638887396",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.040356991647272356
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x57Ab1ec28D129707052df4dF418D58a2D46d5f51/logo-128.png",
+        "displayName": "sUSD",
+        "defaultDisplayToken": "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0xF29AE508698bDeF169B89834F76704C3B205aedf",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
+      "underlyingTokenBalance": {
+        "amount": "851272996849767412114133",
+        "amountUsdc": "4500831860938"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1087240625305790551",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xF29AE508698bDeF169B89834F76704C3B205aedf",
+        "depositLimit": "5000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.09904469638286886,
+          "net_apy": 0.0736795792983771,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.0736795792983771,
+            "inception": 0.09441081161637821
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F/logo-128.png",
+        "displayName": "SNX",
+        "defaultDisplayToken": "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xC25a3A3b969415c80451098fa907EC722572917F",
+      "underlyingTokenBalance": {
+        "amount": "1134190541579627988713219",
+        "amountUsdc": "1190374938437"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1084062219252071184",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x5a770DbD3Ee6bAF2802D29a901Ef11501C44797A",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.06947447742460433,
+          "net_apy": 0.03512228324725153,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.004456586918375471,
+            "boosted_apr": 0.04882855532621326,
+            "base_apr": 0.013027036053712878,
+            "cvx_apr": 0.06472941822772121,
+            "rewards_apr": 0.016260965191931064
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xC25a3A3b969415c80451098fa907EC722572917F/logo-128.png",
+        "displayName": "Curve sUSD",
+        "defaultDisplayToken": "0xC25a3A3b969415c80451098fa907EC722572917F",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    }
+  ],
+  [
+    {
+      "address": "0xf2db9a7c0ACd427A680D640F02d90f6186E71725",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a",
+      "underlyingTokenBalance": {
+        "amount": "112994084018241657334817",
+        "amountUsdc": "1855421729497"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1015764501718117121",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xf2db9a7c0ACd427A680D640F02d90f6186E71725",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.005110130726369455,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0002749386951124144,
+            "boosted_apr": 0.003603668940522277,
+            "base_apr": 0.0014414675762089108,
+            "cvx_apr": 0.004833863015267431,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a/logo-128.png",
+        "displayName": "Curve LINK",
+        "defaultDisplayToken": "0xcee60cFa923170e4f8204AE08B4fA6A3F5656F3a",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x3B96d491f067912D18563d56858Ba7d6EC67a6fa",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
+      "underlyingTokenBalance": {
+        "amount": "64723257835809639698467625",
+        "amountUsdc": "68142716993791"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1112470080225805991",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x3B96d491f067912D18563d56858Ba7d6EC67a6fa",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.1336027944323379,
+          "net_apy": 0.114559840816965,
+          "fees": {
+            "performance": 0,
+            "withdrawal": null,
+            "management": 0,
+            "keep_crv": 0.5,
+            "cvx_keep_crv": 0.5
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.03372268361352626,
+            "boosted_apr": 0.07311531174582764,
+            "base_apr": 0.029246124698331055,
+            "cvx_apr": 0.09686392540121981,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x4f3E8F405CF5aFC05D68142F3783bDfE13811522/logo-128.png",
+        "displayName": "Curve USDN",
+        "defaultDisplayToken": "0x4f3E8F405CF5aFC05D68142F3783bDfE13811522",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xC4dAf3b5e2A9e93861c3FBDd25f1e943B8D87417",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",
+      "underlyingTokenBalance": {
+        "amount": "6239930726435892287489763",
+        "amountUsdc": "6285188943994"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1101717150936236433",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xC4dAf3b5e2A9e93861c3FBDd25f1e943B8D87417",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.08184952656799438,
+          "net_apy": 0.04383154269658699,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0009245300955067481,
+            "boosted_apr": 0.060612051620945455,
+            "base_apr": 0.02424482064837818,
+            "cvx_apr": 0.0814612070377798,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6/logo-128.png",
+        "displayName": "Curve USDP",
+        "defaultDisplayToken": "0x7Eb40E450b9655f4B3cC4259BCC731c63ff55ae6",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+      "underlyingTokenBalance": {
+        "amount": "25298307185147731258585389",
+        "amountUsdc": "25298509571605"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1082489664150083181",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xA74d4B67b3368E83797a35382AFB776bAAE4F5C8",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.061208044296312325,
+          "net_apy": 0.03045930954493741,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.002035364573149012,
+            "boosted_apr": 0.046852304851171575,
+            "base_apr": 0.01874092194046863,
+            "cvx_apr": 0.061513006650437616,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c/logo-128.png",
+        "displayName": "Curve alUSD",
+        "defaultDisplayToken": "0x43b4FdFD4Ff969587185cDB6f0BD875c5Fc83f8c",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xBfedbcbe27171C418CDabC2477042554b1904857",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x53a901d48795C58f485cBB38df08FA96a24669D5",
+      "underlyingTokenBalance": {
+        "amount": "733521032951005738613",
+        "amountUsdc": "2336379652751"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1048117699326753236",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xBfedbcbe27171C418CDabC2477042554b1904857",
+        "depositLimit": "1000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.010471074559229132,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.01004070343382435,
+            "boosted_apr": 0.00042609285342837207,
+            "base_apr": 0.00017043714137134883,
+            "cvx_apr": 0.0005762766992669204,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x53a901d48795C58f485cBB38df08FA96a24669D5/logo-128.png",
+        "displayName": "Curve rETH",
+        "defaultDisplayToken": "0x53a901d48795C58f485cBB38df08FA96a24669D5",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x132d8D2C76Db3812403431fAcB00F3453Fc42125",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xaA17A236F2bAdc98DDc0Cf999AbB47D47Fc0A6Cf",
+      "underlyingTokenBalance": {
+        "amount": "164170717675580646046",
+        "amountUsdc": "543709245922"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1038518801690273855",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x132d8D2C76Db3812403431fAcB00F3453Fc42125",
+        "depositLimit": "1000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.040637200895783376,
+          "net_apy": 0.017817082795352324,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.030922545395490664,
+            "boosted_apr": 0.007094779437906298,
+            "base_apr": 0.002837911775162519,
+            "cvx_apr": 0.009423264185735664,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xaA17A236F2bAdc98DDc0Cf999AbB47D47Fc0A6Cf/logo-128.png",
+        "displayName": "Curve aETHc",
+        "defaultDisplayToken": "0xaA17A236F2bAdc98DDc0Cf999AbB47D47Fc0A6Cf",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x39CAF13a104FF567f71fd2A4c68C026FDB6E740B",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
+      "underlyingTokenBalance": {
+        "amount": "474483423632928520594436",
+        "amountUsdc": "515591244006"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1029642769234918699",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x39CAF13a104FF567f71fd2A4c68C026FDB6E740B",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.03259748852260502,
+          "net_apy": 0.009654647290378238,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.021625598812531566,
+            "boosted_apr": 0.005611891715287067,
+            "base_apr": 0.002244756686114827,
+            "cvx_apr": 0.010739638594438496,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900/logo-128.png",
+        "displayName": "Curve Aave",
+        "defaultDisplayToken": "0xFd2a8fA60Abd58Efe3EeE34dd494cD491dC14900",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x054AF22E1519b020516D72D749221c24756385C9",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
+      "underlyingTokenBalance": {
+        "amount": "8597308324178362818924",
+        "amountUsdc": "8961026050"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1021022148232613633",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x054AF22E1519b020516D72D749221c24756385C9",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.004657830066612023,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.004657830066612023,
+            "boosted_apr": 0.08205416022706236,
+            "base_apr": 0.032821664090824945,
+            "cvx_apr": 0.10754037570285396,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858/logo-128.png",
+        "displayName": "Curve HUSD",
+        "defaultDisplayToken": "0x5B5CFE992AdAC0C9D48E05854B2d91C73a003858",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0x25212Df29073FfFA7A67399AcEfC2dd75a831A1A",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x194eBd173F6cDacE046C53eACcE9B953F28411d1",
+      "underlyingTokenBalance": {
+        "amount": "5344187839905254664061258",
+        "amountUsdc": "5904793144311"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1096582128772931574",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x25212Df29073FfFA7A67399AcEfC2dd75a831A1A",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.036390945482686954,
+          "net_apy": 0.009591713360831672,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.000861339081982937,
+            "boosted_apr": 0.02890680441106159,
+            "base_apr": 0.011562721764424636,
+            "cvx_apr": 0.03858170818286247,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x194eBd173F6cDacE046C53eACcE9B953F28411d1/logo-128.png",
+        "displayName": "Curve EURS",
+        "defaultDisplayToken": "0x194eBd173F6cDacE046C53eACcE9B953F28411d1",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+      "underlyingTokenBalance": {
+        "amount": "265671762923210803893535",
+        "amountUsdc": "4352363405341"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1014362590480550303",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x671a912C10bba0CFA74Cfc2d6Fba9BA1ed9530B2",
+        "depositLimit": "3000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.02279317423737287,
+          "net_apy": 0.0025169582858743933,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.0025169582858743933,
+            "inception": 0.01787006707131167
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x514910771AF9Ca656af840dff83E8264EcF986CA/logo-128.png",
+        "displayName": "LINK",
+        "defaultDisplayToken": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x873fB544277FD7b977B196a826459a69E27eA4ea",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919",
+      "underlyingTokenBalance": {
+        "amount": "3865296401544632123892",
+        "amountUsdc": "15598330187"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1003001851527245298",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x873fB544277FD7b977B196a826459a69E27eA4ea",
+        "depositLimit": "1000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.02,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.003776953578615627
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919/logo-128.png",
+        "displayName": "RAI",
+        "defaultDisplayToken": "0x03ab458634910AaD20eF5f1C8ee96F1D6ac54919",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x3D980E50508CFd41a13837A60149927a11c03731",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF",
+      "underlyingTokenBalance": {
+        "amount": "139336521253323786159",
+        "amountUsdc": "221855531323"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1037889609364136299",
+        "migrationAvailable": true,
+        "latestVaultAddress": "0x3D980E50508CFd41a13837A60149927a11c03731",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "n/a",
+          "gross_apr": 0.003927492893463613,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.003927492893463613,
+            "boosted_apr": 0.6666277381668478,
+            "base_apr": 0.26665109526673914,
+            "cvx_apr": 1.275744677224887,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF/logo-128.png",
+        "displayName": "Curve triCrypto",
+        "defaultDisplayToken": "0xcA3d75aC011BF5aD07a98d02f18225F9bD9A6BDF",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": false,
+        "allowZapOut": true,
+        "migrationContract": "0xC306a5ef4B990A7F2b3bC2680E022E6a84D75fC1",
+        "migrationTargetVault": "0xE537B5cc158EB71037D4125BDD7538421981E6AA",
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0x80bbeE2fa460dA291e796B9045e93d19eF948C6A",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8",
+      "underlyingTokenBalance": {
+        "amount": "0",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "0",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x80bbeE2fa460dA291e796B9045e93d19eF948C6A",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.0017150912167842591,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0017150912167842591,
+            "boosted_apr": 0,
+            "base_apr": 0,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8/logo-128.png",
+        "displayName": "Curve PAX",
+        "defaultDisplayToken": "0xD905e2eaeBe188fc92179b6350807D8bd91Db0D8",
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x28a5b95C101df3Ded0C0d9074DB80C438774B6a9",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23",
+      "underlyingTokenBalance": {
+        "amount": "0",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "0",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x28a5b95C101df3Ded0C0d9074DB80C438774B6a9",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.019533943040508817,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.019345239452279506,
+            "boosted_apr": 0.00018503431714617024,
+            "base_apr": 0.00007401372685846809,
+            "cvx_apr": 0.0002730691728538908,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23/logo-128.png",
+        "displayName": "Curve USDT",
+        "defaultDisplayToken": "0x9fC689CCaDa600B6DF723D9E47D84d76664a1F23",
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x3D27705c64213A5DcD9D26880c1BcFa72d5b6B0E",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
+      "underlyingTokenBalance": {
+        "amount": "0",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "0",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x3D27705c64213A5DcD9D26880c1BcFa72d5b6B0E",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.08851242880525256,
+          "net_apy": 0.04543851838501145,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.003331951915895859,
+            "boosted_apr": 0.0848976021611808,
+            "base_apr": 0.033959040864472316,
+            "cvx_apr": 0.13662982586551625,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x97E2768e8E73511cA874545DC5Ff8067eB19B787/logo-128.png",
+        "displayName": "Curve USDK",
+        "defaultDisplayToken": "0x97E2768e8E73511cA874545DC5Ff8067eB19B787",
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xC116dF49c02c5fD147DE25Baa105322ebF26Bd97",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
+      "underlyingTokenBalance": {
+        "amount": "24856831753716168002290",
+        "amountUsdc": "25557371843"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1115621406460561863",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xC116dF49c02c5fD147DE25Baa105322ebF26Bd97",
+        "depositLimit": "1000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.0007901291309508895,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0007901291309508895,
+            "boosted_apr": 0,
+            "base_apr": 0,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35/logo-128.png",
+        "displayName": "Curve RSV",
+        "defaultDisplayToken": "0xC2Ee6b0334C261ED60C72f6054450b61B8f18E35",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xE537B5cc158EB71037D4125BDD7538421981E6AA",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+      "underlyingTokenBalance": {
+        "amount": "7313294204211251799884",
+        "amountUsdc": "11593829008041"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1082554529167859811",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xE537B5cc158EB71037D4125BDD7538421981E6AA",
+        "depositLimit": "1000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.11808874332947572,
+          "net_apy": 0.07397226693913629,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.006531258893515135,
+            "boosted_apr": 0.08483267172373893,
+            "base_apr": 0.03393306868949557,
+            "cvx_apr": 0.11167113500304818,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xc4AD29ba4B3c580e6D59105FFf484999997675Ff/logo-128.png",
+        "displayName": "Curve 3Crypto",
+        "defaultDisplayToken": "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xd9788f3931Ede4D5018184E198699dC6d66C1915",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+      "underlyingTokenBalance": {
+        "amount": "16775960155761302365802",
+        "amountUsdc": "2866448622948"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1026089555050568635",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xd9788f3931Ede4D5018184E198699dC6d66C1915",
+        "depositLimit": "25000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.08458775490397528,
+          "net_apy": 0.05300138629073592,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0.053583157832328254,
+            "month_ago": 0.05300138629073592,
+            "inception": 0.04115378590931296
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9/logo-128.png",
+        "displayName": "AAVE",
+        "defaultDisplayToken": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x4A3FE75762017DB0eD73a71C9A06db7768DB5e66",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+      "underlyingTokenBalance": {
+        "amount": "2925535433728050522981",
+        "amountUsdc": "354750698768"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1012181303453149024",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x4A3FE75762017DB0eD73a71C9A06db7768DB5e66",
+        "depositLimit": "25000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.02,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.1,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0.019143327173038127
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xc00e94Cb662C3520282E6f5717214004A7f26888/logo-128.png",
+        "displayName": "COMP",
+        "defaultDisplayToken": "0xc00e94Cb662C3520282E6f5717214004A7f26888",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x6d765CbE5bC922694afE112C140b8878b9FB0390",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+      "underlyingTokenBalance": {
+        "amount": "471035437433614709975899",
+        "amountUsdc": "1714680156621"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1078079444512768009",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x6d765CbE5bC922694afE112C140b8878b9FB0390",
+        "depositLimit": "5000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.12619914903204474,
+          "net_apy": 0.088828166652545,
+          "fees": {
+            "performance": 0.198,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.088828166652545,
+            "inception": 0.12495657367792279
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6B3595068778DD592e39A122f4f5a5cF09C90fE2/logo-128.png",
+        "displayName": "SUSHI",
+        "defaultDisplayToken": "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    }
+  ],
+  [
+    {
+      "address": "0xFD0877d9095789cAF24c98F7CCe092fa8E120775",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x0000000000085d4780B73119b644AE5ecd22b376",
+      "underlyingTokenBalance": {
+        "amount": "15715732256251502137734",
+        "amountUsdc": "15595192589"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1055297594827238398",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xFD0877d9095789cAF24c98F7CCe092fa8E120775",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "override",
+          "gross_apr": 0.051675055727751204,
+          "net_apy": 0.01,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.025657502073693328,
+            "inception": 0.0903909847315083
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x0000000000085d4780B73119b644AE5ecd22b376/logo-128.png",
+        "displayName": "TUSD",
+        "defaultDisplayToken": "0x0000000000085d4780B73119b644AE5ecd22b376",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x0d4EA8536F9A13e4FBa16042a46c30f092b06aA5",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xFD5dB7463a3aB53fD211b4af195c5BCCC1A03890",
+      "underlyingTokenBalance": {
+        "amount": "37339702932122866520787",
+        "amountUsdc": "41288936612"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1105611178112137444",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x0d4EA8536F9A13e4FBa16042a46c30f092b06aA5",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "error",
+          "gross_apr": 0,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0,
+            "withdrawal": 0,
+            "management": null,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xFD5dB7463a3aB53fD211b4af195c5BCCC1A03890/logo-128.png",
+        "displayName": "Curve EURT",
+        "defaultDisplayToken": "0xFD5dB7463a3aB53fD211b4af195c5BCCC1A03890",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+      "underlyingTokenBalance": {
+        "amount": "5640242039398648778174140",
+        "amountUsdc": "5669830749137"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1086569495621821142",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x2DfB14E32e2F8156ec15a2c21c3A6c053af52Be8",
+        "depositLimit": "240000000000000040000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.11394008936649658,
+          "net_apy": 0.07073298895850143,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.003195316185392816,
+            "boosted_apr": 0.08845559280869535,
+            "base_apr": 0.03122064251985781,
+            "cvx_apr": 0.11274847893230616,
+            "rewards_apr": 0.010403986509050816
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x5a6A4D54456819380173272A5E8E9B9904BdF41B/logo-128.png",
+        "displayName": "Curve MIM",
+        "defaultDisplayToken": "0x5a6A4D54456819380173272A5E8E9B9904BdF41B",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x4560b99C904aAD03027B5178CCa81584744AC01f",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
+      "underlyingTokenBalance": {
+        "amount": "300967388751667044841002",
+        "amountUsdc": "712925531127"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1136116610942686220",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x4560b99C904aAD03027B5178CCa81584744AC01f",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.27802896779931086,
+          "net_apy": 0.21234249405972294,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.008365190916738818,
+            "boosted_apr": 0.2040265250274781,
+            "base_apr": 0.08161061001099124,
+            "cvx_apr": 0.26742670146855396,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x9D0464996170c6B9e75eED71c68B99dDEDf279e8/logo-128.png",
+        "displayName": "Curve cvxCRV",
+        "defaultDisplayToken": "0x9D0464996170c6B9e75eED71c68B99dDEDf279e8",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x67e019bfbd5a67207755D04467D6A70c0B75bF60",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x19b080FE1ffA0553469D20Ca36219F17Fcf03859",
+      "underlyingTokenBalance": {
+        "amount": "29033820718638090036805734",
+        "amountUsdc": "32008858260035"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1047522982964453946",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x67e019bfbd5a67207755D04467D6A70c0B75bF60",
+        "depositLimit": "200000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.07900058767287632,
+          "net_apy": 0.04141787675194886,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0009818032883244232,
+            "boosted_apr": 0.059479408089320285,
+            "base_apr": 0.023791763235728115,
+            "cvx_apr": 0.07794226041697513,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x19b080FE1ffA0553469D20Ca36219F17Fcf03859/logo-128.png",
+        "displayName": "Curve ibEUR",
+        "defaultDisplayToken": "0x19b080FE1ffA0553469D20Ca36219F17Fcf03859",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x528D50dC9a333f01544177a924893FA1F5b9F748",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x8461A004b50d321CB22B7d034969cE6803911899",
+      "underlyingTokenBalance": {
+        "amount": "14791852363202020308034136963",
+        "amountUsdc": "12114527085462"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1036622498008125749",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x528D50dC9a333f01544177a924893FA1F5b9F748",
+        "depositLimit": "200000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.14301002516320627,
+          "net_apy": 0.0934364921268862,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.00012534371932493293,
+            "boosted_apr": 0.10904587902440026,
+            "base_apr": 0.0436183516097601,
+            "cvx_apr": 0.14286677399106132,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x8461A004b50d321CB22B7d034969cE6803911899/logo-128.png",
+        "displayName": "Curve ibKRW",
+        "defaultDisplayToken": "0x8461A004b50d321CB22B7d034969cE6803911899",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x595a68a8c9D5C230001848B69b1947ee2A607164",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xD6Ac1CB9019137a896343Da59dDE6d097F710538",
+      "underlyingTokenBalance": {
+        "amount": "1783501627371556144435242",
+        "amountUsdc": "2354810703667"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1030646299921532829",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x595a68a8c9D5C230001848B69b1947ee2A607164",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.17238141723084177,
+          "net_apy": 0.11842651155341599,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0018030048167971824,
+            "boosted_apr": 0.12996300605146524,
+            "base_apr": 0.051985202420586095,
+            "cvx_apr": 0.17027141223761721,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xD6Ac1CB9019137a896343Da59dDE6d097F710538/logo-128.png",
+        "displayName": "Curve ibGBP",
+        "defaultDisplayToken": "0xD6Ac1CB9019137a896343Da59dDE6d097F710538",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x1b905331F7dE2748F4D6a0678e1521E20347643F",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3F1B0278A9ee595635B61817630cC19DE792f506",
+      "underlyingTokenBalance": {
+        "amount": "46509550104434003966665",
+        "amountUsdc": "35009598745"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1000000000000000000",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x1b905331F7dE2748F4D6a0678e1521E20347643F",
+        "depositLimit": "25000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.16169774236720658,
+          "net_apy": 0.10918844786116688,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.00045527588275540154,
+            "boosted_apr": 0.12301548063429786,
+            "base_apr": 0.049206192253719146,
+            "cvx_apr": 0.16116909008469,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3F1B0278A9ee595635B61817630cC19DE792f506/logo-128.png",
+        "displayName": "Curve ibAUD",
+        "defaultDisplayToken": "0x3F1B0278A9ee595635B61817630cC19DE792f506",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x490bD0886F221A5F79713D3E84404355A9293C50",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x9c2C8910F113181783c249d8F6Aa41b51Cde0f0c",
+      "underlyingTokenBalance": {
+        "amount": "1704943402803156016782314",
+        "amountUsdc": "1840881950195"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1042381627547389705",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x490bD0886F221A5F79713D3E84404355A9293C50",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.2479653268516211,
+          "net_apy": 0.18461920302617285,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.000665943347171627,
+            "boosted_apr": 0.18863051443652923,
+            "base_apr": 0.07545220577461169,
+            "cvx_apr": 0.2471348057247225,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x9c2C8910F113181783c249d8F6Aa41b51Cde0f0c/logo-128.png",
+        "displayName": "Curve ibCHF",
+        "defaultDisplayToken": "0x9c2C8910F113181783c249d8F6Aa41b51Cde0f0c",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x8818a9bb44Fbf33502bE7c15c500d0C783B73067",
+      "underlyingTokenBalance": {
+        "amount": "8077671966862821340008283",
+        "amountUsdc": "66414618911"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1160657395586361456",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x59518884EeBFb03e90a18ADBAAAB770d4666471e",
+        "depositLimit": "2000000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.15531793326512533,
+          "net_apy": 0.10381173765373575,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0005308706962006138,
+            "boosted_apr": 0.11808159316058256,
+            "base_apr": 0.047232637264233025,
+            "cvx_apr": 0.15470493425277232,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x8818a9bb44Fbf33502bE7c15c500d0C783B73067/logo-128.png",
+        "displayName": "Curve ibJPY",
+        "defaultDisplayToken": "0x8818a9bb44Fbf33502bE7c15c500d0C783B73067",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x6FAfCA7f49B4Fd9dC38117469cd31A1E5aec91F5",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x5B3b5DF2BF2B6543f78e053bD91C4Bdd820929f1",
+      "underlyingTokenBalance": {
+        "amount": "481018155407716586220",
+        "amountUsdc": "492608287"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "2590767903793807548",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x6FAfCA7f49B4Fd9dC38117469cd31A1E5aec91F5",
+        "depositLimit": "0",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "n/a",
+          "gross_apr": 0.00034384560797695585,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.00034384560797695585,
+            "boosted_apr": 0,
+            "base_apr": 0,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x5B3b5DF2BF2B6543f78e053bD91C4Bdd820929f1/logo-128.png",
+        "displayName": "Curve USDM",
+        "defaultDisplayToken": "0x5B3b5DF2BF2B6543f78e053bD91C4Bdd820929f1",
+        "depositsDisabled": true,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": true
+      }
+    },
+    {
+      "address": "0x718AbE90777F5B778B52D553a5aBaa148DD0dc5D",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e",
+      "underlyingTokenBalance": {
+        "amount": "9985048399936070759",
+        "amountUsdc": "31835730233"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1045161885416963828",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x718AbE90777F5B778B52D553a5aBaa148DD0dc5D",
+        "depositLimit": "5000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.03853855294947994,
+          "net_apy": 0.00961802896623376,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.00046310760037626686,
+            "boosted_apr": 0.029034353697842543,
+            "base_apr": 0.011613741479137017,
+            "cvx_apr": 0.03805782048318413,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e/logo-128.png",
+        "displayName": "Curve alETH",
+        "defaultDisplayToken": "0xC4C319E2D4d66CcA4464C0c2B32c9Bd23ebe784e"
+      }
+    },
+    {
+      "address": "0x8b9C0c24307344B6D7941ab654b2Aeee25347473",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3Fb78e61784C9c637D560eDE23Ad57CA1294c14a",
+      "underlyingTokenBalance": {
+        "amount": "18321934229792469031127",
+        "amountUsdc": "20925316186"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1001073093467691177",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x8b9C0c24307344B6D7941ab654b2Aeee25347473",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.15206767323138637,
+          "net_apy": 0.10872060493067637,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.050600321632533696,
+            "boosted_apr": 0.07363884178356056,
+            "base_apr": 0.029455536713424227,
+            "cvx_apr": 0.09658035459305966,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3Fb78e61784C9c637D560eDE23Ad57CA1294c14a/logo-128.png",
+        "displayName": "Curve EURN",
+        "defaultDisplayToken": "0x3Fb78e61784C9c637D560eDE23Ad57CA1294c14a"
+      }
+    },
+    {
+      "address": "0xd8C620991b8E626C099eAaB29B1E3eEa279763bb",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x55A8a39bc9694714E2874c1ce77aa1E599461E18",
+      "underlyingTokenBalance": {
+        "amount": "636508111084752733045046",
+        "amountUsdc": "641122158382"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1032773299950734258",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xd8C620991b8E626C099eAaB29B1E3eEa279763bb",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.11447777298036166,
+          "net_apy": 0.07061486617271903,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0035193210990680512,
+            "boosted_apr": 0.08522335875680523,
+            "base_apr": 0.034089343502722094,
+            "cvx_apr": 0.11168618477797536,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x55A8a39bc9694714E2874c1ce77aa1E599461E18/logo-128.png",
+        "displayName": "Curve MIM-UST",
+        "defaultDisplayToken": "0x55A8a39bc9694714E2874c1ce77aa1E599461E18"
+      }
+    },
+    {
+      "address": "0xF59D66c1d593Fb10e2f8c2a6fD2C958792434B9c",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x87650D7bbfC3A9F10587d7778206671719d9910D",
+      "underlyingTokenBalance": {
+        "amount": "9622805767330958571708",
+        "amountUsdc": "9842927449"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1000355692684751193",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xF59D66c1d593Fb10e2f8c2a6fD2C958792434B9c",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "new",
+          "gross_apr": 0,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0,
+            "withdrawal": 0,
+            "management": null,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x87650D7bbfC3A9F10587d7778206671719d9910D/logo-128.png",
+        "displayName": "Curve OUSD",
+        "defaultDisplayToken": "0x87650D7bbfC3A9F10587d7778206671719d9910D",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x5e69e8b51B71C8596817fD442849BD44219bb095",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
+      "underlyingTokenBalance": {
+        "amount": "0",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "0",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x5e69e8b51B71C8596817fD442849BD44219bb095",
+        "depositLimit": "500000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.0007878973605675021,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0005027708317424384,
+            "boosted_apr": 0.00021755900994955207,
+            "base_apr": 0.00008702360397982082,
+            "cvx_apr": 0.0002849832475606073,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B/logo-128.png",
+        "displayName": "Curve ibBTC",
+        "defaultDisplayToken": "0xFbdCA68601f835b27790D98bbb8eC7f05FDEaA9B",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x16825039dfe2a5b01F3E1E6a2BBF9a576c6F95c4",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xBaaa1F5DbA42C3389bDbc2c9D2dE134F5cD0Dc89",
+      "underlyingTokenBalance": {
+        "amount": "88736512541627458559247",
+        "amountUsdc": "89115772396"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1016155929751512180",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x16825039dfe2a5b01F3E1E6a2BBF9a576c6F95c4",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.0876313369854127,
+          "net_apy": 0.05149851917735049,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0010324673535808682,
+            "boosted_apr": 0.06603012848780307,
+            "base_apr": 0.026412051395121226,
+            "cvx_apr": 0.08650955134429593,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xBaaa1F5DbA42C3389bDbc2c9D2dE134F5cD0Dc89/logo-128.png",
+        "displayName": "Curve d3pool",
+        "defaultDisplayToken": "0xBaaa1F5DbA42C3389bDbc2c9D2dE134F5cD0Dc89",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xBCBB5b54Fa51e7b7Dc920340043B203447842A6b",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3b6831c0077a1e44ED0a21841C3bC4dC11bCE833",
+      "underlyingTokenBalance": {
+        "amount": "1848256224575582497647071",
+        "amountUsdc": "3936643442616"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1010693438563699364",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xBCBB5b54Fa51e7b7Dc920340043B203447842A6b",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.06852970635794597,
+          "net_apy": 0.03206634668674946,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0.1
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": -0.004645334875397977,
+            "boosted_apr": 0.04688838458797091,
+            "base_apr": 0.018755353835188365,
+            "cvx_apr": 0.07351655022803726,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3b6831c0077a1e44ED0a21841C3bC4dC11bCE833/logo-128.png",
+        "displayName": "Curve EURT-USD",
+        "defaultDisplayToken": "0x3b6831c0077a1e44ED0a21841C3bC4dC11bCE833",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x801Ab06154Bf539dea4385a39f5fa8534fB53073",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3D229E1B4faab62F621eF2F6A610961f7BD7b23B",
+      "underlyingTokenBalance": {
+        "amount": "15630702391064491301608",
+        "amountUsdc": "32809985360"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1023476820364618579",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x801Ab06154Bf539dea4385a39f5fa8534fB53073",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.04521833760109795,
+          "net_apy": 0.016503428655626706,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.001195126192936602,
+            "boosted_apr": 0.0335607225737509,
+            "base_apr": 0.013424289029500361,
+            "cvx_apr": 0.043970660919575535,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3D229E1B4faab62F621eF2F6A610961f7BD7b23B/logo-128.png",
+        "displayName": "Curve EURS-USDC",
+        "defaultDisplayToken": "0x3D229E1B4faab62F621eF2F6A610961f7BD7b23B",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x378cb52b00F9D0921cb46dFc099CFf73b42419dC",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+      "underlyingTokenBalance": {
+        "amount": "5853629395133593232290687",
+        "amountUsdc": "5985025814166"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1038053484458058880",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x378cb52b00F9D0921cb46dFc099CFf73b42419dC",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "v2:averaged",
+          "gross_apr": 0.08918504407360082,
+          "net_apy": 0.056877282488568826,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0.056877282488568826,
+            "inception": 0.10111358518442737
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0x5f98805A4E8be255a32880FDeC7F6728C6568bA0/logo.png",
+        "displayName": "LUSD",
+        "defaultDisplayToken": "0x5f98805A4E8be255a32880FDeC7F6728C6568bA0",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    }
+  ],
+  [
+    {
+      "address": "0x5AB64C599FcC59f0f2726A300b03166A395578Da",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571",
+      "underlyingTokenBalance": {
+        "amount": "20263295521852669599848",
+        "amountUsdc": "22359614496"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1050993718369227678",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x5AB64C599FcC59f0f2726A300b03166A395578Da",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.056634792708579296,
+          "net_apy": 0.026004210136719053,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.002374374503676835,
+            "boosted_apr": 0.05413188882823293,
+            "base_apr": 0.021223157319943873,
+            "cvx_apr": 0,
+            "rewards_apr": 0.0010739955283732509
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571/logo-128.png",
+        "displayName": "Curve 3EUR",
+        "defaultDisplayToken": "0xb9446c4Ef5EBE66268dA6700D26f96273DE3d571",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x6A5468752f8DB94134B6508dAbAC54D3b45efCE6",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d",
+      "underlyingTokenBalance": {
+        "amount": "3673996188513511880622",
+        "amountUsdc": "650351322088"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1026102283121282256",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x6A5468752f8DB94134B6508dAbAC54D3b45efCE6",
+        "depositLimit": "80000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "new",
+          "gross_apr": 0.2930705648173373,
+          "net_apy": 0.23831575569136199,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.010634648281647507,
+            "boosted_apr": 0.27946391608075893,
+            "base_apr": 0.11178556643230358,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d/logo-128.png",
+        "displayName": "Curve CRV-ETH",
+        "defaultDisplayToken": "0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x1635b506a88fBF428465Ad65d00e8d6B6E5846C3",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x3A283D9c08E8b55966afb64C515f5143cf907611",
+      "underlyingTokenBalance": {
+        "amount": "2611730834037893213925",
+        "amountUsdc": "1447216742758"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1003322932350984790",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x1635b506a88fBF428465Ad65d00e8d6B6E5846C3",
+        "depositLimit": "23000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "new",
+          "gross_apr": 0.09821201823267867,
+          "net_apy": 0.061954333334988565,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.012402665693364456,
+            "boosted_apr": 0.08475812583972792,
+            "base_apr": 0.033903250335891165,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x3A283D9c08E8b55966afb64C515f5143cf907611/logo-128.png",
+        "displayName": "Curve CVX-ETH",
+        "defaultDisplayToken": "0x3A283D9c08E8b55966afb64C515f5143cf907611",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x04d73c87b20d372cB3240C72eEFB9d79bA5e4959",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xCEAF7747579696A2F0bb206a14210e3c9e6fB269",
+      "underlyingTokenBalance": {
+        "amount": "0",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "0",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x04d73c87b20d372cB3240C72eEFB9d79bA5e4959",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.09228200020904387,
+          "net_apy": 0.055991251638462636,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.005288036971719645,
+            "boosted_apr": 0.0865363557885166,
+            "base_apr": 0.034614542315406636,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xCEAF7747579696A2F0bb206a14210e3c9e6fB269/logo-128.png",
+        "displayName": "Curve UST-W",
+        "defaultDisplayToken": "0xCEAF7747579696A2F0bb206a14210e3c9e6fB269",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+      "underlyingTokenBalance": {
+        "amount": "349238678334902502638766",
+        "amountUsdc": "349652875407"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1009164479524340620",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x2D5D4869381C4Fce34789BC1D38aCCe747E295AE",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "new",
+          "gross_apr": 0,
+          "net_apy": 0,
+          "fees": {
+            "performance": 0,
+            "withdrawal": 0,
+            "management": null,
+            "keep_crv": null,
+            "cvx_keep_crv": null
+          },
+          "points": {
+            "week_ago": 0,
+            "month_ago": 0,
+            "inception": 0
+          },
+          "composite": null
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90/logo-128.png",
+        "displayName": "Curve RAI",
+        "defaultDisplayToken": "0x6BA5b4e438FA0aAf7C1bD179285aF65d13bD3D90",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xAA5A67c256e27A5d80712c51971408db3370927D",
+      "underlyingTokenBalance": {
+        "amount": "12183991991249496848771",
+        "amountUsdc": "12480952428"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1000000000000000000",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xd88dBBA3f9c4391Ee46f5FF548f289054db6E51C",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.07108697136029152,
+          "net_apy": 0.03797782822193185,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0028872971400009106,
+            "boosted_apr": 0.06800332840467724,
+            "base_apr": 0.027201331361870897,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xAA5A67c256e27A5d80712c51971408db3370927D/logo-128.png",
+        "displayName": "Curve DOLA",
+        "defaultDisplayToken": "0xAA5A67c256e27A5d80712c51971408db3370927D",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0xc97511a1dDB162C8742D39FF320CfDCd13fBcf7e",
+      "typeId": "VAULT_V2",
+      "tokenId": "0xc270b3B858c335B6BA5D5b10e2Da8a09976005ad",
+      "underlyingTokenBalance": {
+        "amount": "0",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "0",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0xc97511a1dDB162C8742D39FF320CfDCd13fBcf7e",
+        "depositLimit": "20000000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.05235321799880932,
+          "net_apy": 0.02266720832349378,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.003359555161205341,
+            "boosted_apr": 0.04882961704563853,
+            "base_apr": 0.019531846818255413,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0xc270b3B858c335B6BA5D5b10e2Da8a09976005ad/logo-128.png",
+        "displayName": "Curve USDPax",
+        "defaultDisplayToken": "0xc270b3B858c335B6BA5D5b10e2Da8a09976005ad",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x790a60024bC3aea28385b60480f15a0771f26D09",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x29059568bB40344487d62f7450E78b8E6C74e0e5",
+      "underlyingTokenBalance": {
+        "amount": "33802848834227818923",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1000458071583421951",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x790a60024bC3aea28385b60480f15a0771f26D09",
+        "depositLimit": "50000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "crv",
+          "gross_apr": 0.16347878212477474,
+          "net_apy": 0.11715792306009609,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0017063581434322295,
+            "boosted_apr": 0.1614968525119201,
+            "base_apr": 0.06459874100476805,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x29059568bB40344487d62f7450E78b8E6C74e0e5/logo-128.png",
+        "displayName": "Curve YFI-ETH",
+        "defaultDisplayToken": "0x29059568bB40344487d62f7450E78b8E6C74e0e5",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    },
+    {
+      "address": "0x5c0A86A32c129538D62C106Eb8115a8b02358d57",
+      "typeId": "VAULT_V2",
+      "tokenId": "0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08",
+      "underlyingTokenBalance": {
+        "amount": "2143586145384093248926",
+        "amountUsdc": "0"
+      },
+      "metadata": {
+        "controller": "0x0000000000000000000000000000000000000000",
+        "totalAssets": "0",
+        "totalSupply": "0",
+        "pricePerShare": "1000087434866804600",
+        "migrationAvailable": false,
+        "latestVaultAddress": "0x5c0A86A32c129538D62C106Eb8115a8b02358d57",
+        "depositLimit": "10000000000000000000000",
+        "emergencyShutdown": false,
+        "apy": {
+          "type": "new",
+          "gross_apr": 2601.291479622492,
+          "net_apy": 2.9839717225707483e+81,
+          "fees": {
+            "performance": 0.2,
+            "withdrawal": null,
+            "management": 0.02,
+            "keep_crv": 0.1,
+            "cvx_keep_crv": 0
+          },
+          "points": null,
+          "composite": {
+            "boost": 2.5,
+            "pool_apy": 0.0038303093815299505,
+            "boosted_apr": 2591.361931396343,
+            "base_apr": 1036.5447725585373,
+            "cvx_apr": 0,
+            "rewards_apr": 0
+          }
+        },
+        "displayIcon": "https://raw.githack.com/yearn/yearn-assets/master/icons/multichain-tokens/1/0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08/logo-128.png",
+        "displayName": "Curve Rocket Pool",
+        "defaultDisplayToken": "0x447Ddd4960d9fdBF6af9a790560d0AF76795CB08",
+        "depositsDisabled": false,
+        "withdrawalsDisabled": false,
+        "allowZapIn": true,
+        "allowZapOut": true,
+        "hideIfNoDeposits": false
+      }
+    }
+  ]
+]

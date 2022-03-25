@@ -2,18 +2,18 @@ import { Button, Link } from '@chakra-ui/react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 export const Address = ({
-  explorerTxLink,
+  explorerAddressLink,
   address,
   ens
 }: {
-  explorerTxLink?: string
+  explorerAddressLink?: string
   address: string
   ens?: string
 }) =>
-  explorerTxLink ? (
+  explorerAddressLink ? (
     <Button
       as={Link}
-      href={`${explorerTxLink}${ens || address}`}
+      href={`${explorerAddressLink}${ens || address}`}
       isExternal
       bg='transparent'
       variant='ghost'

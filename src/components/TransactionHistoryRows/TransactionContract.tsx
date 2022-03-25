@@ -52,15 +52,6 @@ export const TransactionContract = ({
             <Status status={txDetails.tx.status} />
           </Row>
           {txDetails.tx.tradeDetails && (
-            <Row title='orderRoute'>
-              <Text
-                value={
-                  txDetails.tx.tradeDetails.dexName === SwapperType.Thorchain ? 'THORChain' : '0x'
-                }
-              />
-            </Row>
-          )}
-          {txDetails.tx.tradeDetails && (
             <Row title='transactionType'>
               <Text value={txDetails.tx.tradeDetails.dexName} />
             </Row>
@@ -77,7 +68,7 @@ export const TransactionContract = ({
           {txDetails.to && (
             <Row title='sentTo'>
               <Address
-                explorerTxLink={txDetails.explorerTxLink}
+                explorerAddressLink={txDetails.explorerAddressLink}
                 address={txDetails.to}
                 ens={txDetails.ensTo}
               />
@@ -104,12 +95,15 @@ export const TransactionContract = ({
           {txDetails.from && (
             <Row title='receivedFrom'>
               <Address
-                explorerTxLink={txDetails.explorerTxLink}
+                explorerAddressLink={txDetails.explorerAddressLink}
                 address={txDetails.from}
                 ens={txDetails.ensFrom}
               />
             </Row>
           )}
+          <Row title='status'>
+            <Status status={txDetails.tx.status} />
+          </Row>
         </TxGrid>
       </TransactionDetailsContainer>
     </>

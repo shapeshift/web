@@ -26,7 +26,11 @@ export const TransactionReceive = ({
         blockTime={txDetails.tx.blockTime}
         symbol={txDetails.symbol}
         assets={[parseRelevantAssetFromTx(txDetails, AssetTypes.Destination)]}
-        fee={parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)}
+        fee={
+          txDetails.tx?.fee &&
+          txDetails.feeAsset &&
+          parseRelevantAssetFromTx(txDetails, AssetTypes.Fee)
+        }
         explorerTxLink={txDetails.explorerTxLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}

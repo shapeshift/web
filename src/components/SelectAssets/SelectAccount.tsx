@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { AssetAccountRow } from 'components/AssetAccounts/AssetAccountRow'
 import { SlideTransition } from 'components/SlideTransition'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { selectAccountIdsByAssetId, selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

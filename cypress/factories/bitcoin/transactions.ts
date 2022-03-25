@@ -1,6 +1,6 @@
-import { TxHistory } from '@shapeshiftoss/unchained-client/dist/generated/bitcoin'
+import { bitcoin } from '@shapeshiftoss/unchained-client'
 
-export const makeTransactions = (): TxHistory => {
+export const makeTransactions = (): bitcoin.TxHistory => {
   return {
     page: 1,
     totalPages: 290,

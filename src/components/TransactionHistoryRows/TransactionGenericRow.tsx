@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
-import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -16,13 +16,13 @@ import { breakpoints } from 'theme/theme'
 
 const TransactionIcon = ({ type }: { type: string }) => {
   switch (type) {
-    case TxType.Send:
+    case chainAdapters.TxType.Send:
     case Direction.Outbound:
       return <ArrowUpIcon />
-    case TxType.Receive:
+    case chainAdapters.TxType.Receive:
     case Direction.Inbound:
       return <ArrowDownIcon color='green.500' />
-    case TradeType.Trade:
+    case chainAdapters.TradeType.Trade:
       return <FaExchangeAlt />
     case Direction.InPlace:
       return <FaThumbsUp />
@@ -45,7 +45,7 @@ type TransactionGenericRowProps = {
   showDateAndGuide?: boolean
   compactMode?: boolean
   assets: TransactionRowAsset[]
-  fee: TransactionRowAsset
+  fee?: TransactionRowAsset
   txid: TxId
   blockTime: number
   explorerTxLink: string
@@ -181,29 +181,31 @@ export const TransactionGenericRow = ({
         </Flex>
         {isLargerThanLg && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
-            <Flex alignItems='center' width='full'>
-              <Box flex={1}>
-                <Amount.Crypto
-                  color='inherit'
-                  fontWeight='bold'
-                  value={fromBaseUnit(fee.amount, fee.precision)}
-                  symbol={fee.symbol}
-                  maximumFractionDigits={6}
-                />
-                <Amount.Fiat
-                  color='gray.500'
-                  fontSize='sm'
-                  lineHeight='1'
-                  value={
-                    fee.amount
-                      ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
-                          .times(fee.currentPrice ?? 0)
-                          .toString()
-                      : '0'
-                  }
-                />
-              </Box>
-            </Flex>
+            {fee && (
+              <Flex alignItems='center' width='full'>
+                <Box flex={1}>
+                  <Amount.Crypto
+                    color='inherit'
+                    fontWeight='bold'
+                    value={fromBaseUnit(fee.amount, fee.precision)}
+                    symbol={fee.symbol}
+                    maximumFractionDigits={6}
+                  />
+                  <Amount.Fiat
+                    color='gray.500'
+                    fontSize='sm'
+                    lineHeight='1'
+                    value={
+                      fee.amount
+                        ? bnOrZero(fromBaseUnit(fee.amount, fee.precision))
+                            .times(fee.currentPrice ?? 0)
+                            .toString()
+                        : '0'
+                    }
+                  />
+                </Box>
+              </Flex>
+            )}
           </Flex>
         )}
         {isLargerThanLg && (

@@ -3987,7 +3987,7 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-foxy@^1.0.0":
+"@shapeshiftoss/investor-foxy@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-1.0.2.tgz#f4357efeb98862e3b833c51c91f31d672fb9c98e"
   integrity sha512-W47ytUVqXkKcE3GWiEfSoQ50eK2gPQKhpM9ja9WuMR4zH0WEjc1LVP66oMvDHADO2t/sINJnXessKtu1yt+EwA==

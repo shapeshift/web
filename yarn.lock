@@ -3945,10 +3945,10 @@
     "@sentry/types" "6.17.2"
     tslib "^1.9.3"
 
-"@shapeshiftoss/asset-service@^2.0.0":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.0.2.tgz#dcfc7b26e2733dfab9d34d1a7928d02151a62b95"
-  integrity sha512-aMFvLM1Cf8vXMxdZQNehQ4vlTSNHC2ueKJgzMj+cGjlSzrkhZgG+UmrdiYpfYvElRzNhixaBSVCB2IV71I8Yzw==
+"@shapeshiftoss/asset-service@^2.2.0":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/asset-service/-/asset-service-2.2.2.tgz#b4afc58a9a5bf6b11e73471be7f7b3944635bee0"
+  integrity sha512-ZEzuzHpCXuleze1XQmRNgJmnWSwq2VQYXdY7CKfWxLfhGkf6ZJt9DlDatzqeNRnscP7VvgrjrZIeQL6AjGf5qg==
   dependencies:
     axios "^0.26.0"
     identicon.js "^2.3.3"

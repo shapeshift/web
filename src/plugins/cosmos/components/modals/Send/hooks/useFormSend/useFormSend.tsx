@@ -39,6 +39,7 @@ export const useFormSend = () => {
           const address = to
           result = await (adapter as ChainAdapter<ChainTypes.Cosmos>).buildSendTransaction({
             to: address,
+            memo,
             value,
             wallet,
             chainSpecific: { gas, fee },

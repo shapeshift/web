@@ -41,7 +41,9 @@
     "copied": "Copied to clipboard.",
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
-    "viewAsset": "View Asset"
+    "viewAsset": "View Asset",
+    "settings": "Settings",
+    "legalDated": "Dated: January 2022"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -239,7 +241,8 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
+    "foxToken": "FOX Token",
+    "featureFlags": "Feature Flags"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",
@@ -384,6 +387,10 @@
         "fees": "Fees %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "Optional %{assetSymbol} Memo",
+        "assetMemo": "%{assetSymbol} Memo",
+        "charactersRemaining": "%{charactersRemaining} characters remaining",
+        "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
         "sendAmount": "Send Amount",
@@ -476,6 +483,12 @@
     },
     "connect": {
       "loadingText": "Pairing Wallet"
+    },
+    "settings": {
+      "settings": "Settings",
+      "language": "Language",
+      "balanceThreshold": "Balance Threshold",
+      "balanceThresholdTooltip": "Hide balances below this value"
     }
   },
   "walletProvider": {

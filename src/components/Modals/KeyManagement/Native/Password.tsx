@@ -43,7 +43,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting }
-  } = useForm({ mode: 'onChange' })
+  } = useForm({ mode: 'onChange', shouldUnregister: true })
 
   const handleShowClick = () => setShowPw(!showPw)
   const onSubmit = async (values: FieldValues) => {

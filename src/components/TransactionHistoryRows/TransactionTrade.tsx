@@ -66,7 +66,7 @@ export const TransactionTrade = ({
         )}
         <Row title='sentTo'>
           <Address
-            explorerTxLink={txDetails.explorerTxLink}
+            explorerAddressLink={txDetails.explorerAddressLink}
             address={txDetails.to}
             ens={txDetails.ensTo}
           />
@@ -91,7 +91,7 @@ export const TransactionTrade = ({
         )}
         <Row title='receivedFrom'>
           <Address
-            explorerTxLink={txDetails.explorerTxLink}
+            explorerAddressLink={txDetails.explorerAddressLink}
             address={txDetails.from}
             ens={txDetails.ensFrom}
           />

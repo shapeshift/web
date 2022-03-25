@@ -1,20 +1,23 @@
 import { useToast } from '@chakra-ui/react'
 import { AssetDataSource, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 import { SendFormFields, SendInput } from '../../Form'
 import { useFormSend } from './useFormSend'
 
-jest.mock('@chakra-ui/react')
+jest.mock('@chakra-ui/react', () => ({
+  ...jest.requireActual('@chakra-ui/react'),
+  useToast: jest.fn()
+}))
 jest.mock('react-hook-form')
 jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()
 }))
 
-jest.mock('context/ChainAdaptersProvider/ChainAdaptersProvider')
+jest.mock('context/PluginProvider/PluginProvider')
 jest.mock('context/ModalProvider/ModalProvider')
 jest.mock('context/WalletProvider/WalletProvider')
 

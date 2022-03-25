@@ -3,11 +3,12 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { useTranslate } from 'react-polyglot'
-import { SendInput } from 'components/Modals/Send/Form'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+
+import { SendInput } from '../../Form'
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -30,7 +31,7 @@ export const useFormSend = () => {
 
         let result
 
-        const { estimatedFees, feeType, address: to } = data
+        const { memo, estimatedFees, feeType, address: to } = data
         if (adapterType === ChainTypes.Cosmos) {
           const fees = estimatedFees[feeType] as chainAdapters.FeeData<ChainTypes.Cosmos>
           const gas = fees.chainSpecific.gasLimit
@@ -38,6 +39,7 @@ export const useFormSend = () => {
           const address = to
           result = await (adapter as ChainAdapter<ChainTypes.Cosmos>).buildSendTransaction({
             to: address,
+            memo,
             value,
             wallet,
             chainSpecific: { gas, fee },

@@ -43,7 +43,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
     handleSubmit,
     register,
     formState: { errors, isSubmitting }
-  } = useForm({ mode: 'onChange' })
+  } = useForm({ mode: 'onChange', shouldUnregister: true })
 
   return (
     <>

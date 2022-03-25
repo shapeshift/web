@@ -4,6 +4,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { registerSelectors } from 'reselect-tools'
 
+import { logging } from './middleware/logging'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
@@ -23,7 +24,8 @@ const apiMiddleware = [
   portfolioApi.middleware,
   marketApi.middleware,
   assetApi.middleware,
-  txHistoryApi.middleware
+  txHistoryApi.middleware,
+  logging
 ]
 
 const persistedReducer = persistReducer(persistConfig, reducer)

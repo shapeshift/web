@@ -18,7 +18,7 @@
     "@formatjs/intl-locale": "^2.4.45",
     "@formatjs/intl-numberformat": "^7.4.2",
     "@formatjs/intl-pluralrules": "^4.3.2",
-    "@keepkey/keepkey-hardware-controller": "^0.0.9",
+    "@keepkey/keepkey-hardware-controller": "^0.0.11",
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.7.2",
     "@shapeshiftoss/asset-service": "^2.2.0",

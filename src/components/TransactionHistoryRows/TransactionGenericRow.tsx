@@ -66,11 +66,6 @@ export const TransactionGenericRow = ({
   toggleOpen,
   parentWidth
 }: TransactionGenericRowProps) => {
-  // sm: '480px',
-  // md: '768px',
-  // md: '992px',
-  // xl: '1280px',
-  // '2xl': '1440px'
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
   const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
   const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)

@@ -3822,10 +3822,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^6.4.0":
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.4.0.tgz#3e8ec76691c09960268ee45bb75f112a70f83d61"
-  integrity sha512-9nuo6VJr3B+DXpqLkyv1QKB12sxjvOModGMalGJ1KjUx19qevQ+/RtPpLIwdlkziD21Kc6hpWr/FQr8JLApvcw==
+"@shapeshiftoss/blockbook@^6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.5.0.tgz#164fb4423e674ea1ebd11e971b4b3a511b1416cd"
+  integrity sha512-C1Vi76vEDrw1PawCr2qtxaf+g1rSSn5gpzbRLbR5HZ/LLMNZ3GRrtRrSEd5lmz3zxtuZiHSg65v6G9E9tUbq0g==
   dependencies:
     axios "^0.26.0"
     express "^4.17.1"
@@ -4045,12 +4045,12 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.3.0.tgz#67aeb0a8a1a77ec693a3df2414a8874bc8be1382"
   integrity sha512-Emc6adG6um8wVm+p7hHdeqbDKgWaZxrgCB0ir64QAF1wKlzHZnHORzxReUro7zTb0uM2K10mSzwQcuovJ2Y4/Q==
 
-"@shapeshiftoss/unchained-client@^6.4.0":
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.4.0.tgz#ea7d80d82d84bdf096cf91596afb81402fb49fd6"
-  integrity sha512-M+h7hBzhiHfCieyvUe7bqoCoHNgTGAu3w8RSkT9zP/f76BIrL9eEfayX4A3HKLCUXeafZ8SKoyduqWN7TgaIRw==
+"@shapeshiftoss/unchained-client@^6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.5.0.tgz#ca786e21e57879412a6c335db41198f45dd40420"
+  integrity sha512-SSQZodTLlgZI9FUhXK0pm493V7zme1ooICL3Zis+vhuAEeeuyUqCQaf3vze9GT3/NFtt/21EL00yGMwunVHWow==
   dependencies:
-    "@shapeshiftoss/blockbook" "^6.4.0"
+    "@shapeshiftoss/blockbook" "^6.5.0"
     "@shapeshiftoss/caip" "^2.0.0"
     "@shapeshiftoss/logger" "^1.0.0"
     "@shapeshiftoss/types" "^2.0.0"

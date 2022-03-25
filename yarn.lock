@@ -3446,10 +3446,10 @@
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
 
-"@keepkey/keepkey-hardware-controller@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-controller/-/keepkey-hardware-controller-0.0.5.tgz#2ae4dbdb82f749627dfeffa366415b6682b7fd0c"
-  integrity sha512-rInPYd3YZT3iDHocVFHNH426cHIR/thDpkorXmKllsyxtF7Fxy2kfCjrA+fkx+Zzl+H1seHgCVDQ3bJNBWbOeg==
+"@keepkey/keepkey-hardware-controller@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@keepkey/keepkey-hardware-controller/-/keepkey-hardware-controller-0.0.6.tgz#33292c4715fbc3f7616699a3c38e85c3a01cab1d"
+  integrity sha512-EoN/RUNUMdH17m3P1inrfS+ifdXYCbc+vULsgHFEr0eh9bcdAnioL/VoDub8OynAxoknEQoLFwHaI1TFA8sB2w==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@bithighlander/hdwallet-core" "2.14.2"
@@ -3977,10 +3977,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.1.0.tgz#9316d52ca4aefabd6b7af318e3113004628ffffa"
-  integrity sha512-9Smqj1XvpfZ0K2wgTs7264nEXpFyNunllsaOxmfW8GSjcaLQCsirdv1En+ssNoHa8UjsUFC1a8v0UGedDrbi7g==
+"@shapeshiftoss/blockbook@^6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.5.0.tgz#164fb4423e674ea1ebd11e971b4b3a511b1416cd"
+  integrity sha512-C1Vi76vEDrw1PawCr2qtxaf+g1rSSn5gpzbRLbR5HZ/LLMNZ3GRrtRrSEd5lmz3zxtuZiHSg65v6G9E9tUbq0g==
   dependencies:
     axios "^0.26.0"
     express "^4.17.1"
@@ -3993,12 +3993,13 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-2.1.0.tgz#1a483beec633c824936ca26bc07ca9be15d2cdf2"
   integrity sha512-XrsdnHGup+vtyY7mjhdm2ZGZQt25CKOQpjlIHlLIjm49vuXW3IG91O9puw5d2VWifE59S7HTLDO3O9S2HD1b6g==
 
-"@shapeshiftoss/chain-adapters@^2.4.4":
-  version "2.4.5"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.4.5.tgz#2f76660ca1402becc2f9b44591440093309cf72e"
-  integrity sha512-Sj8unTFXG1/JLidVxQorIUaqTYRRhtkK/ptKzx6nHpz8/l2vqCYwsAeh0f3oN5H7Mx2zApSNm5f725avdu+lmw==
+"@shapeshiftoss/chain-adapters@^2.7.1":
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/chain-adapters/-/chain-adapters-2.8.1.tgz#8e2c4f79890b67efecb80184dd9b7a5a2f07a000"
+  integrity sha512-dJG/ZB0aXLt9hVxWSp/IimHXEzSqL75aZVXLmBEYJqUlKa/fmb0TV+9k/oZyGacrnCYYz4bZw1otqa1GPTJoYg==
   dependencies:
     axios "^0.26.0"
+    bech32 "^2.0.0"
     bignumber.js "^9.0.1"
     bitcoinjs-lib "^5.2.0"
     coinselect "^3.1.12"
@@ -4159,26 +4160,31 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-yearn@^1.3.3":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.4.2.tgz#f18a6509308d9a064676d8c13b50f101b5a7f086"
-  integrity sha512-rCmdlJjem9zi4fy+Zxx8c58wbrelVJKPZgwB/+Vi64jhkoeJd4sQ7jDx5AX/Cp5R6HgYiEHziDOIEQ462Di58g==
+"@shapeshiftoss/investor-yearn@^1.4.3":
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-yearn/-/investor-yearn-1.4.4.tgz#009143767b96dd3686c0a4dd07c7aec93b695ddb"
+  integrity sha512-77j7w9s1xgdIYCk2O481Puyq63kwdlRVpeMOQIezhYrad2s8+6TBEy7Eg9hS9PLqpkXSVjULz1ARsZo1EmI/ng==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
-    "@yfi/sdk" "^1.0.29"
+    "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.2"
     lodash "^4.17.21"
     web3 "^1.7.0"
     web3-core "^1.7.0"
     web3-utils "^1.7.0"
 
-"@shapeshiftoss/market-service@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-2.0.3.tgz#10f34b66179c12f7ac698a0b927b24066bd9aac8"
-  integrity sha512-bVaAe607bqT7gquUMi/nIZ8N+Dk9zDoNsJTFkSPnIJ5Zxa0uy5j0u8vqKZxI/OrZgAkCeQpSWUj58MT8/LzR9g==
+"@shapeshiftoss/logger@^1.0.0":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.0.4.tgz#7e7f7e604dfdeb81136228dbe396affc5e92a4bc"
+  integrity sha512-ns0ruoFbAuG2VbmFOa50gU6f8r/REimGDRTUHv4B3ypGW1wNW7wrWJeL1tTaRhX4bhbYu05X6EfpH811AwELGg==
+
+"@shapeshiftoss/market-service@^2.1.0":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/market-service/-/market-service-2.1.1.tgz#2eccb437d1bfaa6f3fec291919f2902e73af7375"
+  integrity sha512-YqLDRUPU+rWtwCNtSMcTI0bjO0r1IBcCzaGhsASYoG8SS2nbVzhUlg7udhPsPZICsY7t6qDDCzekISUybrS/0w==
   dependencies:
     "@ethersproject/providers" "^5.5.1"
-    "@yfi/sdk" "^1.0.29"
+    "@yfi/sdk" "^1.0.30"
     axios "^0.26.0"
     axios-rate-limit "^1.3.0"
     bignumber.js "^9.0.1"
@@ -4196,28 +4202,29 @@
     google-protobuf "^3.17.0"
     long "^4.0.0"
 
-"@shapeshiftoss/swapper@^2.0.0":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.0.1.tgz#d60242db782da1b755feb49eb20afd56b0693f6c"
-  integrity sha512-KHX4WcfU1HEH6H7YoA10eqmcsjIdy7z7Fdxd4/85XWjUENc5THvYD2l+VGVZsxin5757WpnL+JMeUcOBckEXCw==
+"@shapeshiftoss/swapper@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/swapper/-/swapper-2.0.2.tgz#213056e5ee59a31660583be0ea4b6b314004463d"
+  integrity sha512-+AFw2SCFCTpnpm87cHon84xcWrgGkyObhCCYM7mgmls7iz81QxVYULb9MX/KI8swp3ZWd5jwgcXeBKqd/xv1gQ==
   dependencies:
     axios "^0.26.0"
     bignumber.js "^9.0.1"
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.1.0.tgz#6704f709f2650da671f212278687d32143269a10"
-  integrity sha512-4v7ZyV6LvUZ3z0rTntNxyivpuzhwrAO6lYlxkSNcfoMlrAOiZp9a93QeYFs8enQgphZ3V7giO13LXAEyBWDKpw==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.3.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.4.0.tgz#1eaf0b4bd7abb81725e9fff67c6da575aa7af96c"
+  integrity sha512-DwST061wYr3HOn469F4dzSm3lmcG+CvXRDiBHa7VzkgQ3ywuOqjXDh9dXVvOoWpWD6hxCfKegsLgVBuM3gU9XA==
 
-"@shapeshiftoss/unchained-client@^6.1.0":
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.1.0.tgz#797e4a4e4450e1d4a0595c45ee6314a6d6c48391"
-  integrity sha512-pMasi+t6HxYoWjp6p64LgzMKtrOZ0LJDpdcroJInno7zo59XEXD0y2Elu+7PkqKfk0xYZWF/IWxf2KlipZFilw==
+"@shapeshiftoss/unchained-client@^6.2.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.5.0.tgz#ca786e21e57879412a6c335db41198f45dd40420"
+  integrity sha512-SSQZodTLlgZI9FUhXK0pm493V7zme1ooICL3Zis+vhuAEeeuyUqCQaf3vze9GT3/NFtt/21EL00yGMwunVHWow==
   dependencies:
-    "@shapeshiftoss/blockbook" "^6.1.0"
+    "@shapeshiftoss/blockbook" "^6.5.0"
     "@shapeshiftoss/caip" "^2.0.0"
+    "@shapeshiftoss/logger" "^1.0.0"
     "@shapeshiftoss/types" "^2.0.0"
     "@yfi/sdk" "^1.0.30"
     bignumber.js "^9.0.1"
@@ -6991,7 +6998,7 @@
   resolved "https://registry.yarnpkg.com/@yarnpkg/lockfile/-/lockfile-1.1.0.tgz#e77a97fbd345b76d83245edcd17d393b1b41fb31"
   integrity sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==
 
-"@yfi/sdk@^1.0.29", "@yfi/sdk@^1.0.30":
+"@yfi/sdk@^1.0.30":
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@yfi/sdk/-/sdk-1.1.1.tgz#237899a175fe177e13b1f98111811027da01602d"
   integrity sha512-UObLdc6T3DJpp7rUKLqM7eit62v4CBMRI2pcXgFLJ2PJraCLlpG+pUSxxwFFZLLgTavfqwleMvo8xML3gnnsbg==

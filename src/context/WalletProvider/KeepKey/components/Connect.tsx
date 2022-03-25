@@ -110,6 +110,18 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
            * deviceId recieved from the wallet, so we need to keep
            * aliases[deviceId] in the local wallet storage.
            */
+          setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
+          history.push('/keepkey/success')
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name: label, icon, deviceId, meta: { label } }
+          })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          /**
+           * The real deviceId of KeepKey wallet could be different from the
+           * deviceId recieved from the wallet, so we need to keep
+           * aliases[deviceId] in the local wallet storage.
+           */
           setLocalWalletTypeAndDeviceId(KeyManager.KeepKey, state.keyring.aliases[deviceId])
           history.push('/keepkey/success')
         }

@@ -43,7 +43,8 @@
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
     "settings": "Settings",
-    "legalDated": "Dated: January 2022"
+    "legalDated": "Dated: January 2022",
+    "approveOnWallet": "Approve On Wallet"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -426,7 +427,13 @@
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
-      "slippageSettings": "Slippage Settings"
+      "slippageSettings": "Slippage Settings",
+      "withdrawType": "Withdraw Type",
+      "instant": "Instant",
+      "delayed": "~7 days",
+      "fee": "%{fee}% %{symbol} fee",
+      "noFee": "No %{symbol} fee",
+      "requestWithdraw": "Request Withdraw"
     },
     "approve": {
       "header": "Allow ShapeShift DAO Router to spend your %{asset}",

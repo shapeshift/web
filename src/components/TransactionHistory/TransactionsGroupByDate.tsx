@@ -1,8 +1,9 @@
 import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo } from 'react'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
+import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
 import { selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -21,19 +22,9 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
   txIds,
   useCompactMode = false
 }) => {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const [parentWidth, setParentWidth] = useState(0)
+  const { setNode, entry } = useResizeObserver()
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
   const borderTopColor = useColorModeValue('gray.100', 'gray.750')
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(event => {
-      setParentWidth(event[0].contentBoxSize[0].inlineSize)
-    })
-
-    if (ref.current) {
-      resizeObserver.observe(ref.current)
-    }
-  }, [ref])
   const txRows = useMemo(() => {
     const groups: TransactionGroup[] = []
     for (let index = 0; index < transactions.length; index++) {
@@ -61,15 +52,15 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
             txId={txId}
             useCompactMode={useCompactMode}
             showDateAndGuide={index === 0}
-            parentWidth={parentWidth}
+            parentWidth={entry?.contentRect.width ?? 360}
           />
         ))}
       </Stack>
     ))
-  }, [parentWidth, txRows, useCompactMode])
+  }, [entry?.contentRect.width, txRows, useCompactMode])
 
   return (
-    <Stack ref={ref} divider={<StackDivider borderColor={borderTopColor} />}>
+    <Stack ref={setNode} divider={<StackDivider borderColor={borderTopColor} />}>
       {renderTxRows}
     </Stack>
   )

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { CAIP2, caip2, CAIP10, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { mergeWith } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
@@ -11,7 +11,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { accountToPortfolio } from './utils'
+import { accountToPortfolio, assetIdtoChainId } from './utils'
 
 // TODO(0xdef1cafe): this needs a better home, probably in chain adapters
 export const supportedAccountTypes = {
@@ -136,16 +136,6 @@ export const portfolio = createSlice({
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
 
-      /**
-       * WIP(0xdef1cafe): when we refetch the portfolio, we need to upsert, but not sum,
-       * otherwise our balances suddenly ~double
-       *
-       * the new incoming account balance will be correct so we can just replace those
-       *
-       * for the assetBalance, we'll need to calculate the diff between the previous and
-       * new, and upsert the difference, rather than the payload.
-       *
-       */
       state.assetBalances.byId = mergeWith(
         state.assetBalances.byId,
         payload.assetBalances.byId,
@@ -175,9 +165,9 @@ export const portfolio = createSlice({
     },
     clearAssetsBalanceByChain: (state, { payload }: { payload: { chain: string } }) => {
       const toBeRemovedKeys = Object.keys(state.assetBalances.byId).reduce(
-        (acc: string[], assetCaip19: string) => {
-          const { chain } = caip19.fromCAIP19(assetCaip19)
-          if (chain === payload.chain) acc.push(assetCaip19)
+        (acc: AccountSpecifier[], assetCaip19: CAIP19) => {
+          const chainId = assetIdtoChainId(assetCaip19)
+          if (chainId === payload.chain) acc.push(assetCaip19)
           return acc
         },
         []

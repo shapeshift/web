@@ -3,6 +3,7 @@ import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/c
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
+import isNil from 'lodash/isNil'
 import { useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -88,7 +89,7 @@ export const ClaimStatus = () => {
       if (!foxy || !txid) return
       const transactionReceipt = await poll({
         fn: () => foxy.getTxReceipt({ txid }),
-        validate: (result: TransactionReceipt) => result.status === true,
+        validate: (result: TransactionReceipt) => !isNil(result),
         interval: 15000,
         maxAttempts: 30
       })

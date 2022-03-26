@@ -19,6 +19,7 @@ import { SendModal } from 'components/Modals/Send/Send'
 import { SignModal } from 'components/Modals/Sign/Sign'
 import { TroubleshootModal } from 'components/Modals/Troubleshoot/Troubleshoot'
 import { WalletConnectModal } from 'components/Modals/WalletConnect/WalletConnect'
+import { OnboardModal } from 'components/Modals/Onboard/Onboard'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
@@ -41,7 +42,8 @@ const MODALS = {
   walletConnect: WalletConnectModal,
   hardwareError: HardwareErrorModal,
   appSettings: AppSettingsModal,
-  troubleshoot: TroubleshootModal
+  troubleshoot: TroubleshootModal,
+  onboard: OnboardModal
 }
 
 // state

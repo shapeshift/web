@@ -162,7 +162,8 @@ export const start_bridge = (port?: number) => new Promise<void>(async (resolve,
                 if (event.bootloaderUpdateNeeded) {
                     log.info(tag, "Open Bootloader Update")
                     windows?.mainWindow?.webContents.send('closeHardwareError', { error: event.error, code: event.code, event })
-                    windows?.mainWindow?.webContents.send('openBootloaderUpdate', event)
+                    // windows?.mainWindow?.webContents.send('openBootloaderUpdate', event)
+                    windows?.mainWindow?.webContents.send('@onboard/open', event)
                 }
 
                 if (event.firmwareUpdateNeeded) {

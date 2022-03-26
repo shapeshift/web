@@ -208,7 +208,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
 const WalletContext = createContext<IWalletContext | null>(null)
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  const { sign, pair, firmware, bootloader, hardwareError } = useModal()
+  const { sign, pair, firmware, bootloader, hardwareError, onboard } = useModal()
   const [state, dispatch] = useReducer(reducer, initialState)
   useKeyringEventHandler(state)
   useKeepKeyEventHandler(state, dispatch)
@@ -249,7 +249,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   //onStart()
   useEffect(() => {
     if (!state.wallet) {
-      hardwareError.open({})
+      //hardwareError.open({})
+      onboard.open({})
       console.info('Starting bridge')
       ipcRenderer.send('@app/start', {
         username: keepkey.username,
@@ -262,6 +263,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
     ipcRenderer.on('@walletconnect/paired', (event, data) => {
       dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
+    })
+
+    ipcRenderer.on('@onboard/open', (event, data) => {
+      onboard.open({})
+    })
+
+    ipcRenderer.on('@onboard/close', (event, data) => {
+      onboard.close()
     })
 
     //listen to events on main

@@ -1,9 +1,19 @@
-import { SupportedYearnVault, YearnVault } from '@shapeshiftoss/investor-yearn'
+import { DefiType } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { WithdrawType, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 type SupportedFoxyOpportunity = {
-
+  type: DefiType
+  provider: string
+  version: string
+  contractAddress: string
+  rewardToken: string
+  stakingToken: string
+  chain: ChainTypes
+  tvl: BigNumber
+  apy: string
+  expired: boolean
 }
 
 type EstimatedGas = {
@@ -17,7 +27,7 @@ type FoxyWithdrawValues = WithdrawValues &
   }
 
 type FoxyWithdrawState = {
-  vault: SupportedFoxyOpportunity
+  foxyOpportunity: SupportedFoxyOpportunity
   userAddress: string | null
   approve: EstimatedGas
   withdraw: FoxyWithdrawValues
@@ -28,40 +38,17 @@ type FoxyWithdrawState = {
 
 export const initialState: FoxyWithdrawState = {
   txid: null,
-  vault: {
-    vaultAddress: '',
-    tokenAddress: '',
+  foxyOpportunity: {
+    contractAddress: '',
+    stakingToken: '',
     provider: '',
     chain: ChainTypes.Ethereum,
-    type: '',
+    type: DefiType.TokenStaking,
     expired: false,
-    address: '',
-    typeId: 'OPPORTUNITY_V2',
-    token: '',
-    name: '',
     version: '',
-    symbol: '',
-    decimals: '',
-    tokenId: '',
-    underlyingTokenBalance: {
-      amount: '0',
-      amountUsdc: '0'
-    },
-    metadata: {
-      symbol: '',
-      pricePerShare: '',
-      migrationAvailable: false,
-      latestVaultAddress: '',
-      depositLimit: '',
-      emergencyShutdown: false,
-      controller: '',
-      totalAssets: '',
-      totalSupply: '',
-      displayName: '',
-      displayIcon: '',
-      defaultDisplayToken: '',
-      hideIfNoDeposits: false
-    }
+    rewardToken: '',
+    tvl: bnOrZero(0),
+    apy: ''
   },
   userAddress: null,
   loading: false,
@@ -81,6 +68,7 @@ export enum FoxyWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
   SET_WITHDRAW = 'SET_WITHDRAW',
+  SET_APPROVE = 'SET_APPROVE',
   SET_LOADING = 'SET_LOADING',
   SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
@@ -90,6 +78,11 @@ export enum FoxyWithdrawActionType {
 type SetVaultAction = {
   type: FoxyWithdrawActionType.SET_OPPORTUNITY
   payload: SupportedFoxyOpportunity | null
+}
+
+type SetApprove = {
+  type: FoxyWithdrawActionType.SET_APPROVE
+  payload: EstimatedGas
 }
 
 type SetWithdraw = {
@@ -119,6 +112,7 @@ type SetTxid = {
 
 type FoxyWithdrawActions =
   | SetVaultAction
+  | SetApprove
   | SetWithdraw
   | SetUserAddress
   | SetLoading
@@ -128,7 +122,9 @@ type FoxyWithdrawActions =
 export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) => {
   switch (action.type) {
     case FoxyWithdrawActionType.SET_OPPORTUNITY:
-      return { ...state, vault: { ...state.vault, ...action.payload } }
+      return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload } }
+    case FoxyWithdrawActionType.SET_APPROVE:
+      return { ...state, approve: action.payload }
     case FoxyWithdrawActionType.SET_WITHDRAW:
       return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
     case FoxyWithdrawActionType.SET_USER_ADDRESS:

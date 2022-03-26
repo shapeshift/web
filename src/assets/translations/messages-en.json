@@ -433,7 +433,12 @@
       "delayed": "~7 days",
       "fee": "%{fee}% %{symbol} fee",
       "noFee": "No %{symbol} fee",
-      "requestWithdraw": "Request Withdraw"
+      "requestWithdraw": "Request Withdraw",
+      "withdrawFee": "There will be separate gas fee to withdraw.",
+      "info": {
+        "delayed": "Once the time has elapsed you will be able to claim your withdraw amount.",
+        "instant": "The instant withdrawal is one transaction and requires you to withdraw the full amount staked."
+      }
     },
     "approve": {
       "header": "Allow ShapeShift DAO Router to spend your %{asset}",

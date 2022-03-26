@@ -1,9 +1,20 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Box,
+  Center,
+  Flex,
+  Link,
+  Stack,
+  useColorModeValue,
+  useToast
+} from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
 // import { FoxyVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -14,7 +25,9 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
+import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
 import { Amount } from 'components/Amount/Amount'
@@ -40,6 +53,7 @@ import { FoxyWithdrawActionType, initialState, reducer } from './WithdrawReducer
 
 enum WithdrawPath {
   Withdraw = '/',
+  Approve = '/approve',
   Confirm = '/confirm',
   ConfirmSettings = '/confirm/settings',
   Status = '/status'
@@ -47,9 +61,10 @@ enum WithdrawPath {
 
 export const routes = [
   { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
-  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
+  { step: 1, path: WithdrawPath.Approve, label: 'Approve' },
+  { step: 2, path: WithdrawPath.Confirm, label: 'Confirm' },
   { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 2, path: WithdrawPath.Status, label: 'Status' }
+  { step: 3, path: WithdrawPath.Status, label: 'Status' }
 ]
 
 type FoxyWithdrawProps = {
@@ -60,8 +75,12 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const history = useHistory()
+  const translate = useTranslate()
+  const alertText = useColorModeValue('blue.800', 'white')
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId, rewardId } = query
+
+  const toast = useToast()
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
@@ -147,22 +166,120 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     if (!state.userAddress) return
     // set withdraw state for future use
     dispatch({ type: FoxyWithdrawActionType.SET_WITHDRAW, payload: formValues })
+    try {
+      // Check is approval is required for user address
+      const _allowance = await api.allowance({
+        tokenContractAddress: rewardId,
+        contractAddress,
+        userAddress: state.userAddress
+      })
+      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
-    const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-    if (!estimatedGasCrypto) return
-    dispatch({
-      type: FoxyWithdrawActionType.SET_WITHDRAW,
-      payload: { estimatedGasCrypto }
-    })
-    history.push(WithdrawPath.Confirm)
+      // Skip approval step if user allowance is greater than requested deposit amount
+      if (allowance.gt(formValues.cryptoAmount)) {
+        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: FoxyWithdrawActionType.SET_WITHDRAW,
+          payload: { estimatedGasCrypto }
+        })
+        history.push(WithdrawPath.Confirm)
+      } else {
+        const estimatedGasCrypto = await getApproveGasEstimate()
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: FoxyWithdrawActionType.SET_APPROVE,
+          payload: { estimatedGasCrypto }
+        })
+        history.push(WithdrawPath.Approve)
+      }
+    } catch (error) {
+      console.error('FoxyWithdraw:handleContinue error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
+    }
+  }
+
+  const getApproveGasEstimate = async () => {
+    if (!state.userAddress || !rewardId) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateApproveGas({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          userAddress: state.userAddress
+        }),
+        api.getGasPrice()
+      ])
+      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+    } catch (error) {
+      console.error('FoxyWithdraw:getApproveEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
+    }
+  }
+
+  const handleApprove = async () => {
+    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    try {
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
+      await api.approve({
+        tokenContractAddress: rewardId,
+        contractAddress,
+        userAddress: state.userAddress,
+        wallet: walletState.wallet
+      })
+      await poll({
+        fn: () =>
+          api.allowance({
+            tokenContractAddress: tokenId,
+            contractAddress,
+            userAddress: state.userAddress!
+          }),
+        validate: (result: string) => {
+          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
+        },
+        interval: 15000,
+        maxAttempts: 30
+      })
+      // Get withdraw gas estimate
+      const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)
+      if (!estimatedGasCrypto) return
+      // TODO(ryankk): Check to see if this is right
+      dispatch({
+        type: FoxyWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCrypto }
+      })
+
+      history.push(WithdrawPath.Confirm)
+    } catch (error) {
+      console.error('FoxyWithdraw:handleApprove error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error'
+      })
+    } finally {
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
+    }
   }
 
   const handleConfirm = async () => {
     try {
       if (!state.userAddress || !tokenId || !walletState.wallet) return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
-    const txid = ''
-    const gasPrice = ''
+      const txid = ''
+      const gasPrice = ''
       // const [txid, gasPrice] = await Promise.all([
       //   api.withdraw({
       //     tokenContractAddress: tokenId,
@@ -270,6 +387,34 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
           />
         )
 
+      case WithdrawPath.Approve:
+        return (
+          <Approve
+            asset={asset}
+            feeAsset={feeAsset}
+            cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+              .div(`1e+${feeAsset.precision}`)
+              .toFixed(5)}
+            disableAction
+            fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+              .div(`1e+${feeAsset.precision}`)
+              .times(feeMarketData.price)
+              .toFixed(2)}
+            loading={state.loading}
+            loadingText={translate('common.approveOnWallet')}
+            learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+            preFooter={
+              <Alert status='info' borderRadius='lg' color='blue.500'>
+                <FaGasPump />
+                <AlertDescription textAlign='left' ml={3} color={alertText}>
+                  {translate('modals.withdraw.withdrawFee')}
+                </AlertDescription>
+              </Alert>
+            }
+            onCancel={() => history.push('/')}
+            onConfirm={handleApprove}
+          />
+        )
       case WithdrawPath.Confirm:
         return (
           <Confirm

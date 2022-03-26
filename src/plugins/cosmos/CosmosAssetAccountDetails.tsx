@@ -22,6 +22,29 @@ type AssetDetailsProps = {
 
 export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetDetailsProps) => {
   const cosmosInvestorFlag = useAppSelector(state => selectFeatureFlag(state, 'CosmosInvestor'))
+
+  // TODO: wire up with real validator data
+  const stakingOpportunities = [
+    { id: 1, validatorName: 'Cosmos Validator', apr: 0.12 },
+    {
+      id: 2,
+      validatorName: 'Cosmos Validator',
+      apr: 0.13,
+      stakedAmount: '1234',
+      fiatAmount: 0.556,
+      stakedRewards: '12',
+      fiatRewards: 0.01
+    },
+    {
+      id: 3,
+      validatorName: 'Cosmos Validator',
+      apr: 0.14,
+      stakedAmount: '789123',
+      fiatAmount: 124.556,
+      stakedRewards: '345',
+      fiatRewards: 0.14
+    }
+  ]
   return (
     <Main titleComponent={<AssetHeader assetId={caip19} accountId={accountId} />}>
       <Stack
@@ -34,7 +57,9 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           <AssetChart accountId={accountId} assetId={caip19} isLoaded={true} />
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
-          {cosmosInvestorFlag && <StakingOpportunities />}
+          {cosmosInvestorFlag && (
+            <StakingOpportunities stakingOpportunities={stakingOpportunities} />
+          )}
           <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>

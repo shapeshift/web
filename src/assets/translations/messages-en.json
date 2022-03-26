@@ -161,6 +161,7 @@
     "confirmDetails": "Confirm Details",
     "broadcastingTransaction": "Broadcasting Transaction",
     "validator": "Validator",
+    "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
     "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",

@@ -155,9 +155,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const handleNextClick = async () => {
     try {
+      setLoading(true)
       const estimatedFees = await estimateFormFees()
       setValue(SendFormFields.EstimatedFees, estimatedFees)
-      setLoading(true)
       history.push(SendRoutes.Confirm)
     } catch (error) {
       console.error(error)

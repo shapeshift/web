@@ -74,7 +74,7 @@ export const SignModal = (input: any) => {
     let signedTx = await keepkey.signTx(unsignedTx)
     ipcRenderer.send(`@account/tx-signed-${input.nonce}`, { signedTx, nonce: input.nonce })
     //onCloseModal
-    ipcRenderer.send('@modal/close', {})
+    ipcRenderer.send('@modal/sign-close', {})
     setIsApproved(false)
     close()
   }, [
@@ -93,7 +93,7 @@ export const SignModal = (input: any) => {
     //show sign
     ipcRenderer.send('unlockWindow', {})
     //onCloseModal
-    ipcRenderer.send('@modal/close', {})
+    ipcRenderer.send('@modal/sign-close', {})
     close()
   }
 

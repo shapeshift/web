@@ -36,7 +36,7 @@ export const WalletConnectSessionModal = (input: any) => {
   const { close, isOpen } = walletConnect
 
   const HandleSubmit = async (e: any) => {
-    ipcRenderer.send(`@connect/session`, uri)
+    ipcRenderer.send(`@walletconnect/session`, uri)
   }
 
   const handleInputChange = (e: { target: { value: any } }) => setUri(e.target.value)

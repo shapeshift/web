@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 export type PairingProps = NativePairingProps | WalletConnectPairingProps
 
@@ -47,7 +47,7 @@ export const PairModal = (input: PairingProps) => {
   const { close, isOpen } = pair
   const [accounts, setAccounts] = useState<Array<string>>([])
 
-  const { state } = useWallet()
+  const { state, dispatch } = useWallet()
 
   useEffect(() => {
     if (input.type === 'walletconnect') {
@@ -64,8 +64,13 @@ export const PairModal = (input: PairingProps) => {
 
   const HandleSubmit = async () => {
     if (input.type === 'native') ipcRenderer.send(`@bridge/approve-service-${input.nonce}`, input)
-    if (input.type === 'walletconnect')
+    if (input.type === 'walletconnect') {
       ipcRenderer.send(`@walletconnect/approve-${input.nonce}`, { proposal: input.data, accounts })
+      dispatch({
+        type: WalletActions.SET_WALLET_CONNECT_APP,
+        payload: input.data?.params[0]?.peerMeta
+      })
+    }
     close()
   }
 

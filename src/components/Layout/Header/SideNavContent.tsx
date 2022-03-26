@@ -25,6 +25,7 @@ import { FiatRamps } from './NavBar/FiatRamps'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
+import { WalletConnectMenu } from './NavBar/WalletConnectMenu'
 
 type HeaderContentProps = {
   route?: Route
@@ -52,6 +53,9 @@ export const SideNavContent = ({ isCompact }: HeaderContentProps) => {
         <>
           <Flex width='full'>
             <UserMenu />
+          </Flex>
+          <Flex width='full' mt={4}>
+            <WalletConnectMenu />
           </Flex>
           {gemRampFlag && (
             <Flex width='full' mt={4}>

@@ -15,6 +15,7 @@ import { shared } from "./shared";
 import wait from 'wait-promise'
 import { createWindow, windows } from './main';
 import axios from "axios";
+import { openSignTxWindow } from "./utils";
 const sleep = wait.sleep;
 export let walletConnectClient: WalletConnect
 const keccak256 = require('keccak256')
@@ -56,6 +57,8 @@ export async function approveWalletConnect(proposal: any, accounts: Array<string
         log.info(tag, "debug: ", JSON.stringify({ chainId: 1, accounts }))
         const approve = await walletConnectClient.approveSession({ chainId: 1, accounts })
         log.info(tag, "approve response: ", approve)
+        if (windows.mainWindow && !windows.mainWindow.isDestroyed()) 
+        windows.mainWindow.webContents.send('@walletconnect/paired', proposal.params[0]?.peerMeta)
     } catch (e) {
         log.error(e)
     }
@@ -242,11 +245,7 @@ export async function pairWalletConnect(event: any, payload: any) {
             }
 
 
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
-                if (!await createWindow()) return
-            }
-
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return
+           
             log.info(tag, "HDwalletPayload: ", HDwalletPayload)
             const internalNonce = uniqueId()
             let args = {
@@ -278,10 +277,12 @@ export async function pairWalletConnect(event: any, payload: any) {
                 },
                 nonce: internalNonce
             }
+
             log.info(tag, "args: ", args)
             log.info(tag, "args: ", JSON.stringify(args))
-            windows.mainWindow.webContents.send('@account/sign-tx', args);
 
+            openSignTxWindow(args)
+        
             ipcMain.once(`@account/tx-signed-${internalNonce}`, async (event, data) => {
                 const tag = ' | onSignedTx | '
                 if (data.nonce === internalNonce) {
@@ -376,6 +377,10 @@ export async function pairWalletConnect(event: any, payload: any) {
             console.log("payload: ", payload);
 
         });
+
+        ipcMain.on('@walletconnect/disconnect', (event, data) => {
+            walletConnectClient.killSession()
+        })
 
         // //TODO UX pairing
         // event.sender.send("@app/onSuccessPair", {});

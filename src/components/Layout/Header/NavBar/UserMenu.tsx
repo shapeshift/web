@@ -12,7 +12,6 @@ import { Button, Flex, HStack, Link, useColorModeValue } from '@chakra-ui/react'
 import { FC, useEffect, useState } from 'react'
 import { FaPuzzlePiece, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 // import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
@@ -157,17 +156,12 @@ const WalletButton: FC<WalletButtonProps> = ({
 
 export const UserMenu = () => {
   const { state, dispatch, disconnect } = useWallet()
-  const { walletConnect, pairedApps, appSettings } = useModal()
+  const { pairedApps, appSettings } = useModal()
   const { isConnected, walletInfo } = state
   const hasWallet = Boolean(walletInfo?.deviceId)
 
   const handleConnect = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }
-
-  const handleWalletConnect = () => {
-    console.info('OPEN WALLET CONNECT')
-    walletConnect.open({})
   }
 
   const handleAppSettings = () => {
@@ -194,9 +188,6 @@ export const UserMenu = () => {
         ) : (
           <NoWallet onClick={handleConnect} />
         )}
-        <MenuItem icon={<WalletConnectIcon />} onClick={handleWalletConnect}>
-          <Text translation='common.walletConnect' />
-        </MenuItem>
         <MenuItem icon={<SettingsIcon />} onClick={handleAppSettings}>
           <Text translation='common.appSettings' />
         </MenuItem>

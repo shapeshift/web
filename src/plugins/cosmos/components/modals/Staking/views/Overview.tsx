@@ -1,14 +1,14 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { Button, ModalCloseButton } from '@chakra-ui/react'
+import { ModalCloseButton } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
 import { OverviewHeader } from 'plugins/cosmos/components/OverviewHeader/OverviewHeader'
 import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 type StakedProps = {
@@ -62,9 +62,7 @@ export const Overview = ({ assetId }: StakedProps) => {
             fiatRate={bnOrZero('8.47')}
             cryptoRewardsAmount={bnOrZero('23.24')}
           />
-          <Button width='100%' colorScheme='green'>
-            <Text translation={'defi.claim'} color='green' fontWeight='bold' />
-          </Button>
+          <ClaimButton assetId={assetId} />
         </Flex>
       </Box>
     </AnimatePresence>

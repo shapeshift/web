@@ -41,7 +41,10 @@
     "copied": "Copied to clipboard.",
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
-    "viewAsset": "View Asset"
+    "viewAsset": "View Asset",
+    "settings": "Settings",
+    "legalDated": "Dated: January 2022",
+    "approveOnWallet": "Approve On Wallet"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -146,6 +149,13 @@
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
         }
+      },
+      "claim": {
+        "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
+        "title": "Claim Staking Rewards",
+        "confirmAndClaim": "Confirm & Claim",
+        "rewardAmount": "Reward Amount",
+        "claimingRewards": "Claiming Rewards"
       }
     },
     "amountToStake": "Amount to Stake",
@@ -166,6 +176,7 @@
     "unstake": "Unstake",
     "stakeAsset": "Stake %{assetSymbol}",
     "unstakeAsset": "Unstake %{assetSymbol}",
+    "claimAsset": "Claim Staking Rewards",
     "claim": "Claim",
     "rewards": "Rewards",
     "unstaking": "Unstaking",
@@ -231,7 +242,8 @@
     "overview": "Overview",
     "transactions": "Transactions",
     "tradeHistory": "Trade History",
-    "foxToken": "FOX Token"
+    "foxToken": "FOX Token",
+    "featureFlags": "Feature Flags"
   },
   "transactionRow": {
     "send": "Sent %{symbol}",
@@ -377,6 +389,10 @@
         "fees": "Fees %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "Optional %{assetSymbol} Memo",
+        "assetMemo": "%{assetSymbol} Memo",
+        "charactersRemaining": "%{charactersRemaining} characters remaining",
+        "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
         "sendAmount": "Send Amount",
@@ -412,7 +428,13 @@
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
-      "slippageSettings": "Slippage Settings"
+      "slippageSettings": "Slippage Settings",
+      "withdrawType": "Withdraw Type",
+      "instant": "Instant",
+      "delayed": "~7 days",
+      "fee": "%{fee}% %{symbol} fee",
+      "noFee": "No %{symbol} fee",
+      "requestWithdraw": "Request Withdraw"
     },
     "approve": {
       "header": "Allow ShapeShift DAO Router to spend your %{asset}",
@@ -463,6 +485,12 @@
     },
     "connect": {
       "loadingText": "Pairing Wallet"
+    },
+    "settings": {
+      "settings": "Settings",
+      "language": "Language",
+      "balanceThreshold": "Balance Threshold",
+      "balanceThresholdTooltip": "Hide balances below this value"
     }
   },
   "walletProvider": {

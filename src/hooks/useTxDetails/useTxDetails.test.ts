@@ -1,12 +1,13 @@
 import { Asset, chainAdapters } from '@shapeshiftoss/types'
 import { BtcSend, createMockEthTxs, EthReceive, EthSend, TradeTx } from 'test/mocks/txs'
 import {
-  getBuyTx,
-  getSellTx,
+  getBuyTransfer,
+  getSellTransfer,
   getStandardTx,
   getTransferByAsset,
   getTransferByType,
-  isSupportedContract
+  isSupportedContract,
+  isTradeContract
 } from 'hooks/useTxDetails/useTxDetails'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
@@ -17,19 +18,60 @@ describe('getStandardTx', () => {
   })
 })
 
-describe('getBuyTx', () => {
+describe('getBuyTransfer', () => {
   it('returns the expected values', () => {
-    expect(getBuyTx(EthSend)).toBeUndefined()
-    expect(getBuyTx(EthReceive)).toEqual(EthReceive.transfers[0])
-    expect(getBuyTx(TradeTx)).toEqual(TradeTx.transfers[0])
+    expect(getBuyTransfer(EthSend)).toBeUndefined()
+    expect(getBuyTransfer(EthReceive)).toEqual(EthReceive.transfers[0])
+    expect(getBuyTransfer(TradeTx)).toEqual(TradeTx.transfers[0])
   })
 })
 
-describe('getSellTx', () => {
+describe('getSellTransfer', () => {
   it('returns the expected values', () => {
-    expect(getSellTx(EthSend)).toEqual(EthSend.transfers[0])
-    expect(getSellTx(EthReceive)).toBeUndefined()
-    expect(getSellTx(TradeTx)).toEqual(TradeTx.transfers[1])
+    expect(getSellTransfer(EthSend)).toEqual(EthSend.transfers[0])
+    expect(getSellTransfer(EthReceive)).toBeUndefined()
+    expect(getSellTransfer(TradeTx)).toEqual(TradeTx.transfers[1])
+  })
+})
+
+describe('isTradeContract', () => {
+  it('returns true for trade', () => {
+    const account = '0xfoxy'
+    const buy = {
+      from: '0xpoolA',
+      to: account
+    } as chainAdapters.TxTransfer
+    const sell = {
+      from: account,
+      to: '0xpoolB'
+    } as chainAdapters.TxTransfer
+    expect(isTradeContract(buy, sell)).toEqual(true)
+  })
+
+  it('returns false when seller.from !== buyer.to', () => {
+    const buy = {
+      from: '0xpoolA',
+      to: '0xfoxy'
+    } as chainAdapters.TxTransfer
+    const sell = {
+      from: '0xzyzz',
+      to: '0xpoolB'
+    } as chainAdapters.TxTransfer
+    expect(isTradeContract(buy, sell)).toEqual(false)
+  })
+
+  it('returns false when sellTransfer.to === buyTransfer.from', () => {
+    const account = '0xfoxy'
+    const pool = '0xpool'
+    const buy = {
+      from: pool,
+      to: account
+    } as chainAdapters.TxTransfer
+    const sell = {
+      from: account,
+      to: pool
+    } as chainAdapters.TxTransfer
+    expect(isTradeContract(buy, sell)).toEqual(false)
   })
 })
 

@@ -1,10 +1,11 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
+import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAccountIdsSortedFiat } from 'state/slices/selectors'
+import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectAccountSpecifierStrings } from 'state/slices/selectors'
 export type MatchParams = {
   accountId: AccountSpecifier
   assetId: CAIP19
@@ -23,8 +24,11 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
    * so we'll redirect user to the "accounts" page,
    * in order to choose the account from beginning.
    */
-  const sortedAccountIds = useSelector(selectPortfolioAccountIdsSortedFiat)
-  if (!sortedAccountIds.includes(accountId)) return <Redirect to='/accounts' />
+  const accountSpecifierStrings = useSelector(selectAccountSpecifierStrings)
+  const isCurrentAccountIdOwner = Boolean(
+    accountSpecifierStrings.map(toLower).includes(toLower(accountId))
+  )
+  if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 
   const caip19 = assetId ? decodeURIComponent(assetId) : null
   if (!caip19) return null

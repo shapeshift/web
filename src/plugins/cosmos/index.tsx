@@ -55,7 +55,7 @@ export function register(): Plugins {
               {
                 path: '/transactions',
                 label: 'navBar.transactions',
-                main: () => <CosmosAssetTxHistory chainId={'cosmos:cosmoshub-4'} />
+                main: () => <CosmosAssetTxHistory chainId={'cosmos:osmosis-1'} />
               }
             ]
           },

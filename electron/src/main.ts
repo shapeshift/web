@@ -280,10 +280,11 @@ autoUpdater.on("update-available", (info) => {
 
 
 autoUpdater.on("download-progress", (progress) => {
-    if (skipUpdateCheckCompleted) return
     let prog = Math.floor(progress.percent);
-    if (windows.splash) windows.splash.webContents.send("@update/percentage", prog);
-    if (windows.splash) windows.splash.setProgressBar(prog / 100);
+    if (windows.splash && !windows.splash.isDestroyed()) windows.splash.webContents.send("@update/percentage", prog);
+    if (windows.splash && !windows.splash.isDestroyed()) windows.splash.setProgressBar(prog / 100);
+    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.webContents.send("@update/percentage", prog);
+    if (windows.mainWindow && !windows.mainWindow.isDestroyed()) windows.mainWindow.setProgressBar(prog / 100);
     // stop timeout that skips the update
     if (skipUpdateTimeout) {
         clearTimeout(skipUpdateTimeout);
@@ -317,18 +318,6 @@ autoUpdater.on("error", () => {
     skipUpdateCheck(windows.splash);
 });
 
-
-
-ipcMain.on('@modal/close', async (event, data) => {
-    if (!windows.mainWindow) return
-    const tag = TAG + ' | onCloseModal | '
-    try {
-        windows.mainWindow.setAlwaysOnTop(false)
-    } catch (e) {
-        log.error('e: ', e)
-        log.error(tag, e)
-    }
-})
 
 ipcMain.on('@account/info', async (event, data) => {
     const tag = TAG + ' | onAccountInfo | '
@@ -474,8 +463,9 @@ ipcMain.on('@bridge/running', (event, data) => {
     event.sender.send('@bridge/running', bridgeRunning)
 })
 
-ipcMain.on('@connect/pair', async (event, data) => {
+ipcMain.on('@walletconnect/pair', async (event, data) => {
     const tag = TAG + ' | onPairWalletConnect | '
+    console.log(data)
     try {
         pairWalletConnect(event, data)
     } catch (e) {

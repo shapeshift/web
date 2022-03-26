@@ -16,29 +16,22 @@ import { Link, useHistory } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
 import { KeepKeyIcon } from 'components/Icons/KeepKeyIcon'
 // import { FoxIcon } from 'components/Icons/FoxIcon'
-import { WalletConnectIcon } from 'components/Icons/WalletConnect'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
-import { useModal } from '../../../context/ModalProvider/ModalProvider'
 // import { useWallet } from '../../../context/WalletProvider/WalletProvider'
 import { AutoCompleteSearch } from './AutoCompleteSearch/AutoCompleteSearch'
 import { FiatRamps } from './NavBar/FiatRamps'
 import { UserMenu } from './NavBar/UserMenu'
+import { WalletConnectMenu } from './NavBar/WalletConnectMenu'
 import { SideNavContent } from './SideNavContent'
 
 export const Header = ({ route }: { route: Route }) => {
   const { onToggle, isOpen, onClose } = useDisclosure()
-  const { walletConnect } = useModal()
   const history = useHistory()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   // const { state, dispatch } = useWallet()
-
-  const handleWalletConnect = () => {
-    console.info('OPEN WALLET CONNECT')
-    walletConnect.open({})
-  }
 
   /**
    * FOR DEVELOPERS:
@@ -90,18 +83,6 @@ export const Header = ({ route }: { route: Route }) => {
             </Link>
             {/*<small>{state.keepkeyState}: {state.keepkeyStatus}</small>*/}
           </Flex>
-          <Flex>
-            <div
-              role='button'
-              //@ts-ignore
-              tabIndex='0'
-              className='pwdicon'
-              onClick={handleWalletConnect}
-              onKeyDown={handleWalletConnect}
-            >
-              <WalletConnectIcon />
-            </div>
-          </Flex>
           <HStack
             width='100%'
             flex={1}
@@ -120,6 +101,9 @@ export const Header = ({ route }: { route: Route }) => {
                 <FiatRamps />
               </Box>
             )}
+            <Box display={{ base: 'none', md: 'block' }} mr={{ base: 0, md: 4 }}>
+              <WalletConnectMenu />
+            </Box>
             <Box display={{ base: 'none', md: 'block' }}>
               <UserMenu />
             </Box>

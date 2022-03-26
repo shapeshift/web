@@ -7,6 +7,7 @@ import { shared, userType } from '../../shared';
 import wait from 'wait-promise'
 import { BinanceGetAddress, BTCGetAddress, BTCSignedTx, BTCSignTxKK, CosmosGetAddress, CosmosSignedTx, CosmosSignTx, ETHGetAddress, ETHSignedTx, ETHSignTx, OsmosisGetAddress, PublicKey, ThorchainGetAddress, ThorchainSignTx, ThorchainTx } from '@shapeshiftoss/hdwallet-core'
 import { uniqueId } from 'lodash';
+import { openSignTxWindow } from '../../utils';
 
 @Tags('Secured Endpoints')
 @Route('')
@@ -176,20 +177,8 @@ export class SecuredController extends Controller {
     @Response(500, "Internal server error")
     public async signTransaction(@Body() body: any): Promise<SignedTx | Error> {
         return new Promise<SignedTx | Error>(async (resolve, reject) => {
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) {
-                if (!await createWindow()) return reject()
-            }
-
-            if (!windows.mainWindow || windows.mainWindow.isDestroyed()) return reject()
-
-            windows.mainWindow.setAlwaysOnTop(true)
-            if (!windows.mainWindow.isFocusable) {
-                windows.mainWindow.focus()
-                app.dock.show()
-            }
-
             const internalNonce = uniqueId()
-            windows.mainWindow.webContents.send('@account/sign-tx', { payload: body, nonce: internalNonce })
+            openSignTxWindow({ payload: body, nonce: internalNonce })
 
             ipcMain.once(`@account/tx-signed-${internalNonce}`, async (event, data) => {
                 if (data.nonce === internalNonce) {

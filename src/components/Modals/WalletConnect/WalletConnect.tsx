@@ -40,7 +40,7 @@ export const WalletConnectModal = (input: any) => {
   const HandleSubmit = async (e: any) => {
     console.info('uri: ', uri)
     //let uri = "wc:240dd2161033bac5777092fa4d9eca9862ad2b50e85296f6e5cfa2cc14add821@2?controller=false&publicKey=1912b3c960e59faec30dd2a6776fb95503f207f1e73e0bc150d985b8d352f676&relay=%7B%22protocol%22%3A%22waku%22%7D"
-    ipcRenderer.send(`@connect/pair`, uri)
+    ipcRenderer.send(`@walletconnect/pair`, uri)
     close()
   }
 

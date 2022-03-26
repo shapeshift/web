@@ -18,8 +18,11 @@
     "withdraw": "Withdraw",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
+    "connectApp": "Connect App",
     "connectedWallet": "Connected Wallet",
+    "connectedApp": "Connected App",
     "noWallet": "No Wallet Connected",
+    "noApp": "No App Connected",
     "seeAll": "See All",
     "darkMode": "Dark Mode",
     "darkTheme": "Dark Theme",
@@ -102,6 +105,13 @@
     "body": "A companion app for the KeepKey hardware wallet",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet"
+  },
+  "walletConnect": {
+    "menu": {
+      "triggerButton": "Connect App",
+      "switchApp": "Switch App",
+      "disconnect": "Disconnect"
+    }
   },
   "connectWallet": {
     "menu": {

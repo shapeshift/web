@@ -34,7 +34,8 @@ export enum WalletActions {
   SET_KEEPKEY_STATUS = 'SET_KEEPKEY_STATUS',
   SET_PIONEER = 'SET_PIONEER',
   RESET_STATE = 'RESET_STATE',
-  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING'
+  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING',
+  SET_WALLET_CONNECT_APP = 'SET_WALLET_CONNECT_APP'
 }
 
 type GenericAdapter = {
@@ -51,6 +52,13 @@ export type WalletInfo = {
   meta?: { label?: string; address?: string }
 }
 
+export type WalletConnectApp = {
+  name: string
+  icons: Array<string>
+  description: string
+  url: string
+}
+
 export interface InitialState {
   keyring: Keyring
   adapters: Adapters | null
@@ -61,6 +69,7 @@ export interface InitialState {
   keepkeyStatus: string | null
   keepkeyState: any //TODO why cant this be number?
   keepkey: any
+  walletConnectApp: WalletConnectApp | null
   isConnected: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
@@ -73,6 +82,7 @@ const initialState: InitialState = {
   type: null,
   keepkeyStatus: null,
   keepkeyState: 0,
+  walletConnectApp: null,
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
@@ -130,6 +140,7 @@ export type ActionTypes =
   | { type: WalletActions.SET_KEEPKEY_STATUS; payload: string }
   | { type: WalletActions.SET_PIONEER; payload: any | null }
   | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
+  | { type: WalletActions.SET_WALLET_CONNECT_APP; payload: WalletConnectApp | null }
   | { type: WalletActions.RESET_STATE }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -176,6 +187,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, keepkey: action.payload }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
+    case WalletActions.SET_WALLET_CONNECT_APP:
+      if (action.payload === null) ipcRenderer.send('@walletconnect/disconnect')
+      return { ...state, walletConnectApp: action.payload }
     case WalletActions.RESET_STATE:
       return {
         ...state,
@@ -245,6 +259,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     } else {
       ipcRenderer.send('@wallet/connected')
     }
+
+    ipcRenderer.on('@walletconnect/paired', (event, data) => {
+      dispatch({ type: WalletActions.SET_WALLET_CONNECT_APP, payload: data })
+    })
 
     //listen to events on main
     ipcRenderer.on('hardware', (event, data) => {

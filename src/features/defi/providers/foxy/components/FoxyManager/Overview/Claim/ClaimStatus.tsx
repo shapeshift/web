@@ -2,7 +2,6 @@ import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakr
 import { AssetNamespace, AssetReference, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import BigNumber from 'bignumber.js'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { useEffect, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
@@ -29,7 +28,6 @@ interface ClaimStatusState {
   userAddress: string
   estimatedGas: string
   usedGasFee?: string
-  gasPrice: BigNumber
   status: string
   chain: ChainTypes
 }
@@ -67,7 +65,7 @@ export const ClaimStatus = () => {
   const { foxy } = useFoxy()
   const translate = useTranslate()
   const {
-    state: { txid, amount, assetId, userAddress, estimatedGas, gasPrice, chain }
+    state: { txid, amount, assetId, userAddress, estimatedGas, chain }
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
     txStatus: TxStatus.PENDING
@@ -87,13 +85,14 @@ export const ClaimStatus = () => {
 
   useEffect(() => {
     ;(async () => {
-      if (!foxy || !txid || !gasPrice) return
+      if (!foxy || !txid) return
       const transactionReceipt = await poll({
         fn: () => foxy.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => result.status === true,
         interval: 15000,
         maxAttempts: 30
       })
+      const gasPrice = await foxy.getGasPrice()
       setState({
         ...state,
         txStatus: transactionReceipt.status === true ? TxStatus.SUCCESS : TxStatus.FAILED,
@@ -145,7 +144,10 @@ export const ClaimStatus = () => {
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto value={amount} symbol={asset?.symbol} />
+              <Amount.Crypto
+                value={bnOrZero(amount).div(`1e+${asset.precision}`).toString()}
+                symbol={asset?.symbol}
+              />
             </Row.Value>
           </Row>
           <Row>

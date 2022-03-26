@@ -34,11 +34,6 @@ type ClaimConfirmProps = {
   onBack: () => void
 }
 
-type GasFeeProps = {
-  cryptoAmount: string
-  fiatAmount: string
-}
-
 export const ClaimConfirm = ({
   assetId,
   amount,
@@ -47,7 +42,7 @@ export const ClaimConfirm = ({
   onBack
 }: ClaimConfirmProps) => {
   const [userAddress, setUserAddress] = useState<string>('')
-  const [gasFee, setGasFee] = useState<GasFeeProps>({ cryptoAmount: '0', fiatAmount: '0' })
+  const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const chainAdapterManager = useChainAdapters()
   const { foxy } = useFoxy()
@@ -74,22 +69,18 @@ export const ClaimConfirm = ({
     if (!walletState.wallet || !contractAddress || !userAddress || !foxy) return
     setLoading(true)
     try {
-      const [txid, gasPrice] = await Promise.all([
-        foxy.claimWithdraw({
-          claimAddress: userAddress,
-          userAddress,
-          wallet: walletState.wallet,
-          contractAddress
-        }),
-        foxy.getGasPrice()
-      ])
+      const txid = await foxy.claimWithdraw({
+        claimAddress: userAddress,
+        userAddress,
+        wallet: walletState.wallet,
+        contractAddress
+      })
       history.push('/status', {
         txid,
         assetId,
         amount,
         userAddress,
-        gasPrice,
-        estimatedGas: gasFee.cryptoAmount,
+        estimatedGas,
         chain
       })
     } catch (error) {
@@ -122,12 +113,7 @@ export const ClaimConfirm = ({
           foxy.getGasPrice()
         ])
         const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        const gasFeeCrypto = bnOrZero(gasEstimate).div(`1e+${feeAsset.precision}`).toFixed(5)
-        const gasFeeFiat = bnOrZero(gasFeeCrypto).times(feeMarketData.price).toString()
-        setGasFee({
-          cryptoAmount: gasFeeCrypto,
-          fiatAmount: gasFeeFiat
-        })
+        setEstimatedGas(gasEstimate)
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyClaim error:', error)
@@ -185,17 +171,22 @@ export const ClaimConfirm = ({
             <Row.Value>
               <SkeletonText
                 noOfLines={2}
-                isLoaded={!!bnOrZero(gasFee.fiatAmount).gt(0)}
+                isLoaded={!!bnOrZero(estimatedGas).gt(0)}
                 fontSize='md'
                 display='flex'
                 flexDir='column'
                 alignItems='flex-end'
               >
                 <Stack textAlign='right' spacing={0}>
-                  <Amount.Fiat value={gasFee.fiatAmount} />
+                  <Amount.Fiat
+                    value={bnOrZero(estimatedGas)
+                      .div(`1e+${feeAsset.precision}`)
+                      .times(feeMarketData.price)
+                      .toFixed(2)}
+                  />
                   <Amount.Crypto
                     color='gray.500'
-                    value={gasFee.cryptoAmount}
+                    value={bnOrZero(estimatedGas).div(`1e+${feeAsset.precision}`).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />
                 </Stack>

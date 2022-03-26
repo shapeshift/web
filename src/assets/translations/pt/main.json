@@ -11,6 +11,7 @@
     "created": "Criado em %{date}",
     "noResultsFound": "Nenhum resultado encontrado.",
     "insufficientFunds": "Saldo insuficiente",
+    "insufficientAmountForGas": "ETH insuficiente para cobrir taxas de gás",
     "invalidAddress": "Endereço inválido",
     "unresolvableEnsDomain": "Não foi possível localizar o domínio ENS",
     "deposit": "Depositar",
@@ -21,9 +22,12 @@
     "noWallet": "Carteira não conectada",
     "seeAll": "Ver tudo",
     "darkMode": "Modo noturno",
+    "darkTheme": "Tema Escuro",
+    "lightTheme": "Tema Claro",
     "rename": "Renomear",
     "forget": "Esqueceu?",
     "available": "Disponível",
+    "or": "ou",
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
     "transactionFailed": "Falha na transação",
@@ -32,7 +36,12 @@
     "send": "Enviar",
     "receive": "Receber",
     "privacy": "Política de Privacidade",
-    "terms": "Termos de Serviço"
+    "terms": "Termos de Serviço",
+    "days": "Dias",
+    "copied": "Copiado para área de transferência.",
+    "copyFailed": "Não foi possível copiar.",
+    "copyFailedDescription": "Por favor, copie manualmente",
+    "viewAsset": "Visualizar Ativo"
   },
   "updateToast": {
     "body": "Nova versão do aplicativo disponível",
@@ -47,6 +56,7 @@
       "balance": "Saldo",
       "price": "Preço",
       "value": "Valor",
+      "priceChange": "Variação de Preço",
       "allocation": "Alocação",
       "empty": {
         "title": "Cri.. Cri.. Eu ouvi um grilo?",
@@ -56,6 +66,22 @@
     "recentTransactions": {
       "recentTransactions": "Transações Recentes"
     }
+  },
+  "fiatRamps": {
+    "routeTitle": "Comprar ou Vender",
+    "routeTitleForGem": "Gem on Ramp",
+    "title": "Compre ou venda criptomoedas",
+    "titleMessage": "A ShapeShift possui parceria com provedores de moeda fiduciária para compra e venda de criptomoedas.",
+    "gem": "GEM",
+    "gemMessage": "Comprar ou Vender criptomoedas com GEM",
+    "comingSoon": "Em breve...",
+    "buy": "Comprar",
+    "sell": "Vender",
+    "assetToBuy": "Ativo para comprar",
+    "selectAnAssetToBuy": "Selecione um ativo para comprar",
+    "assetToSell": "Ativo para vender",
+    "selectAnAssetToSell": "Selecione um ativo para vender",
+    "headerLabel": "Comprar/Vender Criptomoedas"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -75,7 +101,45 @@
     }
   },
   "defi": {
+    "modals": {
+      "learnMore": {
+        "headers": {
+          "aboutStakingRewards": "Sobre as recompensas de Staking"
+        },
+        "bodies": {
+          "rateFluctuationInfo": "A taxa de %{assetName} que você ganha, o Retorno Percentual Anual (APR), normalmente oscila entre 7% e 20%.",
+          "amountStakingInfo": "Você pode fazer stake de qualquer quantia de %{assetName} e eles começarão imediatamente a gerar recompensas.",
+          "withdrawInfo": "Você pode retirar suas recompensas a qualquer momento, o que exige uma pequena taxa de gás em torno de ~$0,01.",
+          "unbondingInfo": "Quando você retirar seus tokens, eles permanecerão bloqueados por 14 dias, durante os quais não ganharão recompensas. Após os 14 dias, seu %{assetName} retornará à sua Carteira.",
+          "slashingInfo": "O staking é feito através de um validador. É incrivelmente raro, mas se o validador com o qual você realizou o stake errar ao permitir transações falsas ou incorretas, você poderá perder uma parte de seus ativos.",
+          "partnerInfo": "Reduzimos esse risco em parceria com validadores confiáveis, que possuem uma infraestrutura segura e auditada."
+        },
+        "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
+        "cta": {
+          "startStaking": "Deposite em Staking"
+        }
+      },
+      "getStarted": {
+        "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
+        "cta": {
+          "startStaking": "Realizar Staking"
+        }
+      },
+      "staking": {
+        "tooltip": {
+        }
+      }
+    },
+    "amountToStake": "Montante para depósito",
+    "amountToUnstake": "Valor a retirar",
+    "averageApr": "APR média",
+    "staked": "Depósitos",
+    "assetStaking": "%{assetName} em Stake",
+    "stake": "Stake",
+    "unstake": "Remover Stake",
+    "unstaking": "Retirando Staking",
     "earn": "Investimentos",
+    "apr": "APR",
     "defi": "DeFi",
     "defiBody": "Explore o crescente universo DeFi.",
     "netWorth": "Patrimônio líquido",
@@ -139,7 +203,15 @@
     "from": "Para",
     "trade": "Troca",
     "amount": "Montante",
-    "for": "Por"
+    "for": "Por",
+    "parser": {
+      "yearn": {
+      },
+      "uniV2": {
+      },
+      "thor": {
+      }
+    }
   },
   "trade": {
     "searchingRate": "Procurando a melhor taxa...",
@@ -215,6 +287,10 @@
           "length": "Sua senha deve conter ao menos %{length} caracteres",
           "maxLength": "Apelido deve conter no máximo %{length} caracteres"
         }
+      }
+    },
+    "stake": {
+      "txFees": {
       }
     },
     "send": {
@@ -529,5 +605,13 @@
   "accounts": {
     "accounts": "Contas"
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat."
+  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
+  "transactionHistory": {
+    "filters": {
+    },
+    "csv": {
+    },
+    "transactionTypes": {
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query'
 import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
+import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
@@ -57,6 +58,19 @@ export type TxIdByAccountId = {
 // after logic managing a delay after no new tx's in TransactionsProvider, we're loaded
 export type TxHistoryStatus = 'idle' | 'loading' | 'loaded'
 
+type RebaseId = string
+type RebaseById = {
+  [k: RebaseId]: RebaseHistory
+}
+
+type RebaseByAssetId = {
+  [k: CAIP19]: RebaseId[]
+}
+
+type RebaseByAccountId = {
+  [k: AccountSpecifier]: RebaseId[]
+}
+
 export type TxHistory = {
   txs: {
     byId: TxHistoryById
@@ -64,6 +78,12 @@ export type TxHistory = {
     byAccountId: TxIdByAccountId
     ids: TxId[]
     status: TxHistoryStatus
+  }
+  rebases: {
+    byAssetId: RebaseByAssetId
+    byAccountId: RebaseByAccountId
+    ids: RebaseId[]
+    byId: RebaseById
   }
 }
 
@@ -80,6 +100,12 @@ const initialState: TxHistory = {
     byAssetId: {},
     byAccountId: {},
     status: 'idle'
+  },
+  rebases: {
+    byAssetId: {},
+    byAccountId: {},
+    ids: [],
+    byId: {}
   }
 }
 

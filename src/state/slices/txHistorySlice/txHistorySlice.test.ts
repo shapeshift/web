@@ -20,6 +20,12 @@ describe('txHistorySlice', () => {
         byAccountId: {},
         ids: [],
         status: 'idle'
+      },
+      rebases: {
+        byAssetId: {},
+        byAccountId: {},
+        ids: [],
+        byId: {}
       }
     })
   })
@@ -205,6 +211,12 @@ describe('txHistorySlice', () => {
           byAccountId: {},
           ids: ['a', 'b'],
           status: 'idle'
+        },
+        rebases: {
+          byAssetId: {},
+          byAccountId: {},
+          ids: [],
+          byId: {}
         }
       }
 
@@ -222,6 +234,12 @@ describe('txHistorySlice', () => {
           // this array will always change on every new tx
           ids: ['a', 'b', 'c'],
           status: 'idle'
+        },
+        rebases: {
+          byAssetId: {},
+          byAccountId: {},
+          ids: [],
+          byId: {}
         }
       }
 

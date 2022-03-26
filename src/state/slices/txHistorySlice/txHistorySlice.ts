@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query'
 import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
-import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
+import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
@@ -194,6 +195,7 @@ export const txHistory = createSlice({
 })
 
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
+type FoxyRebaseHistoryArgs = { accountId: AccountSpecifier }
 
 export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
@@ -202,6 +204,26 @@ export const txHistoryApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
+    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], FoxyRebaseHistoryArgs>({
+      queryFn: async ({ accountId }) => {
+        const adapters = getChainAdapters()
+        if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) {
+          const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${ChainTypes.Ethereum}`
+          const status = 418
+          const error = { data, status }
+          return { error }
+        }
+        const adapter = await adapters.byChainId('eip155:1')
+        const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
+        const foxyArgs = { adapter, foxyAddresses, providerUrl }
+        const foxyApi = new FoxyApi(foxyArgs)
+        const userAddress = accountId
+        const tokenContractAddress = foxyAddresses[0].foxy
+        const rebaseHistoryArgs = { userAddress, tokenContractAddress }
+        const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
+        return { data }
+      }
+    }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({
       queryFn: async ({ accountSpecifierMap }, { dispatch }) => {
         if (isEmpty(accountSpecifierMap)) {

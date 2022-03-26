@@ -58,11 +58,13 @@ export type TxIdByAccountId = {
 export type TxHistoryStatus = 'idle' | 'loading' | 'loaded'
 
 export type TxHistory = {
-  byId: TxHistoryById
-  byAssetId: TxIdByAssetId
-  byAccountId: TxIdByAccountId
-  ids: TxId[]
-  status: TxHistoryStatus
+  txs: {
+    byId: TxHistoryById
+    byAssetId: TxIdByAssetId
+    byAccountId: TxIdByAccountId
+    ids: TxId[]
+    status: TxHistoryStatus
+  }
 }
 
 export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }
@@ -72,11 +74,13 @@ export type TxsMessage = {
 
 // https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state
 const initialState: TxHistory = {
-  byId: {},
-  ids: [], // sorted, newest first
-  byAssetId: {},
-  byAccountId: {},
-  status: 'idle'
+  txs: {
+    byId: {},
+    ids: [], // sorted, newest first
+    byAssetId: {},
+    byAccountId: {},
+    status: 'idle'
+  }
 }
 
 /**
@@ -106,34 +110,35 @@ export const makeUniqueTxId = (tx: Tx, accountId: AccountSpecifier): string =>
   `${accountId}-${tx.txid}-${tx.address}`
 
 const updateOrInsert = (txHistory: TxHistory, tx: Tx, accountSpecifier: AccountSpecifier) => {
+  const { txs } = txHistory
   const txid = makeUniqueTxId(tx, accountSpecifier)
 
-  const isNew = !txHistory.byId[txid]
+  const isNew = !txs.byId[txid]
 
   // update or insert tx
-  txHistory.byId[txid] = tx
+  txs.byId[txid] = tx
 
   // add id to ordered set for new tx
   if (isNew) {
-    const orderedTxs = orderBy(txHistory.byId, 'blockTime', ['desc'])
+    const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
     const index = orderedTxs.findIndex(tx => makeUniqueTxId(tx, accountSpecifier) === txid)
-    txHistory.ids.splice(index, 0, txid)
+    txs.ids.splice(index, 0, txid)
   }
 
   // for a given tx, find all the related assetIds, and keep an index of
   // txids related to each asset id
   getRelatedAssetIds(tx).forEach(relatedAssetId => {
-    txHistory.byAssetId[relatedAssetId] = addToIndex(
-      txHistory.ids,
-      txHistory.byAssetId[relatedAssetId],
+    txs.byAssetId[relatedAssetId] = addToIndex(
+      txs.ids,
+      txs.byAssetId[relatedAssetId],
       makeUniqueTxId(tx, accountSpecifier)
     )
   })
 
   // index the tx by the account that it belongs to
-  txHistory.byAccountId[accountSpecifier] = addToIndex(
-    txHistory.ids,
-    txHistory.byAccountId[accountSpecifier],
+  txs.byAccountId[accountSpecifier] = addToIndex(
+    txs.ids,
+    txs.byAccountId[accountSpecifier],
     makeUniqueTxId(tx, accountSpecifier)
   )
 
@@ -150,7 +155,7 @@ export const txHistory = createSlice({
   reducers: {
     clear: () => initialState,
     setStatus: (state, { payload }: TxHistoryStatusPayload) => {
-      state.status = payload
+      state.txs.status = payload
     },
     onMessage: (txState, { payload }: TxMessage) =>
       updateOrInsert(txState, payload.message, payload.accountSpecifier),

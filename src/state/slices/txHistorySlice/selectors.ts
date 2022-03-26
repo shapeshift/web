@@ -10,12 +10,12 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
-export const selectTxValues = (state: ReduxState) => values(state.txHistory.byId)
-export const selectTxs = (state: ReduxState) => state.txHistory.byId
-export const selectTxIds = (state: ReduxState) => state.txHistory.ids
-export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.status
+export const selectTxValues = (state: ReduxState) => values(state.txHistory.txs.byId)
+export const selectTxs = (state: ReduxState) => state.txHistory.txs.byId
+export const selectTxIds = (state: ReduxState) => state.txHistory.txs.ids
+export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status
 
-export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.byAccountId
+export const selectTxIdsByAccountId = (state: ReduxState) => state.txHistory.txs.byAccountId
 
 const selectAccountIdsParam = (_state: ReduxState, accountIds: AccountSpecifier[]) => accountIds
 const selectTxIdsParam = (_state: ReduxState, txIds: TxId[]) => txIds
@@ -53,7 +53,7 @@ export const selectLastNTxIds = createSelector(
 )
 
 export const selectTxById = createSelector(
-  (state: ReduxState) => state.txHistory.byId,
+  (state: ReduxState) => state.txHistory.txs.byId,
   (_state: ReduxState, txId: string) => txId,
   (txsById, txId) => txsById[txId]
 )
@@ -127,7 +127,7 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
   }
 )
 
-export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.byAssetId
+export const selectTxsByAssetId = (state: ReduxState) => state.txHistory.txs.byAssetId
 
 const selectAssetIdParam = (_state: ReduxState, assetId: CAIP19) => assetId
 

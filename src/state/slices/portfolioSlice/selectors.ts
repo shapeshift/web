@@ -184,9 +184,7 @@ export const selectPortfolioCryptoBalancesByAccountIdAboveThreshold = createDeep
     balanceThreshold,
     accountId
   ): PortfolioBalancesById => {
-    const balances = accountId ? accountBalances[accountId] : assetBalances
-    // if accountBalances is not ready yet, accountBalances[accountId] will be undefined
-    if (!balances) return {}
+    const balances = (accountId ? accountBalances[accountId] : assetBalances) ?? {}
     const aboveThresholdBalances = Object.entries(balances).reduce<PortfolioAssetBalances['byId']>(
       (acc, [assetId, baseUnitBalance]) => {
         const precision = assetsById[assetId]?.precision

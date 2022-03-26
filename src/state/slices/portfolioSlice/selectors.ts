@@ -116,10 +116,10 @@ export const selectPortfolioTotalFiatBalance = createSelector(
           acc.plus(
             Object.values(accountFiatBalance).reduce(
               (acc, assetsFiatBalance) => acc.plus(bnOrZero(assetsFiatBalance)),
-              bn(0)
+              bnOrZero('0')
             )
           ),
-        bn(0)
+        bnOrZero('0')
       )
       .toFixed(2)
 )

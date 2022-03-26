@@ -112,12 +112,16 @@ export const ClaimConfirm = ({
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const userAddress = await chainAdapter.getAddress({ wallet: walletState.wallet })
         setUserAddress(userAddress)
-        const gasEstimate = await foxy.estimateClaimWithdrawGas({
-          claimAddress: userAddress,
-          userAddress,
-          contractAddress,
-          wallet: walletState.wallet
-        })
+        const [gasLimit, gasPrice] = await Promise.all([
+          foxy.estimateClaimWithdrawGas({
+            claimAddress: userAddress,
+            userAddress,
+            contractAddress,
+            wallet: walletState.wallet
+          }),
+          foxy.getGasPrice()
+        ])
+        const gasEstimate = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         const gasFeeCrypto = bnOrZero(gasEstimate).div(`1e+${feeAsset.precision}`).toFixed(5)
         const gasFeeFiat = bnOrZero(gasFeeCrypto).times(feeMarketData.price).toString()
         setGasFee({
@@ -145,10 +149,11 @@ export const ClaimConfirm = ({
           <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={asset.icon} />
+            {/* @TODO:  fix precision here for FOX */}
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'
-              value={claimAmount}
+              value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
               symbol={asset?.symbol}
             />
           </Stack>
@@ -178,7 +183,14 @@ export const ClaimConfirm = ({
               <Text translation='common.estimatedGas' />
             </Row.Label>
             <Row.Value>
-              <SkeletonText noOfLines={2} isLoaded={!!gasFee.fiatAmount}>
+              <SkeletonText
+                noOfLines={2}
+                isLoaded={!!bnOrZero(gasFee.fiatAmount).gt(0)}
+                fontSize='md'
+                display='flex'
+                flexDir='column'
+                alignItems='flex-end'
+              >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat value={gasFee.fiatAmount} />
                   <Amount.Crypto

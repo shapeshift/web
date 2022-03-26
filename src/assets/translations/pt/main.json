@@ -74,6 +74,7 @@
     "titleMessage": "A ShapeShift possui parceria com provedores de moeda fiduciária para compra e venda de criptomoedas.",
     "gem": "GEM",
     "gemMessage": "Comprar ou Vender criptomoedas com GEM",
+    "onJuno": "OnJuno",
     "comingSoon": "Em breve...",
     "buy": "Comprar",
     "sell": "Vender",
@@ -81,6 +82,8 @@
     "selectAnAssetToBuy": "Selecione um ativo para comprar",
     "assetToSell": "Ativo para vender",
     "selectAnAssetToSell": "Selecione um ativo para vender",
+    "fundsTo": "Os fundos serão enviados para",
+    "fundsFrom": "Os fundos serão enviados de",
     "headerLabel": "Comprar/Vender Criptomoedas"
   },
   "connectWalletPage": {
@@ -103,8 +106,12 @@
   "defi": {
     "modals": {
       "learnMore": {
+        "next": "Próximo",
+        "close": "Fechar",
         "headers": {
-          "aboutStakingRewards": "Sobre as recompensas de Staking"
+          "aboutStakingRewards": "Sobre as recompensas de Staking",
+          "unstaking": "Desbloqueando seu %{assetName}",
+          "risks": "Existem Riscos?"
         },
         "bodies": {
           "rateFluctuationInfo": "A taxa de %{assetName} que você ganha, o Retorno Percentual Anual (APR), normalmente oscila entre 7% e 20%.",
@@ -116,30 +123,59 @@
         },
         "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
         "cta": {
-          "startStaking": "Deposite em Staking"
+          "startStaking": "Deposite em Staking",
+          "learnMore": "Saber mais"
         }
       },
       "getStarted": {
+        "header": "Aposte seu %{assetName} para ganhar até %{maxApr}% APR*",
+        "body": "Staking é o processo de manter fundos em uma carteira de criptomoedas para apoiar as operações de uma rede blockchain e, em troca, os detentores são recompensados por sua contribuição.",
         "userProtectionInfo": "*Os retornos são estimados e variam de acordo com as condições de mercado.",
         "cta": {
-          "startStaking": "Realizar Staking"
+          "startStaking": "Realizar Staking",
+          "learnMore": "Saber mais"
         }
       },
       "staking": {
+        "estimateDisclaimer": "*As estimativas variam de acordo com as condições do mercado.",
+        "byContinuing": "Ao continuar, você está aceitando o",
+        "risks": "riscos",
+        "ofParticipating": "de participar deste recurso e concordar com o",
+        "terms": "termos",
         "tooltip": {
+          "validator": "O Validador é responsável por processar transações, armazenar dados e adicionar blocos ao blockchain.",
+          "gasFees": "As taxas de gás em %{networkName} são muito mais baixas do que as da Ethereum Mainnet. Esta taxa é paga diretamente aos validadores que protegem e operam a rede e não é paga à ShapeShift."
         }
       }
     },
     "amountToStake": "Montante para depósito",
     "amountToUnstake": "Valor a retirar",
+    "confirmDetails": "Confirmar detalhes",
+    "validator": "Validador",
+    "unstakeFrom": "Retirar de",
+    "gasFee": "Taxa de gás",
+    "unbondInfoItWillTake": "Enquanto seus tokens estiverem apostados, você não poderá transferi-los ou gastá-los. Levará %{unbondingDays} dias para desbloqueá-los depois de desbloqueá-los.",
+    "unbondInfoItWillTakeShort": "Levará %{unbondingDays} dias para retirar seus tokens",
+    "confirmAndBroadcast": "Confirmar e transmitir",
     "averageApr": "APR média",
+    "estimatedYearlyRewards": "Recompensas anuais estimadas",
     "staked": "Depósitos",
     "assetStaking": "%{assetName} em Stake",
     "stake": "Stake",
     "unstake": "Remover Stake",
+    "stakeAsset": "Aposta %{assetSymbol}",
+    "unstakeAsset": "Retirar %{assetSymbol}",
+    "claim": "Afirmação",
+    "rewards": "Recompensas",
     "unstaking": "Retirando Staking",
+    "available": "Disponível %{unbondingEnd}",
     "earn": "Investimentos",
+    "asset": "Ativo",
+    "category": "Categoria",
+    "tvl": "TVL",
+    "apy": "APY",
     "apr": "APR",
+    "balance": "Equilíbrio",
     "defi": "DeFi",
     "defiBody": "Explore o crescente universo DeFi.",
     "netWorth": "Patrimônio líquido",
@@ -159,6 +195,7 @@
     "currentAPY": "APY atualizado",
     "currentAPR": "APR atualizado",
     "yearn": "Yearn Finance",
+    "emptyEarn": "As oportunidades de ganhos aparecerão aqui.",
     "empty": {
       "farming": {
         "body": "Você ainda não possui nenhum investimento por aqui.",
@@ -175,14 +212,23 @@
     }
   },
   "staking": {
-    "staking": "Poupança"
+    "staking": "Poupança",
+    "itWillTake": "Vai levar",
+    "toUnlock": "para desbloquear seu Osmo depois de desmarcar. As recompensas de aposta precisarão ser retiradas separadamente.",
+    "assetStakingBalance": "Saldo de Apostas de %{assetName}"
   },
   "navBar": {
     "dashboard": "Painel de Controle",
     "assets": "Ativos",
+    "assetDetails": "Detalhes do recurso",
     "accounts": "Contas",
+    "accountAsset": "Ativo da conta",
+    "accountDetails": "Detalhes da conta",
     "earn": "Investimentos",
     "defi": "DeFi",
+    "transactionHistory": "Histórico de transações",
+    "overview": "Visão geral",
+    "transactions": "Transações",
     "tradeHistory": "Histórico de Negociações",
     "foxToken": "Token FOX"
   },
@@ -206,12 +252,19 @@
     "for": "Por",
     "parser": {
       "yearn": {
+        "deposit": "Depósito",
+        "approve": "Aprovar",
+        "withdraw": "Retirar"
       },
       "uniV2": {
+        "addLiquidityETH": "Adicionar liquidez",
+        "removeLiquidityETH": "Remover liquidez"
       },
       "thor": {
+        "transferOut": "Transferir para fora"
       }
-    }
+    },
+    "unknown": "Transação"
   },
   "trade": {
     "searchingRate": "Procurando a melhor taxa...",
@@ -291,6 +344,9 @@
     },
     "stake": {
       "txFees": {
+        "low": "Baixo",
+        "medium": "Médio",
+        "high": "Alto"
       }
     },
     "send": {
@@ -299,11 +355,14 @@
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
       "tokenAddress": "Endereço do token",
       "scanQrCode": "Digitalizar código QR",
+      "permissionsButton": "Tente novamente",
       "sent": "enviado %{asset}",
       "errorTitle": "Seu envio de %{asset} falhou",
       "errors": {
+        "generic": "Um erro ocorreu.",
         "notEnoughNativeToken": "Não há %{asset} suficiente para efetivar taxas na rede",
-        "transactionRejected": "O usuário rejeitou a transação"
+        "transactionRejected": "O usuário rejeitou a transação",
+        "qrPermissions": "Esse recurso precisa de permissões de acesso à câmera para funcionar. Por favor, altere as configurações do seu navegador."
       },
       "confirm": {
         "sendAsset": "Enviar %{asset}",
@@ -397,7 +456,8 @@
       "continue": "Visualizar transação",
       "position": "Visualizar posição",
       "viewAsset": "Visualizar Ativo",
-      "close": "Fechar"
+      "close": "Fechar",
+      "viewExplorer": "Ver no Explorador"
     },
     "connect": {
       "loadingText": "Emparelhando carteira"
@@ -496,7 +556,8 @@
       "password": {
         "header": "Insira sua senha",
         "body": "Digite uma senha para criptografar sua carteira. É assim que você acessará sua carteira. Não esqueça esta senha.",
-        "button": "Avançar"
+        "button": "Avançar",
+        "connect": "Conecte-se a outra carteira"
       },
       "create": {
         "header": "Sua Frase Secreta de Recuperação",
@@ -535,7 +596,9 @@
     },
     "selectModal": {
       "header": "Conecte sua carteira",
-      "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift."
+      "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
+      "footer": "Não tem carteira?",
+      "create": "Crie um"
     }
   },
   "graph": {
@@ -568,7 +631,9 @@
         "showLess": "Mostrar menos"
       },
       "assetHistory": {
-        "transactionHistory": "Histórico de transações"
+        "transactionHistory": "Histórico de transações",
+        "recentTransactions": "Transações recentes",
+        "emptyTransactions": "As transações aparecerão aqui."
       },
       "assetAccounts": {
         "account": "Conta",
@@ -607,11 +672,57 @@
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
+    "transactionHistory": "Histórico de transações",
+    "recentTransactions": "Transações recentes",
+    "filter": "Filtro",
     "filters": {
+      "filters": "Filtros",
+      "resetFilters": "Redefinir filtros",
+      "to": "para",
+      "categories": "Categorias",
+      "dayRange": "Período do dia",
+      "10days": "10 dias",
+      "30days": "30 dias",
+      "90days": "90 dias",
+      "send": "Mandar",
+      "trade": "Troca",
+      "receive": "Receber",
+      "custom": "Personalizado",
+      "apply": "Aplicar"
     },
+    "downloadCSV": "Baixar CSV",
     "csv": {
+      "fileName": "Histórico de transações do ShapeShift",
+      "txid": "ID TX",
+      "type": "Tipo TX",
+      "timestamp": "Carimbo de data e hora",
+      "status": "Status",
+      "minerFee": "Taxa de minerador",
+      "minerFeeCurrency": "Moeda da taxa do minerador",
+      "inputAmount": "Valor de entrada",
+      "inputCurrency": "Moeda de entrada",
+      "inputAddress": "Endereço de entrada",
+      "outputAmount": "Quantidade de saída",
+      "outputCurrency": "Moeda de saída",
+      "outputAddress": "Endereço de saída"
     },
     "transactionTypes": {
-    }
+      "send": "Mandar",
+      "receive": "Receber",
+      "trade": "Troca"
+    },
+    "assets": "Bens",
+    "viewOnChain": "Ver na cadeia",
+    "txid": "ID TX",
+    "fee": "Taxa",
+    "youSent": "Você enviou",
+    "youReceived": "Você recebeu",
+    "sentTo": "Enviado para",
+    "receivedFrom": "Recebido de",
+    "orderRoute": "Rota do pedido",
+    "status": "Status",
+    "transactionType": "Tipo de transação",
+    "minerFee": "Taxa de Minerador",
+    "unknownType": "Transação"
   }
 }

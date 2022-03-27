@@ -17,7 +17,7 @@ type UnstakeBroadcastProps = {
   assetId: CAIP19
   cryptoUnstakeAmount: BigNumber
   fiatRate: BigNumber
-  isLoading: boolean,
+  isLoading: boolean
   validatorName: string
 }
 

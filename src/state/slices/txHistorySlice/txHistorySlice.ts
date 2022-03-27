@@ -178,30 +178,31 @@ type UpdateOrInsertRebase = (txState: TxHistory, data: RebaseHistoryPayload['pay
 
 const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
   const { accountId, assetId } = payload
+  const { rebases } = txState
   payload.data.forEach(rebase => {
     const rebaseId = makeRebaseId({ accountId, assetId, rebase })
     const isNew = !txState.rebases.byId[rebaseId]
 
-    txState.rebases.byId[rebaseId] = rebase
+    rebases.byId[rebaseId] = rebase
 
     if (isNew) {
-      const orderedRebases = orderBy(txState.rebases.byId, 'timestamp', ['desc'])
+      const orderedRebases = orderBy(rebases.byId, 'blockTime', ['desc'])
       const index = orderedRebases.findIndex(
         rebase => makeRebaseId({ accountId, assetId, rebase }) === rebaseId
       )
-      txState.rebases.ids.splice(index, 0, rebaseId)
+      rebases.ids.splice(index, 0, rebaseId)
     }
 
-    txState.rebases.byAssetId[assetId] = addToIndex(
-      txState.rebases.ids,
-      txState.rebases.byAssetId[assetId],
+    rebases.byAssetId[assetId] = addToIndex(
+      rebases.ids,
+      rebases.byAssetId[assetId],
       makeRebaseId({ accountId, assetId, rebase })
     )
 
     // index the tx by the account that it belongs to
-    txState.rebases.byAccountId[accountId] = addToIndex(
-      txState.rebases.ids,
-      txState.rebases.byAccountId[accountId],
+    rebases.byAccountId[accountId] = addToIndex(
+      rebases.ids,
+      rebases.byAccountId[accountId],
       makeRebaseId({ accountId, assetId, rebase })
     )
   })
@@ -216,7 +217,7 @@ type MakeRebaseIdArgs = {
 type MakeRebaseId = (args: MakeRebaseIdArgs) => string
 
 const makeRebaseId: MakeRebaseId = ({ accountId, assetId, rebase }) =>
-  `${accountId}-${assetId}-${rebase.timestamp}`
+  `${accountId}-${assetId}-${rebase.blockTime}`
 
 type TxHistoryStatusPayload = { payload: TxHistoryStatus }
 type RebaseHistoryPayload = {
@@ -286,7 +287,7 @@ export const txHistoryApi = createApi({
         const rebaseHistoryArgs = { userAddress, tokenContractAddress }
         const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
         const upsertPayload = { accountId, assetId, data }
-        dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
+        if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
         return { data }
       }
     }),

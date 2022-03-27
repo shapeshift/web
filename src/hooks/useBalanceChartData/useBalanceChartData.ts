@@ -134,48 +134,34 @@ export const bucketEvents = (
   const start = head(buckets)!.start
   const end = last(buckets)!.end
 
-  // txs are potentially a lot longer than buckets, iterate the long list once
-  const bucketsWithTxs = txs.reduce((acc, tx) => {
-    const txDayjs = dayjs(tx.blockTime * 1000) // unchained uses seconds
+  // both txs and rebase events have the same blockTime property which is all we need
+  const txAndRebaseEvents = [...txs, ...rebases]
+
+  // events are potentially a lot longer than buckets, iterate the long list once
+  const bucketsWithEvents = txAndRebaseEvents.reduce((acc, event) => {
+    const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
     // if the tx is outside the time domain ignore it
-    if (txDayjs.isBefore(start) || txDayjs.isAfter(end)) return acc
+    if (eventDayJs.isBefore(start) || eventDayJs.isAfter(end)) return acc
     const { duration, unit } = meta
     // the number of time units from start of chart to this tx
-    let bucketIndex = Math.floor(txDayjs.diff(start, unit as dayjs.OpUnitType) / duration)
+    let bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
       console.error(
-        `bucketTxs: tx outside buckets: ${
-          tx.txid
-        }, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`
+        `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`
       )
       return acc
     }
+
+    const isTx = (event: Tx | RebaseHistory): event is Tx => Boolean((event as Tx)?.txid ?? '')
     // add to the correct bucket
-    acc[bucketIndex].txs.push(tx)
+    isTx(event)
+      ? acc[bucketIndex].txs.push(event as Tx)
+      : acc[bucketIndex].rebases.push(event as RebaseHistory)
+
     return acc
   }, buckets)
 
-  const bucketsWithTxsAndRebases = rebases.reduce((acc, rebase) => {
-    const txDayjs = dayjs(rebase.blockTime * 1000) // unchained uses seconds
-    // if the tx is outside the time domain ignore it
-    if (txDayjs.isBefore(start) || txDayjs.isAfter(end)) return acc
-    const { duration, unit } = meta
-    // the number of time units from start of chart to this tx
-    let bucketIndex = Math.floor(txDayjs.diff(start, unit as dayjs.OpUnitType) / duration)
-    if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
-      console.error(
-        `bucketTxs: tx outside buckets: ${
-          rebase.blockTime
-        }, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`
-      )
-      return acc
-    }
-    // add to the correct bucket
-    acc[bucketIndex].rebases.push(rebase)
-    return acc
-  }, bucketsWithTxs)
-
-  return bucketsWithTxsAndRebases
+  return bucketsWithEvents
 }
 
 type FiatBalanceAtBucketArgs = {

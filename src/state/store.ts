@@ -4,11 +4,13 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { PERSIST, persistReducer, persistStore } from 'redux-persist'
 import { registerSelectors } from 'reselect-tools'
 
+import { logging } from './middleware/logging'
 import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as portfolioSelectors from './slices/portfolioSlice/selectors'
+import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 const persistConfig = {
   key: 'root',
@@ -18,7 +20,13 @@ const persistConfig = {
 
 registerSelectors(portfolioSelectors)
 
-const apiMiddleware = [portfolioApi.middleware, marketApi.middleware, assetApi.middleware]
+const apiMiddleware = [
+  portfolioApi.middleware,
+  marketApi.middleware,
+  assetApi.middleware,
+  txHistoryApi.middleware,
+  logging
+]
 
 const persistedReducer = persistReducer(persistConfig, reducer)
 
@@ -32,6 +40,7 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
+  store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
 }
 
 /// This allows us to create an empty store for tests

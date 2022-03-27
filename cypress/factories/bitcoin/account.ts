@@ -1,6 +1,6 @@
-import { BitcoinAccount } from '@shapeshiftoss/unchained-client/dist/generated/bitcoin'
+import { bitcoin } from '@shapeshiftoss/unchained-client'
 
-export const makeBtcAccount = (): BitcoinAccount => {
+export const makeBtcAccount = (): bitcoin.BitcoinAccount => {
   return {
     pubkey: '336xGpGweq1wtY4kRTuA4w6d7yDkBU9czU',
     balance: '974652',

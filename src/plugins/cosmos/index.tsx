@@ -1,4 +1,4 @@
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -30,7 +30,10 @@ export function register(): Plugins {
                   getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
                 )
 
-                return new CosmosChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
+                return new cosmossdk.cosmos.ChainAdapter({
+                  providers: { http, ws },
+                  coinName: 'Cosmos'
+                })
               }
             ]
           ]

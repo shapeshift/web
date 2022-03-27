@@ -42,7 +42,9 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
-    "legalDated": "Dated: January 2022"
+    "settings": "Settings",
+    "legalDated": "Dated: January 2022",
+    "approveOnWallet": "Approve On Wallet"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -386,6 +388,10 @@
         "fees": "Fees %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "Optional %{assetSymbol} Memo",
+        "assetMemo": "%{assetSymbol} Memo",
+        "charactersRemaining": "%{charactersRemaining} characters remaining",
+        "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
         "sendAmount": "Send Amount",
@@ -421,7 +427,13 @@
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
-      "slippageSettings": "Slippage Settings"
+      "slippageSettings": "Slippage Settings",
+      "withdrawType": "Withdraw Type",
+      "instant": "Instant",
+      "delayed": "~7 days",
+      "fee": "%{fee}% %{symbol} fee",
+      "noFee": "No %{symbol} fee",
+      "requestWithdraw": "Request Withdraw"
     },
     "approve": {
       "header": "Allow ShapeShift DAO Router to spend your %{asset}",
@@ -472,6 +484,12 @@
     },
     "connect": {
       "loadingText": "Pairing Wallet"
+    },
+    "settings": {
+      "settings": "Settings",
+      "language": "Language",
+      "balanceThreshold": "Balance Threshold",
+      "balanceThresholdTooltip": "Hide balances below this value"
     }
   },
   "walletProvider": {

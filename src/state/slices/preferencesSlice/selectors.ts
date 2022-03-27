@@ -10,3 +10,6 @@ export const selectFeatureFlag = createSelector(
   (_state: ReduxState, flag: keyof FeatureFlags) => flag,
   (featureFlags, flag) => featureFlags[flag]
 )
+
+export const selectSelectedLocale = (state: ReduxState) => state.preferences.selectedLocale
+export const selectBalanceThreshold = (state: ReduxState) => state.preferences.balanceThreshold

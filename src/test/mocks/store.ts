@@ -49,7 +49,16 @@ export const mockStore: ReduxState = {
     featureFlags: {
       CosmosInvestor: false,
       CosmosPlugin: false,
-      GemRamp: false
+      GemRamp: false,
+      FoxyInvestor: false,
+      ReduxLogging: false
+    },
+    selectedLocale: 'en',
+    balanceThreshold: '0',
+    // the following object is required by redux-persist
+    _persist: {
+      version: 0,
+      rehydrated: false
     }
   },
   assets: {

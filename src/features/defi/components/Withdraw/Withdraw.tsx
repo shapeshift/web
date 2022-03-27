@@ -421,17 +421,13 @@ export const Withdraw = ({
               {values.withdrawType === WithdrawType.DELAYED && (
                 <Alert status='info' borderRadius='lg' mt={4}>
                   <AlertIcon />
-                  <AlertDescription>
-                    {translate('modals.withdraw.info.delayed')}
-                  </AlertDescription>
+                  <AlertDescription>{translate('modals.withdraw.info.delayed')}</AlertDescription>
                 </Alert>
               )}
               {values.withdrawType === WithdrawType.INSTANT && (
                 <Alert status='info' borderRadius='lg' mt={4}>
                   <AlertIcon />
-                  <AlertDescription>
-                    {translate('modals.withdraw.info.instant')}
-                  </AlertDescription>
+                  <AlertDescription>{translate('modals.withdraw.info.instant')}</AlertDescription>
                 </Alert>
               )}
             </FormControl>

@@ -1,9 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { CAIP2, caip2, CAIP19 } from '@shapeshiftoss/caip'
-import { ChainNamespace } from '@shapeshiftoss/caip/dist/caip2/caip2'
+import { AssetNamespace, CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { chainAdapters, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
+import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import orderBy from 'lodash/orderBy'
@@ -179,7 +178,6 @@ type UpdateOrInsertRebase = (txState: TxHistory, data: RebaseHistoryPayload['pay
 
 const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
   const { accountId, assetId } = payload
-  console.info('payload', payload)
   payload.data.forEach(rebase => {
     const rebaseId = makeRebaseId({ accountId, assetId, rebase })
     const isNew = !txState.rebases.byId[rebaseId]
@@ -244,14 +242,12 @@ export const txHistory = createSlice({
         updateOrInsertTx(txState, tx, payload.accountSpecifier)
       }
     },
-    upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) => {
+    upsertRebaseHistory: (txState, { payload }: RebaseHistoryPayload) =>
       updateOrInsertRebase(txState, payload)
-    }
   }
 })
 
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
-type AccountAddress = string // 0x address, not a full account specifier
 
 export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
@@ -260,8 +256,15 @@ export const txHistoryApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], AccountAddress>({
-      queryFn: async (accountAddress: AccountSpecifier, { dispatch }) => {
+    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], AccountSpecifier>({
+      queryFn: async (accountId: AccountSpecifier, { dispatch }) => {
+        // we load rebase history on app load, but pass in all the specifiers
+        const chain = ChainTypes.Ethereum
+        const network = NetworkTypes.MAINNET
+        const chainId = caip2.toCAIP2({ chain, network })
+        const [accountChainId, userAddress] = accountId.split('/')
+        // [] is a valid return type and won't upsert anything
+        if (chainId !== accountChainId) return { data: [] }
         const adapters = getChainAdapters()
         if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) {
           const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${ChainTypes.Ethereum}`
@@ -269,16 +272,14 @@ export const txHistoryApi = createApi({
           const error = { data, status }
           return { error }
         }
-        const chainId = ChainNamespace.Ethereum
         const adapter = await adapters.byChainId(chainId)
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
-        const userAddress = accountAddress
         const tokenContractAddress = foxyAddresses[0].foxy.toLowerCase()
-        // TODO(0xdef1cafe): use caip fns here
-        const assetId = `${chainId}/${tokenContractAddress}`
-        const accountId = `${chainId}/${accountAddress}`
+        const assetReference = tokenContractAddress
+        const assetNamespace = AssetNamespace.ERC20
+        const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
         const rebaseHistoryArgs = { userAddress, tokenContractAddress }
         const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
         const upsertPayload = { accountId, assetId, data }

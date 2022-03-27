@@ -26,6 +26,7 @@ import {
   selectPriceHistoryTimeframe,
   selectTxsByFilter
 } from 'state/slices/selectors'
+import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -293,12 +294,18 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   } = useWallet()
 
   const txFilter = useMemo(() => ({ assetIds, accountIds }), [assetIds, accountIds])
+
   // we can't tell if txs are finished loading over the websocket, so
   // debounce a bit before doing expensive computations
   const txs = useDebounce(
     useAppSelector(state => selectTxsByFilter(state, txFilter)),
     500
   )
+
+  // rebasing token balances can be adjusted by rebase events rather than txs
+  // and we need to account for this in charts
+  const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
+  console.info('rebases', rebases)
 
   // the portfolio page is simple - consider all txs and all portfolio asset ids
   // across all accounts - just don't filter for accounts

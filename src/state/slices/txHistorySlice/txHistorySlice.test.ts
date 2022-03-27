@@ -204,6 +204,12 @@ describe('txHistorySlice', () => {
 
   describe('selectLastNTxIds', () => {
     it('should memoize', () => {
+      const rebases = {
+        byAssetId: {},
+        byAccountId: {},
+        ids: [],
+        byId: {}
+      }
       const txHistory: TxHistory = {
         txs: {
           byId: {},
@@ -212,12 +218,7 @@ describe('txHistorySlice', () => {
           ids: ['a', 'b'],
           status: 'idle'
         },
-        rebases: {
-          byAssetId: {},
-          byAccountId: {},
-          ids: [],
-          byId: {}
-        }
+        rebases
       }
 
       const state = {
@@ -235,12 +236,7 @@ describe('txHistorySlice', () => {
           ids: ['a', 'b', 'c'],
           status: 'idle'
         },
-        rebases: {
-          byAssetId: {},
-          byAccountId: {},
-          ids: [],
-          byId: {}
-        }
+        rebases
       }
 
       // redux will replace the array on update

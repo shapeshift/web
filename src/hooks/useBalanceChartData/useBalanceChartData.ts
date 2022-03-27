@@ -341,7 +341,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // rebasing token balances can be adjusted by rebase events rather than txs
   // and we need to account for this in charts
   const rebases = useAppSelector(state => selectRebasesByFilter(state, txFilter))
-  console.info('rebases', rebases)
 
   // the portfolio page is simple - consider all txs and all portfolio asset ids
   // across all accounts - just don't filter for accounts

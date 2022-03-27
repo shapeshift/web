@@ -32,7 +32,6 @@ type FoxyWithdrawState = {
   approve: EstimatedGas
   withdraw: FoxyWithdrawValues
   loading: boolean
-  pricePerShare: string
   txid: string | null
 }
 
@@ -53,7 +52,6 @@ export const initialState: FoxyWithdrawState = {
   userAddress: null,
   loading: false,
   approve: {},
-  pricePerShare: '',
   withdraw: {
     fiatAmount: '',
     cryptoAmount: '',
@@ -70,7 +68,6 @@ export enum FoxyWithdrawActionType {
   SET_WITHDRAW = 'SET_WITHDRAW',
   SET_APPROVE = 'SET_APPROVE',
   SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
   SET_TX_STATUS = 'SET_TX_STATUS'
 }
@@ -100,11 +97,6 @@ type SetLoading = {
   payload: boolean
 }
 
-type SetPricePerShare = {
-  type: FoxyWithdrawActionType.SET_PRICE_PER_SHARE
-  payload: string
-}
-
 type SetTxid = {
   type: FoxyWithdrawActionType.SET_TXID
   payload: string
@@ -116,7 +108,6 @@ type FoxyWithdrawActions =
   | SetWithdraw
   | SetUserAddress
   | SetLoading
-  | SetPricePerShare
   | SetTxid
 
 export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) => {
@@ -131,8 +122,6 @@ export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) =
       return { ...state, userAddress: action.payload }
     case FoxyWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case FoxyWithdrawActionType.SET_PRICE_PER_SHARE:
-      return { ...state, pricePerShare: action.payload }
     case FoxyWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
     default:

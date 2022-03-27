@@ -122,17 +122,12 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
       try {
         if (!walletState.wallet || !contractAddress) return
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
-        const [address, foxyOpportunity, pricePerShare] = await Promise.all([
+        const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress),
-          api.pricePerShare()
+          api.getFoxyOpportunityByStakingAddress(contractAddress)
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: FoxyDepositActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
-        dispatch({
-          type: FoxyDepositActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString()
-        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyDeposit error:', error)

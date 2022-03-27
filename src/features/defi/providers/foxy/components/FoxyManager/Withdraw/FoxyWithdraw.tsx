@@ -98,7 +98,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     assetReference: rewardId
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
@@ -119,17 +119,12 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     ;(async () => {
       try {
         if (!walletState.wallet || !contractAddress) return
-        const [address, foxyOpportunity, pricePerShare] = await Promise.all([
+        const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress),
-          api.pricePerShare()
+          api.getFoxyOpportunityByStakingAddress(contractAddress)
         ])
         dispatch({ type: FoxyWithdrawActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: FoxyWithdrawActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
-        dispatch({
-          type: FoxyWithdrawActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString()
-        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyWithdraw error:', error)
@@ -138,7 +133,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }, [api, chainAdapter, contractAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !rewardId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateWithdrawGas({
@@ -226,7 +221,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }
 
   const handleApprove = async () => {
-    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (!rewardId || !state.userAddress || !walletState.wallet) return
     try {
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       await api.approve({
@@ -238,7 +233,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       await poll({
         fn: () =>
           api.allowance({
-            tokenContractAddress: tokenId,
+            tokenContractAddress: rewardId,
             contractAddress,
             userAddress: state.userAddress!
           }),
@@ -274,7 +269,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
 
   const handleConfirm = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
+      if (!state.userAddress || !rewardId || !walletState.wallet) return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
@@ -337,9 +332,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const pricePerShare = bnOrZero(state.pricePerShare).div(`1e+${asset?.precision}`)
-  const vaultTokenPrice = pricePerShare.times(marketData.price)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
+  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     let statusIcon: React.ReactElement = <ArrowForwardIcon />
@@ -368,14 +361,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
               required: true,
               validate: { validateFiatAmount }
             }}
-            marketData={{
-              // The vault asset doesnt have market data.
-              // We're making our own market data object for the withdraw view
-              price: vaultTokenPrice.toString(),
-              marketCap: '0',
-              volume: '0',
-              changePercent24Hr: 0
-            }}
+            marketData={marketData}
             onCancel={handleCancel}
             onContinue={handleContinue}
             percentOptions={[0.25, 0.5, 0.75, 1]}
@@ -429,7 +415,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
                 ...underlyingAsset,
                 color: '#FF0000',
                 cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
+                  .div(`1e+${asset.precision}`)
                   .toString(),
                 fiatAmount: state.withdraw.fiatAmount
               }
@@ -497,7 +483,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
               {
                 ...underlyingAsset,
                 cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
+                  .div(`1e+${asset.precision}`)
                   .toString(),
                 fiatAmount: state.withdraw.fiatAmount
               }

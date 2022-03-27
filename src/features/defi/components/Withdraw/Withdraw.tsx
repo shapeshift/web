@@ -175,14 +175,22 @@ export const Withdraw = ({
   const handlePercentClick = (_percent: number) => {
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(_percent)
     const fiat = bnOrZero(cryptoAmount).times(marketData.price)
-    if (cryptoField) {
+    setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+  }
+
+  const handleWithdrawalTypeClick = (withdrawType: WithdrawType) => {
+    if (withdrawType === WithdrawType.INSTANT) {
+      const cryptoAmount = bnOrZero(cryptoAmountAvailable).toString()
+      const fiat = bnOrZero(cryptoAmount).times(marketData.price)
+
       setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setPercent(1)
+      setValue(Field.WithdrawType, WithdrawType.INSTANT)
     } else {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.WithdrawType, WithdrawType.DELAYED)
     }
-    setPercent(_percent)
   }
 
   const handleSlippageChange = (value: string | number) => {
@@ -360,6 +368,7 @@ export const Withdraw = ({
                     key={option}
                     variant='ghost'
                     colorScheme='blue'
+                    isDisabled={values.withdrawType === WithdrawType.INSTANT}
                     onClick={() => handlePercentClick(option)}
                   >
                     {option === 1 ? (
@@ -387,7 +396,7 @@ export const Withdraw = ({
                   flexDir='column'
                   height='auto'
                   py={4}
-                  onClick={() => setValue(Field.WithdrawType, WithdrawType.INSTANT)}
+                  onClick={() => handleWithdrawalTypeClick(WithdrawType.INSTANT)}
                   isActive={values.withdrawType === WithdrawType.INSTANT}
                 >
                   <Stack alignItems='center' spacing={1}>
@@ -402,7 +411,7 @@ export const Withdraw = ({
                   isFullWidth
                   flexDir='column'
                   height='auto'
-                  onClick={() => setValue(Field.WithdrawType, WithdrawType.DELAYED)}
+                  onClick={() => handleWithdrawalTypeClick(WithdrawType.DELAYED)}
                   isActive={values.withdrawType === WithdrawType.DELAYED}
                 >
                   <HelperTooltip

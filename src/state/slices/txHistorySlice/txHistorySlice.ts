@@ -256,13 +256,16 @@ export const txHistoryApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], AccountSpecifier>({
-      queryFn: async (accountId: AccountSpecifier, { dispatch }) => {
+    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], AccountSpecifierMap>({
+      queryFn: async (accountSpecifierMap, { dispatch }) => {
         // we load rebase history on app load, but pass in all the specifiers
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
+        // foxy is only on eth mainnet
         const chainId = caip2.toCAIP2({ chain, network })
-        const [accountChainId, userAddress] = accountId.split('/')
+        const entries = Object.entries(accountSpecifierMap)[0]
+        const [accountChainId, userAddress] = entries
+        const accountId = entries.join('/')
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
         const adapters = getChainAdapters()
@@ -326,5 +329,3 @@ export const txHistoryApi = createApi({
     })
   })
 })
-
-export const { useGetFoxyRebaseHistoryByAccountIdQuery } = txHistoryApi

@@ -76,6 +76,7 @@ const CosmosUnstakingRouter = ({
                   cryptoUnstakeAmount={cryptoAmount}
                   fiatRate={fiatRate}
                   isLoading={true}
+                  validatorName="Shapeshift Validator"
                 />
               </Route>
             </Flex>

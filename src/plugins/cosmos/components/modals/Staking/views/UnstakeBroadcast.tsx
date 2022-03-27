@@ -17,7 +17,8 @@ type UnstakeBroadcastProps = {
   assetId: CAIP19
   cryptoUnstakeAmount: BigNumber
   fiatRate: BigNumber
-  isLoading: boolean
+  isLoading: boolean,
+  validatorName: string
 }
 
 export enum Field {
@@ -28,20 +29,17 @@ export type UnstakeBroadcastParams = {
   [Field.FeeType]: chainAdapters.FeeDataKey
 }
 
-const DEFAULT_VALIDATOR_NAME = 'Shapeshift Validator'
-
 // TODO: Wire up the whole component with staked data
 export const UnstakeBroadcast = ({
   assetId,
   cryptoUnstakeAmount,
   fiatRate,
-  isLoading
+  isLoading,
+  validatorName
 }: UnstakeBroadcastProps) => {
   const { cosmosStaking } = useModal()
 
   const translate = useTranslate()
-
-  const handleClose = cosmosStaking.close
 
   const methods = useForm<UnstakeBroadcastParams>({
     defaultValues: {
@@ -103,7 +101,7 @@ export const UnstakeBroadcast = ({
               <InfoOutlineIcon />
             </Tooltip>
           </CText>
-          <CText color='blue.300'>{DEFAULT_VALIDATOR_NAME}</CText>
+          <CText color='blue.300'>{validatorName}</CText>
         </Flex>
 
         <Flex width='100%' mb='35px' justifyContent='space-between'>
@@ -138,7 +136,7 @@ export const UnstakeBroadcast = ({
         <Flex width='100%' flexDirection='column' alignItems='flex-end'>
           <Button
             isLoading={isLoading}
-            onClick={handleClose}
+            onClick={cosmosStaking.close}
             loadingText={translate('defi.broadcastingTransaction')}
             colorScheme={'blue'}
             minWidth='150px'

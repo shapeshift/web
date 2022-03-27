@@ -71,7 +71,9 @@ const cspMeta = Object.entries({
     'https://assets.yearn.network/tokens/',
     'https://raw.githubusercontent.com/yearn/yearn-assets/',
     'https://rawcdn.githack.com/trustwallet/assets/',
-    'https://raw.githubusercontent.com/osmosis-labs/'
+    'https://raw.githubusercontent.com/osmosis-labs/',
+    'https://raw.githack.com/shapeshift/lib/',
+    'https://raw.githubusercontent.com/shapeshift/lib/'
   ],
   'script-src': [
     "'self'",

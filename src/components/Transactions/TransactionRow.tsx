@@ -1,6 +1,6 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { TradeType, TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -18,13 +18,13 @@ dayjs.extend(localizedFormat)
 const renderTransactionType = (txDetails: TxDetails): JSX.Element | null => {
   return (() => {
     switch (txDetails.type) {
-      case TxType.Send:
+      case chainAdapters.TxType.Send:
         return <TransactionSend txDetails={txDetails} />
-      case TxType.Receive:
+      case chainAdapters.TxType.Receive:
         return <TransactionReceive txDetails={txDetails} />
-      case TradeType.Trade:
+      case chainAdapters.TradeType.Trade:
         return <TransactionTrade txDetails={txDetails} />
-      case TxType.Contract:
+      case chainAdapters.TxType.Contract:
         return <TransactionContract txDetails={txDetails} />
       default:
         // Unhandled transaction type - render a generic row

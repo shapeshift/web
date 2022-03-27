@@ -479,9 +479,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
               },
               {
                 ...underlyingAsset,
-                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .div(`1e+${asset.precision}`)
-                  .toString(),
+                cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               }
             ]}

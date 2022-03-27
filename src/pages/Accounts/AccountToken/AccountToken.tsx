@@ -1,4 +1,5 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
+import toLower from 'lodash/toLower'
 import { useSelector } from 'react-redux'
 import { Redirect, useParams } from 'react-router-dom'
 import { Route } from 'Routes/helpers'
@@ -24,7 +25,9 @@ export const AccountToken = ({ route }: AccountTokenProps) => {
    * in order to choose the account from beginning.
    */
   const accountSpecifierStrings = useSelector(selectAccountSpecifierStrings)
-  const isCurrentAccountIdOwner = Boolean(accountSpecifierStrings.includes(accountId))
+  const isCurrentAccountIdOwner = Boolean(
+    accountSpecifierStrings.map(toLower).includes(toLower(accountId))
+  )
   if (!isCurrentAccountIdOwner) return <Redirect to='/accounts' />
 
   const caip19 = assetId ? decodeURIComponent(assetId) : null

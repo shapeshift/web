@@ -1,13 +1,13 @@
 import { Button, useMediaQuery } from '@chakra-ui/react'
-import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { useJsonToCsv } from 'react-json-csv'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import {
-  getBuyTx,
-  getSellTx,
+  getBuyTransfer,
+  getSellTransfer,
   getStandardTx,
   isSupportedContract
 } from 'hooks/useTxDetails/useTxDetails'
@@ -63,14 +63,14 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       const transaction = allTxs[txId]
       const standardTx = getStandardTx(transaction)
       const txType = isSupportedContract(transaction)
-        ? TxType.Contract
+        ? chainAdapters.TxType.Contract
         : standardTx?.type ?? transaction.tradeDetails?.type ?? ''
-      const buyTx = getBuyTx(transaction)
-      const sellTx = getSellTx(transaction)
+      const buyTransfer = getBuyTransfer(transaction)
+      const sellTransfer = getSellTransfer(transaction)
       const feeAsset = assets.find(asset => asset.caip19 === transaction.fee?.caip19)
-      const input = standardTx ?? sellTx ?? null
+      const input = standardTx ?? sellTransfer ?? null
       const inputCaip19 = input?.caip19 ?? null
-      const output = standardTx ?? buyTx ?? null
+      const output = standardTx ?? buyTransfer ?? null
       const outputCaip19 = output?.caip19 ?? null
       const inputAsset = inputCaip19 ? assets.find(asset => asset.caip19 === inputCaip19) : null
       const outputAsset = outputCaip19 ? assets.find(asset => asset.caip19 === outputCaip19) : null

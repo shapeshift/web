@@ -1,6 +1,6 @@
 import { DefiType } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { WithdrawType, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
+import { ChainTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 type SupportedFoxyOpportunity = {
@@ -60,7 +60,7 @@ export const initialState: FoxyWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.Instant
+    withdrawType: WithdrawType.INSTANT
   }
 }
 

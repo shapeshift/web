@@ -30,7 +30,7 @@ import {
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
-import { Asset, MarketData } from '@shapeshiftoss/types'
+import { Asset, MarketData, WithdrawType } from '@shapeshiftoss/types'
 import { useRef, useState } from 'react'
 import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form'
 import { FaBolt, FaClock } from 'react-icons/fa'
@@ -96,11 +96,6 @@ enum Field {
   WithdrawType = 'withdrawType'
 }
 
-export enum WithdrawType {
-  Instant = 'instantUnstake',
-  Delayed = 'unstake'
-}
-
 export type WithdrawValues = {
   [Field.FiatAmount]: string
   [Field.CryptoAmount]: string
@@ -144,7 +139,7 @@ export const Withdraw = ({
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
       [Field.Slippage]: DEFAULT_SLIPPAGE,
-      [Field.WithdrawType]: WithdrawType.Delayed
+      [Field.WithdrawType]: WithdrawType.DELAYED
     }
   })
 
@@ -392,8 +387,8 @@ export const Withdraw = ({
                   flexDir='column'
                   height='auto'
                   py={4}
-                  onClick={() => setValue(Field.WithdrawType, WithdrawType.Instant)}
-                  isActive={values.withdrawType === WithdrawType.Instant}
+                  onClick={() => setValue(Field.WithdrawType, WithdrawType.INSTANT)}
+                  isActive={values.withdrawType === WithdrawType.INSTANT}
                 >
                   <Stack alignItems='center' spacing={1}>
                     <FaBolt size='30px' />
@@ -407,8 +402,8 @@ export const Withdraw = ({
                   isFullWidth
                   flexDir='column'
                   height='auto'
-                  onClick={() => setValue(Field.WithdrawType, WithdrawType.Delayed)}
-                  isActive={values.withdrawType === WithdrawType.Delayed}
+                  onClick={() => setValue(Field.WithdrawType, WithdrawType.DELAYED)}
+                  isActive={values.withdrawType === WithdrawType.DELAYED}
                 >
                   <HelperTooltip
                     label='Blah blah blah'
@@ -423,7 +418,7 @@ export const Withdraw = ({
                   </Stack>
                 </Button>
               </ButtonGroup>
-              {values.withdrawType === WithdrawType.Delayed && (
+              {values.withdrawType === WithdrawType.DELAYED && (
                 <Alert status='info' borderRadius='lg' mt={4}>
                   <AlertIcon />
                   <AlertDescription>
@@ -431,7 +426,7 @@ export const Withdraw = ({
                   </AlertDescription>
                 </Alert>
               )}
-              {values.withdrawType === WithdrawType.Instant && (
+              {values.withdrawType === WithdrawType.INSTANT && (
                 <Alert status='info' borderRadius='lg' mt={4}>
                   <AlertIcon />
                   <AlertDescription>
@@ -456,7 +451,7 @@ export const Withdraw = ({
             type='submit'
           >
             {translate(
-              fieldError || values.withdrawType === WithdrawType.Delayed
+              fieldError || values.withdrawType === WithdrawType.DELAYED
                 ? 'modals.withdraw.requestWithdraw'
                 : 'common.continue'
             )}

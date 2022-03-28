@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const cspMeta = Object.entries({
+const baseMeta = {
   'default-src': ["'self'"],
   'child-src': ["'self'", 'blob:', "'report-sample'"],
   'connect-src': [
@@ -85,19 +85,44 @@ const cspMeta = Object.entries({
   'style-src': ["'self'", "'unsafe-inline'", "'report-sample'"],
   'base-uri': ["'none'"],
   'object-src': ["'none'"]
-})
+}
+
+const cspMeta = Object.entries(baseMeta)
   .map(([k, v]) => `${[k, ...v].join(' ')}`)
   .join('; ')
 
-const headers = {
-  'Cache-Control': 'no-transform', // This will prevent middleboxes from munging our JS and breaking SRI if we're ever served over HTTP
-  'Content-Security-Policy': `${cspMeta}; frame-ancestors 'none'`, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
-  'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-  'Permissions-Policy': 'document-domain=()',
-  'Referrer-Policy': 'no-referrer',
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY'
-}
+// This will filter basic meta datas and inline it for the first Content-Security-Policy line
+const defaultMetas = Object.entries(baseMeta)
+  .map(([k, v]) => {
+    const keyValues = v.filter(value => !value.match('://'))
+
+    return `${[k, ...keyValues].join(' ')}`
+  })
+  .join('; ')
+
+// This will generate a new line for every single url
+const urlsMetas = Object.entries(baseMeta).reduce((result, [k, v]) => {
+  // First we filter datas containing any url
+  const urlValues = v.filter(value => value.match('://') && value.match('://').length > 0)
+
+  if (urlValues.length > 0) {
+    // For every url, we add a key/value pair object to the result of the reducer
+    urlValues.forEach(url => result.push({ key: 'Content-Security-Policy', value: `${k} ${url}` }))
+  }
+
+  return result
+}, [])
+
+const headers = [
+  { key: 'Cache-Control', value: 'no-transform' }, // This will prevent middleboxes from munging our JS and breaking SRI if we're ever served over HTTP
+  { key: 'Content-Security-Policy', value: `${defaultMetas}; frame-ancestors 'none'` }, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
+  ...urlsMetas,
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+  { key: 'Permissions-Policy', value: 'document-domain=()' },
+  { key: 'Referrer-Policy', value: 'no-referrer' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'X-Frame-Options', value: 'DENY' }
+]
 
 module.exports = {
   headers,
@@ -107,8 +132,6 @@ module.exports = {
 if (!module.parent) {
   require('fs').writeFileSync(
     './build/_headers',
-    `/*\n${Object.entries(headers)
-      .map(([k, v]) => `  ${k}: ${v}\n`)
-      .join('')}`
+    `/*\n${headers.map(({ key, value }) => `  ${key}: ${value}\n`).join('')}`
   )
 }

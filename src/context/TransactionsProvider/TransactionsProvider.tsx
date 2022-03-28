@@ -105,7 +105,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
 
           /**
-           * foxy rebase history is most closely linked to tranasctions.
+           * foxy rebase history is most closely linked to transactions.
            * unfortunately, we have to call this for a specific asset here
            * because we need it for the dashboard balance chart
            *

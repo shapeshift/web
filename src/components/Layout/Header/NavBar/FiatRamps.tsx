@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react'
-import { BuySellIcon } from 'components/Icons/BuySell-temp'
+import { BuySellIcon } from 'components/Icons/BuySell'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'

@@ -3,17 +3,6 @@ import { SlideTransition } from 'components/SlideTransition'
 
 import { ClaimRoutes } from './ClaimRoutes'
 
-enum OverviewPath {
-  Overview = '/',
-  Claim = '/',
-  ClaimStatus = '/status'
-}
-
-export const routes = [
-  { step: 0, path: OverviewPath.Claim, label: 'Confirm' },
-  { step: 1, path: OverviewPath.ClaimStatus, label: 'Status' }
-]
-
 export const Claim = () => {
   const history = useHistory()
 

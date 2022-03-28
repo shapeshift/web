@@ -6,6 +6,8 @@ import { Control, Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type StakingInputProps = {
   isCryptoField: boolean
@@ -64,6 +66,7 @@ export const StakingInput = ({
   } = useLocaleFormatter()
   const wrapperBgColor = useColorModeValue('gray.50', 'gray.850')
   const tagBgColor = useColorModeValue('gray.200', 'gray.700')
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   return (
     <Flex bgColor={wrapperBgColor} borderRadius='12px' alignItems='center' {...styleProps}>
       <InputLeftElement pos='relative' ml={1} width='auto'>
@@ -75,7 +78,7 @@ export const StakingInput = ({
           bgColor={tagBgColor}
           mr='12px'
         >
-          {isCryptoField ? asset.symbol : 'USD'}
+          {isCryptoField ? asset.symbol : selectedCurrency}
         </Tag>
       </InputLeftElement>
       {isCryptoField && (

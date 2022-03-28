@@ -19,9 +19,9 @@ export const selectMarketData = createDeepEqualOutputSelector(
   selectAllMarketData,
   selectFiatMarketData,
   selectSelectedCurrency,
-  (marketData, fiatMarketData, currency) => {
+  (marketData, fiatMarketData, selectedCurrency) => {
     // fallback to usd
-    const fiatPrice = bnOrZero(fiatMarketData[currency]?.price ?? 1)
+    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
     return Object.entries(marketData).reduce<MarketCapResult>((acc, [caip19, assetMarketData]) => {
       acc[caip19] = {
         ...assetMarketData,
@@ -38,7 +38,19 @@ const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => a
 export const selectMarketDataById = createSelector(
   selectMarketData,
   selectAssetId,
-  (marketData, assetId) => marketData[assetId]
+  selectFiatMarketData,
+  selectSelectedCurrency,
+  (marketData, assetId, fiatMarketData, selectedCurrency) => {
+    const assetMarketData = marketData[assetId]
+    if (selectedCurrency === SupportedFiatCurrencies.USD) return assetMarketData
+    const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
+    return {
+      ...assetMarketData,
+      price: bnOrZero(assetMarketData?.price ?? 0)
+        .times(fiatPrice)
+        .toString()
+    }
+  }
 )
 
 // assets we have loaded market data for

@@ -164,6 +164,38 @@ type ChainTxTypeInner = {
 
 export type ChainTxType<T> = T extends keyof ChainTxTypeInner ? ChainTxTypeInner[T] : never
 
+export type BuildDelegateTxInput<T extends ChainTypes> = {
+  validator: string
+  value: string
+  wallet: HDWallet
+  bip44Params?: BIP44Params
+  memo?: string
+} & ChainSpecificBuildTxData<T>
+
+export type BuildUndelegateTxInput<T extends ChainTypes> = {
+  validator: string
+  value: string
+  wallet: HDWallet
+  bip44Params?: BIP44Params
+  memo?: string
+} & ChainSpecificBuildTxData<T>
+
+export type BuildRedelegateTxInput<T extends ChainTypes> = {
+  fromValidator: string
+  toValidator: string
+  value: string
+  wallet: HDWallet
+  bip44Params?: BIP44Params
+  memo?: string
+} & ChainSpecificBuildTxData<T>
+
+export type BuildClaimRewardsTxInput<T extends ChainTypes> = {
+  validator: string
+  wallet: HDWallet
+  bip44Params?: BIP44Params
+  memo?: string
+} & ChainSpecificBuildTxData<T>
+
 export type BuildSendTxInput<T extends ChainTypes> = {
   to: string
   value: string

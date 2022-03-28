@@ -38,8 +38,8 @@ const initialState: StakingData = {
 
 const updateOrInsert = (
   stakingDataState: StakingData,
-  accountSpecifier: string,
-  currentStakingData: any
+  accountSpecifier: CAIP10,
+  currentStakingData: Staking
 ) => {
   stakingDataState.byAccountSpecifier[accountSpecifier] = currentStakingData
 }
@@ -54,7 +54,10 @@ export const stakingData = createSlice({
     setStatus: (state, { payload }: StakingDataStatusPayload) => {
       state.status = payload
     },
-    upsertStakingData: (stakingDataState, { payload }: any) => {
+    upsertStakingData: (
+      stakingDataState,
+      { payload }: { payload: { accountSpecifier: CAIP10; stakingData: Staking } }
+    ) => {
       // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsert(stakingDataState, payload.accountSpecifier, payload.stakingData)
     }

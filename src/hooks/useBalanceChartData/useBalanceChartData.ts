@@ -140,8 +140,8 @@ export const bucketEvents = (
   // events are potentially a lot longer than buckets, iterate the long list once
   const bucketsWithEvents = txAndRebaseEvents.reduce((acc, event) => {
     const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
-    // if the tx is outside the time domain ignore it
-    if (eventDayJs.isBefore(start) || eventDayJs.isAfter(end)) return acc
+    const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
+    if (eventOutsideDomain) return acc
     const { duration, unit } = meta
     // the number of time units from start of chart to this tx
     let bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)

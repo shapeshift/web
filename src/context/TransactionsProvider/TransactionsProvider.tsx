@@ -116,8 +116,11 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           if (getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) {
             // fetch all rebase history for FOXy
             // you see what i did here?
-            if (!portfolioAssetIds.join('').includes(foxyAddresses[0].foxy.toLowerCase())) return
-            dispatch(getFoxyRebaseHistoryByAccountId.initiate(accountSpecifierMap, options))
+            foxyAddresses.forEach(addresses => {
+              const address = addresses.foxy
+              if (!portfolioAssetIds.join('').includes(address.toLowerCase())) return
+              dispatch(getFoxyRebaseHistoryByAccountId.initiate({ accountSpecifierMap, address }, options))
+            })
           }
         })
       }

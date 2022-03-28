@@ -250,6 +250,8 @@ export const txHistory = createSlice({
 
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
+type RebaseTxHistoryArgs = AllTxHistoryArgs & { address: string }
+
 export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
   // not actually used, only used to satisfy createApi, we use a custom queryFn
@@ -257,8 +259,8 @@ export const txHistoryApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], AccountSpecifierMap>({
-      queryFn: async (accountSpecifierMap, { dispatch }) => {
+    getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
+      queryFn: async ({ accountSpecifierMap, address }, { dispatch }) => {
         // we load rebase history on app load, but pass in all the specifiers
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
@@ -280,7 +282,7 @@ export const txHistoryApi = createApi({
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
-        const tokenContractAddress = foxyAddresses[0].foxy.toLowerCase()
+        const tokenContractAddress = address.toLowerCase()
         const assetReference = tokenContractAddress
         const assetNamespace = AssetNamespace.ERC20
         const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })

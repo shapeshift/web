@@ -1,6 +1,6 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { ModalCloseButton } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
@@ -10,15 +10,15 @@ import { RewardsRow } from 'plugins/cosmos/components/RewardsRow/RewardsRow'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/StakingButtons'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
-  selectRewardsCryptoBalanceByPubKey,
-  selectTotalBondingsBalanceByPubKey,
-  selectUnbondingEntriesByPubKey
+  selectRewardsCryptoBalancebyAccountSpecifier,
+  selectTotalBondingsBalancebyAccountSpecifier,
+  selectUnbondingEntriesbyAccountSpecifier
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -29,9 +29,18 @@ type StakedProps = {
 
 export const Overview = ({ assetId }: StakedProps) => {
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
   const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
   const [address, setAddress] = useState<string>('')
+  const accountSpecifier = useMemo(() => {
+    if (!address.length) return ''
+
+    return caip10.toCAIP10({
+      caip2: asset.caip2,
+      account: address
+    })
+  }, [address, asset.caip2])
 
   const chainAdapterManager = useChainAdapters()
   const {
@@ -47,33 +56,46 @@ export const Overview = ({ assetId }: StakedProps) => {
   })
   useEffect(() => {
     ;(async () => {
-      if (!chainAdapter || !wallet) return
+      if (!chainAdapter || !wallet || !asset) return
 
       // TODO(gomes): Can we get a CAIP10 here so we don't have to do the chainAdapter dance here + in RTK?
       const address = await chainAdapter.getAddress({
         wallet
       })
       setAddress(address)
+
+      if (!accountSpecifier.length) return
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
-          { pubKey: address, assetId },
+          { accountSpecifier },
           { forceRefetch: true }
         )
       )
     })()
-  }, [wallet, chainAdapter, assetId])
+  }, [wallet, chainAdapter, assetId, asset, accountSpecifier, dispatch])
 
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByPubKey(
+    selectTotalBondingsBalancebyAccountSpecifier(
       state,
-      address,
+      accountSpecifier,
       'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf' // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
     )
   )
   const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByPubKey(state, address)
+    selectUnbondingEntriesbyAccountSpecifier(
+      state,
+      accountSpecifier,
+      'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+    )
   )
-  const rewardsAmount = useAppSelector(state => selectRewardsCryptoBalanceByPubKey(state, address))
+
+  const rewardsAmount = useAppSelector(state =>
+    selectRewardsCryptoBalancebyAccountSpecifier(
+      state,
+      accountSpecifier,
+      'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+    )
+  )
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -89,8 +111,8 @@ export const Overview = ({ assetId }: StakedProps) => {
           <StakedRow
             mb='10px'
             assetSymbol={asset.symbol}
-            fiatRate={bnOrZero('8.47')}
-            cryptoStakedAmount={totalBondings}
+            fiatRate={bnOrZero(marketData.price)}
+            cryptoStakedAmount={totalBondings.div(`1e+${asset.precision}`)}
             apr={bnOrZero('0.12')}
           />
           <StakingButtons assetId={assetId} />
@@ -99,8 +121,8 @@ export const Overview = ({ assetId }: StakedProps) => {
               <UnbondingRow
                 key={i}
                 assetSymbol={asset.symbol}
-                fiatRate={bnOrZero('8.47')}
-                cryptoUnbondedAmount={bnOrZero(undelegation.amount)}
+                fiatRate={bnOrZero(marketData.price)}
+                cryptoUnbondedAmount={bnOrZero(undelegation.amount).div(`1e+${asset.precision}`)}
                 unbondingEnd={undelegation.completionTime}
               />
             ))}
@@ -109,7 +131,7 @@ export const Overview = ({ assetId }: StakedProps) => {
             mb='20px'
             mt='25px'
             assetSymbol={asset.symbol}
-            fiatRate={bnOrZero('8.47')}
+            fiatRate={bnOrZero(marketData.price)}
             cryptoRewardsAmount={bnOrZero(rewardsAmount)}
           />
           <ClaimButton assetId={assetId} />

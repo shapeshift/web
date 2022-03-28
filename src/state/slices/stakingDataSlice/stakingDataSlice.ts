@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP10, caip10 } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 export type PubKey = string
-type AllStakingDataArgs = { pubKey: string; assetId: CAIP19 }
+type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
 export type Staking = {
   delegations: chainAdapters.cosmos.Delegation[]
@@ -18,7 +19,7 @@ export type StakingDataById = {
 }
 
 export type StakingData = {
-  byPubKey: StakingDataById
+  byAccountSpecifier: StakingDataById
 }
 
 export type StakingPayload = {
@@ -28,11 +29,15 @@ export type StakingPayload = {
   }
 }
 const initialState: StakingData = {
-  byPubKey: {}
+  byAccountSpecifier: {}
 }
 
-const updateOrInsert = (stakingDataState: StakingData, pubKey: PubKey, currentStakingData: any) => {
-  stakingDataState.byPubKey[pubKey] = currentStakingData
+const updateOrInsert = (
+  stakingDataState: StakingData,
+  accountSpecifier: string,
+  currentStakingData: any
+) => {
+  stakingDataState.byAccountSpecifier[accountSpecifier] = currentStakingData
 }
 export const stakingData = createSlice({
   name: 'stakingData',
@@ -41,7 +46,7 @@ export const stakingData = createSlice({
     clear: () => initialState,
     upsertStakingData: (stakingDataState, { payload }: any) => {
       // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
-      updateOrInsert(stakingDataState, payload.pubKey, payload.stakingData)
+      updateOrInsert(stakingDataState, payload.accountSpecifier, payload.stakingData)
     }
   }
 })
@@ -54,13 +59,13 @@ export const stakingDataApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
-      queryFn: async ({ pubKey, assetId }, { dispatch }) => {
-        const { chain } = caip19.fromCAIP19(assetId)
+      queryFn: async ({ accountSpecifier }, { dispatch }) => {
+        const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
         const chainAdapters = getChainAdapters()
         // TODO(gomes): remove casting
-        const adapter = chainAdapters.byChain<ChainTypes.Cosmos>(chain as ChainTypes.Cosmos)
+        const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
         try {
-          const data = await adapter.getAccount(pubKey)
+          const data = await adapter.getAccount(account)
 
           const {
             chainSpecific: { delegations, redelegations, undelegations, rewards }
@@ -74,13 +79,16 @@ export const stakingDataApi = createApi({
           }
 
           dispatch(
-            stakingData.actions.upsertStakingData({ pubKey, stakingData: currentStakingData })
+            stakingData.actions.upsertStakingData({
+              stakingData: currentStakingData,
+              accountSpecifier
+            })
           )
           return { data: currentStakingData }
         } catch (e) {
-          console.error('Error fetching staking data for ', pubKey)
+          console.error('Error fetching staking data for ', account)
           return {
-            error: `Error fetching staking data for ${pubKey}`
+            error: `Error fetching staking data for ${account}`
           }
         }
       }

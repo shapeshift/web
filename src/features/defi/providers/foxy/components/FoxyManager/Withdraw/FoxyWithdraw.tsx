@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -437,18 +437,31 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             <Stack spacing={6}>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
-                </Row.Label>
-                <Row.Value fontWeight='bold'>
-                  <Text translation='defi.yearn' />
-                </Row.Value>
-              </Row>
-              <Row>
-                <Row.Label>
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value>
                   <MiddleEllipsis address={state.userAddress || ''} />
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawFee' />
+                </Row.Label>
+                {/* TODO(ryankk): add foxy fee */}
+                <Row.Value fontWeight='bold'>0.00 Foxy</Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawTime' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>
+                  <Text
+                    translation={
+                      state.withdraw.withdrawType === WithdrawType.INSTANT
+                        ? 'modals.confirm.withdrawInstantTime'
+                        : 'modals.confirm.withdrawDelayedTime'
+                    }
+                  />
                 </Row.Value>
               </Row>
               <Row>
@@ -519,9 +532,10 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
+                  <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Foxy</Row.Value>
+                {/* TODO(ryankk): add withdrawFee */}
+                <Row.Value fontWeight='bold'>0.00 Foxy</Row.Value>
               </Row>
               <Row>
                 <Row.Label>

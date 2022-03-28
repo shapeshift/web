@@ -12,7 +12,7 @@ export type Staking = {
   delegations: chainAdapters.cosmos.Delegation[]
   redelegations: chainAdapters.cosmos.Redelegation[]
   undelegations: chainAdapters.cosmos.Undelegation[]
-  rewards: chainAdapters.cosmos.Reward[]
+  rewards: chainAdapters.cosmos.ValidatorReward[]
 }
 export type StakingDataById = {
   [k: PubKey]: Staking
@@ -59,6 +59,8 @@ export const stakingDataApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
+      // Type '{ error: string; data?: undefined; }' is not assignable to type '{ error?: undefined; data: Staking; meta?: unknown; }'.
+      //@ts-ignore silence TS yelling at us for the return type, is there any way to fix this?
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
         const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
         const chainAdapters = getChainAdapters()

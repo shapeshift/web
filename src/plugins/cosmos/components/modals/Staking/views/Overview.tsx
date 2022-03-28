@@ -149,7 +149,7 @@ export const Overview = ({ assetId }: StakedProps) => {
             <RewardsRow
               assetSymbol={asset.symbol}
               fiatRate={bnOrZero(marketData.price)}
-              cryptoRewardsAmount={bnOrZero(rewardsAmount)}
+              cryptoRewardsAmount={bnOrZero(rewardsAmount).div(`1e+${asset.precision}`)}
             />
           </Skeleton>
           <Skeleton isLoaded={isLoaded} width='100%' height='40px'>

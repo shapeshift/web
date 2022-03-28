@@ -9,6 +9,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { ReduxState } from 'state/reducer'
 
+export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
 const selectAccountSpecifier = (_state: ReduxState, accountSpecifier: CAIP10, ...args: any[]) =>
   accountSpecifier
 const selectValidatorAddress = (

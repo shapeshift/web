@@ -87,6 +87,7 @@ export const mockStore: ReduxState = {
     status: 'idle'
   },
   stakingData: {
-    byAccountSpecifier: {}
+    byAccountSpecifier: {},
+    status: 'idle'
   }
 }

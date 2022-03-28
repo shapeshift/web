@@ -1,5 +1,5 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { ModalCloseButton } from '@chakra-ui/react'
+import { ModalCloseButton, Skeleton } from '@chakra-ui/react'
 import { caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
@@ -17,6 +17,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectRewardsCryptoBalancebyAccountSpecifier,
+  selectStakingDataStatus,
   selectTotalBondingsBalancebyAccountSpecifier,
   selectUnbondingEntriesbyAccountSpecifier
 } from 'state/slices/stakingDataSlice/selectors'
@@ -28,6 +29,8 @@ type StakedProps = {
 }
 
 export const Overview = ({ assetId }: StakedProps) => {
+  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
+  const isLoaded = stakingDataStatus === 'loaded'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -69,7 +72,7 @@ export const Overview = ({ assetId }: StakedProps) => {
 
   useEffect(() => {
     ;(async () => {
-      if (!accountSpecifier.length) return
+      if (!accountSpecifier.length || isLoaded) return
 
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
@@ -78,7 +81,7 @@ export const Overview = ({ assetId }: StakedProps) => {
         )
       )
     })()
-  }, [accountSpecifier, dispatch])
+  }, [accountSpecifier, isLoaded, dispatch])
 
   const totalBondings = useAppSelector(state =>
     selectTotalBondingsBalancebyAccountSpecifier(
@@ -113,34 +116,47 @@ export const Overview = ({ assetId }: StakedProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <OverviewHeader assetName={asset.name} mb='35px' />
-          <StakedRow
+          <OverviewHeader assetName={asset.name} assetIcon={asset.icon} mb='35px' />
+          <Skeleton
+            isLoaded={isLoaded}
+            width='100%'
+            height='48px'
             mb='10px'
-            assetSymbol={asset.symbol}
-            fiatRate={bnOrZero(marketData.price)}
-            cryptoStakedAmount={totalBondings.div(`1e+${asset.precision}`)}
-            apr={bnOrZero('0.12')}
-          />
-          <StakingButtons assetId={assetId} />
-          <Box width='100%' mt='20px'>
-            {undelegationEntries.map((undelegation, i) => (
-              <UnbondingRow
-                key={i}
-                assetSymbol={asset.symbol}
-                fiatRate={bnOrZero(marketData.price)}
-                cryptoUnbondedAmount={bnOrZero(undelegation.amount).div(`1e+${asset.precision}`)}
-                unbondingEnd={undelegation.completionTime}
-              />
-            ))}
-          </Box>
-          <RewardsRow
-            mb='20px'
-            mt='25px'
-            assetSymbol={asset.symbol}
-            fiatRate={bnOrZero(marketData.price)}
-            cryptoRewardsAmount={bnOrZero(rewardsAmount)}
-          />
-          <ClaimButton assetId={assetId} />
+            justifyContent='space-between'
+          >
+            <StakedRow
+              assetSymbol={asset.symbol}
+              fiatRate={bnOrZero(marketData.price)}
+              cryptoStakedAmount={totalBondings.div(`1e+${asset.precision}`)}
+              apr={bnOrZero('0.12')}
+            />
+          </Skeleton>
+          <Skeleton width='100%' height='40px' isLoaded={isLoaded}>
+            <StakingButtons assetId={assetId} />
+          </Skeleton>
+          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mt='15px'>
+            <Box width='100%' mt='20px'>
+              {undelegationEntries.map((undelegation, i) => (
+                <UnbondingRow
+                  key={i}
+                  assetSymbol={asset.symbol}
+                  fiatRate={bnOrZero(marketData.price)}
+                  cryptoUnbondedAmount={bnOrZero(undelegation.amount).div(`1e+${asset.precision}`)}
+                  unbondingEnd={undelegation.completionTime}
+                />
+              ))}
+            </Box>
+          </Skeleton>
+          <Skeleton mb='20px' mt='25px' isLoaded={isLoaded} width='100%' height='48px'>
+            <RewardsRow
+              assetSymbol={asset.symbol}
+              fiatRate={bnOrZero(marketData.price)}
+              cryptoRewardsAmount={bnOrZero(rewardsAmount)}
+            />
+          </Skeleton>
+          <Skeleton isLoaded={isLoaded} width='100%' height='40px'>
+            <ClaimButton assetId={assetId} />
+          </Skeleton>
         </Flex>
       </Box>
     </AnimatePresence>

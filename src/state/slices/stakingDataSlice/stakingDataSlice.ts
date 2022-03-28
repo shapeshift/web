@@ -8,6 +8,8 @@ import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 export type PubKey = string
 type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
+export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
+
 export type Staking = {
   delegations: chainAdapters.cosmos.Delegation[]
   redelegations: chainAdapters.cosmos.Redelegation[]
@@ -20,6 +22,7 @@ export type StakingDataById = {
 
 export type StakingData = {
   byAccountSpecifier: StakingDataById
+  status: StakingDataStatus
 }
 
 export type StakingPayload = {
@@ -29,7 +32,8 @@ export type StakingPayload = {
   }
 }
 const initialState: StakingData = {
-  byAccountSpecifier: {}
+  byAccountSpecifier: {},
+  status: 'idle'
 }
 
 const updateOrInsert = (
@@ -39,11 +43,17 @@ const updateOrInsert = (
 ) => {
   stakingDataState.byAccountSpecifier[accountSpecifier] = currentStakingData
 }
+
+type StakingDataStatusPayload = { payload: StakingDataStatus }
+
 export const stakingData = createSlice({
   name: 'stakingData',
   initialState,
   reducers: {
     clear: () => initialState,
+    setStatus: (state, { payload }: StakingDataStatusPayload) => {
+      state.status = payload
+    },
     upsertStakingData: (stakingDataState, { payload }: any) => {
       // TODO(gomes): Improve the structure of this when we have cosmos websocket, for now this just inserts
       updateOrInsert(stakingDataState, payload.accountSpecifier, payload.stakingData)
@@ -66,6 +76,7 @@ export const stakingDataApi = createApi({
         const chainAdapters = getChainAdapters()
         // TODO(gomes): remove casting
         const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
+        dispatch(stakingData.actions.setStatus('loading'))
         try {
           const data = await adapter.getAccount(account)
 
@@ -92,6 +103,8 @@ export const stakingDataApi = createApi({
           return {
             error: `Error fetching staking data for ${account}`
           }
+        } finally {
+          dispatch(stakingData.actions.setStatus('loaded'))
         }
       }
     })

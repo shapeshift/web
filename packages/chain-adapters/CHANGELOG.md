@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.11.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.10.0...@shapeshiftoss/chain-adapters-v2.11.0) (2022-03-28)
+
+
+### Features
+
+* don't log cosmos validation error ([#504](https://github.com/shapeshift/lib/issues/504)) ([6a309d0](https://github.com/shapeshift/lib/commit/6a309d0191ccec1b2441312f043b55dda978ecb7))
+
 # [@shapeshiftoss/chain-adapters-v2.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.9.0...@shapeshiftoss/chain-adapters-v2.10.0) (2022-03-28)
 
 

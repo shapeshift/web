@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.5.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.4.0...@shapeshiftoss/types-v2.5.0) (2022-03-28)
+
+
+### Features
+
+* add validator info ([#491](https://github.com/shapeshift/lib/issues/491)) ([92ef7de](https://github.com/shapeshift/lib/commit/92ef7de7fbae8ab77796932918f54c68aa01f3b8))
+
 # [@shapeshiftoss/types-v2.4.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.3.0...@shapeshiftoss/types-v2.4.0) (2022-03-24)
 
 

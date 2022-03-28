@@ -54,6 +54,7 @@ export const Overview = ({ assetId }: StakedProps) => {
       setChainAdapter(cosmosChainAdapter)
     })()
   })
+
   useEffect(() => {
     ;(async () => {
       if (!chainAdapter || !wallet || !asset) return
@@ -63,8 +64,13 @@ export const Overview = ({ assetId }: StakedProps) => {
         wallet
       })
       setAddress(address)
+    })()
+  }, [chainAdapter, wallet, asset])
 
+  useEffect(() => {
+    ;(async () => {
       if (!accountSpecifier.length) return
+
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
           { accountSpecifier },
@@ -72,7 +78,7 @@ export const Overview = ({ assetId }: StakedProps) => {
         )
       )
     })()
-  }, [wallet, chainAdapter, assetId, asset, accountSpecifier, dispatch])
+  }, [accountSpecifier, dispatch])
 
   const totalBondings = useAppSelector(state =>
     selectTotalBondingsBalancebyAccountSpecifier(

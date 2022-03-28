@@ -4,8 +4,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
   Delegation,
   RedelegationEntry,
-  UndelegationEntry,
-  ValidatorReward
+  UndelegationEntry
 } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import BigNumber from 'bignumber.js'
 import { ReduxState } from 'state/reducer'

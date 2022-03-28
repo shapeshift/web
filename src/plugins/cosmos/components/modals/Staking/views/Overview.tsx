@@ -28,6 +28,8 @@ type StakedProps = {
   assetId: CAIP19
 }
 
+const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+
 export const Overview = ({ assetId }: StakedProps) => {
   const stakingDataStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = stakingDataStatus === 'loaded'
@@ -87,22 +89,18 @@ export const Overview = ({ assetId }: StakedProps) => {
     selectTotalBondingsBalancebyAccountSpecifier(
       state,
       accountSpecifier,
-      'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf' // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
+      SHAPESHIFT_VALIDATOR_ADDRESS // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
     )
   )
   const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesbyAccountSpecifier(
-      state,
-      accountSpecifier,
-      'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
-    )
+    selectUnbondingEntriesbyAccountSpecifier(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
   )
 
   const rewardsAmount = useAppSelector(state =>
     selectRewardsCryptoBalancebyAccountSpecifier(
       state,
       accountSpecifier,
-      'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+      SHAPESHIFT_VALIDATOR_ADDRESS
     )
   )
 

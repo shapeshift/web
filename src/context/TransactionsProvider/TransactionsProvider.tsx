@@ -100,8 +100,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
         if (isEmpty(chainAccountSpecifiers)) continue
         chainAccountSpecifiers.forEach(accountSpecifierMap => {
           const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
-          const forceRefetch = true
-          const options = { forceRefetch }
+          const options = { forceRefetch: true }
           dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
 
           /**

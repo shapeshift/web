@@ -7,7 +7,7 @@ type ReactTableProps = {
   columns: Column<any>[]
   data: object[]
   displayHeaders?: boolean
-  onRowClick?: () => void | undefined
+  onRowClick?: () => void
   initialState?: Partial<TableState<object>>
 }
 

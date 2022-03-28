@@ -9,6 +9,7 @@ import {
   Tag,
   TagLabel
 } from '@chakra-ui/react'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { useMemo } from 'react'
@@ -20,67 +21,62 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type StakingOpportunity = {
   id: number
-  validatorName: string
-  apr: number
-  stakedAmount?: string | undefined
-  stakedRewards?: string | undefined
-  fiatRewards?: number | undefined
+  moniker: string
+  apr: BigNumber
+  cryptoAmount?: BigNumber
+  rewards: Rewards
+}
+
+type Rewards = {
+  fiatRate: BigNumber
+  stakedRewards?: BigNumber
 }
 
 type StakingOpportunitiesProps = {
-  stakingOpportunities: StakingOpportunity[]
+  assetId: CAIP19
+  opportunities: StakingOpportunity[]
 }
 
 type ValidatorNameProps = {
-  validatorName: string
+  moniker: string
+  isStaking: boolean
 }
 
-export const ValidatorNameNotStacking = ({ validatorName }: ValidatorNameProps) => {
+export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
   const isLoaded = true
+  const assetIcon = isStaking
+    ? 'https://assets.coincap.io/assets/icons/eth@2x.png'
+    : 'https://assets.coingecko.com/coins/images/16724/small/osmo.png?1632763885'
 
   return (
     <Box cursor='pointer'>
       <Flex alignItems='center' maxWidth='180px' mr={'-20px'}>
         <SkeletonCircle boxSize='8' isLoaded={isLoaded} mr={4}>
-          <AssetIcon
-            src={'https://assets.coingecko.com/coins/images/16724/small/osmo.png?1632763885'}
-            boxSize='8'
-          />
+          <AssetIcon src={assetIcon} boxSize='8' />
         </SkeletonCircle>
         <Skeleton isLoaded={isLoaded} cursor='pointer'>
-          <RawText fontWeight='bold'>{`${validatorName}`}</RawText>
+          {isStaking && (
+            <Tag colorScheme='blue'>
+              <TagLabel>{moniker}</TagLabel>
+            </Tag>
+          )}
+          {!isStaking && <RawText fontWeight='bold'>{`${moniker}`}</RawText>}
         </Skeleton>
       </Flex>
     </Box>
   )
 }
 
-export const ValidatorNameStacking = ({ validatorName }: ValidatorNameProps) => {
+export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportunitiesProps) => {
   const isLoaded = true
-
-  return (
-    <Box cursor='pointer'>
-      <Flex alignItems='center' maxWidth='180px' mr={'-20px'}>
-        <SkeletonCircle boxSize='8' isLoaded={isLoaded} mr={4}>
-          <AssetIcon src={'https://assets.coincap.io/assets/icons/eth@2x.png'} boxSize='8' />
-        </SkeletonCircle>
-        <Skeleton isLoaded={isLoaded} cursor='pointer'>
-          <Tag colorScheme='blue'>
-            <TagLabel>{validatorName}</TagLabel>
-          </Tag>
-        </Skeleton>
-      </Flex>
-    </Box>
-  )
-}
-
-export const StakingOpportunities = ({ stakingOpportunities }: StakingOpportunitiesProps) => {
-  const isLoaded = true
-  const assetSymbol = 'OSMO'
-  const isStacking = stakingOpportunities.some(x => x.stakedAmount)
+  const isStaking = opportunities.some(x => x.cryptoAmount)
+  const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
@@ -97,15 +93,11 @@ export const StakingOpportunities = ({ stakingOpportunities }: StakingOpportunit
     () => [
       {
         Header: <Text translation='defi.validator' />,
-        accessor: 'validatorName',
+        accessor: 'moniker',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => {
-          return isStacking ? (
-            <ValidatorNameStacking validatorName={value}></ValidatorNameStacking>
-          ) : (
-            <ValidatorNameNotStacking validatorName={value}></ValidatorNameNotStacking>
-          )
-        },
+        Cell: ({ value }: { value: string }) => (
+          <ValidatorName moniker={value} isStaking={isStaking}></ValidatorName>
+        ),
         disableSortBy: true
       },
       {
@@ -121,12 +113,17 @@ export const StakingOpportunities = ({ stakingOpportunities }: StakingOpportunit
       },
       {
         Header: <Text translation='defi.stakedAmount' />,
-        accessor: 'stakedAmount',
+        accessor: 'cryptoAmount',
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => {
-          return isStacking ? (
-            <Amount.Crypto value={value} symbol={assetSymbol} color='white' fontWeight={'normal'} />
+        Cell: ({ value }: { value: BigNumber }) => {
+          return isStaking ? (
+            <Amount.Crypto
+              value={bnOrZero(value).toString()}
+              symbol={assetSymbol}
+              color='white'
+              fontWeight={'normal'}
+            />
           ) : (
             <Box minWidth={{ base: '0px', md: '200px' }} />
           )
@@ -135,13 +132,20 @@ export const StakingOpportunities = ({ stakingOpportunities }: StakingOpportunit
       },
       {
         Header: <Text translation='defi.rewards' />,
-        accessor: 'stakedRewards',
+        accessor: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: string }) => {
-          return isStacking ? (
+        Cell: ({ value }: { value: Rewards }) => {
+          return isStaking ? (
             <HStack fontWeight={'normal'}>
-              <Amount.Crypto value={value ?? ''} symbol={assetSymbol} />
-              <Amount.Fiat value={value ?? ''} color='green.500' prefix='≈' />
+              <Amount.Crypto
+                value={bnOrZero(value.stakedRewards).toString()}
+                symbol={assetSymbol}
+              />
+              <Amount.Fiat
+                value={bnOrZero(value.stakedRewards).times(value.fiatRate).toPrecision()}
+                color='green.500'
+                prefix='≈'
+              />
             </HStack>
           ) : (
             <Button
@@ -179,9 +183,9 @@ export const StakingOpportunities = ({ stakingOpportunities }: StakingOpportunit
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={stakingOpportunities}
+          data={opportunities}
           columns={columns}
-          displayHeaders={isStacking}
+          displayHeaders={isStaking}
           onRowClick={handleStakedClick}
         />
       </Card.Body>

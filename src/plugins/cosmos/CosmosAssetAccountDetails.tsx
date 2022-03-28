@@ -6,6 +6,7 @@ import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { Main } from 'components/Layout/Main'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
+import { bn } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { AssetChart } from '../../components/AssetHeader/AssetChart'
@@ -25,24 +26,26 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
 
   // TODO: wire up with real validator data
   const stakingOpportunities = [
-    { id: 1, validatorName: 'Cosmos Validator', apr: 0.12 },
+    { id: 1, moniker: 'Cosmos Validator', apr: bn(0.12), rewards: { fiatRate: bn(0.08) } },
     {
       id: 2,
-      validatorName: 'Cosmos Validator',
-      apr: 0.13,
-      stakedAmount: '1234',
-      fiatAmount: 0.556,
-      stakedRewards: '12',
-      fiatRewards: 0.01
+      moniker: 'Cosmos Validator',
+      apr: bn(0.13),
+      cryptoAmount: bn('1234'),
+      rewards: {
+        fiatRate: bn(0.08),
+        stakedRewards: bn('12')
+      }
     },
     {
       id: 3,
-      validatorName: 'Cosmos Validator',
-      apr: 0.14,
-      stakedAmount: '789123',
-      fiatAmount: 124.556,
-      stakedRewards: '345',
-      fiatRewards: 0.14
+      moniker: 'Cosmos Validator',
+      apr: bn(0.14),
+      cryptoAmount: bn('789123'),
+      rewards: {
+        fiatRate: bn(0.08),
+        stakedRewards: bn('345')
+      }
     }
   ]
   return (
@@ -58,7 +61,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
           {accountId && <AccountAssets assetId={caip19} accountId={accountId} />}
           <AssetAccounts assetId={caip19} accountId={accountId} />
           {cosmosInvestorFlag && (
-            <StakingOpportunities stakingOpportunities={stakingOpportunities} />
+            <StakingOpportunities assetId={caip19} opportunities={stakingOpportunities} />
           )}
           <AssetTransactionHistory assetId={caip19} accountId={accountId} />
         </Stack>

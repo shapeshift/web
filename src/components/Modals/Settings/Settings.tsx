@@ -6,10 +6,15 @@ import { SettingsRouter } from './SettingsRouter'
 
 export enum SettingsRoutes {
   Index = '/settings/index',
-  Languages = '/receive/languages'
+  Languages = '/receive/languages',
+  FiatCurrencies = '/receive/fiat-currencies'
 }
 
-export const entries = [SettingsRoutes.Index, SettingsRoutes.Languages]
+export const entries = [
+  SettingsRoutes.Index,
+  SettingsRoutes.Languages,
+  SettingsRoutes.FiatCurrencies
+]
 
 const Settings = () => {
   /**

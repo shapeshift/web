@@ -52,7 +52,7 @@ export const PrimaryChart = ({
 
   const {
     number: { toFiat }
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
 
   const [chartColor] = useToken('colors', [color])
   const toolTipBg = useColorModeValue('white', colors.gray[800])

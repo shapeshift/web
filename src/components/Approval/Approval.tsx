@@ -40,7 +40,7 @@ export const Approval = () => {
   const { approveInfinite, checkApprovalNeeded, buildQuoteTx } = useSwapper()
   const {
     number: { toCrypto, toFiat }
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const {
     state: { wallet }
   } = useWallet()

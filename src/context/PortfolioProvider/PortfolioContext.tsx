@@ -11,7 +11,7 @@ import {
   supportsETH,
   supportsOsmosis
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes, SupportedFiatCurrencies } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -32,7 +32,8 @@ import {
   selectAccountSpecifiers,
   selectAssetIds,
   selectAssets,
-  selectPortfolioAssetIds
+  selectPortfolioAssetIds,
+  selectSelectedCurrency
 } from 'state/slices/selectors'
 
 /**
@@ -207,6 +208,33 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // marketDataIntervalId causes infinite loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [portfolioAssetIds, setMarketDataIntervalId, dispatch])
+
+  /**
+   * Getting fiat to fiat currency rate
+   * USD is the source currency, so the rate will be 1
+   */
+  const selectedCurrency = useSelector(selectSelectedCurrency)
+  useEffect(() => {
+    if (selectedCurrency !== SupportedFiatCurrencies.USD)
+      dispatch(
+        marketApi.endpoints.findByFiatSymbol.initiate(
+          { symbol: selectedCurrency },
+          { forceRefetch: true }
+        )
+      )
+  }, [dispatch, selectedCurrency])
+
+  useEffect(() => {
+    console.info('getting fiat rates')
+    Object.keys(SupportedFiatCurrencies).forEach(currency =>
+      dispatch(
+        marketApi.endpoints.findByFiatSymbol.initiate(
+          { symbol: currency as SupportedFiatCurrencies },
+          { forceRefetch: true }
+        )
+      )
+    )
+  }, [dispatch])
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

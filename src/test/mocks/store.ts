@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryTimeframe, SupportedFiatCurrencies } from '@shapeshiftoss/types'
 
 import { ReduxState } from '../../state/reducer'
 
@@ -55,6 +55,7 @@ export const mockStore: ReduxState = {
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
+    selectedCurrency: SupportedFiatCurrencies.USD,
     // the following object is required by redux-persist
     _persist: {
       version: 0,
@@ -76,7 +77,19 @@ export const mockStore: ReduxState = {
       [HistoryTimeframe.YEAR]: {},
       [HistoryTimeframe.ALL]: {}
     },
-    loading: false
+    loading: false,
+    fiat: {
+      byId: {},
+      ids: [],
+      priceHistory: {
+        [HistoryTimeframe.DAY]: {},
+        [HistoryTimeframe.HOUR]: {},
+        [HistoryTimeframe.WEEK]: {},
+        [HistoryTimeframe.MONTH]: {},
+        [HistoryTimeframe.YEAR]: {},
+        [HistoryTimeframe.ALL]: {}
+      }
+    }
   },
   txHistory: {
     byId: {},

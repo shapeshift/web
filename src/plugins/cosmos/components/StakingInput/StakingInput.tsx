@@ -61,7 +61,7 @@ export const StakingInput = ({
 }: StakingInputProps & FlexProps) => {
   const {
     number: { localeParts }
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const wrapperBgColor = useColorModeValue('gray.50', 'gray.850')
   const tagBgColor = useColorModeValue('gray.200', 'gray.700')
   return (

@@ -118,7 +118,7 @@ export const Deposit = ({
 }: DepositProps) => {
   const {
     number: { localeParts }
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const translate = useTranslate()
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
   const [percent, setPercent] = useState<number | null>(null)

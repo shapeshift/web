@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { SupportedFiatCurrencies } from '@shapeshiftoss/types'
 import { simpleLocale } from 'lib/browserLocale'
 
 import { getConfig } from '../../../config'
@@ -15,6 +16,7 @@ export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
   balanceThreshold: string
+  selectedCurrency: SupportedFiatCurrencies
 }
 
 const initialState: Preferences = {
@@ -26,7 +28,8 @@ const initialState: Preferences = {
     ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING
   },
   selectedLocale: simpleLocale(),
-  balanceThreshold: '0'
+  balanceThreshold: '0',
+  selectedCurrency: SupportedFiatCurrencies.USD
 }
 
 export const preferences = createSlice({
@@ -41,6 +44,9 @@ export const preferences = createSlice({
     },
     setSelectedLocale(state, { payload }: { payload: { locale: string } }) {
       state.selectedLocale = payload.locale
+    },
+    setSelectedCurrency(state, { payload }: { payload: { currency: SupportedFiatCurrencies } }) {
+      state.selectedCurrency = payload.currency
     },
     setBalanceThreshold(state, { payload }: { payload: { threshold: string } }) {
       state.balanceThreshold = payload.threshold

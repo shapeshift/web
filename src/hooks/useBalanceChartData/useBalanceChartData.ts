@@ -9,41 +9,27 @@ import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import reduce from 'lodash/reduce'
 import reverse from 'lodash/reverse'
-import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { priceAtBlockTime } from 'lib/charts'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectFiatPriceHistoryTimeframe,
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId,
   selectPriceHistoriesLoadingByAssetTimeframe,
+  selectPriceHistoriesLoadingByFiatTimeframe,
   selectPriceHistoryTimeframe,
   selectTxsByFilter
 } from 'state/slices/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
-
-type PriceAtBlockTimeArgs = {
-  date: number
-  assetPriceHistoryData: HistoryData[]
-}
-
-type PriceAtBlockTime = (args: PriceAtBlockTimeArgs) => number
-
-export const priceAtBlockTime: PriceAtBlockTime = ({ date, assetPriceHistoryData }): number => {
-  const { length } = assetPriceHistoryData
-  // https://lodash.com/docs/4.17.15#sortedIndexBy - binary search rather than O(n)
-  const i = sortedIndexBy(assetPriceHistoryData, { date, price: 0 }, ({ date }) => Number(date))
-  if (i === 0) return assetPriceHistoryData[i].price
-  if (i >= length) return assetPriceHistoryData[length - 1].price
-  return assetPriceHistoryData[i].price
-}
 
 type CryptoBalance = {
   [k: CAIP19]: BigNumber // map of asset to base units
@@ -154,6 +140,7 @@ type FiatBalanceAtBucketArgs = {
   priceHistoryData: {
     [k: CAIP19]: HistoryData[]
   }
+  fiatPriceHistoryData: HistoryData[]
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
@@ -161,6 +148,7 @@ type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
 const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   priceHistoryData,
+  fiatPriceHistoryData,
   portfolioAssets
 }) => {
   const { balance, end } = bucket
@@ -169,13 +157,17 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[caip19]
     if (!assetPriceHistoryData?.length) return acc
-    const price = priceAtBlockTime({ assetPriceHistoryData, date })
+    const price = priceAtBlockTime({ priceHistoryData: assetPriceHistoryData, date })
+    const fiatToUsdRate = priceAtBlockTime({ priceHistoryData: fiatPriceHistoryData, date })
     const portfolioAsset = portfolioAssets[caip19]
     if (!portfolioAsset) {
       return acc
     }
     const { precision } = portfolioAsset
-    const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
+    const assetFiatBalance = assetCryptoBalance
+      .div(bn(10).exponentiatedBy(precision))
+      .times(price)
+      .times(fiatToUsdRate)
 
     return acc.plus(assetFiatBalance)
   }, bn(0))
@@ -188,13 +180,14 @@ type CalculateBucketPricesArgs = {
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
+  fiatPriceHistoryData: HistoryData[]
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
+  const { assetIds, buckets, portfolioAssets, priceHistoryData, fiatPriceHistoryData } = args
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -242,7 +235,12 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       })
     })
 
-    bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
+    bucket.balance.fiat = fiatBalanceAtBucket({
+      bucket,
+      priceHistoryData,
+      portfolioAssets,
+      fiatPriceHistoryData
+    })
     buckets[i] = bucket
   }
   return buckets
@@ -315,6 +313,12 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const priceHistoryDataLoading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
   )
+  const fiatPriceHistoryData = useAppSelector(state =>
+    selectFiatPriceHistoryTimeframe(state, timeframe)
+  )
+  const fiatPriceHistoryDataLoading = useAppSelector(state =>
+    selectPriceHistoriesLoadingByFiatTimeframe(state, timeframe)
+  )
 
   // loading state
   useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
@@ -324,7 +328,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const noDeviceId = isNil(walletInfo?.deviceId)
     const noAssetIds = !assetIds.length
-    const noPriceHistory = priceHistoryDataLoading
+    const noPriceHistory = priceHistoryDataLoading || fiatPriceHistoryDataLoading
     if (noDeviceId || noAssetIds || noPriceHistory) {
       return setBalanceChartDataLoading(true)
     }
@@ -339,6 +343,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       assetIds,
       buckets,
       priceHistoryData,
+      fiatPriceHistoryData,
       portfolioAssets
     })
 
@@ -350,7 +355,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     assetIds,
     accountIds,
     priceHistoryData,
+    fiatPriceHistoryData,
     priceHistoryDataLoading,
+    fiatPriceHistoryDataLoading,
     txs,
     timeframe,
     balances,

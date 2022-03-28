@@ -41,7 +41,7 @@ type AssetChartProps = {
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
   const {
     number: { toFiat }
-  } = useLocaleFormatter({ fiatType: 'USD' })
+  } = useLocaleFormatter()
   const [percentChange, setPercentChange] = useState(0)
   const [timeframe, setTimeframe] = useState(HistoryTimeframe.DAY)
   const assetIds = useMemo(() => [assetId].filter(Boolean), [assetId])

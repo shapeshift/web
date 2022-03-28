@@ -1,8 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { findAll, findByCaip19, findPriceHistoryByCaip19 } from '@shapeshiftoss/market-service'
-import { HistoryData, HistoryTimeframe, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import {
+  findAll,
+  findByCaip19,
+  findByFiatSymbol,
+  findPriceHistoryByCaip19,
+  findPriceHistoryByFiatSymbol
+} from '@shapeshiftoss/market-service'
+import {
+  FiatMarketDataArgs,
+  FiatPriceHistoryArgs,
+  HistoryData,
+  HistoryTimeframe,
+  MarketCapResult,
+  MarketData,
+  SupportedFiatCurrencies
+} from '@shapeshiftoss/types'
 
 export type PriceHistoryData = {
   [k: CAIP19]: HistoryData[]
@@ -12,6 +26,14 @@ type PriceHistoryByTimeframe = {
   [k in HistoryTimeframe]: PriceHistoryData
 }
 
+type FiatMarketDataState = {
+  byId: {
+    [k: string]: MarketData
+  }
+  ids: SupportedFiatCurrencies[]
+  priceHistory: PriceHistoryByTimeframe
+}
+
 export type MarketDataState = {
   loading: boolean // remove this, if selector returns null we don't have it
   byId: {
@@ -19,6 +41,7 @@ export type MarketDataState = {
   }
   ids: CAIP19[]
   priceHistory: PriceHistoryByTimeframe
+  fiat: FiatMarketDataState
 }
 
 const initialPriceHistory: PriceHistoryByTimeframe = {
@@ -34,7 +57,12 @@ const initialState: MarketDataState = {
   byId: {},
   ids: [],
   priceHistory: initialPriceHistory,
-  loading: false
+  loading: false,
+  fiat: {
+    byId: {},
+    ids: [],
+    priceHistory: initialPriceHistory
+  }
 }
 
 export const marketData = createSlice({
@@ -55,6 +83,20 @@ export const marketData = createSlice({
     ) => {
       const { assetId, timeframe } = args
       state.priceHistory[timeframe][assetId] = data
+    },
+    setFiatMarketData: (state, { payload }) => {
+      state.fiat.byId = { ...state.fiat.byId, ...payload } // upsert
+      const ids = Array.from(new Set([...state.fiat.ids, ...Object.keys(payload)])).map(
+        id => id as SupportedFiatCurrencies
+      )
+      state.fiat.ids = ids
+    },
+    setFiatPriceHistory: (
+      state,
+      { payload: { data, args } }: { payload: { data: HistoryData[]; args: FiatPriceHistoryArgs } }
+    ) => {
+      const { symbol, timeframe } = args
+      state.fiat.priceHistory[timeframe][symbol] = data
     }
   }
 })
@@ -118,6 +160,49 @@ export const marketApi = createApi({
           // swallow
         } finally {
           dispatch(marketData.actions.setPriceHistory(payload))
+        }
+      }
+    }),
+    findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({
+      queryFn: async ({ symbol }: { symbol: SupportedFiatCurrencies }, baseQuery) => {
+        try {
+          const currentMarketData = await findByFiatSymbol({ symbol })
+          if (!currentMarketData) throw new Error()
+          const data = { [symbol]: currentMarketData }
+          baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
+          return { data }
+        } catch (e) {
+          console.error(e)
+          const error = { data: `findByFiatSymbol: no market data for ${symbol}`, status: 404 }
+          return { error }
+        }
+      }
+    }),
+    findPriceHistoryByFiatSymbol: build.query<HistoryData[], FiatPriceHistoryArgs>({
+      queryFn: async ({ symbol, timeframe }) => {
+        try {
+          const data = await findPriceHistoryByFiatSymbol({ timeframe, symbol })
+          return { data }
+        } catch (e) {
+          const error = {
+            data: `findPriceHistoryByFiatSymbol: error fetching price history for ${symbol}`,
+            status: 400
+          }
+          return { error }
+        }
+      },
+      onQueryStarted: async (args, { dispatch, queryFulfilled, getCacheEntry }) => {
+        // empty data helps selectors know it's loaded, even if it's unavailable
+        const data: HistoryData[] = []
+        const payload = { data, args }
+        try {
+          await queryFulfilled
+          const data = getCacheEntry().data
+          payload.data = data ?? []
+        } catch (e) {
+          // swallow
+        } finally {
+          dispatch(marketData.actions.setFiatPriceHistory(payload))
         }
       }
     })

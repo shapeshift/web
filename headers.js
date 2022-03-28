@@ -37,6 +37,8 @@ const cspMeta = Object.entries({
     'https://api.coincap.io/v2/assets',
     // @shapeshiftoss/market-service@1.7.0: https://github.com/shapeshift/lib/blob/9123527ebbcf0fd62a619ab2824d970123bd5ac2/packages/market-service/src/coincap/coincap.ts#L21
     'https://api.coincap.io/v2/assets/',
+    // TODO(stackedQ): add reference to fiat market data api here
+    'https://api.exchangerate.host/',
     // @gem(onramp) to get coinify supported currencies
     process.env.REACT_APP_GEM_COINIFY_SUPPORTED_COINS,
     // @gem(onramp) to get wyre supported currencies

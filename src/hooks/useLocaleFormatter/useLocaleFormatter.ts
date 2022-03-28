@@ -1,5 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
+import { selectSelectedCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const CRYPTO_PRECISION = 8
 
@@ -134,27 +136,27 @@ export const getBrowserLocales = (options = {}) => {
   })[0]
 }
 
+type useLocaleFormatterArgs = {
+  locale?: string
+  fiatType?: string
+}
+
 /**
  * Set of helper functions for formatting using the user's locale
  * such as numbers, currencies, and dates
  */
 
-export const useLocaleFormatter = ({
-  locale,
-  fiatType = 'USD'
-}: {
-  locale?: string
-  fiatType: string
-}): NumberFormatter => {
-  const deviceLocale = locale ?? getBrowserLocales()
-
+export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatter => {
+  const deviceLocale = args?.locale ?? getBrowserLocales()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const fiatTypeToUse = args?.fiatType ?? selectedCurrency
   /**
    * Parse a number in the current locale formatted in the selected currency.
    * This will determine the thousandth group separator, decimal separator, and minor units
    */
   const localeParts = useMemo((): LocaleParts => {
-    return getParts(deviceLocale, fiatType)
-  }, [fiatType, deviceLocale])
+    return getParts(deviceLocale, fiatTypeToUse)
+  }, [fiatTypeToUse, deviceLocale])
 
   /**
    * Parse a formatted number string into a prefix, number, and postfix
@@ -257,7 +259,7 @@ export const useLocaleFormatter = ({
     (value: NumberValue, options?: NumberFormatOptions): string => {
       try {
         const number = toNumber(value)
-        const numberFiat = options?.fiatType || fiatType
+        const numberFiat = options?.fiatType || fiatTypeToUse
         return abbreviateNumber(number, numberFiat, options)
       } catch (e) {
         // @TODO: figure out logging
@@ -265,7 +267,7 @@ export const useLocaleFormatter = ({
         return String(value)
       }
     },
-    [fiatType, deviceLocale] // eslint-disable-line react-hooks/exhaustive-deps
+    [fiatTypeToUse, deviceLocale] // eslint-disable-line react-hooks/exhaustive-deps
   )
 
   /**

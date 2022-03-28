@@ -1,4 +1,4 @@
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
@@ -96,6 +96,7 @@ describe('calculateBucketPrices', () => {
     const priceHistoryData: PriceHistoryData = {
       [foxCaip19]: [{ price: 0, date: Number() }]
     }
+    const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
 
     const portfolioAssets: PortfolioAssets = {
       [foxCaip19]: fox
@@ -107,6 +108,7 @@ describe('calculateBucketPrices', () => {
       assetIds,
       buckets,
       priceHistoryData,
+      fiatPriceHistoryData,
       portfolioAssets
     })
 
@@ -126,6 +128,7 @@ describe('calculateBucketPrices', () => {
     const priceHistoryData: PriceHistoryData = {
       [ethCaip19]: [{ price: 0, date: Number() }]
     }
+    const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
     const portfolioAssets: PortfolioAssets = {
       [ethCaip19]: ethereum
     }
@@ -137,6 +140,7 @@ describe('calculateBucketPrices', () => {
       assetIds,
       buckets,
       priceHistoryData,
+      fiatPriceHistoryData,
       portfolioAssets
     })
     expect(calculatedBuckets[0].balance.crypto[ethCaip19].toNumber()).toEqual(0)

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.8.1...@shapeshiftoss/chain-adapters-v2.9.0) (2022-03-28)
+
+
+### Features
+
+* add validator info ([#491](https://github.com/shapeshift/lib/issues/491)) ([92ef7de](https://github.com/shapeshift/lib/commit/92ef7de7fbae8ab77796932918f54c68aa01f3b8))
+
 # [@shapeshiftoss/chain-adapters-v2.8.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.8.0...@shapeshiftoss/chain-adapters-v2.8.1) (2022-03-24)
 
 # [@shapeshiftoss/chain-adapters-v2.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.7.2...@shapeshiftoss/chain-adapters-v2.8.0) (2022-03-24)

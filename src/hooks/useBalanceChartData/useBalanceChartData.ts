@@ -152,11 +152,9 @@ export const bucketEvents = (
       return acc
     }
 
-    const isTx = (event: Tx | RebaseHistory): event is Tx => Boolean((event as Tx)?.txid ?? '')
+    const isTx = (event: Tx | RebaseHistory): event is Tx => !!(event as Tx)?.txid
     // add to the correct bucket
-    isTx(event)
-      ? acc[bucketIndex].txs.push(event as Tx)
-      : acc[bucketIndex].rebases.push(event as RebaseHistory)
+    isTx(event) ? acc[bucketIndex].txs.push(event) : acc[bucketIndex].rebases.push(event)
 
     return acc
   }, buckets)

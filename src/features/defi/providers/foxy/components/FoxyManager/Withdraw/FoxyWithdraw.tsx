@@ -375,7 +375,15 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
             enableWithdrawType
-          />
+          >
+            <Row>
+              <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
+              <Row.Value>
+                <Amount.Crypto value='0' symbol={asset.symbol} />
+              </Row.Value>
+            </Row>
+            <Text fontSize='sm' color='gray.500' translation='modals.withdraw.disclaimer' />
+          </Withdraw>
         )
       case WithdrawPath.Approve:
         return (

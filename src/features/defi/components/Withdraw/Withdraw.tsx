@@ -10,13 +10,14 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  HStack,
   IconButton,
   Input,
   InputGroup,
   InputLeftElement,
   InputProps,
   InputRightElement,
+  List,
+  ListItem,
   ModalBody,
   ModalFooter,
   Popover,
@@ -39,7 +40,6 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { SliderIcon } from 'components/Icons/Slider'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
@@ -89,7 +89,7 @@ enum InputType {
   Fiat = 'fiat'
 }
 
-enum Field {
+export enum Field {
   FiatAmount = 'fiatAmount',
   CryptoAmount = 'cryptoAmount',
   Slippage = 'slippage',
@@ -105,7 +105,7 @@ export type WithdrawValues = {
 
 const DEFAULT_SLIPPAGE = '0.5'
 
-export const Withdraw = ({
+export const Withdraw: React.FC<WithdrawProps> = ({
   asset,
   marketData,
   cryptoAmountAvailable,
@@ -116,8 +116,9 @@ export const Withdraw = ({
   fiatInputValidation,
   onContinue,
   onCancel,
-  percentOptions
-}: WithdrawProps) => {
+  percentOptions,
+  children
+}) => {
   const {
     number: { localeParts }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -234,7 +235,63 @@ export const Withdraw = ({
               </Flex>
             </Card.Body>
           </Card>
-          <FormControl mb={6}>
+          {enableWithdrawType && (
+            <FormControl mb={6}>
+              <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
+              <ButtonGroup colorScheme='blue' width='full' variant='input'>
+                <Button
+                  isFullWidth
+                  flexDir='column'
+                  height='auto'
+                  py={4}
+                  onClick={() => handleWithdrawalTypeClick(WithdrawType.INSTANT)}
+                  isActive={values.withdrawType === WithdrawType.INSTANT}
+                >
+                  <Stack alignItems='center' spacing={1}>
+                    <FaBolt size='30px' />
+                    <RawText>{translate('modals.withdraw.instant')}</RawText>
+                    <RawText color='gray.500' fontSize='sm'>
+                      {translate('modals.withdraw.fee', { fee: '3', symbol: asset.symbol })}
+                    </RawText>
+                  </Stack>
+                </Button>
+                <Button
+                  isFullWidth
+                  flexDir='column'
+                  height='auto'
+                  onClick={() => handleWithdrawalTypeClick(WithdrawType.DELAYED)}
+                  isActive={values.withdrawType === WithdrawType.DELAYED}
+                >
+                  <Stack alignItems='center' spacing={1}>
+                    <FaClock size='30px' />
+                    <RawText>{translate('modals.withdraw.delayed')}</RawText>
+                    <RawText color='gray.500' fontSize='sm'>
+                      {translate('modals.withdraw.noFee', { symbol: asset.symbol })}
+                    </RawText>
+                  </Stack>
+                </Button>
+              </ButtonGroup>
+              {values.withdrawType === WithdrawType.DELAYED && (
+                <Alert status='info' borderRadius='lg' mt={4} alignItems='flex-start'>
+                  <AlertIcon />
+                  <Box>
+                    <AlertDescription>{translate('modals.withdraw.info.delayed')}</AlertDescription>
+                    <List mt={2} variant='numerList'>
+                      <ListItem>{translate('modals.withdraw.info.delayedOne')}</ListItem>
+                      <ListItem>{translate('modals.withdraw.info.delayedTwo')}</ListItem>
+                    </List>
+                  </Box>
+                </Alert>
+              )}
+              {values.withdrawType === WithdrawType.INSTANT && (
+                <Alert status='info' borderRadius='lg' mt={4}>
+                  <AlertIcon />
+                  <AlertDescription>{translate('modals.withdraw.info.instant')}</AlertDescription>
+                </Alert>
+              )}
+            </FormControl>
+          )}
+          <FormControl>
             <Box display='flex' alignItems='center' justifyContent='space-between'>
               <FormLabel color='gray.500'>
                 {translate('modals.withdraw.amountToWithdraw')}
@@ -266,6 +323,30 @@ export const Withdraw = ({
               divider={<Divider />}
               spacing={0}
             >
+              <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
+                {percentOptions.map(option => (
+                  <Button
+                    isActive={option === percent}
+                    key={option}
+                    variant='ghost'
+                    colorScheme='blue'
+                    isDisabled={values.withdrawType === WithdrawType.INSTANT}
+                    onClick={() => handlePercentClick(option)}
+                  >
+                    {option === 1 ? (
+                      'Max'
+                    ) : (
+                      <Amount.Percent
+                        value={option}
+                        options={{
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        }}
+                      />
+                    )}
+                  </Button>
+                ))}
+              </ButtonGroup>
               <InputGroup size='lg'>
                 <InputLeftElement pos='relative' ml={1} width='auto'>
                   <Button
@@ -361,98 +442,16 @@ export const Withdraw = ({
                   </InputRightElement>
                 )}
               </InputGroup>
-              <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
-                {percentOptions.map(option => (
-                  <Button
-                    isActive={option === percent}
-                    key={option}
-                    variant='ghost'
-                    colorScheme='blue'
-                    isDisabled={values.withdrawType === WithdrawType.INSTANT}
-                    onClick={() => handlePercentClick(option)}
-                  >
-                    {option === 1 ? (
-                      'Max'
-                    ) : (
-                      <Amount.Percent
-                        value={option}
-                        options={{
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
-                        }}
-                      />
-                    )}
-                  </Button>
-                ))}
-              </ButtonGroup>
             </VStack>
           </FormControl>
-          {enableWithdrawType && (
-            <FormControl>
-              <FormLabel color='gray.500'>{translate('modals.withdraw.withdrawType')}</FormLabel>
-              <ButtonGroup colorScheme='blue' width='full' variant='input'>
-                <Button
-                  isFullWidth
-                  flexDir='column'
-                  height='auto'
-                  py={4}
-                  onClick={() => handleWithdrawalTypeClick(WithdrawType.INSTANT)}
-                  isActive={values.withdrawType === WithdrawType.INSTANT}
-                >
-                  <Stack alignItems='center' spacing={1}>
-                    <FaBolt size='30px' />
-                    <RawText>{translate('modals.withdraw.instant')}</RawText>
-                    <RawText color='gray.500' fontSize='sm'>
-                      {translate('modals.withdraw.fee', { fee: '3', symbol: asset.symbol })}
-                    </RawText>
-                  </Stack>
-                </Button>
-                <Button
-                  isFullWidth
-                  flexDir='column'
-                  height='auto'
-                  onClick={() => handleWithdrawalTypeClick(WithdrawType.DELAYED)}
-                  isActive={values.withdrawType === WithdrawType.DELAYED}
-                >
-                  <HelperTooltip
-                    label='Blah blah blah'
-                    flexProps={{ position: 'absolute', right: 2, top: 2 }}
-                  />
-                  <Stack alignItems='center' spacing={1}>
-                    <FaClock size='30px' />
-                    <RawText>{translate('modals.withdraw.delayed')}</RawText>
-                    <RawText color='gray.500' fontSize='sm'>
-                      {translate('modals.withdraw.noFee', { symbol: asset.symbol })}
-                    </RawText>
-                  </Stack>
-                </Button>
-              </ButtonGroup>
-              {values.withdrawType === WithdrawType.DELAYED && (
-                <Alert status='info' borderRadius='lg' mt={4}>
-                  <AlertIcon />
-                  <AlertDescription>{translate('modals.withdraw.info.delayed')}</AlertDescription>
-                </Alert>
-              )}
-              {values.withdrawType === WithdrawType.INSTANT && (
-                <Alert status='info' borderRadius='lg' mt={4}>
-                  <AlertIcon />
-                  <AlertDescription>{translate('modals.withdraw.info.instant')}</AlertDescription>
-                </Alert>
-              )}
-            </FormControl>
-          )}
         </ModalBody>
-        <ModalFooter as={HStack} direction='horziontal' spacing={4}>
-          <Text
-            flex={1}
-            fontSize='sm'
-            color='gray.500'
-            translation='modals.withdraw.footerDisclaimer'
-          />
+        {children && <ModalFooter as={Stack}>{children}</ModalFooter>}
+        <ModalFooter as={Stack} direction='row'>
           <Button
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}
             size='lg'
+            isFullWidth
             type='submit'
           >
             {translate(

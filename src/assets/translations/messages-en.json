@@ -435,8 +435,12 @@
       "noFee": "No %{symbol} fee",
       "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
+      "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
+      "withDrawalFee": "Withdrawal Fee",
       "info": {
-        "delayed": "Once the time has elapsed you will be able to claim your withdraw amount.",
+        "delayed": "The delayed withdrawal has two transactions:",
+        "delayedOne": "Request the withdrawal",
+        "delayedTwo": "Claim the withdrawal after 7 days",
         "instant": "The instant withdrawal is one transaction and requires you to withdraw the full amount staked."
       }
     },

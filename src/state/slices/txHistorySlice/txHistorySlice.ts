@@ -274,7 +274,7 @@ export const txHistoryApi = createApi({
         const adapters = getChainAdapters()
         if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) {
           const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${ChainTypes.Ethereum}`
-          const status = 418
+          const status = 400
           const error = { data, status }
           return { error }
         }

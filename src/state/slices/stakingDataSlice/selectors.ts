@@ -75,14 +75,16 @@ export const selectTotalBondingsBalancebyAccountSpecifier = createDeepEqualOutpu
 
 export const selectRewardsCryptoBalancebyAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDatabyAccountSpecifier,
-  stakingData => {
+  selectValidatorAddress,
+  (stakingData, validatorAddress) => {
     const initial = bnOrZero(0)
     if (!stakingData || !stakingData.rewards) return initial
 
-    const balance = stakingData.rewards.reduce(
-      (acc: BigNumber, current) => bnOrZero(acc).plus(bnOrZero(current.amount)),
-      initial
-    )
+    const balance = stakingData.rewards
+      .filter(({ validator }) => validator.address === validatorAddress)
+      .map(({ rewards }) => rewards)
+      .flat()
+      .reduce((acc: BigNumber, current) => bnOrZero(acc).plus(bnOrZero(current.amount)), initial)
 
     return balance
   }

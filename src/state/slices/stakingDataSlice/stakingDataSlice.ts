@@ -69,7 +69,6 @@ export const stakingDataApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
-      // Type '{ error: string; data?: undefined; }' is not assignable to type '{ error?: undefined; data: Staking; meta?: unknown; }'.
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
         const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
         const chainAdapters = getChainAdapters()

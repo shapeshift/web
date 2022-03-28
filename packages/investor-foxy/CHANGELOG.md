@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.1.0...@shapeshiftoss/investor-foxy-v1.1.1) (2022-03-28)
+
+
+### Bug Fixes
+
+* foxy rebase logic and types ([#497](https://github.com/shapeshift/lib/issues/497)) ([d680050](https://github.com/shapeshift/lib/commit/d680050525eeaff0bec1c54eca5f1e506fae5e7b))
+
 # [@shapeshiftoss/investor-foxy-v1.1.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.0.3...@shapeshiftoss/investor-foxy-v1.1.0) (2022-03-25)
 
 

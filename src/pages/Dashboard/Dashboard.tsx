@@ -1,4 +1,5 @@
 import { Stack } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { Main } from 'components/Layout/Main'
 
 import { DashboardSidebar } from './DashboardSidebar'
@@ -9,6 +10,9 @@ export type MatchParams = {
 }
 
 export const Dashboard = () => {
+  useEffect(() => {
+    throw new Error()
+  }, [])
   return (
     <Main>
       <Stack

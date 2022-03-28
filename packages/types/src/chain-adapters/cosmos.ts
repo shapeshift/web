@@ -3,8 +3,16 @@ export type BuildTxInput = {
   fee: string
 }
 
+export type Info = {
+  totalSupply: string
+  bondedTokens: string
+}
+
 export type Validator = {
   address: string
+  moniker: string
+  apr: string
+  commission: string
 }
 
 export type Delegation = {
@@ -41,13 +49,18 @@ export type Reward = {
   amount: string
 }
 
+export type ValidatorReward = {
+  validator: Validator
+  rewards: Reward[]
+}
+
 export type Account = {
   sequence: string
   accountNumber: string
   delegations: Delegation[]
   redelegations: Redelegation[]
   undelegations: Undelegation[]
-  rewards: Reward[]
+  rewards: ValidatorReward[]
 }
 
 export type FeeData = {

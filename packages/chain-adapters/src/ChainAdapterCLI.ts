@@ -2,6 +2,7 @@ import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-nativ
 import { BIP44Params, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import dotenv from 'dotenv'
 
+import { cosmossdk } from './'
 import { ChainAdapterManager } from './ChainAdapterManager'
 
 dotenv.config()
@@ -179,6 +180,11 @@ const main = async () => {
 
     const cosmosTxHistory = await cosmosChainAdapter.getTxHistory({ pubkey: cosmosAddress })
     console.log('cosmosTxHistory:', cosmosTxHistory)
+
+    const cosmosShapeShiftValidator = await (
+      cosmosChainAdapter as cosmossdk.cosmos.ChainAdapter
+    ).getValidator('cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf')
+    console.log('cosmosShapeShiftValidator:', cosmosShapeShiftValidator)
 
     await cosmosChainAdapter.subscribeTxs(
       { wallet, bip44Params: cosmosBip44Params },

@@ -239,7 +239,6 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosChainTypes> implement
         result: chainAdapters.ValidAddressResultType.Valid
       }
     } catch (err) {
-      console.error(err)
       return { valid: false, result: chainAdapters.ValidAddressResultType.Invalid }
     }
   }

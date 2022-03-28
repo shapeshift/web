@@ -8,6 +8,7 @@ import {
 } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import BigNumber from 'bignumber.js'
 import { ReduxState } from 'state/reducer'
+import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
 const selectAccountSpecifier = (_state: ReduxState, accountSpecifier: CAIP10, ...args: any[]) =>
@@ -30,7 +31,7 @@ export const selectStakingDatabyAccountSpecifier = createSelector(
   }
 )
 
-export const selectUnbondingEntriesbyAccountSpecifier = createSelector(
+export const selectUnbondingEntriesbyAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDatabyAccountSpecifier,
   selectValidatorAddress,
   (stakingData, validatorAddress) => {
@@ -43,7 +44,7 @@ export const selectUnbondingEntriesbyAccountSpecifier = createSelector(
   }
 )
 
-export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
+export const selectTotalBondingsBalancebyAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDatabyAccountSpecifier,
   selectValidatorAddress,
   (stakingData, validatorAddress): BigNumber => {
@@ -72,7 +73,7 @@ export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
   }
 )
 
-export const selectRewardsCryptoBalancebyAccountSpecifier = createSelector(
+export const selectRewardsCryptoBalancebyAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDatabyAccountSpecifier,
   stakingData => {
     const initial = bnOrZero(0)

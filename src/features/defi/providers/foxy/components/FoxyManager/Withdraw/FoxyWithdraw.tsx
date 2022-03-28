@@ -76,6 +76,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const history = useHistory()
   const translate = useTranslate()
   const alertText = useColorModeValue('blue.800', 'white')
+  const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId, rewardId } = query
 
@@ -335,16 +336,23 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    let statusIcon: React.ReactElement = <ArrowForwardIcon />
-    let statusText = StatusTextEnum.pending
-    if (state.withdraw.txStatus === 'success') {
-      statusText = StatusTextEnum.success
-      statusIcon = <CheckIcon color='green' />
-    }
-    if (state.withdraw.txStatus === 'failed') {
-      statusText = StatusTextEnum.failed
-      statusIcon = <CloseIcon color='red' />
-    }
+    const { statusIcon, statusText, statusBg } = (() => {
+      let statusIcon: React.ReactElement = <ArrowForwardIcon />
+      let statusText = StatusTextEnum.pending
+      let statusBg = defaultStatusBg
+      if (state.withdraw.txStatus === 'success') {
+        statusText = StatusTextEnum.success
+        statusIcon = <CheckIcon color='green' />
+        statusBg = 'green.500'
+      }
+      if (state.withdraw.txStatus === 'failed') {
+        statusText = StatusTextEnum.failed
+        statusIcon = <CloseIcon color='red' />
+        statusBg = 'red.500'
+      }
+
+      return { statusIcon, statusText, statusBg }
+    })()
 
     switch (route.path) {
       case WithdrawPath.Withdraw:
@@ -470,6 +478,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             continueText='modals.status.position'
             closeText='modals.status.close'
             statusText={statusText}
+            bg={statusBg}
             statusIcon={statusIcon}
             assets={[
               {

@@ -35,19 +35,17 @@ export function AppProviders({ children }: ProvidersProps) {
               <BrowserRouterProvider>
                 <I18nProvider>
                   <WalletProvider>
-                    <PortfolioProvider>
-                      <MarketDataProvider>
-                        <TransactionsProvider>
-                          <ModalProvider>
-                            <DefiManagerProvider>
-                              <ErrorBoundary FallbackComponent={ErrorPage}>
-                                {children}
-                              </ErrorBoundary>
-                            </DefiManagerProvider>
-                          </ModalProvider>
-                        </TransactionsProvider>
-                      </MarketDataProvider>
-                    </PortfolioProvider>
+                    <ErrorBoundary FallbackComponent={ErrorPage}>
+                      <PortfolioProvider>
+                        <MarketDataProvider>
+                          <TransactionsProvider>
+                            <ModalProvider>
+                              <DefiManagerProvider>{children}</DefiManagerProvider>
+                            </ModalProvider>
+                          </TransactionsProvider>
+                        </MarketDataProvider>
+                      </PortfolioProvider>
+                    </ErrorBoundary>
                   </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>

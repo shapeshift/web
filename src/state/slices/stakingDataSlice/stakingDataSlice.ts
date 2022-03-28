@@ -12,7 +12,7 @@ export type Staking = {
   delegations: chainAdapters.cosmos.Delegation[]
   redelegations: chainAdapters.cosmos.Redelegation[]
   undelegations: chainAdapters.cosmos.Undelegation[]
-  rewards: chainAdapters.cosmos.ValidatorReward[]
+  rewards: chainAdapters.cosmos.Reward[]
 }
 export type StakingDataById = {
   [k: PubKey]: Staking

@@ -4,8 +4,8 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
   Delegation,
   RedelegationEntry,
-  Reward,
-  UndelegationEntry
+  UndelegationEntry,
+  ValidatorReward
 } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import BigNumber from 'bignumber.js'
 import { ReduxState } from 'state/reducer'
@@ -52,7 +52,7 @@ export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
 
     const { undelegations, delegations, redelegations } = stakingData
 
-    const totalBondings = [
+    const totalBondings: BigNumber = [
       ...delegations.filter(({ validator }) => validator.address === validatorAddress),
       ...undelegations
         .filter(({ validator }) => validator.address === validatorAddress)
@@ -62,7 +62,7 @@ export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
         .filter(({ destinationValidator }) => destinationValidator.address === validatorAddress)
         .map(({ entries }) => entries)
         .flat()
-    ].reduce<BigNumber>(
+    ].reduce(
       (acc: BigNumber, current: Delegation | UndelegationEntry | RedelegationEntry) =>
         bnOrZero(acc).plus(bnOrZero(current.amount)),
       initial
@@ -74,13 +74,15 @@ export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
 
 export const selectRewardsCryptoBalancebyAccountSpecifier = createSelector(
   selectStakingDatabyAccountSpecifier,
-  (stakingData): BigNumber => {
+  stakingData => {
     const initial = bnOrZero(0)
     if (!stakingData || !stakingData.rewards) return initial
 
-    return stakingData.rewards.reduce<BigNumber>(
-      (acc: BigNumber, current: Reward) => bnOrZero(acc).plus(bnOrZero(current.amount)),
+    const balance = stakingData.rewards.reduce(
+      (acc: BigNumber, current) => bnOrZero(acc).plus(bnOrZero(current.amount)),
       initial
     )
+
+    return balance
   }
 )

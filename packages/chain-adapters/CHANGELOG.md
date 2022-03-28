@@ -1,3 +1,10 @@
+# [@shapeshiftoss/chain-adapters-v2.10.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.9.0...@shapeshiftoss/chain-adapters-v2.10.0) (2022-03-28)
+
+
+### Features
+
+* delegate, undelegate and withdraw transactions ([#499](https://github.com/shapeshift/lib/issues/499)) ([239c216](https://github.com/shapeshift/lib/commit/239c2169f1d09e155abc941dd03bc76f6ce26861))
+
 # [@shapeshiftoss/chain-adapters-v2.9.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/chain-adapters-v2.8.1...@shapeshiftoss/chain-adapters-v2.9.0) (2022-03-28)
 
 

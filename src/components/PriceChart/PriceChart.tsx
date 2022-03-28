@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
@@ -49,9 +48,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
   return (
     <Card.Body p={0} height={unavailable ? undefined : '350px'}>
       {unavailable ? (
-        <Box p={8}>
-          <MarketDataUnavailable />
-        </Box>
+        <MarketDataUnavailable />
       ) : (
         <Graph color={color} data={data} loading={loading} isLoaded={!loading} />
       )}

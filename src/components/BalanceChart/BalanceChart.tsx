@@ -1,4 +1,3 @@
-import { Box } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
@@ -41,9 +40,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   return (
     <Card.Body p={0} height={balanceChartDataUnavailable ? undefined : '350px'}>
       {balanceChartDataUnavailable ? (
-        <Box p={8}>
-          <MarketDataUnavailable />
-        </Box>
+        <MarketDataUnavailable />
       ) : (
         <Graph
           color={color}

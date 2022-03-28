@@ -41,10 +41,10 @@ export const TransactionTrade = ({
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.tx.transfers} />
         <TxGrid compactMode={compactMode}>
+          <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
           {txDetails.feeAsset && (
             <Row title='minerFee'>
               <Amount

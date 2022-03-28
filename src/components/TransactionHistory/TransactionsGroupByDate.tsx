@@ -44,7 +44,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
 
   const renderTxRows = useMemo(() => {
     return txRows.map((group: TransactionGroup) => (
-      <Stack px={2} spacing={0} key={group.date}>
+      <Stack px={2} spacing={2} key={group.date}>
         {!useCompactMode && <TransactionDate blockTime={group.date} />}
         {group.txIds?.map((txId: TxId, index: number) => (
           <TransactionRow

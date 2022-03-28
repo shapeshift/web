@@ -145,7 +145,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     chainAdapter,
     accountSpecifiers,
     getAccountSpecifiersByChainId,
-    portfolioAssetIds // TODO(0xdef1cafe): check if this can be included
+    portfolioAssetIds
   ])
 
   /**

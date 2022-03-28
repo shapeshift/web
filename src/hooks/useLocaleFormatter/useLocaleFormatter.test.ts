@@ -5,6 +5,10 @@ import { FiatTypeEnum } from 'constants/FiatTypeEnum'
 
 import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
 
+jest.mock('state/slices/selectors', () => ({
+  selectedCurrency: jest.fn()
+}))
+
 type Scenario = [string, FiatTypeEnum, string[]]
 
 function setup({

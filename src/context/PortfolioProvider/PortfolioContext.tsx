@@ -225,7 +225,6 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   }, [dispatch, selectedCurrency])
 
   useEffect(() => {
-    console.info('getting fiat rates')
     Object.keys(SupportedFiatCurrencies).forEach(currency =>
       dispatch(
         marketApi.endpoints.findByFiatSymbol.initiate(

@@ -112,6 +112,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
            */
 
           // fetch all rebase history for FOXy
+          if (!portfolioAssetIds.length) return // can't fetch without portfolio assets
           const payload = { accountSpecifierMap, portfolioAssetIds }
           dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
         })

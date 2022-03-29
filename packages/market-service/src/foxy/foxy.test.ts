@@ -1,7 +1,7 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { FoxyMarketService } from './foxy'
+import { FOXY_CAIP19, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 
 const foxyMarketService = new FoxyMarketService()
@@ -33,7 +33,7 @@ describe('foxy market service', () => {
 
   describe('findByCaip19', () => {
     const args = {
-      caip19: 'eip155:1/erc20:0x61FcaBB591d63D00E897A67C64658D376FeAd816'
+      caip19: FOXY_CAIP19
     }
 
     it('should return market data for FOXy', async () => {
@@ -52,7 +52,7 @@ describe('foxy market service', () => {
 
   describe('findPriceHistoryByCaip19', () => {
     const args = {
-      caip19: 'eip155:1/erc20:0x61FcaBB591d63D00E897A67C64658D376FeAd816',
+      caip19: FOXY_CAIP19,
       timeframe: HistoryTimeframe.HOUR
     }
 

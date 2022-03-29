@@ -5,7 +5,7 @@ export const getFoxyToken = (): TokenAsset[] => {
   const chain = ChainTypes.Ethereum
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetReference = '0x61fcabb591d63d00e897a67c64658d376fead816' // FOXy contract address
+  const assetReference = '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3' // FOXy contract address
 
   const result: TokenAsset = {
     caip19: caip19.toCAIP19({

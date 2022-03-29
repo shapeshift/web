@@ -15,7 +15,7 @@ import { bn } from '../utils/bignumber'
 import { isValidDate } from '../utils/isValidDate'
 import { rateLimitedAxios } from '../utils/rateLimiters'
 
-export const FOXY_CAIP19 = 'eip155:1/erc20:0x61fcabb591d63d00e897a67c64658d376fead816'
+export const FOXY_CAIP19 = 'eip155:1/erc20:0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
 const FOX_COINCAP_ID = 'fox-token'
 
 const axios = rateLimitedAxios(RATE_LIMIT_THRESHOLDS_PER_MINUTE.COINCAP)

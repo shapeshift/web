@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.2.1...@shapeshiftoss/investor-foxy-v1.3.0) (2022-03-29)
+
+
+### Features
+
+* add toke reward claim functionality ([#484](https://github.com/shapeshift/lib/issues/484)) ([708fb6e](https://github.com/shapeshift/lib/commit/708fb6e9335d8630f1305555186e823ca19ee6e0))
+
 # [@shapeshiftoss/investor-foxy-v1.2.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.2.0...@shapeshiftoss/investor-foxy-v1.2.1) (2022-03-29)
 
 # [@shapeshiftoss/investor-foxy-v1.2.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.1.1...@shapeshiftoss/investor-foxy-v1.2.0) (2022-03-29)

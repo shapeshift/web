@@ -1,7 +1,7 @@
 import { Alert, AlertIcon } from '@chakra-ui/react'
 import { upperFirst } from 'lodash'
 import { useTranslate } from 'react-polyglot'
-import { useKeepKeyMenuEventHandler } from 'components/Layout/Header/NavBar/hooks/useKeepKeyMenuEventHandler'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export type ShowUpdateStatusProps = {
   setting: string
@@ -9,20 +9,19 @@ export type ShowUpdateStatusProps = {
 
 export const ShowUpdateStatus = ({ setting }: ShowUpdateStatusProps) => {
   const translate = useTranslate()
-  const { handleKeepKeyEvents, keepKeyUpdateStatus } = useKeepKeyMenuEventHandler()
+  const { state } = useKeepKey()
 
-  handleKeepKeyEvents()
-  return keepKeyUpdateStatus ? (
+  return state.updateStatus ? (
     <Alert
-      status={keepKeyUpdateStatus === 'success' ? 'success' : 'error'}
+      status={state.updateStatus === 'success' ? 'success' : 'error'}
       borderRadius='lg'
       mb={3}
       fontWeight='semibold'
-      color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'}
+      color={state.updateStatus === 'success' ? 'green.200' : 'yellow.200'}
       fontSize='sm'
     >
-      <AlertIcon color={keepKeyUpdateStatus === 'success' ? 'green.200' : 'yellow.200'} />
-      {keepKeyUpdateStatus === 'success'
+      <AlertIcon color={state.updateStatus === 'success' ? 'green.200' : 'yellow.200'} />
+      {state.updateStatus === 'success'
         ? translate('walletProvider.keepKey.settings.descriptions.updateSuccess', {
             setting: upperFirst(setting)
           })

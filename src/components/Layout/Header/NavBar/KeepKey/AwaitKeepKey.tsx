@@ -1,8 +1,8 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/react'
 import React from 'react'
-import { useKeepKeyMenuEventHandler } from 'components/Layout/Header/NavBar/hooks/useKeepKeyMenuEventHandler'
 import { Text } from 'components/Text'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export type AwaitKeepKeyProps = {
   children?: React.ReactNode
@@ -10,10 +10,9 @@ export type AwaitKeepKeyProps = {
 }
 
 export const AwaitKeepKey = ({ children, setting }: AwaitKeepKeyProps) => {
-  const { handleKeepKeyEvents, awaitingButtonPress } = useKeepKeyMenuEventHandler()
-  handleKeepKeyEvents()
+  const { state } = useKeepKey()
 
-  return awaitingButtonPress ? (
+  return state.awaitingButtonPress ? (
     <Flex>
       <InfoIcon color='blue.200' mt={1} />
       <Text

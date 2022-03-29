@@ -34,7 +34,6 @@ interface ClaimStatusState {
 }
 
 enum TxStatus {
-  NONE = 'none',
   PENDING = 'pending',
   SUCCESS = 'success',
   FAILED = 'failed'
@@ -59,10 +58,6 @@ const StatusInfo = {
     text: 'defi.transactionFailed',
     color: 'red.500',
     icon: <FaTimes />
-  },
-  [TxStatus.NONE]: {
-    text: 'defi.broadcastingTransaction',
-    color: 'blue.500'
   }
 }
 
@@ -74,7 +69,7 @@ export const ClaimStatus = () => {
     state: { txid, amount, assetId, userAddress, estimatedGas, chain }
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
-    txStatus: TxStatus.NONE
+    txStatus: TxStatus.PENDING
   })
 
   // Asset Info
@@ -91,21 +86,31 @@ export const ClaimStatus = () => {
 
   useEffect(() => {
     ;(async () => {
-      if (!foxy || !txid || state.txStatus === TxStatus.NONE) return
-      const transactionReceipt = await poll({
-        fn: () => foxy.getTxReceipt({ txid }),
-        validate: (result: TransactionReceipt) => !isNil(result),
-        interval: 15000,
-        maxAttempts: 30
-      })
-      const gasPrice = await foxy.getGasPrice()
-      setState({
-        ...state,
-        txStatus: transactionReceipt.status === true ? TxStatus.SUCCESS : TxStatus.FAILED,
-        usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
-      })
+      if (!foxy || !txid) return
+      try {
+        const transactionReceipt = await poll({
+          fn: () => foxy.getTxReceipt({ txid }),
+          validate: (result: TransactionReceipt) => !isNil(result),
+          interval: 15000,
+          maxAttempts: 30
+        })
+        const gasPrice = await foxy.getGasPrice()
+        setState({
+          ...state,
+          txStatus: transactionReceipt.status === true ? TxStatus.SUCCESS : TxStatus.FAILED,
+          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
+        })
+      } catch (error) {
+        console.error('FoxyDeposit:getDepositGasEstimate error:', error)
+        setState({
+          ...state,
+          txStatus: TxStatus.FAILED,
+          usedGasFee: estimatedGas
+        })
+      }
     })()
-  }, [foxy, state, txid])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <SlideTransition>

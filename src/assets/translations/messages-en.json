@@ -46,6 +46,11 @@
     "legalDated": "Dated: January 2022",
     "approveOnWallet": "Approve On Wallet"
   },
+  "errorPage": {
+    "title": "Oops!",
+    "body": "Something went wrong",
+    "cta": "Try again"
+  },
   "updateToast": {
     "body": "A new version of the app is available",
     "cta": "Reload App"
@@ -463,10 +468,13 @@
         "estimatedReturns": "Estimated Yearly Returns*",
         "preFooter": "Rewards accrue automatically"
       },
-      "withdrawFrom": "Withdrawal From",
       "withdrawTo": "Withdraw To",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
+      "withdrawTime": "Withdraw Time",
+      "withdrawFee": "Withdraw Fee",
+      "withdrawInstantTime": "Instant",
+      "withdrawDelayedTime": "~7 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "preFooter": "Rewards accrue automatically",

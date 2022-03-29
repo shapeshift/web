@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -79,7 +79,6 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId, rewardId } = query
-
   const toast = useToast()
 
   const network = NetworkTypes.MAINNET
@@ -167,6 +166,15 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         contractAddress,
         userAddress: state.userAddress
       })
+
+      // Get foxy fee for instant sends
+      const foxyFeePercentage = await api.instantUnstakeFee({ contractAddress })
+
+      dispatch({
+        type: FoxyWithdrawActionType.SET_FOXY_FEE,
+        payload: bnOrZero(foxyFeePercentage).toString()
+      })
+
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
       // Skip approval step if user allowance is greater than requested deposit amount
@@ -248,7 +256,6 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       // Get withdraw gas estimate
       const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)
       if (!estimatedGasCrypto) return
-      // TODO(ryankk): Check to see if this is right
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto }
@@ -437,18 +444,36 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             <Stack spacing={6}>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
-                </Row.Label>
-                <Row.Value fontWeight='bold'>
-                  <Text translation='defi.yearn' />
-                </Row.Value>
-              </Row>
-              <Row>
-                <Row.Label>
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value>
                   <MiddleEllipsis address={state.userAddress || ''} />
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawFee' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>
+                  {`${
+                    state.withdraw.withdrawType === WithdrawType.INSTANT
+                      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)
+                      : '0'
+                  } Foxy`}
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawTime' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>
+                  <Text
+                    translation={
+                      state.withdraw.withdrawType === WithdrawType.INSTANT
+                        ? 'modals.confirm.withdrawInstantTime'
+                        : 'modals.confirm.withdrawDelayedTime'
+                    }
+                  />
                 </Row.Value>
               </Row>
               <Row>
@@ -519,9 +544,15 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
+                  <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Foxy</Row.Value>
+                <Row.Value fontWeight='bold'>
+                  {`${
+                    state.withdraw.withdrawType === WithdrawType.INSTANT
+                      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)
+                      : '0'
+                  } Foxy`}
+                </Row.Value>
               </Row>
               <Row>
                 <Row.Label>

@@ -210,6 +210,10 @@ const updateOrInsertRebase: UpdateOrInsertRebase = (txState, payload) => {
       makeRebaseId({ accountId, assetId, rebase })
     )
   })
+
+  // ^^^ redux toolkit uses the immer lib, which uses proxies under the hood
+  // this looks like it's not doing anything, but changes written to the proxy
+  // get applied to state when it goes out of scope
 }
 
 type MakeRebaseIdArgs = {

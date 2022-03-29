@@ -75,14 +75,12 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // clear the old portfolio, we have different non null data, we're switching wallet
     console.info('dispatching portfolio clear action')
     dispatch(portfolio.actions.clear())
-    // fetch each account
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      // forceRefetch is enabled here to make sure that we always have the latest wallet information
-      // it also forces queryFn to run and that's needed for the wallet info to be dispatched
-      dispatch(
-        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
-      )
-    })
+    // fetch every account
+    // forceRefetch is enabled here to make sure that we always have the latest wallet information
+    // it also forces queryFn to run and that's needed for the wallet info to be dispatched
+    dispatch(
+      portfolioApi.endpoints.getAccounts.initiate(accountSpecifiersList, { forceRefetch: true })
+    )
   }, [dispatch, accountSpecifiersList])
 
   /**
@@ -198,20 +196,22 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     if (!tx) return
     // the chain the tx came from
     const txChainId = tx.caip2
-    dispatch(portfolio.actions.clearAssetsBalanceByChain({ chain: txChainId }))
     // only refetch accounts for this tx
-    accountSpecifiersList.forEach(accountSpecifierMap => {
-      const [chainId] = Object.entries(accountSpecifierMap)[0]
-      if (chainId === txChainId)
-        // refetch that account
-        dispatch(
-          portfolioApi.endpoints.getAccount.initiate(
-            { accountSpecifierMap },
-            // bust the cache
-            { forceRefetch: true }
-          )
-        )
-    })
+    const accountsToRefetch = accountSpecifiersList.reduce<AccountSpecifierMap[]>(
+      (acc, accountSpecifierMap) => {
+        const [chainId] = Object.entries(accountSpecifierMap)[0]
+        if (chainId === txChainId) acc.push(accountSpecifierMap)
+        return acc
+      },
+      []
+    )
+    dispatch(
+      portfolioApi.endpoints.getAccounts.initiate(
+        accountsToRefetch,
+        // bust the cache
+        { forceRefetch: true }
+      )
+    )
     // txsById changes on each tx - as txs have more confirmations
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, txIds])

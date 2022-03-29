@@ -5,7 +5,6 @@ import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 
-export type PubKey = string
 type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
 export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
@@ -16,21 +15,15 @@ export type Staking = {
   undelegations: chainAdapters.cosmos.Undelegation[]
   rewards: chainAdapters.cosmos.ValidatorReward[]
 }
-export type StakingDataById = {
-  [k: PubKey]: Staking
+export type StakingDataByAccountSpecifier = {
+  [k: CAIP10]: Staking
 }
 
 export type StakingData = {
-  byAccountSpecifier: StakingDataById
+  byAccountSpecifier: StakingDataByAccountSpecifier
   status: StakingDataStatus
 }
 
-export type StakingPayload = {
-  payload: {
-    pubKey: PubKey
-    stakingData: Staking
-  }
-}
 const initialState: StakingData = {
   byAccountSpecifier: {},
   status: 'idle'

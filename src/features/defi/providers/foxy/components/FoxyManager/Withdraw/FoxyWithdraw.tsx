@@ -38,7 +38,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, bn } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetByCAIP19,
@@ -154,15 +154,15 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         api.estimateWithdrawGas({
           tokenContractAddress: rewardId,
           contractAddress,
-          amountDesired: bnOrZero(withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
+          amountDesired: bnOrZero(bn(withdraw.cryptoAmount)
+            .times(`1e+${asset.precision}`))
             .decimalPlaces(0),
           userAddress: state.userAddress,
           type: state.withdraw.withdrawType
         }),
         api.getGasPrice()
       ])
-      const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
       return returVal
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
@@ -191,10 +191,10 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         userAddress: state.userAddress
       })
 
-      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+      const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
 
       // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowance.gt(formValues.cryptoAmount)) {
+      if (allowance.gte(formValues.cryptoAmount)) {
         const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({
@@ -233,7 +233,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         }),
         api.getGasPrice()
       ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
     } catch (error) {
       console.error('FoxyWithdraw:getApproveEstimate error:', error)
       toast({
@@ -263,7 +263,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             userAddress: state.userAddress!
           }),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
+          const allowance = bnOrZero(bn(result).div(`1e+${asset.precision}`))
           return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
         },
         interval: 15000,
@@ -293,7 +293,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
 
   const handleConfirm = async () => {
     try {
-      if (!state.userAddress || !rewardId || !walletState.wallet) return
+      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
@@ -321,7 +321,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
+          usedGasFee: bnOrZero(bn(gasPrice).times(transactionReceipt.gasUsed)).toFixed(0)
         }
       })
       dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
@@ -339,7 +339,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -347,7 +347,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -355,11 +355,11 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
+  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(marketData.price))
   const withdrawalFee = useMemo(() => {
     return state.withdraw.withdrawType === WithdrawType.INSTANT
-      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage).toString()
+      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
       : '0'
   }, [state.withdraw.withdrawType, state.withdraw.cryptoAmount, state.foxyFeePercentage])
 

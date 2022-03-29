@@ -60,7 +60,7 @@ export const useKeepKeyWallet = () => {
       )
 
       const { data: releases } = await axios.get<FirmwareReleases>(
-        'https://ipfs.io/ipfs/QmYUKEeGTeGyLonyGuXaYbq7dtouRFE2FpsAZAKYVZq3Vj',
+        'https://storageapi.fleek.co/081e91ad-2088-4280-97c5-e3174231ecab-bucket/keepKey.json',
         {
           headers: {
             Accept: 'application/json',

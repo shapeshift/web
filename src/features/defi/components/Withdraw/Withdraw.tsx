@@ -65,6 +65,7 @@ type WithdrawProps = {
   percentOptions: number[]
   // Show withdraw types
   enableWithdrawType?: boolean
+  feePercentage?: string
   onContinue(values: WithdrawValues): void
   onCancel(): void
 }
@@ -117,6 +118,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onContinue,
   onCancel,
   percentOptions,
+  feePercentage,
   children
 }) => {
   const {
@@ -177,7 +179,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(_percent)
     const fiat = bnOrZero(cryptoAmount).times(marketData.price)
     setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
-    setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+    setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      shouldValidate: true
+    })
   }
 
   const handleWithdrawalTypeClick = (withdrawType: WithdrawType) => {
@@ -186,7 +190,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       const fiat = bnOrZero(cryptoAmount).times(marketData.price)
 
       setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+        shouldValidate: true
+      })
       setPercent(1)
       setValue(Field.WithdrawType, WithdrawType.INSTANT)
     } else {
@@ -251,7 +257,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                     <FaBolt size='30px' />
                     <RawText>{translate('modals.withdraw.instant')}</RawText>
                     <RawText color='gray.500' fontSize='sm'>
-                      {translate('modals.withdraw.fee', { fee: '3', symbol: asset.symbol })}
+                      {translate('modals.withdraw.fee', {
+                        fee: feePercentage ?? '0',
+                        symbol: asset.symbol
+                      })}
                     </RawText>
                   </Stack>
                 </Button>
@@ -266,7 +275,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
                     <FaClock size='30px' />
                     <RawText>{translate('modals.withdraw.delayed')}</RawText>
                     <RawText color='gray.500' fontSize='sm'>
-                      {translate('modals.withdraw.noFee', { symbol: asset.symbol })}
+                      {translate('modals.withdraw.noFee', {
+                        symbol: asset.symbol
+                      })}
                     </RawText>
                   </Stack>
                 </Button>

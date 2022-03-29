@@ -123,8 +123,23 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress)
         ])
-        dispatch({ type: FoxyWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: FoxyWithdrawActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
+        // Get foxy fee for instant sends
+        const foxyFeePercentage = await api.instantUnstakeFee({
+          contractAddress
+        })
+
+        dispatch({
+          type: FoxyWithdrawActionType.SET_FOXY_FEE,
+          payload: bnOrZero(foxyFeePercentage).toString()
+        })
+        dispatch({
+          type: FoxyWithdrawActionType.SET_USER_ADDRESS,
+          payload: address
+        })
+        dispatch({
+          type: FoxyWithdrawActionType.SET_OPPORTUNITY,
+          payload: foxyOpportunity
+        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyWithdraw error:', error)
@@ -164,21 +179,16 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const handleContinue = async (formValues: WithdrawValues) => {
     if (!state.userAddress) return
     // set withdraw state for future use
-    dispatch({ type: FoxyWithdrawActionType.SET_WITHDRAW, payload: formValues })
+    dispatch({
+      type: FoxyWithdrawActionType.SET_WITHDRAW,
+      payload: formValues
+    })
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
         tokenContractAddress: rewardId,
         contractAddress,
         userAddress: state.userAddress
-      })
-
-      // Get foxy fee for instant sends
-      const foxyFeePercentage = await api.instantUnstakeFee({ contractAddress })
-
-      dispatch({
-        type: FoxyWithdrawActionType.SET_FOXY_FEE,
-        payload: bnOrZero(foxyFeePercentage).toString()
       })
 
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
@@ -388,6 +398,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
             enableWithdrawType
+            feePercentage={bnOrZero(state.foxyFeePercentage).times(100).toString()}
           >
             <Row>
               <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>

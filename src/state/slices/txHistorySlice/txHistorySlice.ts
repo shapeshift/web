@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import { AssetNamespace, CAIP2, caip2, CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { AssetNamespace, CAIP2, caip2, caip10, CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { foxyAddresses, FoxyApi, RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { chainAdapters, ChainTypes, NetworkTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
@@ -295,7 +295,8 @@ export const txHistoryApi = createApi({
         const chainId = caip2.toCAIP2({ chain, network })
         const entries = Object.entries(accountSpecifierMap)[0]
         const [accountChainId, userAddress] = entries
-        const accountId = entries.join('/')
+
+        const accountSpecifier = caip10.toCAIP10({ caip2: chainId, account: userAddress })
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
 
@@ -320,7 +321,7 @@ export const txHistoryApi = createApi({
           const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
           const rebaseHistoryArgs = { userAddress, tokenContractAddress }
           const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-          const upsertPayload = { accountId, assetId, data }
+          const upsertPayload = { accountId: accountSpecifier, assetId, data }
           if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
         })
 

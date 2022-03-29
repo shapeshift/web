@@ -22,6 +22,8 @@ export interface IKeepKeyContext {
   state: InitialState
   dispatch: React.Dispatch<KeepKeyActionTypes>
   reset: () => void
+  setAwaitingButtonPress: (activeRequest: boolean) => void
+  updateStatus: (status: UpdateStatus) => void
 }
 
 export type KeepKeyActionTypes =
@@ -48,8 +50,24 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const reset = () => dispatch({ type: KeepKeyActions.RESET_STATE })
+  const setAwaitingButtonPress = (activeRequest: boolean) => {
+    dispatch({
+      type: KeepKeyActions.SET_AWAITING_BUTTON_PRESS,
+      payload: activeRequest
+    })
+  }
 
-  const value: IKeepKeyContext = useMemo(() => ({ state, dispatch, reset }), [state])
+  const updateStatus = (status: UpdateStatus) => {
+    dispatch({
+      type: KeepKeyActions.SET_UPDATE_STATUS,
+      payload: status
+    })
+  }
+
+  const value: IKeepKeyContext = useMemo(
+    () => ({ state, dispatch, reset, setAwaitingButtonPress, updateStatus }),
+    [state]
+  )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>
 }

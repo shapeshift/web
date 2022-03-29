@@ -1,18 +1,15 @@
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { KeepKeyActions, UpdateStatus, useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
-export const useKeepKeyEventHandler = (
-  state: KeyringState,
-  dispatchWallet: Dispatch<ActionTypes>
-) => {
-  const { dispatch: dispatchKeepKey } = useKeepKey()
+export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
+  const { setAwaitingButtonPress, updateStatus } = useKeepKey()
   const { keepkeyPin, keepkeyPassphrase } = useModal()
   const { keyring } = state
 
@@ -83,7 +80,7 @@ export const useKeepKeyEventHandler = (
           const name = (await wallet.getLabel()) || state.walletInfo.name
           // The keyring might have a new HDWallet instance for the device.
           // We'll replace the one we have in state with the new one
-          dispatchWallet({
+          dispatch({
             type: WalletActions.SET_WALLET,
             payload: {
               wallet,
@@ -93,7 +90,7 @@ export const useKeepKeyEventHandler = (
               icon: state.walletInfo.icon // We're reconnecting the same wallet so we can reuse the walletInfo
             }
           })
-          dispatchWallet({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
       } catch (e) {
         console.error('Device Connected Error: ', e)
@@ -105,25 +102,11 @@ export const useKeepKeyEventHandler = (
       try {
         const id = keyring.getAlias(deviceId)
         if (id === state.walletInfo?.deviceId) {
-          dispatchWallet({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
         }
       } catch (e) {
         console.error('Device Disconnect Error:', e)
       }
-    }
-
-    const setAwaitingButtonPress = (activeRequest: boolean) => {
-      dispatchKeepKey({
-        type: KeepKeyActions.SET_AWAITING_BUTTON_PRESS,
-        payload: activeRequest
-      })
-    }
-
-    const updateStatus = (status: UpdateStatus) => {
-      dispatchKeepKey({
-        type: KeepKeyActions.SET_UPDATE_STATUS,
-        payload: status
-      })
     }
 
     // Handle all KeepKey events
@@ -139,5 +122,13 @@ export const useKeepKeyEventHandler = (
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
       keyring.off(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingButtonPress(true))
     }
-  }, [dispatchKeepKey, dispatchWallet, keepkeyPassphrase, keepkeyPin, keyring, state.walletInfo])
+  }, [
+    dispatch,
+    keepkeyPassphrase,
+    keepkeyPin,
+    keyring,
+    setAwaitingButtonPress,
+    state.walletInfo,
+    updateStatus
+  ])
 }

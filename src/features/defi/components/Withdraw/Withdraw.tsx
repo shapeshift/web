@@ -203,7 +203,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       setValue(Field.WithdrawType, WithdrawType.DELAYED)
     }
 
-    updateWithdraw({ withdrawType, cryptoAmount })
+    updateWithdraw?.({ withdrawType, cryptoAmount })
   }
 
   const handleSlippageChange = (value: string | number) => {

@@ -144,7 +144,7 @@ export const bucketEvents = (
     if (eventOutsideDomain) return acc
     const { duration, unit } = meta
     // the number of time units from start of chart to this tx
-    let bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
+    const bucketIndex = Math.floor(eventDayJs.diff(start, unit as dayjs.OpUnitType) / duration)
     if (bucketIndex < 0 || bucketIndex > buckets.length - 1) {
       console.error(
         `bucketTxs: event outside buckets: ${event}, start: ${start.valueOf()}, end: ${end.valueOf()}, meta: ${meta}`

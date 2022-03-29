@@ -10,6 +10,7 @@ import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import * as portfolioSelectors from './slices/portfolioSlice/selectors'
+import { stakingDataApi } from './slices/stakingDataSlice/stakingDataSlice'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 const persistConfig = {
@@ -25,6 +26,7 @@ const apiMiddleware = [
   marketApi.middleware,
   assetApi.middleware,
   txHistoryApi.middleware,
+  stakingDataApi.middleware,
   logging
 ]
 
@@ -41,6 +43,7 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
+  store.dispatch(apiSlices.stakingDataApi.util.resetApiState())
 }
 
 /// This allows us to create an empty store for tests

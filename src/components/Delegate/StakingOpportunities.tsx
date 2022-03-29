@@ -13,6 +13,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Column } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -21,9 +22,14 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectAllValidators,
+  selectStakingDataStatus
+} from 'state/slices/stakingDataSlice/selectors'
+import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 type StakingOpportunity = {
   id: number
@@ -40,7 +46,6 @@ type Rewards = {
 
 type StakingOpportunitiesProps = {
   assetId: CAIP19
-  opportunities: StakingOpportunity[]
 }
 
 type ValidatorNameProps = {
@@ -73,20 +78,63 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
   )
 }
 
-export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportunitiesProps) => {
-  const isLoaded = true
+export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
+  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
+  const isLoaded = stakingDataStatus === 'loaded'
+  const dispatch = useAppDispatch()
+
+  const validators = useAppSelector(selectAllValidators)
+  console.log('validators', validators)
+
+  useEffect(() => {
+    ;(async () => {
+      if (isLoaded || validators.length) return
+
+      dispatch(
+        stakingDataApi.endpoints.getValidatorData.initiate(
+          { chainId: 'cosmos:cosmoshub-4' },
+          { forceRefetch: true }
+        )
+      )
+    })()
+  }, [isLoaded, dispatch])
+
+  // TODO: wire up with real validator data
+  const opportunities = [
+    { id: 1, moniker: 'Cosmos Validator', apr: bn(0.12), rewards: { fiatRate: bn(0.08) } },
+    {
+      id: 2,
+      moniker: 'Cosmos Validator',
+      apr: bn(0.13),
+      cryptoAmount: bn('1234'),
+      rewards: {
+        fiatRate: bn(0.08),
+        stakedRewards: bn('12')
+      }
+    },
+    {
+      id: 3,
+      moniker: 'Cosmos Validator',
+      apr: bn(0.14),
+      cryptoAmount: bn('789123'),
+      rewards: {
+        fiatRate: bn(0.08),
+        stakedRewards: bn('345')
+      }
+    }
+  ]
   const isStaking = opportunities.some(x => x.cryptoAmount)
   const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
+    cosmosGetStarted.open({ assetId: 'cosmos:cosmoshub-4/slip44:118' })
     e.stopPropagation()
   }
 
   const handleStakedClick = () => {
-    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Overview })
+    cosmosStaking.open({ assetId: 'cosmos:cosmoshub-4/slip44:118', action: StakingAction.Overview })
   }
 
   const columns: Column<StakingOpportunity>[] = useMemo(
@@ -183,7 +231,7 @@ export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportun
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={opportunities}
+          data={validators}
           columns={columns}
           displayHeaders={isStaking}
           onRowClick={handleStakedClick}

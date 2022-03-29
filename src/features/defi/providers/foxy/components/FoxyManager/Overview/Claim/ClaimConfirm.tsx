@@ -135,7 +135,6 @@ export const ClaimConfirm = ({
           <Text color='gray.500' translation='defi.modals.claim.claimAmount' />
           <Stack direction='row' alignItems='center' justifyContent='center'>
             <AssetIcon boxSize='10' src={asset.icon} />
-            {/* @TODO:  fix precision here for FOX */}
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'

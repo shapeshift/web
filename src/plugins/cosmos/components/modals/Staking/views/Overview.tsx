@@ -16,6 +16,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
+  ASSET_ID_TO_DENOM,
   selectRewardsAmountByDenom,
   selectStakingDataStatus,
   selectTotalBondingsBalancebyAccountSpecifier,
@@ -88,7 +89,8 @@ export const Overview = ({ assetId }: StakedProps) => {
     selectTotalBondingsBalancebyAccountSpecifier(
       state,
       accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
+      SHAPESHIFT_VALIDATOR_ADDRESS, // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
+      ASSET_ID_TO_DENOM[asset.caip19]
     )
   )
   const undelegationEntries = useAppSelector(state =>
@@ -96,7 +98,12 @@ export const Overview = ({ assetId }: StakedProps) => {
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByDenom(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
+    selectRewardsAmountByDenom(
+      state,
+      accountSpecifier,
+      SHAPESHIFT_VALIDATOR_ADDRESS,
+      ASSET_ID_TO_DENOM[asset.caip19]
+    )
   )
 
   return (
@@ -120,7 +127,7 @@ export const Overview = ({ assetId }: StakedProps) => {
             <StakedRow
               assetSymbol={asset.symbol}
               fiatRate={bnOrZero(marketData.price)}
-              cryptoStakedAmount={totalBondings.div(`1e+${asset.precision}`)}
+              cryptoStakedAmount={bnOrZero(totalBondings).div(`1e+${asset.precision}`)}
               apr={bnOrZero('0.12')}
             />
           </Skeleton>

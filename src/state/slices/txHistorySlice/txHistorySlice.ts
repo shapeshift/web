@@ -276,14 +276,17 @@ export const txHistoryApi = createApi({
         if (!getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) return { data: [] }
 
         // foxy contract address, note not caip19s
-        const foxyTokenContractAddress = foxyAddresses.reduce<string[]>((acc, { foxy }) => {
-          const contractAddress = foxy.toLowerCase()
-          portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
-          return acc
-        }, [])
+        const foxyTokenContractAddressWithBalances = foxyAddresses.reduce<string[]>(
+          (acc, { foxy }) => {
+            const contractAddress = foxy.toLowerCase()
+            portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
+            return acc
+          },
+          []
+        )
 
         // don't do anything below if we don't hold a version of foxy
-        if (!foxyTokenContractAddress.length) return { data: [] }
+        if (!foxyTokenContractAddressWithBalances.length) return { data: [] }
 
         // we load rebase history on app load, but pass in all the specifiers
         const chain = ChainTypes.Ethereum
@@ -311,7 +314,7 @@ export const txHistoryApi = createApi({
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
 
-        foxyTokenContractAddress.forEach(async tokenContractAddress => {
+        foxyTokenContractAddressWithBalances.forEach(async tokenContractAddress => {
           const assetReference = tokenContractAddress
           const assetNamespace = AssetNamespace.ERC20
           const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })

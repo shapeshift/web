@@ -454,11 +454,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             isFullWidth
             type='submit'
           >
-            {translate(
-              fieldError || values.withdrawType === WithdrawType.DELAYED
-                ? 'modals.withdraw.requestWithdraw'
-                : 'common.continue'
-            )}
+            {translate(fieldError || 'common.continue')}
           </Button>
         </ModalFooter>
       </Box>

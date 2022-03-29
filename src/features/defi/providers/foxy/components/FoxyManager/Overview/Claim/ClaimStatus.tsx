@@ -61,9 +61,8 @@ const StatusInfo = {
     icon: <FaTimes />
   },
   [TxStatus.NONE]: {
-    text: 'defi.transactionFailed',
-    color: 'red.500',
-    icon: <FaTimes />
+    text: 'defi.broadcastingTransaction',
+    color: 'blue.500'
   }
 }
 

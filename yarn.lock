@@ -3820,10 +3820,10 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-"@shapeshiftoss/blockbook@^6.5.0":
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.5.0.tgz#164fb4423e674ea1ebd11e971b4b3a511b1416cd"
-  integrity sha512-C1Vi76vEDrw1PawCr2qtxaf+g1rSSn5gpzbRLbR5HZ/LLMNZ3GRrtRrSEd5lmz3zxtuZiHSg65v6G9E9tUbq0g==
+"@shapeshiftoss/blockbook@^6.6.0":
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-6.6.0.tgz#dcba1bf6697f9eeee4099a49cc45a3e246e62502"
+  integrity sha512-ZC1nxbqyXouhIqoxVbkG+r9IduknFWY117pUlg3TgVja3nk9eIgLikxjDt6X6hdJAufaJILUNjzlw2/JCGtIOA==
   dependencies:
     axios "^0.26.0"
     express "^4.17.1"
@@ -3986,10 +3986,10 @@
     lodash "^4.17.15"
     web3 "^1.5.1"
 
-"@shapeshiftoss/investor-foxy@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-1.0.2.tgz#f4357efeb98862e3b833c51c91f31d672fb9c98e"
-  integrity sha512-W47ytUVqXkKcE3GWiEfSoQ50eK2gPQKhpM9ja9WuMR4zH0WEjc1LVP66oMvDHADO2t/sINJnXessKtu1yt+EwA==
+"@shapeshiftoss/investor-foxy@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/investor-foxy/-/investor-foxy-1.1.1.tgz#76d8eddfcf439de45ce253bf0ed6b9f85e1f539f"
+  integrity sha512-pWzhvpQ1/DtZp/bdRRkUPsbSPSpT0ipalexU0i5riyE+Q3TAqYVaLpwxL+X+CPVnrSRX4pe5OrELU/I1EObQ9g==
   dependencies:
     "@ethersproject/providers" "^5.5.3"
     bignumber.js "^9.0.2"
@@ -4050,17 +4050,17 @@
     retry-axios "^2.6.0"
     web3 "^1.6.1"
 
-"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.3.0.tgz#67aeb0a8a1a77ec693a3df2414a8874bc8be1382"
-  integrity sha512-Emc6adG6um8wVm+p7hHdeqbDKgWaZxrgCB0ir64QAF1wKlzHZnHORzxReUro7zTb0uM2K10mSzwQcuovJ2Y4/Q==
+"@shapeshiftoss/types@^2.0.0", "@shapeshiftoss/types@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/types/-/types-2.4.0.tgz#1eaf0b4bd7abb81725e9fff67c6da575aa7af96c"
+  integrity sha512-DwST061wYr3HOn469F4dzSm3lmcG+CvXRDiBHa7VzkgQ3ywuOqjXDh9dXVvOoWpWD6hxCfKegsLgVBuM3gU9XA==
 
-"@shapeshiftoss/unchained-client@^6.5.0":
-  version "6.5.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.5.0.tgz#ca786e21e57879412a6c335db41198f45dd40420"
-  integrity sha512-SSQZodTLlgZI9FUhXK0pm493V7zme1ooICL3Zis+vhuAEeeuyUqCQaf3vze9GT3/NFtt/21EL00yGMwunVHWow==
+"@shapeshiftoss/unchained-client@^6.6.0":
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/unchained-client/-/unchained-client-6.6.0.tgz#59f919c18a38400d97a3137d3c73c9a812c0ebd6"
+  integrity sha512-/oJxh59xxHCvqaLTXryv1ag5l528X1fvTQ9A6v5EsYn0DRS94pLYFeQ+r3pQKYPYjeco4SV4ORRdlf/YHqFMqA==
   dependencies:
-    "@shapeshiftoss/blockbook" "^6.5.0"
+    "@shapeshiftoss/blockbook" "^6.6.0"
     "@shapeshiftoss/caip" "^2.0.0"
     "@shapeshiftoss/logger" "^1.0.0"
     "@shapeshiftoss/types" "^2.0.0"
@@ -17779,10 +17779,10 @@ react-element-to-jsx-string@^14.3.4:
     is-plain-object "5.0.0"
     react-is "17.0.2"
 
-react-error-boundary@^3.1.0:
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-3.1.3.tgz#276bfa05de8ac17b863587c9e0647522c25e2a0b"
-  integrity sha512-A+F9HHy9fvt9t8SNDlonq01prnU8AmkjvGKV4kk8seB9kU3xMEO8J/PQlLVmoOIDODl5U2kufSBs4vrWIqhsAA==
+react-error-boundary@^3.1.0, react-error-boundary@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/react-error-boundary/-/react-error-boundary-3.1.4.tgz#255db92b23197108757a888b01e5b729919abde0"
+  integrity sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==
   dependencies:
     "@babel/runtime" "^7.12.5"
 

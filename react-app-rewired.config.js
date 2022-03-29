@@ -160,11 +160,9 @@ module.exports = {
       plugins: [
         ...config.plugins,
         new CircularDependencyPlugin({
-          // exclude detection of files based on a RegExp
-          exclude: /node_modules/,
           // include specific files based on a RegExp
           include: /src/,
-          // add warnings
+          // add warnings instead of errors
           failOnError: false,
           // allow import cycles that include an asyncronous import,
           // e.g. via import(/* webpackMode: "weak" */ './file.js')

@@ -72,7 +72,7 @@ type RebaseByAccountId = {
   [k: AccountSpecifier]: RebaseId[]
 }
 
-type TxsState = {
+export type TxsState = {
   byId: TxHistoryById
   byAssetId: TxIdByAssetId
   byAccountId: TxIdByAccountId
@@ -80,7 +80,7 @@ type TxsState = {
   status: TxHistoryStatus
 }
 
-type RebasesState = {
+export type RebasesState = {
   byAssetId: RebaseByAssetId
   byAccountId: RebaseByAccountId
   ids: RebaseId[]

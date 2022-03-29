@@ -5,7 +5,7 @@ import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/t
 import { store } from 'state/store'
 
 import { selectLastNTxIds } from './selectors'
-import { makeUniqueTxId, TxHistory, txHistory } from './txHistorySlice'
+import { makeUniqueTxId, RebasesState, TxHistory, txHistory, TxsState } from './txHistorySlice'
 
 describe('txHistorySlice', () => {
   beforeAll(() => {
@@ -204,22 +204,21 @@ describe('txHistorySlice', () => {
 
   describe('selectLastNTxIds', () => {
     it('should memoize', () => {
-      const rebases = {
+      const txs: TxsState = {
+        byId: {},
+        byAssetId: {},
+        byAccountId: {},
+        ids: ['a', 'b'],
+        status: 'idle'
+      }
+      const rebases: RebasesState = {
         byAssetId: {},
         byAccountId: {},
         ids: [],
         byId: {}
       }
-      const txHistory: TxHistory = {
-        txs: {
-          byId: {},
-          byAssetId: {},
-          byAccountId: {},
-          ids: ['a', 'b'],
-          status: 'idle'
-        },
-        rebases
-      }
+
+      const txHistory: TxHistory = { txs, rebases }
 
       const state = {
         ...mockStore,
@@ -229,12 +228,9 @@ describe('txHistorySlice', () => {
 
       const newTxHistory: TxHistory = {
         txs: {
-          byId: {},
-          byAssetId: {},
-          byAccountId: {},
+          ...txs,
           // this array will always change on every new tx
-          ids: ['a', 'b', 'c'],
-          status: 'idle'
+          ids: ['a', 'b', 'c']
         },
         rebases
       }

@@ -402,6 +402,7 @@ export const cow = {
 }
 
 export const createMockEthTxs = (account: string) => {
+  // UNI -> yvUNI
   const deposit = {
     address: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
     blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
@@ -433,7 +434,7 @@ export const createMockEthTxs = (account: string) => {
     data: { method: 'deposit', parser: 'yearn' }
   }
 
-  // Converted yvAAVE tx
+  // Converted yvAAVE tx: yvUNI -> UNI
   const withdraw = {
     address: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
     blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
@@ -465,7 +466,70 @@ export const createMockEthTxs = (account: string) => {
     data: { method: 'withdraw', parser: 'yearn' }
   }
 
-  return [deposit, withdraw]
+  // defi
+  const tx3 = {
+    address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+    blockHash: '0xb6ac9ffa9c0c272fcf2af42e15f86b874b6fb61f13ca74a4dab13032d434d492',
+    blockHeight: 13730260,
+    blockTime: 1638488447,
+    caip2: 'eip155:1',
+    chain: ChainTypes.Ethereum,
+    confirmations: 729180,
+    fee: { caip19: 'eip155:1/slip44:60', value: '5898012646352596' },
+    status: chainAdapters.TxStatus.Confirmed,
+    tradeDetails: undefined,
+    transfers: [
+      {
+        caip19: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
+        from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+        to: '0x0000000000000000000000000000000000000000',
+        type: chainAdapters.TxType.Send,
+        value: '1000000'
+      },
+      {
+        caip19: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        from: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
+        to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+        type: chainAdapters.TxType.Receive,
+        value: '1089520'
+      }
+    ],
+    txid: '0xc9bdf77c7c82f28c34af2ef98b38e75cf201d44af69f245a8e43c497b570620e',
+    data: { method: 'withdraw', parser: 'yearn' }
+  }
+
+  const ftx0 = {
+    address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+    blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
+    blockHeight: 13730189,
+    blockTime: 1638487560,
+    caip2: 'eip155:1',
+    chain: ChainTypes.Ethereum,
+    confirmations: 729251,
+    fee: { caip19: 'eip155:1/slip44:60', value: '9099683709794574' },
+    status: chainAdapters.TxStatus.Confirmed,
+    tradeDetails: undefined,
+    transfers: [
+      {
+        caip19: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
+        from: '0x0000000000000000000000000000000000000000',
+        to: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+        type: chainAdapters.TxType.Receive,
+        value: '9178352'
+      },
+      {
+        caip19: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        from: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+        to: '0x5f18C75AbDAe578b483E5F43f12a39cF75b973a9',
+        type: chainAdapters.TxType.Send,
+        value: '10000000'
+      }
+    ],
+    txid: '0xded9a55622504979d7980b401d3b5fab234c0b64ee779f076df2023929b0f083',
+    data: { method: 'deposit', parser: 'yearn' }
+  }
+
+  return [deposit, withdraw, ftx0, tx3]
 }
 
 /**

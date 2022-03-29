@@ -47,7 +47,7 @@ export interface TxDetails {
 }
 
 export const getStandardTx = (tx: Tx) => (tx.transfers.length === 1 ? tx.transfers[0] : undefined)
-export const getTransferByType = (tx: Tx, txType: TxType) =>
+export const getTransferByType = (tx: Tx, txType: chainAdapters.TxType) =>
   tx.transfers.find(t => t.type === txType)
 export const getBuyTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Receive)
 export const getSellTransfer = (tx: Tx) => getTransferByType(tx, chainAdapters.TxType.Send)
@@ -81,7 +81,7 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
   const standardTx = getStandardTx(tx)
   const buyTransfer = getTransferByType(tx, chainAdapters.TxType.Receive)
   const sellTransfer = getTransferByType(tx, chainAdapters.TxType.Send)
-  const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTx
+  const tradeTx = (activeAsset && getTransferByAsset(tx, activeAsset)) ?? buyTransfer
   // const tradeTx = activeAsset?.caip19 === sellTransfer?.caip19 ? sellTransfer : buyTransfer
 
   const direction: Direction | undefined = (() => {
@@ -107,10 +107,9 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
 
   // stables need precision of eth (18) rather than 10
   const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, tx.fee?.caip19 ?? ''))
-  const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
-
   const buyAsset = useAppSelector(state => selectAssetByCAIP19(state, buyTransfer?.caip19 ?? ''))
   const sellAsset = useAppSelector(state => selectAssetByCAIP19(state, sellTransfer?.caip19 ?? ''))
+  const tradeAsset = activeAsset?.symbol === sellAsset?.symbol ? sellAsset : buyAsset
   const sourceMarketData = useAppSelector(state =>
     selectMarketDataById(state, sellTransfer?.caip19 ?? '')
   )

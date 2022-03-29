@@ -94,7 +94,7 @@ const cspMeta = Object.entries(baseMeta)
 // This will filter basic meta datas and inline it for the first Content-Security-Policy line
 const defaultMetas = Object.entries(baseMeta)
   .map(([k, v]) => {
-    const keyValues = v.filter(value => !value.match('://'))
+    const keyValues = v.filter(value => value && !value.match('://'))
 
     return `${[k, ...keyValues].join(' ')}`
   })
@@ -103,7 +103,7 @@ const defaultMetas = Object.entries(baseMeta)
 // This will generate a new line for every single url
 const urlsMetas = Object.entries(baseMeta).reduce((result, [k, v]) => {
   // First we filter datas containing any url
-  const urlValues = v.filter(value => value.match('://') && value.match('://').length > 0)
+  const urlValues = v.filter(value => value && value.match('://') && value.match('://').length > 0)
 
   if (urlValues.length > 0) {
     // For every url, we add a key/value pair object to the result of the reducer

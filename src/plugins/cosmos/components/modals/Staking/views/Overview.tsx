@@ -64,7 +64,6 @@ export const Overview = ({ assetId }: StakedProps) => {
     ;(async () => {
       if (!chainAdapter || !wallet || !asset) return
 
-      // TODO(gomes): Can we get a CAIP10 here so we don't have to do the chainAdapter dance here + in RTK?
       const address = await chainAdapter.getAddress({
         wallet
       })

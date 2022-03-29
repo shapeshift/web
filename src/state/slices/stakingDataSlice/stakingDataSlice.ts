@@ -75,7 +75,6 @@ export const stakingDataApi = createApi({
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
         const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
         const chainAdapters = getChainAdapters()
-        // TODO(gomes): remove casting
         const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
         dispatch(stakingData.actions.setStatus('loading'))
         try {

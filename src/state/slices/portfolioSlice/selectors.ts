@@ -6,7 +6,9 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssets, selectBalanceThreshold, selectMarketData } from 'state/slices/selectors'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
+import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {

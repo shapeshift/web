@@ -4,6 +4,9 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import { Plugins } from 'plugins'
 
+import { AssetIcon } from '../../components/AssetIcon'
+import { EthereumAsset } from './EthereumAsset'
+
 export function register(): Plugins {
   return [
     [
@@ -29,7 +32,16 @@ export function register(): Plugins {
               }
             ]
           ]
-        }
+        },
+        routes: [
+          {
+            path: '/assets/eip155\\:1/:assetSubId',
+            hide: true,
+            label: '',
+            main: () => <EthereumAsset chainId={'eip155:1'} />,
+            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />
+          }
+        ]
       }
     ]
   ]

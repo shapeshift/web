@@ -79,18 +79,7 @@ export const AssetAccountDetails: React.FC<AssetDetailsProps> = props => {
           direction={{ base: 'column', xl: 'row' }}
         >
           <Stack spacing={4} flex='1 1 0%' width='full'>
-            {props.children || (
-              <>
-                <AssetChart accountId={props.accountId} assetId={props.assetId} isLoaded={true} />
-                <AccountAssets />
-                <AssetAccounts />
-                <AssetTransactionHistory
-                  limit={3}
-                  assetId={props.assetId}
-                  accountId={props.accountId}
-                />
-              </>
-            )}
+            {props.children || <DefaultAssetDetails />}
           </Stack>
           <Stack flex='1 1 0%' width='full' maxWidth={{ base: 'full', xl: 'sm' }} spacing={4}>
             <TradeCard />
@@ -261,5 +250,18 @@ export const AssetAccounts = () => {
         </Stack>
       </Card.Body>
     </Card>
+  )
+}
+
+export const DefaultAssetDetails: React.FC = () => {
+  const { assetId, accountId } = useAssetDetailsContext()
+
+  return (
+    <>
+      <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
+      <AccountAssets />
+      <AssetAccounts />
+      <AssetTransactionHistory limit={3} assetId={assetId} accountId={accountId} />
+    </>
   )
 }

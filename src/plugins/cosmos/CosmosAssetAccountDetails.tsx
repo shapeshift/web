@@ -1,10 +1,8 @@
 import { CAIP19 } from '@shapeshiftoss/caip'
 import {
-  AccountAssets,
   AssetAccountDetails,
-  AssetAccounts,
   AssetOpportunities,
-  Chart
+  DefaultAssetDetails
 } from 'components/AssetAccountDetails'
 import { StakingOpportunities } from 'components/Delegate/StakingOpportunities'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
@@ -21,9 +19,7 @@ export const CosmosAssetAccountDetails = ({ assetId: caip19, accountId }: AssetD
 
   return (
     <AssetAccountDetails assetId={caip19} accountId={accountId}>
-      <Chart />
-      <AccountAssets />
-      <AssetAccounts />
+      <DefaultAssetDetails />
       <AssetOpportunities>{cosmosInvestorFlag && <StakingOpportunities />}</AssetOpportunities>
     </AssetAccountDetails>
   )

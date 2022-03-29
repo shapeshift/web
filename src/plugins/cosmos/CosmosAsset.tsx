@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
 
-export interface MatchParams {
+export type MatchParams = {
   assetSubId: string
 }
 

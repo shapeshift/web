@@ -259,7 +259,8 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     rebases.forEach(rebase => {
       const { assetId, balanceDiff } = rebase
       if (!assetIds.includes(assetId)) return
-      // UP ONLY
+      // UP ONLY - rebase events can only go up, we don't have to consider the case adjusting balances down
+      // we're going backwards, so a rebase means we had less before
       bucket.balance.crypto[assetId] = bnOrZero(bucket.balance.crypto[assetId]).minus(balanceDiff)
     })
 

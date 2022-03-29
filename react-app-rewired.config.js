@@ -160,7 +160,7 @@ module.exports = {
       plugins: [
         ...config.plugins,
         new CircularDependencyPlugin({
-          // include specific files based on a RegExp
+          exclude: /node_modules/,
           include: /src/,
           // add warnings instead of errors
           failOnError: false,

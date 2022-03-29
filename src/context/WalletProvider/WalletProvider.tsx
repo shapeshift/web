@@ -167,60 +167,6 @@ const getInitialState = () => {
 
 export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, getInitialState())
-  useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch)
-  useNativeEventHandler(state, dispatch)
-
-  useEffect(() => {
-    if (state.keyring) {
-      ;(async () => {
-        const adapters: Adapters = new Map()
-        let options: undefined | { portisAppId: string }
-        for (const wallet of Object.values(KeyManager)) {
-          try {
-            options =
-              wallet === 'portis'
-                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
-                : undefined
-            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
-            // useKeyring returns the instance of the adapter. We'll keep it for future reference.
-            await adapter.initialize()
-            adapters.set(wallet, adapter)
-          } catch (e) {
-            console.error('Error initializing HDWallet adapters', e)
-          }
-        }
-
-        dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
-      })()
-    }
-  }, [state.keyring])
-
-  const connect = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('connect')
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
-      })
-    }
-  }, [])
-
-  const create = useCallback(async (type: KeyManager) => {
-    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
-    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
-      String(path).endsWith('create')
-    )
-    if (routeIndex > -1) {
-      dispatch({
-        type: WalletActions.SET_INITIAL_ROUTE,
-        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
-      })
-    }
-  }, [])
 
   const disconnect = useCallback(() => {
     /**
@@ -232,7 +178,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     clearLocalWallet()
   }, [state.wallet])
 
-  useEffect(() => {
+  const load = useCallback(() => {
     const localWalletType = getLocalWalletType()
     const localWalletDeviceId = getLocalWalletDeviceId()
     if (localWalletType && localWalletDeviceId && state.adapters) {
@@ -356,6 +302,64 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
+
+  useKeyringEventHandler(state)
+  useKeepKeyEventHandler(state, dispatch, load)
+  useNativeEventHandler(state, dispatch)
+
+  useEffect(() => {
+    if (state.keyring) {
+      ;(async () => {
+        const adapters: Adapters = new Map()
+        let options: undefined | { portisAppId: string }
+        for (const wallet of Object.values(KeyManager)) {
+          try {
+            options =
+              wallet === 'portis'
+                ? { portisAppId: getConfig().REACT_APP_PORTIS_DAPP_ID }
+                : undefined
+            const adapter = SUPPORTED_WALLETS[wallet].adapter.useKeyring(state.keyring, options)
+            // useKeyring returns the instance of the adapter. We'll keep it for future reference.
+            await adapter.initialize()
+            adapters.set(wallet, adapter)
+          } catch (e) {
+            console.error('Error initializing HDWallet adapters', e)
+          }
+        }
+
+        dispatch({ type: WalletActions.SET_ADAPTERS, payload: adapters })
+      })()
+    }
+  }, [state.keyring])
+
+  const connect = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('connect')
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+      })
+    }
+  }, [])
+
+  const create = useCallback(async (type: KeyManager) => {
+    dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: type })
+    const routeIndex = findIndex(SUPPORTED_WALLETS[type]?.routes, ({ path }) =>
+      String(path).endsWith('create')
+    )
+    if (routeIndex > -1) {
+      dispatch({
+        type: WalletActions.SET_INITIAL_ROUTE,
+        payload: SUPPORTED_WALLETS[type].routes[routeIndex].path as string
+      })
+    }
+  }, [])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => load(), [state.adapters, state.keyring])
 
   const value: IWalletContext = useMemo(
     () => ({ state, dispatch, connect, create, disconnect }),

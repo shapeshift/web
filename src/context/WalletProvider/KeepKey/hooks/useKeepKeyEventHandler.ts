@@ -2,13 +2,22 @@ import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
+import {
+  ActionTypes,
+  InitialState,
+  useWallet,
+  WalletActions
+} from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
-export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
+export const useKeepKeyEventHandler = (
+  state: KeyringState,
+  dispatch: Dispatch<ActionTypes>,
+  loadWallet: () => void
+) => {
   const { setAwaitingButtonPress, updateStatus } = useKeepKey()
   const { keepkeyPin, keepkeyPassphrase } = useModal()
   const { keyring } = state
@@ -17,6 +26,7 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       switch (e[1].message_enum) {
         case MessageType.SUCCESS:
+          loadWallet()
           updateStatus('success')
           break
         case MessageType.PASSPHRASEREQUEST:

@@ -418,6 +418,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleDeposit}
+            loading={state.loading}
+            loadingText={translate('common.confirmOnWallet')}
             headerText='modals.confirm.deposit.header'
             assets={[
               {

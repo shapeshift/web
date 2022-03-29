@@ -44,7 +44,8 @@
     "viewAsset": "View Asset",
     "settings": "Settings",
     "legalDated": "Dated: January 2022",
-    "approveOnWallet": "Approve On Wallet"
+    "approveOnWallet": "Approve On Wallet",
+    "confirmOnWallet": "Confirm On Wallet"
   },
   "errorPage": {
     "title": "Oops!",
@@ -469,6 +470,7 @@
         "preFooter": "Rewards accrue automatically"
       },
       "withdrawTo": "Withdraw To",
+      "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
       "withdrawTime": "Withdraw Time",

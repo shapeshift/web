@@ -426,6 +426,8 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             onCancel={handleCancel}
             headerText='modals.confirm.withdraw.header'
             onConfirm={handleConfirm}
+            loading={state.loading}
+            loadingText={translate('common.confirmOnWallet')}
             assets={[
               {
                 ...asset,

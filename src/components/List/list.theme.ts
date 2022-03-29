@@ -8,7 +8,7 @@ export const ListStyle = {
   sizes: {},
   // Styles for the visual style variations
   variants: {
-    numerList: {
+    numerList: (props: Record<string, any>) => ({
       container: {
         listStyleType: 'none',
         counterReset: 'numberlist-counter',
@@ -21,9 +21,9 @@ export const ListStyle = {
         ml: '1.75rem',
         '&:before': {
           content: 'counter(numberlist-counter)',
-          color: 'white',
+          color: 'inherit',
           fontSize: 'xs',
-          bg: 'blackAlpha.500',
+          bg: mode('blackAlpha.100', 'blackAlpha.500')(props),
           fontWeight: 'bold',
           borderRadius: 'full',
           height: '1.25rem',
@@ -35,7 +35,7 @@ export const ListStyle = {
           justifyContent: 'center'
         }
       }
-    }
+    })
   },
   // The default `size` or `variant` values
   defaultProps: {}

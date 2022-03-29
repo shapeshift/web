@@ -152,6 +152,12 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
     }
   }
 

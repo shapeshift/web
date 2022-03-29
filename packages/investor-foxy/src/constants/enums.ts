@@ -5,8 +5,3 @@ export enum DefiProvider {
 export enum DefiType {
   TokenStaking = 'token-staking'
 }
-
-export enum WithdrawType {
-  DELAYED,
-  INSTANT
-}

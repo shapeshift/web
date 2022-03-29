@@ -2,14 +2,14 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { ChainReference } from '@shapeshiftoss/caip/dist/caip2/caip2'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import { toLower } from 'lodash'
 import Web3 from 'web3'
 import { HttpProvider, TransactionReceipt } from 'web3-core/types'
 import { Contract } from 'web3-eth-contract'
 
-import { DefiType, erc20Abi, foxyStakingAbi, MAX_ALLOWANCE, WithdrawType } from '../constants'
+import { DefiType, erc20Abi, foxyStakingAbi, MAX_ALLOWANCE } from '../constants'
 import { foxyAbi } from '../constants/foxy-abi'
 import { liquidityReserveAbi } from '../constants/liquidity-reserve-abi'
 import { bnOrZero, buildTxToSign } from '../utils'
@@ -31,6 +31,7 @@ import {
   TxInputWithoutAmount,
   TxInputWithoutAmountAndWallet,
   TxReceipt,
+  WithdrawEstimateGasInput,
   WithdrawInfo,
   WithdrawInput
 } from './foxy-types'
@@ -290,7 +291,7 @@ export class FoxyApi {
     }
   }
 
-  async estimateWithdrawGas(input: WithdrawInput): Promise<BigNumber> {
+  async estimateWithdrawGas(input: WithdrawEstimateGasInput): Promise<BigNumber> {
     const { amountDesired, userAddress, contractAddress, type } = input
     this.verifyAddresses([userAddress, contractAddress])
 

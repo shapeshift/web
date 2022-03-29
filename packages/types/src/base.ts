@@ -30,6 +30,11 @@ export enum NetworkTypes {
   OSMOSIS_TESTNET = 'OSMOSIS_TESTNET'
 }
 
+export enum WithdrawType {
+  DELAYED,
+  INSTANT
+}
+
 export enum UtxoAccountType {
   SegwitNative = 'SegwitNative',
   SegwitP2sh = 'SegwitP2sh',

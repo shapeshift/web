@@ -1,12 +1,12 @@
 import { caip2 } from '@shapeshiftoss/caip'
 import { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { NativeAdapterArgs, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import dotenv from 'dotenv'
 import readline from 'readline-sync'
 
 import { FoxyApi } from './api'
-import { foxyAddresses, WithdrawType } from './constants'
+import { foxyAddresses } from './constants'
 import { bnOrZero } from './utils'
 
 dotenv.config()

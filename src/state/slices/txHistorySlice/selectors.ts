@@ -10,7 +10,6 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import { Tx, TxId, TxIdByAssetId } from './txHistorySlice'
 
-export const selectTxValues = (state: ReduxState) => values(state.txHistory.txs.byId)
 export const selectTxs = (state: ReduxState) => state.txHistory.txs.byId
 export const selectTxIds = (state: ReduxState) => state.txHistory.txs.ids
 export const selectTxHistoryStatus = (state: ReduxState) => state.txHistory.txs.status

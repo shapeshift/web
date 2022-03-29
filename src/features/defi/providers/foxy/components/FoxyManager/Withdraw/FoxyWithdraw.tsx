@@ -38,7 +38,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero, bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetByCAIP19,
@@ -154,9 +154,9 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         api.estimateWithdrawGas({
           tokenContractAddress: rewardId,
           contractAddress,
-          amountDesired: bnOrZero(bn(withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`))
-            .decimalPlaces(0),
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`)
+          ).decimalPlaces(0),
           userAddress: state.userAddress,
           type: state.withdraw.withdrawType
         }),

@@ -23,7 +23,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -357,6 +357,11 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
 
   const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
+  const withdrawalFee = useMemo(() => {
+    return state.withdraw.withdrawType === WithdrawType.INSTANT
+      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage).toString()
+      : '0'
+  }, [state.withdraw.withdrawType, state.withdraw.cryptoAmount, state.foxyFeePercentage])
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
     const { statusIcon, statusText, statusBg } = (() => {
@@ -395,6 +400,12 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             marketData={marketData}
             onCancel={handleCancel}
             onContinue={handleContinue}
+            updateWithdraw={({ withdrawType, cryptoAmount }) => {
+              return dispatch({
+                type: FoxyWithdrawActionType.SET_WITHDRAW,
+                payload: { withdrawType, cryptoAmount }
+              })
+            }}
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
             enableWithdrawType
@@ -403,7 +414,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
             <Row>
               <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
               <Row.Value>
-                <Amount.Crypto value='0' symbol={asset.symbol} />
+                <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
               </Row.Value>
             </Row>
             <Text fontSize='sm' color='gray.500' translation='modals.withdraw.disclaimer' />
@@ -473,13 +484,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>
-                  {`${
-                    state.withdraw.withdrawType === WithdrawType.INSTANT
-                      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)
-                      : '0'
-                  } Foxy`}
-                </Row.Value>
+                <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
               </Row>
               <Row>
                 <Row.Label>
@@ -565,13 +570,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>
-                  {`${
-                    state.withdraw.withdrawType === WithdrawType.INSTANT
-                      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)
-                      : '0'
-                  } Foxy`}
-                </Row.Value>
+                <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
               </Row>
               <Row>
                 <Row.Label>

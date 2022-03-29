@@ -67,6 +67,7 @@ type WithdrawProps = {
   enableWithdrawType?: boolean
   feePercentage?: string
   onContinue(values: WithdrawValues): void
+  updateWithdraw(values: Pick<WithdrawValues, Field.WithdrawType | Field.CryptoAmount>): void
   onCancel(): void
 }
 
@@ -116,6 +117,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   fiatAmountAvailable,
   fiatInputValidation,
   onContinue,
+  updateWithdraw,
   onCancel,
   percentOptions,
   feePercentage,
@@ -147,6 +149,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   })
 
   const values = useWatch({ control })
+
   const cryptoField = activeField === InputType.Crypto
   const cryptoError = errors?.cryptoAmount?.message ?? null
   const fiatError = errors?.fiatAmount?.message ?? null
@@ -185,8 +188,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   }
 
   const handleWithdrawalTypeClick = (withdrawType: WithdrawType) => {
+    const cryptoAmount = bnOrZero(cryptoAmountAvailable).toString()
+
     if (withdrawType === WithdrawType.INSTANT) {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable).toString()
       const fiat = bnOrZero(cryptoAmount).times(marketData.price)
 
       setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
@@ -198,6 +202,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     } else {
       setValue(Field.WithdrawType, WithdrawType.DELAYED)
     }
+
+    updateWithdraw({ withdrawType, cryptoAmount })
   }
 
   const handleSlippageChange = (value: string | number) => {

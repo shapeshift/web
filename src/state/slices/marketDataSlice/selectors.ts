@@ -1,17 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import {
-  HistoryData,
-  HistoryTimeframe,
-  MarketCapResult,
-  SupportedFiatCurrencies
-} from '@shapeshiftoss/types'
+import { HistoryData, HistoryTimeframe, MarketCapResult } from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtBlockTime } from 'lib/charts'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectSelectedCurrency } from 'state/slices/selectors'
+import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
 const selectAllMarketData = (state: ReduxState) => state.marketData.byId
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
@@ -42,7 +37,7 @@ export const selectMarketDataById = createSelector(
   selectSelectedCurrency,
   (marketData, assetId, fiatMarketData, selectedCurrency) => {
     const assetMarketData = marketData[assetId]
-    if (selectedCurrency === SupportedFiatCurrencies.USD) return assetMarketData
+    if (selectedCurrency === 'USD') return assetMarketData
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1)
     return {
       ...assetMarketData,
@@ -73,7 +68,7 @@ export const selectPriceHistoryByAssetTimeframe = createDeepEqualOutputSelector(
   (_state: ReduxState, _assetId: CAIP19, timeframe: HistoryTimeframe) => timeframe,
   (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe) => {
     const assetPriceHistoryData = priceHistory[timeframe][assetId] ?? []
-    if (selectedCurrency === SupportedFiatCurrencies.USD) return assetPriceHistoryData
+    if (selectedCurrency === 'USD') return assetPriceHistoryData
     const fiatPriceHistory = fiatPriceHistoryData[timeframe][selectedCurrency]
     // fiat history not loaded yet
     if (!fiatPriceHistory) return []
@@ -125,7 +120,5 @@ export const selectPriceHistoriesLoadingByFiatTimeframe = createSelector(
   (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe,
   // if we don't have the data it's loading
   (fiatPriceHistory, selectedCurrency, timeframe) =>
-    selectedCurrency === SupportedFiatCurrencies.USD
-      ? false
-      : !Boolean(fiatPriceHistory[timeframe][selectedCurrency])
+    selectedCurrency === 'USD' ? false : !Boolean(fiatPriceHistory[timeframe][selectedCurrency])
 )

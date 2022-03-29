@@ -29,7 +29,7 @@ const initialState: Preferences = {
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
-  selectedCurrency: SupportedFiatCurrencies.USD
+  selectedCurrency: 'USD'
 }
 
 export const preferences = createSlice({

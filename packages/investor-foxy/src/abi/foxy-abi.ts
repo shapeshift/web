@@ -1,15 +1,8 @@
 import { AbiItem } from 'web3-utils'
 
-/* eslint-disable */
-export const liquidityReserveAbi: AbiItem[] = [
+export const foxyAbi: AbiItem[] = [
   {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_stakingToken',
-        type: 'address'
-      }
-    ],
+    inputs: [],
     stateMutability: 'nonpayable',
     type: 'constructor'
   },
@@ -42,13 +35,50 @@ export const liquidityReserveAbi: AbiItem[] = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'epoch',
+        type: 'uint256'
+      },
+      {
         indexed: false,
         internalType: 'uint256',
-        name: 'fee',
+        name: 'rebase',
+        type: 'uint256'
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'index',
         type: 'uint256'
       }
     ],
-    name: 'FeeChanged',
+    name: 'LogRebase',
+    type: 'event'
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'epoch',
+        type: 'uint256'
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'timestamp',
+        type: 'uint256'
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'totalSupply',
+        type: 'uint256'
+      }
+    ],
+    name: 'LogSupply',
     type: 'event'
   },
   {
@@ -116,53 +146,27 @@ export const liquidityReserveAbi: AbiItem[] = [
   },
   {
     inputs: [],
-    name: 'BASIS_POINTS',
+    name: 'DOMAIN_SEPARATOR',
     outputs: [
       {
-        internalType: 'uint256',
+        internalType: 'bytes32',
         name: '',
-        type: 'uint256'
+        type: 'bytes32'
       }
     ],
     stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'MINIMUM_LIQUIDITY',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256'
-      }
-    ],
-    name: 'addLiquidity',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function'
   },
   {
     inputs: [
       {
         internalType: 'address',
-        name: 'owner',
+        name: '_owner',
         type: 'address'
       },
       {
         internalType: 'address',
-        name: 'spender',
+        name: '_spender',
         type: 'address'
       }
     ],
@@ -181,12 +185,12 @@ export const liquidityReserveAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: 'spender',
+        name: '_spender',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: 'amount',
+        name: '_value',
         type: 'uint256'
       }
     ],
@@ -204,12 +208,44 @@ export const liquidityReserveAbi: AbiItem[] = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: '_gons',
+        type: 'uint256'
+      }
+    ],
+    name: 'balanceForGons',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
-        name: 'account',
+        name: '_wallet',
         type: 'address'
       }
     ],
     name: 'balanceOf',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'circulatingSupply',
     outputs: [
       {
         internalType: 'uint256',
@@ -237,12 +273,12 @@ export const liquidityReserveAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: 'spender',
+        name: '_spender',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: 'subtractedValue',
+        name: '_subtractedValue',
         type: 'uint256'
       }
     ],
@@ -259,7 +295,7 @@ export const liquidityReserveAbi: AbiItem[] = [
   },
   {
     inputs: [],
-    name: 'fee',
+    name: 'getIndex',
     outputs: [
       {
         internalType: 'uint256',
@@ -286,13 +322,32 @@ export const liquidityReserveAbi: AbiItem[] = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256'
+      }
+    ],
+    name: 'gonsForBalance',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
-        name: 'spender',
+        name: '_spender',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: 'addedValue',
+        name: '_addedValue',
         type: 'uint256'
       }
     ],
@@ -308,20 +363,34 @@ export const liquidityReserveAbi: AbiItem[] = [
     type: 'function'
   },
   {
+    inputs: [],
+    name: 'index',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
     inputs: [
       {
         internalType: 'address',
         name: '_stakingContract',
         type: 'address'
-      },
-      {
-        internalType: 'address',
-        name: '_rewardToken',
-        type: 'address'
       }
     ],
     name: 'initialize',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool'
+      }
+    ],
     stateMutability: 'nonpayable',
     type: 'function'
   },
@@ -339,24 +408,6 @@ export const liquidityReserveAbi: AbiItem[] = [
     type: 'function'
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256'
-      },
-      {
-        internalType: 'address',
-        name: '_recipient',
-        type: 'address'
-      }
-    ],
-    name: 'instantUnstake',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
     inputs: [],
     name: 'name',
     outputs: [
@@ -367,6 +418,68 @@ export const liquidityReserveAbi: AbiItem[] = [
       }
     ],
     stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address'
+      }
+    ],
+    name: 'nonces',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address'
+      },
+      {
+        internalType: 'address',
+        name: 'spender',
+        type: 'address'
+      },
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'deadline',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint8',
+        name: 'v',
+        type: 'uint8'
+      },
+      {
+        internalType: 'bytes32',
+        name: 'r',
+        type: 'bytes32'
+      },
+      {
+        internalType: 'bytes32',
+        name: 's',
+        type: 'bytes32'
+      }
+    ],
+    name: 'permit',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function'
   },
   {
@@ -393,13 +506,73 @@ export const liquidityReserveAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_amount',
+        name: '_profit',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: '_epoch',
         type: 'uint256'
       }
     ],
-    name: 'removeLiquidity',
-    outputs: [],
+    name: 'rebase',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
     stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    name: 'rebases',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'epoch',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'rebase',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'totalStakedBefore',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'totalStakedAfter',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'amountRebased',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'index',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'blockNumberOccurred',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
     type: 'function'
   },
   {
@@ -411,46 +584,7 @@ export const liquidityReserveAbi: AbiItem[] = [
   },
   {
     inputs: [],
-    name: 'rewardToken',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_fee',
-        type: 'uint256'
-      }
-    ],
-    name: 'setFee',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [],
     name: 'stakingContract',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'stakingToken',
     outputs: [
       {
         internalType: 'address',
@@ -491,12 +625,12 @@ export const liquidityReserveAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: 'recipient',
+        name: '_to',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: 'amount',
+        name: '_value',
         type: 'uint256'
       }
     ],
@@ -515,17 +649,17 @@ export const liquidityReserveAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: 'sender',
+        name: '_from',
         type: 'address'
       },
       {
         internalType: 'address',
-        name: 'recipient',
+        name: '_to',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: 'amount',
+        name: '_value',
         type: 'uint256'
       }
     ],
@@ -537,13 +671,6 @@ export const liquidityReserveAbi: AbiItem[] = [
         type: 'bool'
       }
     ],
-    stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'unstakeAllRewardTokens',
-    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function'
   }

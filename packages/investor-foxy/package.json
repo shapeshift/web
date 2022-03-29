@@ -18,7 +18,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && tsc --project tsconfig.json",
+    "build": "yarn clean && tsc --project tsconfig.build.json",
     "clean": "rm -rf dist",
     "dev": "tsc --watch",
     "prepare": "yarn clean && yarn build",
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@ethersproject/providers": "^5.5.3",
+    "axios": "^0.26.1",
     "bignumber.js": "^9.0.2",
     "lodash": "^4.17.21",
     "web3": "^1.7.1",

@@ -3,29 +3,46 @@ import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { ChainReference } from '@shapeshiftoss/caip/dist/caip2/caip2'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import axios from 'axios'
 import { BigNumber } from 'bignumber.js'
 import { toLower } from 'lodash'
 import Web3 from 'web3'
 import { HttpProvider, TransactionReceipt } from 'web3-core/types'
 import { Contract } from 'web3-eth-contract'
 
-import { DefiType, erc20Abi, foxyStakingAbi, MAX_ALLOWANCE } from '../constants'
-import { foxyAbi } from '../constants/foxy-abi'
-import { liquidityReserveAbi } from '../constants/liquidity-reserve-abi'
+import { erc20Abi } from '../abi/erc20-abi'
+import { foxyAbi } from '../abi/foxy-abi'
+import { foxyStakingAbi } from '../abi/foxy-staking-abi'
+import { liquidityReserveAbi } from '../abi/liquidity-reserve-abi'
+import { tokeManagerAbi } from '../abi/toke-manager-abi'
+import { tokePoolAbi } from '../abi/toke-pool-abi'
+import { tokeRewardHashAbi } from '../abi/toke-reward-hash-abi'
+import {
+  DefiType,
+  MAX_ALLOWANCE,
+  tokeManagerAddress,
+  tokePoolAddress,
+  tokeRewardHashAddress
+} from '../constants'
 import { bnOrZero, buildTxToSign } from '../utils'
 import {
   AllowanceInput,
   ApproveInput,
   BalanceInput,
   ClaimWithdrawal,
+  ContractAddressInput,
+  EstimateClaimFromTokemak,
   EstimateGasApproveInput,
   EstimateGasTxInput,
   FoxyAddressesType,
   FoxyOpportunityInputData,
-  InstantUnstakeFeeInput,
+  GetTokeRewardAmount,
   RebaseEvent,
   RebaseHistory,
   SignAndBroadcastTx,
+  StakingContract,
+  StakingContractWithUser,
+  TokeClaimIpfs,
   TokenAddressInput,
   TxInput,
   TxInputWithoutAmount,
@@ -62,6 +79,8 @@ export const transformData = ({ tvl, apy, expired, ...contractData }: FoxyOpport
     expired
   }
 }
+
+const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
   public adapter: ChainAdapter<ChainTypes>
@@ -102,7 +121,7 @@ export class FoxyApi {
       const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
       if (dryRun) return signedTx
       try {
-        if (this.providerUrl.includes('localhost')) {
+        if (this.providerUrl.includes('localhost') || this.providerUrl.includes('127.0.0.1')) {
           const sendSignedTx = await this.web3.eth.sendSignedTransaction(signedTx)
           return sendSignedTx?.blockHash
         }
@@ -314,16 +333,13 @@ export class FoxyApi {
     }
   }
 
-  async estimateDepositGas(input: EstimateGasTxInput): Promise<BigNumber> {
-    const { amountDesired, userAddress, contractAddress } = input
-    this.verifyAddresses([userAddress, contractAddress])
-    if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
-
+  async estimateClaimFromTokemakGas(input: EstimateClaimFromTokemak): Promise<BigNumber> {
+    const { contractAddress, userAddress, recipient, v, r, s } = input
     const stakingContract = this.getStakingContract(contractAddress)
 
     try {
       const estimatedGas = await stakingContract.methods
-        .stake(amountDesired, userAddress)
+        .claimFromTokemak(recipient, v, r, s)
         .estimateGas({
           from: userAddress
         })
@@ -342,6 +358,25 @@ export class FoxyApi {
     try {
       const estimatedGas = await depositTokenContract.methods
         .approve(contractAddress, MAX_ALLOWANCE)
+        .estimateGas({
+          from: userAddress
+        })
+      return bnOrZero(estimatedGas)
+    } catch (e) {
+      throw new Error(`Failed to get gas ${e}`)
+    }
+  }
+
+  async estimateDepositGas(input: EstimateGasTxInput): Promise<BigNumber> {
+    const { amountDesired, userAddress, contractAddress } = input
+    this.verifyAddresses([userAddress, contractAddress])
+    if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
+
+    const stakingContract = this.getStakingContract(contractAddress)
+
+    try {
+      const estimatedGas = await stakingContract.methods
+        .stake(amountDesired.toString(), userAddress)
         .estimateGas({
           from: userAddress
         })
@@ -506,6 +541,75 @@ export class FoxyApi {
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
 
+  async canClaimWithdraw(input: StakingContractWithUser): Promise<boolean> {
+    const { userAddress, stakingContract } = input
+    const tokeManagerContract = new this.web3.eth.Contract(tokeManagerAbi, tokeManagerAddress)
+    const tokePoolContract = new this.web3.eth.Contract(tokePoolAbi, tokePoolAddress)
+
+    const coolDownInfo = await (async () => {
+      try {
+        const coolDown = await stakingContract.methods.coolDownInfo(userAddress).call()
+        return {
+          ...coolDown,
+          endEpoch: coolDown.expiry
+        }
+      } catch (e) {
+        console.error(`Failed to get coolDowninfo: ${e}`)
+      }
+    })()
+
+    const epoch = await (async () => {
+      try {
+        return stakingContract.methods.epoch().call()
+      } catch (e) {
+        console.error(`Failed to get epoch: ${e}`)
+        return {}
+      }
+    })()
+
+    const requestedWithdrawals = await (async () => {
+      try {
+        return tokePoolContract.methods.requestedWithdrawals(stakingContract.options.address).call()
+      } catch (e) {
+        console.error(`Failed to get requestedWithdrawals: ${e}`)
+        return {}
+      }
+    })()
+
+    const currentCycleIndex = await (async () => {
+      try {
+        return tokeManagerContract.methods.getCurrentCycleIndex().call()
+      } catch (e) {
+        console.error(`Failed to get currentCycleIndex: ${e}`)
+        return 0
+      }
+    })()
+
+    const withdrawalAmount = await (async () => {
+      try {
+        return stakingContract.methods.withdrawalAmount().call()
+      } catch (e) {
+        console.error(`Failed to get currentCycleIndex: ${e}`)
+        return 0
+      }
+    })()
+
+    const epochExpired = epoch.number >= coolDownInfo.endEpoch
+    const coolDownValid =
+      !bnOrZero(coolDownInfo.endEpoch).eq(0) && !bnOrZero(coolDownInfo.amount).eq(0)
+
+    const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle).lte(currentCycleIndex)
+    const stakingTokenAvailableWithTokemak = bnOrZero(requestedWithdrawals.amount).plus(
+      withdrawalAmount
+    )
+    const stakingTokenAvailable = bnOrZero(withdrawalAmount).gte(coolDownInfo.amount)
+    const validCycleAndAmount =
+      (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
+      stakingTokenAvailable
+
+    return epochExpired && coolDownValid && validCycleAndAmount
+  }
+
   async claimWithdraw(input: ClaimWithdrawal): Promise<string> {
     const {
       accountNumber = 0,
@@ -528,7 +632,8 @@ export class FoxyApi {
 
     const stakingContract = this.getStakingContract(contractAddress)
 
-    // TODO: check if can claimWithdraw and throw an error if can't
+    const canClaim = await this.canClaimWithdraw({ userAddress, stakingContract })
+    if (!canClaim) throw new Error('Not ready to claim')
 
     const data: string = stakingContract.methods.claimWithdraw(addressToClaim).encodeABI({
       from: userAddress
@@ -551,6 +656,78 @@ export class FoxyApi {
     return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
 
+  async canSendWithdrawalRequest(input: StakingContract): Promise<boolean> {
+    const { stakingContract } = input
+    const tokeManagerContract = new this.web3.eth.Contract(tokeManagerAbi, tokeManagerAddress)
+
+    const requestWithdrawalAmount = await (async () => {
+      try {
+        return stakingContract.methods.requestWithdrawalAmount().call()
+      } catch (e) {
+        console.error(`Failed to get requestWithdrawalAmount: ${e}`)
+        return 0
+      }
+    })()
+
+    const timeLeftToRequestWithdrawal = await (async () => {
+      try {
+        return stakingContract.methods.timeLeftToRequestWithdrawal().call()
+      } catch (e) {
+        console.error(`Failed to get timeLeftToRequestWithdrawal: ${e}`)
+        return 0
+      }
+    })()
+
+    const lastTokeCycleIndex = await (async () => {
+      try {
+        return stakingContract.methods.lastTokeCycleIndex().call()
+      } catch (e) {
+        console.error(`Failed to get lastTokeCycleIndex: ${e}`)
+        return 0
+      }
+    })()
+
+    const duration = await (async () => {
+      try {
+        return tokeManagerContract.methods.getCycleDuration().call()
+      } catch (e) {
+        console.error(`Failed to get cycleDuration: ${e}`)
+        return 0
+      }
+    })()
+
+    const currentCycleIndex = await (async () => {
+      try {
+        return tokeManagerContract.methods.getCurrentCycleIndex().call()
+      } catch (e) {
+        console.error(`Failed to get currentCycleIndex: ${e}`)
+        return 0
+      }
+    })()
+
+    const currentCycleStart = await (async () => {
+      try {
+        return tokeManagerContract.methods.getCurrentCycle().call()
+      } catch (e) {
+        console.error(`Failed to get currentCycle: ${e}`)
+        return 0
+      }
+    })()
+
+    const nextCycleStart = bnOrZero(currentCycleStart).plus(duration)
+
+    const blockNumber = await this.web3.eth.getBlockNumber()
+    const timestamp = (await this.web3.eth.getBlock(blockNumber)).timestamp
+
+    const isTimeToRequest = bnOrZero(timestamp)
+      .plus(timeLeftToRequestWithdrawal)
+      .gte(nextCycleStart)
+    const isCorrectIndex = bnOrZero(currentCycleIndex).gt(lastTokeCycleIndex)
+    const hasAmount = bnOrZero(requestWithdrawalAmount).gt(0)
+
+    return isTimeToRequest && isCorrectIndex && hasAmount
+  }
+
   async sendWithdrawalRequests(input: TxInputWithoutAmount): Promise<string> {
     const { accountNumber = 0, dryRun = false, contractAddress, userAddress, wallet } = input
     this.verifyAddresses([userAddress, contractAddress])
@@ -565,7 +742,8 @@ export class FoxyApi {
 
     const stakingContract = this.getStakingContract(contractAddress)
 
-    // TODO: check if can sendWithdrawalRequests and throw an error if can't
+    const canSendRequest = await this.canSendWithdrawalRequest({ stakingContract })
+    if (!canSendRequest) throw new Error('Not ready to send request')
 
     const data: string = stakingContract.methods.sendWithdrawalRequests().encodeABI({
       from: userAddress
@@ -732,7 +910,7 @@ export class FoxyApi {
     }
   }
 
-  async instantUnstakeFee(input: InstantUnstakeFeeInput): Promise<BigNumber> {
+  async instantUnstakeFee(input: ContractAddressInput): Promise<BigNumber> {
     const { contractAddress } = input
     this.verifyAddresses([contractAddress])
     const stakingContract = this.getStakingContract(contractAddress)
@@ -807,6 +985,105 @@ export class FoxyApi {
       ...coolDownInfo,
       releaseTime
     }
+  }
+
+  async getTokeRewardAmount(input: ContractAddressInput): Promise<GetTokeRewardAmount> {
+    const { contractAddress } = input
+    const rewardHashContract = new this.web3.eth.Contract(tokeRewardHashAbi, tokeRewardHashAddress)
+    const latestCycleIndex = await (async () => {
+      try {
+        return rewardHashContract.methods.latestCycleIndex().call()
+      } catch (e) {
+        throw new Error(`Failed to get latestCycleIndex, ${e}`)
+      }
+    })()
+    const cycleHashes = await (async () => {
+      try {
+        return rewardHashContract.methods.cycleHashes(latestCycleIndex).call()
+      } catch (e) {
+        throw new Error(`Failed to get latestCycleIndex, ${e}`)
+      }
+    })()
+
+    try {
+      const { latestClaimable } = cycleHashes
+      const response = await axios.get<TokeClaimIpfs>(
+        `${TOKE_IPFS_URL}/${latestClaimable}/${contractAddress.toLowerCase()}.json`
+      )
+      const {
+        data: { payload, signature }
+      } = response
+
+      const claimAmount = bnOrZero(payload.amount)
+      const v = signature.v
+      const r = signature.r
+      const s = signature.s
+      return {
+        latestCycleIndex,
+        claimAmount,
+        v,
+        r,
+        s
+      }
+    } catch (e) {
+      throw new Error(`Failed to get information from Tokemak ipfs ${e}`)
+    }
+  }
+
+  async claimFromTokemak(input: TxInput): Promise<string> {
+    const { contractAddress, wallet, userAddress, accountNumber = 0, dryRun = false } = input
+    if (!wallet) throw new Error('Missing inputs')
+
+    this.verifyAddresses([contractAddress])
+
+    const { latestCycleIndex, claimAmount, v, r, s } = await this.getTokeRewardAmount(input)
+
+    if (!bnOrZero(claimAmount).gt(0)) {
+      throw new Error('Must claim valid amount')
+    }
+
+    const recipient = {
+      chainId: 1,
+      cycle: latestCycleIndex,
+      wallet: contractAddress,
+      amount: claimAmount
+    }
+
+    const estimatedGasBN = await (async () => {
+      try {
+        return this.estimateClaimFromTokemakGas({
+          ...input,
+          recipient,
+          v,
+          r,
+          s
+        })
+      } catch (e) {
+        throw new Error(`Estimate Gas Error: ${e}`)
+      }
+    })()
+
+    const stakingContract = this.getStakingContract(contractAddress)
+
+    const data: string = stakingContract.methods.claimFromTokemak(recipient, v, r, s).encodeABI({
+      from: userAddress
+    })
+
+    const { nonce, gasPrice } = await this.getGasPriceAndNonce(userAddress)
+    const estimatedGas = estimatedGasBN.toString()
+    const bip44Params = this.adapter.buildBIP44Params({ accountNumber })
+    const chainId = Number(this.network)
+    const payload = {
+      bip44Params,
+      chainId,
+      data,
+      estimatedGas,
+      gasPrice,
+      nonce,
+      to: contractAddress,
+      value: '0'
+    }
+    return this.signAndBroadcastTx({ payload, wallet, dryRun })
   }
 
   async getRebaseHistory(input: BalanceInput) {

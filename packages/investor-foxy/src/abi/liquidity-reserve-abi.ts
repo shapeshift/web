@@ -1,9 +1,14 @@
 import { AbiItem } from 'web3-utils'
 
-/* eslint-disable */
-export const foxyAbi: AbiItem[] = [
+export const liquidityReserveAbi: AbiItem[] = [
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_stakingToken',
+        type: 'address'
+      }
+    ],
     stateMutability: 'nonpayable',
     type: 'constructor'
   },
@@ -36,50 +41,13 @@ export const foxyAbi: AbiItem[] = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256'
-      },
-      {
         indexed: false,
         internalType: 'uint256',
-        name: 'rebase',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'index',
+        name: 'fee',
         type: 'uint256'
       }
     ],
-    name: 'LogRebase',
-    type: 'event'
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'timestamp',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'totalSupply',
-        type: 'uint256'
-      }
-    ],
-    name: 'LogSupply',
+    name: 'FeeChanged',
     type: 'event'
   },
   {
@@ -147,12 +115,25 @@ export const foxyAbi: AbiItem[] = [
   },
   {
     inputs: [],
-    name: 'DOMAIN_SEPARATOR',
+    name: 'BASIS_POINTS',
     outputs: [
       {
-        internalType: 'bytes32',
+        internalType: 'uint256',
         name: '',
-        type: 'bytes32'
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'MINIMUM_LIQUIDITY',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
       }
     ],
     stateMutability: 'view',
@@ -161,13 +142,26 @@ export const foxyAbi: AbiItem[] = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256'
+      }
+    ],
+    name: 'addLiquidity',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
-        name: '_owner',
+        name: 'owner',
         type: 'address'
       },
       {
         internalType: 'address',
-        name: '_spender',
+        name: 'spender',
         type: 'address'
       }
     ],
@@ -186,12 +180,12 @@ export const foxyAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: '_spender',
+        name: 'spender',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: '_value',
+        name: 'amount',
         type: 'uint256'
       }
     ],
@@ -209,44 +203,12 @@ export const foxyAbi: AbiItem[] = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: '_gons',
-        type: 'uint256'
-      }
-    ],
-    name: 'balanceForGons',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
         internalType: 'address',
-        name: '_wallet',
+        name: 'account',
         type: 'address'
       }
     ],
     name: 'balanceOf',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [],
-    name: 'circulatingSupply',
     outputs: [
       {
         internalType: 'uint256',
@@ -274,12 +236,12 @@ export const foxyAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: '_spender',
+        name: 'spender',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: '_subtractedValue',
+        name: 'subtractedValue',
         type: 'uint256'
       }
     ],
@@ -296,7 +258,7 @@ export const foxyAbi: AbiItem[] = [
   },
   {
     inputs: [],
-    name: 'getIndex',
+    name: 'fee',
     outputs: [
       {
         internalType: 'uint256',
@@ -323,32 +285,13 @@ export const foxyAbi: AbiItem[] = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256'
-      }
-    ],
-    name: 'gonsForBalance',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
         internalType: 'address',
-        name: '_spender',
+        name: 'spender',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: '_addedValue',
+        name: 'addedValue',
         type: 'uint256'
       }
     ],
@@ -364,34 +307,20 @@ export const foxyAbi: AbiItem[] = [
     type: 'function'
   },
   {
-    inputs: [],
-    name: 'index',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
     inputs: [
       {
         internalType: 'address',
         name: '_stakingContract',
         type: 'address'
+      },
+      {
+        internalType: 'address',
+        name: '_rewardToken',
+        type: 'address'
       }
     ],
     name: 'initialize',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool'
-      }
-    ],
+    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function'
   },
@@ -409,6 +338,24 @@ export const foxyAbi: AbiItem[] = [
     type: 'function'
   },
   {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256'
+      },
+      {
+        internalType: 'address',
+        name: '_recipient',
+        type: 'address'
+      }
+    ],
+    name: 'instantUnstake',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
     inputs: [],
     name: 'name',
     outputs: [
@@ -419,68 +366,6 @@ export const foxyAbi: AbiItem[] = [
       }
     ],
     stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'owner',
-        type: 'address'
-      }
-    ],
-    name: 'nonces',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'owner',
-        type: 'address'
-      },
-      {
-        internalType: 'address',
-        name: 'spender',
-        type: 'address'
-      },
-      {
-        internalType: 'uint256',
-        name: 'value',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'deadline',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint8',
-        name: 'v',
-        type: 'uint8'
-      },
-      {
-        internalType: 'bytes32',
-        name: 'r',
-        type: 'bytes32'
-      },
-      {
-        internalType: 'bytes32',
-        name: 's',
-        type: 'bytes32'
-      }
-    ],
-    name: 'permit',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function'
   },
   {
@@ -507,73 +392,13 @@ export const foxyAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'uint256',
-        name: '_profit',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: '_epoch',
+        name: '_amount',
         type: 'uint256'
       }
     ],
-    name: 'rebase',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
+    name: 'removeLiquidity',
+    outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    name: 'rebases',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'epoch',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'rebase',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalStakedBefore',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'totalStakedAfter',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'amountRebased',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'index',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'blockNumberOccurred',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
     type: 'function'
   },
   {
@@ -585,7 +410,46 @@ export const foxyAbi: AbiItem[] = [
   },
   {
     inputs: [],
+    name: 'rewardToken',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_fee',
+        type: 'uint256'
+      }
+    ],
+    name: 'setFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [],
     name: 'stakingContract',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'stakingToken',
     outputs: [
       {
         internalType: 'address',
@@ -626,12 +490,12 @@ export const foxyAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: '_to',
+        name: 'recipient',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: '_value',
+        name: 'amount',
         type: 'uint256'
       }
     ],
@@ -650,17 +514,17 @@ export const foxyAbi: AbiItem[] = [
     inputs: [
       {
         internalType: 'address',
-        name: '_from',
+        name: 'sender',
         type: 'address'
       },
       {
         internalType: 'address',
-        name: '_to',
+        name: 'recipient',
         type: 'address'
       },
       {
         internalType: 'uint256',
-        name: '_value',
+        name: 'amount',
         type: 'uint256'
       }
     ],
@@ -672,6 +536,13 @@ export const foxyAbi: AbiItem[] = [
         type: 'bool'
       }
     ],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'unstakeAllRewardTokens',
+    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function'
   }

@@ -2,6 +2,7 @@ import { CAIP19 } from '@shapeshiftoss/caip/src/caip19/caip19'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { BIP44Params, WithdrawType } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
+import { Contract } from 'web3-eth-contract'
 
 export type FoxyAddressesType = {
   staking: string
@@ -81,7 +82,7 @@ export type TokenAddressInput = {
   tokenContractAddress: string
 }
 
-export type InstantUnstakeFeeInput = {
+export type ContractAddressInput = {
   contractAddress: string
 }
 
@@ -113,6 +114,36 @@ export type SignAndBroadcastTx = {
   dryRun: boolean
 }
 
+export type Signature = {
+  v: number
+  r: string
+  s: string
+}
+
+export type GetTokeRewardAmount = Signature & {
+  latestCycleIndex: string
+  claimAmount: BigNumber
+}
+
+export type TokeClaimIpfs = {
+  payload: { amount: string }
+  signature: Signature
+}
+
+export type Recipient = {
+  chainId: number
+  cycle: string
+  wallet: string // address that's claiming.  Weird Tokemak naming convention
+  amount: BigNumber
+}
+
+export type EstimateClaimFromTokemak = TxInputWithoutAmountAndWallet & {
+  recipient: Recipient
+  v: number
+  r: string
+  s: string
+}
+
 export type RebaseEvent = {
   epoch: string
   blockNumber: number
@@ -122,4 +153,12 @@ export type RebaseHistory = {
   assetId: CAIP19
   balanceDiff: string
   blockTime: number
+}
+
+export type StakingContract = {
+  stakingContract: Contract
+}
+
+export type StakingContractWithUser = StakingContract & {
+  userAddress: string
 }

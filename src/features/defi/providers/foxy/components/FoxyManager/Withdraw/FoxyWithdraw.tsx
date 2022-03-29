@@ -625,7 +625,7 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
     }
   }
 
-  if (loading || !asset || !marketData)
+  if (loading || !asset || !marketData || !feeMarketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

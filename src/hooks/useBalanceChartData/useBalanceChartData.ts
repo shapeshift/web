@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
@@ -31,6 +32,9 @@ import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
+import { includeStakedBalance } from './cosmoUtils'
+import { skipCosmosTx } from './cosmoUtils'
+
 type PriceAtBlockTimeArgs = {
   date: number
   assetPriceHistoryData: HistoryData[]
@@ -51,7 +55,7 @@ type CryptoBalance = {
   [k: CAIP19]: BigNumber // map of asset to base units
 }
 
-type BucketBalance = {
+export type BucketBalance = {
   crypto: CryptoBalance
   fiat: BigNumber
 }
@@ -210,13 +214,25 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 export const calculateBucketPrices: CalculateBucketPrices = args => {
   const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
+  const startingBucket = buckets[buckets.length - 1]
+  const startingBalance = startingBucket.balance
+
+  includeStakedBalance(startingBalance)
+
+  startingBucket.balance.fiat = fiatBalanceAtBucket({
+    bucket: startingBucket,
+    priceHistoryData,
+    portfolioAssets
+  })
+
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
     const { rebases, txs } = bucket
 
     // copy the balance back from the most recent bucket
-    const currentBalance = buckets[i + 1]?.balance ?? buckets[buckets.length - 1].balance
+    const currentBalance = buckets[i + 1]?.balance ?? startingBalance
+
     bucket.balance = Object.assign({}, currentBalance)
 
     // if we have txs in this bucket, adjust the crypto balance in each bucket
@@ -232,6 +248,9 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         }
       }
 
+      // Special cases where we should not include cosmos delegate/undelegate txs in chart balance
+      const skipBucketBalanceChange = skipCosmosTx(tx)
+
       tx.transfers.forEach(transfer => {
         const asset = transfer.caip19
 
@@ -243,11 +262,13 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         switch (transfer.type) {
           case chainAdapters.TxType.Send:
             // we're going backwards, so a send means we had more before
-            bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
+            if (!skipBucketBalanceChange)
+              bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
             break
           case chainAdapters.TxType.Receive:
             // we're going backwards, so a receive means we had less before
-            bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
+            if (!skipBucketBalanceChange)
+              bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
             break
           default: {
             console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)

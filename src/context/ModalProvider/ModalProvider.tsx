@@ -9,6 +9,7 @@ import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
 import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
+import { SettingsModal } from 'components/Modals/Settings/Settings'
 
 // to add new modals, add a new key: value pair below
 // the key is the name returned by the hook and the
@@ -21,7 +22,8 @@ const MODALS = {
   send: SendModal,
   fiatRamps: FiatRampsModal,
   cosmosGetStarted: GetStartedModal,
-  cosmosStaking: StakingModal
+  cosmosStaking: StakingModal,
+  settings: SettingsModal
 }
 
 // state

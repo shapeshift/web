@@ -6,11 +6,9 @@ import { FaSync } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Routes } from 'Routes/Routes'
 import { IconCircle } from 'components/IconCircle'
-import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 
 export const App = () => {
-  const { routes } = usePlugins()
   const shouldUpdate = useHasAppUpdated()
   const toast = useToast()
   const toastIdRef = useRef<ToastId | null>(null)
@@ -49,5 +47,5 @@ export const App = () => {
     }
   }, [shouldUpdate, toast, translate])
 
-  return <Routes additionalRoutes={routes} />
+  return <Routes />
 }

@@ -16,7 +16,7 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
-  selectRewardsCryptoBalancebyAccountSpecifier,
+  selectRewardsAmountByDenom,
   selectStakingDataStatus,
   selectTotalBondingsBalancebyAccountSpecifier,
   selectUnbondingEntriesbyAccountSpecifier
@@ -96,11 +96,7 @@ export const Overview = ({ assetId }: StakedProps) => {
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsCryptoBalancebyAccountSpecifier(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS
-    )
+    selectRewardsAmountByDenom(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
   )
 
   return (

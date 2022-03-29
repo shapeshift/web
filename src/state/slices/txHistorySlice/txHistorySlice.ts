@@ -72,20 +72,24 @@ type RebaseByAccountId = {
   [k: AccountSpecifier]: RebaseId[]
 }
 
+type TxsState = {
+  byId: TxHistoryById
+  byAssetId: TxIdByAssetId
+  byAccountId: TxIdByAccountId
+  ids: TxId[]
+  status: TxHistoryStatus
+}
+
+type RebasesState = {
+  byAssetId: RebaseByAssetId
+  byAccountId: RebaseByAccountId
+  ids: RebaseId[]
+  byId: RebaseById
+}
+
 export type TxHistory = {
-  txs: {
-    byId: TxHistoryById
-    byAssetId: TxIdByAssetId
-    byAccountId: TxIdByAccountId
-    ids: TxId[]
-    status: TxHistoryStatus
-  }
-  rebases: {
-    byAssetId: RebaseByAssetId
-    byAccountId: RebaseByAccountId
-    ids: RebaseId[]
-    byId: RebaseById
-  }
+  txs: TxsState
+  rebases: RebasesState
 }
 
 export type TxMessage = { payload: { message: Tx; accountSpecifier: string } }

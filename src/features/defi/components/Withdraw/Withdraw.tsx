@@ -67,7 +67,7 @@ type WithdrawProps = {
   enableWithdrawType?: boolean
   feePercentage?: string
   onContinue(values: WithdrawValues): void
-  updateWithdraw(values: Pick<WithdrawValues, Field.WithdrawType | Field.CryptoAmount>): void
+  updateWithdraw?(values: Pick<WithdrawValues, Field.WithdrawType | Field.CryptoAmount>): void
   onCancel(): void
 }
 

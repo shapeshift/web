@@ -101,7 +101,7 @@ export const ClaimStatus = () => {
           usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
         })
       } catch (error) {
-        console.error('FoxyDeposit:getDepositGasEstimate error:', error)
+        console.error('FoxyClaim:useEffect error:', error)
         setState({
           ...state,
           txStatus: TxStatus.FAILED,

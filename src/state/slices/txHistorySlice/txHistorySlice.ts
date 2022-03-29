@@ -258,7 +258,10 @@ export const txHistory = createSlice({
 
 type AllTxHistoryArgs = { accountSpecifierMap: AccountSpecifierMap }
 
-type RebaseTxHistoryArgs = AllTxHistoryArgs & { address: string }
+type RebaseTxHistoryArgs = {
+  accountSpecifierMap: AccountSpecifierMap
+  portfolioAssetIds: CAIP19[]
+}
 
 export const txHistoryApi = createApi({
   reducerPath: 'txHistoryApi',
@@ -268,7 +271,20 @@ export const txHistoryApi = createApi({
   refetchOnReconnect: true,
   endpoints: build => ({
     getFoxyRebaseHistoryByAccountId: build.query<RebaseHistory[], RebaseTxHistoryArgs>({
-      queryFn: async ({ accountSpecifierMap, address }, { dispatch }) => {
+      queryFn: async ({ accountSpecifierMap, portfolioAssetIds }, { dispatch }) => {
+        // only fetch with foxy flag on
+        if (!getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) return { data: [] }
+
+        // foxy contract address, note not caip19s
+        const foxyTokenContractAddress = foxyAddresses.reduce<string[]>((acc, { foxy }) => {
+          const contractAddress = foxy.toLowerCase()
+          portfolioAssetIds.some(id => id.includes(contractAddress)) && acc.push(contractAddress)
+          return acc
+        }, [])
+
+        // don't do anything below if we don't hold a version of foxy
+        if (!foxyTokenContractAddress.length) return { data: [] }
+
         // we load rebase history on app load, but pass in all the specifiers
         const chain = ChainTypes.Ethereum
         const network = NetworkTypes.MAINNET
@@ -279,6 +295,8 @@ export const txHistoryApi = createApi({
         const accountId = entries.join('/')
         // [] is a valid return type and won't upsert anything
         if (chainId !== accountChainId) return { data: [] }
+
+        // setup chain adapters
         const adapters = getChainAdapters()
         if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) {
           const data = `getFoxyRebaseHistoryByAccountId: ChainAdapterManager does not support ${ChainTypes.Ethereum}`
@@ -286,19 +304,27 @@ export const txHistoryApi = createApi({
           const error = { data, status }
           return { error }
         }
+
+        // setup foxy api
         const adapter = await adapters.byChainId(chainId)
         const providerUrl = getConfig().REACT_APP_ETHEREUM_NODE_URL
         const foxyArgs = { adapter, foxyAddresses, providerUrl }
         const foxyApi = new FoxyApi(foxyArgs)
-        const tokenContractAddress = address.toLowerCase()
-        const assetReference = tokenContractAddress
-        const assetNamespace = AssetNamespace.ERC20
-        const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
-        const rebaseHistoryArgs = { userAddress, tokenContractAddress }
-        const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
-        const upsertPayload = { accountId, assetId, data }
-        if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
-        return { data }
+
+        foxyTokenContractAddress.forEach(async tokenContractAddress => {
+          const assetReference = tokenContractAddress
+          const assetNamespace = AssetNamespace.ERC20
+          const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference })
+          const rebaseHistoryArgs = { userAddress, tokenContractAddress }
+          const data = await foxyApi.getRebaseHistory(rebaseHistoryArgs)
+          const upsertPayload = { accountId, assetId, data }
+          if (data.length) dispatch(txHistory.actions.upsertRebaseHistory(upsertPayload))
+        })
+
+        // we don't really care about the caching of this, we're dispatching
+        // into another part of the portfolio above, we kind of abuse RTK query,
+        // and we're always force refetching these anyway
+        return { data: [] }
       }
     }),
     getAllTxHistory: build.query<chainAdapters.Transaction<ChainTypes>[], AllTxHistoryArgs>({

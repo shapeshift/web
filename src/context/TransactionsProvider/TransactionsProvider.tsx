@@ -1,7 +1,5 @@
 import { CAIP2 } from '@shapeshiftoss/caip'
 import { utxoAccountParams } from '@shapeshiftoss/chain-adapters'
-import { foxyAddresses } from '@shapeshiftoss/investor-foxy'
-import { getConfig } from 'config'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -95,7 +93,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
           }
         }
 
-        // RESTfully fetch all tx history for this chain.
+        // RESTfully fetch all tx and rebase history for this chain.
         const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
         if (isEmpty(chainAccountSpecifiers)) continue
         chainAccountSpecifiers.forEach(accountSpecifierMap => {
@@ -112,15 +110,10 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
            * stop, and make a getRebaseHistoryByAccountId that takes
            * an accountId and assetId[] in the txHistoryApi
            */
-          if (getConfig().REACT_APP_FEATURE_FOXY_INVESTOR) {
-            // fetch all rebase history for FOXy
-            // you see what i did here?
-            foxyAddresses.forEach(addresses => {
-              const address = addresses.foxy
-              if (!portfolioAssetIds.join('').includes(address.toLowerCase())) return
-              dispatch(getFoxyRebaseHistoryByAccountId.initiate({ accountSpecifierMap, address }, options))
-            })
-          }
+
+          // fetch all rebase history for FOXy
+          const payload = { accountSpecifierMap, portfolioAssetIds }
+          dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
         })
       }
     })()

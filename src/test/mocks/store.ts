@@ -49,7 +49,16 @@ export const mockStore: ReduxState = {
     featureFlags: {
       CosmosInvestor: false,
       CosmosPlugin: false,
-      GemRamp: false
+      GemRamp: false,
+      FoxyInvestor: false,
+      ReduxLogging: false
+    },
+    selectedLocale: 'en',
+    balanceThreshold: '0',
+    // the following object is required by redux-persist
+    _persist: {
+      version: 0,
+      rehydrated: false
     }
   },
   assets: {
@@ -70,10 +79,18 @@ export const mockStore: ReduxState = {
     loading: false
   },
   txHistory: {
-    byId: {},
-    byAssetId: {},
-    byAccountId: {},
-    ids: [],
-    status: 'idle'
+    txs: {
+      byId: {},
+      byAssetId: {},
+      byAccountId: {},
+      ids: [],
+      status: 'idle'
+    },
+    rebases: {
+      byAssetId: {},
+      byAccountId: {},
+      ids: [],
+      byId: {}
+    }
   }
 }

@@ -144,7 +144,7 @@ export const Withdraw = ({
       [Field.FiatAmount]: '',
       [Field.CryptoAmount]: '',
       [Field.Slippage]: DEFAULT_SLIPPAGE,
-      [Field.WithdrawType]: WithdrawType.Instant
+      [Field.WithdrawType]: WithdrawType.Delayed
     }
   })
 
@@ -399,7 +399,7 @@ export const Withdraw = ({
                     <FaBolt size='30px' />
                     <RawText>{translate('modals.withdraw.instant')}</RawText>
                     <RawText color='gray.500' fontSize='sm'>
-                      {translate('modals.withdraw.fee', { feeAmount: '20' })}
+                      {translate('modals.withdraw.fee', { fee: '3', symbol: asset.symbol })}
                     </RawText>
                   </Stack>
                 </Button>
@@ -418,7 +418,7 @@ export const Withdraw = ({
                     <FaClock size='30px' />
                     <RawText>{translate('modals.withdraw.delayed')}</RawText>
                     <RawText color='gray.500' fontSize='sm'>
-                      {translate('modals.withdraw.noFee')}
+                      {translate('modals.withdraw.noFee', { symbol: asset.symbol })}
                     </RawText>
                   </Stack>
                 </Button>

@@ -5,10 +5,14 @@ import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTran
 
 import { MatchParams } from './CosmosAsset'
 
-export const CosmosAssetTxHistory = (props: { chainId: string }) => {
+export type CosmosAssetTxHistoryProps = {
+  chainId: string
+}
+
+export const CosmosAssetTxHistory: React.FC<CosmosAssetTxHistoryProps> = ({ chainId }) => {
   const params = useParams<MatchParams>()
-  const assetId = `${props.chainId}/${params.assetSubId}`
-  if (!params.assetSubId && !props.chainId) return null
+  const assetId = `${chainId}/${params.assetSubId}`
+  if (!params.assetSubId && !chainId) return null
 
   return (
     <Main titleComponent={<AssetHeader assetId={assetId} />}>

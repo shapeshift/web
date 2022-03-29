@@ -1,3 +1,5 @@
+# [@shapeshiftoss/market-service-v2.1.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.1.1...@shapeshiftoss/market-service-v2.1.2) (2022-03-29)
+
 # [@shapeshiftoss/market-service-v2.1.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/market-service-v2.1.0...@shapeshiftoss/market-service-v2.1.1) (2022-03-24)
 
 

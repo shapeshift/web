@@ -34,6 +34,7 @@ interface ClaimStatusState {
 }
 
 enum TxStatus {
+  NONE = 'none',
   PENDING = 'pending',
   SUCCESS = 'success',
   FAILED = 'failed'
@@ -58,6 +59,11 @@ const StatusInfo = {
     text: 'defi.transactionFailed',
     color: 'red.500',
     icon: <FaTimes />
+  },
+  [TxStatus.NONE]: {
+    text: 'defi.transactionFailed',
+    color: 'red.500',
+    icon: <FaTimes />
   }
 }
 
@@ -69,7 +75,7 @@ export const ClaimStatus = () => {
     state: { txid, amount, assetId, userAddress, estimatedGas, chain }
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
-    txStatus: TxStatus.PENDING
+    txStatus: TxStatus.NONE
   })
 
   // Asset Info
@@ -86,7 +92,7 @@ export const ClaimStatus = () => {
 
   useEffect(() => {
     ;(async () => {
-      if (!foxy || !txid) return
+      if (!foxy || !txid || state.txStatus === TxStatus.NONE) return
       const transactionReceipt = await poll({
         fn: () => foxy.getTxReceipt({ txid }),
         validate: (result: TransactionReceipt) => !isNil(result),
@@ -100,8 +106,7 @@ export const ClaimStatus = () => {
         usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
       })
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [foxy, state, txid])
 
   return (
     <SlideTransition>

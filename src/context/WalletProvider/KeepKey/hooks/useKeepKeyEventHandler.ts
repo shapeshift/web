@@ -38,6 +38,10 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
             case FailureType.PINCANCELLED:
               console.warn('KeepKey Event [FAILURE]: PIN Cancelled')
               break
+            case FailureType.NOTINITIALIZED:
+              // FIXME: placeholder to kick off initialization flow
+              console.warn('KeepKey Event [FAILURE]: Device not initialized')
+              break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
               break

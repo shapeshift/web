@@ -1,24 +1,16 @@
 import 'lib/polyfills'
 
-import { renderHook, RenderHookResult } from '@testing-library/react-hooks'
+import { renderHook } from '@testing-library/react-hooks'
 import { FiatTypeEnum } from 'constants/FiatTypeEnum'
+import { TestProviders } from 'test/TestProviders'
 
-import { FiatParts, NumberFormatter, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
-
-jest.mock('state/slices/selectors', () => ({
-  selectedCurrency: jest.fn()
-}))
+import { FiatParts, NumberValue, useLocaleFormatter } from './useLocaleFormatter'
 
 type Scenario = [string, FiatTypeEnum, string[]]
 
-function setup({
-  locale,
-  fiat
-}: {
-  locale?: string
-  fiat: FiatTypeEnum
-}): RenderHookResult<unknown, NumberFormatter> {
-  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }))
+function setup({ locale, fiat }: { locale?: string; fiat: FiatTypeEnum }) {
+  const wrapper: React.FC = ({ children }) => <TestProviders>{children}</TestProviders>
+  return renderHook(() => useLocaleFormatter({ locale, fiatType: fiat }), { wrapper })
 }
 
 describe('useLocaleFormatter', () => {

@@ -1,6 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import { Button, Flex, Icon, IconButton, ModalBody, ModalHeader } from '@chakra-ui/react'
-import { SupportedFiatCurrencies } from '@shapeshiftoss/types'
+import { SupportedFiatCurrencies, SupportedFiatCurrenciesList } from '@shapeshiftoss/types'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
@@ -15,7 +15,9 @@ export const FiatCurrencies = (props: RouteComponentProps) => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const translate = useTranslate()
   const { goBack } = props.history
-  const otherCurrencies = Object.keys(SupportedFiatCurrencies).filter(k => k !== selectedCurrency)
+  const otherCurrencies = SupportedFiatCurrenciesList.filter(
+    (k: SupportedFiatCurrencies) => k !== selectedCurrency
+  )
 
   return (
     <SlideTransition>
@@ -57,7 +59,7 @@ export const FiatCurrencies = (props: RouteComponentProps) => {
               </Flex>
             </Flex>
           </Button>
-          {otherCurrencies.map(currency => (
+          {otherCurrencies.map((currency: SupportedFiatCurrencies) => (
             <Button
               width='full'
               justifyContent='flexStart'
@@ -67,7 +69,7 @@ export const FiatCurrencies = (props: RouteComponentProps) => {
               onClick={() => {
                 dispatch(
                   preferences.actions.setSelectedCurrency({
-                    currency: currency as SupportedFiatCurrencies
+                    currency
                   })
                 )
               }}

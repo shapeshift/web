@@ -11,7 +11,12 @@ import {
   supportsETH,
   supportsOsmosis
 } from '@shapeshiftoss/hdwallet-core'
-import { ChainTypes, NetworkTypes, SupportedFiatCurrencies } from '@shapeshiftoss/types'
+import {
+  ChainTypes,
+  NetworkTypes,
+  SupportedFiatCurrencies,
+  SupportedFiatCurrenciesList
+} from '@shapeshiftoss/types'
 import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -215,7 +220,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
    */
   const selectedCurrency = useSelector(selectSelectedCurrency)
   useEffect(() => {
-    if (selectedCurrency !== SupportedFiatCurrencies.USD)
+    if (selectedCurrency !== 'USD')
       dispatch(
         marketApi.endpoints.findByFiatSymbol.initiate(
           { symbol: selectedCurrency },
@@ -225,12 +230,9 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   }, [dispatch, selectedCurrency])
 
   useEffect(() => {
-    Object.keys(SupportedFiatCurrencies).forEach(currency =>
+    SupportedFiatCurrenciesList.forEach((currency: SupportedFiatCurrencies) =>
       dispatch(
-        marketApi.endpoints.findByFiatSymbol.initiate(
-          { symbol: currency as SupportedFiatCurrencies },
-          { forceRefetch: true }
-        )
+        marketApi.endpoints.findByFiatSymbol.initiate({ symbol: currency }, { forceRefetch: true })
       )
     )
   }, [dispatch])

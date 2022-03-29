@@ -33,6 +33,7 @@ type FoxyWithdrawState = {
   withdraw: FoxyWithdrawValues
   loading: boolean
   txid: string | null
+  foxyFeePercentage: string
 }
 
 export const initialState: FoxyWithdrawState = {
@@ -59,7 +60,8 @@ export const initialState: FoxyWithdrawState = {
     txStatus: 'pending',
     usedGasFee: '',
     withdrawType: WithdrawType.INSTANT
-  }
+  },
+  foxyFeePercentage: ''
 }
 
 export enum FoxyWithdrawActionType {
@@ -69,7 +71,8 @@ export enum FoxyWithdrawActionType {
   SET_APPROVE = 'SET_APPROVE',
   SET_LOADING = 'SET_LOADING',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
+  SET_TX_STATUS = 'SET_TX_STATUS',
+  SET_FOXY_FEE = 'SET_FOXY_FEE'
 }
 
 type SetVaultAction = {
@@ -102,6 +105,11 @@ type SetTxid = {
   payload: string
 }
 
+type SetFoxyFee = {
+  type: FoxyWithdrawActionType.SET_FOXY_FEE
+  payload: string
+}
+
 type FoxyWithdrawActions =
   | SetVaultAction
   | SetApprove
@@ -109,6 +117,7 @@ type FoxyWithdrawActions =
   | SetUserAddress
   | SetLoading
   | SetTxid
+  | SetFoxyFee
 
 export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) => {
   switch (action.type) {
@@ -124,6 +133,8 @@ export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) =
       return { ...state, loading: action.payload }
     case FoxyWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
+    case FoxyWithdrawActionType.SET_FOXY_FEE:
+      return { ...state, foxyFeePercentage: action.payload }
     default:
       return state
   }

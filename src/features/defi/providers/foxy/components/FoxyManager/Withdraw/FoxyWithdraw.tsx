@@ -79,7 +79,6 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chain, contractAddress, tokenId, rewardId } = query
-
   const toast = useToast()
 
   const network = NetworkTypes.MAINNET
@@ -167,6 +166,15 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
         contractAddress,
         userAddress: state.userAddress
       })
+
+      // Get foxy fee for instant sends
+      const foxyFeePercentage = await api.instantUnstakeFee({ contractAddress })
+
+      dispatch({
+        type: FoxyWithdrawActionType.SET_FOXY_FEE,
+        payload: bnOrZero(foxyFeePercentage).toString()
+      })
+
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
 
       // Skip approval step if user allowance is greater than requested deposit amount
@@ -248,7 +256,6 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
       // Get withdraw gas estimate
       const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)
       if (!estimatedGasCrypto) return
-      // TODO(ryankk): Check to see if this is right
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto }
@@ -447,8 +454,13 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                {/* TODO(ryankk): add foxy fee */}
-                <Row.Value fontWeight='bold'>0.00 Foxy</Row.Value>
+                <Row.Value fontWeight='bold'>
+                  {`${
+                    state.withdraw.withdrawType === WithdrawType.INSTANT
+                      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)
+                      : '0'
+                  } Foxy`}
+                </Row.Value>
               </Row>
               <Row>
                 <Row.Label>
@@ -534,8 +546,13 @@ export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
                 <Row.Label>
                   <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                {/* TODO(ryankk): add withdrawFee */}
-                <Row.Value fontWeight='bold'>0.00 Foxy</Row.Value>
+                <Row.Value fontWeight='bold'>
+                  {`${
+                    state.withdraw.withdrawType === WithdrawType.INSTANT
+                      ? bnOrZero(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)
+                      : '0'
+                  } Foxy`}
+                </Row.Value>
               </Row>
               <Row>
                 <Row.Label>

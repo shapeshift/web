@@ -9,12 +9,8 @@ export const skipCosmosTx = (tx: Tx) =>
   tx.data?.parser === 'cosmos' &&
   (tx?.data.method === 'delegate' || tx?.data.method === 'begin_unbonding')
 
-export const includeStakedBalance = (startingBucket: Bucket) => {
+export const includeStakedBalance = (startingBucket: Bucket, totalCosmosStaked: number) => {
   const newStartingBucket = { ...startingBucket }
-  // TODO:
-  // when this PR is merged: https://github.com/shapeshift/web/pull/1331
-  // We can get cosmos delegations from state and aggregate them here
-  const totalCosmosStaked = 400000
 
   // TODO how can we dynamically do this for all cosmos sdk coins?
   const cosmosCaip19 = caip19.toCAIP19({

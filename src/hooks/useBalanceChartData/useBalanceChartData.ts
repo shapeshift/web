@@ -55,7 +55,7 @@ type CryptoBalance = {
   [k: CAIP19]: BigNumber // map of asset to base units
 }
 
-export type BucketBalance = {
+type BucketBalance = {
   crypto: CryptoBalance
   fiat: BigNumber
 }
@@ -216,7 +216,11 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
   // Balance needs to include all delegated balances for the chart to be correct
   const startingBucket = buckets[buckets.length - 1]
-  buckets[buckets.length - 1] = includeStakedBalance(startingBucket)
+
+  // TODO:
+  // when this PR is merged: https://github.com/shapeshift/web/pull/1331
+  // We can get cosmos delegations from state and aggregate them here
+  buckets[buckets.length - 1] = includeStakedBalance(startingBucket, 400000)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {

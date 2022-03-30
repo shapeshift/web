@@ -50,7 +50,7 @@ type TransactionGenericRowProps = {
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
-  isFirstAssetOutgoing?: boolean,
+  isFirstAssetOutgoing?: boolean
   parentWidth: number
 }
 

@@ -100,7 +100,6 @@ export const useTxDetails = (txId: string, activeAsset?: Asset): TxDetails => {
     }
   })()
 
-
   const standardAsset = useAppSelector((state: ReduxState) =>
     selectAssetByCAIP19(state, standardTx?.caip19 ?? '')
   )

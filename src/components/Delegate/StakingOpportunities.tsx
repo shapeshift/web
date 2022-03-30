@@ -30,9 +30,8 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllValidators,
-  selectRewardsCryptoBalancesbyAccountSpecifier,
-  selectStakingDatabyAccountSpecifier,
   selectStakingDataStatus,
+  selectStakingDataByAccountSpecifier,
   selectTotalBondingsBalancebyAccountSpecifier
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
@@ -90,6 +89,7 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
   const stakingDataStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = stakingDataStatus === 'loaded'
+  console.log("isloaded", isLoaded)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const dispatch = useAppDispatch()
@@ -98,12 +98,9 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const [address, setAddress] = useState<string>('')
 
   const validators = useAppSelector(selectAllValidators)
+
   console.log('validators', validators)
-
-  const {
-    state: { wallet }
-  } = useWallet()
-
+  
   const accountSpecifier = useMemo(() => {
     if (!address.length) return ''
 
@@ -112,8 +109,18 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       account: address
     })
   }, [address, asset.caip2])
+  
+  const stakingData = useAppSelector(state =>
+    selectStakingDataByAccountSpecifier(state, accountSpecifier)
+  )
+    
+  const balancesByValidators = useAppSelector(state =>
+    selectTotalBondingsBalancebyAccountSpecifier(state, accountSpecifier)
+  )
 
-  console.log(accountSpecifier)
+  const {
+    state: { wallet }
+  } = useWallet()
 
   useEffect(() => {
     ;(async () => {
@@ -160,26 +167,17 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [isLoaded, dispatch])
 
-  const stakingData = useAppSelector(state =>
-    selectStakingDatabyAccountSpecifier(state, accountSpecifier)
-  )
+  console.log("account specifier", accountSpecifier)
 
-  // fetch validator data only if there is staking data
-  if (stakingData != null) {
-  }
+  useEffect(() => {
+    ;(async () => {
+      if (isLoaded && stakingData){
+        console.log(stakingData)
+      }    
+    })()
+  }, [stakingData])
 
-  const totalBondingsByValidators = useAppSelector(state =>
-    selectTotalBondingsBalancebyAccountSpecifier(
-      state,
-      accountSpecifier
-    )
-  )
-
-  const rewardsAmountByValidators = useAppSelector(state =>
-    selectRewardsCryptoBalancesbyAccountSpecifier(state, accountSpecifier)
-  )
-
-  console.log(totalBondingsByValidators, rewardsAmountByValidators)
+  console.log(balancesByValidators)
 
   // TODO: wire up with real validator data
   const opportunities = [

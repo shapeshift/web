@@ -23,7 +23,7 @@ type AssetTransactionHistoryProps = {
 export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = ({
   assetId,
   accountId,
-  useCompactMode = true,
+  useCompactMode = false,
   limit
 }) => {
   const translate = useTranslate()

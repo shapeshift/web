@@ -1,7 +1,6 @@
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import React from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
 import { Provider as ReduxProvider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
@@ -14,7 +13,6 @@ import { PluginProvider } from 'context/PluginProvider/PluginProvider'
 import { PortfolioProvider } from 'context/PortfolioProvider/PortfolioContext'
 import { TransactionsProvider } from 'context/TransactionsProvider/TransactionsProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
-import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -35,17 +33,15 @@ export function AppProviders({ children }: ProvidersProps) {
               <BrowserRouterProvider>
                 <I18nProvider>
                   <WalletProvider>
-                    <ErrorBoundary FallbackComponent={ErrorPage}>
-                      <PortfolioProvider>
-                        <MarketDataProvider>
-                          <TransactionsProvider>
-                            <ModalProvider>
-                              <DefiManagerProvider>{children}</DefiManagerProvider>
-                            </ModalProvider>
-                          </TransactionsProvider>
-                        </MarketDataProvider>
-                      </PortfolioProvider>
-                    </ErrorBoundary>
+                    <PortfolioProvider>
+                      <MarketDataProvider>
+                        <TransactionsProvider>
+                          <ModalProvider>
+                            <DefiManagerProvider>{children}</DefiManagerProvider>
+                          </ModalProvider>
+                        </TransactionsProvider>
+                      </MarketDataProvider>
+                    </PortfolioProvider>
                   </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>

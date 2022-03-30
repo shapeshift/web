@@ -1,14 +1,11 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
 import { chainAdapters } from '@shapeshiftoss/types'
-import { Fragment } from 'react'
-import { FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
-import { IoIosArrowRoundForward } from 'react-icons/io'
+import { FaArrowRight, FaExchangeAlt, FaStickyNote, FaThumbsUp } from 'react-icons/fa'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
-import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
 import { TransactionTime } from 'components/TransactionHistoryRows/TransactionTime'
 import { Direction } from 'hooks/useTxDetails/useTxDetails'
@@ -53,12 +50,9 @@ type TransactionGenericRowProps = {
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
-  isFirstAssetOutgoing?: boolean
+  isFirstAssetOutgoing?: boolean,
+  parentWidth: number
 }
-
-const Guide = ({ title }: { title: string }) => (
-  <Text mb={6} lineHeight={1} color='gray.600' translation={`transactionHistory.${title}`} />
-)
 
 export const TransactionGenericRow = ({
   type,
@@ -71,96 +65,126 @@ export const TransactionGenericRow = ({
   explorerTxLink,
   compactMode = false,
   toggleOpen,
-  isFirstAssetOutgoing = false
+  isFirstAssetOutgoing = false,
+  parentWidth
 }: TransactionGenericRowProps) => {
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
-  const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
+  const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
+  const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
+  const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
+
+  let columns = '1fr'
+  let dateFormat = 'MM/DD/YYYY hh:mm A'
+
+  if (isLargerThanSm) {
+    columns = '1fr 2fr'
+    dateFormat = 'hh:mm A'
+  }
+  if (isLargerThanMd) {
+    columns = '1fr 2fr'
+  }
+  if (isLargerThanLg) {
+    columns = '1fr 2fr 1fr 1fr'
+  }
   return (
-    <Box as='button' w='full' py={4} onClick={() => toggleOpen()}>
-      <Flex width='full' justifyContent='space-between' textAlign='left' alignItems='flex-end'>
-        <Flex alignItems='flex-start' flex={1} mr={3} flexDir='column'>
-          {showDateAndGuide && <TransactionDate blockTime={blockTime} />}
-          <Flex alignItems={{ base: 'flex-end', md: 'center' }} width='full'>
-            <IconCircle mr={3}>
+    <Button
+      height='auto'
+      fontWeight='inherit'
+      variant='unstyled'
+      w='full'
+      p={4}
+      onClick={() => toggleOpen()}
+    >
+      <SimpleGrid
+        gridTemplateColumns={{ base: '1fr', md: columns }}
+        textAlign='left'
+        justifyContent='flex-start'
+        alignItems='center'
+      >
+        <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
+          <Flex alignItems='center' width='full'>
+            <IconCircle mr={2} boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}>
               <TransactionIcon type={type} />
             </IconCircle>
-            <Box flex={1}>
+            <Stack
+              direction={{ base: 'row', md: compactMode ? 'row' : 'column' }}
+              flex={1}
+              spacing={0}
+              fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
+              alignItems={{ base: 'center', md: compactMode ? 'center' : 'flex-start' }}
+            >
               <Text
                 fontWeight='bold'
                 flex={1}
-                lineHeight='1'
-                mb={1}
                 translation={
                   title ? title : [`transactionRow.${type.toLowerCase()}`, { symbol: '' }]
                 }
               />
-              <TransactionTime blockTime={blockTime} />
-            </Box>
+              <TransactionTime blockTime={blockTime} format={dateFormat} />
+            </Stack>
           </Flex>
         </Flex>
-        <Flex
-          alignItems={isLargerThanLg ? 'flex-start' : 'flex-end'}
-          flex={!compactMode && isLargerThanLg ? 2 : 1}
-          flexDir='column'
-        >
-          {!compactMode && showDateAndGuide && isLargerThanXl && <Guide title='assets' />}
-          <Flex
-            alignItems={isLargerThanMd ? 'center' : 'flex-start'}
+        <Flex flex={2} flexDir='column' width='full'>
+          <Stack
+            direction='row'
             width='full'
-            flexDir='row'
-            flexWrap='wrap'
+            alignItems='center'
+            spacing={{ base: 0, md: compactMode ? 0 : 4 }}
+            justifyContent={{
+              base: 'space-between',
+              md: compactMode ? 'space-between' : 'flex-start'
+            }}
+            fontSize={{ base: 'sm', md: compactMode ? 'sm' : 'md' }}
+            divider={
+              <Box border={0} color='gray.500' fontSize='sm'>
+                <FaArrowRight />
+              </Box>
+            }
           >
             {assets.map((asset, index) => (
-              <Fragment key={index}>
-                <Flex alignItems='center'>
-                  {!compactMode && isLargerThanLg && (
-                    <AssetIcon mr={3} symbol={asset.symbol.toLowerCase()} boxSize='40px' />
-                  )}
-                  <Box flex={1}>
-                    <Amount.Crypto
-                      color='inherit'
-                      fontWeight='bold'
+              <Stack
+                alignItems='center'
+                key={index}
+                mt={{ base: 2, md: compactMode ? 2 : 0 }}
+                direction={{
+                  base: index === 0 ? 'row' : 'row-reverse',
+                  md: compactMode ? (index === 0 ? 'row' : 'row-reverse') : 'row'
+                }}
+                textAlign={{
+                  base: index === 0 ? 'left' : 'right',
+                  md: compactMode ? (index === 0 ? 'left' : 'right') : 'left'
+                }}
+              >
+                <AssetIcon
+                  symbol={asset.symbol.toLowerCase()}
+                  boxSize={{ base: '24px', md: compactMode ? '24px' : '40px' }}
+                />
+                <Box flex={1}>
+                  <Amount.Crypto
+                    color='inherit'
+                    fontWeight='medium'
+                    prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
+                    value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
+                    symbol={asset.symbol}
+                    maximumFractionDigits={4}
+                  />
+                  {asset.currentPrice && (
+                    <Amount.Fiat
+                      color='gray.500'
+                      fontSize='sm'
+                      lineHeight='1'
                       prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                      value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
-                      symbol={asset.symbol}
-                      maximumFractionDigits={6}
+                      value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
+                        .times(asset.currentPrice)
+                        .toString()}
                     />
-                    {asset.currentPrice && (
-                      <Amount.Fiat
-                        color='gray.500'
-                        fontSize='sm'
-                        lineHeight='1'
-                        prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
-                        value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
-                          .times(asset.currentPrice)
-                          .toString()}
-                      />
-                    )}
-                  </Box>
-                  {!isLargerThanMd && index !== assets.length - 1 && (
-                    <Flex flex={0} justifyContent='center' alignItems='center' mb={2}>
-                      <Box color='gray.600'>
-                        <IoIosArrowRoundForward size='2em' />
-                      </Box>
-                    </Flex>
                   )}
-                </Flex>
-                {isLargerThanMd && index !== assets.length - 1 && (
-                  <Flex flex={1} justifyContent='center' alignItems='center'>
-                    <Box color='gray.600'>
-                      <IoIosArrowRoundForward size='2em' />
-                    </Box>
-                  </Flex>
-                )}
-              </Fragment>
+                </Box>
+              </Stack>
             ))}
-          </Flex>
+          </Stack>
         </Flex>
-        {!compactMode && isLargerThanLg && <Flex flex={0.2} />}
-        {!compactMode && isLargerThanXl && (
+        {isLargerThanLg && (
           <Flex alignItems='flex-start' flex={1} flexDir='column'>
-            {showDateAndGuide && <Guide title='fee' />}
             {fee && (
               <Flex alignItems='center' width='full'>
                 <Box flex={1}>
@@ -188,15 +212,14 @@ export const TransactionGenericRow = ({
             )}
           </Flex>
         )}
-        {!compactMode && isLargerThanLg && (
+        {isLargerThanLg && (
           <Flex flex={0} flexDir='column'>
-            {showDateAndGuide && <Guide title='viewOnChain' />}
-            <Flex justifyContent='flex-start' alignItems='center'>
+            <Flex justifyContent='flex-end' alignItems='center'>
               <TransactionLink txid={txid} explorerTxLink={explorerTxLink} />
             </Flex>
           </Flex>
         )}
-      </Flex>
-    </Box>
+      </SimpleGrid>
+    </Button>
   )
 }

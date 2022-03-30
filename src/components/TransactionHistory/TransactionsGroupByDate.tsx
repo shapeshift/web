@@ -1,9 +1,11 @@
-import { Box, useColorModeValue } from '@chakra-ui/react'
+import { Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
 import dayjs from 'dayjs'
-import { Fragment, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { MatchParams } from 'pages/Assets/Asset'
+import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
+import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
 import { selectAssetByCAIP19, selectTxDateByIds } from 'state/slices/selectors'
 import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -26,28 +28,30 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
   const assetId = `${params.chainId}/${params.assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
 
+  const { setNode, entry } = useResizeObserver()
   const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
   const borderTopColor = useColorModeValue('gray.100', 'gray.750')
   const txRows = useMemo(() => {
-    const groups: TransactionGroup[] = transactions.reduce(
-      (acc: TransactionGroup[], transaction) => {
-        const transactionDate = dayjs(transaction.date * 1000)
-          .startOf('day')
-          .unix()
-        const group = acc.find(g => g.date === transactionDate)
-        if (group) {
-          group.txIds.push(transaction.txId)
-        } else {
-          acc.push({ date: transactionDate, txIds: [transaction.txId] })
-        }
-        return acc
-      },
-      []
-    )
+    const groups: TransactionGroup[] = []
+    for (let index = 0; index < transactions.length; index++) {
+      const transaction = transactions[index]
+      const transactionDate = dayjs(transaction.date * 1000)
+        .startOf('day')
+        .unix()
+      const group = groups.find(g => g.date === transactionDate)
+      if (group) {
+        group.txIds.push(transaction.txId)
+      } else {
+        groups.push({ date: transactionDate, txIds: [transaction.txId] })
+      }
+    }
+    return groups
+  }, [transactions])
 
-    return groups.map((group: TransactionGroup) => (
-      <Fragment key={group.date}>
-        <Box borderTopWidth={1} borderColor={borderTopColor} mx={-2} />
+  const renderTxRows = useMemo(() => {
+    return txRows.map((group: TransactionGroup) => (
+      <Stack px={2} spacing={2} key={group.date}>
+        {!useCompactMode && <TransactionDate blockTime={group.date} />}
         {group.txIds?.map((txId: TxId, index: number) => (
           <TransactionRow
             key={txId}
@@ -55,11 +59,16 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = (
             activeAsset={asset}
             useCompactMode={useCompactMode}
             showDateAndGuide={index === 0}
+            parentWidth={entry?.contentRect.width ?? 360}
           />
         ))}
-      </Fragment>
+      </Stack>
     ))
-  }, [asset, borderTopColor, transactions, useCompactMode])
+  }, [asset, entry?.contentRect.width, txRows, useCompactMode])
 
-  return <>{txRows}</>
+  return (
+    <Stack ref={setNode} divider={<StackDivider borderColor={borderTopColor} />}>
+      {renderTxRows}
+    </Stack>
+  )
 }

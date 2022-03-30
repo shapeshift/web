@@ -46,6 +46,7 @@ type FiatAmountProps = {
 
 type PercentAmountProps = AmountProps & {
   options?: NumberFormatOptions
+  autoColor?: boolean
 }
 
 const Crypto = ({
@@ -128,7 +129,7 @@ const Fiat = ({ value, fiatSymbolStyle, fiatType, prefix, suffix, ...props }: Fi
   )
 }
 
-const Percent = ({ value, options, ...props }: PercentAmountProps) => {
+const Percent = ({ value, autoColor, options, ...props }: PercentAmountProps) => {
   const {
     number: { toPercent }
   } = useLocaleFormatter({ fiatType: 'USD' })
@@ -146,7 +147,7 @@ const Percent = ({ value, options, ...props }: PercentAmountProps) => {
   }, [formattedNumber])
 
   return (
-    <RawText color={color} {...props}>
+    <RawText color={autoColor ? color : 'inherit'} {...props}>
       {formattedNumber}
     </RawText>
   )

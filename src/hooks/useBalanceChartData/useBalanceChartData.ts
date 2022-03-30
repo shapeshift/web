@@ -217,17 +217,14 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
   const startingBucket = buckets[buckets.length - 1]
   const startingBalance = startingBucket.balance
 
-  includeStakedBalance(startingBalance)
+  const newStartingBucket = includeStakedBalance(startingBucket)
 
-  startingBucket.balance.fiat = fiatBalanceAtBucket({
-    bucket: startingBucket,
-    priceHistoryData,
-    portfolioAssets
-  })
+  buckets[buckets.length - 1] = newStartingBucket
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
+
     const { rebases, txs } = bucket
 
     // copy the balance back from the most recent bucket

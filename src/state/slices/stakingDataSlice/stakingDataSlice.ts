@@ -66,11 +66,11 @@ export const stakingDataApi = createApi({
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
-        const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
-        const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
-        dispatch(stakingData.actions.setStatus('loading'))
         try {
+          const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
+          const chainAdapters = getChainAdapters()
+          const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
+          dispatch(stakingData.actions.setStatus('loading'))
           const data = await adapter.getAccount(account)
 
           const {
@@ -92,10 +92,10 @@ export const stakingDataApi = createApi({
           )
           return { data: currentStakingData }
         } catch (e) {
-          console.error('Error fetching staking data for ', account)
+          console.error('Error fetching staking data for ', accountSpecifier)
           return {
             error: {
-              data: `Error fetching staking data for ${account}`,
+              data: `Error fetching staking data for ${accountSpecifier}`,
               status: 500
             }
           }

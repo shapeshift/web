@@ -10,6 +10,8 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { SlideTransition } from 'components/SlideTransition'
 
 import { FoxyDeposit } from './Deposit/FoxyDeposit'
+import { FoxyOverview } from './Overview/FoxyOverview'
+import { FoxyWithdraw } from './Withdraw/FoxyWithdraw'
 
 enum FoxyPath {
   Deposit = '/defi/token_staking/ShapeShift/deposit',
@@ -38,7 +40,7 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
           <Heading textTransform='capitalize' textAlign='center' fontSize='md'>
             {provider} {earnType.replace('_', ' ')}
           </Heading>
-          <DefiActionButtons vaultExpired={false} />
+          <DefiActionButtons showOverview vaultExpired={false} />
         </Stack>
       </ModalHeader>
       <AnimatePresence exitBeforeEnter initial={false}>
@@ -50,8 +52,19 @@ const FoxyRoutes = ({ parentLocation, provider, earnType }: FoxyRouteProps) => {
               </SlideTransition>
             </MemoryRouter>
           </Route>
+          <Route path={FoxyPath.Withdraw}>
+            <MemoryRouter>
+              <SlideTransition>
+                <FoxyWithdraw api={foxy} />
+              </SlideTransition>
+            </MemoryRouter>
+          </Route>
           <Route path={FoxyPath.Overview}>
-            <></>
+            <MemoryRouter>
+              <SlideTransition>
+                <FoxyOverview api={foxy} />
+              </SlideTransition>
+            </MemoryRouter>
           </Route>
         </Switch>
       </AnimatePresence>

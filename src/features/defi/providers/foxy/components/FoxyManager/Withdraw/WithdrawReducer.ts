@@ -1,6 +1,6 @@
 import { DefiType } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes } from '@shapeshiftoss/types'
-import { DepositValues } from 'features/defi/components/Deposit/Deposit'
+import { ChainTypes, WithdrawType } from '@shapeshiftoss/types'
+import { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 
 type SupportedFoxyOpportunity = {
@@ -20,23 +20,23 @@ type EstimatedGas = {
   estimatedGasCrypto?: string
 }
 
-type FoxyDepositValues = DepositValues &
+type FoxyWithdrawValues = WithdrawValues &
   EstimatedGas & {
     txStatus: string
     usedGasFee: string
   }
 
-type FoxyDepositState = {
+type FoxyWithdrawState = {
   foxyOpportunity: SupportedFoxyOpportunity
   userAddress: string | null
   approve: EstimatedGas
-  deposit: FoxyDepositValues
+  withdraw: FoxyWithdrawValues
   loading: boolean
-  pricePerShare: string
   txid: string | null
+  foxyFeePercentage: string
 }
 
-export const initialState: FoxyDepositState = {
+export const initialState: FoxyWithdrawState = {
   txid: null,
   foxyOpportunity: {
     contractAddress: '',
@@ -53,79 +53,88 @@ export const initialState: FoxyDepositState = {
   userAddress: null,
   loading: false,
   approve: {},
-  pricePerShare: '',
-  deposit: {
+  withdraw: {
     fiatAmount: '',
     cryptoAmount: '',
     slippage: '',
     txStatus: 'pending',
-    usedGasFee: ''
-  }
+    usedGasFee: '',
+    withdrawType: WithdrawType.INSTANT
+  },
+  foxyFeePercentage: ''
 }
 
-export enum FoxyDepositActionType {
+export enum FoxyWithdrawActionType {
   SET_OPPORTUNITY = 'SET_OPPORTUNITY',
-  SET_APPROVE = 'SET_APPROVE',
   SET_USER_ADDRESS = 'SET_USER_ADDRESS',
-  SET_DEPOSIT = 'SET_DEPOSIT',
+  SET_WITHDRAW = 'SET_WITHDRAW',
+  SET_APPROVE = 'SET_APPROVE',
   SET_LOADING = 'SET_LOADING',
-  SET_PRICE_PER_SHARE = 'SET_PRICE_PER_SHARE',
   SET_TXID = 'SET_TXID',
-  SET_TX_STATUS = 'SET_TX_STATUS'
+  SET_TX_STATUS = 'SET_TX_STATUS',
+  SET_FOXY_FEE = 'SET_FOXY_FEE'
 }
 
-type SetFoxyOpportunitiesAction = {
-  type: FoxyDepositActionType.SET_OPPORTUNITY
+type SetVaultAction = {
+  type: FoxyWithdrawActionType.SET_OPPORTUNITY
   payload: SupportedFoxyOpportunity | null
 }
 
 type SetApprove = {
-  type: FoxyDepositActionType.SET_APPROVE
+  type: FoxyWithdrawActionType.SET_APPROVE
   payload: EstimatedGas
 }
 
-type SetDeposit = {
-  type: FoxyDepositActionType.SET_DEPOSIT
-  payload: Partial<FoxyDepositValues>
+type SetWithdraw = {
+  type: FoxyWithdrawActionType.SET_WITHDRAW
+  payload: Partial<FoxyWithdrawValues>
 }
 
 type SetUserAddress = {
-  type: FoxyDepositActionType.SET_USER_ADDRESS
+  type: FoxyWithdrawActionType.SET_USER_ADDRESS
   payload: string
 }
 
 type SetLoading = {
-  type: FoxyDepositActionType.SET_LOADING
+  type: FoxyWithdrawActionType.SET_LOADING
   payload: boolean
 }
 
 type SetTxid = {
-  type: FoxyDepositActionType.SET_TXID
+  type: FoxyWithdrawActionType.SET_TXID
   payload: string
 }
 
-type FoxyDepositActions =
-  | SetFoxyOpportunitiesAction
+type SetFoxyFee = {
+  type: FoxyWithdrawActionType.SET_FOXY_FEE
+  payload: string
+}
+
+type FoxyWithdrawActions =
+  | SetVaultAction
   | SetApprove
-  | SetDeposit
+  | SetWithdraw
   | SetUserAddress
   | SetLoading
   | SetTxid
+  | SetFoxyFee
 
-export const reducer = (state: FoxyDepositState, action: FoxyDepositActions) => {
+export const reducer = (state: FoxyWithdrawState, action: FoxyWithdrawActions) => {
   switch (action.type) {
-    case FoxyDepositActionType.SET_OPPORTUNITY:
+    case FoxyWithdrawActionType.SET_OPPORTUNITY:
       return { ...state, foxyOpportunity: { ...state.foxyOpportunity, ...action.payload } }
-    case FoxyDepositActionType.SET_APPROVE:
+    case FoxyWithdrawActionType.SET_APPROVE:
       return { ...state, approve: action.payload }
-    case FoxyDepositActionType.SET_DEPOSIT:
-      return { ...state, deposit: { ...state.deposit, ...action.payload } }
-    case FoxyDepositActionType.SET_USER_ADDRESS:
+    case FoxyWithdrawActionType.SET_WITHDRAW:
+      return { ...state, withdraw: { ...state.withdraw, ...action.payload } }
+    case FoxyWithdrawActionType.SET_USER_ADDRESS:
       return { ...state, userAddress: action.payload }
-    case FoxyDepositActionType.SET_LOADING:
+    case FoxyWithdrawActionType.SET_LOADING:
       return { ...state, loading: action.payload }
-    case FoxyDepositActionType.SET_TXID:
+    case FoxyWithdrawActionType.SET_TXID:
       return { ...state, txid: action.payload }
+    case FoxyWithdrawActionType.SET_FOXY_FEE:
+      return { ...state, foxyFeePercentage: action.payload }
     default:
       return state
   }

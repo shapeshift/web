@@ -2,30 +2,28 @@ import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
-  AlertIcon,
   Box,
   Center,
   Flex,
   Link,
   Stack,
-  Tag,
   useColorModeValue,
   useToast
 } from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { FoxyApi } from '@shapeshiftoss/investor-foxy'
-import { NetworkTypes } from '@shapeshiftoss/types'
+import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
 import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
-import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import {
   DefiParams,
   DefiQueryParams
 } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -40,115 +38,135 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetByCAIP19,
   selectMarketDataById,
   selectPortfolioCryptoBalanceByAssetId,
   selectPortfolioLoading
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { FoxyDepositActionType, initialState, reducer } from './DepositReducer'
+import { FoxyWithdrawActionType, initialState, reducer } from './WithdrawReducer'
 
-enum DepositPath {
-  Deposit = '/',
+enum WithdrawPath {
+  Withdraw = '/',
   Approve = '/approve',
-  ApproveSettings = '/approve/settings',
   Confirm = '/confirm',
   ConfirmSettings = '/confirm/settings',
   Status = '/status'
 }
 
 export const routes = [
-  { step: 0, path: DepositPath.Deposit, label: 'Deposit' },
-  { step: 1, path: DepositPath.Approve, label: 'Approve' },
-  { path: DepositPath.ApproveSettings, label: 'Approve Settings' },
-  { step: 2, path: DepositPath.Confirm, label: 'Confirm' },
-  { path: DepositPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 3, path: DepositPath.Status, label: 'Status' }
+  { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
+  { step: 1, path: WithdrawPath.Approve, label: 'Approve' },
+  { step: 2, path: WithdrawPath.Confirm, label: 'Confirm' },
+  { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
+  { step: 3, path: WithdrawPath.Status, label: 'Status' }
 ]
 
-export type FoxyDepositProps = {
+type FoxyWithdrawProps = {
   api: FoxyApi
 }
 
-export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
+export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const location = useLocation()
   const history = useHistory()
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
-  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress, tokenId, rewardId } = query
   const alertText = useColorModeValue('blue.800', 'white')
   const defaultStatusBg = useColorModeValue('white', 'gray.700')
+  const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { chain, contractAddress, tokenId, rewardId } = query
+  const toast = useToast()
+
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
-  const assetId = caip19.toCAIP19({ chain, network, assetNamespace, assetReference: tokenId })
-  const feeAssetId = caip19.toCAIP19({
+  // Asset info
+  const underlyingAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
-    assetNamespace: AssetNamespace.Slip44,
-    assetReference: AssetReference.Ethereum
+    assetNamespace,
+    assetReference: tokenId
   })
-
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  if (!marketData) appDispatch(marketApi.endpoints.findByCaip19.initiate(assetId))
-  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
-  const contractAssetId = caip19.toCAIP19({
+  const underlyingAsset = useAppSelector(state => selectAssetByCAIP19(state, underlyingAssetCAIP19))
+  const assetCAIP19 = caip19.toCAIP19({
     chain,
     network,
     assetNamespace,
     assetReference: rewardId
   })
-  const contractAsset = useAppSelector(state => selectAssetByCAIP19(state, contractAssetId))
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
+  const feeAssetCAIP19 = caip19.toCAIP19({
+    chain,
+    network,
+    assetNamespace: AssetNamespace.Slip44,
+    assetReference: AssetReference.Ethereum
+  })
+  const feeAsset = useAppSelector(state => selectAssetByCAIP19(state, feeAssetCAIP19))
+  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetCAIP19))
 
   // user info
   const chainAdapterManager = useChainAdapters()
+  const chainAdapter = chainAdapterManager.byChain(ChainTypes.Ethereum)
   const { state: walletState } = useWallet()
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetCAIP19))
   const loading = useSelector(selectPortfolioLoading)
-
-  // notify
-  const toast = useToast()
 
   useEffect(() => {
     ;(async () => {
       try {
         if (!walletState.wallet || !contractAddress) return
-        const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
         const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
           api.getFoxyOpportunityByStakingAddress(contractAddress)
         ])
-        dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: FoxyDepositActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
+        // Get foxy fee for instant sends
+        const foxyFeePercentage = await api.instantUnstakeFee({
+          contractAddress
+        })
+
+        dispatch({
+          type: FoxyWithdrawActionType.SET_FOXY_FEE,
+          payload: bnOrZero(foxyFeePercentage).toString()
+        })
+        dispatch({
+          type: FoxyWithdrawActionType.SET_USER_ADDRESS,
+          payload: address
+        })
+        dispatch({
+          type: FoxyWithdrawActionType.SET_OPPORTUNITY,
+          payload: foxyOpportunity
+        })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('FoxyDeposit error:', error)
+        console.error('FoxyWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapterManager, contractAddress, walletState.wallet])
+  }, [api, chainAdapter, contractAddress, walletState.wallet])
 
-  const getApproveGasEstimate = async () => {
-    if (!state.userAddress || !tokenId) return
+  const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
+    if (!state.userAddress || !rewardId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateApproveGas({
-          tokenContractAddress: tokenId,
+        api.estimateWithdrawGas({
+          tokenContractAddress: rewardId,
           contractAddress,
-          userAddress: state.userAddress
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`)
+          ).decimalPlaces(0),
+          userAddress: state.userAddress,
+          type: state.withdraw.withdrawType
         }),
         api.getGasPrice()
       ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+      return returVal
     } catch (error) {
-      console.error('FoxyDeposit:getApproveEstimate error:', error)
+      // TODO: handle client side errors maybe add a toast?
+      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -158,65 +176,66 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     }
   }
 
-  const getDepositGasEstimate = async (deposit: DepositValues) => {
-    if (!state.userAddress || !tokenId) return
-    try {
-      const [gasLimit, gasPrice] = await Promise.all([
-        api.estimateDepositGas({
-          tokenContractAddress: tokenId,
-          contractAddress,
-          amountDesired: bnOrZero(deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          userAddress: state.userAddress
-        }),
-        api.getGasPrice()
-      ])
-      return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-    } catch (error) {
-      console.error('FoxyDeposit:getDepositGasEstimate error:', error)
-      toast({
-        position: 'top-right',
-        description: translate('common.somethingWentWrongBody'),
-        title: translate('common.somethingWentWrong'),
-        status: 'error'
-      })
-    }
-  }
-
-  const handleContinue = async (formValues: DepositValues) => {
+  const handleContinue = async (formValues: WithdrawValues) => {
     if (!state.userAddress) return
-    // set deposit state for future use
-    dispatch({ type: FoxyDepositActionType.SET_DEPOSIT, payload: formValues })
+    // set withdraw state for future use
+    dispatch({
+      type: FoxyWithdrawActionType.SET_WITHDRAW,
+      payload: formValues
+    })
     try {
       // Check is approval is required for user address
       const _allowance = await api.allowance({
-        tokenContractAddress: tokenId,
+        tokenContractAddress: rewardId,
         contractAddress,
         userAddress: state.userAddress
       })
-      const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
+
+      const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
 
       // Skip approval step if user allowance is greater than requested deposit amount
-      if (allowance.gt(formValues.cryptoAmount)) {
-        const estimatedGasCrypto = await getDepositGasEstimate(formValues)
+      if (allowance.gte(formValues.cryptoAmount)) {
+        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
         if (!estimatedGasCrypto) return
         dispatch({
-          type: FoxyDepositActionType.SET_DEPOSIT,
+          type: FoxyWithdrawActionType.SET_WITHDRAW,
           payload: { estimatedGasCrypto }
         })
-        history.push(DepositPath.Confirm)
+        history.push(WithdrawPath.Confirm)
       } else {
         const estimatedGasCrypto = await getApproveGasEstimate()
         if (!estimatedGasCrypto) return
         dispatch({
-          type: FoxyDepositActionType.SET_APPROVE,
+          type: FoxyWithdrawActionType.SET_APPROVE,
           payload: { estimatedGasCrypto }
         })
-        history.push(DepositPath.Approve)
+        history.push(WithdrawPath.Approve)
       }
     } catch (error) {
-      console.error('FoxyDeposit:handleContinue error:', error)
+      console.error('FoxyWithdraw:handleContinue error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
+    }
+  }
+
+  const getApproveGasEstimate = async () => {
+    if (!state.userAddress || !rewardId) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateApproveGas({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          userAddress: state.userAddress
+        }),
+        api.getGasPrice()
+      ])
+      return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+    } catch (error) {
+      console.error('FoxyWithdraw:getApproveEstimate error:', error)
       toast({
         position: 'top-right',
         description: translate('common.somethingWentWrongBody'),
@@ -227,11 +246,11 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const handleApprove = async () => {
-    if (!tokenId || !state.userAddress || !walletState.wallet) return
+    if (!rewardId || !state.userAddress || !walletState.wallet) return
     try {
-      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       await api.approve({
-        tokenContractAddress: tokenId,
+        tokenContractAddress: rewardId,
         contractAddress,
         userAddress: state.userAddress,
         wallet: walletState.wallet
@@ -239,28 +258,28 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
       await poll({
         fn: () =>
           api.allowance({
-            tokenContractAddress: tokenId,
+            tokenContractAddress: rewardId,
             contractAddress,
             userAddress: state.userAddress!
           }),
         validate: (result: string) => {
-          const allowance = bnOrZero(result).div(`1e+${asset.precision}`)
-          return bnOrZero(allowance).gt(state.deposit.cryptoAmount)
+          const allowance = bnOrZero(bn(result).div(`1e+${asset.precision}`))
+          return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30
       })
-      // Get deposit gas estimate
-      const estimatedGasCrypto = await getDepositGasEstimate(state.deposit)
+      // Get withdraw gas estimate
+      const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)
       if (!estimatedGasCrypto) return
       dispatch({
-        type: FoxyDepositActionType.SET_DEPOSIT,
+        type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: { estimatedGasCrypto }
       })
 
-      history.push(DepositPath.Confirm)
+      history.push(WithdrawPath.Confirm)
     } catch (error) {
-      console.error('FoxyDeposit:handleApprove error:', error)
+      console.error('FoxyWithdraw:handleApprove error:', error)
       toast({
         position: 'top-right',
         description: translate('common.transactionFailedBody'),
@@ -268,28 +287,29 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         status: 'error'
       })
     } finally {
-      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     }
   }
 
-  const handleDeposit = async () => {
+  const handleConfirm = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
-      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: true })
+      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
-        api.deposit({
-          amountDesired: bnOrZero(state.deposit.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          tokenContractAddress: tokenId,
+        api.withdraw({
+          tokenContractAddress: rewardId,
           userAddress: state.userAddress,
           contractAddress,
-          wallet: walletState.wallet
+          wallet: walletState.wallet,
+          amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+            .times(`1e+${asset.precision}`)
+            .decimalPlaces(0),
+          type: state.withdraw.withdrawType
         }),
         api.getGasPrice()
       ])
-      dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
-      history.push(DepositPath.Status)
+      dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
+      history.push(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
         fn: () => api.getTxReceipt({ txid }),
@@ -298,22 +318,15 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         maxAttempts: 30
       })
       dispatch({
-        type: FoxyDepositActionType.SET_DEPOSIT,
+        type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
+          usedGasFee: bnOrZero(bn(gasPrice).times(transactionReceipt.gasUsed)).toFixed(0)
         }
       })
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
-      console.error('FoxyDeposit:handleDeposit error', error)
-      toast({
-        position: 'top-right',
-        description: translate('common.transactionFailedBody'),
-        title: translate('common.transactionFailed'),
-        status: 'error'
-      })
-    } finally {
-      dispatch({ type: FoxyDepositActionType.SET_LOADING, payload: false })
+      console.error('FoxyWithdraw:handleConfirm error', error)
     }
   }
 
@@ -321,10 +334,12 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     browserHistory.push('/defi')
   }
 
-  const handleCancel = history.goBack
+  const handleCancel = () => {
+    browserHistory.goBack()
+  }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -332,7 +347,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -340,40 +355,44 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    const apy = state.foxyOpportunity.apy
-    const annualYieldCrypto = bnOrZero(state.deposit?.cryptoAmount).times(bnOrZero(apy))
-    const annualYieldFiat = annualYieldCrypto.times(marketData.price)
+  const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
+  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(marketData.price))
+  const withdrawalFee = useMemo(() => {
+    return state.withdraw.withdrawType === WithdrawType.INSTANT
+      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
+      : '0'
+  }, [state.withdraw.withdrawType, state.withdraw.cryptoAmount, state.foxyFeePercentage])
 
+  const renderRoute = (route: { step?: number; path: string; label: string }) => {
     const { statusIcon, statusText, statusBg } = (() => {
       let statusIcon: React.ReactElement = <ArrowForwardIcon />
       let statusText = StatusTextEnum.pending
       let statusBg = defaultStatusBg
-      if (state.deposit.txStatus === 'success') {
+      if (state.withdraw.txStatus === 'success') {
         statusText = StatusTextEnum.success
-        statusIcon = <CheckIcon color='white' />
+        statusIcon = <CheckIcon color='green' />
         statusBg = 'green.500'
       }
-      if (state.deposit.txStatus === 'failed') {
+      if (state.withdraw.txStatus === 'failed') {
         statusText = StatusTextEnum.failed
-        statusIcon = <CloseIcon color='white' />
+        statusIcon = <CloseIcon color='red' />
         statusBg = 'red.500'
       }
+
       return { statusIcon, statusText, statusBg }
     })()
 
     switch (route.path) {
-      case DepositPath.Deposit:
+      case WithdrawPath.Withdraw:
         return (
-          <Deposit
+          <Withdraw
             asset={asset}
-            apy={String(apy)}
             cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
             cryptoInputValidation={{
               required: true,
               validate: { validateCryptoAmount }
             }}
-            fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+            fiatAmountAvailable={fiatAmountAvailable.toString()}
             fiatInputValidation={{
               required: true,
               validate: { validateFiatAmount }
@@ -381,11 +400,27 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
             marketData={marketData}
             onCancel={handleCancel}
             onContinue={handleContinue}
+            updateWithdraw={({ withdrawType, cryptoAmount }) => {
+              return dispatch({
+                type: FoxyWithdrawActionType.SET_WITHDRAW,
+                payload: { withdrawType, cryptoAmount }
+              })
+            }}
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
-          />
+            enableWithdrawType
+            feePercentage={bnOrZero(state.foxyFeePercentage).times(100).toString()}
+          >
+            <Row>
+              <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
+              <Row.Value>
+                <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
+              </Row.Value>
+            </Row>
+            <Text fontSize='sm' color='gray.500' translation='modals.withdraw.disclaimer' />
+          </Withdraw>
         )
-      case DepositPath.Approve:
+      case WithdrawPath.Approve:
         return (
           <Approve
             asset={asset}
@@ -405,7 +440,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
               <Alert status='info' borderRadius='lg' color='blue.500'>
                 <FaGasPump />
                 <AlertDescription textAlign='left' ml={3} color={alertText}>
-                  {translate('modals.approve.depositFee')}
+                  {translate('modals.withdraw.withdrawFee')}
                 </AlertDescription>
               </Alert>
             }
@@ -413,46 +448,56 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
             onConfirm={handleApprove}
           />
         )
-      case DepositPath.Confirm:
+      case WithdrawPath.Confirm:
         return (
           <Confirm
             onCancel={handleCancel}
-            onConfirm={handleDeposit}
+            headerText='modals.confirm.withdraw.header'
+            onConfirm={handleConfirm}
             loading={state.loading}
             loadingText={translate('common.confirmOnWallet')}
-            headerText='modals.confirm.deposit.header'
             assets={[
               {
                 ...asset,
-                color: '#FF0000',
-                cryptoAmount: state.deposit.cryptoAmount,
-                fiatAmount: state.deposit.fiatAmount
+                color: '#FFFFFF',
+                cryptoAmount: state.withdraw.cryptoAmount,
+                fiatAmount: state.withdraw.fiatAmount
               },
               {
-                ...contractAsset,
-                color: '#FFFFFF',
-                cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-                  .div(bnOrZero(1).div(1))
-                  .toString(),
-                fiatAmount: state.deposit.fiatAmount
+                ...underlyingAsset,
+                color: '#FF0000',
+                cryptoAmount: state.withdraw.cryptoAmount,
+                fiatAmount: state.withdraw.fiatAmount
               }
             ]}
           >
-            <Stack spacing={4}>
+            <Stack spacing={6}>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
+                  <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>
+                <Row.Value>
                   <MiddleEllipsis address={state.userAddress || ''} />
                 </Row.Value>
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.depositTo' />
+                  <Text translation='modals.confirm.withdrawFee' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawTime' />
                 </Row.Label>
                 <Row.Value fontWeight='bold'>
-                  <MiddleEllipsis address={state.foxyOpportunity.contractAddress || ''} />
+                  <Text
+                    translation={
+                      state.withdraw.withdrawType === WithdrawType.INSTANT
+                        ? 'modals.confirm.withdrawInstantTime'
+                        : 'modals.confirm.withdrawDelayedTime'
+                    }
+                  />
                 </Row.Value>
               </Row>
               <Row>
@@ -463,14 +508,14 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                   <Box textAlign='right'>
                     <Amount.Fiat
                       fontWeight='bold'
-                      value={bnOrZero(state.deposit.estimatedGasCrypto)
+                      value={bnOrZero(state.withdraw.estimatedGasCrypto)
                         .div(`1e+${feeAsset.precision}`)
                         .times(feeMarketData.price)
                         .toFixed(2)}
                     />
                     <Amount.Crypto
                       color='gray.500'
-                      value={bnOrZero(state.deposit.estimatedGasCrypto)
+                      value={bnOrZero(state.withdraw.estimatedGasCrypto)
                         .div(`1e+${feeAsset.precision}`)
                         .toFixed(5)}
                       symbol={feeAsset.symbol}
@@ -478,65 +523,34 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                   </Box>
                 </Row.Value>
               </Row>
-              <Row>
-                <Row.Label>
-                  <Text translation='modals.confirm.averageApy' />
-                </Row.Label>
-                <Row.Value>
-                  <Tag colorScheme='green'>
-                    <Amount.Percent value={String(apy)} />
-                  </Tag>
-                </Row.Value>
-              </Row>
-              <Row>
-                <Row.Label>
-                  <Text translation='modals.confirm.deposit.estimatedReturns' />
-                </Row.Label>
-                <Row.Value>
-                  <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value={annualYieldFiat.toFixed(2)} />
-                    <Amount.Crypto
-                      color='gray.500'
-                      value={annualYieldCrypto.toFixed(5)}
-                      symbol={asset.symbol}
-                    />
-                  </Box>
-                </Row.Value>
-              </Row>
-              <Alert status='info' borderRadius='lg'>
-                <AlertIcon />
-                <Text translation='modals.confirm.deposit.preFooter' />
-              </Alert>
             </Stack>
           </Confirm>
         )
-      case DepositPath.Status:
+      case WithdrawPath.Status:
         return (
           <TxStatus
             onClose={handleCancel}
-            onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
+            onContinue={handleViewPosition}
             loading={state.loading}
-            statusText={statusText}
-            statusIcon={statusIcon}
-            bg={statusBg}
             continueText='modals.status.position'
             closeText='modals.status.close'
+            statusText={statusText}
+            bg={statusBg}
+            statusIcon={statusIcon}
             assets={[
               {
                 ...asset,
-                cryptoAmount: state.deposit.cryptoAmount,
-                fiatAmount: state.deposit.fiatAmount
+                cryptoAmount: state.withdraw.cryptoAmount,
+                fiatAmount: state.withdraw.fiatAmount
               },
               {
-                ...contractAsset,
-                cryptoAmount: bnOrZero(state.deposit.cryptoAmount)
-                  .div(bnOrZero(1).div(1))
-                  .toString(),
-                fiatAmount: state.deposit.fiatAmount
+                ...underlyingAsset,
+                cryptoAmount: state.withdraw.cryptoAmount,
+                fiatAmount: state.withdraw.fiatAmount
               }
             ]}
           >
-            <Stack spacing={4}>
+            <Stack spacing={6}>
               <Row>
                 <Row.Label>
                   <Text translation='modals.status.transactionId' />
@@ -554,15 +568,23 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.depositTo' />
+                  <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Foxy</Row.Value>
+                <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawTo' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>
+                  <MiddleEllipsis address={state.userAddress || ''} />
+                </Row.Value>
               </Row>
               <Row>
                 <Row.Label>
                   <Text
                     translation={
-                      state.deposit.txStatus === 'pending'
+                      state.withdraw.txStatus === 'pending'
                         ? 'modals.status.estimatedGas'
                         : 'modals.status.gasUsed'
                     }
@@ -573,9 +595,9 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                     <Amount.Fiat
                       fontWeight='bold'
                       value={bnOrZero(
-                        state.deposit.txStatus === 'pending'
-                          ? state.deposit.estimatedGasCrypto
-                          : state.deposit.usedGasFee
+                        state.withdraw.txStatus === 'pending'
+                          ? state.withdraw.estimatedGasCrypto
+                          : state.withdraw.usedGasFee
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .times(feeMarketData.price)
@@ -584,36 +606,13 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
                     <Amount.Crypto
                       color='gray.500'
                       value={bnOrZero(
-                        state.deposit.txStatus === 'pending'
-                          ? state.deposit.estimatedGasCrypto
-                          : state.deposit.usedGasFee
+                        state.withdraw.txStatus === 'pending'
+                          ? state.withdraw.estimatedGasCrypto
+                          : state.withdraw.usedGasFee
                       )
                         .div(`1e+${feeAsset.precision}`)
                         .toFixed(5)}
                       symbol='ETH'
-                    />
-                  </Box>
-                </Row.Value>
-              </Row>
-              <Row>
-                <Row.Label>
-                  <Text translation='modals.confirm.deposit.averageApr' />
-                </Row.Label>
-                <Tag colorScheme='green'>
-                  <Amount.Percent value={String(apy)} />
-                </Tag>
-              </Row>
-              <Row>
-                <Row.Label>
-                  <Text translation='modals.confirm.deposit.estimatedReturns' />
-                </Row.Label>
-                <Row.Value>
-                  <Box textAlign='right'>
-                    <Amount.Fiat fontWeight='bold' value={annualYieldFiat.toFixed(2)} />
-                    <Amount.Crypto
-                      color='gray.500'
-                      value={annualYieldCrypto.toFixed(5)}
-                      symbol={asset.symbol}
                     />
                   </Box>
                 </Row.Value>
@@ -626,21 +625,17 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     }
   }
 
-  if (loading || !asset || !marketData) {
+  if (loading || !asset || !marketData || !feeMarketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />
       </Center>
     )
-  }
-
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e${asset.precision}`)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 
   return (
     <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
       <RouteSteps routes={routes} location={location} />
-      <Flex flexDir='column' width='full' minWidth='500px'>
+      <Flex flexDir='column' width='full' minWidth='400px'>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

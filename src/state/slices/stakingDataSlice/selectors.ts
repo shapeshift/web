@@ -43,7 +43,7 @@ export const selectStakingDatabyAccountSpecifier = createSelector(
   }
 )
 
-export const selectDelegationCryptoAmountByDenom = createDeepEqualOutputSelector(
+export const selectDelegationCryptoAmountByDenom = createSelector(
   selectStakingDatabyAccountSpecifier,
   selectValidatorAddress,
   selectDenom,

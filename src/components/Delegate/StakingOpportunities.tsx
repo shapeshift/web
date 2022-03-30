@@ -30,9 +30,9 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllValidators,
-  selectStakingDataStatus,
   selectStakingDataByAccountSpecifier,
-  selectTotalBondingsBalancebyAccountSpecifier
+  selectStakingDataStatus,
+  selectStakingOpportunityData
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -87,20 +87,15 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
-  const isLoaded = stakingDataStatus === 'loaded'
-  console.log("isloaded", isLoaded)
+  const validatorStatus = useAppSelector(selectStakingDataStatus)
+  const isLoaded = validatorStatus === 'loaded'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  // const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const dispatch = useAppDispatch()
   const chainAdapterManager = useChainAdapters()
   const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
   const [address, setAddress] = useState<string>('')
 
-  const validators = useAppSelector(selectAllValidators)
-
-  console.log('validators', validators)
-  
   const accountSpecifier = useMemo(() => {
     if (!address.length) return ''
 
@@ -109,15 +104,12 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       account: address
     })
   }, [address, asset.caip2])
-  
+
   const stakingData = useAppSelector(state =>
     selectStakingDataByAccountSpecifier(state, accountSpecifier)
   )
-    
-  const balancesByValidators = useAppSelector(state =>
-    selectTotalBondingsBalancebyAccountSpecifier(state, accountSpecifier)
-  )
 
+  const balancesByValidators = 0
   const {
     state: { wallet }
   } = useWallet()
@@ -156,7 +148,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
 
   useEffect(() => {
     ;(async () => {
-      if (isLoaded || validators.length) return
+      if (isLoaded) return
 
       dispatch(
         stakingDataApi.endpoints.getValidatorData.initiate(
@@ -167,13 +159,13 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [isLoaded, dispatch])
 
-  console.log("account specifier", accountSpecifier)
+  console.log('account specifier', accountSpecifier)
 
   useEffect(() => {
     ;(async () => {
-      if (isLoaded && stakingData){
+      if (isLoaded && stakingData) {
         console.log(stakingData)
-      }    
+      }
     })()
   }, [stakingData])
 
@@ -205,6 +197,11 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   ]
   const isStaking = opportunities.some(x => x.cryptoAmount)
   const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
+  const testSelector = useAppSelector(state =>
+    selectStakingOpportunityData(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
+  )
+
+  console.log({ testSelector })
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 

@@ -4,6 +4,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import BigNumber from 'bignumber.js'
+import get from 'lodash/get'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -40,7 +41,6 @@ export const selectStakingDataByAccountSpecifier = createSelector(
   selectStakingData,
   selectAccountSpecifier,
   (stakingData, accountSpecifier) => {
-    console.log(stakingData)
     return stakingData.byAccountSpecifier[accountSpecifier] || null
   }
 )
@@ -60,17 +60,43 @@ export const selectDelegationCryptoAmountByDenom = createSelector(
   }
 )
 
-export const selectAllDelegationCryptoAmountByDenom = createSelector(
+export const selectAllDelegationsCryptoAmountByDenom = createSelector(
   selectStakingDataByAccountSpecifier,
   selectDenom,
-  (stakingData, denom): string | undefined => {
-    if (!stakingData || !stakingData.delegations?.length) return
+  (stakingData, denom): Array<any> => {
+    if (!stakingData || !stakingData.delegations?.length) return {}
 
-    const delegation = stakingData.delegations.find(
-      ({ assetId }) =>
-        ASSET_ID_TO_DENOM[assetId] === denom
+    const delegations = stakingData.delegations.reduce(
+      (acc, { assetId, amount, validator: { address } }) => {
+        if (ASSET_ID_TO_DENOM[assetId] !== denom) return acc
+
+        acc[address] = amount
+        return acc
+      },
+      {}
     )
-    return delegation?.amount
+    return delegations
+  }
+)
+
+export const selectAllRedelegationsEntriesByAccountSpecifier = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
+  (stakingData): Array<Array<any>> => {
+    if (!stakingData || !stakingData.redelegations?.length) return {}
+
+    const redelegationsEntries = stakingData.redelegations.reduce(
+      (acc, { destinationValidator, entries }) => {
+        if (!acc[destinationValidator.address]) {
+          acc[destinationValidator.address] = []
+        }
+        acc[destinationValidator.address] = entries
+
+        return acc
+      },
+      {}
+    )
+
+    return redelegationsEntries
   }
 )
 
@@ -130,6 +156,24 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   }
 )
 
+export const selectAllUnbondingsEntriesByAccountSpecifier = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
+  selectValidatorAddress,
+  (stakingData): Record<string, any> => {
+    if (!stakingData || !stakingData.undelegations) return {}
+
+    return stakingData.undelegations.reduce((acc, { validator, entries }) => {
+      if (!acc[validator.address]) {
+        acc[validator.address] = []
+      }
+
+      acc[validator.address] = entries
+
+      return acc
+    }, {} as Record<string, any>)
+  }
+)
+
 export const selectUnbondingCryptoAmountByDenom = createSelector(
   selectUnbondingEntriesByAccountSpecifier,
   selectDenom,
@@ -150,11 +194,7 @@ export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByDenom,
   selectDelegationCryptoAmountByDenom,
   selectRedelegationCryptoAmountByDenom,
-  (
-    unbondingCryptoBalance,
-    delegationCryptoBalance,
-    redelegationCryptoBalance
-  ): string => {
+  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string => {
     const totalBondings = bnOrZero(unbondingCryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance))
       .plus(bnOrZero(redelegationCryptoBalance))
@@ -190,6 +230,29 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
   }
 )
 
+export const selectAllRewardsByAccountSpecifier = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
+  selectValidatorAddress,
+  (stakingData, validatorAddress): any => {
+    if (!stakingData || !stakingData.rewards) return {}
+
+    const rewards = stakingData.rewards.reduce(
+      (acc: Record<string, any>, current: ValidatorReward) => {
+        if (!acc[current.validator.address]) {
+          acc[current.validator.address] = []
+        }
+
+        acc[current.validator.address].push(current.rewards)
+
+        return acc
+      },
+      {}
+    )
+
+    return rewards
+  }
+)
+
 export const selectRewardsAmountByDenom = createSelector(
   selectRewardsByAccountSpecifier,
   selectValidatorAddress,
@@ -203,64 +266,51 @@ export const selectRewardsAmountByDenom = createSelector(
   }
 )
 
-export const selectAllValidators = createDeepEqualOutputSelector(selectStakingData, stakingData =>
-  Object.values(stakingData.byvalidator)
+export const selectAllValidators = createDeepEqualOutputSelector(
+  selectStakingData,
+  stakingData => stakingData.byvalidator
 )
 
 export type TotalBondings = {
   address: string
-  stakingBalance: BigNumber,
+  stakingBalance: BigNumber
   rewardsBalance: BigNumber
 }
 
-export const selectTotalBondingsBalancebyAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDataByAccountSpecifier,
+export const selectStakingOpportunityData = createDeepEqualOutputSelector(
+  selectAllDelegationsCryptoAmountByDenom,
+  selectAllRedelegationsEntriesByAccountSpecifier,
+  selectAllUnbondingsEntriesByAccountSpecifier,
+  selectAllRewardsByAccountSpecifier,
   selectAllValidators,
-  (stakingData, validators): TotalBondings[] => {
-    const initial = bnOrZero(0)
-    console.log("val", validators)
-    if (!stakingData) return []
+  (
+    allDelegationsAmount,
+    allRedelegationsEntries,
+    allUndelegationsEntries,
+    allRewards,
+    allValidators
+  ): any => {
+    Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
+      const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
+      const undelegationsAmount = get(allUndelegationsEntries, validatorAddress, [])
+        .reduce((acc, undelegationEntry) => {
+          acc = acc.plus(bnOrZero(undelegationEntry.amount))
+          return acc
+        }, bnOrZero(0))
+        .toString()
+      const redelegationsAmount = get(allRedelegationsEntries, validatorAddress, [])
+        .reduce((acc, redelegationEntry) => acc.plus(redelegationEntry.amount), bnOrZero(0))
+        .toString()
 
-    const { undelegations, delegations, redelegations, rewards } = stakingData
+      const totalStakingAmount = bnOrZero(delegationsAmount)
+        .plus(bnOrZero(undelegationsAmount))
+        .plus(bnOrZero(redelegationsAmount))
 
-    const totalBondingsByValidator = validators.map(({ address }) => {
-      const initialValidatorAddress = address
-      
-      const balanceUndelegations = undelegations
-      .filter(({ validator }) => validator.address === initialValidatorAddress)
-      .map(({ entries }) => entries)
-      .flat()
-      .reduce((acc: BigNumber, current) => bnOrZero(acc).plus(bnOrZero(current.amount)),
-        initial
-      )
-
-      const balanceDelegations = delegations.reduce((acc: BigNumber, current) => {
-        if (initialValidatorAddress === current.validator.address) {
-          return bnOrZero(acc).plus(bnOrZero(current.amount))
-        }
-        return bnOrZero(acc)
-      }, initial)
-
-      const balanceRedelegations = redelegations
-        .filter(({ destinationValidator }) => destinationValidator.address === initialValidatorAddress)
-        .map(({ entries }) => entries)
-        .flat()
-        .reduce((acc: BigNumber, current) => bnOrZero(acc).plus(bnOrZero(current.amount)), initial)
-
-      const rewardsBalance = rewards
-      .filter(({ validator }) => validator.address === initialValidatorAddress)
-      .map(({ rewards }) => rewards)
-      .flat()
-      .reduce((acc: BigNumber, current) => bnOrZero(acc).plus(bnOrZero(current.amount)), initial)
-
-      const stakingBalance = balanceUndelegations.plus(balanceDelegations).plus(balanceRedelegations)
       return {
-        address,
-        stakingBalance,
-        rewardsBalance
+        apr,
+        moniker,
+        totalStakingAmount
       }
     })
-
-    return totalBondingsByValidator
   }
 )

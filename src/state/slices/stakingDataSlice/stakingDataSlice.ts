@@ -11,7 +11,7 @@ type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
 type AllValidatorDataArgs = { chainId: CAIP2 }
 
-export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
+export type Status = 'idle' | 'loading' | 'loaded'
 
 export type Staking = {
   delegations: chainAdapters.cosmos.Delegation[]
@@ -30,7 +30,8 @@ export type StakingDataById = {
 
 export type StakingData = {
   byAccountSpecifier: StakingDataById
-  status: StakingDataStatus
+  status: Status
+  validatorStatus: Status
   byvalidator: ValidatorDataByPubKey
 }
 
@@ -47,7 +48,8 @@ export type StakingPayload = {
 const initialState: StakingData = {
   byAccountSpecifier: {},
   byvalidator: {},
-  status: 'idle'
+  status: 'idle',
+  validatorStatus: 'idle'
 }
 
 const updateOrInsert = (
@@ -67,7 +69,7 @@ const updateOrInsertValidatorData = (
   })
 }
 
-type StakingDataStatusPayload = { payload: StakingDataStatus }
+type StakingDataStatusPayload = { payload: Status }
 
 export const stakingData = createSlice({
   name: 'stakingData',
@@ -76,6 +78,9 @@ export const stakingData = createSlice({
     clear: () => initialState,
     setStatus: (state, { payload }: StakingDataStatusPayload) => {
       state.status = payload
+    },
+    setValidatorStatus: (state, { payload }: StakingDataStatusPayload) => {
+      state.validatorStatus = payload
     },
     upsertStakingData: (
       stakingDataState,
@@ -147,7 +152,7 @@ export const stakingDataApi = createApi({
         const adapter = (await chainAdapters.byChainId(
           chainId
         )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
-        dispatch(stakingData.actions.setStatus('loading'))
+        dispatch(stakingData.actions.setValidatorStatus('loading'))
         try {
           const data = await adapter.getValidators()
           dispatch(
@@ -169,7 +174,7 @@ export const stakingDataApi = createApi({
             }
           }
         } finally {
-          dispatch(stakingData.actions.setStatus('loaded'))
+          dispatch(stakingData.actions.setValidatorStatus('loaded'))
         }
       }
     })

@@ -12,7 +12,7 @@ import { Text } from 'components/Text'
 import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
-import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSlice'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceTypes'
 import { selectAssetByCAIP19, selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

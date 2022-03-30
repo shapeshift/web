@@ -9,7 +9,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
 import { fromBaseUnit } from 'lib/math'
-import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSliceTypes'
 import {
   selectFeeAssetById,
   selectMarketDataById,

@@ -34,7 +34,7 @@ const selectDenom = (
 
 export const selectStakingData = (state: ReduxState) => state.stakingData
 
-export const selectStakingDatabyAccountSpecifier = createSelector(
+export const selectStakingDataByAccountSpecifier = createSelector(
   selectStakingData,
   selectAccountSpecifier,
   selectValidatorAddress,
@@ -44,7 +44,7 @@ export const selectStakingDatabyAccountSpecifier = createSelector(
 )
 
 export const selectDelegationCryptoAmountByDenom = createSelector(
-  selectStakingDatabyAccountSpecifier,
+  selectStakingDataByAccountSpecifier,
   selectValidatorAddress,
   selectDenom,
   (stakingData, validatorAddress, denom): string | undefined => {
@@ -58,8 +58,8 @@ export const selectDelegationCryptoAmountByDenom = createSelector(
   }
 )
 
-export const selectRedelegationEntriesbyAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDatabyAccountSpecifier,
+export const selectRedelegationEntriesByAccountSpecifier = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
   selectValidatorAddress,
   (stakingData, validatorAddress): Array<{ denom: string; amount: string }> => {
     if (!stakingData || !stakingData.redelegations?.length) return []
@@ -77,8 +77,8 @@ export const selectRedelegationEntriesbyAccountSpecifier = createDeepEqualOutput
   }
 )
 
-export const selectRedelegationCryptoAmountbyDenom = createSelector(
-  selectRedelegationEntriesbyAccountSpecifier,
+export const selectRedelegationCryptoAmountByDenom = createSelector(
+  selectRedelegationEntriesByAccountSpecifier,
   selectDenom,
   (redelegationEntries, denom): string | undefined => {
     if (!redelegationEntries.length) return
@@ -93,8 +93,8 @@ export const selectRedelegationCryptoAmountbyDenom = createSelector(
   }
 )
 
-export const selectUnbondingEntriesbyAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDatabyAccountSpecifier,
+export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
   selectValidatorAddress,
   (
     stakingData,
@@ -114,8 +114,8 @@ export const selectUnbondingEntriesbyAccountSpecifier = createDeepEqualOutputSel
   }
 )
 
-export const selectUnbondingCryptoAmountbyDenom = createSelector(
-  selectUnbondingEntriesbyAccountSpecifier,
+export const selectUnbondingCryptoAmountByDenom = createSelector(
+  selectUnbondingEntriesByAccountSpecifier,
   selectDenom,
   (unbondingEntries, denom): string | undefined => {
     if (!unbondingEntries.length) return
@@ -130,10 +130,10 @@ export const selectUnbondingCryptoAmountbyDenom = createSelector(
   }
 )
 
-export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
-  selectUnbondingCryptoAmountbyDenom,
+export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
+  selectUnbondingCryptoAmountByDenom,
   selectDelegationCryptoAmountByDenom,
-  selectRedelegationCryptoAmountbyDenom,
+  selectRedelegationCryptoAmountByDenom,
   selectValidatorAddress,
   (
     unbondingCryptoBalance,
@@ -151,7 +151,7 @@ export const selectTotalBondingsBalancebyAccountSpecifier = createSelector(
 )
 
 export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDatabyAccountSpecifier,
+  selectStakingDataByAccountSpecifier,
   selectValidatorAddress,
   (stakingData, validatorAddress) => {
     if (!stakingData || !stakingData.rewards) return []

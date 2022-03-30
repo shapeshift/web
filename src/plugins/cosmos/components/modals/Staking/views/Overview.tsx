@@ -19,8 +19,8 @@ import {
   ASSET_ID_TO_DENOM,
   selectRewardsAmountByDenom,
   selectStakingDataStatus,
-  selectTotalBondingsBalancebyAccountSpecifier,
-  selectUnbondingEntriesbyAccountSpecifier
+  selectTotalBondingsBalanceByAccountSpecifier,
+  selectUnbondingEntriesByAccountSpecifier
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -86,7 +86,7 @@ export const Overview = ({ assetId }: StakedProps) => {
   }, [accountSpecifier, isLoaded, dispatch])
 
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalancebyAccountSpecifier(
+    selectTotalBondingsBalanceByAccountSpecifier(
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS, // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
@@ -94,7 +94,7 @@ export const Overview = ({ assetId }: StakedProps) => {
     )
   )
   const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesbyAccountSpecifier(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+    selectUnbondingEntriesByAccountSpecifier(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
   )
 
   const rewardsAmount = useAppSelector(state =>

@@ -37,7 +37,6 @@ export const clearState = (opts?: { excludePreferences?: boolean }) => {
   store.dispatch(slices.marketData.actions.clear())
   store.dispatch(slices.txHistory.actions.clear())
   store.dispatch(slices.stakingData.actions.clear())
-  store.dispatch(slices.stakingData.actions.clear())
   store.dispatch(slices.portfolio.actions.clear())
   store.dispatch(slices.accountSpecifiers.actions.clear())
 

@@ -1,5 +1,6 @@
 import { TxType } from '@shapeshiftoss/types/dist/chain-adapters'
 import { ContractMethod } from 'hooks/useTxDetails/useTxDetails'
+
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'

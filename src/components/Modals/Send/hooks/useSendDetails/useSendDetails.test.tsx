@@ -1,10 +1,10 @@
 import { chainAdapters } from '@shapeshiftoss/types'
 import { act, renderHook } from '@testing-library/react-hooks'
+import { mocked } from 'jest-mock'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { ethereum as mockEthereum, rune as mockRune } from 'test/mocks/assets'
 import { TestProviders } from 'test/TestProviders'
-import { mocked } from 'ts-jest/utils'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { ensLookup } from 'lib/ens'
@@ -40,9 +40,7 @@ jest.mock('state/slices/selectors', () => ({
   selectPortfolioCryptoHumanBalanceByFilter: jest.fn(),
   selectPortfolioCryptoBalanceByFilter: jest.fn(),
   selectPortfolioFiatBalanceByFilter: jest.fn(),
-  selectMarketDataById: jest.fn(),
-  selectAssets: jest.fn(),
-  selectBalanceThreshold: jest.fn()
+  selectMarketDataById: jest.fn()
 }))
 
 const ethCaip19 = 'eip155:1/slip44:60'

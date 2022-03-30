@@ -26,11 +26,9 @@ import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import {
-  selectAllValidators,
-  selectStakingDataByAccountSpecifier,
   selectStakingDataStatus,
   selectStakingOpportunityData
 } from 'state/slices/stakingDataSlice/selectors'
@@ -105,9 +103,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })
   }, [address, asset.caip2])
 
-  const stakingData = useAppSelector(state =>
-    selectStakingDataByAccountSpecifier(state, accountSpecifier)
-  )
   const {
     state: { wallet }
   } = useWallet()
@@ -127,7 +122,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         wallet
       })
       setAddress(address)
-      console.log('address', address)
     })()
   }, [chainAdapter, wallet, asset])
 
@@ -157,49 +151,16 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [isLoaded, dispatch])
 
-  console.log('account specifier', accountSpecifier)
-
-  useEffect(() => {
-    ;(async () => {
-      if (isLoaded && stakingData) {
-        console.log(stakingData)
-      }
-    })()
-  }, [stakingData])
-
+  // TODO fetch fiatRate
   const fiatRate = '0.08'
 
-  // TODO: wire up with real validator data
-  const opportunities = [
-    { id: 1, moniker: 'Cosmos Validator', apr: bn(0.12), rewards: { fiatRate: bn(0.08) } },
-    {
-      id: 2,
-      moniker: 'Cosmos Validator',
-      apr: bn(0.13),
-      cryptoAmount: bn('1234'),
-      rewards: {
-        fiatRate: bn(0.08),
-        stakedRewards: bn('12')
-      }
-    },
-    {
-      id: 3,
-      moniker: 'Cosmos Validator',
-      apr: bn(0.14),
-      cryptoAmount: bn('789123'),
-      rewards: {
-        fiatRate: bn(0.08),
-        stakedRewards: bn('345')
-      }
-    }
-  ]
-  const isStaking = opportunities.some(x => x.cryptoAmount)
   const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunityData(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
   )
 
-  console.log({ stakingOpportunities })
+  // TODO fix when no staking data
+  const isStaking = true
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 

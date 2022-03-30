@@ -214,12 +214,9 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 export const calculateBucketPrices: CalculateBucketPrices = args => {
   const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
+  // Balance needs to include all delegated balances for the chart to be correct
   const startingBucket = buckets[buckets.length - 1]
-  const startingBalance = startingBucket.balance
-
-  const newStartingBucket = includeStakedBalance(startingBucket)
-
-  buckets[buckets.length - 1] = newStartingBucket
+  buckets[buckets.length - 1] = includeStakedBalance(startingBucket)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -228,7 +225,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
     const { rebases, txs } = bucket
 
     // copy the balance back from the most recent bucket
-    const currentBalance = buckets[i + 1]?.balance ?? startingBalance
+    const currentBalance = buckets[i + 1]?.balance ?? startingBucket.balance
 
     bucket.balance = Object.assign({}, currentBalance)
 

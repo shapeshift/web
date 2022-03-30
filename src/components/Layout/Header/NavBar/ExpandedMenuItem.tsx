@@ -1,9 +1,11 @@
-import { ChevronRightIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
 import { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
+import { Link } from '@chakra-ui/react'
 import { ThemeTypings } from '@chakra-ui/styled-system'
 import { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
+import { CSSProperties } from 'react'
 import { RawText } from 'components/Text'
 
 type ExpandedMenuItemProps = {
@@ -13,6 +15,8 @@ type ExpandedMenuItemProps = {
   badge?: string
   badgeColor?: ThemeTypings['colorSchemes']
   hasSubmenu?: boolean
+  isDisabled?: boolean
+  externalUrl?: string
 } & MenuItemProps
 
 export const ExpandedMenuItem = ({
@@ -22,6 +26,8 @@ export const ExpandedMenuItem = ({
   badgeColor = 'grey',
   hasSubmenu = false,
   valueDisposition = 'neutral',
+  isDisabled = false,
+  externalUrl = undefined,
   ...props
 }: ExpandedMenuItemProps) => {
   const valueColor: ColorProps['color'] = (() => {
@@ -38,8 +44,16 @@ export const ExpandedMenuItem = ({
     }
   })()
 
-  return (
-    <MenuItem display='flex' {...props} closeOnSelect={!hasSubmenu}>
+  const disabledStyleOverride: CSSProperties = { cursor: 'auto', opacity: 1 }
+
+  const expandedMenuItem = (
+    <MenuItem
+      display='flex'
+      {...props}
+      closeOnSelect={!hasSubmenu}
+      isDisabled={isDisabled}
+      style={isDisabled ? disabledStyleOverride : undefined}
+    >
       <RawText flex={1}>{label}</RawText>
       <RawText ml={3} color={valueColor}>
         {value}
@@ -50,6 +64,15 @@ export const ExpandedMenuItem = ({
         </Badge>
       )}
       {hasSubmenu && <ChevronRightIcon color='whiteAlpha.600' ml={3} />}
+      {externalUrl && !isDisabled && <ExternalLinkIcon color='whiteAlpha.600' ml={3} />}
     </MenuItem>
+  )
+
+  return externalUrl && !isDisabled ? (
+    <Link href={externalUrl} isExternal style={{ textDecoration: 'none' }}>
+      {expandedMenuItem}
+    </Link>
+  ) : (
+    expandedMenuItem
   )
 }

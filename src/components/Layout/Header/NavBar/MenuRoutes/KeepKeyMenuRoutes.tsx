@@ -89,6 +89,8 @@ export const KeepKeyMenuRoutes = () => {
             badge={versions?.bootloader.device}
             badgeColor={versions?.bootloader.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.bootloader.updateAvailable ? 'info' : 'neutral'}
+            isDisabled={!versions?.bootloader.updateAvailable}
+            externalUrl='https://beta.shapeshift.com/updater-download'
           />
           <ExpandedMenuItem
             label={translate('walletProvider.keepKey.settings.menuLabels.firmware')}
@@ -96,6 +98,8 @@ export const KeepKeyMenuRoutes = () => {
             badge={versions?.firmware.device}
             badgeColor={versions?.firmware.updateAvailable ? 'yellow' : 'green'}
             valueDisposition={versions?.firmware.updateAvailable ? 'info' : 'neutral'}
+            isDisabled={!versions?.firmware.updateAvailable}
+            externalUrl='https://beta.shapeshift.com/updater-download'
           />
           <MenuDivider />
           <ExpandedMenuItem

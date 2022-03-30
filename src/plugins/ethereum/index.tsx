@@ -21,7 +21,7 @@ export function register(): Plugins {
                   })
                 )
 
-                const ws = new unchained.ws.Client<unchained.SequencedTx>(
+                const ws = new unchained.ws.Client<unchained.ethereum.ParsedTx>(
                   getConfig().REACT_APP_UNCHAINED_ETHEREUM_WS_URL
                 )
 

@@ -1,12 +1,14 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
+import { Asset, ChainTypes } from '@shapeshiftoss/types'
 import toLower from 'lodash/toLower'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssets, selectBalanceThreshold, selectMarketData } from 'state/slices/selectors'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectMarketData } from 'state/slices/marketDataSlice/selectors'
+import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { AccountSpecifier } from '../accountSpecifiersSlice/accountSpecifiersSlice'
 import {
@@ -16,10 +18,15 @@ import {
   PortfolioAssets,
   PortfolioBalancesById
 } from './portfolioSlice'
-import { findAccountsByAssetId } from './utils'
+import { accountIdToFeeAssetId, findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains
-const FEE_ASSET_IDS = ['eip155:1/slip44:60', 'bip122:000000000019d6689c085ae165831e93/slip44:0']
+const FEE_ASSET_IDS = [
+  'eip155:1/slip44:60',
+  'bip122:000000000019d6689c085ae165831e93/slip44:0',
+  'cosmos:cosmoshub-4/slip44:118',
+  'cosmos:osmosis-1/slip44:118'
+]
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
   (state: ReduxState): PortfolioAssetBalances['ids'] => state.portfolio.assetBalances.ids,
@@ -161,7 +168,7 @@ export const selectPortfolioCryptoHumanBalanceByFilter = createSelector(
     if (accountId && assetId) {
       return fromBaseUnit(
         bnOrZero(accountBalances?.[accountId]?.[assetId]),
-        assets[assetId].precision ?? 0
+        assets[assetId]?.precision ?? 0
       )
     }
 
@@ -355,10 +362,30 @@ export const selectPortfolioAllocationPercentByFilter = createSelector(
 
 export const selectPortfolioAccountIdsSortedFiat = createSelector(
   selectPortfolioTotalFiatBalanceByAccount,
-  totalAccountBalances => {
-    return Object.entries(totalAccountBalances)
-      .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
-      .map(([acctId, _]) => acctId)
+  selectAssets,
+  (totalAccountBalances, assets) => {
+    const sortedAccountBalances = Object.entries(totalAccountBalances)
+      .sort(([_, accountBalanceA], [__, accountBalanceB]) =>
+        bnOrZero(accountBalanceA).gte(bnOrZero(accountBalanceB)) ? -1 : 1
+      )
+      .map(([accountId, _]) => accountId)
+
+    const sortedAccountBalancesByChainBuckets = sortedAccountBalances.reduce(
+      (acc: Record<ChainTypes, CAIP10[]>, accountId) => {
+        const assetId = accountIdToFeeAssetId(accountId)
+        const asset = assets[assetId]
+
+        if (!acc[asset.chain]) {
+          acc[asset.chain] = []
+        }
+
+        acc[asset.chain] = [...acc[asset.chain], accountId]
+        return acc
+      },
+      {} as Record<ChainTypes, CAIP10[]>
+    )
+
+    return Object.values(sortedAccountBalancesByChainBuckets).flat()
   }
 )
 

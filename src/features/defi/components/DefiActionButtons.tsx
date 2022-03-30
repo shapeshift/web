@@ -8,7 +8,12 @@ import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 
-export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) => {
+type DefiActionButtonProps = {
+  vaultExpired?: boolean
+  showOverview?: boolean
+}
+
+export const DefiActionButtons = ({ vaultExpired, showOverview }: DefiActionButtonProps) => {
   const translate = useTranslate()
   const { location, history } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const match = matchPath<DefiParams>(location.pathname, {
@@ -28,6 +33,14 @@ export const DefiActionButtons = ({ vaultExpired }: { vaultExpired: boolean }) =
 
   return (
     <ButtonGroup variant='ghost' colorScheme='blue'>
+      {showOverview && (
+        <Button
+          isActive={match?.params?.action === DefiAction.Overview}
+          onClick={() => handleClick(DefiAction.Overview)}
+        >
+          {translate('common.overview')}
+        </Button>
+      )}
       <Button
         isActive={match?.params?.action === DefiAction.Deposit}
         onClick={() => handleClick(DefiAction.Deposit)}

@@ -4,11 +4,11 @@ import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export const ChangePinCaching = () => {
   const translate = useTranslate()
-  const { wallet, pinCaching } = useKeepKeyWallet()
+  const { keepKeyWallet, pinCaching } = useKeepKey()
 
   const handleToggle = async () => {
     if (pinCaching !== undefined) {
@@ -16,7 +16,7 @@ export const ChangePinCaching = () => {
         policyName: 'Pin Caching',
         enabled: !pinCaching
       }
-      await wallet?.applyPolicy(newPinCachingPolicy)
+      await keepKeyWallet?.applyPolicy(newPinCachingPolicy)
     } else return
   }
   const setting = 'PIN caching'

@@ -4,7 +4,7 @@ import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepK
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { Radio, RadioOption } from 'components/Radio/Radio'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export enum Timeout {
   TenMinutes = '600000',
@@ -17,7 +17,7 @@ export enum Timeout {
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
-  const { wallet } = useKeepKeyWallet()
+  const { keepKeyWallet } = useKeepKey()
 
   const options: RadioOption<Timeout>[] = [
     {
@@ -48,7 +48,7 @@ export const ChangeTimeout = () => {
 
   const handleChangeTimeoutInitializeEvent = async (value: Timeout) => {
     const parsedTimeout = value ? parseInt(value) : parseInt(Timeout.TenMinutes)
-    await wallet?.applySettings({ autoLockDelayMs: parsedTimeout })
+    await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout })
   }
   const setting = 'timeout'
 

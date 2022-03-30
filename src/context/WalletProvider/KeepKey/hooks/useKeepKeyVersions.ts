@@ -1,7 +1,7 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { isKeepKeyWallet } from 'context/WalletProvider/KeepKey/utils'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 interface VersionUrl {
@@ -33,17 +33,10 @@ interface Versions {
   firmware: VersionStatus
 }
 
-const isKeepKeyWallet = (wallet: HDWallet | null): wallet is KeepKeyHDWallet => {
-  return (wallet as KeepKeyHDWallet)._isKeepKey
-}
-
-export const useKeepKeyWallet = () => {
-  const { state: walletState } = useWallet()
-  const { wallet, keyring } = walletState
-  const [keepKeyWallet, setKeepKeyWallet] = useState<KeepKeyHDWallet | undefined>()
-  const [pinCaching, setPinCaching] = useState<boolean>()
-  const [passphrase, setPassphrase] = useState<boolean>()
+export const useKeepKeyVersions = () => {
   const [versions, setVersions] = useState<Versions>()
+  const { state } = useWallet()
+  const { wallet } = state
 
   const getBootloaderVersion = (keepKey: KeepKeyHDWallet, releases: FirmwareReleases): string => {
     const hash = keepKey.features?.bootloaderHash.toString() ?? ''
@@ -55,12 +48,6 @@ export const useKeepKeyWallet = () => {
   useEffect(() => {
     if (!isKeepKeyWallet(wallet)) return
     ;(async () => {
-      setKeepKeyWallet(wallet)
-      setPassphrase(wallet.features?.passphraseProtection)
-      setPinCaching(
-        wallet?.features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled
-      )
-
       const { data: releases } = await axios.get<FirmwareReleases>(
         'https://storageapi.fleek.co/081e91ad-2088-4280-97c5-e3174231ecab-bucket/keepKey.json',
         {
@@ -92,11 +79,5 @@ export const useKeepKeyWallet = () => {
     })()
   }, [wallet])
 
-  return {
-    wallet: keepKeyWallet,
-    versions,
-    keyring,
-    pinCaching,
-    passphrase
-  }
+  return versions
 }

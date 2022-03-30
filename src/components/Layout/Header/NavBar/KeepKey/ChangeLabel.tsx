@@ -4,18 +4,18 @@ import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const ChangeLabel = () => {
   const translate = useTranslate()
   const { state } = useWallet()
   const { walletInfo } = state
-  const { wallet } = useKeepKeyWallet()
+  const { keepKeyWallet } = useKeepKey()
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
   const handleChangeLabelInitializeEvent = async () => {
-    await wallet?.applySettings({ label: keepKeyLabel })
+    await keepKeyWallet?.applySettings({ label: keepKeyLabel })
   }
   const setting = 'label'
 
@@ -30,7 +30,7 @@ export const ChangeLabel = () => {
       <ShowUpdateStatus setting={setting} />
       <Input
         type='text'
-        placeholder='Enter a device label'
+        placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}
         _placeholder={{ opacity: 0.4, color: 'inherit' }}
         mb={3}
         size='md'

@@ -3,15 +3,15 @@ import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export const ChangePassphrase = () => {
   const translate = useTranslate()
-  const { wallet, passphrase } = useKeepKeyWallet()
+  const { keepKeyWallet, passphrase } = useKeepKey()
 
   const handleToggle = async () => {
     if (passphrase !== undefined) {
-      await wallet?.applySettings({ usePassphrase: !passphrase })
+      await keepKeyWallet?.applySettings({ usePassphrase: !passphrase })
     } else return
   }
   const setting = 'Passphrase'

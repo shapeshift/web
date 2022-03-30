@@ -3,14 +3,14 @@ import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export const ChangePin = () => {
   const translate = useTranslate()
-  const { wallet } = useKeepKeyWallet()
+  const { keepKeyWallet } = useKeepKey()
 
   const handleChangePinInitializeEvent = async () => {
-    await wallet?.changePin()
+    await keepKeyWallet?.changePin()
   }
   const setting = 'PIN'
 

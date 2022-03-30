@@ -562,6 +562,9 @@
           "updateFailed": "An error occurred whilst updating the %{setting}.",
           "timeoutDuration": "%{minutes} minutes"
         },
+        "placeholders": {
+          "label": "Enter a device label"
+        },
         "actions": {
           "update": "Update %{setting}",
           "enable": "Enable %{setting}",

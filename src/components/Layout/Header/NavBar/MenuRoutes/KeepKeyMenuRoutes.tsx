@@ -16,13 +16,15 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
-import { useKeepKeyWallet } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyWallet'
+import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
+import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()
   const translate = useTranslate()
-  const { wallet, versions, pinCaching } = useKeepKeyWallet()
+  const { keepKeyWallet, pinCaching } = useKeepKey()
+  const versions = useKeepKeyVersions()
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
 
@@ -39,7 +41,7 @@ export const KeepKeyMenuRoutes = () => {
   }
 
   const wipeDevice = async () => {
-    await wallet?.wipe()
+    await keepKeyWallet?.wipe()
   }
 
   const keepKeyMenu = () => {
@@ -64,7 +66,7 @@ export const KeepKeyMenuRoutes = () => {
       </>
     )
 
-    const keepKeyStateLoaded = wallet?.features && (
+    const keepKeyStateLoaded = keepKeyWallet?.features && (
       <>
         <SubmenuHeader title={translate('common.connectedWalletSettings')} />
         <MenuGroup>
@@ -132,8 +134,8 @@ export const KeepKeyMenuRoutes = () => {
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}
             label={translate('walletProvider.keepKey.settings.menuLabels.passphrase')}
-            value={getBooleanLabel(wallet.features.passphraseProtection)}
-            valueDisposition={wallet.features.passphraseProtection ? 'positive' : 'neutral'}
+            value={getBooleanLabel(keepKeyWallet.features.passphraseProtection)}
+            valueDisposition={keepKeyWallet.features.passphraseProtection ? 'positive' : 'neutral'}
             hasSubmenu={true}
           />
           <MenuDivider />

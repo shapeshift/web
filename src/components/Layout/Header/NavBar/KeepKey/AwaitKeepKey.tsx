@@ -11,8 +11,9 @@ export type AwaitKeepKeyProps = {
 
 export const AwaitKeepKey = ({ children, setting }: AwaitKeepKeyProps) => {
   const { state } = useKeepKey()
+  const { awaitingButtonPress } = state
 
-  return state.awaitingButtonPress ? (
+  return awaitingButtonPress ? (
     <Flex>
       <InfoIcon color='blue.200' mt={1} />
       <Text

@@ -14,7 +14,6 @@ import React, {
 } from 'react'
 
 import { KeyManager, SUPPORTED_WALLETS } from './config'
-import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
@@ -75,6 +74,7 @@ export interface IWalletContext {
   connect: (adapter: KeyManager) => Promise<void>
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
+  load: () => void
 }
 
 export type ActionTypes =
@@ -304,7 +304,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.adapters, state.keyring])
 
   useKeyringEventHandler(state)
-  useKeepKeyEventHandler(state, dispatch, load)
   useNativeEventHandler(state, dispatch)
 
   useEffect(() => {
@@ -362,8 +361,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => load(), [state.adapters, state.keyring])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, create, disconnect }),
-    [state, connect, create, disconnect]
+    () => ({ state, dispatch, connect, create, disconnect, load }),
+    [state, connect, create, disconnect, load]
   )
 
   return (

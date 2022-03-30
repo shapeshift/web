@@ -33,8 +33,8 @@ export function AppProviders({ children }: ProvidersProps) {
               <ScrollToTop />
               <BrowserRouterProvider>
                 <I18nProvider>
-                  <KeepKeyProvider>
-                    <WalletProvider>
+                  <WalletProvider>
+                    <KeepKeyProvider>
                       <PortfolioProvider>
                         <MarketDataProvider>
                           <TransactionsProvider>
@@ -44,8 +44,8 @@ export function AppProviders({ children }: ProvidersProps) {
                           </TransactionsProvider>
                         </MarketDataProvider>
                       </PortfolioProvider>
-                    </WalletProvider>
-                  </KeepKeyProvider>
+                    </KeepKeyProvider>
+                  </WalletProvider>
                 </I18nProvider>
               </BrowserRouterProvider>
             </BrowserRouter>

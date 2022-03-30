@@ -1,4 +1,8 @@
-import React, { createContext, useContext, useMemo, useReducer } from 'react'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
+import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
+import { isKeepKeyWallet } from 'context/WalletProvider/KeepKey/utils'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export enum KeepKeyActions {
   SET_AWAITING_BUTTON_PRESS = 'SET_AWAITING_BUTTON_PRESS',
@@ -24,6 +28,9 @@ export interface IKeepKeyContext {
   reset: () => void
   setAwaitingButtonPress: (activeRequest: boolean) => void
   updateStatus: (status: UpdateStatus) => void
+  pinCaching: boolean | undefined
+  passphrase: boolean | undefined
+  keepKeyWallet: KeepKeyHDWallet | undefined
 }
 
 export type KeepKeyActionTypes =
@@ -48,6 +55,21 @@ const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const { state: walletState, dispatch: walletDispatch, load } = useWallet()
+  const { wallet } = walletState
+  const keepKeyWallet = isKeepKeyWallet(wallet) ? wallet : undefined
+  const [pinCaching, setPinCaching] = useState<boolean>()
+  const [passphrase, setPassphrase] = useState<boolean>()
+
+  useEffect(() => {
+    if (!keepKeyWallet) return
+    ;(async () => {
+      setPassphrase(keepKeyWallet.features?.passphraseProtection)
+      setPinCaching(
+        keepKeyWallet?.features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled
+      )
+    })()
+  }, [keepKeyWallet])
 
   const reset = () => dispatch({ type: KeepKeyActions.RESET_STATE })
   const setAwaitingButtonPress = (activeRequest: boolean) => {
@@ -64,9 +86,20 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })
   }
 
+  useKeepKeyEventHandler(walletState, walletDispatch, load, setAwaitingButtonPress, updateStatus)
+
   const value: IKeepKeyContext = useMemo(
-    () => ({ state, dispatch, reset, setAwaitingButtonPress, updateStatus }),
-    [state]
+    () => ({
+      state,
+      dispatch,
+      reset,
+      setAwaitingButtonPress,
+      updateStatus,
+      pinCaching,
+      passphrase,
+      keepKeyWallet
+    }),
+    [keepKeyWallet, passphrase, pinCaching, state]
   )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>

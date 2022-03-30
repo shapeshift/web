@@ -37,8 +37,7 @@ export const selectStakingData = (state: ReduxState) => state.stakingData
 export const selectStakingDataByAccountSpecifier = createSelector(
   selectStakingData,
   selectAccountSpecifier,
-  selectValidatorAddress,
-  (stakingData, accountSpecifier, validatorAddress) => {
+  (stakingData, accountSpecifier) => {
     return stakingData.byAccountSpecifier[accountSpecifier] || null
   }
 )
@@ -134,13 +133,7 @@ export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByDenom,
   selectDelegationCryptoAmountByDenom,
   selectRedelegationCryptoAmountByDenom,
-  selectValidatorAddress,
-  (
-    unbondingCryptoBalance,
-    delegationCryptoBalance,
-    redelegationCryptoBalance,
-    validatorAddress
-  ): string => {
+  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string => {
     const totalBondings = bnOrZero(unbondingCryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance))
       .plus(bnOrZero(redelegationCryptoBalance))
@@ -178,9 +171,8 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
 
 export const selectRewardsAmountByDenom = createSelector(
   selectRewardsByAccountSpecifier,
-  selectValidatorAddress,
   selectDenom,
-  (rewardsByAccountSpecifier, validatorAddress, denom): string => {
+  (rewardsByAccountSpecifier, denom): string => {
     if (!rewardsByAccountSpecifier.length) return ''
 
     const rewards = rewardsByAccountSpecifier.find(rewards => rewards.denom === denom)

@@ -32,7 +32,7 @@ import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { includeStakedBalance } from './cosmoUtils'
+import { firstBucketWithStakedBalance } from './cosmoUtils'
 import { skipCosmosTx } from './cosmoUtils'
 
 type PriceAtBlockTimeArgs = {
@@ -169,14 +169,12 @@ export const bucketEvents = (
 type FiatBalanceAtBucketArgs = {
   bucket: Bucket
   portfolioAssets: PortfolioAssets
-  priceHistoryData: {
-    [k: CAIP19]: HistoryData[]
-  }
+  priceHistoryData: PriceHistoryData
 }
 
 type FiatBalanceAtBucket = (args: FiatBalanceAtBucketArgs) => BigNumber
 
-const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
+export const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   bucket,
   priceHistoryData,
   portfolioAssets
@@ -184,7 +182,11 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { balance, end } = bucket
   const date = end.valueOf()
   const { crypto } = balance
+  console.log('crypto', crypto)
+  console.log('bucket', bucket)
+  console.log('fiatBalanceAtBucket', crypto)
   const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
+    console.log('in reduce', acc, caip19, assetCryptoBalance)
     const assetPriceHistoryData = priceHistoryData[caip19]
     if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ assetPriceHistoryData, date })
@@ -214,24 +216,21 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 export const calculateBucketPrices: CalculateBucketPrices = args => {
   const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
-  const startingBucket = buckets[buckets.length - 1]
-  const startingBalance = startingBucket.balance
-
-  includeStakedBalance(startingBalance)
-
-  startingBucket.balance.fiat = fiatBalanceAtBucket({
-    bucket: startingBucket,
+  buckets[buckets.length - 1] = firstBucketWithStakedBalance(
+    buckets[buckets.length - 1],
     priceHistoryData,
     portfolioAssets
-  })
+  )
 
-  // we iterate from latest to oldest
+  console.log('buckets[buckets.length - 1]', JSON.stringify(buckets[buckets.length - 1], null, 2))
+  console.log('buckets[buckets.length - 2]', JSON.stringify(buckets[buckets.length - 2], null, 2))
+
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
     const { rebases, txs } = bucket
 
     // copy the balance back from the most recent bucket
-    const currentBalance = buckets[i + 1]?.balance ?? startingBalance
+    const currentBalance = buckets[i + 1]?.balance ?? buckets[buckets.length - 1]
 
     bucket.balance = Object.assign({}, currentBalance)
 
@@ -285,6 +284,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       bucket.balance.crypto[assetId] = bnOrZero(bucket.balance.crypto[assetId]).minus(balanceDiff)
     })
 
+    console.log('calling fiatBalanceAtBucket', { bucket, priceHistoryData, portfolioAssets })
     bucket.balance.fiat = fiatBalanceAtBucket({ bucket, priceHistoryData, portfolioAssets })
     buckets[i] = bucket
   }

@@ -466,8 +466,8 @@ export const createMockEthTxs = (account: string) => {
     data: { method: 'withdraw', parser: 'yearn' }
   }
 
-  // defi
-  const tx3 = {
+  // yearn withdraw usdc
+  const yearnWithdrawUsdc = {
     address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
     blockHash: '0xb6ac9ffa9c0c272fcf2af42e15f86b874b6fb61f13ca74a4dab13032d434d492',
     blockHeight: 13730260,
@@ -498,7 +498,8 @@ export const createMockEthTxs = (account: string) => {
     data: { method: 'withdraw', parser: 'yearn' }
   }
 
-  const ftx0 = {
+  // Doesn't use ShapeShift router
+  const yearnDirect = {
     address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
     blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
     blockHeight: 13730189,
@@ -529,7 +530,7 @@ export const createMockEthTxs = (account: string) => {
     data: { method: 'deposit', parser: 'yearn' }
   }
 
-  return [deposit, withdraw, ftx0, tx3]
+  return [deposit, withdraw, yearnWithdrawUsdc, yearnDirect]
 }
 
 /**

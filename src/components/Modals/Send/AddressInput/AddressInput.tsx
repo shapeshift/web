@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 
 import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import { SendRoutes } from '../SendTypes'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']

@@ -26,7 +26,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
-import { SendRoutes } from '../Send'
+import { SendRoutes } from '../SendTypes'
 import { TxFeeRadioGroup } from '../TxFeeRadioGroup'
 
 export type FeePrice = {

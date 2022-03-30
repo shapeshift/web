@@ -27,22 +27,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakeRoutes, StakingAction } from '../StakingTypes'
-
-export enum InputType {
-  Crypto = 'crypto',
-  Fiat = 'fiat'
-}
-
-export enum Field {
-  FiatAmount = 'fiatAmount',
-  CryptoAmount = 'cryptoAmount'
-}
-
-export type StakingValues = {
-  [Field.FiatAmount]: string
-  [Field.CryptoAmount]: string
-}
+import { Field, InputType, StakeRoutes, StakingAction, StakingValues } from '../StakingTypes'
 
 type StakeProps = {
   apr: string

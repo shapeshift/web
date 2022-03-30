@@ -11,7 +11,7 @@ import {
   useHistory,
   useLocation
 } from 'react-router-dom'
-import { SendRoutes } from 'components/Modals/Send/Send'
+import { SendRoutes } from 'components/Modals/Send/SendTypes'
 import { Address } from 'components/Modals/Send/views/Address'
 import { QrCodeScanner } from 'components/Modals/Send/views/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'

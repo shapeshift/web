@@ -33,3 +33,23 @@ export enum UnstakingPath {
   Confirm = '/unstaking/confirm',
   Broadcast = '/unstaking/broadcast'
 }
+
+export enum StakingPath {
+  Confirm = '/staking/confirm',
+  Broadcast = '/staking/broadcast'
+}
+
+export enum InputType {
+  Crypto = 'crypto',
+  Fiat = 'fiat'
+}
+
+export enum Field {
+  FiatAmount = 'fiatAmount',
+  CryptoAmount = 'cryptoAmount'
+}
+
+export type StakingValues = {
+  [Field.FiatAmount]: string
+  [Field.CryptoAmount]: string
+}

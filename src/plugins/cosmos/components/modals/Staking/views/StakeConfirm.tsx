@@ -15,7 +15,7 @@ import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakingPath } from './StakeConfirmRouter'
+import { StakingPath } from '../StakingTypes'
 
 export enum InputType {
   Crypto = 'crypto',

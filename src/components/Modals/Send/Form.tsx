@@ -17,7 +17,7 @@ import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
-import { SendRoutes } from './Send'
+import { SendRoutes } from './SendTypes'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'

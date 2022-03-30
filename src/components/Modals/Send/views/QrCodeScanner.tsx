@@ -16,7 +16,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import { SendRoutes } from '../SendTypes'
 
 const PERMISSION_ERROR = 'Permission denied'
 

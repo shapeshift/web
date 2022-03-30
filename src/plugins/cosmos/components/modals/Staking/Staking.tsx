@@ -1,45 +1,16 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
 import { useRef } from 'react'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
+import { entries, StakeRoutes, StakingAction, StakingModalProps } from './StakingTypes'
 import { ClaimConfirmRouter } from './views/ClaimConfirmRouter'
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
 import { StakeConfirmRouter, StakingConfirmProps } from './views/StakeConfirmRouter'
 import { Unstake } from './views/Unstake'
 import { UnstakeConfirmRouter } from './views/UnstakeConfirmRouter'
-
-export enum StakingAction {
-  Stake = 'stake',
-  Unstake = 'unstake',
-  Overview = 'overview',
-  Claim = 'claim'
-}
-
-type StakingModalProps = {
-  assetId: CAIP19
-  action: StakingAction
-}
-
-export enum StakeRoutes {
-  Stake = '/stake',
-  Unstake = '/unstake',
-  StakeConfirm = '/stake/confirm',
-  UnstakeConfirm = '/unstake/confirm',
-  Overview = '/stake/overview',
-  Claim = '/claim'
-}
-
-export const entries = [
-  StakeRoutes.Stake,
-  StakeRoutes.Unstake,
-  StakeRoutes.StakeConfirm,
-  StakeRoutes.UnstakeConfirm,
-  StakeRoutes.Overview
-]
 
 const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   const location = useLocation<StakingConfirmProps>()

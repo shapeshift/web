@@ -1,7 +1,7 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingTypes'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 

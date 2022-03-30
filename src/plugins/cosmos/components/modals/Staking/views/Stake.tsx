@@ -27,7 +27,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakeRoutes, StakingAction } from '../Staking'
+import { StakeRoutes, StakingAction } from '../StakingTypes'
 
 export enum InputType {
   Crypto = 'crypto',

@@ -22,7 +22,7 @@ import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   PortfolioAssets,
   PortfolioBalancesById
-} from 'state/slices/portfolioSlice/portfolioSliceTypes'
+} from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId,

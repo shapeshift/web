@@ -4,7 +4,7 @@ import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceTypes'
+import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import {
   Bucket,

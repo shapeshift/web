@@ -24,7 +24,7 @@ import {
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceTypes'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountSpecifiers,
   selectAssetIds,

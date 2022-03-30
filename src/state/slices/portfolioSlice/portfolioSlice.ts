@@ -9,7 +9,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 
 import { AccountSpecifierMap } from '../accountSpecifiersSlice/accountSpecifiersSlice'
-import { initialState, Portfolio } from './portfolioSliceTypes'
+import { initialState, Portfolio } from './portfolioSliceCommon'
 import { accountToPortfolio } from './utils'
 
 // for assetBalances, they're aggregated across all accounts, so we need to

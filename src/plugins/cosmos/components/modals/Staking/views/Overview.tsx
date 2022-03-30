@@ -15,12 +15,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
-import {
-  selectRewardsCryptoBalancebyAccountSpecifier,
-  selectStakingDataStatus,
-  selectTotalBondingsBalancebyAccountSpecifier,
-  selectUnbondingEntriesbyAccountSpecifier
-} from 'state/slices/stakingDataSlice/selectors'
+import { selectStakingDataStatus } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -85,25 +80,6 @@ export const Overview = ({ assetId }: StakedProps) => {
       )
     })()
   }, [accountSpecifier, isLoaded, dispatch])
-
-  const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalancebyAccountSpecifier(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
-    )
-  )
-  const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesbyAccountSpecifier(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
-  )
-
-  const rewardsAmount = useAppSelector(state =>
-    selectRewardsCryptoBalancebyAccountSpecifier(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS
-    )
-  )
 
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

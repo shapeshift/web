@@ -9,7 +9,9 @@ import {
   Tag,
   TagLabel
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { caip10, CAIP19 } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { useMemo } from 'react'
@@ -22,14 +24,21 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectAllValidators,
-  selectStakingDataStatus
+  selectRewardsCryptoBalancesbyAccountSpecifier,
+  selectStakingDatabyAccountSpecifier,
+  selectStakingDataStatus,
+  selectTotalBondingsBalancebyAccountSpecifier
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
+
+const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 type StakingOpportunity = {
   id: number
@@ -81,10 +90,62 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
   const stakingDataStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = stakingDataStatus === 'loaded'
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const dispatch = useAppDispatch()
+  const chainAdapterManager = useChainAdapters()
+  const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
+  const [address, setAddress] = useState<string>('')
 
   const validators = useAppSelector(selectAllValidators)
   console.log('validators', validators)
+
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const accountSpecifier = useMemo(() => {
+    if (!address.length) return ''
+
+    return caip10.toCAIP10({
+      caip2: asset.caip2,
+      account: address
+    })
+  }, [address, asset.caip2])
+
+  console.log(accountSpecifier)
+
+  useEffect(() => {
+    ;(async () => {
+      const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
+      setChainAdapter(cosmosChainAdapter)
+    })()
+  })
+
+  useEffect(() => {
+    ;(async () => {
+      if (!chainAdapter || !wallet || !asset) return
+
+      const address = await chainAdapter.getAddress({
+        wallet
+      })
+      setAddress(address)
+      console.log('address', address)
+    })()
+  }, [chainAdapter, wallet, asset])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!accountSpecifier.length || isLoaded) return
+
+      dispatch(
+        stakingDataApi.endpoints.getStakingData.initiate(
+          { accountSpecifier },
+          { forceRefetch: true }
+        )
+      )
+    })()
+  }, [accountSpecifier, isLoaded, dispatch])
 
   useEffect(() => {
     ;(async () => {
@@ -98,6 +159,27 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       )
     })()
   }, [isLoaded, dispatch])
+
+  const stakingData = useAppSelector(state =>
+    selectStakingDatabyAccountSpecifier(state, accountSpecifier)
+  )
+
+  // fetch validator data only if there is staking data
+  if (stakingData != null) {
+  }
+
+  const totalBondingsByValidators = useAppSelector(state =>
+    selectTotalBondingsBalancebyAccountSpecifier(
+      state,
+      accountSpecifier
+    )
+  )
+
+  const rewardsAmountByValidators = useAppSelector(state =>
+    selectRewardsCryptoBalancesbyAccountSpecifier(state, accountSpecifier)
+  )
+
+  console.log(totalBondingsByValidators, rewardsAmountByValidators)
 
   // TODO: wire up with real validator data
   const opportunities = [
@@ -231,7 +313,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={validators}
+          data={opportunities}
           columns={columns}
           displayHeaders={isStaking}
           onRowClick={handleStakedClick}

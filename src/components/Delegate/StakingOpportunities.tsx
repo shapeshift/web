@@ -108,8 +108,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const stakingData = useAppSelector(state =>
     selectStakingDataByAccountSpecifier(state, accountSpecifier)
   )
-
-  const balancesByValidators = 0
   const {
     state: { wallet }
   } = useWallet()
@@ -169,7 +167,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [stakingData])
 
-  console.log(balancesByValidators)
+  const fiatRate = '0.08'
 
   // TODO: wire up with real validator data
   const opportunities = [
@@ -197,11 +195,11 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   ]
   const isStaking = opportunities.some(x => x.cryptoAmount)
   const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
-  const testSelector = useAppSelector(state =>
+  const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunityData(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
   )
 
-  console.log({ testSelector })
+  console.log({ stakingOpportunities })
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
@@ -259,15 +257,12 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Header: <Text translation='defi.rewards' />,
         accessor: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: Rewards }) => {
+        Cell: ({ value }: { value: BigNumber }) => {
           return isStaking ? (
             <HStack fontWeight={'normal'}>
-              <Amount.Crypto
-                value={bnOrZero(value.stakedRewards).toString()}
-                symbol={assetSymbol}
-              />
+              <Amount.Crypto value={bnOrZero(value).toString()} symbol={assetSymbol} />
               <Amount.Fiat
-                value={bnOrZero(value.stakedRewards).times(value.fiatRate).toPrecision()}
+                value={bnOrZero(value).times(fiatRate).toPrecision()}
                 color='green.500'
                 prefix='≈'
               />
@@ -308,7 +303,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={opportunities}
+          data={stakingOpportunities}
           columns={columns}
           displayHeaders={isStaking}
           onRowClick={handleStakedClick}

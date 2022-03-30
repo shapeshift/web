@@ -60,14 +60,18 @@ export const selectDelegationCryptoAmountByDenom = createSelector(
   }
 )
 
+export type amountByValidatorAddressType = {
+  [k: string]: string
+}
+
 export const selectAllDelegationsCryptoAmountByDenom = createSelector(
   selectStakingDataByAccountSpecifier,
   selectDenom,
-  (stakingData, denom): Array<any> => {
+  (stakingData, denom): amountByValidatorAddressType => {
     if (!stakingData || !stakingData.delegations?.length) return {}
 
     const delegations = stakingData.delegations.reduce(
-      (acc, { assetId, amount, validator: { address } }) => {
+      (acc: amountByValidatorAddressType, { assetId, amount, validator: { address } }) => {
         if (ASSET_ID_TO_DENOM[assetId] !== denom) return acc
 
         acc[address] = amount
@@ -79,17 +83,21 @@ export const selectAllDelegationsCryptoAmountByDenom = createSelector(
   }
 )
 
+export type redelegationsEntriesByValidatorAddressType = {
+  [k: string]: chainAdapters.cosmos.RedelegationEntry[]
+}
+
 export const selectAllRedelegationsEntriesByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  (stakingData): Array<Array<any>> => {
+  (stakingData): Record<string, any> => {
     if (!stakingData || !stakingData.redelegations?.length) return {}
 
     const redelegationsEntries = stakingData.redelegations.reduce(
-      (acc, { destinationValidator, entries }) => {
+      (acc: Record<string, any>, { destinationValidator, entries }) => {
         if (!acc[destinationValidator.address]) {
           acc[destinationValidator.address] = []
         }
-        acc[destinationValidator.address] = entries
+        acc[destinationValidator.address].push(...entries)
 
         return acc
       },
@@ -167,7 +175,7 @@ export const selectAllUnbondingsEntriesByAccountSpecifier = createDeepEqualOutpu
         acc[validator.address] = []
       }
 
-      acc[validator.address] = entries
+      acc[validator.address].push(...entries)
 
       return acc
     }, {} as Record<string, any>)
@@ -242,7 +250,7 @@ export const selectAllRewardsByAccountSpecifier = createDeepEqualOutputSelector(
           acc[current.validator.address] = []
         }
 
-        acc[current.validator.address].push(current.rewards)
+        acc[current.validator.address].push(...current.rewards)
 
         return acc
       },
@@ -290,27 +298,60 @@ export const selectStakingOpportunityData = createDeepEqualOutputSelector(
     allRewards,
     allValidators
   ): any => {
-    Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
+    const result = Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
       const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
       const undelegationsAmount = get(allUndelegationsEntries, validatorAddress, [])
-        .reduce((acc, undelegationEntry) => {
-          acc = acc.plus(bnOrZero(undelegationEntry.amount))
-          return acc
-        }, bnOrZero(0))
-        .toString()
-      const redelegationsAmount = get(allRedelegationsEntries, validatorAddress, [])
-        .reduce((acc, redelegationEntry) => acc.plus(redelegationEntry.amount), bnOrZero(0))
+        .reduce(
+          (
+            acc: { plus: (arg0: BigNumber) => any },
+            undelegationEntry: { amount: BigNumber.Value | null | undefined }
+          ) => {
+            acc = acc.plus(bnOrZero(undelegationEntry.amount))
+            return acc
+          },
+          bnOrZero(0)
+        )
         .toString()
 
-      const totalStakingAmount = bnOrZero(delegationsAmount)
+      const redelegationsAmount = get(allRedelegationsEntries, validatorAddress, [])
+        .reduce(
+          (
+            acc: { plus: (arg0: BigNumber) => any },
+            redelegationEntry: { amount: BigNumber.Value | null | undefined }
+          ) => {
+            acc.plus(bnOrZero(redelegationEntry.amount))
+            return acc
+          },
+          bnOrZero(0)
+        )
+        .toString()
+
+      const rewards = get(allRewards, validatorAddress, [])
+        .reduce(
+          (
+            acc: { plus: (arg0: BigNumber) => any },
+            rewardEntry: { amount: BigNumber.Value | null | undefined }
+          ) => {
+            acc = acc.plus(bnOrZero(rewardEntry.amount))
+            return acc
+          },
+          bnOrZero(0)
+        )
+        .toString()
+
+      const cryptoAmount = bnOrZero(delegationsAmount)
         .plus(bnOrZero(undelegationsAmount))
         .plus(bnOrZero(redelegationsAmount))
+        .toString()
 
       return {
         apr,
         moniker,
-        totalStakingAmount
+        cryptoAmount,
+        rewards
       }
     })
+
+    return result.filter(x => x.cryptoAmount !== '0' || x.rewards !== '0')
   }
 )

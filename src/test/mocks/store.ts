@@ -80,11 +80,19 @@ export const mockStore: ReduxState = {
     loading: false
   },
   txHistory: {
-    byId: {},
-    byAssetId: {},
-    byAccountId: {},
-    ids: [],
-    status: 'idle'
+    txs: {
+      byId: {},
+      byAssetId: {},
+      byAccountId: {},
+      ids: [],
+      status: 'idle'
+    },
+    rebases: {
+      byAssetId: {},
+      byAccountId: {},
+      ids: [],
+      byId: {}
+    }
   },
   stakingData: {
     byAccountSpecifier: {},

@@ -9,9 +9,9 @@ import { apiSlices, reducer, ReduxState, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
 import { marketApi } from './slices/marketDataSlice/marketDataSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
-import * as portfolioSelectors from './slices/portfolioSlice/selectors'
-import { stakingDataApi } from './slices/stakingDataSlice/stakingDataSlice'
+import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
+import { stakingDataApi } from './slices/stakingDataSlice/stakingDataSlice'
 
 const persistConfig = {
   key: 'root',
@@ -19,7 +19,7 @@ const persistConfig = {
   storage: localforage
 }
 
-registerSelectors(portfolioSelectors)
+registerSelectors(selectors)
 
 const apiMiddleware = [
   portfolioApi.middleware,

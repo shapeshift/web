@@ -12,10 +12,14 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { CosmosAssetAccountDetails } from './CosmosAssetAccountDetails'
 
+export type MatchParams = {
+  assetSubId: string
+}
+
 export const CosmosAsset = (props: { chainId: string }) => {
   const dispatch = useAppDispatch()
 
-  const { assetSubId } = useParams<{ assetSubId: string }>()
+  const { assetSubId } = useParams<MatchParams>()
   const assetId = `${props.chainId}/${assetSubId}`
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

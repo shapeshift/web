@@ -13,6 +13,7 @@ import {
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { TransactionReceipt } from 'web3-core/types'
@@ -57,6 +58,7 @@ type YearnWithdrawProps = {
 
 export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -269,6 +271,8 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
           <Confirm
             onCancel={handleCancel}
             headerText='modals.confirm.withdraw.header'
+            loading={state.loading}
+            loadingText={translate('common.confirmOnWallet')}
             onConfirm={handleConfirm}
             assets={[
               {

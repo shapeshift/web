@@ -48,14 +48,13 @@ export const selectDelegationCryptoAmountByDenom = createDeepEqualOutputSelector
   selectValidatorAddress,
   selectDenom,
   (stakingData, validatorAddress, denom): string | undefined => {
-    if (!stakingData || !stakingData.delegations) return
+    if (!stakingData || !stakingData.delegations?.length) return
 
-    return (
-      stakingData.delegations.find(
-        ({ assetId, validator }) =>
-          ASSET_ID_TO_DENOM[assetId] === denom && validator.address === validatorAddress
-      )?.amount || ''
+    const delegation = stakingData.delegations.find(
+      ({ assetId, validator }) =>
+        ASSET_ID_TO_DENOM[assetId] === denom && validator.address === validatorAddress
     )
+    return delegation?.amount
   }
 )
 
@@ -63,15 +62,17 @@ export const selectRedelegationEntriesbyAccountSpecifier = createDeepEqualOutput
   selectStakingDatabyAccountSpecifier,
   selectValidatorAddress,
   (stakingData, validatorAddress): Array<{ denom: string; amount: string }> => {
-    if (!stakingData || !stakingData.redelegations) return []
+    if (!stakingData || !stakingData.redelegations?.length) return []
+
+    const redelegation = stakingData.redelegations.find(
+      ({ destinationValidator }) => destinationValidator.address === validatorAddress
+    )
 
     return (
-      stakingData.redelegations
-        .find(({ destinationValidator }) => destinationValidator.address === validatorAddress)
-        ?.entries.map(redelegationEntry => ({
-          denom: ASSET_ID_TO_DENOM[redelegationEntry.assetId],
-          amount: redelegationEntry.amount
-        })) || []
+      redelegation?.entries.map(redelegationEntry => ({
+        denom: ASSET_ID_TO_DENOM[redelegationEntry.assetId],
+        amount: redelegationEntry.amount
+      })) || []
     )
   }
 )

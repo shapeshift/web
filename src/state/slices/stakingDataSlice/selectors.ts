@@ -153,7 +153,7 @@ export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
 export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectValidatorAddress,
-  (stakingData, validatorAddress) => {
+  (stakingData, validatorAddress): Array<{ denom: string; amount: string }> => {
     if (!stakingData || !stakingData.rewards) return []
 
     const rewards = stakingData.rewards.reduce(

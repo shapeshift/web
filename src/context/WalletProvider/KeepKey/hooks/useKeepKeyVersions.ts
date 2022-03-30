@@ -1,7 +1,6 @@
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { isKeepKeyWallet } from 'context/WalletProvider/KeepKey/utils'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 interface VersionUrl {
@@ -46,7 +45,7 @@ export const useKeepKeyVersions = () => {
   }
 
   useEffect(() => {
-    if (!isKeepKeyWallet(wallet)) return
+    if (!wallet || !isKeepKey(wallet)) return
     ;(async () => {
       const { data: releases } = await axios.get<FirmwareReleases>(
         'https://storageapi.fleek.co/081e91ad-2088-4280-97c5-e3174231ecab-bucket/keepKey.json',

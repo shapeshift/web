@@ -1,7 +1,6 @@
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
-import { isKeepKeyWallet } from 'context/WalletProvider/KeepKey/utils'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 
 export enum KeepKeyActions {
@@ -57,7 +56,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   const [state, dispatch] = useReducer(reducer, initialState)
   const { state: walletState, dispatch: walletDispatch, load } = useWallet()
   const { wallet } = walletState
-  const keepKeyWallet = isKeepKeyWallet(wallet) ? wallet : undefined
+  const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [pinCaching, setPinCaching] = useState<boolean>()
   const [passphrase, setPassphrase] = useState<boolean>()
 

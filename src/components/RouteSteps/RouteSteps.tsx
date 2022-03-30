@@ -1,6 +1,6 @@
 import { Box, BoxProps, useColorModeValue } from '@chakra-ui/react'
 import { Location } from 'history'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingTypes'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Text } from 'components/Text'
 import { VerticalStepper } from 'components/VerticalStepper/VerticalStepper'
 

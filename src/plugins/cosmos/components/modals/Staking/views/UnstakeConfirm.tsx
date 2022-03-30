@@ -13,7 +13,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { UnstakingPath } from '../StakingTypes'
+import { UnstakingPath } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',

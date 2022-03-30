@@ -7,7 +7,7 @@ import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { StakingAction, UnstakingPath } from '../StakingTypes'
+import { StakingAction, UnstakingPath } from '../StakingCommon'
 import { UnstakeConfirm } from './UnstakeConfirm'
 
 type UnstakingConfirmProps = {

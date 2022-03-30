@@ -7,7 +7,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { Form } from './Form'
-import { SendRoutes } from './SendTypes'
+import { SendRoutes } from './SendCommon'
 
 export const entries = [
   SendRoutes.Address,

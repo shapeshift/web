@@ -4,7 +4,7 @@ import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { entries, StakeRoutes, StakingAction, StakingModalProps } from './StakingTypes'
+import { entries, StakeRoutes, StakingAction, StakingModalProps } from './StakingCommon'
 import { ClaimConfirmRouter } from './views/ClaimConfirmRouter'
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'

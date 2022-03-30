@@ -1,7 +1,7 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Input, InputLeftElement, Tag, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/StakingTypes'
+import { Field, StakingValues } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Control, Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'

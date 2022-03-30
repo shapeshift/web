@@ -27,7 +27,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { Field, InputType, StakeRoutes, StakingAction, StakingValues } from '../StakingTypes'
+import { Field, InputType, StakeRoutes, StakingAction, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string

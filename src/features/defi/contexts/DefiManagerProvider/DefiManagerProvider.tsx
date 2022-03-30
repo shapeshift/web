@@ -7,7 +7,7 @@ import { NotFound } from 'pages/NotFound/NotFound'
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
-import { DefiManagerContextProps, DefiManagerProviderProps, DefiProvider } from './DefiTypes'
+import { DefiManagerContextProps, DefiManagerProviderProps, DefiProvider } from './DefiCommon'
 
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 

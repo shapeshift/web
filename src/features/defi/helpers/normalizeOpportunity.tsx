@@ -7,7 +7,7 @@ import { MergedFoxyOpportunity } from 'pages/Defi/hooks/useFoxyBalances'
 import { useVaultBalances } from 'pages/Defi/hooks/useVaultBalances'
 import { selectAssetIds } from 'state/slices/selectors'
 
-import { DefiType } from '../contexts/DefiManagerProvider/DefiTypes'
+import { DefiType } from '../contexts/DefiManagerProvider/DefiCommon'
 
 export type EarnOpportunityType = {
   type?: string

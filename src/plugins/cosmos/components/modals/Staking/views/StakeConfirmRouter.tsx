@@ -6,7 +6,7 @@ import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { StakingPath } from '../StakingTypes'
+import { StakingPath } from '../StakingCommon'
 import { StakeBroadcast } from './StakeBroadcast'
 import { StakeConfirm } from './StakeConfirm'
 

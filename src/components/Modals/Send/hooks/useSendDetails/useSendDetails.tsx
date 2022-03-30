@@ -22,7 +22,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { SendFormFields, SendInput } from '../../Form'
-import { SendRoutes } from '../../SendTypes'
+import { SendRoutes } from '../../SendCommon'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 

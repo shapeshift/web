@@ -16,7 +16,6 @@ jest.mock('lib/web3-instance')
 jest.mock('react-hook-form')
 jest.mock('../useSwapper/useSwapper')
 jest.mock('state/slices/selectors', () => ({
-  ...jest.requireActual('state/slices/selectors'),
   selectAssets: () => ({
     'eip155:1/slip44:60': mockETH,
     'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d': mockFOX

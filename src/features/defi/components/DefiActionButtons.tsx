@@ -3,7 +3,7 @@ import {
   DefiAction,
   DefiParams,
   DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+} from 'features/defi/contexts/DefiManagerProvider/DefiTypes'
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'

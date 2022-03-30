@@ -1,7 +1,7 @@
 import { Center, Heading, Stack } from '@chakra-ui/layout'
 import { ModalHeader, useColorModeValue } from '@chakra-ui/react'
 import { DefiActionButtons } from 'features/defi/components/DefiActionButtons'
-import { DefiParams } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { DefiParams } from 'features/defi/contexts/DefiManagerProvider/DefiTypes'
 import { useFoxy } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { AnimatePresence } from 'framer-motion'
 import { Location } from 'history'

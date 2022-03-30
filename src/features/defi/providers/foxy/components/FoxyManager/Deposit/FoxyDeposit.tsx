@@ -19,10 +19,7 @@ import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import {
-  DefiParams,
-  DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiTypes'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'

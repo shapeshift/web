@@ -7,14 +7,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 
 import { Form } from './Form'
-
-export enum SendRoutes {
-  Select = '/send/select',
-  Address = '/send/address',
-  Details = '/send/details',
-  Confirm = '/send/confirm',
-  Scan = '/send/scan'
-}
+import { SendRoutes } from './SendCommon'
 
 export const entries = [
   SendRoutes.Address,

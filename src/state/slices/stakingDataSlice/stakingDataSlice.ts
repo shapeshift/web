@@ -11,7 +11,7 @@ type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
 type AllValidatorDataArgs = { chainId: CAIP2 }
 
-export type Status = 'idle' | 'loading' | 'loaded'
+export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
 
 export type Staking = {
   delegations: chainAdapters.cosmos.Delegation[]
@@ -24,14 +24,14 @@ export type Validators = {
   validators: chainAdapters.cosmos.Validator[]
 }
 
-export type StakingDataById = {
+export type StakingDataByAccountSpecifier = {
   [k: PubKey]: Staking
 }
 
 export type StakingData = {
-  byAccountSpecifier: StakingDataById
-  status: Status
-  validatorStatus: Status
+  byAccountSpecifier: StakingDataByAccountSpecifier
+  status: StakingDataStatus
+  validatorStatus: StakingDataStatus
   byvalidator: ValidatorDataByPubKey
 }
 
@@ -45,6 +45,7 @@ export type StakingPayload = {
     stakingData: Staking
   }
 }
+
 const initialState: StakingData = {
   byAccountSpecifier: {},
   byvalidator: {},
@@ -69,7 +70,7 @@ const updateOrInsertValidatorData = (
   })
 }
 
-type StakingDataStatusPayload = { payload: Status }
+type StakingDataStatusPayload = { payload: StakingDataStatus }
 
 export const stakingData = createSlice({
   name: 'stakingData',
@@ -108,11 +109,11 @@ export const stakingDataApi = createApi({
   endpoints: build => ({
     getStakingData: build.query<Staking, AllStakingDataArgs>({
       queryFn: async ({ accountSpecifier }, { dispatch }) => {
-        const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
-        const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
-        dispatch(stakingData.actions.setStatus('loading'))
         try {
+          const { caip2, account } = caip10.fromCAIP10(accountSpecifier)
+          const chainAdapters = getChainAdapters()
+          const adapter = (await chainAdapters.byChainId(caip2)) as ChainAdapter<ChainTypes.Cosmos>
+          dispatch(stakingData.actions.setStatus('loading'))
           const data = await adapter.getAccount(account)
 
           const {
@@ -134,10 +135,10 @@ export const stakingDataApi = createApi({
           )
           return { data: currentStakingData }
         } catch (e) {
-          console.error('Error fetching staking data for ', account)
+          console.error('Error fetching staking data for ', accountSpecifier)
           return {
             error: {
-              data: `Error fetching staking data for ${account}`,
+              data: `Error fetching staking data for ${accountSpecifier}`,
               status: 500
             }
           }

@@ -7,7 +7,7 @@ import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,

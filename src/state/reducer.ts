@@ -14,8 +14,8 @@ export const slices = {
   assets,
   marketData,
   txHistory,
-  portfolio,
   stakingData,
+  portfolio,
   preferences,
   accountSpecifiers
 }
@@ -30,8 +30,8 @@ export const sliceReducers = {
   assets: assets.reducer,
   marketData: marketData.reducer,
   txHistory: txHistory.reducer,
-  portfolio: portfolio.reducer,
   stakingData: stakingData.reducer,
+  portfolio: portfolio.reducer,
   preferences: persistReducer(preferencesPersistConfig, preferences.reducer),
   accountSpecifiers: accountSpecifiers.reducer
 }

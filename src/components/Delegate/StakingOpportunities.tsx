@@ -13,7 +13,6 @@ import { caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { MouseEvent, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Column, Row } from 'react-table'
@@ -188,7 +187,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const handleStakedClick = (values: Row<object>) => {
     cosmosStaking.open({
       assetId: 'cosmos:cosmoshub-4/slip44:118',
-      action: StakingAction.Overview,
       validatorAddress: (values.original as StakingOpportunity).validatorAddress
     })
   }

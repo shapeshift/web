@@ -6,10 +6,18 @@ import { Column, TableState, useSortBy, useTable } from 'react-table'
 type ReactTableProps = {
   columns: Column<any>[]
   data: object[]
+  displayHeaders?: boolean
+  onRowClick?: () => void
   initialState?: Partial<TableState<object>>
 }
 
-export const ReactTable = ({ columns, data, initialState }: ReactTableProps) => {
+export const ReactTable = ({
+  columns,
+  data,
+  displayHeaders = true,
+  onRowClick,
+  initialState
+}: ReactTableProps) => {
   const hoverColor = useColorModeValue('black', 'white')
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
@@ -23,7 +31,7 @@ export const ReactTable = ({ columns, data, initialState }: ReactTableProps) => 
     return rows.map(row => {
       prepareRow(row)
       return (
-        <Tr {...row.getRowProps()} tabIndex={row.index}>
+        <Tr {...row.getRowProps()} tabIndex={row.index} onClick={() => onRowClick && onRowClick()}>
           {row.cells.map(cell => (
             <Td {...cell.getCellProps()} display={cell.column.display}>
               {cell.render('Cell')}
@@ -32,7 +40,7 @@ export const ReactTable = ({ columns, data, initialState }: ReactTableProps) => 
         </Tr>
       )
     })
-  }, [prepareRow, rows])
+  }, [prepareRow, rows, onRowClick])
 
   return (
     <Table variant='clickable' {...getTableProps()}>
@@ -48,7 +56,7 @@ export const ReactTable = ({ columns, data, initialState }: ReactTableProps) => 
                 _hover={{ color: column.canSort ? hoverColor : 'gray.500' }}
               >
                 <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-                  {column.render('Header')}
+                  {displayHeaders && column.render('Header')}
                   <Flex>
                     {column.isSorted ? (
                       column.isSortedDesc ? (

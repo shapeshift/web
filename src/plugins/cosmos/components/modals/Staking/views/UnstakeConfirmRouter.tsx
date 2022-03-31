@@ -7,8 +7,8 @@ import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { SlideTransition } from 'components/SlideTransition'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { StakingAction } from '../Staking'
 import { UnstakeBroadcast } from './UnstakeBroadcast'
+import { StakingAction, UnstakingPath } from '../StakingCommon'
 import { UnstakeConfirm } from './UnstakeConfirm'
 
 type UnstakingConfirmProps = {
@@ -16,11 +16,6 @@ type UnstakingConfirmProps = {
   assetId: CAIP19
   fiatRate: BigNumber
   onCancel: () => void
-}
-
-export enum UnstakingPath {
-  Confirm = '/unstaking/confirm',
-  Broadcast = '/unstaking/broadcast'
 }
 
 export const withdrawRoutes = [

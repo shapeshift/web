@@ -23,7 +23,7 @@ export const UnbondingRow = ({
 }: UnbondingRowProps) => {
   const bg = useColorModeValue('gray.50', 'gray.700')
   return (
-    <Card size='sm' width='full' bgColor={bg} mt='15px'>
+    <Card size='sm' width='full' bgColor={bg}>
       <Card.Body>
         <Flex borderRadius='8px' justifyContent='space-between'>
           <Flex alignItems='center'>

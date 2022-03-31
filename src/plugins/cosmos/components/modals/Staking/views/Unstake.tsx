@@ -24,7 +24,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakeRoutes, StakingAction } from '../Staking'
+import { StakeRoutes, StakingAction } from '../StakingCommon'
 
 const UNBONDING_DURATION = '14'
 

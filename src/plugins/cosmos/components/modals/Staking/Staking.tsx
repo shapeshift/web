@@ -36,6 +36,7 @@ import { Stake } from './views/Stake'
 import { StakeBroadcast } from './views/StakeBroadcast'
 import { StakeConfirm } from './views/StakeConfirm'
 import { Unstake } from './views/Unstake'
+import { UnstakeBroadcast } from './views/UnstakeBroadcast'
 import { UnstakeConfirm } from './views/UnstakeConfirm'
 
 const StakingModalContent = ({ assetId }: StakingModalProps) => {
@@ -151,7 +152,13 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
             />
           </Route>
           <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
-            TODO Unstaking Broadcast component
+            <UnstakeBroadcast
+              assetId={assetId}
+              cryptoUnstakeAmount={location.state?.cryptoAmount}
+              fiatRate={location.state?.fiatRate}
+              isLoading={true}
+              validatorName='Shapeshift Validator'
+            />
           </Route>
           <Route exact key={StakeRoutes.Unstake} path={StakeRoutes.Unstake}>
             <Unstake

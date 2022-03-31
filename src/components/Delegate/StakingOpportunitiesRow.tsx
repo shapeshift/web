@@ -5,7 +5,7 @@ import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 // TODO: add proper args and types for Cosmos chains; wire up
 export const StakingOpportunitiesRow = ({ name }: { name: string }) => {

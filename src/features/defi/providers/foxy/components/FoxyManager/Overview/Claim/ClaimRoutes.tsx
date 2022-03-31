@@ -1,9 +1,6 @@
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
-import {
-  DefiParams,
-  DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import { Route, Switch, useLocation } from 'react-router'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'

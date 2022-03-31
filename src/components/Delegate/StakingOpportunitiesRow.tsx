@@ -1,7 +1,7 @@
 import { Flex, HStack } from '@chakra-ui/layout'
 import { Button, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import React from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'

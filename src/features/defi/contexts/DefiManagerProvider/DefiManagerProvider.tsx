@@ -1,4 +1,3 @@
-import { ChainTypes } from '@shapeshiftoss/types'
 import { FoxyProvider } from 'features/defi/contexts/FoxyProvider/FoxyProvider'
 import { YearnProvider } from 'features/defi/contexts/YearnProvider/YearnProvider'
 import React, { useContext } from 'react'
@@ -8,48 +7,7 @@ import { NotFound } from 'pages/NotFound/NotFound'
 import { DefiModal } from '../../components/DefiModal/DefiModal'
 import { FoxyManager } from '../../providers/foxy/components/FoxyManager/FoxyManager'
 import { YearnManager } from '../../providers/yearn/components/YearnManager/YearnManager'
-
-export enum DefiType {
-  Pool = 'pool',
-  Vault = 'vault',
-  Staking = 'staking',
-  Farming = 'farming',
-  TokenStaking = 'token_staking'
-}
-
-export enum DefiProvider {
-  Yearn = 'yearn',
-  ShapeShift = 'ShapeShift'
-}
-
-export enum DefiAction {
-  Overview = 'overview',
-  Deposit = 'deposit',
-  Withdraw = 'withdraw',
-  GetStarted = 'get-started'
-}
-
-export type DefiParams = {
-  provider: DefiProvider
-  earnType: DefiType
-  action: DefiAction
-}
-
-export type DefiQueryParams = {
-  chain: ChainTypes
-  contractAddress: string
-  tokenId: string
-  rewardId: string
-}
-
-type DefiManagerProviderProps = {
-  children: React.ReactNode
-}
-
-type DefiManagerContextProps = {
-  open(): void
-  close(): void
-}
+import { DefiManagerContextProps, DefiManagerProviderProps, DefiProvider } from './DefiCommon'
 
 const DefiManagerContext = React.createContext<DefiManagerContextProps | null>(null)
 

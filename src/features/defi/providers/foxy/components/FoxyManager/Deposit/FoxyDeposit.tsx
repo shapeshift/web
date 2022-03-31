@@ -159,6 +159,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
     if (!state.userAddress || !tokenId) return
     try {
       const test = bnOrZero(deposit.cryptoAmount)
+      console.log('deposit.cryptoAmount', deposit.cryptoAmount)
       console.log('test', test)
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({

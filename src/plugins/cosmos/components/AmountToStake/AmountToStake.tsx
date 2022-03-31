@@ -1,4 +1,4 @@
-import { Box, Flex, FlexProps } from '@chakra-ui/layout'
+import { Flex, FlexProps } from '@chakra-ui/layout'
 import { FormLabel } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { Amount } from 'components/Amount/Amount'
@@ -26,7 +26,7 @@ export const AmountToStake = ({
     <FormLabel lineHeight={1} color='gray.500'>
       <Text translation={isStake ? 'defi.amountToStake' : 'defi.amountToUnstake'} />
     </FormLabel>
-    <Box
+    <Flex
       as='button'
       type='button'
       lineHeight={1}
@@ -37,10 +37,10 @@ export const AmountToStake = ({
       _hover={{ color: 'gray.400', transition: '.2s color ease' }}
     >
       {isCryptoField ? (
-        <Amount.Fiat value={values?.fiatAmount ?? ''} />
+        <Amount.Fiat prefix={'≈'} value={values?.fiatAmount ?? ''} />
       ) : (
-        <Amount.Crypto value={values?.cryptoAmount ?? ''} symbol={asset.symbol} />
+        <Amount.Crypto prefix={'≈'} value={values?.cryptoAmount ?? ''} symbol={asset.symbol} />
       )}
-    </Box>
+    </Flex>
   </Flex>
 )

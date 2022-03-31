@@ -261,6 +261,29 @@ export const Deposit = ({
                 divider={<Divider />}
                 spacing={0}
               >
+                <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
+                  {percentOptions.map(option => (
+                    <Button
+                      isActive={option === percent}
+                      key={option}
+                      variant='ghost'
+                      colorScheme='blue'
+                      onClick={() => handlePercentClick(option)}
+                    >
+                      {option === 1 ? (
+                        'Max'
+                      ) : (
+                        <Amount.Percent
+                          value={option}
+                          options={{
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                          }}
+                        />
+                      )}
+                    </Button>
+                  ))}
+                </ButtonGroup>
                 <InputGroup size='lg'>
                   <InputLeftElement pos='relative' ml={1} width='auto'>
                     <Button
@@ -356,29 +379,6 @@ export const Deposit = ({
                     </InputRightElement>
                   )}
                 </InputGroup>
-                <ButtonGroup width='full' justifyContent='space-between' size='sm' px={4} py={2}>
-                  {percentOptions.map(option => (
-                    <Button
-                      isActive={option === percent}
-                      key={option}
-                      variant='ghost'
-                      colorScheme='blue'
-                      onClick={() => handlePercentClick(option)}
-                    >
-                      {option === 1 ? (
-                        'Max'
-                      ) : (
-                        <Amount.Percent
-                          value={option}
-                          options={{
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0
-                          }}
-                        />
-                      )}
-                    </Button>
-                  ))}
-                </ButtonGroup>
                 <Row px={4} py={4}>
                   <Row.Label>{translate('modals.deposit.estimatedReturns')}</Row.Label>
                   <Row.Value>

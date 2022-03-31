@@ -20,7 +20,10 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  PortfolioAssets,
+  PortfolioBalancesById
+} from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectPortfolioAssets,
   selectPortfolioCryptoBalancesByAccountId,

@@ -3,7 +3,6 @@ import { Button, ModalCloseButton, VStack } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiModalHeader'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
 import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
@@ -30,7 +29,7 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   }
 
   const handleStartStakingClick = () => {
-    cosmosStaking.open({ assetId, action: StakingAction.Stake })
+    cosmosStaking.open({ assetId })
     cosmosGetStarted.close()
   }
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this

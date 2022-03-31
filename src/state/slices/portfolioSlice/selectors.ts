@@ -17,7 +17,7 @@ import {
   PortfolioAssetBalances,
   PortfolioAssets,
   PortfolioBalancesById
-} from './portfolioSlice'
+} from './portfolioSliceCommon'
 import { accountIdToFeeAssetId, findAccountsByAssetId } from './utils'
 
 // We should prob change this once we add more chains

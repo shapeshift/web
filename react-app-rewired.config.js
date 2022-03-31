@@ -11,6 +11,7 @@ const { sha256 } = require('multiformats/hashes/sha2')
 const ssri = require('ssri')
 const webpack = require('webpack')
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity')
+const CircularDependencyPlugin = require('circular-dependency-plugin')
 
 const headers = require('./headers')
 process.env.REACT_APP_CSP_META = headers.cspMeta ?? ''
@@ -151,6 +152,23 @@ module.exports = {
         ...config.plugins,
         new SubresourceIntegrityPlugin({
           hashFuncNames: ['sha256']
+        })
+      ]
+    })
+
+    _.merge(config, {
+      plugins: [
+        ...config.plugins,
+        new CircularDependencyPlugin({
+          exclude: /node_modules/,
+          include: /src/,
+          // add warnings instead of errors
+          failOnError: false,
+          // allow import cycles that include an asyncronous import,
+          // e.g. via import(/* webpackMode: "weak" */ './file.js')
+          allowAsyncCycles: false,
+          // set the current working directory for displaying module paths
+          cwd: process.cwd()
         })
       ]
     })

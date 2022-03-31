@@ -376,7 +376,7 @@ export class FoxyApi {
 
     try {
       const estimatedGas = await stakingContract.methods
-        .stake(amountDesired.toString(), userAddress)
+        .stake(amountDesired, userAddress)
         .estimateGas({
           from: userAddress
         })

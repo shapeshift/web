@@ -11,7 +11,8 @@ import {
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
+import { MouseEvent } from 'react'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Column } from 'react-table'
@@ -80,7 +81,7 @@ export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportun
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
-  const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleGetStartedClick = (e: MouseEvent<HTMLButtonElement>) => {
     cosmosGetStarted.open({ assetId: 'cosmos:cosmoshub-4/slip44:118' })
     e.stopPropagation()
   }
@@ -96,7 +97,7 @@ export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportun
         accessor: 'moniker',
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => (
-          <ValidatorName moniker={value} isStaking={isStaking}></ValidatorName>
+          <ValidatorName moniker={value} isStaking={isStaking} />
         ),
         disableSortBy: true
       },

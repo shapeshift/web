@@ -5,6 +5,14 @@ import { useMemo, useState } from 'react'
 
 export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
+const fetchAsset = async (url: string) => {
+  try {
+    const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+    return data
+  } catch (e) {
+    console.error(`useHasAppUpdated: error fetching ${url}`, e)
+  }
+}
 export const useHasAppUpdated = () => {
   const [hasUpdated, setHasUpdated] = useState(false)
   const [initialManifestMainJs, setManifestMainJs] = useState(null)
@@ -12,46 +20,44 @@ export const useHasAppUpdated = () => {
   // asset-manifest tells us the latest minified built files
   const assetManifestUrl = '/asset-manifest.json'
   const envUrl = '/env.json'
-  const storeInitialAsset = () => {
-    // dummy query param bypasses browser cache
-    Promise.all<any>([
-      axios.get(`${assetManifestUrl}?${new Date().valueOf()}`).then(({ data }) => {
-        setManifestMainJs(data)
-      }),
-      axios.get(`${envUrl}?${new Date().valueOf()}`).then(({ data }) => {
-        setEnv(data)
-      })
-    ])
-  }
-  useMemo(storeInitialAsset, [])
-  useInterval(async () => {
+
+  const storeAndCompareAsset = async () => {
     // we don't care about updates locally obv
     if (window.location.hostname === 'localhost') return
 
-    let manifestMainJs, env
-    try {
-      const { data } = await axios.get(`${assetManifestUrl}?${new Date().valueOf()}`)
-      manifestMainJs = data
-    } catch (e) {
-      console.error(`useHasAppUpdated: error fetching asset-manifest.json`, e)
-    }
-    try {
-      const { data } = await axios.get(`${envUrl}?${new Date().valueOf()}`)
-      env = data
-    } catch (e) {
-      console.error(`useHasAppUpdated: error fetching env.json`, e)
-    }
+    const manifestMainJs = await fetchAsset(assetManifestUrl)
+    const env = await fetchAsset(envUrl)
+
     if (!manifestMainJs) {
       console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
-      return
     }
     if (!env) {
       console.error(`useHasAppUpdated: can't find env in env.json`)
-      return
     }
-    //deep equality check
-    const isSameAssetManifest = isEqual(initialManifestMainJs, manifestMainJs)
-    const isSameEnv = isEqual(initialEnv, env)
+
+    let isSameAssetManifest = true,
+      isSameEnv = true
+
+    if (!initialManifestMainJs) {
+      // first run
+      if (manifestMainJs) setManifestMainJs(manifestMainJs)
+    } else {
+      // subsequent runs
+      if (manifestMainJs && !isEqual(manifestMainJs, initialManifestMainJs)) {
+        isSameAssetManifest = false
+      }
+    }
+
+    if (!initialEnv) {
+      // first run
+      if (env) setEnv(env)
+    } else {
+      // subsequent runs
+      if (env && !isEqual(env, initialEnv)) {
+        isSameEnv = false
+      }
+    }
+
     if (!isSameAssetManifest || !isSameEnv) {
       console.info(
         !isSameAssetManifest
@@ -64,7 +70,11 @@ export const useHasAppUpdated = () => {
       )
       setHasUpdated(true)
     }
-  }, APP_UPDATE_CHECK_INTERVAL)
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(storeAndCompareAsset, [])
+  useInterval(storeAndCompareAsset, APP_UPDATE_CHECK_INTERVAL)
 
   return hasUpdated
 }

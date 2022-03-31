@@ -40,6 +40,7 @@ export interface InitialState {
   isConnected: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
+  deviceId: string
 }
 
 const initialState: InitialState = {
@@ -51,7 +52,8 @@ const initialState: InitialState = {
   walletInfo: null,
   isConnected: false,
   modal: false,
-  isLoadingLocalWallet: false
+  isLoadingLocalWallet: false,
+  deviceId: ''
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -84,11 +86,20 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
       // Otherwise the connect button for last wallet we clicked on won't work
-      if (action.payload !== state.modal) {
+      if (action.payload === false && state.modal === true) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
       }
       return newState
+    case WalletActions.NATIVE_PASSWORD_OPEN:
+      const newerState = {
+        ...state,
+        modal: action.payload.modal,
+        deviceId: action.payload.deviceId
+      }
+      newerState.initialRoute = '/native/enter-password'
+      newerState.isLoadingLocalWallet = false
+      return newerState
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:

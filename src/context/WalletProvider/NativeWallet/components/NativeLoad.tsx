@@ -88,7 +88,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         }
         // Always close the modal after trying to pair the wallet
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         setLocalNativeWalletName(item.name)
       } catch (e) {

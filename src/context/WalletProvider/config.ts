@@ -1,5 +1,6 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
+import { EnterPassword } from 'components/Modals/KeyManagement/Native/EnterPassword'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeySuccess } from './KeepKey/components/Success'
@@ -41,7 +42,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/native/import', component: NativeImport },
       { path: '/native/create', component: NativeCreate },
       { path: '/native/create-test', component: NativeTestPhrase },
-      { path: '/native/success', component: NativeSuccess }
+      { path: '/native/success', component: NativeSuccess },
+      { path: '/native/enter-password', component: EnterPassword }
     ]
   },
   [KeyManager.KeepKey]: {

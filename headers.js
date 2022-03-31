@@ -103,12 +103,10 @@ const defaultMetas = Object.entries(baseMeta)
 // This will generate a new line for every single url
 const urlsMetas = Object.entries(baseMeta).reduce((result, [k, v]) => {
   // First we filter datas containing any url
-  const urlValues = v.filter(value => value && value.match('://') && value.match('://').length > 0)
+  const urlValues = v.filter(value => value && value.match('://'))
 
-  if (urlValues.length > 0) {
-    // For every url, we add a key/value pair object to the result of the reducer
-    urlValues.forEach(url => result.push({ key: 'Content-Security-Policy', value: `${k} ${url}` }))
-  }
+  // For every url, we add a key/value pair object to the result of the reducer
+  urlValues.forEach(url => result.push({ key: 'Content-Security-Policy', value: `${k} ${url}` }))
 
   return result
 }, [])

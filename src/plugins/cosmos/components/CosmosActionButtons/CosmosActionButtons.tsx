@@ -8,20 +8,22 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 type CosmosActionButtonsProps = {
   activeAction: StakingAction
   asset: Asset
+  validatorAddress: string
 }
 export const CosmosActionButtons = ({
   activeAction,
   asset,
+  validatorAddress,
   ...styleProps
 }: CosmosActionButtonsProps & FlexProps) => {
   const { cosmosStaking } = useModal()
 
   const handleUnstakeClick = () => {
-    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Unstake })
+    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Unstake, validatorAddress })
   }
 
   const handleStakeClick = () => {
-    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Stake })
+    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Stake, validatorAddress })
   }
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')

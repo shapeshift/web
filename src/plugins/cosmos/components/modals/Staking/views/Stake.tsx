@@ -35,6 +35,7 @@ type StakeProps = {
   cryptoAmountAvailable: string
   fiatAmountAvailable: string
   marketData: MarketData
+  validatorAddress: string
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -48,7 +49,8 @@ export const Stake = ({
   apr,
   cryptoAmountAvailable,
   fiatAmountAvailable,
-  marketData
+  marketData,
+  validatorAddress
 }: StakeProps) => {
   const {
     clearErrors,
@@ -155,7 +157,13 @@ export const Stake = ({
         alignItems='center'
         justifyContent='space-between'
       >
-        <CosmosActionButtons asset={asset} activeAction={StakingAction.Stake} px='6px' py='6px' />
+        <CosmosActionButtons
+          asset={asset}
+          validatorAddress={validatorAddress}
+          activeAction={StakingAction.Stake}
+          px='6px'
+          py='6px'
+        />
         <AssetHoldingsCard
           py='8px'
           my={6}

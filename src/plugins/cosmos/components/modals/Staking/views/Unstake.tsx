@@ -48,10 +48,17 @@ type UnstakeProps = {
   assetId: CAIP19
   cryptoAmountStaked: string
   marketData: MarketData
+  validatorAddress: string
 }
 
 // TODO: Wire up the whole component with staked data
-export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: UnstakeProps) => {
+export const Unstake = ({
+  assetId,
+  apr,
+  cryptoAmountStaked,
+  marketData,
+  validatorAddress
+}: UnstakeProps) => {
   const {
     clearErrors,
     control,
@@ -158,6 +165,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
           <CosmosActionButtons
             asset={asset}
             activeAction={StakingAction.Unstake}
+            validatorAddress={validatorAddress}
             width='100%'
             px='6px'
             py='6px'

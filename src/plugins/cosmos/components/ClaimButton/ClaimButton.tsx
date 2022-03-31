@@ -7,13 +7,14 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type ClaimButtonProps = {
   assetId: CAIP19
+  validatorAddress: string
 }
 
-export const ClaimButton = ({ assetId }: ClaimButtonProps & FlexProps) => {
+export const ClaimButton = ({ assetId, validatorAddress }: ClaimButtonProps & FlexProps) => {
   const { cosmosStaking } = useModal()
 
   const handleClaimClick = () => {
-    cosmosStaking.open({ assetId, action: StakingAction.Claim })
+    cosmosStaking.open({ assetId, action: StakingAction.Claim, validatorAddress: validatorAddress })
   }
 
   return (

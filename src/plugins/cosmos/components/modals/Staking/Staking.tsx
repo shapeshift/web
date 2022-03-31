@@ -12,7 +12,7 @@ import { StakeConfirmRouter, StakingConfirmProps } from './views/StakeConfirmRou
 import { Unstake } from './views/Unstake'
 import { UnstakeConfirmRouter } from './views/UnstakeConfirmRouter'
 
-const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
+const StakingModalContent = ({ assetId, action, validatorAddress }: StakingModalProps) => {
   const location = useLocation<StakingConfirmProps>()
   const history = useHistory()
   const isConfirmStep = matchPath(location.pathname, {
@@ -49,6 +49,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
                 volume: '1000',
                 changePercent24Hr: 2
               }}
+              validatorAddress={validatorAddress}
             />
           </Route>
           <Route path={StakeRoutes.StakeConfirm}>
@@ -84,6 +85,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
                 volume: '1000',
                 changePercent24Hr: 2
               }}
+              validatorAddress={validatorAddress}
             />
           </Route>
         </>
@@ -91,7 +93,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
     if (action === StakingAction.Overview)
       return (
         <Route path='/'>
-          <Overview assetId={assetId} />
+          <Overview assetId={assetId} validatorAddress={validatorAddress} />
         </Route>
       )
 
@@ -124,8 +126,8 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
     </Modal>
   )
 }
-export const StakingModal = ({ assetId, action }: StakingModalProps) => (
+export const StakingModal = ({ assetId, action, validatorAddress }: StakingModalProps) => (
   <MemoryRouter initialEntries={entries}>
-    <StakingModalContent assetId={assetId} action={action} />
+    <StakingModalContent assetId={assetId} action={action} validatorAddress={validatorAddress} />
   </MemoryRouter>
 )

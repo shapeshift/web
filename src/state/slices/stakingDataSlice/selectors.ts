@@ -345,6 +345,7 @@ export const selectStakingOpportunityData = createDeepEqualOutputSelector(
         .toString()
 
       return {
+        validatorAddress,
         apr,
         moniker,
         cryptoAmount,

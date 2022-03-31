@@ -1,13 +1,13 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { Column, TableState, useSortBy, useTable } from 'react-table'
+import { Column, Row, TableState, useSortBy, useTable } from 'react-table'
 
 type ReactTableProps = {
   columns: Column<any>[]
   data: object[]
   displayHeaders?: boolean
-  onRowClick?: () => void
+  onRowClick?: (row: Row<object>) => void
   initialState?: Partial<TableState<object>>
 }
 
@@ -31,7 +31,11 @@ export const ReactTable = ({
     return rows.map(row => {
       prepareRow(row)
       return (
-        <Tr {...row.getRowProps()} tabIndex={row.index} onClick={() => onRowClick && onRowClick()}>
+        <Tr
+          {...row.getRowProps()}
+          tabIndex={row.index}
+          onClick={() => onRowClick && onRowClick(row)}
+        >
           {row.cells.map(cell => (
             <Td {...cell.getCellProps()} display={cell.column.display}>
               {cell.render('Cell')}

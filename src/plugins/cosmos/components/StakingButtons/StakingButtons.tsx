@@ -7,17 +7,22 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 
 type StakingButtonsProps = {
   assetId: CAIP19
+  validatorAddress: string
 }
 
-export const StakingButtons = ({ assetId, ...styleProps }: StakingButtonsProps & FlexProps) => {
+export const StakingButtons = ({
+  assetId,
+  validatorAddress,
+  ...styleProps
+}: StakingButtonsProps & FlexProps) => {
   const { cosmosStaking } = useModal()
 
   const handleStakingClick = () => {
-    cosmosStaking.open({ assetId, action: StakingAction.Stake })
+    cosmosStaking.open({ assetId, action: StakingAction.Stake, validatorAddress })
   }
 
   const handleUnstakingClick = () => {
-    cosmosStaking.open({ assetId, action: StakingAction.Unstake })
+    cosmosStaking.open({ assetId, action: StakingAction.Unstake, validatorAddress })
   }
   return (
     <Flex justifyContent='space-between' flexWrap='wrap' width='100%' {...styleProps}>

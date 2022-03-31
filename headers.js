@@ -1,8 +1,12 @@
 require('dotenv').config()
 
-const baseMeta = {
+/** @typedef {Record<string, Array<string>>} CspBase */
+/** @typedef {[string, string]} CspEntry */
+
+/** @type {CspBase} */
+const cspBase = {
   'default-src': ["'self'"],
-  'child-src': ["'self'", 'blob:', "'report-sample'"],
+  'child-src': ["'self'", 'blob:'],
   'connect-src': [
     "'self'",
     'data:',
@@ -84,37 +88,93 @@ const baseMeta = {
   ],
   'style-src': ["'self'", "'unsafe-inline'", "'report-sample'"],
   'base-uri': ["'none'"],
-  'object-src': ["'none'"]
+  'object-src': ["'none'"],
+  'frame-ancestors': ["'none'"]
+  // 'report-uri': ['https://shapeshift.report-uri.com/r/d/csp/wizard']
 }
 
-const cspMeta = Object.entries(baseMeta)
-  .map(([k, v]) => `${[k, ...v].join(' ')}`)
-  .join('; ')
-
-// This will filter basic meta datas and inline it for the first Content-Security-Policy line
-const defaultMetas = Object.entries(baseMeta)
-  .map(([k, v]) => {
-    const keyValues = v.filter(value => value && !value.match('://'))
-
-    return `${[k, ...keyValues].join(' ')}`
+/**
+ * @param {CspBase} x
+ * @returns {CspEntry[]}
+ */
+function cspToEntries(x) {
+  return Object.entries(x).flatMap(([k, v]) => {
+    return v.map(entry => {
+      /** @type {[string, string]} */
+      const out = [k, entry]
+      return out
+    })
   })
-  .join('; ')
+}
 
-// This will generate a new line for every single url
-const urlsMetas = Object.entries(baseMeta).reduce((result, [k, v]) => {
-  // First we filter datas containing any url
-  const urlValues = v.filter(value => value && value.match('://'))
+/**
+ * @param {CspEntry[]} x
+ * @returns {CspBase}
+ */
+function entriesToCsp(x) {
+  /** @type {CspBase} */
+  const acc = {}
+  return x.reduce((a, [k, v]) => {
+    a[k] ??= []
+    a[k].push(v)
+    return a
+  }, acc)
+}
 
-  // For every url, we add a key/value pair object to the result of the reducer
-  urlValues.forEach(url => result.push({ key: 'Content-Security-Policy', value: `${k} ${url}` }))
+/**
+ * @param {CspBase} x
+ * @returns {string}
+ */
+function serializeCsp(x) {
+  return Object.entries(x)
+    .map(([k, v]) => `${[k, ...v].join(' ')}`)
+    .join('; ')
+}
 
-  return result
-}, [])
+/**
+ * This determines if a CSP source is a host source or not.
+ * Ref: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources
+ * @param {string} x
+ * @returns {boolean}
+ */
+function isCspSourceAHostSource(x) {
+  // It's not a host source if it's a scheme source
+  if (/^[-+.a-z0-9]+:$/.test(x)) return false
+  // It's not a host source if it's a "string source"
+  if (/^'.*'$/.test(x)) return false
+  return true
+}
+
+// This selects the contents of the CSP meta tag which will be inlined in index.html
+// via REACT_APP_CSP_META. We omit the frame-ancestors directive because it is only
+// enforcable when delivered via header. (While it doesn't hurt to deliver it via meta
+// tag as well, it does cause a spurious console error message.)
+const cspMetaOmittedDirectives = ['frame-ancestors']
+const cspBaseMeta = entriesToCsp(
+  cspToEntries(cspBase).filter(([k]) => !cspMetaOmittedDirectives.includes(k))
+)
+
+// This selects the contents of the first CSP header. To work around header length limits,
+// the first header includes only the non-host sources (i.e. no URLs). Browsers which
+// incorrectly parse only the first returned CSP header will therefore at least use a policy
+// which is fail-secure.
+const cspBaseNoHostSources = entriesToCsp(
+  cspToEntries(cspBase).filter(([, v]) => !isCspSourceAHostSource(v))
+)
+
+// This selects the CSP sources which must each get their own separate CSP header to work around
+// header length limits. It also checks to make sure that any sources added are secure.
+const cspBaseOnlyHostSources = entriesToCsp(
+  cspToEntries(cspBase).filter(([, v]) => isCspSourceAHostSource(v))
+)
 
 const headers = [
   { key: 'Cache-Control', value: 'no-transform' }, // This will prevent middleboxes from munging our JS and breaking SRI if we're ever served over HTTP
-  { key: 'Content-Security-Policy', value: `${defaultMetas}; frame-ancestors 'none'` }, // `; report-uri https://shapeshift.report-uri.com/r/d/csp/wizard`,
-  ...urlsMetas,
+  { key: 'Content-Security-Policy', value: serializeCsp(cspBaseNoHostSources) },
+  ...cspToEntries(cspBaseOnlyHostSources).map(x => ({
+    key: 'Content-Security-Policy',
+    value: serializeCsp(entriesToCsp([x]))
+  })),
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
   { key: 'Permissions-Policy', value: 'document-domain=()' },
   { key: 'Referrer-Policy', value: 'no-referrer' },
@@ -124,7 +184,7 @@ const headers = [
 
 module.exports = {
   headers,
-  cspMeta
+  cspMeta: serializeCsp(cspBaseMeta)
 }
 
 if (!module.parent) {

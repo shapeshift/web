@@ -290,7 +290,8 @@
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
-        "withdraw": "Withdraw"
+        "withdraw": "Withdraw",
+        "receive": "Receive"
       },
       "uniV2": {
         "addLiquidityETH": "Add liquidity",

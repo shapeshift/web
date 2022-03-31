@@ -268,7 +268,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={isStaking ? stakingOpportunities : stakingOpportunityDefault}
+          data={!isStaking && isLoaded ? stakingOpportunityDefault : stakingOpportunities}
           columns={columns}
           displayHeaders={isStaking}
           onRowClick={handleStakedClick}

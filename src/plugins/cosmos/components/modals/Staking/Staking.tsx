@@ -8,18 +8,13 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { caip10 } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectPubkeyishByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import {
@@ -92,43 +87,12 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
   }
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
-  const [address, setAddress] = useState<string>('')
-  const accountSpecifier = useMemo(() => {
-    if (!address.length || !asset) return ''
+  const accountSpecifiersForChainId = useAppSelector(state =>
+    selectPubkeyishByChainId(state, asset?.caip2)
+  )
+  const accountSpecifier = accountSpecifiersForChainId?.[0]
 
-    return caip10.toCAIP10({
-      caip2: asset.caip2,
-      account: address
-    })
-  }, [address, asset])
-
-  const chainAdapterManager = useChainAdapters()
-  const {
-    state: { wallet }
-  } = useWallet()
-
-  useEffect(() => {
-    ;(async () => {
-      if (!asset?.chain) return
-
-      const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
-      setChainAdapter(cosmosChainAdapter)
-    })()
-  }, [chainAdapterManager, asset?.chain])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!chainAdapter || !wallet || !asset) return
-
-      const address = await chainAdapter.getAddress({
-        wallet
-      })
-      setAddress(address)
-    })()
-  }, [chainAdapter, wallet, asset])
-
-  if (!asset) return null
+  if (!asset || !accountSpecifier) return null
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered initialFocusRef={initialRef}>

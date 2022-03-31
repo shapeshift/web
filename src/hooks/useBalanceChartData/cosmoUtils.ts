@@ -11,7 +11,7 @@ export const skipCosmosTx = (tx: Tx) =>
 
 export const includeStakedBalance = (
   startingBucket: Bucket,
-  totalCosmosStaked: number,
+  totalCosmosStaked: string,
   assetIds: string[]
 ) => {
   const newStartingBucket = { ...startingBucket }

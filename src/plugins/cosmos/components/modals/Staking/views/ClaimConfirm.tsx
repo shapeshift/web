@@ -22,7 +22,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { StakeRoutes } from '../Staking'
+import { ClaimPath } from '../StakingCommon'
 
 export enum Field {
   FeeType = 'feeType'
@@ -55,7 +55,7 @@ export const ClaimConfirm = ({
 
   const memoryHistory = useHistory()
   const onSubmit = (result: any) => {
-    memoryHistory.push(StakeRoutes.ClaimBroadcast, { cryptoAmount: cryptoStakeAmount })
+    memoryHistory.push(ClaimPath.Broadcast, { cryptoAmount: cryptoStakeAmount })
   }
 
   const translate = useTranslate()

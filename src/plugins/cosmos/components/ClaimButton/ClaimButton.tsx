@@ -1,7 +1,7 @@
 import { FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { StakeRoutes } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { ClaimPath } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 
@@ -13,7 +13,7 @@ export const ClaimButton = ({ assetId }: ClaimButtonProps & FlexProps) => {
   const history = useHistory()
 
   const handleClaimClick = () => {
-    history.push(StakeRoutes.ClaimConfirm, {
+    history.push(ClaimPath.Confirm, {
       assetId
     })
   }

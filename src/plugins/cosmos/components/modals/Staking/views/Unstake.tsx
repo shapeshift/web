@@ -25,7 +25,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakeRoutes } from '../StakingCommon'
+import { UnstakingPath } from '../StakingCommon'
 
 const UNBONDING_DURATION = '14'
 
@@ -85,7 +85,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
   const memoryHistory = useHistory()
 
   const onSubmit = (_: any) => {
-    memoryHistory.push(StakeRoutes.UnstakeConfirm, {
+    memoryHistory.push(UnstakingPath.Confirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount),
       assetId,
       fiatRate: bnOrZero(marketData.price)

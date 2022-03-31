@@ -8,7 +8,6 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
 import { Asset } from '@shapeshiftoss/types'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { useRef } from 'react'
@@ -16,12 +15,22 @@ import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { entries, StakeRoutes, StakingModalProps } from './StakingCommon'
+import {
+  ClaimPath,
+  claimSteps,
+  entries,
+  StakeRoutes,
+  stakeSteps,
+  StakingModalLocation,
+  StakingModalProps,
+  StakingPath,
+  unstakeSteps,
+  UnstakingPath
+} from './StakingCommon'
 import { ClaimBroadcast } from './views/ClaimBroadcast'
 import { ClaimConfirm } from './views/ClaimConfirm'
-import { ClaimConfirmRouter } from './views/ClaimConfirmRouter'
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
 import { StakeBroadcast } from './views/StakeBroadcast'
@@ -29,66 +38,8 @@ import { StakeConfirm } from './views/StakeConfirm'
 import { Unstake } from './views/Unstake'
 import { UnstakeConfirm } from './views/UnstakeConfirm'
 
-export enum StakingAction {
-  Stake = 'stake',
-  Unstake = 'unstake',
-  Overview = 'overview',
-  Claim = 'claim'
-}
-export type StakingModalLocation = {
-  cryptoAmount: BigNumber
-  assetId: CAIP19
-  fiatRate: BigNumber
-  apr: string
-}
-
-export type StakingModalProps = {
-  assetId: CAIP19
-}
-
-export enum StakeRoutes {
-  Overview = '/overview',
-  Stake = '/stake',
-  StakeConfirm = '/stake/confirm',
-  StakeBroadcast = '/stake/broadcast',
-  Unstake = '/unstake',
-  UnstakeConfirm = '/unstake/confirm',
-  UnstakeBroadcast = '/unstake/broadcast',
-  ClaimConfirm = '/claim/confirm',
-  ClaimBroadcast = '/claim/broadcast'
-}
-
-export const stakeSteps = [
-  { step: 0, path: StakeRoutes.Stake, label: 'Amount' },
-  { step: 1, path: StakeRoutes.StakeConfirm, label: 'Confirm' },
-  { step: 2, path: StakeRoutes.StakeBroadcast, label: 'Broadcast' }
-]
-
-export const unstakeSteps = [
-  { step: 0, path: StakeRoutes.Unstake, label: 'Amount' },
-  { step: 1, path: StakeRoutes.UnstakeConfirm, label: 'Confirm' },
-  { step: 2, path: StakeRoutes.UnstakeBroadcast, label: 'Broadcast' }
-]
-
-export const claimSteps = [
-  { step: 0, path: StakeRoutes.ClaimConfirm, label: 'Confirm' },
-  { step: 1, path: StakeRoutes.ClaimBroadcast, label: 'Broadcast' }
-]
-
-export const entries = [
-  StakeRoutes.Overview,
-  StakeRoutes.Stake,
-  StakeRoutes.StakeConfirm,
-  StakeRoutes.StakeBroadcast,
-  StakeRoutes.Unstake,
-  StakeRoutes.UnstakeConfirm,
-  StakeRoutes.UnstakeBroadcast,
-  StakeRoutes.ClaimConfirm,
-  StakeRoutes.ClaimBroadcast
-]
-
-const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
-  const location = useLocation<StakingConfirmProps>()
+const StakingModalContent = ({ assetId }: StakingModalProps) => {
+  const location = useLocation<StakingModalLocation>()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -98,17 +49,17 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   })
 
   const isClaim = matchPath(location.pathname, {
-    path: [StakeRoutes.ClaimConfirm, StakeRoutes.ClaimBroadcast],
+    path: [ClaimPath.Confirm, ClaimPath.Broadcast],
     exact: true
   })
 
   const isStake = matchPath(location.pathname, {
-    path: [StakeRoutes.Stake, StakeRoutes.StakeConfirm, StakeRoutes.StakeBroadcast],
+    path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
     exact: true
   })
 
   const isUnstake = matchPath(location.pathname, {
-    path: [StakeRoutes.Unstake, StakeRoutes.UnstakeConfirm, StakeRoutes.UnstakeBroadcast],
+    path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
     exact: true
   })
 
@@ -173,7 +124,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               }}
             />
           </Route>
-          <Route exact key={StakeRoutes.StakeConfirm} path={StakeRoutes.StakeConfirm}>
+          <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
             <StakeConfirm
               apr={location.state?.apr}
               cryptoStakeAmount={location.state?.cryptoAmount}
@@ -182,7 +133,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               onCancel={handleCancel}
             />
           </Route>
-          <Route exact key={StakeRoutes.StakeBroadcast} path={StakeRoutes.StakeBroadcast}>
+          <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
             <StakeBroadcast
               apr={location.state?.apr}
               cryptoStakeAmount={location.state?.cryptoAmount}
@@ -191,7 +142,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               onCancel={handleCancel}
             />
           </Route>
-          <Route exact key={StakeRoutes.UnstakeConfirm} path={StakeRoutes.UnstakeConfirm}>
+          <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
             <UnstakeConfirm
               assetId={assetId}
               cryptoUnstakeAmount={location.state?.cryptoAmount}
@@ -199,7 +150,7 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               onCancel={handleCancel}
             />
           </Route>
-          <Route exact key={StakeRoutes.UnstakeBroadcast} path={StakeRoutes.UnstakeBroadcast}>
+          <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
             TODO Unstaking Broadcast component
           </Route>
           <Route exact key={StakeRoutes.Unstake} path={StakeRoutes.Unstake}>
@@ -215,14 +166,14 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               }}
             />
           </Route>
-          <Route exact key={StakeRoutes.ClaimConfirm} path={StakeRoutes.ClaimConfirm}>
+          <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
             <ClaimConfirm
               cryptoStakeAmount={bnOrZero('0.04123')}
               fiatAmountAvailable='0.2365'
               assetId={assetId}
             />
           </Route>
-          <Route exact key={StakeRoutes.ClaimBroadcast} path={StakeRoutes.ClaimBroadcast}>
+          <Route exact key={ClaimPath.Broadcast} path={ClaimPath.Broadcast}>
             <ClaimBroadcast
               cryptoStakeAmount={location.state?.cryptoAmount}
               fiatAmountAvailable='0.2365'

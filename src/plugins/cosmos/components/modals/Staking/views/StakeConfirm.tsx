@@ -22,7 +22,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { StakeRoutes } from '../Staking'
+
+import { StakingPath } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -71,7 +72,7 @@ export const StakeConfirm = ({
 
   const memoryHistory = useHistory()
   const onSubmit = (_: any) => {
-    memoryHistory.push(StakeRoutes.StakeBroadcast, {
+    memoryHistory.push(StakingPath.Broadcast, {
       cryptoAmount: cryptoStakeAmount,
       fiatRate,
       apr

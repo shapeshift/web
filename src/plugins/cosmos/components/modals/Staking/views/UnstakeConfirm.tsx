@@ -21,7 +21,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { StakeRoutes } from '../Staking'
+import { UnstakingPath } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -63,7 +63,7 @@ export const UnstakeConfirm = ({
 
   const history = useHistory()
   const onSubmit = (_: any) => {
-    history.push(StakeRoutes.UnstakeBroadcast)
+    history.push(UnstakingPath.Broadcast)
   }
 
   const translate = useTranslate()

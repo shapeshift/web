@@ -1,9 +1,8 @@
 import { Box, Flex } from '@chakra-ui/layout'
-import { ModalCloseButton, Skeleton } from '@chakra-ui/react'
+import { Skeleton } from '@chakra-ui/react'
 import { caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
-import { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
@@ -115,12 +114,11 @@ export const Overview = ({ assetId }: StakedProps) => {
           alignItems='center'
           justifyContent='space-between'
         >
-          <OverviewHeader assetName={asset.name} assetIcon={asset.icon} mb='35px' />
           <Skeleton
             isLoaded={isLoaded}
             width='100%'
-            height='48px'
-            mb='10px'
+            minHeight='48px'
+            mb='30px'
             justifyContent='space-between'
           >
             <StakedRow
@@ -130,11 +128,21 @@ export const Overview = ({ assetId }: StakedProps) => {
               apr={bnOrZero('0.12')}
             />
           </Skeleton>
-          <Skeleton width='100%' height='40px' isLoaded={isLoaded}>
-            <StakingButtons assetId={assetId} />
+          <Skeleton isLoaded={isLoaded} width='100%' mb='40px' justifyContent='space-between'>
+            <Box width='100%'>
+              <Text translation={'defi.rewards'} mb='12px' color='gray.500' />
+              <AssetClaimCard
+                assetSymbol={asset.symbol}
+                assetName={asset.name}
+                cryptoRewardsAmount={bnOrZero(rewardsAmount).div(`1e+${asset.precision}`)}
+                fiatRate={bnOrZero(marketData.price)}
+                renderButton={() => <ClaimButton assetId={assetId} />}
+              />
+            </Box>
           </Skeleton>
-          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mt='15px'>
-            <Box width='100%' mt='20px'>
+          <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mb='20px'>
+            <Text translation={'defi.unstaking'} color='gray.500' />
+            <Box width='100%'>
               {undelegationEntries.map((undelegation, i) => (
                 <UnbondingRow
                   key={i}
@@ -145,16 +153,6 @@ export const Overview = ({ assetId }: StakedProps) => {
                 />
               ))}
             </Box>
-          </Skeleton>
-          <Skeleton mb='20px' mt='25px' isLoaded={isLoaded} width='100%' height='48px'>
-            <RewardsRow
-              assetSymbol={asset.symbol}
-              fiatRate={bnOrZero(marketData.price)}
-              cryptoRewardsAmount={bnOrZero(rewardsAmount).div(`1e+${asset.precision}`)}
-            />
-          </Skeleton>
-          <Skeleton isLoaded={isLoaded} width='100%' height='40px'>
-            <ClaimButton assetId={assetId} />
           </Skeleton>
         </Flex>
       </Box>

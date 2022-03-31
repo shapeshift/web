@@ -28,7 +28,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { Field, InputType, StakeRoutes, StakingValues } from '../StakingCommon'
+import { Field, InputType, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string
@@ -82,7 +82,7 @@ export const Stake = ({
   const memoryHistory = useHistory()
 
   const onSubmit = (_: any) => {
-    memoryHistory.push(StakeRoutes.StakeConfirm, {
+    memoryHistory.push(StakingPath.Confirm, {
       cryptoAmount: bnOrZero(values.cryptoAmount),
       fiatRate: bnOrZero(marketData.price),
       apr

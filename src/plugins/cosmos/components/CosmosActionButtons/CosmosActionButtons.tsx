@@ -1,7 +1,11 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { StakeRoutes } from 'plugins/cosmos/components/modals/Staking/Staking'
+import {
+  StakeRoutes,
+  StakingPath,
+  UnstakingPath
+} from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { matchPath, useHistory } from 'react-router-dom'
 import { Text } from 'components/Text'
 
@@ -28,17 +32,17 @@ export const CosmosActionButtons = ({
 
   const isOverview = matchPath(history.location.pathname, {
     path: [StakeRoutes.Overview],
-    exact: false
+    exact: true
   })
 
   const isStake = matchPath(history.location.pathname, {
-    path: [StakeRoutes.Stake],
-    exact: false
+    path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
+    exact: true
   })
 
   const isUnstake = matchPath(history.location.pathname, {
-    path: [StakeRoutes.Unstake],
-    exact: false
+    path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
+    exact: true
   })
 
   return (

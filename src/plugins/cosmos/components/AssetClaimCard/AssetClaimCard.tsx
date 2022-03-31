@@ -10,7 +10,7 @@ type AssetClaimCardProps = {
   assetSymbol: string
   assetName: string
   cryptoRewardsAmount: BigNumber
-  fiatRewardsAmount: BigNumber
+  fiatRate: BigNumber
   renderButton?: () => JSX.Element
 } & CardProps
 
@@ -18,7 +18,7 @@ export const AssetClaimCard = ({
   assetSymbol,
   assetName,
   cryptoRewardsAmount,
-  fiatRewardsAmount,
+  fiatRate,
   renderButton,
   ...styleProps
 }: AssetClaimCardProps) => (
@@ -49,7 +49,7 @@ export const AssetClaimCard = ({
               <Amount.Fiat
                 color='gray.500'
                 lineHeight='1'
-                value={fiatRewardsAmount.toPrecision()}
+                value={cryptoRewardsAmount.times(fiatRate).toPrecision()}
               />
               )
             </CText>

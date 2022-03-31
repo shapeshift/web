@@ -7,6 +7,7 @@ export const APP_UPDATE_CHECK_INTERVAL = 1000 * 60
 
 const fetchAsset = async (url: string) => {
   try {
+    // dummy query param bypasses browser cache
     const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
     return data
   } catch (e) {

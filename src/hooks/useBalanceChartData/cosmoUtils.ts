@@ -9,10 +9,13 @@ export const skipCosmosTx = (tx: Tx) =>
   tx.data?.parser === 'cosmos' &&
   (tx?.data.method === 'delegate' || tx?.data.method === 'begin_unbonding')
 
-export const includeStakedBalance = (startingBucket: Bucket, totalCosmosStaked: number) => {
+export const includeStakedBalance = (
+  startingBucket: Bucket,
+  totalCosmosStaked: number,
+  assetIds: string[]
+) => {
   const newStartingBucket = { ...startingBucket }
 
-  // TODO how can we dynamically do this for all cosmos sdk coins?
   const cosmosCaip19 = caip19.toCAIP19({
     chain: ChainTypes.Cosmos,
     network: NetworkTypes.COSMOSHUB_MAINNET,
@@ -20,9 +23,10 @@ export const includeStakedBalance = (startingBucket: Bucket, totalCosmosStaked: 
     assetReference: AssetReference.Cosmos
   })
 
-  newStartingBucket.balance.crypto[cosmosCaip19] = newStartingBucket.balance.crypto[cosmosCaip19]
-    ? newStartingBucket.balance.crypto[cosmosCaip19].plus(totalCosmosStaked)
-    : new BigNumber(totalCosmosStaked)
-
+  if (assetIds.includes(cosmosCaip19)) {
+    newStartingBucket.balance.crypto[cosmosCaip19] = newStartingBucket.balance.crypto[cosmosCaip19]
+      ? newStartingBucket.balance.crypto[cosmosCaip19].plus(totalCosmosStaked)
+      : new BigNumber(totalCosmosStaked)
+  }
   return newStartingBucket
 }

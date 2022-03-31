@@ -214,13 +214,19 @@ type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 export const calculateBucketPrices: CalculateBucketPrices = args => {
   const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
 
-  // Balance needs to include all delegated balances for the chart to be correct
   const startingBucket = buckets[buckets.length - 1]
 
   // TODO:
   // when this PR is merged: https://github.com/shapeshift/web/pull/1331
-  // We can get cosmos delegations from state and aggregate them here
-  buckets[buckets.length - 1] = includeStakedBalance(startingBucket, 400000)
+  // We can get cosmos delegations from state and use here
+  const cosmosDelegationTotal = 400000
+
+  // add total cosmos staked balance to starting balance if cosmos is in assetIds
+  buckets[buckets.length - 1] = includeStakedBalance(
+    startingBucket,
+    cosmosDelegationTotal,
+    assetIds
+  )
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -246,7 +252,7 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         }
       }
 
-      // Special cases where we should not include cosmos delegate/undelegate txs in chart balance
+      // Identify Special cases where we should not include cosmos delegate/undelegate txs in chart balance
       const skipBucketBalanceChange = skipCosmosTx(tx)
 
       tx.transfers.forEach(transfer => {
@@ -256,22 +262,20 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
-
-        switch (transfer.type) {
-          case chainAdapters.TxType.Send:
-            // we're going backwards, so a send means we had more before
-            if (!skipBucketBalanceChange)
+        if (!skipBucketBalanceChange)
+          switch (transfer.type) {
+            case chainAdapters.TxType.Send:
+              // we're going backwards, so a send means we had more before
               bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
-            break
-          case chainAdapters.TxType.Receive:
-            // we're going backwards, so a receive means we had less before
-            if (!skipBucketBalanceChange)
+              break
+            case chainAdapters.TxType.Receive:
+              // we're going backwards, so a receive means we had less before
               bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
-            break
-          default: {
-            console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
+              break
+            default: {
+              console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
+            }
           }
-        }
       })
     })
 

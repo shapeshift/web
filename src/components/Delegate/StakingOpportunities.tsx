@@ -81,12 +81,12 @@ export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportun
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    cosmosGetStarted.open({ assetId: 'cosmoshub-4/slip44:118' })
+    cosmosGetStarted.open({ assetId: 'cosmos:cosmoshub-4/slip44:118' })
     e.stopPropagation()
   }
 
   const handleStakedClick = () => {
-    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Overview })
+    cosmosStaking.open({ assetId: 'cosmos:cosmoshub-4/slip44:118', action: StakingAction.Overview })
   }
 
   const columns: Column<StakingOpportunity>[] = useMemo(

@@ -50,6 +50,7 @@ type TransactionGenericRowProps = {
   blockTime: number
   explorerTxLink: string
   toggleOpen: Function
+  isFirstAssetOutgoing?: boolean
   parentWidth: number
 }
 
@@ -64,6 +65,7 @@ export const TransactionGenericRow = ({
   explorerTxLink,
   compactMode = false,
   toggleOpen,
+  isFirstAssetOutgoing = false,
   parentWidth
 }: TransactionGenericRowProps) => {
   const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
@@ -160,6 +162,7 @@ export const TransactionGenericRow = ({
                   <Amount.Crypto
                     color='inherit'
                     fontWeight='medium'
+                    prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
                     value={fromBaseUnit(asset.amount ?? '0', asset.precision)}
                     symbol={asset.symbol}
                     maximumFractionDigits={4}
@@ -169,6 +172,7 @@ export const TransactionGenericRow = ({
                       color='gray.500'
                       fontSize='sm'
                       lineHeight='1'
+                      prefix={index === 0 && isFirstAssetOutgoing ? '-' : ''}
                       value={bnOrZero(fromBaseUnit(asset.amount ?? '0', asset.precision))
                         .times(asset.currentPrice)
                         .toString()}

@@ -1,7 +1,7 @@
 import { Flex, FlexProps } from '@chakra-ui/layout'
 import { Button, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/Staking'
+import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 
@@ -21,7 +21,7 @@ export const CosmosActionButtons = ({
   }
 
   const handleStakeClick = () => {
-    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Stake })
+    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Stake })
   }
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')

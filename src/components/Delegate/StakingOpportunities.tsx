@@ -28,9 +28,10 @@ import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
+  ASSET_ID_TO_DENOM,
   selectSingleValidator,
   selectStakingDataStatus,
-  selectStakingOpportunityData,
+  selectStakingOpportunityDataByDenom,
   StakingOpportunity
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
@@ -140,7 +141,12 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   }, [isLoaded, dispatch])
 
   const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunityData(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
+    selectStakingOpportunityDataByDenom(
+      state,
+      accountSpecifier,
+      SHAPESHIFT_VALIDATOR_ADDRESS,
+      ASSET_ID_TO_DENOM[asset.caip19]
+    )
   )
 
   const shapeshiftValidator = useAppSelector(state =>

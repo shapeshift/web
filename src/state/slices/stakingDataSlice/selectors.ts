@@ -148,10 +148,10 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   }
 )
 
-export const selectAllUnbondingsEntriesByAccountSpecifier = createDeepEqualOutputSelector(
+export const selectAllUnbondingsEntriesByDenom = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  selectValidatorAddress,
-  (stakingData): Record<string, chainAdapters.cosmos.UndelegationEntry[]> => {
+  selectDenom,
+  (stakingData, denom): Record<string, chainAdapters.cosmos.UndelegationEntry[]> => {
     if (!stakingData || !stakingData.undelegations) return {}
 
     return stakingData.undelegations.reduce((acc, { validator, entries }) => {
@@ -159,7 +159,7 @@ export const selectAllUnbondingsEntriesByAccountSpecifier = createDeepEqualOutpu
         acc[validator.address] = []
       }
 
-      acc[validator.address].push(...entries)
+      acc[validator.address].push(...entries.filter(x => ASSET_ID_TO_DENOM[x.assetId] === denom))
 
       return acc
     }, {} as Record<string, chainAdapters.cosmos.UndelegationEntry[]>)
@@ -220,9 +220,10 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
   }
 )
 
-export const selectAllRewardsByAccountSpecifier = createDeepEqualOutputSelector(
+export const selectAllRewardsByDenom = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
-  (stakingData): Record<string, chainAdapters.cosmos.Reward[]> => {
+  selectDenom,
+  (stakingData, denom): Record<string, chainAdapters.cosmos.Reward[]> => {
     if (!stakingData || !stakingData.rewards) return {}
 
     const rewards = stakingData.rewards.reduce(
@@ -231,7 +232,9 @@ export const selectAllRewardsByAccountSpecifier = createDeepEqualOutputSelector(
           acc[current.validator.address] = []
         }
 
-        acc[current.validator.address].push(...current.rewards)
+        acc[current.validator.address].push(
+          ...current.rewards.filter(x => ASSET_ID_TO_DENOM[x.assetId] === denom)
+        )
 
         return acc
       },
@@ -268,10 +271,10 @@ export const selectSingleValidator = createSelector(
   }
 )
 
-export const selectStakingOpportunityData = createDeepEqualOutputSelector(
+export const selectStakingOpportunityDataByDenom = createDeepEqualOutputSelector(
   selectAllDelegationsCryptoAmountByDenom,
-  selectAllUnbondingsEntriesByAccountSpecifier,
-  selectAllRewardsByAccountSpecifier,
+  selectAllUnbondingsEntriesByDenom,
+  selectAllRewardsByDenom,
   selectAllValidators,
   (
     allDelegationsAmount,

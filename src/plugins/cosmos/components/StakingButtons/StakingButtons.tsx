@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 type StakingButtonsProps = {
   assetId: CAIP19

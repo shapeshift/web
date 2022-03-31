@@ -7,7 +7,7 @@ import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingC
 import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 type GetStartedProps = {
   assetId: CAIP19

@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useRef } from 'react'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { entries, StakeRoutes, StakingAction, StakingModalProps } from './StakingCommon'

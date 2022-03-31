@@ -12,7 +12,7 @@ import { StakingButtons } from 'plugins/cosmos/components/StakingButtons/Staking
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
 import { useEffect, useMemo, useState } from 'react'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {

@@ -11,10 +11,11 @@ import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
 import { SelectModal } from './SelectModal'
-import { useWallet, WalletActions } from './WalletProvider'
 
 export const WalletViewsSwitch = () => {
   const history = useHistory()

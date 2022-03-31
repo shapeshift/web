@@ -24,10 +24,11 @@ import { FaEye, FaEyeSlash, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { IconCircle } from 'components/IconCircle'
 import { RawText, Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeepKeyConfig } from 'context/WalletProvider/KeepKey/config'
 import { getNativeLocalWalletName } from 'context/WalletProvider/local-wallet'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
   const translate = useTranslate()
@@ -55,7 +56,7 @@ export const PasswordModal = ({ deviceId }: { deviceId: string }) => {
         mnemonic,
         deviceId
       })
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+      const { name, icon } = KeepKeyConfig
       dispatch({
         type: WalletActions.SET_WALLET,
         payload: { wallet, name, icon, deviceId, meta: { label: vault.meta.get('name') as string } }

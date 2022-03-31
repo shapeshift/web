@@ -1,8 +1,9 @@
 import { Event } from '@shapeshiftoss/hdwallet-core'
 import { NativeEvents } from '@shapeshiftoss/hdwallet-native'
 import { Dispatch, useEffect } from 'react'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { ActionTypes, InitialState } from 'context/WalletProvider/WalletProvider'
+import { ActionTypes } from 'context/WalletProvider/actions'
+import { InitialState } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 

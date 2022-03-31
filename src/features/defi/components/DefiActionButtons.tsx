@@ -6,7 +6,7 @@ import {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useTranslate } from 'react-polyglot'
 import { matchPath } from 'react-router-dom'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 type DefiActionButtonProps = {
   vaultExpired?: boolean

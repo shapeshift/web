@@ -8,17 +8,13 @@ import { BigNumber } from 'lib/bignumber/bignumber'
 
 import { StakingAction } from '../StakingCommon'
 import { ClaimBroadcast } from './ClaimBroadcast'
+import { ClaimPath } from './ClaimCommon'
 import { ClaimConfirm } from './ClaimConfirm'
 
 export type ClaimConfirmProps = {
   cryptoAmount: BigNumber
   fiatAmountAvailable: string
   assetId: CAIP19
-}
-
-export enum ClaimPath {
-  Confirm = '/claim/confirm',
-  Broadcast = '/claim/broadcast'
 }
 
 export const claimConfirmRoutes = [

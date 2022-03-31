@@ -4,39 +4,24 @@ import { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer
-} from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 
-import { KeyManager, SUPPORTED_WALLETS } from './config'
+import { ActionTypes, WalletActions } from './actions'
+import { SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
+import { KeyManager } from './KeyManager'
 import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
+import { IWalletContext, WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
-
-export enum WalletActions {
-  SET_ADAPTERS = 'SET_ADAPTERS',
-  SET_WALLET = 'SET_WALLET',
-  SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
-  SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
-  SET_IS_CONNECTED = 'SET_IS_CONNECTED',
-  SET_WALLET_MODAL = 'SET_WALLET_MODAL',
-  RESET_STATE = 'RESET_STATE',
-  SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING'
-}
 
 type GenericAdapter = {
   initialize: (...args: any[]) => Promise<any>
   pairDevice: (...args: any[]) => Promise<HDWallet>
 }
 
-type Adapters = Map<KeyManager, GenericAdapter>
+export type Adapters = Map<KeyManager, GenericAdapter>
 
 export type WalletInfo = {
   name: string
@@ -68,33 +53,6 @@ const initialState: InitialState = {
   modal: false,
   isLoadingLocalWallet: false
 }
-
-export interface IWalletContext {
-  state: InitialState
-  dispatch: React.Dispatch<ActionTypes>
-  connect: (adapter: KeyManager) => Promise<void>
-  create: (adapter: KeyManager) => Promise<void>
-  disconnect: () => void
-}
-
-export type ActionTypes =
-  | { type: WalletActions.SET_ADAPTERS; payload: Adapters }
-  | {
-      type: WalletActions.SET_WALLET
-      payload: {
-        wallet: HDWallet | null
-        name: string
-        icon: ComponentWithAs<'svg', IconProps>
-        deviceId: string
-        meta?: { label: string }
-      }
-    }
-  | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
-  | { type: WalletActions.SET_CONNECTOR_TYPE; payload: KeyManager }
-  | { type: WalletActions.SET_INITIAL_ROUTE; payload: string }
-  | { type: WalletActions.SET_WALLET_MODAL; payload: boolean }
-  | { type: WalletActions.SET_LOCAL_WALLET_LOADING; payload: boolean }
-  | { type: WalletActions.RESET_STATE }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
   switch (action.type) {
@@ -147,8 +105,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return state
   }
 }
-
-const WalletContext = createContext<IWalletContext | null>(null)
 
 const getInitialState = () => {
   const localWalletType = getLocalWalletType()
@@ -369,6 +325,3 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     </WalletContext.Provider>
   )
 }
-
-export const useWallet = (): IWalletContext =>
-  useContext(WalletContext as React.Context<IWalletContext>)

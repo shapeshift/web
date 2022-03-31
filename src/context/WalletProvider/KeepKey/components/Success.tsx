@@ -1,7 +1,8 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
 import { useEffect } from 'react'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { Text } from '../../../../components/Text'
 

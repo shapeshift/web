@@ -15,13 +15,13 @@ import { Event } from '@shapeshiftoss/hdwallet-core'
 import React, { useEffect, useRef, useState } from 'react'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import {
   FailureType,
   MessageType,
   PinMatrixRequestType
 } from 'context/WalletProvider/KeepKey/KeepKeyTypes'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const PinModal = ({
   deviceId,

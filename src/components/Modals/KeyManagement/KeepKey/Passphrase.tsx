@@ -13,8 +13,8 @@ import {
 } from '@chakra-ui/react'
 import React, { useRef, useState } from 'react'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const PassphraseModal = ({ deviceId }: { deviceId: string }) => {
   const [error, setError] = useState<string | null>(null)

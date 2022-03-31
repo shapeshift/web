@@ -19,13 +19,15 @@ import { RouteComponentProps } from 'react-router-dom'
 import { IconCircle } from 'components/IconCircle'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import {
   setLocalNativeWalletName,
   setLocalWalletTypeAndDeviceId
 } from 'context/WalletProvider/local-wallet'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { KeyManager, SUPPORTED_WALLETS } from '../../config'
+import { NativeConfig } from '../config'
 
 type VaultInfo = {
   id: string
@@ -70,7 +72,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     const adapter = state.adapters?.get(KeyManager.Native)
     const deviceId = item.id
     if (adapter) {
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.Native]
+      const { name, icon } = NativeConfig
       try {
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet.isInitialized())) {

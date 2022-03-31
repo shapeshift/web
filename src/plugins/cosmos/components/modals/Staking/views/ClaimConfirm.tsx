@@ -19,10 +19,10 @@ import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { ClaimPath } from './ClaimConfirmRouter'
+import { ClaimPath } from './ClaimCommon'
 
 export enum Field {
   FeeType = 'feeType'

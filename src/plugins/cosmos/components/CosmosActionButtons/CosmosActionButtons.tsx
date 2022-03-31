@@ -3,7 +3,7 @@ import { Button, useColorModeValue } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 type CosmosActionButtonsProps = {
   activeAction: StakingAction

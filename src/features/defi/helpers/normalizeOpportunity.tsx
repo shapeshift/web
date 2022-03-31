@@ -121,5 +121,5 @@ export const useNormalizeOpportunities = ({
   vaultArray,
   foxyArray
 }: NormalizeOpportunitiesProps): EarnOpportunityType[] => {
-  return [...useTransformVault(vaultArray), ...transformFoxy(foxyArray)]
+  return [...transformFoxy(foxyArray), ...useTransformVault(vaultArray)]
 }

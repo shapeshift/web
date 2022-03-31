@@ -88,7 +88,7 @@ export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
     selectTotalBondingsBalanceByAccountSpecifier(
       state,
       accountSpecifier,
-      validatorAddress, // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
+      validatorAddress,
       ASSET_ID_TO_DENOM[asset.caip19]
     )
   )

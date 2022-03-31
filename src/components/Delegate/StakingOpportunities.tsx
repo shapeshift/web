@@ -25,24 +25,18 @@ import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
+  selectSingleValidator,
   selectStakingDataStatus,
-  selectStakingOpportunityData
+  selectStakingOpportunityData,
+  StakingOpportunity
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
-
-type StakingOpportunity = {
-  validatorAddress: string
-  moniker: string
-  apr: BigNumber
-  cryptoAmount?: BigNumber
-  rewards: BigNumber
-}
 
 type StakingOpportunitiesProps = {
   assetId: CAIP19
@@ -145,13 +139,22 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [isLoaded, dispatch])
 
-  const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunityData(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
   )
 
-  // TODO fix when no staking data
-  const isStaking = true
+  const shapeshiftValidator = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+  )
+
+  const stakingOpportunityDefault = [
+    {
+      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+      ...shapeshiftValidator
+    }
+  ]
+
+  const isStaking = stakingOpportunities.length !== 0
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
@@ -195,11 +198,11 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         accessor: 'cryptoAmount',
         isNumeric: true,
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: BigNumber }) => {
+        Cell: ({ value }: { value: string }) => {
           return isStaking ? (
             <Amount.Crypto
               value={bnOrZero(value).div(`1e+${asset.precision}`).toString()}
-              symbol={assetSymbol}
+              symbol={asset.symbol}
               color='white'
               fontWeight={'normal'}
             />
@@ -213,12 +216,12 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Header: <Text translation='defi.rewards' />,
         accessor: 'rewards',
         display: { base: 'table-cell' },
-        Cell: ({ value }: { value: BigNumber }) => {
+        Cell: ({ value }: { value: string }) => {
           return isStaking ? (
             <HStack fontWeight={'normal'}>
               <Amount.Crypto
                 value={bnOrZero(value).div(`1e+${asset.precision}`).toString()}
-                symbol={assetSymbol}
+                symbol={asset.symbol}
               />
               <Amount.Fiat
                 value={bnOrZero(value)
@@ -248,7 +251,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     // React-tables requires the use of a useMemo
     // but we do not want it to recompute the values onClick
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [isLoaded]
   )
   return (
     <Card>
@@ -265,7 +268,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={stakingOpportunities}
+          data={isStaking ? stakingOpportunities : stakingOpportunityDefault}
           columns={columns}
           displayHeaders={isStaking}
           onRowClick={handleStakedClick}

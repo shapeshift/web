@@ -21,7 +21,7 @@ export const CosmosActionButtons = ({
   }
 
   const handleStakeClick = () => {
-    cosmosStaking.open({ assetId: 'cosmoshub-4/slip44:118', action: StakingAction.Stake })
+    cosmosStaking.open({ assetId: asset.caip19, action: StakingAction.Stake })
   }
 
   const bgColor = useColorModeValue('gray.50', 'gray.850')

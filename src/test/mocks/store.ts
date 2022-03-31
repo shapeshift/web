@@ -24,6 +24,7 @@ export const mockStore: ReduxState = {
   portfolioApi: mockApiFactory('portfolioApi' as const),
   marketApi: mockApiFactory('marketApi' as const),
   txHistoryApi: mockApiFactory('txHistoryApi' as const),
+  stakingDataApi: mockApiFactory('stakingDataApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -92,5 +93,9 @@ export const mockStore: ReduxState = {
       ids: [],
       byId: {}
     }
+  },
+  stakingData: {
+    byAccountSpecifier: {},
+    status: 'idle'
   }
 }

@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.0...@shapeshiftoss/investor-foxy-v1.3.1) (2022-03-31)
+
+
+### Bug Fixes
+
+* toString causing error on big numbers ([#506](https://github.com/shapeshift/lib/issues/506)) ([d9f3cad](https://github.com/shapeshift/lib/commit/d9f3cad7e21e2088a19616230940addd552de903))
+
 # [@shapeshiftoss/investor-foxy-v1.3.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.2.1...@shapeshiftoss/investor-foxy-v1.3.0) (2022-03-29)
 
 

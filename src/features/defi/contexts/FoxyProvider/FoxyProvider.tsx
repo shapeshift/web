@@ -29,7 +29,6 @@ export const FoxyProvider: React.FC = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!foxyInvestorFeatureFlag) return
         if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) return
         setLoading(true)
         const api = new FoxyApi({

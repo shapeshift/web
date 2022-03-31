@@ -26,7 +26,7 @@ export const useHasAppUpdated = () => {
   useMemo(storeInitialAsset, [])
   useInterval(async () => {
     // we don't care about updates locally obv
-    // if (window.location.hostname === 'localhost') return
+    if (window.location.hostname === 'localhost') return
 
     let manifestMainJs, env
     try {

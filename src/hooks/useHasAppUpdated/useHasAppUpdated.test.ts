@@ -8,16 +8,24 @@ import { APP_UPDATE_CHECK_INTERVAL } from './useHasAppUpdated'
 jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
 
-global.window = Object.create(window)
-const url = 'http://dummy.com'
-Object.defineProperty(window, 'location', {
-  value: {
-    hostname: url
-  },
-  writable: true
-})
-
 describe('appUpdated', () => {
+  let oldWindowLocation = window.location
+
+  beforeAll(() => {
+    delete (window as any).location
+    const url = 'http://dummy.com'
+    ;(window.location as any) = Object.defineProperties(
+      {},
+      {
+        ...Object.getOwnPropertyDescriptors(oldWindowLocation),
+        hostname: {
+          value: url,
+          writable: true,
+          configurable: true
+        }
+      }
+    )
+  })
   beforeEach(() => {
     jest.useFakeTimers()
   })
@@ -27,6 +35,7 @@ describe('appUpdated', () => {
   })
   afterAll(() => {
     jest.useRealTimers()
+    window.location = oldWindowLocation
   })
 
   it('is false when nothing is changed', async () => {

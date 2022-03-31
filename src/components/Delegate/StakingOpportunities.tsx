@@ -14,10 +14,9 @@ import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
-import { useMemo } from 'react'
-import { useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Column } from 'react-table'
+import { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
@@ -27,7 +26,7 @@ import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectStakingDataStatus,
   selectStakingOpportunityData
@@ -38,16 +37,11 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 type StakingOpportunity = {
-  id: number
+  validatorAddress: string
   moniker: string
   apr: BigNumber
   cryptoAmount?: BigNumber
-  rewards: Rewards
-}
-
-type Rewards = {
-  fiatRate: BigNumber
-  stakedRewards?: BigNumber
+  rewards: BigNumber
 }
 
 type StakingOpportunitiesProps = {
@@ -88,7 +82,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const validatorStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = validatorStatus === 'loaded'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  // const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const dispatch = useAppDispatch()
   const chainAdapterManager = useChainAdapters()
   const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
@@ -151,9 +145,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [isLoaded, dispatch])
 
-  // TODO fetch fiatRate
-  const fiatRate = '0.08'
-
   const assetSymbol = useAppSelector(state => selectAssetByCAIP19(state, assetId)).symbol
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunityData(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, 'uatom')
@@ -164,13 +155,17 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
-  const handleGetStartedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleGetStartedClick = (e: MouseEvent<HTMLButtonElement>) => {
     cosmosGetStarted.open({ assetId: 'cosmos:cosmoshub-4/slip44:118' })
     e.stopPropagation()
   }
 
-  const handleStakedClick = () => {
-    cosmosStaking.open({ assetId: 'cosmos:cosmoshub-4/slip44:118', action: StakingAction.Overview })
+  const handleStakedClick = (values: Row<object>) => {
+    cosmosStaking.open({
+      assetId: 'cosmos:cosmoshub-4/slip44:118',
+      action: StakingAction.Overview,
+      validatorAddress: (values.original as StakingOpportunity).validatorAddress
+    })
   }
 
   const columns: Column<StakingOpportunity>[] = useMemo(
@@ -180,7 +175,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         accessor: 'moniker',
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => (
-          <ValidatorName moniker={value} isStaking={isStaking}></ValidatorName>
+          <ValidatorName moniker={value} isStaking={isStaking} />
         ),
         disableSortBy: true
       },
@@ -203,7 +198,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: BigNumber }) => {
           return isStaking ? (
             <Amount.Crypto
-              value={bnOrZero(value).toString()}
+              value={bnOrZero(value).div(`1e+${asset.precision}`).toString()}
               symbol={assetSymbol}
               color='white'
               fontWeight={'normal'}
@@ -221,9 +216,15 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         Cell: ({ value }: { value: BigNumber }) => {
           return isStaking ? (
             <HStack fontWeight={'normal'}>
-              <Amount.Crypto value={bnOrZero(value).toString()} symbol={assetSymbol} />
+              <Amount.Crypto
+                value={bnOrZero(value).div(`1e+${asset.precision}`).toString()}
+                symbol={assetSymbol}
+              />
               <Amount.Fiat
-                value={bnOrZero(value).times(fiatRate).toPrecision()}
+                value={bnOrZero(value)
+                  .div(`1e+${asset.precision}`)
+                  .times(bnOrZero(marketData.price))
+                  .toPrecision()}
                 color='green.500'
                 prefix='≈'
               />

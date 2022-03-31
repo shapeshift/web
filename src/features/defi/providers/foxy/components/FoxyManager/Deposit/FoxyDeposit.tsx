@@ -158,6 +158,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
   const getDepositGasEstimate = async (deposit: DepositValues) => {
     if (!state.userAddress || !tokenId) return
     try {
+      const test = bnOrZero(deposit.cryptoAmount)
+      console.log('test', test)
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateDepositGas({
           tokenContractAddress: tokenId,
@@ -193,7 +195,7 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
         userAddress: state.userAddress
       })
       const allowance = bnOrZero(_allowance).div(`1e+${asset.precision}`)
-
+      console.log('asset', asset)
       // Skip approval step if user allowance is greater than requested deposit amount
       if (allowance.gt(formValues.cryptoAmount)) {
         const estimatedGasCrypto = await getDepositGasEstimate(formValues)

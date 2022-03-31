@@ -9,7 +9,7 @@ jest.mock('axios')
 const mockAxios = axios as jest.Mocked<typeof axios>
 
 describe('appUpdated', () => {
-  let oldWindowLocation = window.location
+  const oldWindowLocation = window.location
 
   beforeAll(() => {
     delete (window as any).location
@@ -42,16 +42,16 @@ describe('appUpdated', () => {
     mockAxios.get.mockImplementation(url => {
       return Promise.resolve({ data: {} })
     })
-    let { result, waitFor } = renderHook(() => useHasAppUpdated())
+    const { result, waitFor } = renderHook(() => useHasAppUpdated())
 
-    expect(result.current).toBeFalsy()
+    expect(result.current).toBe(false)
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => waitFor(() => expect(mockAxios.get).toHaveBeenCalledTimes(2)))
 
     jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
 
     await waitFor(() => expect(mockAxios.get).toHaveBeenCalledTimes(3))
-    expect(result.current).toBeFalsy()
+    expect(result.current).toBe(false)
   })
 
   it('is true when env is changed', async () => {
@@ -61,14 +61,14 @@ describe('appUpdated', () => {
       }
       return Promise.resolve({ data: {} })
     })
-    let { result, waitForNextUpdate, waitFor } = renderHook(() => useHasAppUpdated())
-    expect(result.current).toBeFalsy()
+    const { result, waitForNextUpdate, waitFor } = renderHook(() => useHasAppUpdated())
+    expect(result.current).toBe(false)
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => waitFor(() => expect(mockAxios.get).toHaveBeenCalledTimes(2)))
 
     jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
     await waitForNextUpdate()
-    expect(result.current).toBeTruthy()
+    expect(result.current).toBe(true)
   })
   it('is true when manifest is changed', async () => {
     mockAxios.get.mockImplementation(url => {
@@ -77,13 +77,13 @@ describe('appUpdated', () => {
       }
       return Promise.resolve({ data: {} })
     })
-    let { result, waitForNextUpdate, waitFor } = renderHook(() => useHasAppUpdated())
-    expect(result.current).toBeFalsy()
+    const { result, waitForNextUpdate, waitFor } = renderHook(() => useHasAppUpdated())
+    expect(result.current).toBe(false)
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(() => waitFor(() => expect(mockAxios.get).toHaveBeenCalledTimes(2)))
 
     jest.advanceTimersByTime(APP_UPDATE_CHECK_INTERVAL)
     await waitForNextUpdate()
-    expect(result.current).toBeTruthy()
+    expect(result.current).toBe(true)
   })
 })

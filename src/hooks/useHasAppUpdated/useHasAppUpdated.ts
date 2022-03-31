@@ -10,12 +10,12 @@ export const useHasAppUpdated = () => {
   const [initialManifestMainJs, setManifestMainJs] = useState(null)
   const [initialEnv, setEnv] = useState(null)
   // asset-manifest tells us the latest minified built files
-  const url = '/asset-manifest.json'
+  const assetManifestUrl = '/asset-manifest.json'
   const envUrl = '/env.json'
   const storeInitialAsset = () => {
     // dummy query param bypasses browser cache
     Promise.all<any>([
-      axios.get(`${url}?${new Date().valueOf()}`).then(({ data }) => {
+      axios.get(`${assetManifestUrl}?${new Date().valueOf()}`).then(({ data }) => {
         setManifestMainJs(data)
       }),
       axios.get(`${envUrl}?${new Date().valueOf()}`).then(({ data }) => {
@@ -30,7 +30,7 @@ export const useHasAppUpdated = () => {
 
     let manifestMainJs, env
     try {
-      const { data } = await axios.get(`${url}?${new Date().valueOf()}`)
+      const { data } = await axios.get(`${assetManifestUrl}?${new Date().valueOf()}`)
       manifestMainJs = data
     } catch (e) {
       console.error(`useHasAppUpdated: error fetching asset-manifest.json`, e)
@@ -50,20 +50,17 @@ export const useHasAppUpdated = () => {
       return
     }
     //deep equality check
-    let isSameAssetManifest = isEqual(initialManifestMainJs, manifestMainJs)
-    let isSameEnv = isEqual(initialEnv, env)
-    if (!isSameAssetManifest) {
+    const isSameAssetManifest = isEqual(initialManifestMainJs, manifestMainJs)
+    const isSameEnv = isEqual(initialEnv, env)
+    if (!isSameAssetManifest || !isSameEnv) {
       console.info(
-        `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
-          manifestMainJs
-        )}, initial: ${JSON.stringify(initialManifestMainJs)}`
-      )
-      setHasUpdated(true)
-    } else if (!isSameEnv) {
-      console.info(
-        `useHasAppUpdated: app updated due to changing env, env: ${JSON.stringify(
-          manifestMainJs
-        )}, initial: ${JSON.stringify(initialManifestMainJs)}`
+        !isSameAssetManifest
+          ? `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
+              manifestMainJs
+            )}, initial: ${JSON.stringify(initialManifestMainJs)}`
+          : `useHasAppUpdated: app updated due to changing env, env: ${JSON.stringify(
+              env
+            )}, initial: ${JSON.stringify(initialEnv)}`
       )
       setHasUpdated(true)
     }

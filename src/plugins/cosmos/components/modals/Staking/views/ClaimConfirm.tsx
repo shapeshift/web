@@ -22,11 +22,7 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-<<<<<<< HEAD
-import { ClaimPath } from './ClaimCommon'
-=======
 import { ClaimPath } from '../StakingCommon'
->>>>>>> origin/develop
 
 export enum Field {
   FeeType = 'feeType'

@@ -25,7 +25,7 @@ import {
 } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountId,
+  selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryTimeframe,
   selectTxsByFilter
@@ -193,7 +193,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     }
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
-
     return acc.plus(assetFiatBalance)
   }, bn(0))
 
@@ -310,7 +309,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   // dummy assetId - we're only filtering on account
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountId(state, accountId)
+    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId)
   )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

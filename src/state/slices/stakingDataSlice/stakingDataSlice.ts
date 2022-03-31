@@ -11,6 +11,8 @@ type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
 type AllValidatorDataArgs = { chainId: CAIP2 }
 
+type SingleValidatorDataArgs = { chainId: CAIP2; validatorAddress: string }
+
 export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
 
 export type Staking = {
@@ -147,7 +149,7 @@ export const stakingDataApi = createApi({
         }
       }
     }),
-    getValidatorData: build.query<Validators, AllValidatorDataArgs>({
+    getAllValidatorsData: build.query<Validators, AllValidatorDataArgs>({
       queryFn: async ({ chainId }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
         const adapter = (await chainAdapters.byChainId(
@@ -167,7 +169,37 @@ export const stakingDataApi = createApi({
             }
           }
         } catch (e) {
-          console.error('Error fetching validator data', e)
+          console.error('Error fetching all validators data', e)
+          return {
+            error: {
+              data: `Error fetching staking data`,
+              status: 500
+            }
+          }
+        } finally {
+          dispatch(stakingData.actions.setValidatorStatus('loaded'))
+        }
+      }
+    }),
+    getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
+      queryFn: async ({ chainId, validatorAddress }, { dispatch }) => {
+        const chainAdapters = getChainAdapters()
+        const adapter = (await chainAdapters.byChainId(
+          chainId
+        )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
+        dispatch(stakingData.actions.setValidatorStatus('loading'))
+        try {
+          const data = await adapter.getValidator(validatorAddress)
+          dispatch(
+            stakingData.actions.upsertValidatorData({
+              validators: [data]
+            })
+          )
+          return {
+            data: data
+          }
+        } catch (e) {
+          console.error('Error fetching single validator data', e)
           return {
             error: {
               data: `Error fetching staking data`,

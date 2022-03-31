@@ -29,6 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   ASSET_ID_TO_DENOM,
+  selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataStatus,
   selectStakingOpportunityDataByDenom,
@@ -96,6 +97,28 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     state: { wallet }
   } = useWallet()
 
+  const stakingOpportunities = useAppSelector(state =>
+    selectStakingOpportunityDataByDenom(
+      state,
+      accountSpecifier,
+      SHAPESHIFT_VALIDATOR_ADDRESS,
+      ASSET_ID_TO_DENOM[asset.caip19]
+    )
+  )
+  const shapeshiftValidator = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+  )
+  const stakingOpportunityDefault = [
+    {
+      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
+      ...shapeshiftValidator
+    }
+  ]
+  const nonLoadedValidators = useAppSelector(state =>
+    selectNonloadedValidators(state, accountSpecifier)
+  )
+  const isStaking = stakingOpportunities.length !== 0
+
   useEffect(() => {
     ;(async () => {
       const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
@@ -132,7 +155,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       if (isLoaded) return
 
       dispatch(
-        stakingDataApi.endpoints.getValidatorData.initiate(
+        stakingDataApi.endpoints.getAllValidatorsData.initiate(
           { chainId: 'cosmos:cosmoshub-4' },
           { forceRefetch: true }
         )
@@ -140,27 +163,20 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     })()
   }, [isLoaded, dispatch])
 
-  const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunityDataByDenom(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
-      ASSET_ID_TO_DENOM[asset.caip19]
-    )
-  )
+  useEffect(() => {
+    ;(async () => {
+      if (!isLoaded || nonLoadedValidators.length === 0) return
 
-  const shapeshiftValidator = useAppSelector(state =>
-    selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
-  )
-
-  const stakingOpportunityDefault = [
-    {
-      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
-      ...shapeshiftValidator
-    }
-  ]
-
-  const isStaking = stakingOpportunities.length !== 0
+      nonLoadedValidators.forEach(validatorAddress => {
+        dispatch(
+          stakingDataApi.endpoints.getValidatorData.initiate(
+            { chainId: 'cosmos:cosmoshub-4', validatorAddress: validatorAddress },
+            { forceRefetch: true }
+          )
+        )
+      })
+    })()
+  }, [isLoaded, nonLoadedValidators, dispatch])
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 

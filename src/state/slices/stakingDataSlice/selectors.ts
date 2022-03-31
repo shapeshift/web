@@ -271,6 +271,27 @@ export const selectSingleValidator = createSelector(
   }
 )
 
+export const selectNonloadedValidators = createSelector(
+  selectStakingDataByAccountSpecifier,
+  selectAllValidators,
+  (stakingData, validators): string[] => {
+    if (!stakingData) return []
+    const validatorsAddresses = stakingData.delegations
+      ? stakingData.delegations.map(x => x.validator.address)
+      : []
+    if (stakingData.undelegations) {
+      validatorsAddresses.push(...stakingData.undelegations.map(x => x.validator.address))
+    }
+
+    if (stakingData.rewards) {
+      validatorsAddresses.push(...stakingData.rewards.map(x => x.validator.address))
+    }
+
+    const uniqueValidatorAddresses = [...new Set(validatorsAddresses)]
+    return uniqueValidatorAddresses.filter(x => validators[x] === undefined)
+  }
+)
+
 export const selectStakingOpportunityDataByDenom = createDeepEqualOutputSelector(
   selectAllDelegationsCryptoAmountByDenom,
   selectAllUnbondingsEntriesByDenom,

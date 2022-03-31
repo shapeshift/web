@@ -10,7 +10,6 @@ type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
 
 export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<ActionTypes>) => {
   const { keepkeyPin, keepkeyPassphrase } = useModal()
-  console.info(keepkeyPin)
   const { keyring } = state
 
   useEffect(() => {

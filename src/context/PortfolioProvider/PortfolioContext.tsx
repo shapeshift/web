@@ -1,4 +1,4 @@
-import { AssetNamespace, AssetReference, caip2, caip19, caip10 } from '@shapeshiftoss/caip'
+import { AssetNamespace, AssetReference, caip2, caip19 } from '@shapeshiftoss/caip'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -148,8 +148,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.COSMOSHUB_MAINNET })
-              const accountSpecifier = caip10.toCAIP10({ caip2: CAIP2, account: pubkey })
-              acc.push({ [CAIP2]: accountSpecifier })
+              acc.push({ [CAIP2]: pubkey })
               break
             }
             case ChainTypes.Osmosis: {
@@ -157,8 +156,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.OSMOSIS_MAINNET })
-              const accountSpecifier = caip10.toCAIP10({ caip2: CAIP2, account: pubkey })
-              acc.push({ [CAIP2]: accountSpecifier })
+              acc.push({ [CAIP2]: pubkey })
               break
             }
             default:

@@ -343,22 +343,22 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   })
 
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
-  const cosmosAccountSpecifier = accountSpecifiers.reduce(
-    (acc, accountSpecifier) => {
-      if (accountSpecifier[cosmosCaip2]) {
-        acc = accountSpecifier[cosmosCaip2]
-      }
-      return acc
-    },
-    ''
-  )
+  const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
+    if (accountSpecifier[cosmosCaip2]) {
+      acc = accountSpecifier[cosmosCaip2]
+    }
+    return acc
+  }, '')
+
+  // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
+  const cosmosCaip10 = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
 
   // TODO(ryankk): should this be here?
   // load staking data to redux state
-  useGetStakingDataQuery({ accountSpecifier: cosmosAccountSpecifier })
+  useGetStakingDataQuery({ accountSpecifier: cosmosCaip10 })
 
   const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosAccountSpecifier)
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10)
   )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

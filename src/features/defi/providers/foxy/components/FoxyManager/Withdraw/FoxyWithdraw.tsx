@@ -1,15 +1,30 @@
 import { ArrowForwardIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons'
-import { Box, Center, Flex, Link, Stack } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Box,
+  Center,
+  Flex,
+  Link,
+  Stack,
+  useColorModeValue,
+  useToast
+} from '@chakra-ui/react'
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
-import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
-import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
+import { FoxyApi } from '@shapeshiftoss/investor-foxy'
+import { ChainTypes, NetworkTypes, WithdrawType } from '@shapeshiftoss/types'
+import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import { Withdraw, WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
-import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import {
+  DefiParams,
+  DefiQueryParams
+} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
+import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
@@ -23,7 +38,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import {
   selectAssetByCAIP19,
@@ -33,10 +48,11 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { initialState, reducer, YearnWithdrawActionType } from './WithdrawReducer'
+import { FoxyWithdrawActionType, initialState, reducer } from './WithdrawReducer'
 
 enum WithdrawPath {
   Withdraw = '/',
+  Approve = '/approve',
   Confirm = '/confirm',
   ConfirmSettings = '/confirm/settings',
   Status = '/status'
@@ -44,22 +60,26 @@ enum WithdrawPath {
 
 export const routes = [
   { step: 0, path: WithdrawPath.Withdraw, label: 'Amount' },
-  { step: 1, path: WithdrawPath.Confirm, label: 'Confirm' },
+  { step: 1, path: WithdrawPath.Approve, label: 'Approve' },
+  { step: 2, path: WithdrawPath.Confirm, label: 'Confirm' },
   { path: WithdrawPath.ConfirmSettings, label: 'Confirm Settings' },
-  { step: 2, path: WithdrawPath.Status, label: 'Status' }
+  { step: 3, path: WithdrawPath.Status, label: 'Status' }
 ]
 
-type YearnWithdrawProps = {
-  api: YearnVaultApi
+type FoxyWithdrawProps = {
+  api: FoxyApi
 }
 
-export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
+export const FoxyWithdraw = ({ api }: FoxyWithdrawProps) => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const translate = useTranslate()
   const location = useLocation()
   const history = useHistory()
+  const translate = useTranslate()
+  const alertText = useColorModeValue('blue.800', 'white')
+  const defaultStatusBg = useColorModeValue('white', 'gray.700')
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
-  const { chain, contractAddress: vaultAddress, tokenId } = query
+  const { chain, contractAddress, tokenId, rewardId } = query
+  const toast = useToast()
 
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
@@ -75,10 +95,10 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     chain,
     network,
     assetNamespace,
-    assetReference: vaultAddress
+    assetReference: rewardId
   })
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetCAIP19))
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetCAIP19))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetCAIP19))
   const feeAssetCAIP19 = caip19.toCAIP19({
     chain,
     network,
@@ -98,78 +118,197 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   useEffect(() => {
     ;(async () => {
       try {
-        if (!walletState.wallet || !vaultAddress) return
-        const [address, vault, pricePerShare] = await Promise.all([
+        if (!walletState.wallet || !contractAddress) return
+        const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.findByDepositVaultAddress(vaultAddress),
-          api.pricePerShare({ vaultAddress })
+          api.getFoxyOpportunityByStakingAddress(contractAddress)
         ])
-        dispatch({ type: YearnWithdrawActionType.SET_USER_ADDRESS, payload: address })
-        dispatch({ type: YearnWithdrawActionType.SET_VAULT, payload: vault })
+        // Get foxy fee for instant sends
+        const foxyFeePercentage = await api.instantUnstakeFee({
+          contractAddress
+        })
+
         dispatch({
-          type: YearnWithdrawActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString()
+          type: FoxyWithdrawActionType.SET_FOXY_FEE,
+          payload: bnOrZero(foxyFeePercentage).toString()
+        })
+        dispatch({
+          type: FoxyWithdrawActionType.SET_USER_ADDRESS,
+          payload: address
+        })
+        dispatch({
+          type: FoxyWithdrawActionType.SET_OPPORTUNITY,
+          payload: foxyOpportunity
         })
       } catch (error) {
         // TODO: handle client side errors
-        console.error('YearnWithdraw error:', error)
+        console.error('FoxyWithdraw error:', error)
       }
     })()
-  }, [api, chainAdapter, vaultAddress, walletState.wallet])
+  }, [api, chainAdapter, contractAddress, walletState.wallet])
 
   const getWithdrawGasEstimate = async (withdraw: WithdrawValues) => {
-    if (!state.userAddress || !tokenId) return
+    if (!state.userAddress || !rewardId) return
     try {
       const [gasLimit, gasPrice] = await Promise.all([
         api.estimateWithdrawGas({
-          tokenContractAddress: tokenId,
-          vaultAddress,
-          amountDesired: bnOrZero(withdraw.cryptoAmount)
-            .times(`1e+${asset.precision}`)
-            .decimalPlaces(0),
-          userAddress: state.userAddress
+          tokenContractAddress: rewardId,
+          contractAddress,
+          amountDesired: bnOrZero(
+            bn(withdraw.cryptoAmount).times(`1e+${asset.precision}`)
+          ).decimalPlaces(0),
+          userAddress: state.userAddress,
+          type: state.withdraw.withdrawType
         }),
         api.getGasPrice()
       ])
-      const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+      const returVal = bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
       return returVal
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
-      console.error('YearnWithdraw:getWithdrawGasEstimate error:', error)
+      console.error('FoxyWithdraw:getWithdrawGasEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
     }
   }
 
   const handleContinue = async (formValues: WithdrawValues) => {
     if (!state.userAddress) return
     // set withdraw state for future use
-    dispatch({ type: YearnWithdrawActionType.SET_WITHDRAW, payload: formValues })
-
-    const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
-    if (!estimatedGasCrypto) return
     dispatch({
-      type: YearnWithdrawActionType.SET_WITHDRAW,
-      payload: { estimatedGasCrypto }
+      type: FoxyWithdrawActionType.SET_WITHDRAW,
+      payload: formValues
     })
-    history.push(WithdrawPath.Confirm)
+    try {
+      // Check is approval is required for user address
+      const _allowance = await api.allowance({
+        tokenContractAddress: rewardId,
+        contractAddress,
+        userAddress: state.userAddress
+      })
+
+      const allowance = bnOrZero(bn(_allowance).div(`1e+${asset.precision}`))
+
+      // Skip approval step if user allowance is greater than requested deposit amount
+      if (allowance.gte(formValues.cryptoAmount)) {
+        const estimatedGasCrypto = await getWithdrawGasEstimate(formValues)
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: FoxyWithdrawActionType.SET_WITHDRAW,
+          payload: { estimatedGasCrypto }
+        })
+        history.push(WithdrawPath.Confirm)
+      } else {
+        const estimatedGasCrypto = await getApproveGasEstimate()
+        if (!estimatedGasCrypto) return
+        dispatch({
+          type: FoxyWithdrawActionType.SET_APPROVE,
+          payload: { estimatedGasCrypto }
+        })
+        history.push(WithdrawPath.Approve)
+      }
+    } catch (error) {
+      console.error('FoxyWithdraw:handleContinue error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
+    }
+  }
+
+  const getApproveGasEstimate = async () => {
+    if (!state.userAddress || !rewardId) return
+    try {
+      const [gasLimit, gasPrice] = await Promise.all([
+        api.estimateApproveGas({
+          tokenContractAddress: rewardId,
+          contractAddress,
+          userAddress: state.userAddress
+        }),
+        api.getGasPrice()
+      ])
+      return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+    } catch (error) {
+      console.error('FoxyWithdraw:getApproveEstimate error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.somethingWentWrongBody'),
+        title: translate('common.somethingWentWrong'),
+        status: 'error'
+      })
+    }
+  }
+
+  const handleApprove = async () => {
+    if (!rewardId || !state.userAddress || !walletState.wallet) return
+    try {
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
+      await api.approve({
+        tokenContractAddress: rewardId,
+        contractAddress,
+        userAddress: state.userAddress,
+        wallet: walletState.wallet
+      })
+      await poll({
+        fn: () =>
+          api.allowance({
+            tokenContractAddress: rewardId,
+            contractAddress,
+            userAddress: state.userAddress!
+          }),
+        validate: (result: string) => {
+          const allowance = bnOrZero(bn(result).div(`1e+${asset.precision}`))
+          return bnOrZero(allowance).gt(state.withdraw.cryptoAmount)
+        },
+        interval: 15000,
+        maxAttempts: 30
+      })
+      // Get withdraw gas estimate
+      const estimatedGasCrypto = await getWithdrawGasEstimate(state.withdraw)
+      if (!estimatedGasCrypto) return
+      dispatch({
+        type: FoxyWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCrypto }
+      })
+
+      history.push(WithdrawPath.Confirm)
+    } catch (error) {
+      console.error('FoxyWithdraw:handleApprove error:', error)
+      toast({
+        position: 'top-right',
+        description: translate('common.transactionFailedBody'),
+        title: translate('common.transactionFailed'),
+        status: 'error'
+      })
+    } finally {
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
+    }
   }
 
   const handleConfirm = async () => {
     try {
-      if (!state.userAddress || !tokenId || !walletState.wallet) return
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: true })
+      if (!state.userAddress || !rewardId || !walletState.wallet || state.loading) return
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: true })
       const [txid, gasPrice] = await Promise.all([
         api.withdraw({
-          tokenContractAddress: tokenId,
+          tokenContractAddress: rewardId,
           userAddress: state.userAddress,
-          vaultAddress,
+          contractAddress,
           wallet: walletState.wallet,
           amountDesired: bnOrZero(state.withdraw.cryptoAmount)
             .times(`1e+${asset.precision}`)
-            .decimalPlaces(0)
+            .decimalPlaces(0),
+          type: state.withdraw.withdrawType
         }),
         api.getGasPrice()
       ])
-      dispatch({ type: YearnWithdrawActionType.SET_TXID, payload: txid })
+      dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       history.push(WithdrawPath.Status)
 
       const transactionReceipt = await poll({
@@ -179,15 +318,15 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
         maxAttempts: 30
       })
       dispatch({
-        type: YearnWithdrawActionType.SET_WITHDRAW,
+        type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
           txStatus: transactionReceipt.status === true ? 'success' : 'failed',
-          usedGasFee: bnOrZero(gasPrice).times(transactionReceipt.gasUsed).toFixed(0)
+          usedGasFee: bnOrZero(bn(gasPrice).times(transactionReceipt.gasUsed)).toFixed(0)
         }
       })
-      dispatch({ type: YearnWithdrawActionType.SET_LOADING, payload: false })
+      dispatch({ type: FoxyWithdrawActionType.SET_LOADING, payload: false })
     } catch (error) {
-      console.error('YearnWithdraw:handleConfirm error', error)
+      console.error('FoxyWithdraw:handleConfirm error', error)
     }
   }
 
@@ -200,7 +339,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const validateCryptoAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const _value = bnOrZero(value)
     const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
     if (_value.isEqualTo(0)) return ''
@@ -208,7 +347,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
   }
 
   const validateFiatAmount = (value: string) => {
-    const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+    const crypto = bnOrZero(bn(balance).div(`1e+${asset.precision}`))
     const fiat = crypto.times(marketData.price)
     const _value = bnOrZero(value)
     const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -216,22 +355,32 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     return hasValidBalance || 'common.insufficientFunds'
   }
 
-  const cryptoAmountAvailable = bnOrZero(balance).div(`1e+${asset?.precision}`)
-  const pricePerShare = bnOrZero(state.pricePerShare).div(`1e+${asset?.precision}`)
-  const vaultTokenPrice = pricePerShare.times(marketData.price)
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(vaultTokenPrice)
+  const cryptoAmountAvailable = bnOrZero(bn(balance).div(`1e+${asset?.precision}`))
+  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(marketData.price))
+  const withdrawalFee = useMemo(() => {
+    return state.withdraw.withdrawType === WithdrawType.INSTANT
+      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
+      : '0'
+  }, [state.withdraw.withdrawType, state.withdraw.cryptoAmount, state.foxyFeePercentage])
 
   const renderRoute = (route: { step?: number; path: string; label: string }) => {
-    let statusIcon: React.ReactElement = <ArrowForwardIcon />
-    let statusText = StatusTextEnum.pending
-    if (state.withdraw.txStatus === 'success') {
-      statusText = StatusTextEnum.success
-      statusIcon = <CheckIcon color='green' />
-    }
-    if (state.withdraw.txStatus === 'failed') {
-      statusText = StatusTextEnum.failed
-      statusIcon = <CloseIcon color='red' />
-    }
+    const { statusIcon, statusText, statusBg } = (() => {
+      let statusIcon: React.ReactElement = <ArrowForwardIcon />
+      let statusText = StatusTextEnum.pending
+      let statusBg = defaultStatusBg
+      if (state.withdraw.txStatus === 'success') {
+        statusText = StatusTextEnum.success
+        statusIcon = <CheckIcon color='green' />
+        statusBg = 'green.500'
+      }
+      if (state.withdraw.txStatus === 'failed') {
+        statusText = StatusTextEnum.failed
+        statusIcon = <CloseIcon color='red' />
+        statusBg = 'red.500'
+      }
+
+      return { statusIcon, statusText, statusBg }
+    })()
 
     switch (route.path) {
       case WithdrawPath.Withdraw:
@@ -248,29 +397,65 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               required: true,
               validate: { validateFiatAmount }
             }}
-            marketData={{
-              // The vault asset doesnt have market data.
-              // We're making our own market data object for the withdraw view
-              price: vaultTokenPrice.toString(),
-              marketCap: '0',
-              volume: '0',
-              changePercent24Hr: 0
-            }}
+            marketData={marketData}
             onCancel={handleCancel}
             onContinue={handleContinue}
+            updateWithdraw={({ withdrawType, cryptoAmount }) => {
+              return dispatch({
+                type: FoxyWithdrawActionType.SET_WITHDRAW,
+                payload: { withdrawType, cryptoAmount }
+              })
+            }}
             percentOptions={[0.25, 0.5, 0.75, 1]}
             enableSlippage={false}
+            enableWithdrawType
+            feePercentage={bnOrZero(state.foxyFeePercentage).times(100).toString()}
+          >
+            <Row>
+              <Row.Label>{translate('modals.withdraw.withDrawalFee')}</Row.Label>
+              <Row.Value>
+                <Amount.Crypto value={withdrawalFee} symbol={asset.symbol} />
+              </Row.Value>
+            </Row>
+            <Text fontSize='sm' color='gray.500' translation='modals.withdraw.disclaimer' />
+          </Withdraw>
+        )
+      case WithdrawPath.Approve:
+        return (
+          <Approve
+            asset={asset}
+            feeAsset={feeAsset}
+            cryptoEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+              .div(`1e+${feeAsset.precision}`)
+              .toFixed(5)}
+            disableAction
+            fiatEstimatedGasFee={bnOrZero(state.approve.estimatedGasCrypto)
+              .div(`1e+${feeAsset.precision}`)
+              .times(feeMarketData.price)
+              .toFixed(2)}
+            loading={state.loading}
+            loadingText={translate('common.approveOnWallet')}
+            learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
+            preFooter={
+              <Alert status='info' borderRadius='lg' color='blue.500'>
+                <FaGasPump />
+                <AlertDescription textAlign='left' ml={3} color={alertText}>
+                  {translate('modals.withdraw.withdrawFee')}
+                </AlertDescription>
+              </Alert>
+            }
+            onCancel={() => history.push('/')}
+            onConfirm={handleApprove}
           />
         )
-
       case WithdrawPath.Confirm:
         return (
           <Confirm
             onCancel={handleCancel}
             headerText='modals.confirm.withdraw.header'
+            onConfirm={handleConfirm}
             loading={state.loading}
             loadingText={translate('common.confirmOnWallet')}
-            onConfirm={handleConfirm}
             assets={[
               {
                 ...asset,
@@ -281,9 +466,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               {
                 ...underlyingAsset,
                 color: '#FF0000',
-                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
-                  .toString(),
+                cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               }
             ]}
@@ -291,18 +474,30 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             <Stack spacing={6}>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
-                </Row.Label>
-                <Row.Value fontWeight='bold'>
-                  <Text translation='defi.yearn' />
-                </Row.Value>
-              </Row>
-              <Row>
-                <Row.Label>
                   <Text translation='modals.confirm.withdrawTo' />
                 </Row.Label>
                 <Row.Value>
                   <MiddleEllipsis address={state.userAddress || ''} />
+                </Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawFee' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
+              </Row>
+              <Row>
+                <Row.Label>
+                  <Text translation='modals.confirm.withdrawTime' />
+                </Row.Label>
+                <Row.Value fontWeight='bold'>
+                  <Text
+                    translation={
+                      state.withdraw.withdrawType === WithdrawType.INSTANT
+                        ? 'modals.confirm.withdrawInstantTime'
+                        : 'modals.confirm.withdrawDelayedTime'
+                    }
+                  />
                 </Row.Value>
               </Row>
               <Row>
@@ -340,6 +535,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
             continueText='modals.status.position'
             closeText='modals.status.close'
             statusText={statusText}
+            bg={statusBg}
             statusIcon={statusIcon}
             assets={[
               {
@@ -349,9 +545,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               },
               {
                 ...underlyingAsset,
-                cryptoAmount: bnOrZero(state.withdraw.cryptoAmount)
-                  .times(bnOrZero(state.pricePerShare).div(`1e+${asset.precision}`))
-                  .toString(),
+                cryptoAmount: state.withdraw.cryptoAmount,
                 fiatAmount: state.withdraw.fiatAmount
               }
             ]}
@@ -374,9 +568,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
               </Row>
               <Row>
                 <Row.Label>
-                  <Text translation='modals.confirm.withdrawFrom' />
+                  <Text translation='modals.confirm.withdrawFee' />
                 </Row.Label>
-                <Row.Value fontWeight='bold'>Yearn Finance</Row.Value>
+                <Row.Value fontWeight='bold'>{`${withdrawalFee} Foxy`}</Row.Value>
               </Row>
               <Row>
                 <Row.Label>
@@ -431,7 +625,7 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     }
   }
 
-  if (loading || !asset || !marketData)
+  if (loading || !asset || !marketData || !feeMarketData)
     return (
       <Center minW='350px' minH='350px'>
         <CircularProgress />

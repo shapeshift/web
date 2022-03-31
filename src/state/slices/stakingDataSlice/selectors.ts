@@ -92,30 +92,6 @@ export const selectAllDelegationsCryptoAmountByDenom = createSelector(
   }
 )
 
-export const selectAllRedelegationsEntriesByAccountSpecifier = createDeepEqualOutputSelector(
-  selectStakingDataByAccountSpecifier,
-  (stakingData): Record<string, chainAdapters.cosmos.RedelegationEntry[]> => {
-    if (!stakingData || !stakingData.redelegations?.length) return {}
-
-    const redelegationsEntries = stakingData.redelegations.reduce(
-      (
-        acc: Record<string, chainAdapters.cosmos.RedelegationEntry[]>,
-        { destinationValidator, entries }
-      ) => {
-        if (!acc[destinationValidator.address]) {
-          acc[destinationValidator.address] = []
-        }
-        acc[destinationValidator.address].push(...entries)
-
-        return acc
-      },
-      {}
-    )
-
-    return redelegationsEntries
-  }
-)
-
 export const selectRedelegationEntriesByAccountSpecifier = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectValidatorAddress,
@@ -209,11 +185,9 @@ export const selectUnbondingCryptoAmountByDenom = createSelector(
 export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByDenom,
   selectDelegationCryptoAmountByDenom,
-  selectRedelegationCryptoAmountByDenom,
-  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string => {
+  (unbondingCryptoBalance, delegationCryptoBalance): string => {
     const totalBondings = bnOrZero(unbondingCryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance))
-      .plus(bnOrZero(redelegationCryptoBalance))
       .toString()
 
     return totalBondings
@@ -296,13 +270,11 @@ export const selectSingleValidator = createSelector(
 
 export const selectStakingOpportunityData = createDeepEqualOutputSelector(
   selectAllDelegationsCryptoAmountByDenom,
-  selectAllRedelegationsEntriesByAccountSpecifier,
   selectAllUnbondingsEntriesByAccountSpecifier,
   selectAllRewardsByAccountSpecifier,
   selectAllValidators,
   (
     allDelegationsAmount,
-    allRedelegationsEntries,
     allUndelegationsEntries,
     allRewards,
     allValidators
@@ -320,17 +292,6 @@ export const selectStakingOpportunityData = createDeepEqualOutputSelector(
         }, bnOrZero(0))
         .toString()
 
-      const redelegationsAmount = get(
-        allRedelegationsEntries,
-        validatorAddress,
-        [] as chainAdapters.cosmos.RedelegationEntry[]
-      )
-        .reduce((acc: BigNumber, redelegationEntry: chainAdapters.cosmos.RedelegationEntry) => {
-          acc.plus(bnOrZero(redelegationEntry.amount))
-          return acc
-        }, bnOrZero(0))
-        .toString()
-
       const rewards = get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
         .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
           acc = acc.plus(bnOrZero(rewardEntry.amount))
@@ -340,7 +301,6 @@ export const selectStakingOpportunityData = createDeepEqualOutputSelector(
 
       const cryptoAmount = bnOrZero(delegationsAmount)
         .plus(bnOrZero(undelegationsAmount))
-        .plus(bnOrZero(redelegationsAmount))
         .toString()
 
       return {

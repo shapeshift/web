@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { MouseEvent } from 'react'
 import { useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -87,7 +86,7 @@ export const StakingOpportunities = ({ assetId, opportunities }: StakingOpportun
   }
 
   const handleStakedClick = () => {
-    cosmosStaking.open({ assetId: 'cosmos:cosmoshub-4/slip44:118', action: StakingAction.Overview })
+    cosmosStaking.open({ assetId: 'cosmos:cosmoshub-4/slip44:118' })
   }
 
   const columns: Column<StakingOpportunity>[] = useMemo(

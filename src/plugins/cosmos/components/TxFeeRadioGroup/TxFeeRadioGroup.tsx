@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button, ButtonGroup, Radio, useColorModeValue } from '@chakra-ui/react'
+import { Box, BoxProps, Button, ButtonGroup, Radio } from '@chakra-ui/react'
 import { Asset } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
@@ -70,8 +70,6 @@ export const TxFeeRadioGroup = ({
   const activeFee = useWatch<ConfirmFormInput, ConfirmFormFields.FeeType>({
     name: ConfirmFormFields.FeeType
   })
-  const bg = useColorModeValue('gray.50', 'gray.850')
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
 
   // TODO: Uncomment when wired up
   if (!fees) {
@@ -95,11 +93,8 @@ export const TxFeeRadioGroup = ({
     <ButtonGroup
       variant='ghost-filled'
       width='full'
-      bg={bg}
-      borderWidth={1}
-      borderColor={borderColor}
       borderRadius='xl'
-      p={2}
+      p={0}
       id='tx-fee'
       {...styleProps}
     >
@@ -115,7 +110,7 @@ export const TxFeeRadioGroup = ({
             textAlign='left'
             alignItems='flex-start'
             key={`fee-${key}`}
-            py={2}
+            p={2}
             width='full'
             height='auto'
             onClick={() => field.onChange(key)}

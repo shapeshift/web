@@ -3,9 +3,9 @@ import { Flex } from '@chakra-ui/layout'
 import {
   Button,
   FormControl,
-  ModalCloseButton,
   ModalFooter,
   ModalHeader,
+  Stack,
   Text as CText,
   Tooltip
 } from '@chakra-ui/react'
@@ -22,7 +22,11 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
+<<<<<<< HEAD
 import { ClaimPath } from './ClaimCommon'
+=======
+import { ClaimPath } from '../StakingCommon'
+>>>>>>> origin/develop
 
 export enum Field {
   FeeType = 'feeType'
@@ -55,14 +59,17 @@ export const ClaimConfirm = ({
 
   const memoryHistory = useHistory()
   const onSubmit = (result: any) => {
-    memoryHistory.push(ClaimPath.Broadcast, { result })
+    memoryHistory.push(ClaimPath.Broadcast, { cryptoAmount: cryptoStakeAmount })
   }
 
   const translate = useTranslate()
 
   const { cosmosStaking } = useModal()
 
-  const handleCancel = cosmosStaking.close
+  const handleCancel = () => {
+    memoryHistory.goBack()
+    cosmosStaking.close()
+  }
 
   // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
   const asset = (_ => ({
@@ -74,7 +81,6 @@ export const ClaimConfirm = ({
   return (
     <FormProvider {...methods}>
       <SlideTransition>
-        <ModalCloseButton borderRadius='full' />
         <Flex
           as='form'
           pt='14px'
@@ -135,8 +141,8 @@ export const ClaimConfirm = ({
             fontSize={'sm'}
             translation='defi.modals.claim.rewardDepositInfo'
           />
-          <ModalFooter width='100%' flexDir='column' textAlign='center' mt={10}>
-            <Flex width='full' justifyContent='space-between'>
+          <ModalFooter width='100%' p='0' flexDir='column' textAlign='center' mt={10}>
+            <Stack direction='row' width='full' justifyContent='space-between'>
               <Button
                 onClick={handleCancel}
                 size='lg'
@@ -149,7 +155,7 @@ export const ClaimConfirm = ({
               <Button colorScheme={'blue'} mb={2} size='lg' type='submit' fontWeight='normal'>
                 <Text translation={'defi.modals.claim.confirmAndClaim'} />
               </Button>
-            </Flex>
+            </Stack>
           </ModalFooter>
         </Flex>
       </SlideTransition>

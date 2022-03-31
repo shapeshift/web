@@ -9,10 +9,11 @@ import {
   Text as CText,
   Tooltip
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
-import { Asset } from '@shapeshiftoss/types'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
+import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -20,7 +21,13 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import {
+  ASSET_ID_TO_DENOM,
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectRewardsAmountByDenom
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { ClaimPath } from '../StakingCommon'
 
@@ -34,16 +41,12 @@ export type StakingValues = {
 
 type ClaimConfirmProps = {
   assetId: CAIP19
-  cryptoStakeAmount: BigNumber
-  fiatAmountAvailable: string
+  accountSpecifier: CAIP10
 }
 
-// TODO: Wire up the whole component with staked data
-export const ClaimConfirm = ({
-  assetId,
-  cryptoStakeAmount,
-  fiatAmountAvailable
-}: ClaimConfirmProps) => {
+const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+
+export const ClaimConfirm = ({ assetId, accountSpecifier }: ClaimConfirmProps) => {
   const methods = useForm<StakingValues>({
     mode: 'onChange',
     defaultValues: {
@@ -53,9 +56,34 @@ export const ClaimConfirm = ({
 
   const { handleSubmit } = methods
 
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const rewardsCryptoAmount = useAppSelector(state =>
+    selectRewardsAmountByDenom(
+      state,
+      accountSpecifier,
+      SHAPESHIFT_VALIDATOR_ADDRESS,
+      ASSET_ID_TO_DENOM[assetId]
+    )
+  )
+
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
+  const rewardsCryptoAmountPrecision = useMemo(
+    () => bnOrZero(rewardsCryptoAmount).div(`1e+${asset.precision}`).toString(),
+    [asset.precision, rewardsCryptoAmount]
+  )
+  const rewardsFiatAmountPrecision = useMemo(
+    () => bnOrZero(rewardsCryptoAmountPrecision).times(marketData.price).toString(),
+    [marketData, rewardsCryptoAmountPrecision]
+  )
+
   const memoryHistory = useHistory()
+
   const onSubmit = (result: any) => {
-    memoryHistory.push(ClaimPath.Broadcast, { cryptoAmount: cryptoStakeAmount })
+    memoryHistory.push(ClaimPath.Broadcast, {
+      cryptoAmount: rewardsCryptoAmount,
+      fiatRate: marketData.price
+    })
   }
 
   const translate = useTranslate()
@@ -67,13 +95,6 @@ export const ClaimConfirm = ({
     cosmosStaking.close()
   }
 
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId,
-    chain: 'osmosis'
-  }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -88,13 +109,18 @@ export const ClaimConfirm = ({
           justifyContent='space-between'
         >
           <ModalHeader textAlign='center'>
-            <Amount.Fiat fontWeight='bold' fontSize='4xl' mb={-4} value={fiatAmountAvailable} />
+            <Amount.Fiat
+              fontWeight='bold'
+              fontSize='4xl'
+              mb={-4}
+              value={rewardsFiatAmountPrecision}
+            />
           </ModalHeader>
           <Amount.Crypto
             color='gray.500'
             fontWeight='normal'
             fontSize='xl'
-            value={cryptoStakeAmount.toPrecision()}
+            value={rewardsCryptoAmountPrecision}
             symbol={asset.symbol}
           />
           <Flex mb='6px' mt='15px' width='100%'>

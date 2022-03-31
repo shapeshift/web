@@ -8,14 +8,19 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
+import { caip10 } from '@shapeshiftoss/caip'
+import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { ChainTypes } from '@shapeshiftoss/types'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
-import { useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import {
   ClaimPath,
@@ -86,11 +91,44 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
     close()
   }
 
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId
-  }))(assetId) as Asset
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
+  const [address, setAddress] = useState<string>('')
+  const accountSpecifier = useMemo(() => {
+    if (!address.length || !asset) return ''
+
+    return caip10.toCAIP10({
+      caip2: asset.caip2,
+      account: address
+    })
+  }, [address, asset])
+
+  const chainAdapterManager = useChainAdapters()
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  useEffect(() => {
+    ;(async () => {
+      if (!asset?.chain) return
+
+      const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
+      setChainAdapter(cosmosChainAdapter)
+    })()
+  }, [chainAdapterManager, asset?.chain])
+
+  useEffect(() => {
+    ;(async () => {
+      if (!chainAdapter || !wallet || !asset) return
+
+      const address = await chainAdapter.getAddress({
+        wallet
+      })
+      setAddress(address)
+    })()
+  }, [chainAdapter, wallet, asset])
+
+  if (!asset) return null
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered initialFocusRef={initialRef}>
@@ -174,22 +212,18 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
             />
           </Route>
           <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
-            <ClaimConfirm
-              cryptoStakeAmount={bnOrZero('0.04123')}
-              fiatAmountAvailable='0.2365'
-              assetId={assetId}
-            />
+            <ClaimConfirm assetId={assetId} accountSpecifier={accountSpecifier} />
           </Route>
           <Route exact key={ClaimPath.Broadcast} path={ClaimPath.Broadcast}>
             <ClaimBroadcast
-              cryptoStakeAmount={location.state?.cryptoAmount}
-              fiatAmountAvailable='0.2365'
+              fiatRate={location.state?.fiatRate}
+              cryptoAmount={location.state?.cryptoAmount}
               assetId={assetId}
               isLoading={true}
             />
           </Route>
           <Route key={StakeRoutes.Overview} path='/'>
-            <Overview assetId={assetId} />
+            <Overview assetId={assetId} accountSpecifier={accountSpecifier} />
           </Route>
         </Switch>
       </ModalContent>

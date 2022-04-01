@@ -48,7 +48,7 @@ export const useKeepKeyVersions = () => {
     if (!wallet || !isKeepKey(wallet)) return
     ;(async () => {
       const { data: releases } = await axios.get<FirmwareReleases>(
-        'https://storageapi.fleek.co/081e91ad-2088-4280-97c5-e3174231ecab-bucket/keepKey.json',
+        'https://bafybeied24gc2ipvlxdbs4v676dwho2l5aafmngrleic3do2czdvgb546u.ipfs.dweb.link/keepKey.json',
         {
           headers: {
             Accept: 'application/json',

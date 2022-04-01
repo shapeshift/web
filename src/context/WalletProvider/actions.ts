@@ -1,6 +1,7 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
+import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
 import type { Adapters } from './WalletProvider'
 
@@ -13,7 +14,8 @@ export enum WalletActions {
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   RESET_STATE = 'RESET_STATE',
   SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING',
-  NATIVE_PASSWORD_OPEN = 'NATIVE_PASSWORD_OPEN'
+  NATIVE_PASSWORD_OPEN = 'NATIVE_PASSWORD_OPEN',
+  OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN'
 }
 
 export type ActionTypes =
@@ -38,6 +40,13 @@ export type ActionTypes =
       payload: {
         modal: boolean
         deviceId: string
+      }
+    }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_PIN
+      payload: {
+        deviceId: string
+        pinRequestType?: PinMatrixRequestType
       }
     }
   | { type: WalletActions.RESET_STATE }

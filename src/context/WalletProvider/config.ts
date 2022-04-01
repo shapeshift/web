@@ -1,8 +1,8 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
-import { EnterPassword } from 'components/Modals/KeyManagement/Native/EnterPassword'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
+import { KeepKeyPin } from './KeepKey/components/Pin'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeyManager } from './KeyManager'
@@ -10,6 +10,7 @@ import { MetaMaskConnect } from './MetaMask/components/Connect'
 import { MetaMaskFailure } from './MetaMask/components/Failure'
 import { MetaMaskSuccess } from './MetaMask/components/Success'
 import { MetaMaskConfig } from './MetaMask/config'
+import { EnterPassword } from './NativeWallet/components/EnterPassword'
 import { NativeCreate } from './NativeWallet/components/NativeCreate'
 import { NativeImport } from './NativeWallet/components/NativeImport'
 import { NativeLoad } from './NativeWallet/components/NativeLoad'
@@ -50,7 +51,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     ...KeepKeyConfig,
     routes: [
       { path: '/keepkey/connect', component: KeepKeyConnect },
-      { path: '/keepkey/success', component: KeepKeySuccess }
+      { path: '/keepkey/success', component: KeepKeySuccess },
+      { path: '/keepkey/enter-pin', component: KeepKeyPin }
     ]
   },
   [KeyManager.MetaMask]: {

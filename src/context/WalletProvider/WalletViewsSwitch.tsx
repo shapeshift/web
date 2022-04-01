@@ -30,7 +30,6 @@ export const WalletViewsSwitch = () => {
 
   const handleBack = () => {
     history.goBack()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
     if (history.location.pathname === '/') {
@@ -56,7 +55,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && (
+            {!match?.isExact && !state.noBackButton && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'

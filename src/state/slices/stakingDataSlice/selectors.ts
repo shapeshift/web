@@ -277,18 +277,18 @@ export const selectNonloadedValidators = createSelector(
   selectAllValidators,
   (stakingData, allValidators): string[] => {
     if (!stakingData) return []
-    const validatorsAddresses = stakingData.delegations
+    const initialValidatorsAddresses = stakingData.delegations
       ? stakingData.delegations.map(x => x.validator.address)
       : []
     if (stakingData.undelegations) {
-      validatorsAddresses.push(...stakingData.undelegations.map(x => x.validator.address))
+      initialValidatorsAddresses.push(...stakingData.undelegations.map(x => x.validator.address))
     }
 
     if (stakingData.rewards) {
-      validatorsAddresses.push(...stakingData.rewards.map(x => x.validator.address))
+      initialValidatorsAddresses.push(...stakingData.rewards.map(x => x.validator.address))
     }
 
-    const uniqueValidatorAddresses = [...new Set(validatorsAddresses)]
+    const uniqueValidatorAddresses = [...new Set(initialValidatorsAddresses)]
     return uniqueValidatorAddresses.filter(x => allValidators[x] === undefined)
   }
 )

@@ -2,6 +2,7 @@ import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
+import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
 import { KeepKeyPin } from './KeepKey/components/Pin'
 import { KeepKeySuccess } from './KeepKey/components/Success'
 import { KeepKeyConfig } from './KeepKey/config'
@@ -52,7 +53,8 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
     routes: [
       { path: '/keepkey/connect', component: KeepKeyConnect },
       { path: '/keepkey/success', component: KeepKeySuccess },
-      { path: '/keepkey/enter-pin', component: KeepKeyPin }
+      { path: '/keepkey/enter-pin', component: KeepKeyPin },
+      { path: '/keepkey/passphrase', component: KeepKeyPassphrase }
     ]
   },
   [KeyManager.MetaMask]: {

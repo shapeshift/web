@@ -108,7 +108,6 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         initialRoute: '/native/enter-password'
       }
     case WalletActions.OPEN_KEEPKEY_PIN:
-      console.info(action)
       return {
         ...state,
         modal: true,
@@ -117,6 +116,15 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         deviceId: action.payload.deviceId,
         keepKeyPinRequestType: action.payload.pinRequestType ?? null,
         initialRoute: '/keepkey/enter-pin'
+      }
+    case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        noBackButton: true,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/keepkey/passphrase'
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }

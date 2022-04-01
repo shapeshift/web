@@ -16,8 +16,7 @@ export const useKeepKeyEventHandler = (state: KeyringState, dispatch: Dispatch<A
       switch (e[1].message_enum) {
         case MessageType.PASSPHRASEREQUEST:
           if (!modal) {
-            // TODO: migrate keepkey passphrase modal
-            // dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
+            dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
           }
           break
         // ACK just means we sent it, doesn't mean it was successful

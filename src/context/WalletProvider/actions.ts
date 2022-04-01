@@ -15,7 +15,8 @@ export enum WalletActions {
   RESET_STATE = 'RESET_STATE',
   SET_LOCAL_WALLET_LOADING = 'SET_LOCAL_WALLET_LOADING',
   NATIVE_PASSWORD_OPEN = 'NATIVE_PASSWORD_OPEN',
-  OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN'
+  OPEN_KEEPKEY_PIN = 'OPEN_KEEPKEY_PIN',
+  OPEN_KEEPKEY_PASSPHRASE = 'OPEN_KEEPKEY_PASSPHRASE'
 }
 
 export type ActionTypes =
@@ -47,6 +48,12 @@ export type ActionTypes =
       payload: {
         deviceId: string
         pinRequestType?: PinMatrixRequestType
+      }
+    }
+  | {
+      type: WalletActions.OPEN_KEEPKEY_PASSPHRASE
+      payload: {
+        deviceId: string
       }
     }
   | { type: WalletActions.RESET_STATE }

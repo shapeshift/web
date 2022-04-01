@@ -1,19 +1,27 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
-import { Button, FormControl, ModalHeader, Text as CText, Tooltip } from '@chakra-ui/react'
+import {
+  Button,
+  FormControl,
+  ModalFooter,
+  ModalHeader,
+  Stack,
+  Text as CText,
+  Tooltip
+} from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
+import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
-import { UnstakingPath } from './UnstakeConfirmRouter'
+import { UnstakingPath } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -53,9 +61,12 @@ export const UnstakeConfirm = ({
 
   const { handleSubmit } = methods
 
-  const memoryHistory = useHistory()
+  const history = useHistory()
   const onSubmit = (_: any) => {
-    memoryHistory.push(UnstakingPath.Broadcast)
+    history.push(UnstakingPath.Broadcast, {
+      cryptoAmount: cryptoUnstakeAmount,
+      fiatRate
+    })
   }
 
   const translate = useTranslate()
@@ -69,7 +80,7 @@ export const UnstakeConfirm = ({
   }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <SlideTransition>
         <Flex
           as='form'
           pt='14px'
@@ -121,7 +132,6 @@ export const UnstakeConfirm = ({
           <FormControl>
             <TxFeeRadioGroup
               asset={asset}
-              mb='90px'
               fees={{
                 slow: {
                   txFee: '0.004',
@@ -138,21 +148,25 @@ export const UnstakeConfirm = ({
               }}
             />
           </FormControl>
-          <Text
-            textAlign='center'
-            fontSize='sm'
-            fontWeight='semibold'
-            translation={['defi.unbondInfoItWillTakeShort', { unbondingDays: '14' }]}
-            mb='18px'
-          />
-          <Button colorScheme={'blue'} mb={2} size='lg' type='submit' width='full'>
-            <Text translation={'defi.confirmAndBroadcast'} />
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            <Text translation='common.cancel' />
-          </Button>
+          <ModalFooter width='100%' py='0' px='0' flexDir='column' textAlign='center' mt={1}>
+            <Text
+              textAlign='left'
+              fontSize='sm'
+              color='gray.500'
+              translation={['defi.unbondInfoItWillTakeShort', { unbondingDays: '14' }]}
+              mb='18px'
+            />
+            <Stack direction='row' width='full' justifyContent='space-between'>
+              <Button onClick={onCancel} size='lg' variant='ghost'>
+                <Text translation='common.cancel' />
+              </Button>
+              <Button colorScheme={'blue'} mb={2} size='lg' type='submit'>
+                <Text translation={'defi.signAndBroadcast'} />
+              </Button>
+            </Stack>
+          </ModalFooter>
         </Flex>
-      </AnimatePresence>
+      </SlideTransition>
     </FormProvider>
   )
 }

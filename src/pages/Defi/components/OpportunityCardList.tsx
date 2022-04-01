@@ -9,14 +9,11 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { UseEarnBalancesReturn } from '../hooks/useEarnBalances'
-import { StakingCard } from './StakingCard'
+import { OpportunityCard } from './OpportunityCard'
+export const OpportunityCardList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
+  const activeOpportunities = balances.opportunities.filter(o => bnOrZero(o.cryptoAmount).gt(0))
 
-export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => {
-  const activeVaults = Object.values(balances?.vaults?.vaults || {}).filter(vault =>
-    bnOrZero(vault?.balance).gt(0)
-  )
-
-  if (balances.vaults.loading) return null
+  if (balances.loading) return null
 
   return (
     <Box mb={6}>
@@ -43,11 +40,13 @@ export const VaultList = ({ balances }: { balances: UseEarnBalancesReturn }) => 
         gridTemplateColumns={{ base: 'repeat(1, 1fr)', lg: 'repeat(3, 1fr)' }}
         gridGap={6}
       >
-        {activeVaults.map(vault => {
-          return <StakingCard isLoaded={true} key={vault.vaultAddress} {...vault} />
+        {activeOpportunities.map(opportunity => {
+          return (
+            <OpportunityCard isLoaded={true} key={opportunity.contractAddress} {...opportunity} />
+          )
         })}
       </SimpleGrid>
-      {activeVaults.length === 0 && (
+      {activeOpportunities.length === 0 && (
         <Card textAlign='center' py={6} boxShadow='none'>
           <Card.Body>
             <Flex justifyContent='center' fontSize='xxx-large' mb={4} color='gray.500'>

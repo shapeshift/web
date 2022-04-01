@@ -19,7 +19,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   const { next, data, hasMore } = useInfiniteScroll(txIds)
 
   return data?.length ? (
-    <Card.Body px={2} pt={0}>
+    <Card.Body px={0} pt={0}>
       <InfiniteScroll
         pageStart={0}
         loadMore={next}

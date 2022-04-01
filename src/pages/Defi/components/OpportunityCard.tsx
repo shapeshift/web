@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { AssetNamespace, caip19 } from '@shapeshiftoss/caip'
 import { NetworkTypes } from '@shapeshiftoss/types'
+import { EarnOpportunityType } from 'features/defi/helpers/normalizeOpportunity'
 import qs from 'qs'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -22,17 +23,15 @@ import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { MergedEarnVault } from '../hooks/useVaultBalances'
-
-type StakingCardProps = {
+type OpportunityCardProps = {
   isLoaded?: boolean
-} & MergedEarnVault
+} & EarnOpportunityType
 
-export const StakingCard = ({
+export const OpportunityCard = ({
   type,
-  symbol,
   tokenAddress,
-  vaultAddress,
+  rewardAddress,
+  contractAddress,
   provider,
   chain,
   isLoaded,
@@ -40,7 +39,7 @@ export const StakingCard = ({
   cryptoAmount,
   fiatAmount,
   expired
-}: StakingCardProps) => {
+}: OpportunityCardProps) => {
   const history = useHistory()
   const location = useLocation()
   const bgHover = useColorModeValue('gray.100', 'gray.700')
@@ -65,8 +64,9 @@ export const StakingCard = ({
           pathname: `/defi/${type}/${provider}/withdraw`,
           search: qs.stringify({
             chain,
-            contractAddress: vaultAddress,
-            tokenId: tokenAddress
+            contractAddress,
+            tokenId: tokenAddress,
+            rewardId: rewardAddress
           }),
           state: { background: location }
         })
@@ -87,9 +87,14 @@ export const StakingCard = ({
           <Box ml={4}>
             <SkeletonText isLoaded={isLoaded} noOfLines={2}>
               <RawText size='lg' fontWeight='bold' textTransform='uppercase' lineHeight={1} mb={1}>
-                {`${asset.symbol} ${type}`}
+                {`${asset.symbol} ${type?.replace('_', ' ')}`}
               </RawText>
-              <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={symbol} lineHeight={1} />
+              <Amount.Crypto
+                color='gray.500'
+                value={cryptoAmount}
+                symbol={asset.symbol}
+                lineHeight={1}
+              />
             </SkeletonText>
           </Box>
         </Flex>

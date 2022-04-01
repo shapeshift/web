@@ -28,12 +28,12 @@ import {
 } from 'state/slices/selectors'
 import {
   ASSET_ID_TO_DENOM,
+  selectActiveStakingOpportunityDataByDenom,
   selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataStatus,
-  selectStakingOpportunityDataByDenom,
   selectValidatorStatus,
-  StakingOpportunity
+  ActiveStakingOpportunity
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -89,8 +89,8 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   )
   const accountSpecifier = accountSpecifiersForChainId?.[0]
 
-  const stakingOpportunities = useAppSelector(state =>
-    selectStakingOpportunityDataByDenom(
+  const activeStakingOpportunities = useAppSelector(state =>
+    selectActiveStakingOpportunityDataByDenom(
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS,
@@ -108,7 +108,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const nonLoadedValidators = useAppSelector(state =>
     selectNonloadedValidators(state, accountSpecifier)
   )
-  const isStaking = stakingOpportunities.length !== 0
+  const isStaking = activeStakingOpportunities.length !== 0
 
   useEffect(() => {
     ;(async () => {
@@ -158,14 +158,14 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     e.stopPropagation()
   }
 
-  const handleStakedClick = (values: Row<object>) => {
+  const handleStakedClick = (values: Row<ActiveStakingOpportunity>) => {
     cosmosStaking.open({
       assetId: 'cosmos:cosmoshub-4/slip44:118',
-      validatorAddress: (values.original as StakingOpportunity).address
+      validatorAddress: values.original.address
     })
   }
 
-  const columns: Column<StakingOpportunity>[] = useMemo(
+  const columns: Column<ActiveStakingOpportunity>[] = useMemo(
     () => [
       {
         Header: <Text translation='defi.validator' />,
@@ -262,7 +262,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={!isStaking && isLoaded ? stakingOpportunityDefault : stakingOpportunities}
+          data={!isStaking && isLoaded ? stakingOpportunityDefault : activeStakingOpportunities}
           columns={columns}
           displayHeaders={isStaking}
           onRowClick={handleStakedClick}

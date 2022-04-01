@@ -16,7 +16,7 @@ export const DENOM_TO_ASSET_ID: { [k: string]: CAIP19 } = {
   uatom: 'cosmos:cosmoshub-4/slip44:118'
 }
 
-export type StakingOpportunity = {
+export type ActiveStakingOpportunity = {
   address: string
   moniker: string
   apr: string
@@ -24,12 +24,12 @@ export type StakingOpportunity = {
   rewards?: string
 }
 
-export type amountByValidatorAddressType = {
+export type amountbyValidatorAddressType = {
   [k: string]: string
 }
 
-export type redelegationsEntriesByValidatorAddressType = {
-  [k: string]: chainAdapters.cosmos.RedelegationEntry[]
+export type redelegationsEntriesbyValidatorAddressType = {
+  [k: CAIP10]: chainAdapters.cosmos.RedelegationEntry[]
 }
 
 export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
@@ -77,11 +77,11 @@ export const selectDelegationCryptoAmountByDenom = createSelector(
 export const selectAllDelegationsCryptoAmountByDenom = createSelector(
   selectStakingDataByAccountSpecifier,
   selectDenom,
-  (stakingData, denom): amountByValidatorAddressType => {
+  (stakingData, denom): amountbyValidatorAddressType => {
     if (!stakingData || !stakingData.delegations?.length) return {}
 
     const delegations = stakingData.delegations.reduce(
-      (acc: amountByValidatorAddressType, { assetId, amount, validator: { address } }) => {
+      (acc: amountbyValidatorAddressType, { assetId, amount, validator: { address } }) => {
         if (ASSET_ID_TO_DENOM[assetId] !== denom) return acc
 
         acc[address] = amount
@@ -261,14 +261,14 @@ export const selectRewardsAmountByDenom = createSelector(
 
 export const selectAllValidators = createDeepEqualOutputSelector(
   selectStakingData,
-  stakingData => stakingData.byvalidator
+  stakingData => stakingData.byValidator
 )
 
 export const selectSingleValidator = createSelector(
   selectStakingData,
   selectValidatorAddress,
   (stakingData, validatorAddress) => {
-    return stakingData.byvalidator[validatorAddress] || null
+    return stakingData.byValidator[validatorAddress] || null
   }
 )
 
@@ -293,7 +293,7 @@ export const selectNonloadedValidators = createSelector(
   }
 )
 
-export const selectStakingOpportunityDataByDenom = createDeepEqualOutputSelector(
+export const selectActiveStakingOpportunityDataByDenom = createDeepEqualOutputSelector(
   selectAllDelegationsCryptoAmountByDenom,
   selectAllUnbondingsEntriesByDenom,
   selectAllRewardsByDenom,
@@ -303,7 +303,7 @@ export const selectStakingOpportunityDataByDenom = createDeepEqualOutputSelector
     allUndelegationsEntries,
     allRewards,
     allValidators
-  ): StakingOpportunity[] => {
+  ): ActiveStakingOpportunity[] => {
     const result = Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
       const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
       const undelegationsAmount = get(

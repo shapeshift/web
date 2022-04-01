@@ -34,7 +34,7 @@ export type StakingData = {
   byAccountSpecifier: StakingDataByAccountSpecifier
   status: StakingDataStatus
   validatorStatus: StakingDataStatus
-  byvalidator: ValidatorDataByPubKey
+  byValidator: ValidatorDataByPubKey
 }
 
 export type ValidatorDataByPubKey = {
@@ -50,7 +50,7 @@ export type StakingPayload = {
 
 const initialState: StakingData = {
   byAccountSpecifier: {},
-  byvalidator: {},
+  byValidator: {},
   status: 'idle',
   validatorStatus: 'idle'
 }
@@ -68,7 +68,7 @@ const updateOrInsertValidatorData = (
   validators: chainAdapters.cosmos.Validator[]
 ) => {
   validators.forEach(validator => {
-    stakingDataState.byvalidator[validator.address] = validator
+    stakingDataState.byValidator[validator.address] = validator
   })
 }
 

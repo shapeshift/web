@@ -3,23 +3,23 @@ import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakr
 import { useMemo } from 'react'
 import { Column, Row, TableState, useSortBy, useTable } from 'react-table'
 
-type ReactTableProps = {
-  columns: Column<any>[]
-  data: object[]
+type ReactTableProps<T extends object> = {
+  columns: Column<T>[]
+  data: T[]
   displayHeaders?: boolean
-  onRowClick?: (row: Row<object>) => void
+  onRowClick?: (row: Row<T>) => void
   initialState?: Partial<TableState<object>>
 }
 
-export const ReactTable = ({
+export const ReactTable = <T extends object>({
   columns,
   data,
   displayHeaders = true,
   onRowClick,
   initialState
-}: ReactTableProps) => {
+}: ReactTableProps<T>) => {
   const hoverColor = useColorModeValue('black', 'white')
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable<T>(
     {
       columns,
       data,

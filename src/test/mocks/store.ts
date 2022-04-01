@@ -98,6 +98,6 @@ export const mockStore: ReduxState = {
     byAccountSpecifier: {},
     status: 'idle',
     validatorStatus: 'idle',
-    byvalidator: {}
+    byValidator: {}
   }
 }

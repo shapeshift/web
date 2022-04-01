@@ -41,7 +41,7 @@ export const Confirm = ({
         <Stack width='full'>
           {prefooter}
           <Flex width='full' justifyContent='space-between'>
-            <Button size='lg' colorScheme='gray' onClick={onCancel}>
+            <Button size='lg' colorScheme='gray' onClick={onCancel} isDisabled={loading}>
               {translate('modals.confirm.cancel')}
             </Button>
             <Button

@@ -9,7 +9,7 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { BigNumber } from 'lib/bignumber/bignumber'
 
 type ClaimBroadcastProps = {

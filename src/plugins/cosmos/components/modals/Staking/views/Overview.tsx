@@ -11,7 +11,7 @@ import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRo
 import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'components/Text'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {

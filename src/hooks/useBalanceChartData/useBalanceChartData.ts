@@ -350,9 +350,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // load staking data to redux state
   useGetStakingDataQuery({ accountSpecifier: cosmosCaip10 })
 
-  const delegationTotal = useAppSelector(state =>
-    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10)
-  )
+  const delegationTotal =
+    useAppSelector(state =>
+      selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10)
+    ) ?? '0'
+
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo }

@@ -1,17 +1,9 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { ModalBody } from '@chakra-ui/react'
-import { useEffect } from 'react'
-import { WalletActions } from 'context/WalletProvider/actions'
-import { useWallet } from 'hooks/useWallet/useWallet'
-
-import { Text } from '../../../../components/Text'
+import { Text } from 'components/Text'
 
 export const KeepKeySuccess = () => {
   const isSuccessful = true
-  const { dispatch } = useWallet()
-  useEffect(() => {
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-  }, [dispatch, isSuccessful])
   return (
     <>
       <ModalBody textAlign='center' pb={8}>

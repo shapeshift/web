@@ -4,9 +4,6 @@ import { GetStartedModal } from 'plugins/cosmos/components/modals/GetStarted/Get
 import { StakingModal } from 'plugins/cosmos/components/modals/Staking/Staking'
 import React, { useMemo, useReducer } from 'react'
 import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRamps'
-import { PassphraseModal } from 'components/Modals/KeyManagement/KeepKey/Passphrase'
-import { PinModal } from 'components/Modals/KeyManagement/KeepKey/Pin'
-import { PasswordModal } from 'components/Modals/KeyManagement/Native/Password'
 import { ReceiveModal } from 'components/Modals/Receive/Receive'
 import { SendModal } from 'components/Modals/Send/Send'
 import { SettingsModal } from 'components/Modals/Settings/Settings'
@@ -17,9 +14,6 @@ import { ModalContext } from './ModalContext'
 // the key is the name returned by the hook and the
 // component is the modal to be rendered
 const MODALS = {
-  nativePassword: PasswordModal,
-  keepkeyPin: PinModal,
-  keepkeyPassphrase: PassphraseModal,
   receive: ReceiveModal,
   send: SendModal,
   fiatRamps: FiatRampsModal,

@@ -10,6 +10,7 @@ import { ActionTypes, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { useKeepKeyEventHandler } from './KeepKey/hooks/useKeepKeyEventHandler'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
+import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
 import { KeyManager } from './KeyManager'
 import { clearLocalWallet, getLocalWalletDeviceId, getLocalWalletType } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
@@ -40,6 +41,9 @@ export interface InitialState {
   isConnected: boolean
   modal: boolean
   isLoadingLocalWallet: boolean
+  deviceId: string
+  noBackButton: boolean
+  keepKeyPinRequestType: PinMatrixRequestType | null
 }
 
 const initialState: InitialState = {
@@ -51,7 +55,10 @@ const initialState: InitialState = {
   walletInfo: null,
   isConnected: false,
   modal: false,
-  isLoadingLocalWallet: false
+  isLoadingLocalWallet: false,
+  deviceId: '',
+  noBackButton: false,
+  keepKeyPinRequestType: null
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -84,11 +91,41 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
       // Otherwise the connect button for last wallet we clicked on won't work
-      if (action.payload !== state.modal) {
+      if (action.payload === false && state.modal === true) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
+        newState.noBackButton = false
+        newState.keepKeyPinRequestType = null
       }
       return newState
+    case WalletActions.NATIVE_PASSWORD_OPEN:
+      return {
+        ...state,
+        modal: action.payload.modal,
+        type: KeyManager.Native,
+        noBackButton: state.isLoadingLocalWallet,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/native/enter-password'
+      }
+    case WalletActions.OPEN_KEEPKEY_PIN:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        noBackButton: true,
+        deviceId: action.payload.deviceId,
+        keepKeyPinRequestType: action.payload.pinRequestType ?? null,
+        initialRoute: '/keepkey/enter-pin'
+      }
+    case WalletActions.OPEN_KEEPKEY_PASSPHRASE:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        noBackButton: true,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/keepkey/passphrase'
+      }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
     case WalletActions.RESET_STATE:
@@ -99,7 +136,9 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         isConnected: false,
         type: null,
         initialRoute: null,
-        isLoadingLocalWallet: false
+        isLoadingLocalWallet: false,
+        noBackButton: false,
+        keepKeyPinRequestType: null
       }
     default:
       return state

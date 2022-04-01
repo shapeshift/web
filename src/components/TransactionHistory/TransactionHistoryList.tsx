@@ -6,7 +6,7 @@ import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { selectTxHistoryStatus } from 'state/slices/selectors'
-import { TxHistoryStatus, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 import { TransactionsLoading } from './TransactionsLoading'
@@ -14,7 +14,6 @@ import { TransactionsLoading } from './TransactionsLoading'
 type TransactionHistoryListProps = {
   txIds: TxId[]
   useCompactMode?: boolean
-  status?: TxHistoryStatus
 }
 
 enum HistoryStatus {

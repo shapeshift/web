@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { caip10, CAIP19, CAIP2, caip2 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, HistoryData, HistoryTimeframe } from '@shapeshiftoss/types'
+import { ChainTypes, HistoryData, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
@@ -20,6 +20,8 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
+import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
+import { useGetStakingDataQuery } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import {
   PortfolioAssets,
   PortfolioBalancesById
@@ -32,6 +34,7 @@ import {
   selectTxsByFilter
 } from 'state/slices/selectors'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
+import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -209,27 +212,23 @@ type CalculateBucketPricesArgs = {
   buckets: Bucket[]
   portfolioAssets: PortfolioAssets
   priceHistoryData: PriceHistoryData
+  delegationTotal: string
 }
 
 type CalculateBucketPrices = (args: CalculateBucketPricesArgs) => Bucket[]
 
 // note - this mutates buckets
 export const calculateBucketPrices: CalculateBucketPrices = args => {
-  const { assetIds, buckets, portfolioAssets, priceHistoryData } = args
+  const { assetIds, buckets, portfolioAssets, priceHistoryData, delegationTotal } = args
 
   const startingBucket = buckets[buckets.length - 1]
 
   // TODO:
   // when this PR is merged: https://github.com/shapeshift/web/pull/1331
   // We can get cosmos delegations from state and use here
-  const cosmosDelegationTotal = 400000
 
   // add total cosmos staked balance to starting balance if cosmos is in assetIds
-  buckets[buckets.length - 1] = includeStakedBalance(
-    startingBucket,
-    cosmosDelegationTotal,
-    assetIds
-  )
+  buckets[buckets.length - 1] = includeStakedBalance(startingBucket, delegationTotal, assetIds)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
@@ -335,6 +334,32 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const balances = useAppSelector(state =>
     selectPortfolioCryptoBalancesByAccountId(state, accountId)
   )
+
+  // Get total delegation
+  // TODO(ryankk): consolidate accountSpecifiers creation to be the same everywhere
+  const cosmosCaip2: CAIP2 = caip2.toCAIP2({
+    chain: ChainTypes.Cosmos,
+    network: NetworkTypes.COSMOSHUB_MAINNET
+  })
+
+  const accountSpecifiers = useSelector(selectAccountSpecifiers)
+  const account = accountSpecifiers.reduce((acc, accountSpecifier) => {
+    if (accountSpecifier[cosmosCaip2]) {
+      acc = accountSpecifier[cosmosCaip2]
+    }
+    return acc
+  }, '')
+
+  // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
+  const cosmosCaip10 = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
+
+  // TODO(ryankk): should this be here?
+  // load staking data to redux state
+  useGetStakingDataQuery({ accountSpecifier: cosmosCaip10 })
+
+  const delegationTotal = useAppSelector(state =>
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10)
+  )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {
     state: { walletInfo }
@@ -392,7 +417,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       assetIds,
       buckets,
       priceHistoryData,
-      portfolioAssets
+      portfolioAssets,
+      delegationTotal
     })
 
     const chartData = bucketsToChartData(calculatedBuckets)

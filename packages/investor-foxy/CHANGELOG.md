@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.1...@shapeshiftoss/investor-foxy-v1.3.2) (2022-04-01)
+
+
+### Bug Fixes
+
+* bignumber error ([#507](https://github.com/shapeshift/lib/issues/507)) ([a9ca964](https://github.com/shapeshift/lib/commit/a9ca964a430193cc7ba2e9d7687da9aafdc25fa6))
+
 # [@shapeshiftoss/investor-foxy-v1.3.1](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.0...@shapeshiftoss/investor-foxy-v1.3.1) (2022-03-31)
 
 

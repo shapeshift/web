@@ -18,13 +18,13 @@ import { useTranslate } from 'react-polyglot'
 import { RouteComponentProps } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { getLocaleLabel } from '../../../assets/translations/utils'
 import { BalanceThresholdInput } from './BalanceThresholdInput'
-import { SettingsRoutes } from './Settings'
+import { SettingsRoutes } from './SettingsCommon'
 import { SettingsListItem } from './SettingsListItem'
 
 type SettingsListProps = {

@@ -16,7 +16,7 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   AccountSpecifierMap,
   accountSpecifiers

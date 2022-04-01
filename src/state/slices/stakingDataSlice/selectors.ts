@@ -45,8 +45,8 @@ export const selectStakingDataByAccountSpecifier = createSelector(
 export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelector(
   selectStakingDataByAccountSpecifier,
   stakingData => {
-    // We make the assumption that every delegation is associated with the correct assetId
-    // because all delegation rewards are denominated in a single asset.
+    // We make the assumption that all delegation rewards come from a single denom (asset)
+    // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
     return stakingData?.delegations?.reduce(
       (acc, delegation) => bnOrZero(acc).plus(delegation.amount).toString(),
       '0'

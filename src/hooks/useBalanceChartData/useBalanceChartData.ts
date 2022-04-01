@@ -353,7 +353,6 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // TODO(ryankk): this needs to be removed once staking data is keyed by accountSpecifier instead of caip10
   const cosmosCaip10 = account ? caip10.toCAIP10({ caip2: cosmosCaip2, account }) : ''
 
-  // TODO(ryankk): should this be here?
   // load staking data to redux state
   useGetStakingDataQuery({ accountSpecifier: cosmosCaip10 })
 

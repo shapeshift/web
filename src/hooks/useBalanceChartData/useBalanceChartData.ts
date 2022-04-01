@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-import { caip10, CAIP19, CAIP2, caip2 } from '@shapeshiftoss/caip'
+import { CAIP2, caip2, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
 import { ChainTypes, HistoryData, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
@@ -19,9 +18,8 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
+import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
-import { useGetStakingDataQuery } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import {
   PortfolioAssets,
   PortfolioBalancesById
@@ -33,8 +31,9 @@ import {
   selectPriceHistoryTimeframe,
   selectTxsByFilter
 } from 'state/slices/selectors'
+import { selectTotalStakingDelegationCryptoByAccountSpecifier } from 'state/slices/stakingDataSlice/selectors'
+import { useGetStakingDataQuery } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
-import { selectAccountSpecifiers } from 'state/slices/accountSpecifiersSlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -223,17 +222,12 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
 
   const startingBucket = buckets[buckets.length - 1]
 
-  // TODO:
-  // when this PR is merged: https://github.com/shapeshift/web/pull/1331
-  // We can get cosmos delegations from state and use here
-
   // add total cosmos staked balance to starting balance if cosmos is in assetIds
   buckets[buckets.length - 1] = includeStakedBalance(startingBucket, delegationTotal, assetIds)
 
   // we iterate from latest to oldest
   for (let i = buckets.length - 1; i >= 0; i--) {
     const bucket = buckets[i]
-
     const { rebases, txs } = bucket
 
     // copy the balance back from the most recent bucket

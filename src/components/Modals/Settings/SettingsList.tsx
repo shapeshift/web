@@ -60,24 +60,19 @@ export const SettingsList = ({ appHistory, ...routeProps }: SettingsListProps) =
             <Switch isChecked={isLightMode} pointerEvents='none' />
           </SettingsListItem>
           <Divider my={1} />
-          {/* TODO: remove the following condition when fallback locale is ready */}
-          {false && (
-            <>
-              <SettingsListItem
-                label='modals.settings.language'
-                onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
-                icon={<Icon as={MdLanguage} color='gray.500' />}
-              >
-                <Flex alignItems='center'>
-                  <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
-                    {getLocaleLabel(selectedLocale)}
-                  </RawText>
-                  <MdChevronRight color='gray.500' size='1.5em' />
-                </Flex>
-              </SettingsListItem>
-              <Divider my={1} />
-            </>
-          )}
+          <SettingsListItem
+            label='modals.settings.language'
+            onClick={() => routeProps.history.push(SettingsRoutes.Languages)}
+            icon={<Icon as={MdLanguage} color='gray.500' />}
+          >
+            <Flex alignItems='center'>
+              <RawText color={selectedPreferenceValueColor} lineHeight={1} fontSize='sm'>
+                {getLocaleLabel(selectedLocale)}
+              </RawText>
+              <MdChevronRight color='gray.500' size='1.5em' />
+            </Flex>
+          </SettingsListItem>
+          <Divider my={1} />
           <SettingsListItem
             label='modals.settings.balanceThreshold'
             icon={<Icon as={FaGreaterThanEqual} color='gray.500' />}

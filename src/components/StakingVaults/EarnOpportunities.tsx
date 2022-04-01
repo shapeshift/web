@@ -64,6 +64,8 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
     })
   }
 
+  if (allRows.length === 0) return null
+
   return (
     <Card>
       <Card.Header flexDir='row' display='flex'>

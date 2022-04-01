@@ -5,11 +5,22 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
-import { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { selectTxHistoryStatus } from 'state/slices/selectors'
+import { TxHistoryStatus, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
+
+import { TransactionsLoading } from './TransactionsLoading'
 
 type TransactionHistoryListProps = {
   txIds: TxId[]
   useCompactMode?: boolean
+  status?: TxHistoryStatus
+}
+
+enum HistoryStatus {
+  IDLE = 'idle',
+  LOADING = 'loading',
+  LOADED = 'loaded'
 }
 
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
@@ -17,7 +28,11 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   useCompactMode = false
 }) => {
   const { next, data, hasMore } = useInfiniteScroll(txIds)
+  const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
+  if (txHistoryStatus === HistoryStatus.LOADING) {
+    return <TransactionsLoading />
+  }
   return data?.length ? (
     <Card.Body px={0} pt={0}>
       <InfiniteScroll

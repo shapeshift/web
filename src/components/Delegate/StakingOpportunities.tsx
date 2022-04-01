@@ -9,11 +9,9 @@ import {
   Tag,
   TagLabel
 } from '@chakra-ui/react'
-import { caip10, CAIP19 } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
-import { MouseEvent, useEffect, useMemo, useState } from 'react'
+import { MouseEvent, useEffect, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -22,16 +20,19 @@ import { Card } from 'components/Card/Card'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'context/ModalProvider/ModalProvider'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectPubkeyishByChainId
+} from 'state/slices/selectors'
 import {
   ASSET_ID_TO_DENOM,
   selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataStatus,
   selectStakingOpportunityDataByDenom,
+  selectValidatorStatus,
   StakingOpportunity
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
@@ -74,27 +75,19 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const validatorStatus = useAppSelector(selectStakingDataStatus)
-  const isLoaded = validatorStatus === 'loaded'
+  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
+  const isStakingDataLoaded = stakingDataStatus === 'loaded'
+  const validatorStatus = useAppSelector(selectValidatorStatus)
+  const isValidatorDataLoaded = validatorStatus === 'loaded'
+  const isLoaded = isStakingDataLoaded && isValidatorDataLoaded
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const dispatch = useAppDispatch()
-  const chainAdapterManager = useChainAdapters()
-  const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
-  const [address, setAddress] = useState<string>('')
 
-  const accountSpecifier = useMemo(() => {
-    if (!address.length) return ''
-
-    return caip10.toCAIP10({
-      caip2: asset.caip2,
-      account: address
-    })
-  }, [address, asset.caip2])
-
-  const {
-    state: { wallet }
-  } = useWallet()
+  const accountSpecifiersForChainId = useAppSelector(state =>
+    selectPubkeyishByChainId(state, asset?.caip2)
+  )
+  const accountSpecifier = accountSpecifiersForChainId?.[0]
 
   const stakingOpportunities = useAppSelector(state =>
     selectStakingOpportunityDataByDenom(
@@ -109,7 +102,6 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   )
   const stakingOpportunityDefault = [
     {
-      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS,
       ...shapeshiftValidator
     }
   ]
@@ -120,25 +112,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
 
   useEffect(() => {
     ;(async () => {
-      const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
-      setChainAdapter(cosmosChainAdapter)
-    })()
-  })
-
-  useEffect(() => {
-    ;(async () => {
-      if (!chainAdapter || !wallet || !asset) return
-
-      const address = await chainAdapter.getAddress({
-        wallet
-      })
-      setAddress(address)
-    })()
-  }, [chainAdapter, wallet, asset])
-
-  useEffect(() => {
-    ;(async () => {
-      if (!accountSpecifier.length || isLoaded) return
+      if (!accountSpecifier?.length || isStakingDataLoaded) return
 
       dispatch(
         stakingDataApi.endpoints.getStakingData.initiate(
@@ -147,11 +121,11 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         )
       )
     })()
-  }, [accountSpecifier, isLoaded, dispatch])
+  }, [accountSpecifier, isStakingDataLoaded, dispatch])
 
   useEffect(() => {
     ;(async () => {
-      if (isLoaded) return
+      if (isValidatorDataLoaded) return
 
       dispatch(
         stakingDataApi.endpoints.getAllValidatorsData.initiate(
@@ -160,11 +134,11 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         )
       )
     })()
-  }, [isLoaded, dispatch])
+  }, [isValidatorDataLoaded, dispatch])
 
   useEffect(() => {
     ;(async () => {
-      if (!isLoaded || nonLoadedValidators.length === 0) return
+      if (!isValidatorDataLoaded || !nonLoadedValidators?.length) return
 
       nonLoadedValidators.forEach(validatorAddress => {
         dispatch(
@@ -175,7 +149,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         )
       })
     })()
-  }, [isLoaded, nonLoadedValidators, dispatch])
+  }, [isValidatorDataLoaded, nonLoadedValidators, dispatch])
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
@@ -187,7 +161,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const handleStakedClick = (values: Row<object>) => {
     cosmosStaking.open({
       assetId: 'cosmos:cosmoshub-4/slip44:118',
-      validatorAddress: (values.original as StakingOpportunity).validatorAddress
+      validatorAddress: (values.original as StakingOpportunity).address
     })
   }
 

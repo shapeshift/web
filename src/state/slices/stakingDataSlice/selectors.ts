@@ -17,7 +17,7 @@ export const DENOM_TO_ASSET_ID: { [k: string]: CAIP19 } = {
 }
 
 export type StakingOpportunity = {
-  validatorAddress: string
+  address: string
   moniker: string
   apr: string
   cryptoAmount?: string
@@ -33,6 +33,7 @@ export type redelegationsEntriesByValidatorAddressType = {
 }
 
 export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
+export const selectValidatorStatus = (state: ReduxState) => state.stakingData.validatorStatus
 const selectAccountSpecifier = (_state: ReduxState, accountSpecifier: CAIP10) => accountSpecifier
 
 const selectValidatorAddress = (
@@ -274,7 +275,7 @@ export const selectSingleValidator = createSelector(
 export const selectNonloadedValidators = createSelector(
   selectStakingDataByAccountSpecifier,
   selectAllValidators,
-  (stakingData, validators): string[] => {
+  (stakingData, allValidators): string[] => {
     if (!stakingData) return []
     const validatorsAddresses = stakingData.delegations
       ? stakingData.delegations.map(x => x.validator.address)
@@ -288,7 +289,7 @@ export const selectNonloadedValidators = createSelector(
     }
 
     const uniqueValidatorAddresses = [...new Set(validatorsAddresses)]
-    return uniqueValidatorAddresses.filter(x => validators[x] === undefined)
+    return uniqueValidatorAddresses.filter(x => allValidators[x] === undefined)
   }
 )
 
@@ -328,7 +329,7 @@ export const selectStakingOpportunityDataByDenom = createDeepEqualOutputSelector
         .toString()
 
       return {
-        validatorAddress,
+        address: validatorAddress,
         apr,
         moniker,
         cryptoAmount,

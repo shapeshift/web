@@ -6,7 +6,7 @@ export const TransactionsLoading = () => {
   return (
     <Card.Body px={0} pt={0}>
       <Stack px={2}>
-        {array.map(index => (
+        {array.map((_, index) => (
           <TransactionLoading key={index} />
         ))}
       </Stack>

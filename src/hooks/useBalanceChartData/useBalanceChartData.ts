@@ -429,7 +429,8 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     setBalanceChartData,
     portfolioAssets,
     walletInfo?.deviceId,
-    rebases
+    rebases,
+    delegationTotal
   ])
 
   const result = { balanceChartData, balanceChartDataLoading }

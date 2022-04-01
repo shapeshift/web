@@ -26,47 +26,51 @@ export const useHasAppUpdated = () => {
     // we don't care about updates locally obv
     if (window.location.hostname === 'localhost') return
 
-    const manifestMainJs = await fetchAsset(assetManifestUrl)
-    const env = await fetchAsset(envUrl)
-
-    if (!manifestMainJs) {
-      console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
-    }
-    if (!env) {
-      console.error(`useHasAppUpdated: can't find env in env.json`)
-    }
-
-    let isSameAssetManifest = true,
-      isSameEnv = true
-
-    if (!initialManifestMainJs) {
-      // first run
-      if (manifestMainJs) setManifestMainJs(manifestMainJs)
-    } else {
-      // subsequent runs
-      if (manifestMainJs && !isEqual(manifestMainJs, initialManifestMainJs)) {
-        isSameAssetManifest = false
+    // the changed manifest, will be null if there's no change
+    const changedManifest = await (async () => {
+      const manifestMainJs = await fetchAsset(assetManifestUrl)
+      if (!manifestMainJs) {
+        console.error(`useHasAppUpdated: can't find main.js in asset-manifest.json`)
       }
-    }
 
-    if (!initialEnv) {
-      // first run
-      if (env) setEnv(env)
-    } else {
-      // subsequent runs
-      if (env && !isEqual(env, initialEnv)) {
-        isSameEnv = false
+      if (!initialManifestMainJs) {
+        // first run
+        if (manifestMainJs) setManifestMainJs(manifestMainJs)
+      } else {
+        // subsequent runs
+        if (manifestMainJs && !isEqual(manifestMainJs, initialManifestMainJs)) {
+          return manifestMainJs
+        }
       }
-    }
+      return null
+    })()
 
-    if (!isSameAssetManifest || !isSameEnv) {
+    const changedEnv = await (async () => {
+      const env = await fetchAsset(envUrl)
+      if (!env) {
+        console.error(`useHasAppUpdated: can't find env in env.json`)
+      }
+
+      if (!initialEnv) {
+        // first run
+        if (env) setEnv(env)
+      } else {
+        // subsequent runs
+        if (env && !isEqual(env, initialEnv)) {
+          return env
+        }
+      }
+      return null
+    })()
+
+    if (changedManifest != null || changedEnv != null) {
       console.info(
-        !isSameAssetManifest
+        !changedManifest != null
           ? `useHasAppUpdated: app updated, manifest: ${JSON.stringify(
-              manifestMainJs
+              changedManifest
             )}, initial: ${JSON.stringify(initialManifestMainJs)}`
           : `useHasAppUpdated: app updated due to changing env, env: ${JSON.stringify(
-              env
+              changedEnv
             )}, initial: ${JSON.stringify(initialEnv)}`
       )
       setHasUpdated(true)

@@ -133,7 +133,6 @@ describe('calculateBucketPrices', () => {
     const portfolioAssets: PortfolioAssets = {
       [ethCaip19]: ethereum
     }
-
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     const rebases: RebaseHistory[] = []
     const buckets = bucketEvents(txs, rebases, emptyBuckets)

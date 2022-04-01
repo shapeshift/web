@@ -59,7 +59,7 @@ export const initialState: FoxyWithdrawState = {
     slippage: '',
     txStatus: 'pending',
     usedGasFee: '',
-    withdrawType: WithdrawType.INSTANT
+    withdrawType: WithdrawType.DELAYED
   },
   foxyFeePercentage: ''
 }

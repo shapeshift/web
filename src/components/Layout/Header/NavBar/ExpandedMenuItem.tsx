@@ -2,7 +2,7 @@ import { ChevronRightIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Badge } from '@chakra-ui/layout'
 import { MenuItem } from '@chakra-ui/menu'
 import { MenuItemProps } from '@chakra-ui/menu/dist/declarations/src/menu'
-import { Link } from '@chakra-ui/react'
+import { Link, useColorModeValue } from '@chakra-ui/react'
 import { ThemeTypings } from '@chakra-ui/styled-system'
 import { ColorProps } from '@chakra-ui/styled-system/dist/declarations/src/config/color'
 import { CSSProperties } from 'react'
@@ -30,17 +30,22 @@ export const ExpandedMenuItem = ({
   externalUrl = undefined,
   ...props
 }: ExpandedMenuItemProps) => {
+  const blackShade = useColorModeValue('blackAlpha.600', 'whiteAlpha.600')
+  const greenShade = useColorModeValue('green.600', 'green.500')
+  const redShade = useColorModeValue('red.800', 'red.500')
+  const yellowShade = useColorModeValue('yellow.600', 'yellow.200')
+
   const valueColor: ColorProps['color'] = (() => {
     switch (valueDisposition) {
       case 'positive':
-        return 'green.500'
+        return greenShade
       case 'negative':
-        return 'red.500'
+        return redShade
       case 'info':
-        return 'yellow.200'
+        return yellowShade
       case 'neutral':
       default:
-        return 'whiteAlpha.600'
+        return blackShade
     }
   })()
 

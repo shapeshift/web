@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, useColorModeValue } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
@@ -51,6 +51,7 @@ export const ChangeTimeout = () => {
     await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout })
   }
   const setting = 'timeout'
+  const colorScheme = useColorModeValue('blackAlpha', 'inherit')
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
@@ -65,12 +66,11 @@ export const ChangeTimeout = () => {
         <Radio
           options={options}
           onChange={handleChangeTimeoutInitializeEvent}
-          colorScheme='white'
+          colorScheme={colorScheme}
           buttonGroupProps={{
             display: 'flex',
             flexDirection: 'column',
             width: 'full',
-            textColor: 'white',
             alignItems: 'flex-start',
             spacing: '0'
           }}

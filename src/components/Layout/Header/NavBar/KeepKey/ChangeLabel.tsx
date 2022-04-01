@@ -1,4 +1,4 @@
-import { Button, Flex, Input } from '@chakra-ui/react'
+import { Button, Flex, Input, useColorModeValue } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
@@ -18,6 +18,8 @@ export const ChangeLabel = () => {
     await keepKeyWallet?.applySettings({ label: keepKeyLabel })
   }
   const setting = 'label'
+  const inputBackground = useColorModeValue('white', 'gray.800')
+  const placeholderOpacity = useColorModeValue(0.6, 0.4)
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
@@ -31,10 +33,10 @@ export const ChangeLabel = () => {
       <Input
         type='text'
         placeholder={translate('walletProvider.keepKey.settings.placeholders.label')}
-        _placeholder={{ opacity: 0.4, color: 'inherit' }}
+        _placeholder={{ opacity: placeholderOpacity, color: 'inherit' }}
         mb={3}
         size='md'
-        background='gray.800'
+        background={inputBackground}
         onChange={e => setKeepKeyLabel(e.target.value)}
         value={keepKeyLabel}
         autoFocus // eslint-disable-line jsx-a11y/no-autofocus

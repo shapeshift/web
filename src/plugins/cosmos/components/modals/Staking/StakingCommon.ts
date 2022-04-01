@@ -10,6 +10,7 @@ export enum StakingAction {
 
 export type StakingModalProps = {
   assetId: CAIP19
+  validatorAddress: string
 }
 
 export type StakingModalLocation = {

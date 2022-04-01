@@ -1,7 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { chainAdapters } from '@shapeshiftoss/types'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
+import BigNumber from 'bignumber.js'
+import get from 'lodash/get'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -13,23 +16,37 @@ export const DENOM_TO_ASSET_ID: { [k: string]: CAIP19 } = {
   uatom: 'cosmos:cosmoshub-4/slip44:118'
 }
 
+export type StakingOpportunity = {
+  address: string
+  moniker: string
+  apr: string
+  cryptoAmount?: string
+  rewards?: string
+}
+
+export type amountByValidatorAddressType = {
+  [k: string]: string
+}
+
+export type redelegationsEntriesByValidatorAddressType = {
+  [k: string]: chainAdapters.cosmos.RedelegationEntry[]
+}
+
 export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
-const selectAccountSpecifier = (_state: ReduxState, accountSpecifier: CAIP10, ...args: any[]) =>
-  accountSpecifier
+export const selectValidatorStatus = (state: ReduxState) => state.stakingData.validatorStatus
+const selectAccountSpecifier = (_state: ReduxState, accountSpecifier: CAIP10) => accountSpecifier
 
 const selectValidatorAddress = (
   _state: ReduxState,
   accountSpecifier: CAIP10,
-  validatorAddress: string,
-  ...args: any[]
+  validatorAddress: string
 ) => validatorAddress
 
 const selectDenom = (
   _state: ReduxState,
   accountSpecifier: CAIP10,
   validatorAddress: string,
-  denom: string,
-  ...args: any[]
+  denom: string
 ) => denom
 
 export const selectStakingData = (state: ReduxState) => state.stakingData
@@ -54,6 +71,25 @@ export const selectDelegationCryptoAmountByDenom = createSelector(
         ASSET_ID_TO_DENOM[assetId] === denom && validator.address === validatorAddress
     )
     return delegation?.amount
+  }
+)
+
+export const selectAllDelegationsCryptoAmountByDenom = createSelector(
+  selectStakingDataByAccountSpecifier,
+  selectDenom,
+  (stakingData, denom): amountByValidatorAddressType => {
+    if (!stakingData || !stakingData.delegations?.length) return {}
+
+    const delegations = stakingData.delegations.reduce(
+      (acc: amountByValidatorAddressType, { assetId, amount, validator: { address } }) => {
+        if (ASSET_ID_TO_DENOM[assetId] !== denom) return acc
+
+        acc[address] = amount
+        return acc
+      },
+      {}
+    )
+    return delegations
   }
 )
 
@@ -113,6 +149,24 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
   }
 )
 
+export const selectAllUnbondingsEntriesByDenom = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
+  selectDenom,
+  (stakingData, denom): Record<string, chainAdapters.cosmos.UndelegationEntry[]> => {
+    if (!stakingData || !stakingData.undelegations) return {}
+
+    return stakingData.undelegations.reduce((acc, { validator, entries }) => {
+      if (!acc[validator.address]) {
+        acc[validator.address] = []
+      }
+
+      acc[validator.address].push(...entries.filter(x => ASSET_ID_TO_DENOM[x.assetId] === denom))
+
+      return acc
+    }, {} as Record<string, chainAdapters.cosmos.UndelegationEntry[]>)
+  }
+)
+
 export const selectUnbondingCryptoAmountByDenom = createSelector(
   selectUnbondingEntriesByAccountSpecifier,
   selectDenom,
@@ -132,11 +186,9 @@ export const selectUnbondingCryptoAmountByDenom = createSelector(
 export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByDenom,
   selectDelegationCryptoAmountByDenom,
-  selectRedelegationCryptoAmountByDenom,
-  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string => {
+  (unbondingCryptoBalance, delegationCryptoBalance): string => {
     const totalBondings = bnOrZero(unbondingCryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance))
-      .plus(bnOrZero(redelegationCryptoBalance))
       .toString()
 
     return totalBondings
@@ -169,14 +221,122 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
   }
 )
 
+export const selectAllRewardsByDenom = createDeepEqualOutputSelector(
+  selectStakingDataByAccountSpecifier,
+  selectDenom,
+  (stakingData, denom): Record<string, chainAdapters.cosmos.Reward[]> => {
+    if (!stakingData || !stakingData.rewards) return {}
+
+    const rewards = stakingData.rewards.reduce(
+      (acc: Record<string, chainAdapters.cosmos.Reward[]>, current: ValidatorReward) => {
+        if (!acc[current.validator.address]) {
+          acc[current.validator.address] = []
+        }
+
+        acc[current.validator.address].push(
+          ...current.rewards.filter(x => ASSET_ID_TO_DENOM[x.assetId] === denom)
+        )
+
+        return acc
+      },
+      {}
+    )
+
+    return rewards
+  }
+)
+
 export const selectRewardsAmountByDenom = createSelector(
   selectRewardsByAccountSpecifier,
+  selectValidatorAddress,
   selectDenom,
-  (rewardsByAccountSpecifier, denom): string => {
+  (rewardsByAccountSpecifier, validatorAddress, denom): string => {
     if (!rewardsByAccountSpecifier.length) return ''
 
     const rewards = rewardsByAccountSpecifier.find(rewards => rewards.denom === denom)
 
     return rewards?.amount || ''
+  }
+)
+
+export const selectAllValidators = createDeepEqualOutputSelector(
+  selectStakingData,
+  stakingData => stakingData.byvalidator
+)
+
+export const selectSingleValidator = createSelector(
+  selectStakingData,
+  selectValidatorAddress,
+  (stakingData, validatorAddress) => {
+    return stakingData.byvalidator[validatorAddress] || null
+  }
+)
+
+export const selectNonloadedValidators = createSelector(
+  selectStakingDataByAccountSpecifier,
+  selectAllValidators,
+  (stakingData, allValidators): string[] => {
+    if (!stakingData) return []
+    const initialValidatorsAddresses = stakingData.delegations
+      ? stakingData.delegations.map(x => x.validator.address)
+      : []
+    if (stakingData.undelegations) {
+      initialValidatorsAddresses.push(...stakingData.undelegations.map(x => x.validator.address))
+    }
+
+    if (stakingData.rewards) {
+      initialValidatorsAddresses.push(...stakingData.rewards.map(x => x.validator.address))
+    }
+
+    const uniqueValidatorAddresses = [...new Set(initialValidatorsAddresses)]
+    return uniqueValidatorAddresses.filter(x => allValidators[x] === undefined)
+  }
+)
+
+export const selectStakingOpportunityDataByDenom = createDeepEqualOutputSelector(
+  selectAllDelegationsCryptoAmountByDenom,
+  selectAllUnbondingsEntriesByDenom,
+  selectAllRewardsByDenom,
+  selectAllValidators,
+  (
+    allDelegationsAmount,
+    allUndelegationsEntries,
+    allRewards,
+    allValidators
+  ): StakingOpportunity[] => {
+    const result = Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
+      const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
+      const undelegationsAmount = get(
+        allUndelegationsEntries,
+        validatorAddress,
+        [] as chainAdapters.cosmos.UndelegationEntry[]
+      )
+        .reduce((acc: BigNumber, undelegationEntry: chainAdapters.cosmos.UndelegationEntry) => {
+          acc = acc.plus(bnOrZero(undelegationEntry.amount))
+          return acc
+        }, bnOrZero(0))
+        .toString()
+
+      const rewards = get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
+        .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
+          acc = acc.plus(bnOrZero(rewardEntry.amount))
+          return acc
+        }, bnOrZero(0))
+        .toString()
+
+      const cryptoAmount = bnOrZero(delegationsAmount)
+        .plus(bnOrZero(undelegationsAmount))
+        .toString()
+
+      return {
+        address: validatorAddress,
+        apr,
+        moniker,
+        cryptoAmount,
+        rewards
+      }
+    })
+
+    return result.filter(x => x.cryptoAmount !== '0' || x.rewards !== '0')
   }
 )

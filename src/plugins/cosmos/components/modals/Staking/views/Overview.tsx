@@ -26,11 +26,10 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 type StakedProps = {
   assetId: CAIP19
+  validatorAddress: string
 }
 
-const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
-
-export const Overview = ({ assetId }: StakedProps) => {
+export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
   const stakingDataStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = stakingDataStatus === 'loaded'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
@@ -88,19 +87,19 @@ export const Overview = ({ assetId }: StakedProps) => {
     selectTotalBondingsBalanceByAccountSpecifier(
       state,
       accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS, // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
+      validatorAddress,
       ASSET_ID_TO_DENOM[asset.caip19]
     )
   )
   const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+    selectUnbondingEntriesByAccountSpecifier(state, accountSpecifier, validatorAddress)
   )
 
   const rewardsAmount = useAppSelector(state =>
     selectRewardsAmountByDenom(
       state,
       accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
+      validatorAddress,
       ASSET_ID_TO_DENOM[asset.caip19]
     )
   )
@@ -136,7 +135,9 @@ export const Overview = ({ assetId }: StakedProps) => {
                 assetName={asset.name}
                 cryptoRewardsAmount={bnOrZero(rewardsAmount).div(`1e+${asset.precision}`)}
                 fiatRate={bnOrZero(marketData.price)}
-                renderButton={() => <ClaimButton assetId={assetId} />}
+                renderButton={() => (
+                  <ClaimButton assetId={assetId} validatorAddress={validatorAddress} />
+                )}
               />
             </Box>
           </Skeleton>

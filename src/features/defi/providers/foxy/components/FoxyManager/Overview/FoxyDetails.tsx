@@ -34,6 +34,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
   })
   const { chain, contractAddress, tokenId, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
@@ -59,7 +60,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
       </Center>
     )
   }
-  if (foxyBalance.eq(0)) {
+  if (foxyBalance.eq(0) && rewardBalance.eq(0)) {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}

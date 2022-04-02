@@ -5,7 +5,7 @@ import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepK
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ChangeLabel = () => {
   const translate = useTranslate()

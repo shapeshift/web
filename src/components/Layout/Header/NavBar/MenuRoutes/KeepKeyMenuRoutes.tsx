@@ -16,10 +16,10 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()

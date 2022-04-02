@@ -8,7 +8,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
 import { selectAssetByCAIP19 } from 'state/slices/selectors'
@@ -34,6 +34,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
   })
   const { chain, contractAddress, tokenId, rewardId } = query
   const opportunity = opportunities.find(e => e.contractAddress === contractAddress)
+  const rewardBalance = bnOrZero(opportunity?.withdrawInfo.amount)
   const foxyBalance = bnOrZero(opportunity?.balance)
   const network = NetworkTypes.MAINNET
   const assetNamespace = AssetNamespace.ERC20
@@ -59,7 +60,7 @@ export const FoxyDetails = ({ api }: FoxyDetailsProps) => {
       </Center>
     )
   }
-  if (foxyBalance.eq(0)) {
+  if (foxyBalance.eq(0) && rewardBalance.eq(0)) {
     return (
       <FoxyEmpty
         assets={[stakingAsset, rewardAsset]}

@@ -7,7 +7,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
 
-import { FiatRampsRoutes } from '../FiatRamps'
+import { FiatRampsRoutes } from '../FiatRampsCommon'
 
 export const RampsList = () => {
   const history = useHistory()

@@ -35,15 +35,15 @@ export function AppProviders({ children }: ProvidersProps) {
                 <I18nProvider>
                   <WalletProvider>
                     <KeepKeyProvider>
-                      <PortfolioProvider>
-                        <MarketDataProvider>
-                          <TransactionsProvider>
-                            <ModalProvider>
+                      <ModalProvider>
+                        <PortfolioProvider>
+                          <MarketDataProvider>
+                            <TransactionsProvider>
                               <DefiManagerProvider>{children}</DefiManagerProvider>
-                            </ModalProvider>
-                          </TransactionsProvider>
-                        </MarketDataProvider>
-                      </PortfolioProvider>
+                            </TransactionsProvider>
+                          </MarketDataProvider>
+                        </PortfolioProvider>
+                      </ModalProvider>
                     </KeepKeyProvider>
                   </WalletProvider>
                 </I18nProvider>

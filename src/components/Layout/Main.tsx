@@ -4,7 +4,7 @@ import { useViewportScroll } from 'framer-motion'
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import { Breadcrumbs } from 'components/Breadcrumbs/Breadcrumbs'
 import { NestedMenu } from 'components/NestedMenu/NestedMenu'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { Page } from './Page'
 

@@ -4,8 +4,8 @@ import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 export const WipeModal = () => {
   const { keepKeyWallet } = useKeepKey()
@@ -15,8 +15,6 @@ export const WipeModal = () => {
   const {
     state: { awaitingButtonPress }
   } = useKeepKey()
-
-  const setting = 'reset to factory details'
 
   const wipeDevice = async () => {
     await keepKeyWallet?.wipe()

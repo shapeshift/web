@@ -1,7 +1,7 @@
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 interface VersionUrl {
   version: string

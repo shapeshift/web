@@ -1,7 +1,7 @@
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export enum KeepKeyActions {
   SET_AWAITING_BUTTON_PRESS = 'SET_AWAITING_BUTTON_PRESS',

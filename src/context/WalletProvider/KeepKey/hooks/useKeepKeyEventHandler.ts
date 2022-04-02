@@ -1,12 +1,12 @@
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
 import { UpdateStatus } from 'context/WalletProvider/KeepKeyProvider'
-import { ActionTypes, InitialState, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { InitialState } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
-type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo'>
+type KeyringState = Pick<InitialState, 'keyring' | 'walletInfo' | 'modal'>
 
 export const useKeepKeyEventHandler = (
   state: KeyringState,
@@ -15,34 +15,38 @@ export const useKeepKeyEventHandler = (
   setAwaitingButtonPress: (activeRequest: boolean) => void,
   updateStatus: (status: UpdateStatus) => void
 ) => {
-  const { keepkeyPin, keepkeyPassphrase } = useModal()
-  const { keyring } = state
+  const { keyring, modal } = state
 
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
+      const deviceId = e[0]
       switch (e[1].message_enum) {
         case MessageType.SUCCESS:
           loadWallet()
           updateStatus('success')
           break
         case MessageType.PASSPHRASEREQUEST:
-          if (!keepkeyPassphrase.isOpen) {
-            keepkeyPassphrase.open({ deviceId: e[0] })
+          if (!modal) {
+            dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
           }
           break
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PASSPHRASEACK:
-          if (keepkeyPassphrase.isOpen) keepkeyPassphrase.close()
+          if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           break
         case MessageType.PINMATRIXREQUEST:
           setAwaitingButtonPress(false)
-          if (!keepkeyPin.isOpen) {
-            keepkeyPin.open({ deviceId: e[0], pinRequestType: e[1].message?.type })
-          }
+          dispatch({
+            type: WalletActions.OPEN_KEEPKEY_PIN,
+            payload: {
+              deviceId,
+              pinRequestType: e[1].message?.type
+            }
+          })
           break
         // ACK just means we sent it, doesn't mean it was successful
         case MessageType.PINMATRIXACK:
-          if (keepkeyPin.isOpen) keepkeyPin.close()
+          if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           break
         // @TODO: What do we want to do with these events?
         case MessageType.FAILURE:
@@ -131,14 +135,5 @@ export const useKeepKeyEventHandler = (
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
       keyring.off(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingButtonPress(true))
     }
-  }, [
-    dispatch,
-    keepkeyPassphrase,
-    keepkeyPin,
-    keyring,
-    loadWallet,
-    setAwaitingButtonPress,
-    state.walletInfo,
-    updateStatus
-  ])
+  }, [dispatch, keyring, loadWallet, modal, setAwaitingButtonPress, state.walletInfo, updateStatus])
 }

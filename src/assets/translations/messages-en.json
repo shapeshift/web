@@ -610,6 +610,20 @@
           "enable": "Enable %{setting}",
           "learnMore": "Learn More"
         }
+      },
+      "modals": {
+        "headings": {
+          "wipeKeepKey": "Wipe Your KeepKey"
+        },
+        "descriptions": {
+          "wipeKeepKey": "Reset your KeepKey to factory defaults. This will erase all content and settings on your KeepKey."
+        },
+        "actions": {
+          "wipeDevice": "Wipe Device"
+        },
+        "confirmations": {
+          "wipeDevice": "Press and hold the button on your KeepKey to confirm the reset to factory defaults."
+        }
       }
     },
     "metaMask": {

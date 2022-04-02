@@ -16,6 +16,7 @@ import { ChangeTimeout } from 'components/Layout/Header/NavBar/KeepKey/ChangeTim
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
 import { RawText, Text } from 'components/Text'
+import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useKeepKeyVersions } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useWallet } from 'context/WalletProvider/WalletProvider'
@@ -27,6 +28,7 @@ export const KeepKeyMenuRoutes = () => {
   const versions = useKeepKeyVersions()
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
+  const { keepKeyWipe } = useModal()
 
   const getBooleanLabel = (value: boolean | undefined) => {
     return value
@@ -40,8 +42,8 @@ export const KeepKeyMenuRoutes = () => {
       : translate('walletProvider.keepKey.settings.status.upToDate')
   }
 
-  const wipeDevice = async () => {
-    await keepKeyWallet?.wipe()
+  const handleWipeClicked = () => {
+    keepKeyWipe.open({})
   }
 
   const keepKeyMenu = () => {
@@ -139,7 +141,7 @@ export const KeepKeyMenuRoutes = () => {
             hasSubmenu={true}
           />
           <MenuDivider />
-          <MenuItem onClick={wipeDevice} color='red.500' icon={<CloseIcon />}>
+          <MenuItem onClick={handleWipeClicked} color='red.500' icon={<CloseIcon />}>
             {translate('walletProvider.keepKey.settings.menuLabels.wipeDevice')}
           </MenuItem>
         </MenuGroup>

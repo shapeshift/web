@@ -8,7 +8,8 @@ import {
   WalletConnectedRoutes
 } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { KeepKeyMenuRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/KeepKeyMenuRoutes'
-import { WalletConnectedProps, WalletImage } from 'components/Layout/Header/NavBar/UserMenu'
+import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
+import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 

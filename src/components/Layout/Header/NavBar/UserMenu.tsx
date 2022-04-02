@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Switch } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { WalletConnectedMenuRoutes } from 'components/Layout/Header/NavBar/MenuRoutes/WalletConnectedMenuRoutes'
+import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -14,16 +15,7 @@ import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { ensReverseLookup } from 'lib/ens'
 
-type WalletImageProps = Pick<InitialState, 'walletInfo'>
 export const entries = [WalletConnectedRoutes.Connected]
-
-export const WalletImage = ({ walletInfo }: WalletImageProps) => {
-  const Icon = walletInfo?.icon
-  if (Icon) {
-    return <Icon width='6' height='auto' />
-  }
-  return null
-}
 
 const NoWallet = ({ onClick }: { onClick: () => void }) => {
   const translate = useTranslate()

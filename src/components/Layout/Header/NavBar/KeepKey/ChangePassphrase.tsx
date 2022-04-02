@@ -23,7 +23,9 @@ export const ChangePassphrase = () => {
         description={translate('walletProvider.keepKey.settings.descriptions.passphrase')}
       />
       <ShowUpdateStatus setting={setting} />
-      <AwaitKeepKey setting={setting}>
+      <AwaitKeepKey
+        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+      >
         <FormControl display='flex' alignItems='center'>
           <FormLabel flexGrow={1} htmlFor='pin-caching' mb='0'>
             {translate('walletProvider.keepKey.settings.actions.enable', {

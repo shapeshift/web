@@ -18,7 +18,9 @@ export const ChangePin = () => {
     return (
       <>
         <ShowUpdateStatus setting={setting} />
-        <AwaitKeepKey setting={setting}>
+        <AwaitKeepKey
+          translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+        >
           <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
             {translate('walletProvider.keepKey.settings.actions.update', { setting })}
           </Button>

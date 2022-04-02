@@ -46,10 +46,12 @@ export const useKeepKeyEventHandler = (
           break
         // @TODO: What do we want to do with these events?
         case MessageType.FAILURE:
-          updateStatus('failure')
           switch (e[1].message?.code) {
             case FailureType.PINCANCELLED:
               console.warn('KeepKey Event [FAILURE]: PIN Cancelled')
+              break
+            case FailureType.ACTIONCANCELLED:
+              setAwaitingButtonPress(false)
               break
             case FailureType.NOTINITIALIZED:
               // FIXME: placeholder to kick off initialization flow
@@ -57,6 +59,7 @@ export const useKeepKeyEventHandler = (
               break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
+              updateStatus('failure')
               break
           }
           break

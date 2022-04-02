@@ -62,7 +62,9 @@ export const ChangeTimeout = () => {
         description={translate('walletProvider.keepKey.settings.descriptions.timeout')}
       />
       <ShowUpdateStatus setting='timeout' />
-      <AwaitKeepKey setting={setting}>
+      <AwaitKeepKey
+        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+      >
         <Radio
           options={options}
           onChange={handleChangeTimeoutInitializeEvent}

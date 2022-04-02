@@ -14,15 +14,21 @@ export enum WalletConnectedRoutes {
 
 export const useMenuRoutes = () => {
   const history = useHistory()
-  const { reset } = useKeepKey()
+  const { keepKeyWallet, reset } = useKeepKey()
 
-  const handleBackClick = useCallback(() => history.goBack(), [history])
+  const handleBackClick = useCallback(async () => {
+    await keepKeyWallet?.cancel()
+    reset()
+    history.goBack()
+  }, [history, keepKeyWallet, reset])
+
   const navigateToRoute = useCallback(
-    (route: WalletConnectedRoutes) => {
+    async (route: WalletConnectedRoutes) => {
+      await keepKeyWallet?.cancel()
       reset()
       history.push(route)
     },
-    [history, reset]
+    [history, keepKeyWallet, reset]
   )
 
   return {

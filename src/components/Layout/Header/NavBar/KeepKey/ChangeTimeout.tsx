@@ -51,7 +51,8 @@ export const ChangeTimeout = () => {
     await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout })
   }
   const setting = 'timeout'
-  const colorScheme = useColorModeValue('blackAlpha', 'inherit')
+  const colorScheme = useColorModeValue('blackAlpha', 'white')
+  const checkColor = useColorModeValue('green', 'blue.400')
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
@@ -66,9 +67,12 @@ export const ChangeTimeout = () => {
         translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
       >
         <Radio
+          showCheck
           options={options}
           onChange={handleChangeTimeoutInitializeEvent}
           colorScheme={colorScheme}
+          defaultValue={Timeout.TenMinutes}
+          checkColor={checkColor}
           buttonGroupProps={{
             display: 'flex',
             flexDirection: 'column',

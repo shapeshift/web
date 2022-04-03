@@ -5,6 +5,7 @@ import { chainAdapters } from '@shapeshiftoss/types'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
 import BigNumber from 'bignumber.js'
 import get from 'lodash/get'
+import memoize from 'lodash/memoize'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -293,6 +294,41 @@ export const selectNonloadedValidators = createSelector(
   }
 )
 
+export const selectUndelegationsAmountByValidatorAddress = memoize(
+  (
+    allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
+    validatorAddress: string
+  ) => {
+    return get(
+      allUndelegationsEntries,
+      validatorAddress,
+      [] as chainAdapters.cosmos.UndelegationEntry[]
+    )
+      .reduce((acc: BigNumber, undelegationEntry: chainAdapters.cosmos.UndelegationEntry) => {
+        acc = acc.plus(bnOrZero(undelegationEntry.amount))
+        return acc
+      }, bnOrZero(0))
+      .toString()
+  }
+)
+
+export const selectRewardsAmountByValidatorAddress = memoize(
+  (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) => {
+    return get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
+      .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
+        acc = acc.plus(bnOrZero(rewardEntry.amount))
+        return acc
+      }, bnOrZero(0))
+      .toString()
+  }
+)
+
+export const selectTotalCryptoAmount = memoize(
+  (delegationsAmount: string, undelegationsAmount: string) => {
+    return bnOrZero(delegationsAmount).plus(bnOrZero(undelegationsAmount)).toString()
+  }
+)
+
 export const selectActiveStakingOpportunityDataByDenom = createDeepEqualOutputSelector(
   selectAllDelegationsCryptoAmountByDenom,
   selectAllUnbondingsEntriesByDenom,
@@ -304,29 +340,17 @@ export const selectActiveStakingOpportunityDataByDenom = createDeepEqualOutputSe
     allRewards,
     allValidators
   ): ActiveStakingOpportunity[] => {
-    const result = Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
+    const result = Object.entries(allValidators).flatMap(([validatorAddress, { apr, moniker }]) => {
       const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
-      const undelegationsAmount = get(
+
+      const undelegationsAmount = selectUndelegationsAmountByValidatorAddress(
         allUndelegationsEntries,
-        validatorAddress,
-        [] as chainAdapters.cosmos.UndelegationEntry[]
+        validatorAddress
       )
-        .reduce((acc: BigNumber, undelegationEntry: chainAdapters.cosmos.UndelegationEntry) => {
-          acc = acc.plus(bnOrZero(undelegationEntry.amount))
-          return acc
-        }, bnOrZero(0))
-        .toString()
 
-      const rewards = get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
-        .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
-          acc = acc.plus(bnOrZero(rewardEntry.amount))
-          return acc
-        }, bnOrZero(0))
-        .toString()
+      const rewards = selectRewardsAmountByValidatorAddress(allRewards, validatorAddress)
 
-      const cryptoAmount = bnOrZero(delegationsAmount)
-        .plus(bnOrZero(undelegationsAmount))
-        .toString()
+      const cryptoAmount = selectTotalCryptoAmount(delegationsAmount, undelegationsAmount)
 
       return {
         address: validatorAddress,

@@ -27,13 +27,13 @@ import {
   selectPubkeyishByChainId
 } from 'state/slices/selectors'
 import {
+  ActiveStakingOpportunity,
   ASSET_ID_TO_DENOM,
   selectActiveStakingOpportunityDataByDenom,
   selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataStatus,
-  selectValidatorStatus,
-  ActiveStakingOpportunity
+  selectValidatorStatus
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -97,6 +97,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       ASSET_ID_TO_DENOM[asset.caip19]
     )
   )
+
   const shapeshiftValidator = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
   )

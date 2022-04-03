@@ -199,8 +199,10 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
       const [chainId, accountSpecifier] = Object.entries(cur)[0]
       const accountId = chainId + ':' + accountSpecifier
-      if (accountId !== txRelatedAccount) return acc
-      acc[chainId] = accountSpecifier
+      // NOTE: in case of ethereum on Portis wallet, accountId contains both
+      // lower and upper case characters, but txRelatedAccount is only in lower chars
+      if (accountId.toLowerCase() === txRelatedAccount || accountId === txRelatedAccount)
+        acc[chainId] = accountSpecifier
       return acc
     }, {})
     dispatch(

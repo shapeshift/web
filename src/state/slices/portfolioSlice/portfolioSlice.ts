@@ -31,23 +31,35 @@ export const portfolio = createSlice({
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
+      /**
+       * when refetching an account because of a new tx, we can't use the default
+       * upsertAndSum function otherwise the accounts balances will show false information.
+       * we instead got ot calculate the difference between the state accountBalance and the
+       * payload accountBalance for each of assets and then add [or subtract] the diff to the
+       * state.assetBalances item.
+       */
       if (payload.basedOnNewTx) {
-        payload.accountBalances.ids.forEach(accountBalanceId => {
-          const accountBalance = payload.accountBalances.byId[accountBalanceId]
-          Object.entries(accountBalance).forEach(([assetId, accountAssetBalance]) => {
-            const diff = bnOrZero(state.accountBalances.byId[accountBalanceId][assetId]).minus(
-              bnOrZero(accountAssetBalance)
+        // since we're only refetching one account, payload.accountBalances is an array with the size of 1
+        const accountBalanceId = payload.accountBalances.ids[0]
+        // iterate over the account assets balances and calculate the diff
+        Object.entries(payload.accountBalances.byId[accountBalanceId]).forEach(
+          ([assetId, accountAssetBalance]) => {
+            // diff could be both poritive [tx type -> receive] and negative [tx type -> send]
+            const diff = bnOrZero(accountAssetBalance).minus(
+              bnOrZero(state.accountBalances.byId[accountBalanceId][assetId])
             )
             const currentAssetBalance = state.assetBalances.byId[assetId]
+            // update state.assetBalances with calculated diff
             state.assetBalances.byId[assetId] = bnOrZero(currentAssetBalance).plus(diff).toString()
-          })
-        })
-      } else
+          }
+        )
+      } else {
         state.assetBalances.byId = mergeWith(
           state.assetBalances.byId,
           payload.assetBalances.byId,
           upsertAndSum
         )
+      }
       state.accountBalances.byId = {
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId

@@ -75,12 +75,14 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // clear the old portfolio, we have different non null data, we're switching wallet
     console.info('dispatching portfolio clear action')
     dispatch(portfolio.actions.clear())
-    // fetch every account
-    // forceRefetch is enabled here to make sure that we always have the latest wallet information
-    // it also forces queryFn to run and that's needed for the wallet info to be dispatched
-    dispatch(
-      portfolioApi.endpoints.getAccounts.initiate(accountSpecifiersList, { forceRefetch: true })
-    )
+    // fetch each account
+    accountSpecifiersList.forEach(accountSpecifierMap => {
+      // forceRefetch is enabled here to make sure that we always have the latest wallet information
+      // it also forces queryFn to run and that's needed for the wallet info to be dispatched
+      dispatch(
+        portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
+      )
+    })
   }, [dispatch, accountSpecifiersList])
 
   /**
@@ -195,20 +197,18 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     // always wear protection, or don't it's your choice really
     if (!tx) return
     // the chain the tx came from
-    const txChainId = tx.caip2
+    const txRelatedAccount = txId.split('-')[0]
     // only refetch accounts for this tx
-    const accountsToRefetch = accountSpecifiersList.reduce<AccountSpecifierMap[]>(
-      (acc, accountSpecifierMap) => {
-        const [chainId] = Object.entries(accountSpecifierMap)[0]
-        if (chainId === txChainId) acc.push(accountSpecifierMap)
-        return acc
-      },
-      []
-    )
+    const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
+      const [chainId, accountSpecifier] = Object.entries(cur)[0]
+      const accountId = chainId + ':' + accountSpecifier
+      if (accountId !== txRelatedAccount) return acc
+      acc[chainId] = accountSpecifier
+      return acc
+    }, {})
     dispatch(
-      portfolioApi.endpoints.getAccounts.initiate(
-        accountsToRefetch,
-        // bust the cache
+      portfolioApi.endpoints.getAccount.initiate(
+        { accountSpecifierMap, basedOnNewTx: true },
         { forceRefetch: true }
       )
     )

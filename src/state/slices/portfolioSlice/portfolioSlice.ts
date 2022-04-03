@@ -3,6 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CAIP2, caip2, CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { Asset, ChainTypes, UtxoAccountType } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
+import isEmpty from 'lodash/isEmpty'
 import mergeWith from 'lodash/mergeWith'
 import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -128,11 +129,28 @@ export const portfolio = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertPortfolio: (state, { payload }: { payload: Portfolio }) => {
+    upsertPortfolio: (state, { payload }: { payload: Portfolio & { basedOnNewTx?: boolean } }) => {
       // upsert all
       state.accounts.byId = { ...state.accounts.byId, ...payload.accounts.byId }
       const accountIds = Array.from(new Set([...state.accounts.ids, ...payload.accounts.ids]))
       state.accounts.ids = accountIds
+      if (payload.basedOnNewTx) {
+        payload.accountBalances.ids.forEach(accountBalanceId => {
+          const accountBalance = payload.accountBalances.byId[accountBalanceId]
+          Object.entries(accountBalance).forEach(([assetId, accountAssetBalance]) => {
+            const diff = bnOrZero(state.accountBalances.byId[accountBalanceId][assetId]).minus(
+              bnOrZero(accountAssetBalance)
+            )
+            const currentAssetBalance = state.assetBalances.byId[assetId]
+            state.assetBalances.byId[assetId] = bnOrZero(currentAssetBalance).plus(diff).toString()
+          })
+        })
+      } else
+        state.assetBalances.byId = mergeWith(
+          state.assetBalances.byId,
+          payload.assetBalances.byId,
+          upsertAndSum
+        )
       state.accountBalances.byId = {
         ...state.accountBalances.byId,
         ...payload.accountBalances.byId
@@ -163,7 +181,7 @@ export const portfolio = createSlice({
   }
 })
 
-type GetAccountsArgs = AccountSpecifierMap[]
+type GetAccountArgs = { accountSpecifierMap: AccountSpecifierMap; basedOnNewTx?: boolean }
 
 export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
@@ -172,47 +190,32 @@ export const portfolioApi = createApi({
   // refetch if network connection is dropped, useful for mobile
   refetchOnReconnect: true,
   endpoints: build => ({
-    getAccounts: build.query<Portfolio, GetAccountsArgs>({
-      queryFn: async (accountSpecifierMaps, { dispatch, getState }) => {
-        if (!accountSpecifierMaps.length) return { data: cloneDeep(initialState) }
+    getAccount: build.query<Portfolio, GetAccountArgs>({
+      queryFn: async ({ accountSpecifierMap, basedOnNewTx = false }, { dispatch, getState }) => {
+        if (isEmpty(accountSpecifierMap)) return { data: cloneDeep(initialState) }
         // 0xdef1cafe: be careful with this, RTK query can't type this correctly
         const untypedState = getState()
         const assetIds = (untypedState as ReduxState).assets.ids
         const chainAdapters = getChainAdapters()
-        let data: Portfolio = initialState
-        let assetBalancesById: PortfolioBalancesById = {}
-        await Promise.all(
-          accountSpecifierMaps.map(async accountSpecifierMap => {
-            const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [
-              CAIP2,
-              string
-            ]
-            // TODO(0xdef1cafe): chainAdapters.byCAIP2()
-            const { chain } = caip2.fromCAIP2(CAIP2)
-            try {
-              const chainAdaptersAccount = await chainAdapters
-                .byChain(chain)
-                .getAccount(accountSpecifier)
-              const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
-              const accountData = accountToPortfolio({ portfolioAccounts, assetIds })
-              // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
-              // to prevent edge cases like #820
-              dispatch(portfolio.actions.upsertPortfolio(accountData))
-              assetBalancesById = mergeWith(
-                assetBalancesById,
-                accountData.assetBalances.byId,
-                upsertAndSum
-              )
-            } catch (e) {
-              const status = 400
-              const data = JSON.stringify(e)
-              const error = { status, data }
-              return { error }
-            }
-          })
-        )
-        dispatch(portfolio.actions.setAssetBalancesById(assetBalancesById))
-        return { data }
+        const [CAIP2, accountSpecifier] = Object.entries(accountSpecifierMap)[0] as [CAIP2, string]
+        // TODO(0xdef1cafe): chainAdapters.byCAIP2()
+        const { chain } = caip2.fromCAIP2(CAIP2)
+        try {
+          const chainAdaptersAccount = await chainAdapters
+            .byChain(chain)
+            .getAccount(accountSpecifier)
+          const portfolioAccounts = { [accountSpecifier]: chainAdaptersAccount }
+          const data = accountToPortfolio({ portfolioAccounts, assetIds })
+          // dispatching wallet portfolio, this is done here instead of it being done in onCacheEntryAdded
+          // to prevent edge cases like #820
+          dispatch(portfolio.actions.upsertPortfolio({ ...data, basedOnNewTx }))
+          return { data }
+        } catch (e) {
+          const status = 400
+          const data = JSON.stringify(e)
+          const error = { status, data }
+          return { error }
+        }
       }
     })
   })

@@ -29,10 +29,6 @@ export type amountByValidatorAddressType = {
   [k: string]: string
 }
 
-export type redelegationsEntriesByValidatorAddressType = {
-  [k: CAIP10]: chainAdapters.cosmos.RedelegationEntry[]
-}
-
 export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
 export const selectValidatorStatus = (state: ReduxState) => state.stakingData.validatorStatus
 const selectAccountSpecifier = (_state: ReduxState, accountSpecifier: CAIP10) => accountSpecifier

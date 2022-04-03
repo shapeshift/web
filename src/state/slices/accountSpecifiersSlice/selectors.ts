@@ -10,7 +10,10 @@ export const selectAccountSpecifierStrings = (state: ReduxState) =>
     Object.entries(accountSpecifier)[0].join(':')
   )
 
-// returns a CAIP2-indexed object with all the `caip2:pubkeyish` accounts for that chainId
+// Returns a CAIP2-indexed object with all the `caip2:pubkeyish` accounts for that chainId
+// For most accounts, that's effectively a CAIP19, but not for e.g UTXO chains thus the pubkeyish naming
+// We use this in cosmos plugin to get the pubkey as a CAIP19, without needing to use chain-adapters in components
+// Since the pubkey is already in state
 export const selectPubkeyishByChainId = (state: ReduxState, chainId: CAIP2) =>
   state.accountSpecifiers.accountSpecifiers.reduce<string[]>((acc, accountSpecifier) => {
     const pubkeyish = Object.entries(accountSpecifier)[0].join(':')

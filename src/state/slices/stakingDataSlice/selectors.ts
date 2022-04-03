@@ -336,7 +336,7 @@ export const selectActiveStakingOpportunityDataByDenom = createDeepEqualOutputSe
     allRewards,
     allValidators
   ): ActiveStakingOpportunity[] => {
-    const result = Object.entries(allValidators).flatMap(([validatorAddress, { apr, moniker }]) => {
+    const result = Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
       const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
 
       const undelegationsAmount = selectUndelegationsAmountByValidatorAddress(

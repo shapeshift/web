@@ -9,9 +9,7 @@ import {
   UseRadioProps
 } from '@chakra-ui/react'
 import { ThemeTypings } from '@chakra-ui/styled-system'
-import { Token } from '@chakra-ui/styled-system/dist/declarations/src/utils'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { Property } from 'csstype'
 import Polyglot, { InterpolationOptions } from 'node-polyglot'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,7 +18,7 @@ import { Text } from 'components/Text'
 interface RadioCardProps extends UseRadioProps {
   label: string | [string, number | Polyglot.InterpolationOptions]
   showCheck?: boolean
-  checkColor?: Token<Property.Color, 'colors'>
+  checkColor?: string
 }
 
 const RadioCard = memo((props: RadioCardProps) => {
@@ -66,7 +64,7 @@ export interface RadioProps<T> {
   colorScheme?: ThemeTypings['colorSchemes']
   buttonGroupProps?: ButtonGroupProps
   showCheck?: boolean
-  checkColor?: Token<Property.Color, 'colors'>
+  checkColor?: string
 }
 
 type RadioTypes = string | HistoryTimeframe

@@ -25,11 +25,11 @@ export type ActiveStakingOpportunity = {
   rewards?: string
 }
 
-export type amountbyValidatorAddressType = {
+export type amountByValidatorAddressType = {
   [k: string]: string
 }
 
-export type redelegationsEntriesbyValidatorAddressType = {
+export type redelegationsEntriesByValidatorAddressType = {
   [k: CAIP10]: chainAdapters.cosmos.RedelegationEntry[]
 }
 
@@ -78,11 +78,11 @@ export const selectDelegationCryptoAmountByDenom = createSelector(
 export const selectAllDelegationsCryptoAmountByDenom = createSelector(
   selectStakingDataByAccountSpecifier,
   selectDenom,
-  (stakingData, denom): amountbyValidatorAddressType => {
+  (stakingData, denom): amountByValidatorAddressType => {
     if (!stakingData || !stakingData.delegations?.length) return {}
 
     const delegations = stakingData.delegations.reduce(
-      (acc: amountbyValidatorAddressType, { assetId, amount, validator: { address } }) => {
+      (acc: amountByValidatorAddressType, { assetId, amount, validator: { address } }) => {
         if (ASSET_ID_TO_DENOM[assetId] !== denom) return acc
 
         acc[address] = amount

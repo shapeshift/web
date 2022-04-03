@@ -13,7 +13,7 @@ import { useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { selectAssetByCAIP19, selectPubkeyishByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

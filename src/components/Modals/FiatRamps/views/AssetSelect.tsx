@@ -8,7 +8,7 @@ import { selectPortfolioMixedHumanBalancesBySymbol } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 import { AssetSearch } from '../components/AssetSearch/AssetSearch'
-import { FiatRampAction, GemCurrency } from '../FiatRamps'
+import { FiatRampAction, GemCurrency } from '../FiatRampsCommon'
 import {
   fetchCoinifySupportedCurrencies,
   fetchWyreSupportedCurrencies,

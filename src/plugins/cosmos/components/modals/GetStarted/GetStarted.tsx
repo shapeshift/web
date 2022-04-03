@@ -2,7 +2,7 @@ import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useRef } from 'react'
 import { MemoryRouter, Route, RouteComponentProps, Switch } from 'react-router-dom'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 import { GetStarted } from './views/GetStarted'
 import { LearnMore } from './views/LearnMore'

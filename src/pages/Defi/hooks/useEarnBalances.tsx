@@ -26,9 +26,7 @@ export function useEarnBalances(): UseEarnBalancesReturn {
   } = useFoxyBalances()
   const foxyArray = foxyInvestorFeatureFlag ? foxies : []
   const { vaults, totalBalance: vaultsTotalBalance, loading: vaultsLoading } = useVaultBalances()
-  const vaultArray: SupportedYearnVault[] = useMemo(() => {
-    return vaults.vaults ? Object.values(vaults.vaults) : []
-  }, [vaults])
+  const vaultArray: SupportedYearnVault[] = useMemo(() => Object.values(vaults), [vaults])
   const opportunities = useNormalizeOpportunities({
     vaultArray,
     foxyArray

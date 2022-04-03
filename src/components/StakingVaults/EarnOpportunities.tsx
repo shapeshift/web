@@ -9,10 +9,12 @@ import qs from 'qs'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Card } from 'components/Card/Card'
 import { Text } from 'components/Text'
-import { useWallet, WalletActions } from 'context/WalletProvider/WalletProvider'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { useYearnVaults } from 'hooks/useYearnVaults/useYearnVaults'
-import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useFoxyBalances } from 'pages/Defi/hooks/useFoxyBalances'
+import { AccountSpecifier } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectAssetByCAIP19, selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingTable } from './StakingTable'
@@ -32,16 +34,19 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
     dispatch
   } = useWallet()
   const asset = useAppSelector(state => selectAssetByCAIP19(state, caip19))
+  const foxyInvestorFeatureFlag = useAppSelector(state => selectFeatureFlag(state, 'FoxyInvestor'))
   const vaults = useYearnVaults()
+  const { opportunities } = useFoxyBalances()
+  const foxyRows = foxyInvestorFeatureFlag ? opportunities : []
   //@TODO: This needs to be updated to account for accoundId -- show only vaults that are on that account
 
   const allRows = useNormalizeOpportunities({
     vaultArray: vaults,
-    foxyArray: []
-  }).filter(vault => vault.tokenAddress === asset.tokenId)
+    foxyArray: foxyRows
+  }).filter(row => row.tokenAddress.toLowerCase() === asset.tokenId?.toLowerCase())
 
   const handleClick = (opportunity: EarnOpportunityType) => {
-    const { type, provider, contractAddress, chain, tokenAddress } = opportunity
+    const { type, provider, contractAddress, chain, tokenAddress, rewardAddress } = opportunity
     if (!isConnected) {
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
       return
@@ -52,7 +57,8 @@ export const EarnOpportunities = ({ assetId: caip19 }: EarnOpportunitiesProps) =
       search: qs.stringify({
         chain,
         contractAddress,
-        tokenId: tokenAddress
+        tokenId: tokenAddress,
+        rewardId: rewardAddress
       }),
       state: { background: location }
     })

@@ -4,8 +4,8 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 
-import { SendFormFields, SendInput } from '../Form'
-import { SendRoutes } from '../Send'
+import type { SendInput } from '../Form'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 
 type AddressInputProps = {
   rules: ControllerProps['rules']

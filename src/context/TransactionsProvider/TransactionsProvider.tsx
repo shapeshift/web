@@ -4,14 +4,15 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifierMap } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
-import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountIdByAddress,
   selectAccountSpecifiers,
   selectAssets,
+  selectPortfolioAssetIds,
   selectTxHistoryStatus,
   selectTxIds
 } from 'state/slices/selectors'
@@ -30,6 +31,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
   } = useWallet()
   const chainAdapter = useChainAdapters()
   const assets = useSelector(selectAssets)
+  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const accountSpecifiers = useSelector(selectAccountSpecifiers)
   const txHistoryStatus = useSelector(selectTxHistoryStatus)
   const txIds = useAppSelector(selectTxIds)
@@ -90,16 +92,29 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
             )
           }
         }
-        // RESTfully fetch all tx history for this chain.
+
+        // RESTfully fetch all tx and rebase history for this chain.
         const chainAccountSpecifiers = getAccountSpecifiersByChainId(chainId)
         if (isEmpty(chainAccountSpecifiers)) continue
         chainAccountSpecifiers.forEach(accountSpecifierMap => {
-          dispatch(
-            txHistoryApi.endpoints.getAllTxHistory.initiate(
-              { accountSpecifierMap },
-              { forceRefetch: true }
-            )
-          )
+          const { getAllTxHistory, getFoxyRebaseHistoryByAccountId } = txHistoryApi.endpoints
+          const options = { forceRefetch: true }
+          dispatch(getAllTxHistory.initiate({ accountSpecifierMap }, options))
+
+          /**
+           * foxy rebase history is most closely linked to transactions.
+           * unfortunately, we have to call this for a specific asset here
+           * because we need it for the dashboard balance chart
+           *
+           * if you're reading this and are about to add another rebase token here,
+           * stop, and make a getRebaseHistoryByAccountId that takes
+           * an accountId and assetId[] in the txHistoryApi
+           */
+
+          // fetch all rebase history for FOXy
+          if (!portfolioAssetIds.length) return // can't fetch without portfolio assets
+          const payload = { accountSpecifierMap, portfolioAssetIds }
+          dispatch(getFoxyRebaseHistoryByAccountId.initiate(payload, options))
         })
       }
     })()
@@ -122,7 +137,8 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     wallet,
     chainAdapter,
     accountSpecifiers,
-    getAccountSpecifiersByChainId
+    getAccountSpecifiersByChainId,
+    portfolioAssetIds
   ])
 
   /**

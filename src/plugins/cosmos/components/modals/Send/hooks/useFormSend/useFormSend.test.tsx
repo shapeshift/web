@@ -1,22 +1,26 @@
 import { useToast } from '@chakra-ui/react'
 import { AssetDataSource, chainAdapters, ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react-hooks'
-import { useModal } from 'context/ModalProvider/ModalProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { SendFormFields, SendInput } from '../../Form'
+import type { SendInput } from '../../Form'
+import { SendFormFields } from '../../SendCommon'
 import { useFormSend } from './useFormSend'
 
-jest.mock('@chakra-ui/react')
+jest.mock('@chakra-ui/react', () => ({
+  ...jest.requireActual('@chakra-ui/react'),
+  useToast: jest.fn()
+}))
 jest.mock('react-hook-form')
 jest.mock('react-polyglot', () => ({
   useTranslate: () => jest.fn()
 }))
 
 jest.mock('context/PluginProvider/PluginProvider')
-jest.mock('context/ModalProvider/ModalProvider')
-jest.mock('context/WalletProvider/WalletProvider')
+jest.mock('hooks/useModal/useModal')
+jest.mock('hooks/useWallet/useWallet')
 
 const formData: SendInput = {
   [SendFormFields.Address]: 'cosmos1j26n3mjpwx4f7zz65tzq3mygcr74wp7kcwcner',

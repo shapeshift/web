@@ -17,18 +17,15 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import {
   AccountSpecifierMap,
   accountSpecifiers
 } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, useFindAllQuery } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  portfolio,
-  portfolioApi,
-  supportedAccountTypes
-} from 'state/slices/portfolioSlice/portfolioSlice'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { supportedAccountTypes } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountSpecifiers,
   selectAssetIds,

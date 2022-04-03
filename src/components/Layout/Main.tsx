@@ -2,19 +2,19 @@ import { Box, Container, ContainerProps, HStack, Stack } from '@chakra-ui/layout
 import { useColorModeValue } from '@chakra-ui/react'
 import { useViewportScroll } from 'framer-motion'
 import { ReactNode, useEffect, useRef, useState } from 'react'
-import { Route } from 'Routes/helpers'
 import { Breadcrumbs } from 'components/Breadcrumbs/Breadcrumbs'
 import { NestedMenu } from 'components/NestedMenu/NestedMenu'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { Page } from './Page'
 
 export type MainProps = {
   titleComponent?: ReactNode
-  route?: Route
 } & ContainerProps
 
-export const Main: React.FC<MainProps> = ({ children, titleComponent, route, ...rest }) => {
+export const Main: React.FC<MainProps> = ({ children, titleComponent, ...rest }) => {
   const ref = useRef<HTMLDivElement>(null)
+  const { currentRoute } = useBrowserRouter()
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [y, setY] = useState(0)
@@ -46,7 +46,7 @@ export const Main: React.FC<MainProps> = ({ children, titleComponent, route, ...
               {titleComponent}
             </Stack>
           </Container>
-          {route && <NestedMenu route={route} />}
+          {currentRoute && <NestedMenu route={currentRoute} />}
         </Box>
       )}
       <Container maxW='container.xl' py={8} px={{ base: 0, xl: 4 }} {...rest}>

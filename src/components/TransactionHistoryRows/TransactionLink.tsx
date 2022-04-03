@@ -1,4 +1,4 @@
-import { Button, Link, useColorModeValue } from '@chakra-ui/react'
+import { Button, Link } from '@chakra-ui/react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 export const TransactionLink = ({
@@ -8,25 +8,21 @@ export const TransactionLink = ({
   explorerTxLink: string
   txid: string
 }) => (
-  <Link
+  <Button
+    as={Link}
     isExternal
-    color={useColorModeValue('blue.400', 'blue.200')}
-    _hover={{ textDecoration: 'none' }}
     href={`${explorerTxLink}${txid}`}
-    onClick={e => {
-      // don't trigger parent onClick
-      e.stopPropagation()
-    }}
+    variant='ghost'
+    colorScheme='blue'
+    bg='transparent'
+    fontWeight='normal'
+    fontFamily='monospace'
+    onClick={e => e.stopPropagation()}
+    p={0}
+    height='auto'
+    fontSize='inherit'
+    _hover={{ bg: 'transparent' }}
   >
-    <Button
-      bg={useColorModeValue('gray.200', 'gray.900')}
-      fontWeight='normal'
-      p={2}
-      height={{ base: 6, md: 8 }}
-      fontSize={{ base: 'sm', md: 'md' }}
-      _hover={{ bg: useColorModeValue('gray.300', 'gray.800') }}
-    >
-      <MiddleEllipsis address={txid} />
-    </Button>
-  </Link>
+    <MiddleEllipsis address={txid} />
+  </Button>
 )

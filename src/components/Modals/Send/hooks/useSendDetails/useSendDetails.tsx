@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ensLookup } from 'lib/ens'
 import { isEthAddress } from 'lib/utils'
@@ -21,8 +21,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { SendFormFields, SendInput } from '../../Form'
-import { SendRoutes } from '../../Send'
+import type { SendInput } from '../../Form'
+import { SendFormFields, SendRoutes } from '../../SendCommon'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
 

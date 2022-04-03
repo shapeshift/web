@@ -11,11 +11,13 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { LocationState } from '../../NativeWallet/types'
-import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
+import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
 
 export interface KeepKeySetupProps
@@ -78,7 +80,7 @@ export const KeepKeyConnect = ({ history }: KeepKeySetupProps) => {
         return
       }
 
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.KeepKey]
+      const { name, icon } = KeepKeyConfig
       try {
         const deviceId = await wallet.getDeviceID()
         // This gets the firmware version needed for some KeepKey "supportsX" functions

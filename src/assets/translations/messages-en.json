@@ -4,6 +4,7 @@
     "next": "Next",
     "error": "Error",
     "cancel": "Cancel",
+    "close": "Close",
     "continue": "Continue",
     "confirm": "Confirm",
     "reject": "Reject",
@@ -11,11 +12,14 @@
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "insufficientFunds": "Insufficient Funds",
+    "estimatedGas": "Estimated Gas Fee",
     "insufficientAmountForGas": "Not enough ETH to cover gas",
     "invalidAddress": "Invalid Address",
     "unresolvableEnsDomain": "Cannot resolve ENS domain",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
+    "withdrawal": "Withdrawal",
+    "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
     "connectedWallet": "Connected Wallet",
@@ -26,7 +30,8 @@
     "lightTheme": "Light Theme",
     "rename": "Rename",
     "forget": "Forget?",
-    "available": "available",
+    "pending": "Pending",
+    "available": "Available",
     "or": "or",
     "somethingWentWrong": "Something went wrong",
     "somethingWentWrongBody": "Something went wrong",
@@ -42,8 +47,11 @@
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
     "viewAsset": "View Asset",
+    "apy": "%{apy}% APY",
     "settings": "Settings",
-    "legalDated": "Dated: January 2022"
+    "legalDated": "Dated: January 2022",
+    "approveOnWallet": "Approve On Wallet",
+    "confirmOnWallet": "Confirm On Wallet"
   },
   "updateToast": {
     "body": "A new version of the app is available",
@@ -149,27 +157,46 @@
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
         }
       },
+      "foxyOverview": {
+        "header": "Deposit FOX to get FOXy to earn",
+        "body": "FOXy is a rebasing token pegged to the price of FOX. FOXy is put to work across different DeFi protocols to earn the best yield possible.",
+        "rewards": "The rewards you earn will accrue automatically.",
+        "cta": "Deposit FOX Now",
+        "foxyBalance": "FOXy Balance",
+        "withdrawals": "Withdrawals",
+        "emptyWithdraws": "Pending or active withdrawals will show here.",
+        "availableDate": "available %{date}"
+      },
       "claim": {
         "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
         "title": "Claim Staking Rewards",
         "confirmAndClaim": "Confirm & Claim",
         "rewardAmount": "Reward Amount",
-        "claimingRewards": "Claiming Rewards"
+        "claimingRewards": "Claiming Rewards",
+        "claimAmount": "Claim Amount",
+        "claimToAddress": "Claim To Address",
+        "confirmClaim": "Confirm Claim",
+        "claimNow": "Claim Now"
       }
     },
     "amountToStake": "Amount to Stake",
     "amountToUnstake": "Amount to Unstake",
     "confirmDetails": "Confirm Details",
     "broadcastingTransaction": "Broadcasting Transaction",
+    "transactionComplete": "Transaction Complete",
+    "transactionFailed": "Transaction Failed",
     "validator": "Validator",
+    "stakedAmount": "Staked Amount",
     "unstakeFrom": "Unstake From",
     "gasFee": "Gas Fee",
     "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
     "unbondInfoItWillTakeShort": "It will take %{unbondingDays} days to unstake your tokens",
-    "confirmAndBroadcast": "Confirm & broadcast",
+    "confirmAndBroadcast": "Confirm & Broadcast",
+    "signAndBroadcast": "Sign & Broadcast",
     "averageApr": "Average APR",
     "estimatedYearlyRewards": "Estimated Yearly Rewards",
     "staked": "Staked",
+    "amountStaked": "Amount Staked",
     "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -266,7 +293,8 @@
       "yearn": {
         "deposit": "Deposit",
         "approve": "Approve",
-        "withdraw": "Withdraw"
+        "withdraw": "Withdraw",
+        "receive": "Receive"
       },
       "uniV2": {
         "addLiquidityETH": "Add liquidity",
@@ -387,6 +415,10 @@
         "fees": "Fees %{feeType}"
       },
       "sendForm": {
+        "optionalAssetMemo": "Optional %{assetSymbol} Memo",
+        "assetMemo": "%{assetSymbol} Memo",
+        "charactersRemaining": "%{charactersRemaining} characters remaining",
+        "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
         "sendAmount": "Send Amount",
@@ -422,7 +454,22 @@
     "withdraw": {
       "amountToWithdraw": "Amount To Withdraw",
       "footerDisclaimer": "This transaction will require one transaction gas fee.",
-      "slippageSettings": "Slippage Settings"
+      "slippageSettings": "Slippage Settings",
+      "withdrawType": "Withdraw Type",
+      "instant": "Instant",
+      "delayed": "~7 days",
+      "fee": "%{fee}% %{symbol} fee",
+      "noFee": "No %{symbol} fee",
+      "requestWithdraw": "Request Withdraw",
+      "withdrawFee": "There will be separate gas fee to withdraw.",
+      "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
+      "withDrawalFee": "Withdrawal Fee",
+      "info": {
+        "delayed": "The delayed withdrawal has two transactions:",
+        "delayedOne": "Request the withdrawal",
+        "delayedTwo": "Claim the withdrawal after 7 days",
+        "instant": "The instant withdrawal is one transaction and requires you to withdraw the full amount staked."
+      }
     },
     "approve": {
       "header": "Allow ShapeShift DAO Router to spend your %{asset}",
@@ -443,10 +490,14 @@
         "estimatedReturns": "Estimated Yearly Returns*",
         "preFooter": "Rewards accrue automatically"
       },
-      "withdrawFrom": "Withdrawal From",
       "withdrawTo": "Withdraw To",
+      "withdrawFrom": "Withdraw From",
       "depositTo": "Deposit To",
       "averageApy": "Average APY",
+      "withdrawTime": "Withdraw Time",
+      "withdrawFee": "Withdraw Fee",
+      "withdrawInstantTime": "Instant",
+      "withdrawDelayedTime": "~7 days",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "preFooter": "Rewards accrue automatically",
@@ -741,6 +792,10 @@
     "status": "Status",
     "transactionType": "Transaction Type",
     "minerFee": "Miner Fee",
-    "unknownType": "Transaction"
+    "unknownType": "Transaction",
+    "from": "From",
+    "to": "To",
+    "for": "For",
+    "transfers": "Transfers"
   }
 }

@@ -7,6 +7,7 @@ import { DrawerStyle as Drawer } from 'components/Drawer/Drawer.theme'
 import { FormStyle as Form } from 'components/Form/form.theme'
 import { HeadingStyle as Heading } from 'components/Heading/Heading.theme'
 import { InputStyle as Input } from 'components/Input/Input.theme'
+import { ListStyle as List } from 'components/List/list.theme'
 import { MenuStyle as Menu } from 'components/Menu/Menu.theme'
 import { ModalStyle as Modal } from 'components/Modal/Modal.theme'
 import { PopoverStyle as Popover } from 'components/Popover/Popover.theme'
@@ -103,6 +104,7 @@ export const theme = extendTheme({
     Modal,
     Card,
     Form,
+    List,
     Heading,
     Progress,
     Row,

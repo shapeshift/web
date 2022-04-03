@@ -1,21 +1,29 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
-import { Button, FormControl, ModalHeader, Text as CText, Tooltip } from '@chakra-ui/react'
+import {
+  Button,
+  FormControl,
+  Link,
+  ModalFooter,
+  Stack,
+  Text as CText,
+  Tooltip
+} from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
+import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { StakingPath } from './StakeConfirmRouter'
+import { StakingPath } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -64,7 +72,11 @@ export const StakeConfirm = ({
 
   const memoryHistory = useHistory()
   const onSubmit = (_: any) => {
-    memoryHistory.push(StakingPath.Broadcast)
+    memoryHistory.push(StakingPath.Broadcast, {
+      cryptoAmount: cryptoStakeAmount,
+      fiatRate,
+      apr
+    })
   }
 
   const cryptoYield = calculateYearlyYield(apr, cryptoStakeAmount.toPrecision())
@@ -81,7 +93,7 @@ export const StakeConfirm = ({
   }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <SlideTransition>
         <Flex
           as='form'
           pt='14px'
@@ -92,7 +104,6 @@ export const StakeConfirm = ({
           alignItems='center'
           justifyContent='space-between'
         >
-          <ModalHeader textAlign='center'>{translate('defi.confirmDetails')}</ModalHeader>
           <Flex width='100%' mb='20px' justifyContent='space-between'>
             <Text color='gray.500' translation={'defi.stake'} />
             <Flex direction='column' alignItems='flex-end'>
@@ -115,7 +126,9 @@ export const StakeConfirm = ({
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
-            <CText>{DEFAULT_VALIDATOR_NAME}</CText>
+            <Link color={'blue.200'} target='_blank' href='#'>
+              {DEFAULT_VALIDATOR_NAME}
+            </Link>
           </Flex>
           <Flex width='100%' mb='35px' justifyContent='space-between'>
             <Text translation={'defi.averageApr'} color='gray.500' />
@@ -161,21 +174,25 @@ export const StakeConfirm = ({
               }}
             />
           </FormControl>
-          <Text
-            textAlign='center'
-            fontSize='sm'
-            fontWeight='semibold'
-            translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
-            mb='18px'
-          />
-          <Button colorScheme={'blue'} mb={2} size='lg' type='submit' width='full'>
-            <Text translation={'defi.confirmAndBroadcast'} />
-          </Button>
-          <Button onClick={onCancel} size='lg' variant='ghost' width='full'>
-            <Text translation='common.cancel' />
-          </Button>
+          <ModalFooter width='100%' py='0' px='0' flexDir='column' textAlign='center' mt={1}>
+            <Text
+              textAlign='left'
+              fontSize='sm'
+              color='gray.500'
+              translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
+              mb='18px'
+            />
+            <Stack direction='row' width='full' justifyContent='space-between'>
+              <Button onClick={onCancel} size='lg' variant='ghost'>
+                <Text translation='common.cancel' />
+              </Button>
+              <Button colorScheme={'blue'} size='lg' type='submit'>
+                <Text translation={'defi.signAndBroadcast'} />
+              </Button>
+            </Stack>
+          </ModalFooter>
         </Flex>
-      </AnimatePresence>
+      </SlideTransition>
     </FormProvider>
   )
 }

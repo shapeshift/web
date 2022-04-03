@@ -2,7 +2,7 @@ import { YearnVaultApi } from '@shapeshiftoss/investor-yearn'
 import { ChainTypes } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import React, { useContext, useEffect, useState } from 'react'
-import { useChainAdapters } from 'context/ChainAdaptersProvider/ChainAdaptersProvider'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 
 type YearnContextProps = {
   loading: boolean
@@ -21,10 +21,12 @@ export const YearnProvider: React.FC = ({ children }) => {
   const [yearn, setYearn] = useState<YearnVaultApi | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const adapters = useChainAdapters()
+  const numSupportedChainAdapters = adapters.getSupportedChains().length
 
   useEffect(() => {
     ;(async () => {
       try {
+        if (!adapters.getSupportedChains().includes(ChainTypes.Ethereum)) return
         setLoading(true)
         const api = new YearnVaultApi({
           adapter: adapters.byChain(ChainTypes.Ethereum),
@@ -38,7 +40,7 @@ export const YearnProvider: React.FC = ({ children }) => {
         setLoading(false)
       }
     })()
-  }, [adapters])
+  }, [adapters, numSupportedChainAdapters])
 
   return <YearnContext.Provider value={{ yearn, loading }}>{children}</YearnContext.Provider>
 }

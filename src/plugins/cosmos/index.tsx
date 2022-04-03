@@ -1,5 +1,4 @@
-import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/cosmos'
-import { ChainAdapter as OsmosisChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/osmosis'
+import { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { ChainTypes } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
@@ -7,6 +6,7 @@ import { Plugins } from 'plugins'
 import { AssetIcon } from 'components/AssetIcon'
 
 import { CosmosAsset } from './CosmosAsset'
+import { CosmosAssetTxHistory } from './CosmostAssetTxHistory'
 
 export function register(): Plugins {
   return [
@@ -31,23 +31,10 @@ export function register(): Plugins {
                   getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
                 )
 
-                return new CosmosChainAdapter({ providers: { http, ws }, coinName: 'Cosmos' })
-              }
-            ],
-            [
-              ChainTypes.Osmosis,
-              () => {
-                const http = new unchained.cosmos.V1Api(
-                  new unchained.cosmos.Configuration({
-                    basePath: getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
-                  })
-                )
-
-                const ws = new unchained.ws.Client<unchained.cosmos.Tx>(
-                  getConfig().REACT_APP_UNCHAINED_COSMOS_WS_URL
-                )
-
-                return new OsmosisChainAdapter({ providers: { http, ws }, coinName: 'Osmosis' })
+                return new cosmossdk.cosmos.ChainAdapter({
+                  providers: { http, ws },
+                  coinName: 'Cosmos'
+                })
               }
             ]
           ]
@@ -58,14 +45,38 @@ export function register(): Plugins {
             hide: true,
             label: '',
             main: () => <CosmosAsset chainId={'cosmos:osmosis-1'} />,
-            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />
+            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
+            routes: [
+              {
+                path: '/',
+                label: 'navBar.overview',
+                main: () => <CosmosAsset chainId={'cosmos:osmosis-1'} />
+              },
+              {
+                path: '/transactions',
+                label: 'navBar.transactions',
+                main: () => <CosmosAssetTxHistory chainId={'cosmos:osmosis-1'} />
+              }
+            ]
           },
           {
             path: '/assets/cosmos\\:cosmoshub-4/:assetSubId',
             label: '',
             hide: true,
             main: () => <CosmosAsset chainId={'cosmos:cosmoshub-4'} />,
-            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />
+            icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
+            routes: [
+              {
+                path: '/',
+                label: 'navBar.overview',
+                main: () => <CosmosAsset chainId={'cosmos:cosmoshub-4'} />
+              },
+              {
+                path: '/transactions',
+                label: 'navBar.transactions',
+                main: () => <CosmosAssetTxHistory chainId={'cosmos:cosmoshub-4'} />
+              }
+            ]
           }
         ]
       }

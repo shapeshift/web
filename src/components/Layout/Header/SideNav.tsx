@@ -1,12 +1,11 @@
 import { chakra, useColorModeValue } from '@chakra-ui/react'
 import React from 'react'
-import { Route } from 'Routes/helpers'
 
 import { SideNavContent } from './SideNavContent'
 
 export const NAV_PADDING = { base: 6, lg: 16 }
 
-export const SideNav = ({ route }: { route: Route }) => {
+export const SideNav = () => {
   const bg = useColorModeValue('white', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
@@ -26,7 +25,7 @@ export const SideNav = ({ route }: { route: Route }) => {
         flex={{ base: 'inherit', '2xl': '1 1 0%' }}
         display={{ base: 'none', md: 'flex' }}
       >
-        <SideNavContent route={route} isCompact={true} />
+        <SideNavContent isCompact={true} />
       </chakra.header>
     </>
   )

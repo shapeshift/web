@@ -3,56 +3,21 @@ import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
-import { Radio, RadioOption } from 'components/Radio/Radio'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-
-export enum Timeout {
-  TenMinutes = '600000',
-  FifteenMinutes = '900000',
-  TwentyMinutes = '1200000',
-  ThirtyMinutes = '1800000',
-  FortyFiveMinutes = '2700000',
-  SixtyMinutes = '3600000'
-}
+import { Radio } from 'components/Radio/Radio'
+import { DeviceTimeout, timeoutOptions, useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 
 export const ChangeTimeout = () => {
   const translate = useTranslate()
-  const { keepKeyWallet } = useKeepKey()
+  const { keepKeyWallet, deviceTimeout } = useKeepKey()
 
-  const options: RadioOption<Timeout>[] = [
-    {
-      value: Timeout.TenMinutes,
-      label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '10' }]
-    },
-    {
-      value: Timeout.FifteenMinutes,
-      label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '15' }]
-    },
-    {
-      value: Timeout.TwentyMinutes,
-      label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '20' }]
-    },
-    {
-      value: Timeout.ThirtyMinutes,
-      label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '30' }]
-    },
-    {
-      value: Timeout.FortyFiveMinutes,
-      label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '45' }]
-    },
-    {
-      value: Timeout.SixtyMinutes,
-      label: ['walletProvider.keepKey.settings.descriptions.timeoutDuration', { minutes: '60' }]
-    }
-  ]
-
-  const handleChangeTimeoutInitializeEvent = async (value: Timeout) => {
-    const parsedTimeout = value ? parseInt(value) : parseInt(Timeout.TenMinutes)
+  const handleChangeTimeoutInitializeEvent = async (value: DeviceTimeout) => {
+    const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
     await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout })
   }
   const setting = 'timeout'
   const colorScheme = useColorModeValue('blackAlpha', 'white')
   const checkColor = useColorModeValue('green', 'blue.400')
+  const defaultValue = deviceTimeout ? deviceTimeout.value : DeviceTimeout.TenMinutes
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
@@ -68,10 +33,10 @@ export const ChangeTimeout = () => {
       >
         <Radio
           showCheck
-          options={options}
+          options={timeoutOptions}
           onChange={handleChangeTimeoutInitializeEvent}
           colorScheme={colorScheme}
-          defaultValue={Timeout.TenMinutes}
+          defaultValue={defaultValue}
           checkColor={checkColor}
           buttonGroupProps={{
             display: 'flex',

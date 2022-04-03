@@ -17,8 +17,7 @@ export const WalletConnectedMenuRoutes = ({
   onDisconnect,
   onSwitchProvider,
   walletInfo,
-  isConnected,
-  type
+  isConnected
 }: WalletConnectedProps) => {
   const { navigateToRoute } = useMenuRoutes()
   const location = useLocation()

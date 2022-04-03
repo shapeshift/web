@@ -24,7 +24,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()
   const translate = useTranslate()
-  const { keepKeyWallet, pinCaching } = useKeepKey()
+  const { keepKeyWallet, pinCaching, deviceTimeout } = useKeepKey()
   const versions = useKeepKeyVersions()
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
@@ -45,6 +45,11 @@ export const KeepKeyMenuRoutes = () => {
   const handleWipeClicked = () => {
     keepKeyWipe.open({})
   }
+
+  const deviceTimeoutTranslation: string =
+    typeof deviceTimeout?.label === 'object'
+      ? translate(...deviceTimeout?.label)
+      : translate(deviceTimeout?.label)
 
   const keepKeyMenu = () => {
     const keepKeyStateLoading = (
@@ -124,6 +129,7 @@ export const KeepKeyMenuRoutes = () => {
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyTimeout)}
             label={translate('walletProvider.keepKey.settings.menuLabels.deviceTimeout')}
+            value={deviceTimeoutTranslation}
             hasSubmenu={true}
           />
           <ExpandedMenuItem

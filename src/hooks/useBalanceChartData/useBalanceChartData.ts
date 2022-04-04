@@ -254,23 +254,23 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
         const asset = transfer.caip19
 
         if (!assetIds.includes(asset)) return
+        if (!skipBucketBalanceChange) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
-        if (!skipBucketBalanceChange)
-          switch (transfer.type) {
-            case chainAdapters.TxType.Send:
-              // we're going backwards, so a send means we had more before
-              bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
-              break
-            case chainAdapters.TxType.Receive:
-              // we're going backwards, so a receive means we had less before
-              bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
-              break
-            default: {
-              console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
-            }
+        switch (transfer.type) {
+          case chainAdapters.TxType.Send:
+            // we're going backwards, so a send means we had more before
+            bucket.balance.crypto[asset] = bucketValue.plus(transferValue)
+            break
+          case chainAdapters.TxType.Receive:
+            // we're going backwards, so a receive means we had less before
+            bucket.balance.crypto[asset] = bucketValue.minus(transferValue)
+            break
+          default: {
+            console.warn(`calculateBucketPrices: unknown tx type ${transfer.type}`)
           }
+        }
       })
     })
 
@@ -349,10 +349,9 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // load staking data to redux state
   useGetStakingDataQuery({ accountSpecifier: cosmosCaip10 })
 
-  const delegationTotal =
-    useAppSelector(state =>
-      selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10)
-    ) ?? '0'
+  const delegationTotal = useAppSelector(state =>
+    selectTotalStakingDelegationCryptoByAccountSpecifier(state, cosmosCaip10)
+  )
 
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

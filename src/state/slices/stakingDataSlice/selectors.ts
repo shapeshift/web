@@ -263,7 +263,7 @@ export const selectNonloadedValidators = createSelector(
   }
 )
 
-export const selectUndelegationsAmountByValidatorAddress = memoize(
+export const getUndelegationsAmountByValidatorAddress = memoize(
   (
     allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
     validatorAddress: string
@@ -286,7 +286,7 @@ export const selectUndelegationsAmountByValidatorAddress = memoize(
     get(allUndelegationsEntries, validatorAddress, [] as chainAdapters.cosmos.UndelegationEntry[])
 )
 
-export const selectRewardsAmountByValidatorAddress = memoize(
+export const getRewardsAmountByValidatorAddress = memoize(
   (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) => {
     return get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
       .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
@@ -299,7 +299,7 @@ export const selectRewardsAmountByValidatorAddress = memoize(
     get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
 )
 
-export const selectTotalCryptoAmount = memoize(
+export const getTotalCryptoAmount = memoize(
   (delegationsAmount: string, undelegationsAmount: string) => {
     return bnOrZero(delegationsAmount).plus(bnOrZero(undelegationsAmount)).toString()
   }
@@ -320,16 +320,16 @@ export const selectActiveStakingOpportunityDataByAssetId = createDeepEqualOutput
       (acc: ActiveStakingOpportunity[], [validatorAddress, { apr, moniker }]) => {
         const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
 
-        const undelegationsAmount = selectUndelegationsAmountByValidatorAddress(
+        const undelegationsAmount = getUndelegationsAmountByValidatorAddress(
           allUndelegationsEntries,
           validatorAddress
         )
 
-        const rewards = selectRewardsAmountByValidatorAddress(allRewards, validatorAddress)
+        const rewards = getRewardsAmountByValidatorAddress(allRewards, validatorAddress)
 
-        const cryptoAmount = selectTotalCryptoAmount(delegationsAmount, undelegationsAmount)
+        const cryptoAmount = getTotalCryptoAmount(delegationsAmount, undelegationsAmount)
 
-        if (cryptoAmount !== '0' || rewards !== '0') {
+        if (bnOrZero(cryptoAmount).gt(0) || bnOrZero(rewards).gt(0)) {
           acc.push({
             address: validatorAddress,
             apr,

@@ -27,7 +27,7 @@ export type Validators = {
 }
 
 export type StakingDataByAccountSpecifier = {
-  [k: PubKey]: Staking
+  [k: string]: Staking
 }
 
 export type StakingData = {

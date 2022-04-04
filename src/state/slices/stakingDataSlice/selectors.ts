@@ -305,7 +305,12 @@ export const selectUndelegationsAmountByValidatorAddress = memoize(
         return acc
       }, bnOrZero(0))
       .toString()
-  }
+  },
+  (
+    allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
+    validatorAddress: string
+  ) =>
+    get(allUndelegationsEntries, validatorAddress, [] as chainAdapters.cosmos.UndelegationEntry[])
 )
 
 export const selectRewardsAmountByValidatorAddress = memoize(
@@ -316,7 +321,9 @@ export const selectRewardsAmountByValidatorAddress = memoize(
         return acc
       }, bnOrZero(0))
       .toString()
-  }
+  },
+  (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) =>
+    get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
 )
 
 export const selectTotalCryptoAmount = memoize(

@@ -7,19 +7,20 @@ import { ReduxState } from 'state/reducer'
 import { marketApi } from './marketDataSlice'
 
 export const selectMarketData = (state: ReduxState) => state.marketData.byId
-
-const selectAppState = (state: ReduxState) => state
-const selectAssetId = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => assetId
-const selectAssetIds = (_state: ReduxState, assetIds: CAIP19[], ...args: any[]) => assetIds
-const selectTimeframe = (
+const selectAssetIdWithState = (_state: ReduxState, assetId: CAIP19, ...args: any[]) => assetId
+const selectTimeframeWithState = (
   _state: ReduxState,
   _assetIds: CAIP19 | CAIP19[],
   timeframe: HistoryTimeframe
 ) => timeframe
 
+const selectAssetId = (assetId: CAIP19, ...args: any[]) => assetId
+const selectAssetIds = (assetIds: CAIP19[], ...args: any[]) => assetIds
+const selectTimeframe = (_assetIds: CAIP19 | CAIP19[], timeframe: HistoryTimeframe) => timeframe
+
 export const selectMarketDataById = createSelector(
   selectMarketData,
-  selectAssetId,
+  selectAssetIdWithState,
   (marketData, assetId) => marketData[assetId]
 )
 
@@ -36,8 +37,8 @@ export const selectPriceHistory = (state: ReduxState) => state.marketData.priceH
 
 export const selectPriceHistoryByAssetTimeframe = createSelector(
   selectPriceHistory,
-  selectAssetId,
-  selectTimeframe,
+  selectAssetIdWithState,
+  selectTimeframeWithState,
   (priceHistory, assetId, timeframe) => priceHistory[timeframe][assetId] ?? []
 )
 
@@ -49,38 +50,34 @@ const selectPriceHistoryQueryByAssetTimeframe = createSelector(
 )
 
 export const selectPriceHistoryLoadingByAssetTimeframe = createSelector(
-  selectAppState,
   selectPriceHistoryQueryByAssetTimeframe,
-  (state: ReduxState, querySelector) => querySelector(state).isLoading
+  querySelector => (state: ReduxState) => querySelector(state).isLoading
 )
 
 export const selectPriceHistoryUnavailableByAssetTimeframe = createSelector(
-  selectAppState,
   selectPriceHistoryQueryByAssetTimeframe,
-  (state: ReduxState, querySelector) =>
+  querySelector => (state: ReduxState) =>
     querySelector(state).isSuccess && querySelector(state).data?.length === 0
 )
 
 export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
-  selectAppState,
   selectAssetIds,
   selectTimeframe,
   // if one is loading then we consider it loading
-  (state, assetIds, timeframe) =>
-    assetIds.some(assetId => selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe))
+  (assetIds, timeframe) => (state: ReduxState) =>
+    assetIds.some(assetId => selectPriceHistoryLoadingByAssetTimeframe(assetId, timeframe)(state))
 )
 
 export const selectPriceHistoriesUnavailableByAssetTimeframe = createSelector(
-  selectAppState,
   selectAssetIds,
   selectTimeframe,
   // if all is unavailable then we consider it unavailable
-  (state, assetIds, timeframe) => {
+  (assetIds, timeframe) => (state: ReduxState) => {
     if (assetIds.length === 0) {
       return false
     }
     return assetIds.every(assetId =>
-      selectPriceHistoryUnavailableByAssetTimeframe(state, assetId, timeframe)
+      selectPriceHistoryUnavailableByAssetTimeframe(assetId, timeframe)(state)
     )
   }
 )

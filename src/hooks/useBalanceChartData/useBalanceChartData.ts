@@ -341,11 +341,11 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   // kick off requests for all the price histories we need
   useFetchPriceHistories({ assetIds, timeframe })
   const priceHistoryData = useAppSelector(state => selectPriceHistoryTimeframe(state, timeframe))
-  const priceHistoryDataLoading = useAppSelector(state =>
-    selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe)
+  const priceHistoryDataLoading = useAppSelector(
+    selectPriceHistoriesLoadingByAssetTimeframe(assetIds, timeframe)
   )
-  const priceHistoryDataUnavailable = useAppSelector(state =>
-    selectPriceHistoriesUnavailableByAssetTimeframe(state, assetIds, timeframe)
+  const priceHistoryDataUnavailable = useAppSelector(
+    selectPriceHistoriesUnavailableByAssetTimeframe(assetIds, timeframe)
   )
 
   // loading state

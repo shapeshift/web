@@ -36,11 +36,9 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
 
   useEffect(() => setPercentChange(calculatePercentChange(data)), [data, setPercentChange])
 
-  const loading = useAppSelector(state =>
-    selectPriceHistoryLoadingByAssetTimeframe(state, assetId, timeframe)
-  )
-  const unavailable = useAppSelector(state =>
-    selectPriceHistoryUnavailableByAssetTimeframe(state, assetId, timeframe)
+  const loading = useAppSelector(selectPriceHistoryLoadingByAssetTimeframe(assetId, timeframe))
+  const unavailable = useAppSelector(
+    selectPriceHistoryUnavailableByAssetTimeframe(assetId, timeframe)
   )
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'

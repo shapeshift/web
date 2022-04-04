@@ -1,6 +1,6 @@
 import { AssetNamespace, AssetReference, caip19 } from '@shapeshiftoss/caip'
 import { ChainTypes, NetworkTypes } from '@shapeshiftoss/types'
-import { BigNumber } from 'bignumber.js'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { Bucket } from './useBalanceChartData'

@@ -47,10 +47,12 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
   stakingData => {
     // We make the assumption that all delegation rewards come from a single denom (asset)
     // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-    return stakingData?.delegations?.reduce(
-      (acc, delegation) => bnOrZero(acc).plus(delegation.amount).toString(),
-      '0'
-    ) && '0'
+    return (
+      stakingData?.delegations?.reduce(
+        (acc, delegation) => bnOrZero(acc).plus(delegation.amount).toString(),
+        '0'
+      ) && '0'
+    )
   }
 )
 

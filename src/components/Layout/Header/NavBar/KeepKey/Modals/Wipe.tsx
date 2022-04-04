@@ -6,18 +6,23 @@ import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepK
 import { Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { useHistory } from 'react-router-dom'
 
 export const WipeModal = () => {
   const { keepKeyWallet } = useKeepKey()
+  const { disconnect } = useWallet()
   const translate = useTranslate()
   const { keepKeyWipe } = useModal()
   const { close, isOpen } = keepKeyWipe
   const {
     state: { awaitingButtonPress }
-  } = useKeepKey()
+  } = useWallet()
 
   const wipeDevice = async () => {
     await keepKeyWallet?.wipe()
+    disconnect()
+    close()
   }
 
   return (
@@ -29,7 +34,11 @@ export const WipeModal = () => {
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text translation={'walletProvider.keepKey.modals.descriptions.wipeKeepKey'} mb={6} />
+          <Text
+            color='gray.500'
+            translation={'walletProvider.keepKey.modals.descriptions.wipeKeepKey'}
+            mb={6}
+          />
           <Button
             onClick={wipeDevice}
             colorScheme='red'
@@ -41,7 +50,7 @@ export const WipeModal = () => {
           </Button>
         </ModalBody>
         <AwaitKeepKey
-          translation={'walletProvider.keepKey.settings.modals.confirmations.wipeDevice'}
+          translation={'walletProvider.keepKey.modals.confirmations.wipeDevice'}
           pl={6}
           pr={6}
         />

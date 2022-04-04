@@ -5,23 +5,24 @@ import Polyglot from 'node-polyglot'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export type AwaitKeepKeyProps = {
-  children?: React.ReactNode
   translation: string | null | [string, number | Polyglot.InterpolationOptions]
+  children?: React.ReactNode
 } & FlexProps
 
 export const AwaitKeepKey = ({ children, translation, ...props }: AwaitKeepKeyProps) => {
   const translate = useTranslate()
-  const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingButtonPress }
-  } = useKeepKey()
+    setAwaitingButtonPress,
+    state: { awaitingButtonPress, wallet }
+  } = useWallet()
   const blueShade = useColorModeValue('blue.500', 'blue.200')
 
   const cancel = async () => {
-    await keepKeyWallet?.cancel()
+    setAwaitingButtonPress(false)
+    await wallet?.cancel()
   }
 
   return awaitingButtonPress ? (

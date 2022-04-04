@@ -59,8 +59,13 @@ export const useKeepKeyEventHandler = (
               setAwaitingButtonPress(false)
               break
             case FailureType.NOTINITIALIZED:
-              // FIXME: placeholder to kick off initialization flow
               console.warn('KeepKey Event [FAILURE]: Device not initialized')
+              dispatch({
+                type: WalletActions.OPEN_KEEPKEY_INITIALIZE,
+                payload: {
+                  deviceId
+                }
+              })
               break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)

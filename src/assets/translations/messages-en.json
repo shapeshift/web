@@ -365,6 +365,24 @@
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
         "button": "Submit Passphrase"
+      },
+      "label": {
+        "header": "Label Your KeepKey",
+        "body": "Labeling each of your devices allows you to easily distinguish one from the other.",
+        "button": "Set Label"
+      },
+      "recoverySentence": {
+        "header": "Write down Recovery Sentence",
+        "body": "On your KeepKey screen, you will see your recovery sentence. Write it down. If you lose access to the device, your assets will ONLY be accessible by this sentence.",
+        "infoFirst": "Its critical you write it down exactly as it appears on the KeepKey.",
+        "infoSecond": "Never share your recovery sentence, it grants access to all of your funds.",
+        "awaitingButtonPress": "Follow the steps on your KeepKey to view your Recovery Sentence. Write it down!"
+      },
+      "wiped": {
+        "header": "KeepKey Wiped Successfully",
+        "body": "You have successfully reset your KeepKey to factory defaults. You can now restore using an existing recovery seed, or create a new wallet.",
+        "createButton": "Create a New Wallet",
+        "recoverButton": "Recover Wallet"
       }
     },
     "shapeShift": {

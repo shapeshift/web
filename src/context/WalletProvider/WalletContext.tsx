@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import React, { createContext } from 'react'
 
 import { ActionTypes } from './actions'
 import { KeyManager } from './KeyManager'
@@ -11,6 +11,7 @@ export interface IWalletContext {
   create: (adapter: KeyManager) => Promise<void>
   disconnect: () => void
   load: () => void
+  setAwaitingButtonPress: (activeRequest: boolean) => void
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

@@ -43,6 +43,7 @@ export interface InitialState {
   deviceId: string
   noBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
+  awaitingButtonPress: boolean
 }
 
 const initialState: InitialState = {
@@ -57,7 +58,8 @@ const initialState: InitialState = {
   isLoadingLocalWallet: false,
   deviceId: '',
   noBackButton: false,
-  keepKeyPinRequestType: null
+  keepKeyPinRequestType: null,
+  awaitingButtonPress: false
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -65,7 +67,7 @@ const reducer = (state: InitialState, action: ActionTypes) => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
-      const stateData = {
+      return {
         ...state,
         wallet: action.payload.wallet,
         walletInfo: {
@@ -78,19 +80,19 @@ const reducer = (state: InitialState, action: ActionTypes) => {
           }
         }
       }
-
-      return stateData
     case WalletActions.SET_IS_CONNECTED:
       return { ...state, isConnected: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
+    case WalletActions.SET_AWAITING_BUTTON_PRESS:
+      return { ...state, awaitingButtonPress: action.payload }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
       // Otherwise the connect button for last wallet we clicked on won't work
-      if (action.payload === false && state.modal === true) {
+      if (!action.payload && state.modal) {
         newState.initialRoute = '/'
         newState.isLoadingLocalWallet = false
         newState.noBackButton = false
@@ -124,6 +126,15 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         noBackButton: true,
         deviceId: action.payload.deviceId,
         initialRoute: '/keepkey/passphrase'
+      }
+    case WalletActions.OPEN_KEEPKEY_INITIALIZE:
+      return {
+        ...state,
+        modal: true,
+        type: KeyManager.KeepKey,
+        noBackButton: true,
+        deviceId: action.payload.deviceId,
+        initialRoute: '/keepkey/new'
       }
     case WalletActions.SET_LOCAL_WALLET_LOADING:
       return { ...state, isLoadingLocalWallet: action.payload }
@@ -351,11 +362,18 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
+  const setAwaitingButtonPress = (activeRequest: boolean) => {
+    dispatch({
+      type: WalletActions.SET_AWAITING_BUTTON_PRESS,
+      payload: activeRequest
+    })
+  }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => load(), [state.adapters, state.keyring])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, create, disconnect, load }),
+    () => ({ state, dispatch, connect, create, disconnect, load, setAwaitingButtonPress }),
     [state, connect, create, disconnect, load]
   )
 

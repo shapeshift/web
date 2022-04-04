@@ -1,5 +1,10 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
+import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
+import {
+  NewKeepKeyPath,
+  WipedSuccessfully
+} from 'context/WalletProvider/KeepKey/components/WipedSuccessfully'
 
 import { KeepKeyConnect } from './KeepKey/components/Connect'
 import { KeepKeyPassphrase } from './KeepKey/components/Passphrase'
@@ -25,6 +30,7 @@ import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisSuccess } from './Portis/components/Success'
 import { PortisConfig } from './Portis/config'
+import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 
 export interface SupportedWalletInfo {
   adapter: any
@@ -54,7 +60,10 @@ export const SUPPORTED_WALLETS: Record<KeyManager, SupportedWalletInfo> = {
       { path: '/keepkey/connect', component: KeepKeyConnect },
       { path: '/keepkey/success', component: KeepKeySuccess },
       { path: '/keepkey/enter-pin', component: KeepKeyPin },
-      { path: '/keepkey/passphrase', component: KeepKeyPassphrase }
+      { path: '/keepkey/passphrase', component: KeepKeyPassphrase },
+      { path: NewKeepKeyPath.WipeSuccessful, component: WipedSuccessfully },
+      { path: NewKeepKeyPath.Label, component: KeepKeyLabel },
+      { path: NewKeepKeyPath.RecoverySentence, component: KeepKeyRecoverySentence }
     ]
   },
   [KeyManager.MetaMask]: {

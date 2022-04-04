@@ -49,12 +49,10 @@ export const timeoutOptions: RadioOption<DeviceTimeout>[] = [
 ]
 
 export interface InitialState {
-  awaitingButtonPress: boolean
   updateStatus: UpdateStatus
 }
 
 const initialState: InitialState = {
-  awaitingButtonPress: false,
   updateStatus: undefined
 }
 
@@ -62,7 +60,6 @@ export interface IKeepKeyContext {
   state: InitialState
   dispatch: React.Dispatch<KeepKeyActionTypes>
   reset: () => void
-  setAwaitingButtonPress: (activeRequest: boolean) => void
   updateStatus: (status: UpdateStatus) => void
   pinCaching: boolean | undefined
   passphrase: boolean | undefined
@@ -77,8 +74,6 @@ export type KeepKeyActionTypes =
 
 const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
   switch (action.type) {
-    case KeepKeyActions.SET_AWAITING_BUTTON_PRESS:
-      return { ...state, awaitingButtonPress: action.payload }
     case KeepKeyActions.SET_UPDATE_STATUS:
       return { ...state, updateStatus: action.payload }
     case KeepKeyActions.RESET_STATE:
@@ -92,7 +87,7 @@ const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { state: walletState, dispatch: walletDispatch, load } = useWallet()
+  const { state: walletState, dispatch: walletDispatch, load, setAwaitingButtonPress } = useWallet()
   const { wallet } = walletState
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [pinCaching, setPinCaching] = useState<boolean>()
@@ -102,7 +97,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   useEffect(() => {
     if (!keepKeyWallet) return
     ;(async () => {
-      setPassphrase(keepKeyWallet.features?.passphraseProtection)
+      setPassphrase(keepKeyWallet?.features?.passphraseProtection)
       setPinCaching(
         keepKeyWallet?.features?.policiesList.find(p => p.policyName === 'Pin Caching')?.enabled
       )
@@ -116,12 +111,6 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
   }, [keepKeyWallet])
 
   const reset = () => dispatch({ type: KeepKeyActions.RESET_STATE })
-  const setAwaitingButtonPress = (activeRequest: boolean) => {
-    dispatch({
-      type: KeepKeyActions.SET_AWAITING_BUTTON_PRESS,
-      payload: activeRequest
-    })
-  }
 
   const updateStatus = (status: UpdateStatus) => {
     dispatch({
@@ -137,7 +126,6 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       state,
       dispatch,
       reset,
-      setAwaitingButtonPress,
       updateStatus,
       pinCaching,
       passphrase,

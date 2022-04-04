@@ -11,10 +11,10 @@ export const ChangeLabel = () => {
   const translate = useTranslate()
   const { state } = useWallet()
   const { walletInfo } = state
+  const { keepKeyWallet } = useKeepKey()
   const {
-    keepKeyWallet,
     state: { awaitingButtonPress }
-  } = useKeepKey()
+  } = useWallet()
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
   const handleChangeLabelInitializeEvent = async () => {

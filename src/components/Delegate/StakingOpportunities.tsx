@@ -98,7 +98,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const shapeshiftValidator = useAppSelector(state =>
     selectSingleValidator(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
   )
-  const stakingOpportunityDefault = [
+  const stakingOpportunities = [
     {
       ...shapeshiftValidator
     }
@@ -106,7 +106,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const nonLoadedValidators = useAppSelector(state =>
     selectNonloadedValidators(state, accountSpecifier)
   )
-  const isStaking = activeStakingOpportunities.length !== 0
+  const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
   const { chain } = caip19.fromCAIP19(assetId)
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         accessor: 'moniker',
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => (
-          <ValidatorName moniker={value} isStaking={isStaking} />
+          <ValidatorName moniker={value} isStaking={hasActiveStakingOpportunities} />
         ),
         disableSortBy: true
       },
@@ -189,9 +189,12 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         isNumeric: true,
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => {
-          return isStaking ? (
+          return hasActiveStakingOpportunities ? (
             <Amount.Crypto
-              value={bnOrZero(value).div(`1e+${asset.precision}`).toString()}
+              value={bnOrZero(value)
+                .div(`1e+${asset.precision}`)
+                .decimalPlaces(asset.precision)
+                .toString()}
               symbol={asset.symbol}
               color='white'
               fontWeight={'normal'}
@@ -207,7 +210,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
         accessor: 'rewards',
         display: { base: 'table-cell' },
         Cell: ({ value }: { value: string }) => {
-          return isStaking ? (
+          return hasActiveStakingOpportunities ? (
             <HStack fontWeight={'normal'}>
               <Amount.Crypto
                 value={bnOrZero(value)
@@ -261,9 +264,13 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       </Card.Header>
       <Card.Body pt={0}>
         <ReactTable
-          data={!isStaking && isLoaded ? stakingOpportunityDefault : activeStakingOpportunities}
+          data={
+            !hasActiveStakingOpportunities && isLoaded
+              ? stakingOpportunities
+              : activeStakingOpportunities
+          }
           columns={columns}
-          displayHeaders={isStaking}
+          displayHeaders={hasActiveStakingOpportunities}
           onRowClick={handleStakedClick}
         />
       </Card.Body>

@@ -6,7 +6,7 @@ import { DefiModalHeader } from 'plugins/cosmos/components/DefiModalHeader/DefiM
 import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 
 type GetStartedProps = {
   assetId: CAIP19

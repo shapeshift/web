@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
-import { FiatRampAction, GemCurrency } from '../../FiatRamps'
+import { FiatRampAction, GemCurrency } from '../../FiatRampsCommon'
 import { filterAssetsBySearchTerm } from '../../utils'
 import { AssetList } from './AssetList'
 

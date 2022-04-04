@@ -11,10 +11,11 @@ import { AnimatePresence } from 'framer-motion'
 import { useEffect } from 'react'
 import { Route, Switch, useHistory, useLocation, useRouteMatch } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
+import { WalletActions } from 'context/WalletProvider/actions'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { SUPPORTED_WALLETS } from './config'
 import { SelectModal } from './SelectModal'
-import { useWallet, WalletActions } from './WalletProvider'
 
 export const WalletViewsSwitch = () => {
   const history = useHistory()
@@ -29,7 +30,6 @@ export const WalletViewsSwitch = () => {
 
   const handleBack = () => {
     history.goBack()
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
     if (history.location.pathname === '/') {
@@ -55,7 +55,7 @@ export const WalletViewsSwitch = () => {
         <ModalOverlay />
         <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
-            {!match?.isExact && (
+            {!match?.isExact && !state.noBackButton && (
               <IconButton
                 icon={<ArrowBackIcon />}
                 aria-label='Back'

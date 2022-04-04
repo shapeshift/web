@@ -32,10 +32,21 @@ export type QuoteFeeData = {
 }
 
 export type BuildTxInput = {
-  gasPrice: string
   gasLimit: string
   erc20ContractAddress?: string
-}
+} & (
+  | {
+      gasPrice: string
+      maxFeePerGas?: never
+      maxPriorityFeePerGas?: never
+    }
+  | {
+      gasPrice?: never
+      maxFeePerGas: string
+      maxPriorityFeePerGas: string
+    }
+)
+
 export type GetFeeDataInput = {
   contractAddress?: string
   from: string

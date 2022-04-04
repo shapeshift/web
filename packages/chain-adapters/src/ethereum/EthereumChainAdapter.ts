@@ -133,7 +133,13 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         to,
         wallet,
         bip44Params = ChainAdapter.defaultBIP44Params,
-        chainSpecific: { erc20ContractAddress, gasPrice, gasLimit },
+        chainSpecific: {
+          erc20ContractAddress,
+          gasPrice,
+          gasLimit,
+          maxFeePerGas,
+          maxPriorityFeePerGas
+        },
         sendMax = false
       } = tx
 
@@ -164,7 +170,9 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         } else {
           if (new BigNumber(account.balance).isZero()) throw new Error('no balance')
 
-          const fee = new BigNumber(gasPrice).times(gasLimit)
+          // (The type system guarantees that either maxFeePerGas or gasPrice will be undefined, but not both)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const fee = new BigNumber((maxFeePerGas ?? gasPrice)!).times(gasLimit)
           tx.value = new BigNumber(account.balance).minus(fee).toString()
         }
       }
@@ -177,8 +185,18 @@ export class ChainAdapter implements IChainAdapter<ChainTypes.Ethereum> {
         chainId: 1, // TODO: implement for multiple chains
         data,
         nonce: numberToHex(chainSpecific.nonce),
-        gasPrice: numberToHex(gasPrice),
-        gasLimit: numberToHex(gasLimit)
+        gasLimit: numberToHex(gasLimit),
+        ...(gasPrice !== undefined
+          ? {
+              gasPrice: numberToHex(gasPrice)
+            }
+          : {
+              // (The type system guarantees that on this branch both of these will be set)
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              maxFeePerGas: numberToHex(maxFeePerGas!),
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas!)
+            })
       }
       return { txToSign }
     } catch (err) {

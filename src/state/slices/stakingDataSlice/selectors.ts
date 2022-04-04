@@ -343,27 +343,32 @@ export const selectActiveStakingOpportunityDataByDenom = createDeepEqualOutputSe
     allRewards,
     allValidators
   ): ActiveStakingOpportunity[] => {
-    const result = Object.entries(allValidators).map(([validatorAddress, { apr, moniker }]) => {
-      const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
+    return Object.entries(allValidators).reduce(
+      (acc: ActiveStakingOpportunity[], [validatorAddress, { apr, moniker }]) => {
+        const delegationsAmount = allDelegationsAmount[validatorAddress] ?? '0'
 
-      const undelegationsAmount = selectUndelegationsAmountByValidatorAddress(
-        allUndelegationsEntries,
-        validatorAddress
-      )
+        const undelegationsAmount = selectUndelegationsAmountByValidatorAddress(
+          allUndelegationsEntries,
+          validatorAddress
+        )
 
-      const rewards = selectRewardsAmountByValidatorAddress(allRewards, validatorAddress)
+        const rewards = selectRewardsAmountByValidatorAddress(allRewards, validatorAddress)
 
-      const cryptoAmount = selectTotalCryptoAmount(delegationsAmount, undelegationsAmount)
+        const cryptoAmount = selectTotalCryptoAmount(delegationsAmount, undelegationsAmount)
 
-      return {
-        address: validatorAddress,
-        apr,
-        moniker,
-        cryptoAmount,
-        rewards
-      }
-    })
+        if (cryptoAmount !== '0' || rewards !== '0') {
+          acc.push({
+            address: validatorAddress,
+            apr,
+            moniker,
+            cryptoAmount,
+            rewards
+          })
+        }
 
-    return result.filter(x => x.cryptoAmount !== '0' || x.rewards !== '0')
+        return acc
+      },
+      []
+    )
   }
 )

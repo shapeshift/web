@@ -25,7 +25,11 @@ type StakedProps = {
   accountSpecifier: CAIP10
 }
 
-export const Overview = ({ assetId, validatorAddress, accountSpecifier }: StakedProps) => {
+export const Overview: React.FC<StakedProps> = ({
+  assetId,
+  validatorAddress,
+  accountSpecifier
+}) => {
   const stakingDataStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = stakingDataStatus === 'loaded'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))

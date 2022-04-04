@@ -15,8 +15,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
-  ASSET_ID_TO_DENOM,
-  selectRewardsAmountByDenom,
+  selectRewardsAmountByAssetId,
   selectStakingDataStatus,
   selectTotalBondingsBalanceByAccountSpecifier,
   selectUnbondingEntriesByAccountSpecifier
@@ -88,7 +87,7 @@ export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
       state,
       accountSpecifier,
       validatorAddress,
-      ASSET_ID_TO_DENOM[asset.caip19]
+      asset.caip19
     )
   )
   const undelegationEntries = useAppSelector(state =>
@@ -96,12 +95,7 @@ export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByDenom(
-      state,
-      accountSpecifier,
-      validatorAddress,
-      ASSET_ID_TO_DENOM[asset.caip19]
-    )
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
   )
 
   return (

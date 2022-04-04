@@ -28,8 +28,7 @@ import {
 } from 'state/slices/selectors'
 import {
   ActiveStakingOpportunity,
-  ASSET_ID_TO_DENOM,
-  selectActiveStakingOpportunityDataByDenom,
+  selectActiveStakingOpportunityDataByAssetId,
   selectNonloadedValidators,
   selectSingleValidator,
   selectStakingDataStatus,
@@ -90,11 +89,11 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
   const accountSpecifier = accountSpecifiersForChainId?.[0]
 
   const activeStakingOpportunities = useAppSelector(state =>
-    selectActiveStakingOpportunityDataByDenom(
+    selectActiveStakingOpportunityDataByAssetId(
       state,
       accountSpecifier,
       SHAPESHIFT_VALIDATOR_ADDRESS,
-      ASSET_ID_TO_DENOM[asset.caip19]
+      asset.caip19
     )
   )
 

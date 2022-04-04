@@ -8,14 +8,14 @@ import {
   Stack,
   useColorModeValue
 } from '@chakra-ui/react'
-import { Asset } from '@shapeshiftoss/types'
 import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { useModal } from 'hooks/useModal/useModal'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAccountSpecifier, selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import {
   ClaimPath,
@@ -86,11 +86,13 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
     close()
   }
 
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId
-  }))(assetId) as Asset
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const accountSpecifiersForChainId = useAppSelector(state =>
+    selectAccountSpecifier(state, asset?.caip2)
+  )
+  const accountSpecifier = accountSpecifiersForChainId?.[0]
+
+  if (!asset || !accountSpecifier) return null
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered initialFocusRef={initialRef}>
@@ -174,22 +176,18 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
             />
           </Route>
           <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
-            <ClaimConfirm
-              cryptoStakeAmount={bnOrZero('0.04123')}
-              fiatAmountAvailable='0.2365'
-              assetId={assetId}
-            />
+            <ClaimConfirm assetId={assetId} accountSpecifier={accountSpecifier} />
           </Route>
           <Route exact key={ClaimPath.Broadcast} path={ClaimPath.Broadcast}>
             <ClaimBroadcast
-              cryptoStakeAmount={location.state?.cryptoAmount}
-              fiatAmountAvailable='0.2365'
+              fiatRate={location.state?.fiatRate}
+              cryptoAmount={location.state?.cryptoAmount}
               assetId={assetId}
               isLoading={true}
             />
           </Route>
           <Route key={StakeRoutes.Overview} path='/'>
-            <Overview assetId={assetId} />
+            <Overview assetId={assetId} accountSpecifier={accountSpecifier} />
           </Route>
         </Switch>
       </ModalContent>

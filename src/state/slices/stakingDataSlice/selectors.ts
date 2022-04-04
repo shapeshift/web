@@ -50,7 +50,7 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
     return stakingData?.delegations?.reduce(
       (acc, delegation) => bnOrZero(acc).plus(delegation.amount).toString(),
       '0'
-    )
+    ) && '0'
   }
 )
 

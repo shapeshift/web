@@ -1,17 +1,13 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/react'
-import { caip10, CAIP19 } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
@@ -26,48 +22,16 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 type StakedProps = {
   assetId: CAIP19
   validatorAddress: string
+  accountSpecifier: CAIP10
 }
 
-export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
+export const Overview = ({ assetId, validatorAddress, accountSpecifier }: StakedProps) => {
   const stakingDataStatus = useAppSelector(selectStakingDataStatus)
   const isLoaded = stakingDataStatus === 'loaded'
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
-  const [address, setAddress] = useState<string>('')
-  const accountSpecifier = useMemo(() => {
-    if (!address.length) return ''
-
-    return caip10.toCAIP10({
-      caip2: asset.caip2,
-      account: address
-    })
-  }, [address, asset.caip2])
-
-  const chainAdapterManager = useChainAdapters()
-  const {
-    state: { wallet }
-  } = useWallet()
   const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    ;(async () => {
-      const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
-      setChainAdapter(cosmosChainAdapter)
-    })()
-  })
-
-  useEffect(() => {
-    ;(async () => {
-      if (!chainAdapter || !wallet || !asset) return
-
-      const address = await chainAdapter.getAddress({
-        wallet
-      })
-      setAddress(address)
-    })()
-  }, [chainAdapter, wallet, asset])
 
   useEffect(() => {
     ;(async () => {
@@ -108,7 +72,7 @@ export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
           justifyContent='space-between'
         >
           <Skeleton
-            isLoaded={isLoaded}
+            isLoaded={Boolean(isLoaded && accountSpecifier)}
             width='100%'
             minHeight='48px'
             mb='30px'

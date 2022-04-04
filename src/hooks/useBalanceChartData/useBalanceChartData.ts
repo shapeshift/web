@@ -1,7 +1,12 @@
 import { CAIP2, caip2, caip10, CAIP19 } from '@shapeshiftoss/caip'
 import { RebaseHistory } from '@shapeshiftoss/investor-foxy'
-import { ChainTypes, HistoryData, HistoryTimeframe, NetworkTypes } from '@shapeshiftoss/types'
-import { chainAdapters } from '@shapeshiftoss/types'
+import {
+  chainAdapters,
+  ChainTypes,
+  HistoryData,
+  HistoryTimeframe,
+  NetworkTypes
+} from '@shapeshiftoss/types'
 import { BigNumber } from 'bignumber.js'
 import dayjs from 'dayjs'
 import fill from 'lodash/fill'
@@ -37,8 +42,7 @@ import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { includeStakedBalance } from './cosmosUtils'
-import { skipCosmosTx } from './cosmosUtils'
+import { includeStakedBalance, includeTransaction } from './cosmosUtils'
 
 type PriceAtBlockTimeArgs = {
   date: number
@@ -147,7 +151,7 @@ export const bucketEvents = (
   const txAndRebaseEvents = [...txs, ...rebases]
 
   // events are potentially a lot longer than buckets, iterate the long list once
-  const bucketsWithEvents = txAndRebaseEvents.reduce((acc, event) => {
+  return txAndRebaseEvents.reduce((acc, event) => {
     const eventDayJs = dayjs(event.blockTime * 1000) // unchained uses seconds
     const eventOutsideDomain = eventDayJs.isBefore(start) || eventDayJs.isAfter(end)
     if (eventOutsideDomain) return acc
@@ -167,8 +171,6 @@ export const bucketEvents = (
 
     return acc
   }, buckets)
-
-  return bucketsWithEvents
 }
 
 type FiatBalanceAtBucketArgs = {
@@ -189,7 +191,8 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
   const { balance, end } = bucket
   const date = end.valueOf()
   const { crypto } = balance
-  const result = Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
+
+  return Object.entries(crypto).reduce((acc, [caip19, assetCryptoBalance]) => {
     const assetPriceHistoryData = priceHistoryData[caip19]
     if (!assetPriceHistoryData?.length) return acc
     const price = priceAtBlockTime({ assetPriceHistoryData, date })
@@ -201,8 +204,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
     return acc.plus(assetFiatBalance)
   }, bn(0))
-
-  return result
 }
 
 type CalculateBucketPricesArgs = {
@@ -248,12 +249,13 @@ export const calculateBucketPrices: CalculateBucketPrices = args => {
       }
 
       // Identify Special cases where we should not include cosmos delegate/undelegate txs in chart balance
-      const skipBucketBalanceChange = skipCosmosTx(tx)
+      const includeTx = includeTransaction(tx)
 
       tx.transfers.forEach(transfer => {
         const asset = transfer.caip19
 
-        if (!assetIds.includes(asset) || !skipBucketBalanceChange) return
+        if (!assetIds.includes(asset)) return
+        if (!includeTx) return
 
         const bucketValue = bnOrZero(bucket.balance.crypto[asset])
         const transferValue = bnOrZero(transfer.value)
@@ -394,8 +396,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     // data prep
     const noDeviceId = isNil(walletInfo?.deviceId)
     const noAssetIds = !assetIds.length
-    const noPriceHistory = priceHistoryDataLoading
-    if (noDeviceId || noAssetIds || noPriceHistory) {
+    if (noDeviceId || noAssetIds || priceHistoryDataLoading) {
       return setBalanceChartDataLoading(true)
     }
 
@@ -432,6 +433,5 @@ export const useBalanceChartData: UseBalanceChartData = args => {
     delegationTotal
   ])
 
-  const result = { balanceChartData, balanceChartDataLoading }
-  return result
+  return { balanceChartData, balanceChartDataLoading }
 }

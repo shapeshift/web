@@ -12,9 +12,9 @@ const cosmosCaip19 = caip19.toCAIP19({
   assetReference: AssetReference.Cosmos
 })
 
-export const skipCosmosTx = (tx: Tx) =>
+export const includeTransaction = (tx: Tx): boolean =>
   tx.data?.parser === 'cosmos' &&
-  (tx?.data.method === 'delegate' || tx?.data.method === 'begin_unbonding')
+  !(tx?.data.method === 'delegate' || tx?.data.method === 'begin_unbonding')
 
 export const includeStakedBalance = (
   startingBucket: Bucket,

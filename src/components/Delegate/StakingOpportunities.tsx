@@ -9,7 +9,7 @@ import {
   Tag,
   TagLabel
 } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import { CAIP19, caip19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { MouseEvent, useEffect, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -109,6 +109,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     selectNonloadedValidators(state, accountSpecifier)
   )
   const isStaking = activeStakingOpportunities.length !== 0
+  const { chain } = caip19.fromCAIP19(assetId)
 
   useEffect(() => {
     ;(async () => {
@@ -128,13 +129,10 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       if (isValidatorDataLoaded) return
 
       dispatch(
-        stakingDataApi.endpoints.getAllValidatorsData.initiate(
-          { chainId: 'cosmos:cosmoshub-4' },
-          { forceRefetch: true }
-        )
+        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chain }, { forceRefetch: true })
       )
     })()
-  }, [isValidatorDataLoaded, dispatch])
+  }, [isValidatorDataLoaded, dispatch, chain])
 
   useEffect(() => {
     ;(async () => {
@@ -143,24 +141,24 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       nonLoadedValidators.forEach(validatorAddress => {
         dispatch(
           stakingDataApi.endpoints.getValidatorData.initiate(
-            { chainId: 'cosmos:cosmoshub-4', validatorAddress: validatorAddress },
+            { chain, validatorAddress },
             { forceRefetch: true }
           )
         )
       })
     })()
-  }, [isValidatorDataLoaded, nonLoadedValidators, dispatch])
+  }, [isValidatorDataLoaded, nonLoadedValidators, dispatch, chain])
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 
   const handleGetStartedClick = (e: MouseEvent<HTMLButtonElement>) => {
-    cosmosGetStarted.open({ assetId: 'cosmos:cosmoshub-4/slip44:118' })
+    cosmosGetStarted.open({ assetId })
     e.stopPropagation()
   }
 
   const handleStakedClick = (values: Row<ActiveStakingOpportunity>) => {
     cosmosStaking.open({
-      assetId: 'cosmos:cosmoshub-4/slip44:118',
+      assetId,
       validatorAddress: values.original.address
     })
   }

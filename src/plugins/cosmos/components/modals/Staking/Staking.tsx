@@ -14,7 +14,7 @@ import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { RouteSteps } from 'components/RouteSteps/RouteSteps'
 import { useModal } from 'hooks/useModal/useModal'
-import { selectAssetByCAIP19, selectPubkeyishByChainId } from 'state/slices/selectors'
+import { selectAccountSpecifier, selectAssetByCAIP19 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import {
@@ -88,7 +88,7 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const accountSpecifiersForChainId = useAppSelector(state =>
-    selectPubkeyishByChainId(state, asset?.caip2)
+    selectAccountSpecifier(state, asset?.caip2)
   )
   const accountSpecifier = accountSpecifiersForChainId?.[0]
 

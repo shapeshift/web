@@ -1,7 +1,7 @@
 import { Box, Flex, Heading, Image, Skeleton, SkeletonCircle } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import {

@@ -4,7 +4,7 @@ import { ethereum, fox } from 'test/mocks/assets'
 import { ethereumTransactions, FOXSend } from 'test/mocks/txs'
 import { bn } from 'lib/bignumber/bignumber'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSlice'
+import { PortfolioAssets } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import {
   Bucket,
@@ -132,7 +132,6 @@ describe('calculateBucketPrices', () => {
     const portfolioAssets: PortfolioAssets = {
       [ethCaip19]: ethereum
     }
-
     const emptyBuckets = makeBuckets({ assetIds, balances, timeframe })
     const rebases: RebaseHistory[] = []
     const buckets = bucketEvents(txs, rebases, emptyBuckets)

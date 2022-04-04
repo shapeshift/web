@@ -13,16 +13,19 @@ import reverse from 'lodash/reverse'
 import sortedIndexBy from 'lodash/sortedIndexBy'
 import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { AccountSpecifier } from 'state/slices/accountSpecifiersSlice/accountSpecifiersSlice'
 import { PriceHistoryData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { PortfolioAssets, PortfolioBalancesById } from 'state/slices/portfolioSlice/portfolioSlice'
+import {
+  PortfolioAssets,
+  PortfolioBalancesById
+} from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectPortfolioAssets,
-  selectPortfolioCryptoBalancesByAccountId,
+  selectPortfolioCryptoBalancesByAccountIdAboveThreshold,
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoriesUnavailableByAssetTimeframe,
   selectPriceHistoryTimeframe,
@@ -191,7 +194,6 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     }
     const { precision } = portfolioAsset
     const assetFiatBalance = assetCryptoBalance.div(bn(10).exponentiatedBy(precision)).times(price)
-
     return acc.plus(assetFiatBalance)
   }, bn(0))
 
@@ -309,7 +311,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const [balanceChartData, setBalanceChartData] = useState<HistoryData[]>([])
   // dummy assetId - we're only filtering on account
   const balances = useAppSelector(state =>
-    selectPortfolioCryptoBalancesByAccountId(state, accountId)
+    selectPortfolioCryptoBalancesByAccountIdAboveThreshold(state, accountId)
   )
   const portfolioAssets = useSelector(selectPortfolioAssets)
   const {

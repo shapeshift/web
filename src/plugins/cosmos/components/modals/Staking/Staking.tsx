@@ -1,53 +1,77 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import { CAIP19 } from '@shapeshiftoss/caip'
+import {
+  Heading,
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  useColorModeValue
+} from '@chakra-ui/react'
+import { Asset } from '@shapeshiftoss/types'
+import { CosmosActionButtons } from 'plugins/cosmos/components/CosmosActionButtons/CosmosActionButtons'
 import { useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { matchPath, MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router-dom'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { RouteSteps } from 'components/RouteSteps/RouteSteps'
+import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { ClaimConfirmRouter } from './views/ClaimConfirmRouter'
+import {
+  ClaimPath,
+  claimSteps,
+  entries,
+  StakeRoutes,
+  stakeSteps,
+  StakingModalLocation,
+  StakingModalProps,
+  StakingPath,
+  unstakeSteps,
+  UnstakingPath
+} from './StakingCommon'
+import { ClaimBroadcast } from './views/ClaimBroadcast'
+import { ClaimConfirm } from './views/ClaimConfirm'
 import { Overview } from './views/Overview'
 import { Stake } from './views/Stake'
-import { StakeConfirmRouter, StakingConfirmProps } from './views/StakeConfirmRouter'
+import { StakeBroadcast } from './views/StakeBroadcast'
+import { StakeConfirm } from './views/StakeConfirm'
 import { Unstake } from './views/Unstake'
-import { UnstakeConfirmRouter } from './views/UnstakeConfirmRouter'
+import { UnstakeBroadcast } from './views/UnstakeBroadcast'
+import { UnstakeConfirm } from './views/UnstakeConfirm'
 
-export enum StakingAction {
-  Stake = 'stake',
-  Unstake = 'unstake',
-  Overview = 'overview',
-  Claim = 'claim'
-}
-
-type StakingModalProps = {
-  assetId: CAIP19
-  action: StakingAction
-}
-
-export enum StakeRoutes {
-  Stake = '/stake',
-  Unstake = '/unstake',
-  StakeConfirm = '/stake/confirm',
-  UnstakeConfirm = '/unstake/confirm',
-  Overview = '/stake/overview',
-  Claim = '/claim'
-}
-
-export const entries = [
-  StakeRoutes.Stake,
-  StakeRoutes.Unstake,
-  StakeRoutes.StakeConfirm,
-  StakeRoutes.UnstakeConfirm,
-  StakeRoutes.Overview
-]
-
-const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
-  const location = useLocation<StakingConfirmProps>()
+const StakingModalContent = ({ assetId }: StakingModalProps) => {
+  const location = useLocation<StakingModalLocation>()
   const history = useHistory()
-  const isConfirmStep = matchPath(location.pathname, {
-    path: [StakeRoutes.StakeConfirm, StakeRoutes.UnstakeConfirm],
+  const translate = useTranslate()
+
+  const isOverview = matchPath(location.pathname, {
+    path: StakeRoutes.Overview,
     exact: true
   })
+
+  const isClaim = matchPath(location.pathname, {
+    path: [ClaimPath.Confirm, ClaimPath.Broadcast],
+    exact: true
+  })
+
+  const isStake = matchPath(location.pathname, {
+    path: [StakeRoutes.Stake, StakingPath.Confirm, StakingPath.Broadcast],
+    exact: true
+  })
+
+  const isUnstake = matchPath(location.pathname, {
+    path: [StakeRoutes.Unstake, UnstakingPath.Confirm, UnstakingPath.Broadcast],
+    exact: true
+  })
+
+  const getCurrentSteps = () => {
+    if (isStake) return stakeSteps
+    if (isUnstake) return unstakeSteps
+
+    return claimSteps
+  }
+
+  const headerBg = useColorModeValue('gray.50', 'gray.800')
 
   const initialRef = useRef<HTMLInputElement>(null)
   const { cosmosStaking } = useModal()
@@ -58,15 +82,36 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
   }
 
   const handleClose = () => {
-    history.goBack()
+    history.push(StakeRoutes.Overview)
     close()
   }
 
-  const renderStakingRoutes = () => {
-    if (action === StakingAction.Stake)
-      return (
-        <>
-          <Route exact path={StakeRoutes.Stake}>
+  const asset = (_ => ({
+    name: 'Osmosis',
+    symbol: 'OSMO',
+    caip19: assetId
+  }))(assetId) as Asset
+
+  return (
+    <Modal isOpen={isOpen} onClose={handleClose} isCentered initialFocusRef={initialRef}>
+      <ModalOverlay />
+      <ModalContent width='100%' maxWidth='440px'>
+        <ModalHeader textAlign='center' bg={headerBg} borderTopRadius='xl'>
+          <Stack width='full' alignItems='center' spacing={2}>
+            <Heading textTransform='capitalize' textAlign='center' fontSize='md'>
+              {!isClaim
+                ? translate('defi.assetStaking', { assetName: asset.symbol })
+                : translate('defi.claimAsset')}
+            </Heading>
+            {!isClaim && <CosmosActionButtons asset={asset} />}
+          </Stack>
+        </ModalHeader>
+        {!isOverview && (
+          <RouteSteps assetSymbol={asset.symbol} routes={getCurrentSteps()} location={location} />
+        )}
+        <ModalCloseButton borderRadius='full' />
+        <Switch location={location}>
+          <Route exact key={StakeRoutes.Stake} path={StakeRoutes.Stake}>
             <Stake
               assetId={assetId}
               apr='0.12'
@@ -80,29 +125,42 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               }}
             />
           </Route>
-          <Route path={StakeRoutes.StakeConfirm}>
-            <StakeConfirmRouter
-              cryptoAmount={location.state?.cryptoAmount}
-              assetId={location.state?.assetId}
-              fiatRate={location.state?.fiatRate}
+          <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
+            <StakeConfirm
               apr={location.state?.apr}
-              onCancel={handleCancel}
-            />
-          </Route>
-        </>
-      )
-    if (action === StakingAction.Unstake)
-      return (
-        <>
-          <Route exact path={StakeRoutes.UnstakeConfirm}>
-            <UnstakeConfirmRouter
+              cryptoStakeAmount={location.state?.cryptoAmount}
               assetId={assetId}
-              cryptoAmount={location.state?.cryptoAmount}
               fiatRate={location.state?.fiatRate}
               onCancel={handleCancel}
             />
           </Route>
-          <Route exact path='/stake'>
+          <Route exact key={StakingPath.Broadcast} path={StakingPath.Broadcast}>
+            <StakeBroadcast
+              apr={location.state?.apr}
+              cryptoStakeAmount={location.state?.cryptoAmount}
+              assetId={assetId}
+              fiatRate={location.state?.fiatRate}
+              onCancel={handleCancel}
+            />
+          </Route>
+          <Route exact key={UnstakingPath.Confirm} path={UnstakingPath.Confirm}>
+            <UnstakeConfirm
+              assetId={assetId}
+              cryptoUnstakeAmount={location.state?.cryptoAmount}
+              fiatRate={location.state?.fiatRate}
+              onCancel={handleCancel}
+            />
+          </Route>
+          <Route exact key={UnstakingPath.Broadcast} path={UnstakingPath.Broadcast}>
+            <UnstakeBroadcast
+              assetId={assetId}
+              cryptoUnstakeAmount={location.state?.cryptoAmount}
+              fiatRate={location.state?.fiatRate}
+              isLoading={true}
+              validatorName='Shapeshift Validator'
+            />
+          </Route>
+          <Route exact key={StakeRoutes.Unstake} path={StakeRoutes.Unstake}>
             <Unstake
               assetId={assetId}
               apr='0.12'
@@ -115,46 +173,31 @@ const StakingModalContent = ({ assetId, action }: StakingModalProps) => {
               }}
             />
           </Route>
-        </>
-      )
-    if (action === StakingAction.Overview)
-      return (
-        <Route path='/'>
-          <Overview assetId={assetId} />
-        </Route>
-      )
-
-    if (action === StakingAction.Claim)
-      return (
-        <>
-          <Route exact path={StakeRoutes.Stake}>
-            <ClaimConfirmRouter
-              cryptoAmount={bnOrZero('0.04123')}
+          <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
+            <ClaimConfirm
+              cryptoStakeAmount={bnOrZero('0.04123')}
               fiatAmountAvailable='0.2365'
               assetId={assetId}
             />
           </Route>
-        </>
-      )
-  }
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isCentered
-      initialFocusRef={initialRef}
-      variant={isConfirmStep ? 'fluid' : ''}
-    >
-      <ModalOverlay />
-      <ModalContent>
-        <Switch location={location}>{renderStakingRoutes()}</Switch>
+          <Route exact key={ClaimPath.Broadcast} path={ClaimPath.Broadcast}>
+            <ClaimBroadcast
+              cryptoStakeAmount={location.state?.cryptoAmount}
+              fiatAmountAvailable='0.2365'
+              assetId={assetId}
+              isLoading={true}
+            />
+          </Route>
+          <Route key={StakeRoutes.Overview} path='/'>
+            <Overview assetId={assetId} />
+          </Route>
+        </Switch>
       </ModalContent>
     </Modal>
   )
 }
-export const StakingModal = ({ assetId, action }: StakingModalProps) => (
+export const StakingModal = ({ assetId }: StakingModalProps) => (
   <MemoryRouter initialEntries={entries}>
-    <StakingModalContent assetId={assetId} action={action} />
+    <StakingModalContent assetId={assetId} />
   </MemoryRouter>
 )

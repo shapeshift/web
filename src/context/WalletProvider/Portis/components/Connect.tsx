@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
-import { KeyManager, SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { setLocalWalletTypeAndDeviceId } from 'context/WalletProvider/local-wallet'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import { ActionTypes, useWallet, WalletActions } from '../../WalletProvider'
+import { PortisConfig } from '../config'
 
 export interface PortisSetupProps
   extends RouteComponentProps<
@@ -32,7 +34,7 @@ export const PortisConnect = ({ history }: PortisSetupProps) => {
         throw new Error('Call to hdwallet-portis::pairDevice returned null or undefined')
       }
 
-      const { name, icon } = SUPPORTED_WALLETS[KeyManager.Portis]
+      const { name, icon } = PortisConfig
       try {
         await wallet.initialize()
 

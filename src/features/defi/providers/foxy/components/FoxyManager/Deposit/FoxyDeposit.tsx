@@ -19,10 +19,7 @@ import { Approve } from 'features/defi/components/Approve/Approve'
 import { Confirm } from 'features/defi/components/Confirm/Confirm'
 import { Deposit, DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
-import {
-  DefiParams,
-  DefiQueryParams
-} from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
+import { DefiParams, DefiQueryParams } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { AnimatePresence } from 'framer-motion'
 import isNil from 'lodash/isNil'
 import { useEffect, useReducer } from 'react'
@@ -37,9 +34,9 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RouteSteps, StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
-import { useBrowserRouter } from 'context/BrowserRouterProvider/BrowserRouterProvider'
 import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'context/WalletProvider/WalletProvider'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -122,17 +119,12 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
       try {
         if (!walletState.wallet || !contractAddress) return
         const chainAdapter = await chainAdapterManager.byChainId('eip155:1')
-        const [address, foxyOpportunity, pricePerShare] = await Promise.all([
+        const [address, foxyOpportunity] = await Promise.all([
           chainAdapter.getAddress({ wallet: walletState.wallet }),
-          api.getFoxyOpportunityByStakingAddress(contractAddress),
-          api.pricePerShare()
+          api.getFoxyOpportunityByStakingAddress(contractAddress)
         ])
         dispatch({ type: FoxyDepositActionType.SET_USER_ADDRESS, payload: address })
         dispatch({ type: FoxyDepositActionType.SET_OPPORTUNITY, payload: foxyOpportunity })
-        dispatch({
-          type: FoxyDepositActionType.SET_PRICE_PER_SHARE,
-          payload: pricePerShare.toString()
-        })
       } catch (error) {
         // TODO: handle client side errors
         console.error('FoxyDeposit error:', error)
@@ -423,6 +415,8 @@ export const FoxyDeposit = ({ api }: FoxyDepositProps) => {
           <Confirm
             onCancel={handleCancel}
             onConfirm={handleDeposit}
+            loading={state.loading}
+            loadingText={translate('common.confirmOnWallet')}
             headerText='modals.confirm.deposit.header'
             assets={[
               {

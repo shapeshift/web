@@ -4,7 +4,8 @@ import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
-import { SendFormFields, SendInput } from './Form'
+import type { SendInput } from './Form'
+import { SendFormFields } from './SendCommon'
 import { FeePrice } from './views/Confirm'
 
 type TxFeeRadioGroupProps = {

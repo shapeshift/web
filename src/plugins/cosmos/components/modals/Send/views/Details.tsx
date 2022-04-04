@@ -24,17 +24,18 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { Amount } from 'components/Amount/Amount'
-import { SendFormFields } from 'components/Modals/Send/Form'
 import { useSendDetails } from 'components/Modals/Send/hooks/useSendDetails/useSendDetails'
-import { SendRoutes } from 'components/Modals/Send/Send'
+import { SendFormFields } from 'components/Modals/Send/SendCommon'
+import { SendRoutes } from 'components/Modals/Send/SendCommon'
 import { SendMaxButton } from 'components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { TokenRow } from 'components/TokenRow/TokenRow'
-import { useModal } from 'context/ModalProvider/ModalProvider'
+import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import { SendFormFields as CosmosSendFormFields, SendInput } from '../Form'
+import type { SendInput } from '../Form'
+import { SendFormFields as CosmosSendFormFields } from '../SendCommon'
 
 const MAX_MEMO_LENGTH = 256
 

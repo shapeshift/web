@@ -2,6 +2,8 @@ import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
+import { BigNumber } from 'lib/bignumber/bignumber'
+import lodash from 'lodash'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -47,8 +49,10 @@ export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelect
   stakingData => {
     // We make the assumption that all delegation rewards come from a single denom (asset)
     // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
-    return lodash.reduce(stakingData?.delegations,
-      (acc, delegation) => bnOrZero(acc).plus(delegation.amount).toString(), new BigNumber('0')
+    return lodash.reduce(
+      stakingData?.delegations,
+      (acc, delegation) => bnOrZero(acc).plus(delegation.amount).toString(),
+      new BigNumber('0').toString()
     )
   }
 )

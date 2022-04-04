@@ -37,8 +37,8 @@ import { selectRebasesByFilter } from 'state/slices/txHistorySlice/selectors'
 import { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-import { includeStakedBalance } from './cosmoUtils'
-import { skipCosmosTx } from './cosmoUtils'
+import { includeStakedBalance } from './cosmosUtils'
+import { skipCosmosTx } from './cosmosUtils'
 
 type PriceAtBlockTimeArgs = {
   date: number

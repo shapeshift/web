@@ -26,7 +26,7 @@ export const includeStakedBalance = (
   if (assetIds.includes(cosmosCaip19)) {
     newStartingBucket.balance.crypto[cosmosCaip19] = newStartingBucket.balance.crypto[cosmosCaip19]
       ? newStartingBucket.balance.crypto[cosmosCaip19].plus(totalCosmosStaked)
-      : new BigNumber(totalCosmosStaked)
+      : bnOrZero(totalCosmosStaked)
   }
   return newStartingBucket
 }

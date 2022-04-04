@@ -23,9 +23,8 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   const { next, data, hasMore } = useInfiniteScroll(txIds)
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
-  if (txHistoryStatus === 'loading' && !data.length) {
-    return <TransactionsLoading />
-  }
+  if (txHistoryStatus === 'loading' && !data.length) return <TransactionsLoading />
+
   return data.length ? (
     <Card.Body px={0} pt={0}>
       <InfiniteScroll

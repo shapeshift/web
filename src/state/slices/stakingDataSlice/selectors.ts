@@ -299,11 +299,8 @@ export const getRewardsAmountByValidatorAddress = memoize(
     get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
 )
 
-export const getTotalCryptoAmount = memoize(
-  (delegationsAmount: string, undelegationsAmount: string) => {
-    return bnOrZero(delegationsAmount).plus(bnOrZero(undelegationsAmount)).toString()
-  }
-)
+export const getTotalCryptoAmount = (delegationsAmount: string, undelegationsAmount: string) =>
+  bnOrZero(delegationsAmount).plus(bnOrZero(undelegationsAmount)).toString()
 
 export const selectActiveStakingOpportunityDataByAssetId = createDeepEqualOutputSelector(
   selectAllDelegationsCryptoAmountByAssetId,

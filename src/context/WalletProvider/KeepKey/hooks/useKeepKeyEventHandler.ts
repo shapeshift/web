@@ -22,6 +22,7 @@ export const useKeepKeyEventHandler = (
       const deviceId = e[0]
       switch (e[1].message_enum) {
         case MessageType.SUCCESS:
+          setAwaitingButtonPress(false)
           loadWallet()
           updateStatus('success')
           break

@@ -13,7 +13,7 @@ const cosmosCaip19 = caip19.toCAIP19({
 })
 
 export const includeTransaction = (tx: Tx): boolean =>
-  tx.data?.parser === 'cosmos' &&
+  tx.data?.parser !== 'cosmos' ||
   !(tx?.data.method === 'delegate' || tx?.data.method === 'begin_unbonding')
 
 export const includeStakedBalance = (

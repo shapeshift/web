@@ -35,6 +35,7 @@ import {
   selectTxIds,
   selectTxs
 } from 'state/slices/selectors'
+import { deserializeUniqueTxId } from 'state/slices/txHistorySlice/utils'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -193,23 +194,17 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     const tx = txsById[txId]
     // always wear protection, or don't it's your choice really
     if (!tx) return
-    // the chain the tx came from
-    const txRelatedAccount = txId.split('-')[0]
+    // the accountSpecifier the tx came from
+    const { txAccountSpecifier } = deserializeUniqueTxId(txId)
     // only refetch accounts for this tx
     const accountSpecifierMap = accountSpecifiersList.reduce((acc, cur) => {
       const [chainId, accountSpecifier] = Object.entries(cur)[0]
       const accountId = chainId + ':' + accountSpecifier
-      // NOTE: in case of ethereum on Portis wallet, accountId contains both
-      // lower and upper case characters, but txRelatedAccount is only in lower chars
-      if (accountId.toLowerCase() === txRelatedAccount || accountId === txRelatedAccount)
-        acc[chainId] = accountSpecifier
+      if (accountId === txAccountSpecifier) acc[chainId] = accountSpecifier
       return acc
     }, {})
     dispatch(
-      portfolioApi.endpoints.getAccount.initiate(
-        { accountSpecifierMap, basedOnNewTx: true },
-        { forceRefetch: true }
-      )
+      portfolioApi.endpoints.getAccount.initiate({ accountSpecifierMap }, { forceRefetch: true })
     )
     // txsById changes on each tx - as txs have more confirmations
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,7 +2,7 @@ import { CAIP19 } from '@shapeshiftoss/caip'
 import intersection from 'lodash/intersection'
 import union from 'lodash/union'
 
-import { Tx } from './txHistorySlice'
+import { Tx, TxId } from './txHistorySlice'
 
 export const getRelatedAssetIds = (tx: Tx): CAIP19[] => {
   // we only want unique ids
@@ -23,3 +23,10 @@ export const getRelatedAssetIds = (tx: Tx): CAIP19[] => {
  */
 export const addToIndex = <T>(parentIndex: T[], childIndex: T[], newItem: T): T[] =>
   intersection(parentIndex, union(childIndex, [newItem]))
+
+type DeserializeUniqueTxId = { txAccountSpecifier: string; txid: string; txAddress: string }
+
+export const deserializeUniqueTxId = (txId: TxId): DeserializeUniqueTxId => {
+  const [txAccountSpecifier, txid, txAddress] = txId.split('-')
+  return { txAccountSpecifier, txid, txAddress }
+}

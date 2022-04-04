@@ -2,20 +2,22 @@ import { InfoOutlineIcon } from '@chakra-ui/icons'
 import { Flex } from '@chakra-ui/layout'
 import { Button, Link, ModalCloseButton, Text as CText, Tooltip } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset } from '@shapeshiftoss/types'
 import { chainAdapters } from '@shapeshiftoss/types'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type ClaimBroadcastProps = {
   assetId: CAIP19
-  cryptoStakeAmount: BigNumber
-  fiatAmountAvailable: string
+  cryptoAmount: BigNumber
+  fiatRate: BigNumber
   isLoading: boolean
 }
 
@@ -27,11 +29,10 @@ export type ClaimBroadcastParams = {
   [Field.FeeType]: chainAdapters.FeeDataKey
 }
 
-// TODO: Wire up the whole component with staked data
 export const ClaimBroadcast = ({
   assetId,
-  cryptoStakeAmount,
-  fiatAmountAvailable,
+  cryptoAmount,
+  fiatRate,
   isLoading
 }: ClaimBroadcastProps) => {
   const { cosmosStaking } = useModal()
@@ -40,13 +41,17 @@ export const ClaimBroadcast = ({
 
   const handleClose = cosmosStaking.close
 
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId,
-    chain: 'osmosis'
-  }))(assetId) as Asset
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+
+  const rewardsCryptoAmountPrecision = useMemo(
+    () => bnOrZero(cryptoAmount).div(`1e+${asset.precision}`).toString(),
+    [asset.precision, cryptoAmount]
+  )
+  const rewardsFiatAmountPrecision = useMemo(
+    () => bnOrZero(rewardsCryptoAmountPrecision).times(fiatRate).toString(),
+    [fiatRate, rewardsCryptoAmountPrecision]
+  )
+
   const txDetails = {
     explorerTxLink: 'https://etherscan.io/tx/',
     tx: {
@@ -68,10 +73,10 @@ export const ClaimBroadcast = ({
         <Flex width='100%' mb='20px' justifyContent='space-between'>
           <Text color='gray.500' translation={'defi.modals.claim.rewardAmount'} />
           <Flex flexDirection='column' alignItems='flex-end'>
-            <Amount.Fiat fontWeight='semibold' value={fiatAmountAvailable} />
+            <Amount.Fiat fontWeight='semibold' value={rewardsFiatAmountPrecision} />
             <Amount.Crypto
               color='gray.500'
-              value={cryptoStakeAmount.toPrecision()}
+              value={rewardsCryptoAmountPrecision}
               symbol={asset.symbol}
             />
           </Flex>

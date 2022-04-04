@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/types",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Common types shared across packages",
   "repository": "https://github.com/shapeshift/lib",
   "license": "MIT",

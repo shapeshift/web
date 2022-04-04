@@ -1,3 +1,10 @@
+# [@shapeshiftoss/types-v2.8.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.7.0...@shapeshiftoss/types-v2.8.0) (2022-04-04)
+
+
+### Features
+
+* support eip-1159 in buildSendTransaction ([#440](https://github.com/shapeshift/lib/issues/440)) ([c50e503](https://github.com/shapeshift/lib/commit/c50e503f5dc4ef7074ef0a431f5451d78ecb0fd9))
+
 # [@shapeshiftoss/types-v2.7.0](https://github.com/shapeshift/lib/compare/@shapeshiftoss/types-v2.6.0...@shapeshiftoss/types-v2.7.0) (2022-03-29)
 
 

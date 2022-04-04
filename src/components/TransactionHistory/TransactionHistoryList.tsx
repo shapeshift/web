@@ -16,12 +16,6 @@ type TransactionHistoryListProps = {
   useCompactMode?: boolean
 }
 
-enum HistoryStatus {
-  IDLE = 'idle',
-  LOADING = 'loading',
-  LOADED = 'loaded'
-}
-
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   txIds,
   useCompactMode = false
@@ -29,7 +23,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
   const { next, data, hasMore } = useInfiniteScroll(txIds)
   const txHistoryStatus = useAppSelector(selectTxHistoryStatus)
 
-  if (txHistoryStatus === HistoryStatus.LOADING && !data.length) {
+  if (txHistoryStatus === 'loading' && !data.length) {
     return <TransactionsLoading />
   }
   return data.length ? (
@@ -44,7 +38,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = ({
           </Center>
         }
       >
-        {txHistoryStatus === HistoryStatus.LOADING && <TransactionsLoading count={1} />}
+        {txHistoryStatus === 'loading' && <TransactionsLoading count={1} />}
         <TransactionsGroupByDate txIds={txIds} useCompactMode={useCompactMode} />
       </InfiniteScroll>
     </Card.Body>

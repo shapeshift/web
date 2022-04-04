@@ -10,7 +10,6 @@ import {
   Tooltip
 } from '@chakra-ui/react'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { chainAdapters } from '@shapeshiftoss/types'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
 import { useMemo } from 'react'
@@ -21,6 +20,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   ASSET_ID_TO_DENOM,
   selectAssetByCAIP19,

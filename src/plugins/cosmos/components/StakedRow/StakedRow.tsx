@@ -25,11 +25,7 @@ export const StakedRow = ({
 
       <Flex alignItems='center'>
         <AssetIcon src={osmosis} boxSize='40px' mr='24px' />
-        <Amount.Crypto
-          fontSize='28'
-          value={cryptoStakedAmount.toPrecision()}
-          symbol={assetSymbol}
-        />
+        <Amount.Crypto fontSize='28' value={cryptoStakedAmount.toString()} symbol={assetSymbol} />
       </Flex>
       <AprTag height='20px' percentage={apr.toPrecision()} showAprSuffix={true} />
     </Flex>

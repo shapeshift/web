@@ -210,7 +210,10 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
           return isStaking ? (
             <HStack fontWeight={'normal'}>
               <Amount.Crypto
-                value={bnOrZero(value).div(`1e+${asset.precision}`).toString()}
+                value={bnOrZero(value)
+                  .div(`1e+${asset.precision}`)
+                  .decimalPlaces(asset.precision)
+                  .toString()}
                 symbol={asset.symbol}
               />
               <Amount.Fiat

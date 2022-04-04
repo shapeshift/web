@@ -117,7 +117,9 @@ export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
             <StakedRow
               assetSymbol={asset.symbol}
               fiatRate={bnOrZero(marketData.price)}
-              cryptoStakedAmount={bnOrZero(totalBondings).div(`1e+${asset.precision}`)}
+              cryptoStakedAmount={bnOrZero(totalBondings)
+                .div(`1e+${asset.precision}`)
+                .decimalPlaces(asset.precision)}
               apr={bnOrZero('0.12')}
             />
           </Skeleton>
@@ -127,7 +129,9 @@ export const Overview = ({ assetId, validatorAddress }: StakedProps) => {
               <AssetClaimCard
                 assetSymbol={asset.symbol}
                 assetName={asset.name}
-                cryptoRewardsAmount={bnOrZero(rewardsAmount).div(`1e+${asset.precision}`)}
+                cryptoRewardsAmount={bnOrZero(rewardsAmount)
+                  .div(`1e+${asset.precision}`)
+                  .decimalPlaces(asset.precision)}
                 fiatRate={bnOrZero(marketData.price)}
                 renderButton={() => (
                   <ClaimButton assetId={assetId} validatorAddress={validatorAddress} />

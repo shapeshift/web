@@ -43,7 +43,7 @@ export const AssetClaimCard = ({
                 color='gray.500'
                 lineHeight='1'
                 symbol={assetSymbol}
-                value={cryptoRewardsAmount.toPrecision()}
+                value={cryptoRewardsAmount.toString()}
               />
               (
               <Amount.Fiat

@@ -7,7 +7,6 @@ import { Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useHistory } from 'react-router-dom'
 
 export const WipeModal = () => {
   const { keepKeyWallet } = useKeepKey()
@@ -16,7 +15,7 @@ export const WipeModal = () => {
   const { keepKeyWipe } = useModal()
   const { close, isOpen } = keepKeyWipe
   const {
-    state: { awaitingButtonPress }
+    state: { awaitingDeviceInteraction }
   } = useWallet()
 
   const wipeDevice = async () => {
@@ -44,7 +43,7 @@ export const WipeModal = () => {
             colorScheme='red'
             isFullWidth
             mb={6}
-            isLoading={awaitingButtonPress}
+            isLoading={awaitingDeviceInteraction}
           >
             {translate('walletProvider.keepKey.modals.actions.wipeDevice')}
           </Button>

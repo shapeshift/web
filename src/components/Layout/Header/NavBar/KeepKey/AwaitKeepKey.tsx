@@ -15,17 +15,17 @@ export type AwaitKeepKeyProps = {
 export const AwaitKeepKey = ({ children, translation, ...props }: AwaitKeepKeyProps) => {
   const translate = useTranslate()
   const {
-    setAwaitingButtonPress,
-    state: { awaitingButtonPress, wallet }
+    setAwaitingDeviceInteraction,
+    state: { awaitingDeviceInteraction, wallet }
   } = useWallet()
   const blueShade = useColorModeValue('blue.500', 'blue.200')
 
   const cancel = async () => {
-    setAwaitingButtonPress(false)
+    setAwaitingDeviceInteraction(false)
     await wallet?.cancel()
   }
 
-  return awaitingButtonPress ? (
+  return awaitingDeviceInteraction ? (
     <Flex {...props}>
       <InfoIcon color={blueShade} mt={1} />
       <Box ml={3}>

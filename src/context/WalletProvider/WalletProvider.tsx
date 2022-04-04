@@ -43,7 +43,7 @@ export interface InitialState {
   deviceId: string
   noBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
-  awaitingButtonPress: boolean
+  awaitingDeviceInteraction: boolean
 }
 
 const initialState: InitialState = {
@@ -59,7 +59,7 @@ const initialState: InitialState = {
   deviceId: '',
   noBackButton: false,
   keepKeyPinRequestType: null,
-  awaitingButtonPress: false
+  awaitingDeviceInteraction: false
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -86,8 +86,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, type: action.payload }
     case WalletActions.SET_INITIAL_ROUTE:
       return { ...state, initialRoute: action.payload }
-    case WalletActions.SET_AWAITING_BUTTON_PRESS:
-      return { ...state, awaitingButtonPress: action.payload }
+    case WalletActions.SET_AWAITING_DEVICE_INTERACTION:
+      return { ...state, awaitingDeviceInteraction: action.payload }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
@@ -362,10 +362,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-  const setAwaitingButtonPress = (activeRequest: boolean) => {
+  const setAwaitingDeviceInteraction = (awaitingDeviceInteraction: boolean) => {
     dispatch({
-      type: WalletActions.SET_AWAITING_BUTTON_PRESS,
-      payload: activeRequest
+      type: WalletActions.SET_AWAITING_DEVICE_INTERACTION,
+      payload: awaitingDeviceInteraction
     })
   }
 
@@ -373,7 +373,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   useEffect(() => load(), [state.adapters, state.keyring])
 
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, create, disconnect, load, setAwaitingButtonPress }),
+    () => ({ state, dispatch, connect, create, disconnect, load, setAwaitingDeviceInteraction }),
     [state, connect, create, disconnect, load]
   )
 

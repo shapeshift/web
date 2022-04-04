@@ -12,7 +12,7 @@ export const useKeepKeyEventHandler = (
   state: KeyringState,
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
-  setAwaitingButtonPress: (activeRequest: boolean) => void,
+  setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void,
   updateStatus: (status: UpdateStatus) => void
 ) => {
   const { keyring, modal } = state
@@ -22,7 +22,7 @@ export const useKeepKeyEventHandler = (
       const deviceId = e[0]
       switch (e[1].message_enum) {
         case MessageType.SUCCESS:
-          setAwaitingButtonPress(false)
+          setAwaitingDeviceInteraction(false)
           loadWallet()
           updateStatus('success')
           break
@@ -36,7 +36,7 @@ export const useKeepKeyEventHandler = (
           if (modal) dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           break
         case MessageType.PINMATRIXREQUEST:
-          setAwaitingButtonPress(false)
+          setAwaitingDeviceInteraction(false)
           dispatch({
             type: WalletActions.OPEN_KEEPKEY_PIN,
             payload: {
@@ -56,7 +56,7 @@ export const useKeepKeyEventHandler = (
               console.warn('KeepKey Event [FAILURE]: PIN Cancelled')
               break
             case FailureType.ACTIONCANCELLED:
-              setAwaitingButtonPress(false)
+              setAwaitingDeviceInteraction(false)
               break
             case FailureType.NOTINITIALIZED:
               console.warn('KeepKey Event [FAILURE]: Device not initialized')
@@ -133,13 +133,21 @@ export const useKeepKeyEventHandler = (
     // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
     keyring.on(['*', '*', Events.CONNECT], handleConnect)
     keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
-    keyring.on(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingButtonPress(true))
+    keyring.on(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingDeviceInteraction(true))
 
     return () => {
       keyring.off(['KeepKey', '*', '*'], handleEvent)
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
-      keyring.off(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingButtonPress(true))
+      keyring.off(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingDeviceInteraction(true))
     }
-  }, [dispatch, keyring, loadWallet, modal, setAwaitingButtonPress, state.walletInfo, updateStatus])
+  }, [
+    dispatch,
+    keyring,
+    loadWallet,
+    modal,
+    setAwaitingDeviceInteraction,
+    state.walletInfo,
+    updateStatus
+  ])
 }

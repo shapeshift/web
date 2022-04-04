@@ -13,7 +13,7 @@ export const ChangeLabel = () => {
   const { walletInfo } = state
   const { keepKeyWallet } = useKeepKey()
   const {
-    state: { awaitingButtonPress }
+    state: { awaitingDeviceInteraction }
   } = useWallet()
   const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
 
@@ -43,7 +43,7 @@ export const ChangeLabel = () => {
         onChange={e => setKeepKeyLabel(e.target.value)}
         value={keepKeyLabel}
         autoFocus // eslint-disable-line jsx-a11y/no-autofocus
-        disabled={awaitingButtonPress}
+        disabled={awaitingDeviceInteraction}
       />
       <AwaitKeepKey
         translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}

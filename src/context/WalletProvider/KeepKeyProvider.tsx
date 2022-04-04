@@ -87,7 +87,12 @@ const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { state: walletState, dispatch: walletDispatch, load, setAwaitingButtonPress } = useWallet()
+  const {
+    state: walletState,
+    dispatch: walletDispatch,
+    load,
+    setAwaitingDeviceInteraction
+  } = useWallet()
   const { wallet } = walletState
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [pinCaching, setPinCaching] = useState<boolean>()
@@ -119,7 +124,13 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })
   }
 
-  useKeepKeyEventHandler(walletState, walletDispatch, load, setAwaitingButtonPress, updateStatus)
+  useKeepKeyEventHandler(
+    walletState,
+    walletDispatch,
+    load,
+    setAwaitingDeviceInteraction,
+    updateStatus
+  )
 
   const value: IKeepKeyContext = useMemo(
     () => ({

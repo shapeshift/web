@@ -903,12 +903,14 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get block number: ${e}`)
     }
-    const epochsLeft = coolDownInfo.endEpoch - epoch.number - 1 // epochs left after the current one
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch).minus(epoch.number) // epochs left until can claim
     const blocksLeftInCurrentEpoch =
-      epoch.endBlock > currentBlock ? epoch.endBlock - currentBlock : 0
-    const blocksLeftInFutureEpochs = epochsLeft > 0 ? epochsLeft * epoch.length : 0
-    const blocksUntilClaimable = bnOrZero(blocksLeftInCurrentEpoch).plus(blocksLeftInFutureEpochs)
-    const secondsUntilClaimable = blocksUntilClaimable.times(13) // average block time is 13 seconds
+      epochsLeft.gt(0) && epoch.endBlock > currentBlock ? epoch.endBlock - currentBlock : 0 // calculate time remaining in current epoch
+    const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
+      ? epochsLeft.minus(1).times(epoch.length)
+      : 0 // don't count current epoch
+    const blocksUntilClaimable = bnOrZero(blocksLeftInCurrentEpoch).plus(blocksLeftInFutureEpochs) // total blocks left until can claim
+    const secondsUntilClaimable = blocksUntilClaimable.times(13) // average block time is 13 seconds to get total seconds
     const currentDate = new Date()
     currentDate.setSeconds(secondsUntilClaimable.plus(currentDate.getSeconds()).toNumber())
 
@@ -966,7 +968,7 @@ export class FoxyApi {
 
   // estimated apy
   apy(): string {
-    return '.2'
+    return '.15'
   }
 
   async tvl(input: TokenAddressInput): Promise<BigNumber> {

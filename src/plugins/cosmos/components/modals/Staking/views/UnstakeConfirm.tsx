@@ -66,7 +66,7 @@ export const UnstakeConfirm = ({
   const chainAdapterManager = useChainAdapters()
   const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
 
-  const fiatUntakeAmount = useMemo(
+  const fiatUnstakeAmount = useMemo(
     () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
     [cryptoAmount, marketData.price]
   )
@@ -116,7 +116,7 @@ export const UnstakeConfirm = ({
           <Flex width='100%' mb='20px' justifyContent='space-between'>
             <Text color='gray.500' translation={'defi.unstake'} />
             <Flex flexDirection='column' alignItems='flex-end'>
-              <Amount.Fiat fontWeight='semibold' value={fiatUntakeAmount} />
+              <Amount.Fiat fontWeight='semibold' value={fiatUnstakeAmount} />
               <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={asset.symbol} />
             </Flex>
           </Flex>

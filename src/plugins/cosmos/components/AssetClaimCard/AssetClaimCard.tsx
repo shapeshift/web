@@ -8,7 +8,6 @@ import { Card, CardProps } from 'components/Card/Card'
 
 type AssetClaimCardProps = {
   assetSymbol: string
-  assetName: string
   cryptoRewardsAmount: BigNumber
   fiatRate: BigNumber
   renderButton?: () => JSX.Element
@@ -16,7 +15,6 @@ type AssetClaimCardProps = {
 
 export const AssetClaimCard = ({
   assetSymbol,
-  assetName,
   cryptoRewardsAmount,
   fiatRate,
   renderButton,
@@ -29,7 +27,7 @@ export const AssetClaimCard = ({
           <AssetIcon src={osmosis} boxSize='40px' />
           <Box ml={2}>
             <CText fontWeight='bold' lineHeight='1' mb={1}>
-              {assetName}
+              {assetSymbol}
             </CText>
             <CText
               color='gray.500'

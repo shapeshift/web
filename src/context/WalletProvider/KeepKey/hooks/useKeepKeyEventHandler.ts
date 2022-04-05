@@ -1,7 +1,6 @@
 import { Event, Events } from '@shapeshiftoss/hdwallet-core'
 import { Dispatch, useEffect } from 'react'
-import { ActionTypes, WalletActions } from 'context/WalletProvider/actions'
-import { UpdateStatus } from 'context/WalletProvider/KeepKeyProvider'
+import { ActionTypes, Outcome, WalletActions } from 'context/WalletProvider/actions'
 import { InitialState } from 'context/WalletProvider/WalletProvider'
 
 import { FailureType, MessageType } from '../KeepKeyTypes'
@@ -13,7 +12,7 @@ export const useKeepKeyEventHandler = (
   dispatch: Dispatch<ActionTypes>,
   loadWallet: () => void,
   setAwaitingDeviceInteraction: (awaitingDeviceInteraction: boolean) => void,
-  updateStatus: (status: UpdateStatus) => void
+  setLastDeviceInteractionStatus: (lastDeviceInteractionStatus: Outcome) => void
 ) => {
   const { keyring, modal } = state
 
@@ -24,7 +23,7 @@ export const useKeepKeyEventHandler = (
         case MessageType.SUCCESS:
           setAwaitingDeviceInteraction(false)
           loadWallet()
-          updateStatus('success')
+          setLastDeviceInteractionStatus('success')
           break
         case MessageType.BUTTONREQUEST:
           setAwaitingDeviceInteraction(true)
@@ -72,7 +71,7 @@ export const useKeepKeyEventHandler = (
               break
             default:
               console.warn('KeepKey Event [FAILURE]: ', e[1].message?.message)
-              updateStatus('failure')
+              setLastDeviceInteractionStatus('failure')
               break
           }
           break
@@ -149,6 +148,6 @@ export const useKeepKeyEventHandler = (
     modal,
     setAwaitingDeviceInteraction,
     state.walletInfo,
-    updateStatus
+    setLastDeviceInteractionStatus
   ])
 }

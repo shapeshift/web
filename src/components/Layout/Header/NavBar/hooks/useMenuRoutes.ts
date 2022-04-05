@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export enum WalletConnectedRoutes {
   Connected = '/connected',
@@ -14,21 +15,22 @@ export enum WalletConnectedRoutes {
 
 export const useMenuRoutes = () => {
   const history = useHistory()
-  const { keepKeyWallet, reset } = useKeepKey()
+  const { keepKeyWallet } = useKeepKey()
+  const { setLastDeviceInteractionStatus } = useWallet()
 
   const handleBackClick = useCallback(async () => {
     await keepKeyWallet?.cancel()
-    reset()
+    setLastDeviceInteractionStatus(undefined)
     history.goBack()
-  }, [history, keepKeyWallet, reset])
+  }, [history, keepKeyWallet, setLastDeviceInteractionStatus])
 
   const navigateToRoute = useCallback(
     async (route: WalletConnectedRoutes) => {
       await keepKeyWallet?.cancel()
-      reset()
+      setLastDeviceInteractionStatus(undefined)
       history.push(route)
     },
-    [history, keepKeyWallet, reset]
+    [history, keepKeyWallet, setLastDeviceInteractionStatus]
   )
 
   return {

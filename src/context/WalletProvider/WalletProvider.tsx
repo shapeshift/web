@@ -5,8 +5,9 @@ import { PortisHDWallet } from '@shapeshiftoss/hdwallet-portis'
 import { getConfig } from 'config'
 import findIndex from 'lodash/findIndex'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 
-import { ActionTypes, WalletActions } from './actions'
+import { ActionTypes, Outcome, WalletActions } from './actions'
 import { SUPPORTED_WALLETS } from './config'
 import { useKeyringEventHandler } from './KeepKey/hooks/useKeyringEventHandler'
 import { PinMatrixRequestType } from './KeepKey/KeepKeyTypes'
@@ -44,6 +45,7 @@ export interface InitialState {
   noBackButton: boolean
   keepKeyPinRequestType: PinMatrixRequestType | null
   awaitingDeviceInteraction: boolean
+  lastDeviceInteractionStatus: Outcome
 }
 
 const initialState: InitialState = {
@@ -59,7 +61,8 @@ const initialState: InitialState = {
   deviceId: '',
   noBackButton: false,
   keepKeyPinRequestType: null,
-  awaitingDeviceInteraction: false
+  awaitingDeviceInteraction: false,
+  lastDeviceInteractionStatus: undefined
 }
 
 const reducer = (state: InitialState, action: ActionTypes) => {
@@ -88,6 +91,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
       return { ...state, initialRoute: action.payload }
     case WalletActions.SET_AWAITING_DEVICE_INTERACTION:
       return { ...state, awaitingDeviceInteraction: action.payload }
+    case WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS:
+      return { ...state, lastDeviceInteractionStatus: action.payload }
     case WalletActions.SET_WALLET_MODAL:
       const newState = { ...state, modal: action.payload }
       // If we're closing the modal, then we need to forget the route we were on
@@ -148,7 +153,8 @@ const reducer = (state: InitialState, action: ActionTypes) => {
         initialRoute: null,
         isLoadingLocalWallet: false,
         noBackButton: false,
-        keepKeyPinRequestType: null
+        keepKeyPinRequestType: null,
+        awaitingDeviceInteraction: false
       }
     default:
       return state
@@ -308,9 +314,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.adapters, state.keyring])
 
-  useKeyringEventHandler(state)
-  useNativeEventHandler(state, dispatch)
-
   useEffect(() => {
     if (state.keyring) {
       ;(async () => {
@@ -369,11 +372,45 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
   }, [])
 
+  const setLastDeviceInteractionStatus = useCallback((lastDeviceInteractionStatus: Outcome) => {
+    dispatch({
+      type: WalletActions.SET_LAST_DEVICE_INTERACTION_STATUS,
+      payload: lastDeviceInteractionStatus
+    })
+  }, [])
+
   useEffect(() => load(), [load, state.adapters, state.keyring])
 
+  useKeyringEventHandler(state)
+  useNativeEventHandler(state, dispatch)
+  useKeepKeyEventHandler(
+    state,
+    dispatch,
+    load,
+    setAwaitingDeviceInteraction,
+    setLastDeviceInteractionStatus
+  )
+
   const value: IWalletContext = useMemo(
-    () => ({ state, dispatch, connect, create, disconnect, load, setAwaitingDeviceInteraction }),
-    [state, connect, create, disconnect, load, setAwaitingDeviceInteraction]
+    () => ({
+      state,
+      dispatch,
+      connect,
+      create,
+      disconnect,
+      load,
+      setAwaitingDeviceInteraction,
+      setLastDeviceInteractionStatus
+    }),
+    [
+      state,
+      connect,
+      create,
+      disconnect,
+      load,
+      setAwaitingDeviceInteraction,
+      setLastDeviceInteractionStatus
+    ]
   )
 
   return (

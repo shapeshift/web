@@ -9,7 +9,7 @@ export const ChangePin = () => {
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
 
-  const handleChangePinInitializeEvent = async () => {
+  const handleChangePin = async () => {
     await keepKeyWallet?.changePin()
   }
   const setting = 'PIN'
@@ -21,7 +21,7 @@ export const ChangePin = () => {
         <AwaitKeepKey
           translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
         >
-          <Button colorScheme='blue' size='sm' onClick={handleChangePinInitializeEvent}>
+          <Button colorScheme='blue' size='sm' onClick={handleChangePin}>
             {translate('walletProvider.keepKey.settings.actions.update', { setting })}
           </Button>
         </AwaitKeepKey>

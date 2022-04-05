@@ -2,6 +2,7 @@ import { ChevronRightIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/menu'
 import { Flex } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
 import { Route, Switch, useLocation } from 'react-router-dom'
 import {
   useMenuRoutes,
@@ -12,7 +13,6 @@ import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
-import { useSelector } from 'react-redux'
 import { ReduxState } from 'state/reducer'
 import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 

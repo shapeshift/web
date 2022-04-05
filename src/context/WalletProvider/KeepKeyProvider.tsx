@@ -1,24 +1,7 @@
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-  useState
-} from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { RadioOption } from 'components/Radio/Radio'
-import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-export enum KeepKeyActions {
-  SET_AWAITING_BUTTON_PRESS = 'SET_AWAITING_BUTTON_PRESS',
-  SET_UPDATE_STATUS = 'SET_UPDATE_STATUS',
-  RESET_STATE = 'RESET_STATE'
-}
-
-export type UpdateStatus = 'success' | 'failure' | undefined
 
 export enum DeviceTimeout {
   TenMinutes = '600000',
@@ -56,52 +39,19 @@ export const timeoutOptions: RadioOption<DeviceTimeout>[] = [
   }
 ]
 
-export interface InitialState {
-  updateStatus: UpdateStatus
-}
-
-const initialState: InitialState = {
-  updateStatus: undefined
-}
-
 export interface IKeepKeyContext {
-  state: InitialState
-  dispatch: React.Dispatch<KeepKeyActionTypes>
-  reset: () => void
-  updateStatus: (status: UpdateStatus) => void
   pinCaching: boolean | undefined
   passphrase: boolean | undefined
   keepKeyWallet: KeepKeyHDWallet | undefined
   deviceTimeout: RadioOption<DeviceTimeout> | undefined
 }
 
-export type KeepKeyActionTypes =
-  | { type: KeepKeyActions.SET_AWAITING_BUTTON_PRESS; payload: boolean }
-  | { type: KeepKeyActions.SET_UPDATE_STATUS; payload: UpdateStatus }
-  | { type: KeepKeyActions.RESET_STATE }
-
-const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
-  switch (action.type) {
-    case KeepKeyActions.SET_UPDATE_STATUS:
-      return { ...state, updateStatus: action.payload }
-    case KeepKeyActions.RESET_STATE:
-      return initialState
-    default:
-      return state
-  }
-}
-
 const KeepKeyContext = createContext<IKeepKeyContext | null>(null)
 
 export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-  const [state, dispatch] = useReducer(reducer, initialState)
   const {
-    state: walletState,
-    dispatch: walletDispatch,
-    load,
-    setAwaitingDeviceInteraction
+    state: { wallet }
   } = useWallet()
-  const { wallet } = walletState
   const keepKeyWallet = useMemo(() => (wallet && isKeepKey(wallet) ? wallet : undefined), [wallet])
   const [pinCaching, setPinCaching] = useState<boolean>()
   const [passphrase, setPassphrase] = useState<boolean>()
@@ -122,35 +72,14 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })()
   }, [keepKeyWallet])
 
-  const reset = useCallback(() => dispatch({ type: KeepKeyActions.RESET_STATE }), [])
-
-  const updateStatus = useCallback((status: UpdateStatus) => {
-    dispatch({
-      type: KeepKeyActions.SET_UPDATE_STATUS,
-      payload: status
-    })
-  }, [])
-
-  useKeepKeyEventHandler(
-    walletState,
-    walletDispatch,
-    load,
-    setAwaitingDeviceInteraction,
-    updateStatus
-  )
-
   const value: IKeepKeyContext = useMemo(
     () => ({
-      state,
-      dispatch,
-      reset,
-      updateStatus,
       pinCaching,
       passphrase,
       keepKeyWallet,
       deviceTimeout
     }),
-    [deviceTimeout, keepKeyWallet, passphrase, pinCaching, reset, state, updateStatus]
+    [deviceTimeout, keepKeyWallet, passphrase, pinCaching]
   )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>

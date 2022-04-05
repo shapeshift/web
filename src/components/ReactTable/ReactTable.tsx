@@ -3,15 +3,15 @@ import { Flex, Table, Tbody, Td, Th, Thead, Tr, useColorModeValue } from '@chakr
 import { useMemo } from 'react'
 import { Column, Row, TableState, useSortBy, useTable } from 'react-table'
 
-type ReactTableProps<T extends object> = {
+type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
   data: T[]
   displayHeaders?: boolean
   onRowClick?: (row: Row<T>) => void
-  initialState?: Partial<TableState<object>>
+  initialState?: Partial<TableState<{}>>
 }
 
-export const ReactTable = <T extends object>({
+export const ReactTable = <T extends {}>({
   columns,
   data,
   displayHeaders = true,

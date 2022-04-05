@@ -12,7 +12,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
   selectRewardsAmountByAssetId,
-  selectStakingDataStatus,
+  selectStakingDataIsLoaded,
   selectTotalBondingsBalanceByAccountSpecifier,
   selectUnbondingEntriesByAccountSpecifier
 } from 'state/slices/stakingDataSlice/selectors'
@@ -30,8 +30,7 @@ export const Overview: React.FC<StakedProps> = ({
   validatorAddress,
   accountSpecifier
 }) => {
-  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
-  const isLoaded = stakingDataStatus === 'loaded'
+  const isLoaded = useAppSelector(selectStakingDataIsLoaded)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 

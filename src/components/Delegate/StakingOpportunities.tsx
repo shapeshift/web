@@ -31,8 +31,8 @@ import {
   selectActiveStakingOpportunityDataByAssetId,
   selectNonloadedValidators,
   selectSingleValidator,
-  selectStakingDataStatus,
-  selectValidatorStatus
+  selectStakingDataIsLoaded,
+  selectValidatorIsLoaded
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -74,10 +74,8 @@ export const ValidatorName = ({ moniker, isStaking }: ValidatorNameProps) => {
 }
 
 export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => {
-  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
-  const isStakingDataLoaded = stakingDataStatus === 'loaded'
-  const validatorStatus = useAppSelector(selectValidatorStatus)
-  const isValidatorDataLoaded = validatorStatus === 'loaded'
+  const isStakingDataLoaded = useAppSelector(selectStakingDataIsLoaded)
+  const isValidatorDataLoaded = useAppSelector(selectValidatorIsLoaded)
   const isLoaded = isStakingDataLoaded && isValidatorDataLoaded
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

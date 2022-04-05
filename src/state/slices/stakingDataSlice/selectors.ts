@@ -21,8 +21,10 @@ export type AmountByValidatorAddressType = {
   [k: string]: string
 }
 
-export const selectStakingDataStatus = (state: ReduxState) => state.stakingData.status
-export const selectValidatorStatus = (state: ReduxState) => state.stakingData.validatorStatus
+export const selectStakingDataIsLoaded = (state: ReduxState) =>
+  state.stakingData.status === 'loaded'
+export const selectValidatorIsLoaded = (state: ReduxState) =>
+  state.stakingData.validatorStatus === 'loaded'
 const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: CAIP10) =>
   accountSpecifier
 
@@ -49,21 +51,6 @@ export const selectStakingDataByAccountSpecifier = createSelector(
   }
 )
 
-export const selectDelegationCryptoAmountByAssetId = createSelector(
-  selectStakingDataByAccountSpecifier,
-  selectValidatorAddress,
-  selectAssetIdParam,
-  (stakingData, validatorAddress, selectedAssetId): string => {
-    if (!stakingData?.delegations?.length) return '0'
-
-    const delegation = stakingData.delegations.find(
-      ({ assetId, validator }) =>
-        assetId === selectedAssetId && validator.address === validatorAddress
-    )
-    return delegation?.amount ?? '0'
-  }
-)
-
 export const selectAllDelegationsCryptoAmountByAssetId = createSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParam,
@@ -80,6 +67,14 @@ export const selectAllDelegationsCryptoAmountByAssetId = createSelector(
       {}
     )
     return delegations
+  }
+)
+
+export const selectDelegationCryptoAmountByValidatorAndAssetId = createSelector(
+  selectAllDelegationsCryptoAmountByAssetId,
+  selectValidatorAddress,
+  (allDelegations, validatorAddress): string => {
+    return allDelegations[validatorAddress] ?? '0'
   }
 )
 
@@ -164,7 +159,7 @@ export const selectUnbondingCryptoAmountByAssetId = createSelector(
 
 export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByAssetId,
-  selectDelegationCryptoAmountByAssetId,
+  selectDelegationCryptoAmountByValidatorAndAssetId,
   (unbondingCryptoBalance, delegationCryptoBalance): string => {
     const totalBondings = bnOrZero(unbondingCryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance))
@@ -266,11 +261,11 @@ export const getUndelegationsAmountByValidatorAddress = memoize(
     allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
     validatorAddress: string
   ) => {
-    return get(
-      allUndelegationsEntries,
-      validatorAddress,
-      [] as chainAdapters.cosmos.UndelegationEntry[]
-    )
+    return get<
+      Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
+      string,
+      chainAdapters.cosmos.UndelegationEntry[]
+    >(allUndelegationsEntries, validatorAddress, [])
       .reduce(
         (acc: BigNumber, undelegationEntry: chainAdapters.cosmos.UndelegationEntry) =>
           acc.plus(bnOrZero(undelegationEntry.amount)),
@@ -282,12 +277,20 @@ export const getUndelegationsAmountByValidatorAddress = memoize(
     allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
     validatorAddress: string
   ) =>
-    get(allUndelegationsEntries, validatorAddress, [] as chainAdapters.cosmos.UndelegationEntry[])
+    get<
+      Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
+      string,
+      chainAdapters.cosmos.UndelegationEntry[]
+    >(allUndelegationsEntries, validatorAddress, [])
 )
 
 export const getRewardsAmountByValidatorAddress = memoize(
   (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) => {
-    return get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
+    return get<
+      Record<string, chainAdapters.cosmos.Reward[]>,
+      string,
+      chainAdapters.cosmos.Reward[]
+    >(allRewards, validatorAddress, [])
       .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
         acc = acc.plus(bnOrZero(rewardEntry.amount))
         return acc
@@ -295,7 +298,11 @@ export const getRewardsAmountByValidatorAddress = memoize(
       .toString()
   },
   (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) =>
-    get(allRewards, validatorAddress, [] as chainAdapters.cosmos.Reward[])
+    get<Record<string, chainAdapters.cosmos.Reward[]>, string, chainAdapters.cosmos.Reward[]>(
+      allRewards,
+      validatorAddress,
+      []
+    )
 )
 
 export const getTotalCryptoAmount = (delegationsAmount: string, undelegationsAmount: string) =>

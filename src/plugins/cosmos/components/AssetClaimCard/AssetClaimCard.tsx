@@ -1,13 +1,13 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Text as CText } from '@chakra-ui/react'
 import BigNumber from 'bignumber.js'
-import osmosis from 'assets/osmosis.svg'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Card, CardProps } from 'components/Card/Card'
 
 type AssetClaimCardProps = {
   assetSymbol: string
+  assetIcon: string
   assetName: string
   cryptoRewardsAmount: BigNumber
   fiatRate: BigNumber
@@ -16,6 +16,7 @@ type AssetClaimCardProps = {
 
 export const AssetClaimCard = ({
   assetSymbol,
+  assetIcon,
   assetName,
   cryptoRewardsAmount,
   fiatRate,
@@ -26,7 +27,7 @@ export const AssetClaimCard = ({
     <Card.Body p='10px'>
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex alignItems='center'>
-          <AssetIcon src={osmosis} boxSize='40px' />
+          <AssetIcon src={assetIcon} boxSize='40px' />
           <Box ml={2}>
             <CText fontWeight='bold' lineHeight='1' mb={1}>
               {assetName}

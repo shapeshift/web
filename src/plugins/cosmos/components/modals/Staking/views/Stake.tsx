@@ -140,6 +140,7 @@ export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
           py='8px'
           mb={6}
           assetSymbol={asset.symbol}
+          assetIcon={asset.icon}
           cryptoAmountAvailable={cryptoBalanceHuman.toString()}
           fiatAmountAvailable={fiatAmountAvailable}
         />

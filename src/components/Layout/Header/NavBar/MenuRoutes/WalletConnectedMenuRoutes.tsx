@@ -12,6 +12,9 @@ import { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useSelector } from 'react-redux'
+import { ReduxState } from 'state/reducer'
+import { selectFeatureFlag } from 'state/slices/preferencesSlice/selectors'
 
 export const WalletConnectedMenuRoutes = ({
   onDisconnect,
@@ -23,13 +26,20 @@ export const WalletConnectedMenuRoutes = ({
   const location = useLocation()
   const translate = useTranslate()
   const { keepKeyWallet } = useKeepKey()
+  const keepKeySettingsFlag = useSelector((state: ReduxState) =>
+    selectFeatureFlag(state, 'KeepKeySettings')
+  )
 
   const connectedMenu = () => {
     return (
       <MenuGroup title={translate('common.connectedWallet')} ml={3} color='gray.500'>
         <MenuItem
           closeOnSelect={!keepKeyWallet}
-          onClick={keepKeyWallet ? () => navigateToRoute(WalletConnectedRoutes.KeepKey) : undefined}
+          onClick={
+            keepKeySettingsFlag && keepKeyWallet
+              ? () => navigateToRoute(WalletConnectedRoutes.KeepKey)
+              : undefined
+          }
           icon={<WalletImage walletInfo={walletInfo} />}
         >
           <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
@@ -41,7 +51,7 @@ export const WalletConnectedMenuRoutes = ({
                 color='yellow.500'
               />
             )}
-            {keepKeyWallet && <ChevronRightIcon />}
+            {keepKeySettingsFlag && keepKeyWallet && <ChevronRightIcon />}
           </Flex>
         </MenuItem>
         <MenuDivider ml={3} />

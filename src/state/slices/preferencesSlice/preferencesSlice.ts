@@ -9,6 +9,7 @@ export type FeatureFlags = {
   FoxyInvestor: boolean
   GemRamp: boolean
   ReduxLogging: boolean
+  KeepKeySettings: boolean
 }
 
 export type Preferences = {
@@ -23,7 +24,8 @@ const initialState: Preferences = {
     CosmosPlugin: getConfig().REACT_APP_FEATURE_PLUGIN_COSMOS,
     GemRamp: getConfig().REACT_APP_FEATURE_GEM_RAMP,
     FoxyInvestor: getConfig().REACT_APP_FEATURE_FOXY_INVESTOR,
-    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING
+    ReduxLogging: getConfig().REACT_APP_REDUX_LOGGING,
+    KeepKeySettings: getConfig().REACT_APP_KEEP_KEY_SETTINGS
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0'

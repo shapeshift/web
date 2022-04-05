@@ -109,7 +109,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       setDeviceTimeout(
         Object.values(timeoutOptions).find(
           // @ts-ignore - waiting on autoLockTimeMs to be added to HDWallet
-          t => Number(t.value) === keepKeyWallet?.features?.autoLockTimeMs
+          t => Number(t.value) === keepKeyWallet?.features?.autoLockDelayMs
         )
       )
     })()

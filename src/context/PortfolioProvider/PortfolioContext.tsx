@@ -194,6 +194,15 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
     const tx = txsById[txId]
     // always wear protection, or don't it's your choice really
     if (!tx) return
+    /**
+     * TODO(0xdef1cafe): we need this effect to actually watch the whole txsById object
+     *
+     * the issue is we get a pending tx, but the unchained getAccount call does not
+     * optimistically include pending txs, so we need to refetch when the tx is confirmed
+     * add the additional logic here to do this. we should probably ignore pending txs
+     * as refetching will cause charts to update slightly by the fee amount, but not
+     * the actually amount that's related to the asset being sent or received
+     */
     // the accountSpecifier the tx came from
     const { txAccountSpecifier } = deserializeUniqueTxId(txId)
     // only refetch accounts for this tx

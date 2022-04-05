@@ -1,7 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { ValidatorReward } from '@shapeshiftoss/types/dist/chain-adapters/cosmos'
+import reduce from 'lodash/reduce'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
@@ -39,6 +40,21 @@ export const selectStakingDataByAccountSpecifier = createSelector(
   selectAccountSpecifier,
   (stakingData, accountSpecifier) => {
     return stakingData.byAccountSpecifier[accountSpecifier] || null
+  }
+)
+
+export const selectTotalStakingDelegationCryptoByAccountSpecifier = createSelector(
+  selectStakingDataByAccountSpecifier,
+  // We make the assumption that all delegation rewards come from a single denom (asset)
+  // In the future there may be chains that support rewards in multiple denoms and this will need to be parsed differently
+  stakingData => {
+    const amount = reduce(
+      stakingData?.delegations,
+      (acc, delegation) => acc.plus(bnOrZero(delegation.amount)),
+      bn(0)
+    )
+
+    return amount.toString()
   }
 )
 
@@ -133,14 +149,11 @@ export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByDenom,
   selectDelegationCryptoAmountByDenom,
   selectRedelegationCryptoAmountByDenom,
-  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string => {
-    const totalBondings = bnOrZero(unbondingCryptoBalance)
+  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string =>
+    bnOrZero(unbondingCryptoBalance)
       .plus(bnOrZero(delegationCryptoBalance))
       .plus(bnOrZero(redelegationCryptoBalance))
       .toString()
-
-    return totalBondings
-  }
 )
 
 export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
@@ -149,7 +162,7 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
   (stakingData, validatorAddress): Array<{ denom: string; amount: string }> => {
     if (!stakingData || !stakingData.rewards) return []
 
-    const rewards = stakingData.rewards.reduce(
+    return stakingData.rewards.reduce(
       (acc: Array<{ denom: string; amount: string }>, current: ValidatorReward) => {
         if (current.validator.address !== validatorAddress) return acc
 
@@ -164,8 +177,6 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
       },
       []
     )
-
-    return rewards
   }
 )
 

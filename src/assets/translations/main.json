@@ -448,7 +448,8 @@
       "amountToDeposit": "Amount To Deposit",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "By continuing you agree to our terms of service.",
+      "footerDisclaimer": "By continuing you agree to our ",
+      "footerDisclaimerLink": "terms of service.",
       "slippageSettings": "Slippage Settings"
     },
     "withdraw": {
@@ -472,7 +473,7 @@
       }
     },
     "approve": {
-      "header": "Allow ShapeShift DAO Router to spend your %{asset}",
+      "header": "Allow ShapeShift DAO Router to use your %{asset}",
       "body": "We need your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be separate gas fee to deposit.",

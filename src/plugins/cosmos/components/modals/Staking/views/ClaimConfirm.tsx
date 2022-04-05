@@ -22,10 +22,9 @@ import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  ASSET_ID_TO_DENOM,
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectRewardsAmountByDenom
+  selectRewardsAmountByAssetId
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -58,12 +57,7 @@ export const ClaimConfirm = ({ assetId, accountSpecifier }: ClaimConfirmProps) =
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByDenom(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
-      ASSET_ID_TO_DENOM[assetId]
-    )
+    selectRewardsAmountByAssetId(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS, assetId)
   )
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))

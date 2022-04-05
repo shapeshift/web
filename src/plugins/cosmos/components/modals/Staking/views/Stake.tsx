@@ -36,6 +36,7 @@ type StakeProps = {
   cryptoAmountAvailable: string
   fiatAmountAvailable: string
   marketData: MarketData
+  validatorAddress: string
 }
 
 // TODO: Make this a derived selector after this is wired up
@@ -49,7 +50,8 @@ export const Stake = ({
   apr,
   cryptoAmountAvailable,
   fiatAmountAvailable,
-  marketData
+  marketData,
+  validatorAddress
 }: StakeProps) => {
   const {
     clearErrors,

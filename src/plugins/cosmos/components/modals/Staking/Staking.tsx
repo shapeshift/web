@@ -39,7 +39,7 @@ import { Unstake } from './views/Unstake'
 import { UnstakeBroadcast } from './views/UnstakeBroadcast'
 import { UnstakeConfirm } from './views/UnstakeConfirm'
 
-const StakingModalContent = ({ assetId }: StakingModalProps) => {
+const StakingModalContent = ({ assetId, validatorAddress }: StakingModalProps) => {
   const location = useLocation<StakingModalLocation>()
   const history = useHistory()
   const translate = useTranslate()
@@ -125,6 +125,7 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
                 volume: '1000',
                 changePercent24Hr: 2
               }}
+              validatorAddress={validatorAddress}
             />
           </Route>
           <Route exact key={StakingPath.Confirm} path={StakingPath.Confirm}>
@@ -173,6 +174,7 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
                 volume: '1000',
                 changePercent24Hr: 2
               }}
+              validatorAddress={validatorAddress}
             />
           </Route>
           <Route exact key={ClaimPath.Confirm} path={ClaimPath.Confirm}>
@@ -187,15 +189,19 @@ const StakingModalContent = ({ assetId }: StakingModalProps) => {
             />
           </Route>
           <Route key={StakeRoutes.Overview} path='/'>
-            <Overview assetId={assetId} accountSpecifier={accountSpecifier} />
+            <Overview
+              assetId={assetId}
+              accountSpecifier={accountSpecifier}
+              validatorAddress={validatorAddress}
+            />
           </Route>
         </Switch>
       </ModalContent>
     </Modal>
   )
 }
-export const StakingModal = ({ assetId }: StakingModalProps) => (
+export const StakingModal = ({ assetId, validatorAddress }: StakingModalProps) => (
   <MemoryRouter initialEntries={entries}>
-    <StakingModalContent assetId={assetId} />
+    <StakingModalContent assetId={assetId} validatorAddress={validatorAddress} />
   </MemoryRouter>
 )

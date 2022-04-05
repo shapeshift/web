@@ -9,7 +9,7 @@ import {
   Tag,
   TagLabel
 } from '@chakra-ui/react'
-import { CAIP19, caip19 } from '@shapeshiftoss/caip'
+import { CAIP19 } from '@shapeshiftoss/caip'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { MouseEvent, useEffect, useMemo } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -107,7 +107,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
     selectNonloadedValidators(state, accountSpecifier)
   )
   const hasActiveStakingOpportunities = activeStakingOpportunities.length !== 0
-  const { chain } = caip19.fromCAIP19(assetId)
+  const chainId = asset.caip2
 
   useEffect(() => {
     ;(async () => {
@@ -127,10 +127,10 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       if (isValidatorDataLoaded) return
 
       dispatch(
-        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chain }, { forceRefetch: true })
+        stakingDataApi.endpoints.getAllValidatorsData.initiate({ chainId }, { forceRefetch: true })
       )
     })()
-  }, [isValidatorDataLoaded, dispatch, chain])
+  }, [isValidatorDataLoaded, dispatch, chainId])
 
   useEffect(() => {
     ;(async () => {
@@ -139,13 +139,13 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
       nonLoadedValidators.forEach(validatorAddress => {
         dispatch(
           stakingDataApi.endpoints.getValidatorData.initiate(
-            { chain, validatorAddress },
+            { chainId, validatorAddress },
             { forceRefetch: true }
           )
         )
       })
     })()
-  }, [isValidatorDataLoaded, nonLoadedValidators, dispatch, chain])
+  }, [isValidatorDataLoaded, nonLoadedValidators, dispatch, chainId])
 
   const { cosmosGetStarted, cosmosStaking } = useModal()
 

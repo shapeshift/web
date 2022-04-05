@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { CAIP10, caip10 } from '@shapeshiftoss/caip'
+import { CAIP2, CAIP10, caip10 } from '@shapeshiftoss/caip'
 import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { CosmosSdkBaseAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmossdk/CosmosSdkBaseAdapter'
 import { chainAdapters, ChainTypes } from '@shapeshiftoss/types'
@@ -9,9 +9,9 @@ import { getChainAdapters } from 'context/PluginProvider/PluginProvider'
 export type PubKey = string
 type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
-type AllValidatorDataArgs = { chain: ChainTypes }
+type AllValidatorDataArgs = { chainId: CAIP2 }
 
-type SingleValidatorDataArgs = { chain: ChainTypes; validatorAddress: string }
+type SingleValidatorDataArgs = { chainId: CAIP2; validatorAddress: string }
 
 export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
 
@@ -150,10 +150,10 @@ export const stakingDataApi = createApi({
       }
     }),
     getAllValidatorsData: build.query<Validators, AllValidatorDataArgs>({
-      queryFn: async ({ chain }, { dispatch }) => {
+      queryFn: async ({ chainId }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChain(
-          chain
+        const adapter = (await chainAdapters.byChainId(
+          chainId
         )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
         dispatch(stakingData.actions.setValidatorStatus('loading'))
         try {
@@ -182,10 +182,10 @@ export const stakingDataApi = createApi({
       }
     }),
     getValidatorData: build.query<chainAdapters.cosmos.Validator, SingleValidatorDataArgs>({
-      queryFn: async ({ chain, validatorAddress }, { dispatch }) => {
+      queryFn: async ({ chainId, validatorAddress }, { dispatch }) => {
         const chainAdapters = getChainAdapters()
-        const adapter = (await chainAdapters.byChain(
-          chain
+        const adapter = (await chainAdapters.byChainId(
+          chainId
         )) as CosmosSdkBaseAdapter<ChainTypes.Cosmos>
         dispatch(stakingData.actions.setValidatorStatus('loading'))
         try {

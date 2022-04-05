@@ -1,4 +1,5 @@
 import { Flex, useColorModeValue } from '@chakra-ui/react'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
@@ -9,15 +10,18 @@ import { DeviceTimeout, timeoutOptions, useKeepKey } from 'context/WalletProvide
 export const ChangeTimeout = () => {
   const translate = useTranslate()
   const { keepKeyWallet, deviceTimeout } = useKeepKey()
+  const [radioTimeout, setRadioTimeout] = useState(DeviceTimeout.TenMinutes)
 
-  const handleChangeTimeoutInitializeEvent = async (value: DeviceTimeout) => {
+  const handleChange = async (value: DeviceTimeout) => {
     const parsedTimeout = value ? parseInt(value) : parseInt(DeviceTimeout.TenMinutes)
+    value && setRadioTimeout(value)
     await keepKeyWallet?.applySettings({ autoLockDelayMs: parsedTimeout })
   }
+
   const setting = 'timeout'
   const colorScheme = useColorModeValue('blackAlpha', 'white')
   const checkColor = useColorModeValue('green', 'blue.400')
-  const defaultValue = deviceTimeout ? deviceTimeout.value : DeviceTimeout.TenMinutes
+  deviceTimeout?.value && setRadioTimeout(deviceTimeout.value)
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>
@@ -34,9 +38,9 @@ export const ChangeTimeout = () => {
         <Radio
           showCheck
           options={timeoutOptions}
-          onChange={handleChangeTimeoutInitializeEvent}
+          onChange={handleChange}
           colorScheme={colorScheme}
-          defaultValue={defaultValue}
+          defaultValue={radioTimeout}
           checkColor={checkColor}
           buttonGroupProps={{
             display: 'flex',

@@ -1,6 +1,7 @@
 import { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { RouteProps } from 'react-router-dom'
 import { KeepKeyLabel } from 'context/WalletProvider/KeepKey/components/Label'
+import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 import {
   NewKeepKeyPath,
   WipedSuccessfully
@@ -30,7 +31,6 @@ import { PortisConnect } from './Portis/components/Connect'
 import { PortisFailure } from './Portis/components/Failure'
 import { PortisSuccess } from './Portis/components/Success'
 import { PortisConfig } from './Portis/config'
-import { KeepKeyRecoverySentence } from 'context/WalletProvider/KeepKey/components/RecoverySentence'
 
 export interface SupportedWalletInfo {
   adapter: any

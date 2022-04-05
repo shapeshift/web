@@ -15,7 +15,7 @@ type GetStartedProps = {
 }
 
 // TODO: Abstract me in a service when I start to get too big
-const ASSET_ID_TO_MAX_APR: Record<string, string> = {
+const ASSET_ID_TO_MAX_APR: Record<CAIP19, string> = {
   'cosmos:cosmoshub-4/slip44:118': '12'
 }
 

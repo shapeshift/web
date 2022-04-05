@@ -38,7 +38,7 @@ export type StakingData = {
 }
 
 export type ValidatorDataByPubKey = {
-  [k: CAIP10]: chainAdapters.cosmos.Validator
+  [k: PubKey]: chainAdapters.cosmos.Validator
 }
 
 export type StakingPayload = {

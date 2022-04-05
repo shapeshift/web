@@ -10,8 +10,10 @@ import reduce from 'lodash/reduce'
 import { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
+import { PubKey } from './stakingDataSlice'
+
 export type ActiveStakingOpportunity = {
-  address: string
+  address: PubKey
   moniker: string
   apr: string
   cryptoAmount?: string
@@ -19,7 +21,10 @@ export type ActiveStakingOpportunity = {
 }
 
 export type AmountByValidatorAddressType = {
-  [k: string]: string
+  // This maps from validator pubkey -> staked asset in base precision
+  // e.g for 1 ATOM staked on ShapeShift DAO validator:
+  // {"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf": "1000000"}
+  [k: PubKey]: string
 }
 
 export const selectStakingDataIsLoaded = (state: ReduxState) =>
@@ -32,13 +37,13 @@ const selectAccountSpecifierParam = (_state: ReduxState, accountSpecifier: CAIP1
 const selectValidatorAddress = (
   _state: ReduxState,
   accountSpecifier: CAIP10,
-  validatorAddress: string
+  validatorAddress: PubKey
 ) => validatorAddress
 
 const selectAssetIdParam = (
   _state: ReduxState,
   accountSpecifier: CAIP10,
-  validatorAddress: string,
+  validatorAddress: PubKey,
   assetId: CAIP19
 ) => assetId
 
@@ -86,7 +91,7 @@ export const selectAllDelegationsCryptoAmountByAssetId = createSelector(
   }
 )
 
-export const selectDelegationCryptoAmountByValidatorAndAssetId = createSelector(
+export const selectDelegationCryptoAmountByValidator = createSelector(
   selectAllDelegationsCryptoAmountByAssetId,
   selectValidatorAddress,
   (allDelegations, validatorAddress): string => {
@@ -140,11 +145,11 @@ export const selectUnbondingEntriesByAccountSpecifier = createDeepEqualOutputSel
 export const selectAllUnbondingsEntriesByAssetId = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParam,
-  (stakingData, selectedAssetId): Record<string, chainAdapters.cosmos.UndelegationEntry[]> => {
+  (stakingData, selectedAssetId): Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]> => {
     if (!stakingData || !stakingData.undelegations) return {}
 
     return stakingData.undelegations.reduce<
-      Record<string, chainAdapters.cosmos.UndelegationEntry[]>
+      Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]>
     >((acc, { validator, entries }) => {
       if (!acc[validator.address]) {
         acc[validator.address] = []
@@ -175,7 +180,7 @@ export const selectUnbondingCryptoAmountByAssetId = createSelector(
 
 export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
   selectUnbondingCryptoAmountByAssetId,
-  selectDelegationCryptoAmountByValidatorAndAssetId,
+  selectDelegationCryptoAmountByValidator,
   selectRedelegationCryptoAmountByAssetId,
   (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string =>
     bnOrZero(unbondingCryptoBalance)
@@ -206,11 +211,11 @@ export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(
 export const selectAllRewardsByAssetId = createDeepEqualOutputSelector(
   selectStakingDataByAccountSpecifier,
   selectAssetIdParam,
-  (stakingData, selectedAssetId): Record<string, chainAdapters.cosmos.Reward[]> => {
+  (stakingData, selectedAssetId): Record<PubKey, chainAdapters.cosmos.Reward[]> => {
     if (!stakingData || !stakingData.rewards) return {}
 
     const rewards = stakingData.rewards.reduce(
-      (acc: Record<string, chainAdapters.cosmos.Reward[]>, current: ValidatorReward) => {
+      (acc: Record<PubKey, chainAdapters.cosmos.Reward[]>, current: ValidatorReward) => {
         if (!acc[current.validator.address]) {
           acc[current.validator.address] = []
         }
@@ -256,7 +261,7 @@ export const selectSingleValidator = createSelector(
 export const selectNonloadedValidators = createSelector(
   selectStakingDataByAccountSpecifier,
   selectAllValidators,
-  (stakingData, allValidators): string[] => {
+  (stakingData, allValidators): PubKey[] => {
     if (!stakingData) return []
     const initialValidatorsAddresses = stakingData.delegations?.map(x => x.validator.address) ?? []
     initialValidatorsAddresses.push(
@@ -271,12 +276,12 @@ export const selectNonloadedValidators = createSelector(
 
 export const getUndelegationsAmountByValidatorAddress = memoize(
   (
-    allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
-    validatorAddress: string
+    allUndelegationsEntries: Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]>,
+    validatorAddress: PubKey
   ) => {
     return get<
-      Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
-      string,
+      Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]>,
+      PubKey,
       chainAdapters.cosmos.UndelegationEntry[]
     >(allUndelegationsEntries, validatorAddress, [])
       .reduce(
@@ -287,21 +292,21 @@ export const getUndelegationsAmountByValidatorAddress = memoize(
       .toString()
   },
   (
-    allUndelegationsEntries: Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
-    validatorAddress: string
+    allUndelegationsEntries: Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]>,
+    validatorAddress: PubKey
   ) =>
     get<
-      Record<string, chainAdapters.cosmos.UndelegationEntry[]>,
-      string,
+      Record<PubKey, chainAdapters.cosmos.UndelegationEntry[]>,
+      PubKey,
       chainAdapters.cosmos.UndelegationEntry[]
     >(allUndelegationsEntries, validatorAddress, [])
 )
 
 export const getRewardsAmountByValidatorAddress = memoize(
-  (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) => {
+  (allRewards: Record<PubKey, chainAdapters.cosmos.Reward[]>, validatorAddress: PubKey) => {
     return get<
-      Record<string, chainAdapters.cosmos.Reward[]>,
-      string,
+      Record<PubKey, chainAdapters.cosmos.Reward[]>,
+      PubKey,
       chainAdapters.cosmos.Reward[]
     >(allRewards, validatorAddress, [])
       .reduce((acc: BigNumber, rewardEntry: chainAdapters.cosmos.Reward) => {
@@ -310,8 +315,8 @@ export const getRewardsAmountByValidatorAddress = memoize(
       }, bnOrZero(0))
       .toString()
   },
-  (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: string) =>
-    get<Record<string, chainAdapters.cosmos.Reward[]>, string, chainAdapters.cosmos.Reward[]>(
+  (allRewards: Record<string, chainAdapters.cosmos.Reward[]>, validatorAddress: PubKey) =>
+    get<Record<PubKey, chainAdapters.cosmos.Reward[]>, PubKey, chainAdapters.cosmos.Reward[]>(
       allRewards,
       validatorAddress,
       []

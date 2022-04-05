@@ -276,10 +276,11 @@ export const getUndelegationsAmountByValidatorAddress = memoize(
       validatorAddress,
       [] as chainAdapters.cosmos.UndelegationEntry[]
     )
-      .reduce((acc: BigNumber, undelegationEntry: chainAdapters.cosmos.UndelegationEntry) => {
-        acc = acc.plus(bnOrZero(undelegationEntry.amount))
-        return acc
-      }, bnOrZero(0))
+      .reduce(
+        (acc: BigNumber, undelegationEntry: chainAdapters.cosmos.UndelegationEntry) =>
+          acc.plus(bnOrZero(undelegationEntry.amount)),
+        bnOrZero(0)
+      )
       .toString()
   },
   (

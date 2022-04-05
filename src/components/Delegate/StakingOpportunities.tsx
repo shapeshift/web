@@ -227,16 +227,18 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
               />
             </HStack>
           ) : (
-            <Button
-              onClick={handleGetStartedClick}
-              as='span'
-              colorScheme='blue'
-              variant='ghost-filled'
-              size='sm'
-              cursor='pointer'
-            >
-              <Text translation='common.getStarted' />
-            </Button>
+            <Box width='100%' textAlign={'right'}>
+              <Button
+                onClick={handleGetStartedClick}
+                as='span'
+                colorScheme='blue'
+                variant='ghost-filled'
+                size='sm'
+                cursor='pointer'
+              >
+                <Text translation='common.getStarted' />
+              </Button>
+            </Box>
           )
         },
         disableSortBy: true
@@ -260,7 +262,7 @@ export const StakingOpportunities = ({ assetId }: StakingOpportunitiesProps) => 
           </Button>
         </HStack>
       </Card.Header>
-      <Card.Body pt={0}>
+      <Card.Body pt={0} px={2}>
         <ReactTable
           data={
             !hasActiveStakingOpportunities && isLoaded

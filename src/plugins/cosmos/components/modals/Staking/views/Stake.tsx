@@ -5,37 +5,37 @@ import {
   Divider,
   FormControl,
   FormHelperText,
-  Grid,
-  GridItem,
   Link,
+  Stack,
   Text as CText,
   useColorModeValue,
   VStack
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, MarketData } from '@shapeshiftoss/types'
-import get from 'lodash/get'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { AssetHoldingsCard } from 'plugins/cosmos/components/AssetHoldingsCard/AssetHoldingsCard'
 import { EstimatedReturnsRow } from 'plugins/cosmos/components/EstimatedReturnsRow/EstimatedReturnsRow'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceByAssetId
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { Field, InputType, StakingPath, StakingValues } from '../StakingCommon'
 
 type StakeProps = {
   apr: string
   assetId: CAIP19
-  cryptoAmountAvailable: string
-  fiatAmountAvailable: string
-  marketData: MarketData
   validatorAddress: string
 }
 
@@ -44,34 +44,23 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).div(100).toString()
 }
 
-// TODO: Wire up the whole component with staked data
-export const Stake = ({
-  assetId,
-  apr,
-  cryptoAmountAvailable,
-  fiatAmountAvailable,
-  marketData,
-  validatorAddress
-}: StakeProps) => {
+export const Stake = ({ assetId, apr, validatorAddress }: StakeProps) => {
   const {
-    clearErrors,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     handleSubmit,
-    setError,
     setValue
-  } = useForm<StakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FiatAmount]: '',
-      [Field.CryptoAmount]: ''
-    }
-  })
+  } = useFormContext<StakingValues>()
+
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByAssetId(state, assetId))
+  const cryptoBalanceHuman = bnOrZero(balance).div(`1e+${asset?.precision}`)
+
+  const fiatAmountAvailable = cryptoBalanceHuman.times(bnOrZero(marketData.price)).toString()
 
   const values = useWatch({ control })
-  const cryptoError = get(errors, 'cryptoAmount.message', null)
-  const fiatError = get(errors, 'fiatAmount.message', null)
-  const fieldError = cryptoError ?? fiatError
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
 
@@ -97,7 +86,7 @@ export const Stake = ({
   const translate = useTranslate()
 
   const handlePercentClick = (_percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountAvailable).times(_percent)
+    const cryptoAmount = bnOrZero(cryptoBalanceHuman).times(_percent)
     const fiat = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
       setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
@@ -110,6 +99,12 @@ export const Stake = ({
   }
 
   const handleInputChange = (value: string) => {
+    if (bnOrZero(value).gt(cryptoBalanceHuman)) {
+      setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+    } else if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
+    }
+
     setPercent(null)
     if (activeField === InputType.Crypto) {
       const fiat = bnOrZero(value).times(marketData.price)
@@ -122,21 +117,9 @@ export const Stake = ({
 
   const handleInputToggle = () => {
     const field = activeField === InputType.Crypto ? InputType.Fiat : InputType.Crypto
-    if (fieldError) {
-      // Toggles an existing error to the other field if present
-      clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
-      setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
-      })
-    }
     setActiveField(field)
   }
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId
-  }))(assetId) as Asset
+
   return (
     <SlideTransition>
       <Flex
@@ -157,12 +140,12 @@ export const Stake = ({
           py='8px'
           mb={6}
           assetSymbol={asset.symbol}
-          cryptoAmountAvailable={cryptoAmountAvailable}
+          cryptoAmountAvailable={cryptoBalanceHuman.toString()}
           fiatAmountAvailable={fiatAmountAvailable}
         />
         <FormControl mb={6}>
           <AmountToStake
-            values={{ fiatAmount: fiatAmountAvailable, cryptoAmount: cryptoAmountAvailable }}
+            values={{ fiatAmount: values.fiatAmount, cryptoAmount: values.cryptoAmount }}
             isCryptoField={activeField === InputType.Crypto}
             asset={asset}
             onInputToggle={handleInputToggle}
@@ -204,42 +187,35 @@ export const Stake = ({
             </Box>
           </VStack>
         </FormControl>
-        <Grid templateColumns='repeat(6, 1fr)' gap={2}>
-          <GridItem colSpan={4}>
-            <CText fontSize='14px' color='gray.500' mb='20px' lineHeight='1.3'>
-              {`${translate('defi.modals.staking.byContinuing')} `}
-              <Link
-                color={'blue.200'}
-                fontWeight='bold'
-                target='_blank'
-                href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
-              >
-                {`${translate('defi.modals.staking.risks')}`}
-              </Link>
-              {` ${translate('defi.modals.staking.ofParticipating')} `}
-              <Link
-                color={'blue.200'}
-                fontWeight='bold'
-                target='_blank'
-                href='/legal/privacy-policy'
-              >
-                {`${translate('defi.modals.staking.terms')}.`}
-              </Link>
-            </CText>
-          </GridItem>
-          <GridItem colSpan={2}>
-            <Button
-              colorScheme={fieldError ? 'red' : 'blue'}
-              isDisabled={!isValid}
-              mb={2}
-              size='lg'
-              type='submit'
-              width='full'
+        <Stack direction='row' width='full' justifyContent='space-between'>
+          <CText fontSize='14px' color='gray.500' mb='20px' lineHeight='1.3'>
+            {`${translate('defi.modals.staking.byContinuing')} `}
+            <Link
+              color={'blue.200'}
+              fontWeight='bold'
+              target='_blank'
+              href='https://cosmos.network/learn/faq/what-are-the-risks-associated-with-staking'
             >
-              <Text translation={fieldError ?? 'common.continue'} />
-            </Button>
-          </GridItem>
-        </Grid>
+              {`${translate('defi.modals.staking.risks')}`}
+            </Link>
+            {` ${translate('defi.modals.staking.ofParticipating')} `}
+            <Link color={'blue.200'} fontWeight='bold' target='_blank' href='/legal/privacy-policy'>
+              {`${translate('defi.modals.staking.terms')}.`}
+            </Link>
+          </CText>
+          <Button
+            colorScheme={values.amountFieldError ? 'red' : 'blue'}
+            isDisabled={Boolean(!isValid || values.amountFieldError)}
+            mb={2}
+            minWidth='auto'
+            size='lg'
+            type='submit'
+          >
+            <Text
+              translation={values.amountFieldError ? values.amountFieldError : 'common.continue'}
+            />
+          </Button>
+        </Stack>
       </Flex>
     </SlideTransition>
   )

@@ -1,5 +1,13 @@
 import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState
+} from 'react'
 import { RadioOption } from 'components/Radio/Radio'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -115,14 +123,14 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     })()
   }, [keepKeyWallet])
 
-  const reset = () => dispatch({ type: KeepKeyActions.RESET_STATE })
+  const reset = useCallback(() => dispatch({ type: KeepKeyActions.RESET_STATE }), [])
 
-  const updateStatus = (status: UpdateStatus) => {
+  const updateStatus = useCallback((status: UpdateStatus) => {
     dispatch({
       type: KeepKeyActions.SET_UPDATE_STATUS,
       payload: status
     })
-  }
+  }, [])
 
   useKeepKeyEventHandler(
     walletState,
@@ -143,7 +151,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
       keepKeyWallet,
       deviceTimeout
     }),
-    [deviceTimeout, keepKeyWallet, passphrase, pinCaching, state]
+    [deviceTimeout, keepKeyWallet, passphrase, pinCaching, reset, state, updateStatus]
   )
 
   return <KeepKeyContext.Provider value={value}>{children}</KeepKeyContext.Provider>

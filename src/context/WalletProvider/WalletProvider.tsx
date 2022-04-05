@@ -362,19 +362,18 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     }
   }, [])
 
-  const setAwaitingDeviceInteraction = (awaitingDeviceInteraction: boolean) => {
+  const setAwaitingDeviceInteraction = useCallback((awaitingDeviceInteraction: boolean) => {
     dispatch({
       type: WalletActions.SET_AWAITING_DEVICE_INTERACTION,
       payload: awaitingDeviceInteraction
     })
-  }
+  }, [])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => load(), [state.adapters, state.keyring])
+  useEffect(() => load(), [load, state.adapters, state.keyring])
 
   const value: IWalletContext = useMemo(
     () => ({ state, dispatch, connect, create, disconnect, load, setAwaitingDeviceInteraction }),
-    [state, connect, create, disconnect, load]
+    [state, connect, create, disconnect, load, setAwaitingDeviceInteraction]
   )
 
   return (

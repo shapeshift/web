@@ -26,6 +26,9 @@ export const useKeepKeyEventHandler = (
           loadWallet()
           updateStatus('success')
           break
+        case MessageType.BUTTONREQUEST:
+          setAwaitingDeviceInteraction(true)
+          break
         case MessageType.PASSPHRASEREQUEST:
           if (!modal) {
             dispatch({ type: WalletActions.OPEN_KEEPKEY_PASSPHRASE, payload: { deviceId } })
@@ -133,13 +136,11 @@ export const useKeepKeyEventHandler = (
     // HDWallet emits (DIS)CONNECT events as "KeepKey - {LABEL}" so we can't just listen for "KeepKey"
     keyring.on(['*', '*', Events.CONNECT], handleConnect)
     keyring.on(['*', '*', Events.DISCONNECT], handleDisconnect)
-    keyring.on(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingDeviceInteraction(true))
 
     return () => {
       keyring.off(['KeepKey', '*', '*'], handleEvent)
       keyring.off(['*', '*', Events.CONNECT], handleConnect)
       keyring.off(['*', '*', Events.DISCONNECT], handleDisconnect)
-      keyring.off(['*', '*', Events.BUTTON_REQUEST], () => setAwaitingDeviceInteraction(true))
     }
   }, [
     dispatch,

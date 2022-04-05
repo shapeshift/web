@@ -11,7 +11,7 @@ type AllStakingDataArgs = { accountSpecifier: CAIP10 }
 
 type AllValidatorDataArgs = { chainId: CAIP2 }
 
-type SingleValidatorDataArgs = { chainId: CAIP2; validatorAddress: string }
+type SingleValidatorDataArgs = { chainId: CAIP2; validatorAddress: PubKey }
 
 export type StakingDataStatus = 'idle' | 'loading' | 'loaded'
 

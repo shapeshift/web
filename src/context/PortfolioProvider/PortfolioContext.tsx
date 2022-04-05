@@ -112,7 +112,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
               const pubkey = await adapter.getAddress({ wallet })
               if (!pubkey) continue
               const CAIP2 = caip2.toCAIP2({ chain, network: NetworkTypes.MAINNET })
-              acc.push({ [CAIP2]: pubkey })
+              acc.push({ [CAIP2]: pubkey.toLowerCase() })
               break
             }
             case ChainTypes.Bitcoin: {

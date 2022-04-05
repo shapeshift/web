@@ -10,39 +10,40 @@ import {
   Tooltip
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
-import { Asset } from '@shapeshiftoss/types'
+// @ts-ignore this will fail at 'file differs in casing' error
+import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
+import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
 import { AprTag } from 'plugins/cosmos/components/AprTag/AprTag'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
+import { useEffect, useMemo, useState } from 'react'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { BigNumber } from 'lib/bignumber/bignumber'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectSingleValidator
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import { StakingPath } from '../StakingCommon'
+import { Field, StakingPath, StakingValues } from '../StakingCommon'
 
 export enum InputType {
   Crypto = 'crypto',
   Fiat = 'fiat'
 }
 
-export enum Field {
-  FeeType = 'feeType'
-}
-
-export type StakingValues = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
-}
-
 type StakeProps = {
   assetId: CAIP19
-  apr: string
-  fiatRate: BigNumber
-  cryptoStakeAmount: BigNumber
+  accountSpecifier: string
+  validatorAddress: string
   onCancel: () => void
 }
 
@@ -53,44 +54,65 @@ function calculateYearlyYield(apy: string, amount: string = '') {
 
 const DEFAULT_VALIDATOR_NAME = 'Shapeshift Validator'
 
-// TODO: Wire up the whole component with staked data
 export const StakeConfirm = ({
-  apr,
   assetId,
-  cryptoStakeAmount,
-  fiatRate,
+  accountSpecifier,
+  validatorAddress,
   onCancel
 }: StakeProps) => {
-  const methods = useForm<StakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FeeType]: chainAdapters.FeeDataKey.Average
-    }
-  })
+  const [feeData, setFeeData] = useState<FeePrice | null>(null)
 
-  const { handleSubmit } = methods
-
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const validatorInfo = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, validatorAddress)
+  )
+  const chainAdapterManager = useChainAdapters()
+  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
+  const translate = useTranslate()
   const memoryHistory = useHistory()
-  const onSubmit = (_: any) => {
-    memoryHistory.push(StakingPath.Broadcast, {
-      cryptoAmount: cryptoStakeAmount,
-      fiatRate,
-      apr
-    })
+
+  const methods = useFormContext<StakingValues>()
+  const { handleSubmit, control } = methods
+  const { cryptoAmount } = useWatch({ control })
+
+  const fiatStakeAmount = useMemo(
+    () => bnOrZero(cryptoAmount).times(marketData.price).toString(),
+    [cryptoAmount, marketData.price]
+  )
+
+  useEffect(() => {
+    ;(async () => {
+      const feeData = await adapter.getFeeData({})
+
+      const txFees = getFormFees(feeData, asset.precision, marketData.price)
+
+      setFeeData(txFees)
+    })()
+  }, [adapter, asset.precision, marketData.price])
+
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const cryptoYield = calculateYearlyYield(validatorInfo?.apr, bnOrZero(cryptoAmount).toPrecision())
+  const fiatYield = bnOrZero(cryptoYield).times(bnOrZero(marketData.price)).toPrecision()
+
+  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+    if (!wallet || !feeData) return
+
+    const fees = feeData[feeType]
+    const gas = fees.chainSpecific.gasLimit
+
+    methods.setValue(Field.GasLimit, gas)
+    methods.setValue(Field.TxFee, fees.txFee)
+    methods.setValue(Field.FiatFee, fees.fiatFee)
+
+    memoryHistory.push(StakingPath.Broadcast)
   }
 
-  const cryptoYield = calculateYearlyYield(apr, cryptoStakeAmount.toPrecision())
-  const fiatYield = bnOrZero(cryptoYield).times(fiatRate).toPrecision()
+  if (!cryptoAmount) return null
 
-  const translate = useTranslate()
-
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis',
-    symbol: 'OSMO',
-    caip19: assetId,
-    chain: 'osmosis'
-  }))(assetId) as Asset
   return (
     <FormProvider {...methods}>
       <SlideTransition>
@@ -107,15 +129,8 @@ export const StakeConfirm = ({
           <Flex width='100%' mb='20px' justifyContent='space-between'>
             <Text color='gray.500' translation={'defi.stake'} />
             <Flex direction='column' alignItems='flex-end'>
-              <Amount.Fiat
-                fontWeight='semibold'
-                value={cryptoStakeAmount.times(fiatRate).toPrecision()}
-              />
-              <Amount.Crypto
-                color='gray.500'
-                value={cryptoStakeAmount.toPrecision()}
-                symbol={asset.symbol}
-              />
+              <Amount.Fiat fontWeight='semibold' value={fiatStakeAmount} />
+              <Amount.Crypto color='gray.500' value={cryptoAmount} symbol={asset.symbol} />
             </Flex>
           </Flex>
           <Flex width='100%' mb='30px' justifyContent='space-between'>
@@ -132,7 +147,7 @@ export const StakeConfirm = ({
           </Flex>
           <Flex width='100%' mb='35px' justifyContent='space-between'>
             <Text translation={'defi.averageApr'} color='gray.500' />
-            <AprTag percentage='0.125' />
+            <AprTag percentage={validatorInfo?.apr} />
           </Flex>
           <Flex width='100%' mb='13px' justifyContent='space-between'>
             <Text translation={'defi.estimatedYearlyRewards'} color='gray.500' />
@@ -155,31 +170,14 @@ export const StakeConfirm = ({
             </CText>
           </Flex>
           <FormControl>
-            <TxFeeRadioGroup
-              asset={asset}
-              mb='10px'
-              fees={{
-                slow: {
-                  txFee: '0.004',
-                  fiatFee: '0.1'
-                },
-                average: {
-                  txFee: '0.008',
-                  fiatFee: '0.2'
-                },
-                fast: {
-                  txFee: '0.012',
-                  fiatFee: '0.3'
-                }
-              }}
-            />
+            <TxFeeRadioGroup asset={asset} mb='10px' fees={feeData} />
           </FormControl>
           <ModalFooter width='100%' py='0' px='0' flexDir='column' textAlign='center' mt={1}>
             <Text
               textAlign='left'
               fontSize='sm'
               color='gray.500'
-              translation={['defi.unbondInfoItWillTake', { unbondingDays: '14' }]}
+              translation={['defi.unbondInfoItWillTake', { unbondingDays: '21' }]}
               mb='18px'
             />
             <Stack direction='row' width='full' justifyContent='space-between'>

@@ -1,5 +1,5 @@
 import { Flex, useColorModeValue } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
@@ -21,7 +21,12 @@ export const ChangeTimeout = () => {
   const setting = 'timeout'
   const colorScheme = useColorModeValue('blackAlpha', 'white')
   const checkColor = useColorModeValue('green', 'blue.400')
-  deviceTimeout?.value && setRadioTimeout(deviceTimeout.value)
+
+  useEffect(() => {
+    if (deviceTimeout?.value) {
+      setRadioTimeout(deviceTimeout.value)
+    }
+  }, [deviceTimeout?.value])
 
   return (
     <Flex flexDir='column' ml={3} mr={3} mb={3} maxWidth='300px'>

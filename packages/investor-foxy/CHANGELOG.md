@@ -1,3 +1,10 @@
+# [@shapeshiftoss/investor-foxy-v1.3.3](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.2...@shapeshiftoss/investor-foxy-v1.3.3) (2022-04-05)
+
+
+### Bug Fixes
+
+* time to claim ([#511](https://github.com/shapeshift/lib/issues/511)) ([447ee11](https://github.com/shapeshift/lib/commit/447ee11306aa502b92b08bce344a627cb489e02b))
+
 # [@shapeshiftoss/investor-foxy-v1.3.2](https://github.com/shapeshift/lib/compare/@shapeshiftoss/investor-foxy-v1.3.1...@shapeshiftoss/investor-foxy-v1.3.2) (2022-04-01)
 
 

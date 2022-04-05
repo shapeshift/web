@@ -162,6 +162,12 @@ export const selectAllUnbondingsEntriesByAssetId = createDeepEqualOutputSelector
   }
 )
 
+export const selectAllUnbondingsEntriesByAssetIdAndValidator = createSelector(
+  selectAllUnbondingsEntriesByAssetId,
+  selectValidatorAddress,
+  (unbondingEntries, validatorAddress) => unbondingEntries[validatorAddress]
+)
+
 export const selectUnbondingCryptoAmountByAssetId = createSelector(
   selectUnbondingEntriesByAccountSpecifier,
   selectAssetIdParam,
@@ -178,15 +184,11 @@ export const selectUnbondingCryptoAmountByAssetId = createSelector(
   }
 )
 
-export const selectTotalBondingsBalanceByAccountSpecifier = createSelector(
+export const selectTotalBondingsBalanceByAssetId = createSelector(
   selectUnbondingCryptoAmountByAssetId,
   selectDelegationCryptoAmountByValidator,
-  selectRedelegationCryptoAmountByAssetId,
-  (unbondingCryptoBalance, delegationCryptoBalance, redelegationCryptoBalance): string =>
-    bnOrZero(unbondingCryptoBalance)
-      .plus(bnOrZero(delegationCryptoBalance))
-      .plus(bnOrZero(redelegationCryptoBalance))
-      .toString()
+  (unbondingCryptoBalance, delegationCryptoBalance): string =>
+    bnOrZero(unbondingCryptoBalance).plus(bnOrZero(delegationCryptoBalance)).toString()
 )
 
 export const selectRewardsByAccountSpecifier = createDeepEqualOutputSelector(

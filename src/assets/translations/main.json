@@ -152,6 +152,8 @@
         "risks": "risks",
         "ofParticipating": "of participating in this feature and agreeing to the",
         "terms": "terms",
+        "stakingYourTokens": "Staking your tokens",
+        "unstakingYourTokens": "Unstaking your tokens",
         "tooltip": {
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."

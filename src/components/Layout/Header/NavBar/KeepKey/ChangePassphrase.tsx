@@ -1,19 +1,31 @@
-import { Flex, FormControl, FormLabel, Switch } from '@chakra-ui/react'
+import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ChangePassphrase = () => {
   const translate = useTranslate()
-  const { keepKeyWallet, passphrase } = useKeepKey()
+  const {
+    keepKeyWallet,
+    setHasPassphrase,
+    state: { hasPassphrase }
+  } = useKeepKey()
+  const {
+    state: { awaitingDeviceInteraction }
+  } = useWallet()
 
   const handleToggle = async () => {
-    if (passphrase !== undefined) {
-      await keepKeyWallet?.applySettings({ usePassphrase: !passphrase })
-    } else return
+    setHasPassphrase(!hasPassphrase)
+    await keepKeyWallet?.applySettings({ usePassphrase: hasPassphrase })
   }
+
+  const onCancel = () => {
+    setHasPassphrase(!hasPassphrase)
+  }
+
   const setting = 'Passphrase'
 
   return (
@@ -23,18 +35,26 @@ export const ChangePassphrase = () => {
         description={translate('walletProvider.keepKey.settings.descriptions.passphrase')}
       />
       <ShowUpdateStatus setting={setting} />
-      <AwaitKeepKey
-        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-      >
-        <FormControl display='flex' alignItems='center'>
-          <FormLabel flexGrow={1} htmlFor='pin-caching' mb='0'>
+      <FormControl display='flex' alignItems='center'>
+        <Flex flexGrow={1}>
+          <FormLabel htmlFor='pin-caching' mb='0'>
             {translate('walletProvider.keepKey.settings.actions.enable', {
               setting
             })}
           </FormLabel>
-          <Switch id='passphrase' isChecked={passphrase} onChange={handleToggle} />
-        </FormControl>
-      </AwaitKeepKey>
+          {awaitingDeviceInteraction && <Spinner thickness='4px' />}
+        </Flex>
+        <Switch
+          id='passphrase'
+          isDisabled={awaitingDeviceInteraction}
+          isChecked={hasPassphrase}
+          onChange={handleToggle}
+        />
+      </FormControl>
+      <AwaitKeepKey
+        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+        onCancel={onCancel}
+      />
     </Flex>
   )
 }

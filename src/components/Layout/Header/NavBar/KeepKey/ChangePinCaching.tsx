@@ -1,24 +1,36 @@
-import { Flex, FormControl, FormLabel, Switch } from '@chakra-ui/react'
+import { Flex, FormControl, FormLabel, Spinner, Switch } from '@chakra-ui/react'
 import * as Types from '@keepkey/device-protocol/lib/types_pb'
 import { useTranslate } from 'react-polyglot'
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { ShowUpdateStatus } from 'components/Layout/Header/NavBar/KeepKey/ShowUpdateStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 export const ChangePinCaching = () => {
   const translate = useTranslate()
-  const { keepKeyWallet, pinCaching } = useKeepKey()
+  const {
+    keepKeyWallet,
+    setHasPinCaching,
+    state: { hasPinCaching }
+  } = useKeepKey()
+  const {
+    state: { awaitingDeviceInteraction }
+  } = useWallet()
 
   const handleToggle = async () => {
-    if (pinCaching !== undefined) {
-      const newPinCachingPolicy: Required<Types.PolicyType.AsObject> = {
-        policyName: 'Pin Caching',
-        enabled: !pinCaching
-      }
-      await keepKeyWallet?.applyPolicy(newPinCachingPolicy)
-    } else return
+    setHasPinCaching(!hasPinCaching)
+    const newPinCachingPolicy: Required<Types.PolicyType.AsObject> = {
+      policyName: 'Pin Caching',
+      enabled: hasPinCaching || false
+    }
+    await keepKeyWallet?.applyPolicy(newPinCachingPolicy)
   }
+
+  const onCancel = () => {
+    setHasPinCaching(!hasPinCaching)
+  }
+
   const setting = 'PIN caching'
 
   return (
@@ -28,18 +40,26 @@ export const ChangePinCaching = () => {
         description={translate('walletProvider.keepKey.settings.descriptions.pinCaching')}
       />
       <ShowUpdateStatus setting={setting} />
-      <AwaitKeepKey
-        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
-      >
-        <FormControl display='flex' alignItems='center'>
-          <FormLabel flexGrow={1} htmlFor='pin-caching' mb='0'>
+      <FormControl display='flex' alignItems='center'>
+        <Flex flexGrow={1}>
+          <FormLabel htmlFor='pin-caching' mb='0'>
             {translate('walletProvider.keepKey.settings.actions.enable', {
               setting
             })}
           </FormLabel>
-          <Switch id='pin-caching' isChecked={pinCaching} onChange={handleToggle} />
-        </FormControl>
-      </AwaitKeepKey>
+          {awaitingDeviceInteraction && <Spinner thickness='4px' />}
+        </Flex>
+        <Switch
+          id='pin-caching'
+          isDisabled={awaitingDeviceInteraction}
+          isChecked={hasPinCaching}
+          onChange={handleToggle}
+        />
+      </FormControl>
+      <AwaitKeepKey
+        translation={['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }]}
+        onCancel={onCancel}
+      />
     </Flex>
   )
 }

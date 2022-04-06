@@ -18,6 +18,11 @@ export const WipeModal = () => {
     state: { awaitingDeviceInteraction }
   } = useWallet()
 
+  const onClose = () => {
+    keepKeyWallet?.cancel()
+    close()
+  }
+
   const wipeDevice = async () => {
     await keepKeyWallet?.wipe()
     disconnect()
@@ -25,7 +30,7 @@ export const WipeModal = () => {
   }
 
   return (
-    <Modal isCentered closeOnOverlayClick closeOnEsc isOpen={isOpen} onClose={close}>
+    <Modal isCentered closeOnOverlayClick closeOnEsc isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
         <ModalHeader>

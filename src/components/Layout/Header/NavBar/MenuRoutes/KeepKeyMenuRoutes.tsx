@@ -24,7 +24,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const KeepKeyMenuRoutes = () => {
   const { navigateToRoute } = useMenuRoutes()
   const translate = useTranslate()
-  const { keepKeyWallet, pinCaching, deviceTimeout } = useKeepKey()
+  const {
+    keepKeyWallet,
+    state: { hasPinCaching },
+    deviceTimeout
+  } = useKeepKey()
   const versions = useKeepKeyVersions()
   const { state } = useWallet()
   const { isConnected, walletInfo } = state
@@ -136,8 +140,8 @@ export const KeepKeyMenuRoutes = () => {
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPinCaching)}
             label={translate('walletProvider.keepKey.settings.menuLabels.pinCaching')}
             hasSubmenu={true}
-            value={getBooleanLabel(pinCaching)}
-            valueDisposition={pinCaching ? 'positive' : 'neutral'}
+            value={getBooleanLabel(hasPinCaching)}
+            valueDisposition={hasPinCaching ? 'positive' : 'neutral'}
           />
           <ExpandedMenuItem
             onClick={() => navigateToRoute(WalletConnectedRoutes.KeepKeyPassphrase)}

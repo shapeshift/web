@@ -7,14 +7,16 @@ import { Text } from 'components/Text'
 
 type ClaimButtonProps = {
   assetId: CAIP19
+  validatorAddress: string
 }
 
-export const ClaimButton = ({ assetId }: ClaimButtonProps & FlexProps) => {
+export const ClaimButton = ({ assetId, validatorAddress }: ClaimButtonProps & FlexProps) => {
   const history = useHistory()
 
   const handleClaimClick = () => {
     history.push(ClaimPath.Confirm, {
-      assetId
+      assetId,
+      validatorAddress
     })
   }
 

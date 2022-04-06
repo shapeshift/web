@@ -160,7 +160,7 @@ export const TransactionsProvider = ({ children }: TransactionsProviderProps): J
     if (isEmpty(assets)) return
     if (!walletInfo?.deviceId) return // we can't be loaded if the wallet isn't connected
     if (txHistoryStatus !== 'loading') return // only start logic below once we know we're loading
-    const TX_DEBOUNCE_DELAY = 5000
+    const TX_DEBOUNCE_DELAY = 10000
     const timer = setTimeout(
       () => dispatch(txHistory.actions.setStatus('loaded')),
       TX_DEBOUNCE_DELAY

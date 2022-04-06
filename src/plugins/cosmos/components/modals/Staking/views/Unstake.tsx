@@ -31,7 +31,8 @@ import { useAppSelector } from 'state/store'
 
 import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
-const UNBONDING_DURATION = '14'
+// TODO(gomes): Make this dynamic, this should come from chain-adapters when ready there
+const UNBONDING_DURATION = '21'
 
 export enum InputType {
   Crypto = 'crypto',
@@ -144,7 +145,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
             <Text
               lineHeight={1}
               color='gray.500'
-              translation={['staking.assetStakingBalance', { assetName: asset.name }]}
+              translation={['staking.assetStakingBalance', { assetSymbol: asset.symbol }]}
             />
             <Amount.Crypto
               fontWeight='bold'
@@ -201,7 +202,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
               {`${UNBONDING_DURATION} ${translate('common.days')}`}
             </Box>
             <span> </span>
-            {translate('staking.toUnlock')}
+            {translate('staking.toUnlock', { assetSymbol: asset.symbol })}
           </CText>
 
           <Divider />

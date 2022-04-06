@@ -10,13 +10,11 @@ import {
   VStack
 } from '@chakra-ui/react'
 import { CAIP19 } from '@shapeshiftoss/caip'
-import { Asset, MarketData } from '@shapeshiftoss/types'
-import get from 'lodash/get'
 import { AmountToStake } from 'plugins/cosmos/components/AmountToStake/AmountToStake'
 import { PercentOptionsRow } from 'plugins/cosmos/components/PercentOptionsRow/PercentOptionsRow'
 import { StakingInput } from 'plugins/cosmos/components/StakingInput/StakingInput'
 import { useRef, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -24,8 +22,14 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetByCAIP19,
+  selectMarketDataById,
+  selectTotalBondingsBalanceByAssetId
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import { UnstakingPath } from '../StakingCommon'
+import { Field, StakingValues, UnstakingPath } from '../StakingCommon'
 
 const UNBONDING_DURATION = '14'
 
@@ -34,44 +38,30 @@ export enum InputType {
   Fiat = 'fiat'
 }
 
-export enum Field {
-  FiatAmount = 'fiatAmount',
-  CryptoAmount = 'cryptoAmount'
-}
-
-export type UnstakingValues = {
-  [Field.FiatAmount]: string
-  [Field.CryptoAmount]: string
-}
-
 type UnstakeProps = {
   apr: string
   assetId: CAIP19
-  cryptoAmountStaked: string
-  marketData: MarketData
+  accountSpecifier: string
+  validatorAddress: string
 }
 
-// TODO: Wire up the whole component with staked data
-export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: UnstakeProps) => {
+export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: UnstakeProps) => {
   const {
-    clearErrors,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     handleSubmit,
-    setError,
     setValue
-  } = useForm<UnstakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FiatAmount]: '',
-      [Field.CryptoAmount]: ''
-    }
-  })
+  } = useFormContext<StakingValues>()
 
   const values = useWatch({ control })
-  const cryptoError = get(errors, 'cryptoAmount.message', null)
-  const fiatError = get(errors, 'fiatAmount.message', null)
-  const fieldError = cryptoError || fiatError
+
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const totalBondings = useAppSelector(state =>
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, assetId)
+  )
+  const cryptoBalanceHuman = bnOrZero(totalBondings).div(`1e+${asset?.precision}`)
+
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
 
@@ -86,7 +76,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
 
   const onSubmit = (_: any) => {
     memoryHistory.push(UnstakingPath.Confirm, {
-      cryptoAmount: bnOrZero(values.cryptoAmount),
+      cryptoAmount: bnOrZero(values.cryptoAmount).times(`1e+${asset?.precision}`).toString(),
       assetId,
       fiatRate: bnOrZero(marketData.price)
     })
@@ -99,7 +89,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
   }
 
   const handlePercentClick = (_percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoAmountStaked).times(_percent)
+    const cryptoAmount = bnOrZero(cryptoBalanceHuman).times(_percent)
     const fiat = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
       setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
@@ -112,6 +102,11 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
   }
 
   const handleInputChange = (value: string) => {
+    if (bnOrZero(value).gt(cryptoBalanceHuman)) {
+      setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+    } else if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
+    }
     setPercent(null)
     if (activeField === InputType.Crypto) {
       const fiat = bnOrZero(value).times(marketData.price)
@@ -124,20 +119,9 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
 
   const handleInputToggle = () => {
     const field = activeField === InputType.Crypto ? InputType.Fiat : InputType.Crypto
-    if (fieldError) {
-      // Toggles an existing error to the other field if present
-      clearErrors(fiatError ? Field.FiatAmount : Field.CryptoAmount)
-      setError(fiatError ? Field.CryptoAmount : Field.FiatAmount, {
-        message: 'common.insufficientFunds'
-      })
-    }
     setActiveField(field)
   }
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmo',
-    symbol: 'OSMO'
-  }))(assetId) as Asset
+
   return (
     <SlideTransition>
       <Box
@@ -164,7 +148,7 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
             />
             <Amount.Crypto
               fontWeight='bold'
-              value={cryptoAmountStaked || ''}
+              value={bnOrZero(totalBondings).div(`1e+${asset?.precision}`).toString()}
               symbol={asset.symbol}
             />
           </Flex>
@@ -228,13 +212,13 @@ export const Unstake = ({ assetId, apr, cryptoAmountStaked, marketData }: Unstak
                 <Text translation='common.cancel' />
               </Button>
               <Button
-                colorScheme={fieldError ? 'red' : 'blue'}
+                colorScheme={values.amountFieldError ? 'red' : 'blue'}
                 isDisabled={!isValid}
                 mb={2}
                 size='lg'
                 type='submit'
               >
-                <Text translation={fieldError || 'common.continue'} />
+                <Text translation={values.amountFieldError || 'common.continue'} />
               </Button>
             </Stack>
           </ModalFooter>

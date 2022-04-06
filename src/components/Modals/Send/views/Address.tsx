@@ -25,8 +25,7 @@ import { ensLookup, ensReverseLookup } from 'lib/ens'
 
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
-import { SendFormFields } from '../SendCommon'
-import { SendRoutes } from '../SendCommon'
+import { SendFormFields, SendRoutes } from '../SendCommon'
 
 export const Address = () => {
   const [isValidatingEnsName, setisValidatingEnsName] = useState(false)

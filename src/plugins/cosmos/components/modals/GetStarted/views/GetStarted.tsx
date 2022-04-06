@@ -7,15 +7,19 @@ import { useHistory, useLocation } from 'react-router-dom'
 import osmosis from 'assets/osmosis.svg'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { selectAssetByCAIP19 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type GetStartedProps = {
   assetId: CAIP19
 }
 
 // TODO: Abstract me in a service when I start to get too big
-const ASSET_ID_TO_MAX_APR = {
-  'cosmoshub-4/slip44:118': '12'
+const ASSET_ID_TO_MAX_APR: Record<CAIP19, string> = {
+  'cosmos:cosmoshub-4/slip44:118': '12'
 }
+
+const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
 export const GetStarted = ({ assetId }: GetStartedProps) => {
   const { cosmosGetStarted, cosmosStaking } = useModal()
@@ -29,14 +33,16 @@ export const GetStarted = ({ assetId }: GetStartedProps) => {
   }
 
   const handleStartStakingClick = () => {
-    cosmosStaking.open({ assetId })
+    cosmosStaking.open({
+      assetId,
+      validatorAddress: SHAPESHIFT_VALIDATOR_ADDRESS
+    })
     cosmosGetStarted.close()
   }
-  // TODO: wire me up, parentheses are nice but let's get asset name from selectAssetNameById instead of this
-  const asset = (_ => ({
-    name: 'Osmosis'
-  }))(assetId)
-  const maxApr = ASSET_ID_TO_MAX_APR['cosmoshub-4/slip44:118']
+
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+  const maxApr = ASSET_ID_TO_MAX_APR[assetId]
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Box pt='51px' pb='20px' px='24px'>

@@ -1,75 +1,41 @@
 import { Box, Flex } from '@chakra-ui/layout'
 import { Skeleton } from '@chakra-ui/react'
-import { caip10, CAIP19 } from '@shapeshiftoss/caip'
-import { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { ChainTypes } from '@shapeshiftoss/types'
+import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { AssetClaimCard } from 'plugins/cosmos/components/AssetClaimCard/AssetClaimCard'
 import { ClaimButton } from 'plugins/cosmos/components/ClaimButton/ClaimButton'
 import { StakedRow } from 'plugins/cosmos/components/StakedRow/StakedRow'
 import { UnbondingRow } from 'plugins/cosmos/components/UnbondingRow/UnbondingRow'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { Text } from 'components/Text'
-import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
-  ASSET_ID_TO_DENOM,
-  selectRewardsAmountByDenom,
-  selectStakingDataStatus,
-  selectTotalBondingsBalanceByAccountSpecifier,
-  selectUnbondingEntriesByAccountSpecifier
+  selectAllUnbondingsEntriesByAssetIdAndValidator,
+  selectRewardsAmountByAssetId,
+  selectSingleValidator,
+  selectStakingDataIsLoaded,
+  selectTotalBondingsBalanceByAssetId
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type StakedProps = {
   assetId: CAIP19
+  validatorAddress: string
+  accountSpecifier: CAIP10
 }
 
-const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
-
-export const Overview = ({ assetId }: StakedProps) => {
-  const stakingDataStatus = useAppSelector(selectStakingDataStatus)
-  const isLoaded = stakingDataStatus === 'loaded'
+export const Overview: React.FC<StakedProps> = ({
+  assetId,
+  validatorAddress,
+  accountSpecifier
+}) => {
+  const isLoaded = useAppSelector(selectStakingDataIsLoaded)
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
-  const [chainAdapter, setChainAdapter] = useState<ChainAdapter<ChainTypes> | null>(null)
-  const [address, setAddress] = useState<string>('')
-  const accountSpecifier = useMemo(() => {
-    if (!address.length) return ''
-
-    return caip10.toCAIP10({
-      caip2: asset.caip2,
-      account: address
-    })
-  }, [address, asset.caip2])
-
-  const chainAdapterManager = useChainAdapters()
-  const {
-    state: { wallet }
-  } = useWallet()
   const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    ;(async () => {
-      const cosmosChainAdapter = chainAdapterManager.byChain(asset.chain)
-      setChainAdapter(cosmosChainAdapter)
-    })()
-  })
-
-  useEffect(() => {
-    ;(async () => {
-      if (!chainAdapter || !wallet || !asset) return
-
-      const address = await chainAdapter.getAddress({
-        wallet
-      })
-      setAddress(address)
-    })()
-  }, [chainAdapter, wallet, asset])
 
   useEffect(() => {
     ;(async () => {
@@ -84,25 +50,24 @@ export const Overview = ({ assetId }: StakedProps) => {
     })()
   }, [accountSpecifier, isLoaded, dispatch])
 
+  const validatorInfo = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, validatorAddress)
+  )
+
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAccountSpecifier(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS, // TODO(gomes): Pass this from `<StakingOpportunitiesRow />` with modal state
-      ASSET_ID_TO_DENOM[asset.caip19]
-    )
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
   )
   const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(state, accountSpecifier, SHAPESHIFT_VALIDATOR_ADDRESS)
+    selectAllUnbondingsEntriesByAssetIdAndValidator(
+      state,
+      accountSpecifier,
+      validatorAddress,
+      asset.caip19
+    )
   )
 
   const rewardsAmount = useAppSelector(state =>
-    selectRewardsAmountByDenom(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
-      ASSET_ID_TO_DENOM[asset.caip19]
-    )
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
   )
 
   return (
@@ -115,7 +80,7 @@ export const Overview = ({ assetId }: StakedProps) => {
           justifyContent='space-between'
         >
           <Skeleton
-            isLoaded={isLoaded}
+            isLoaded={Boolean(isLoaded && accountSpecifier)}
             width='100%'
             minHeight='48px'
             mb='30px'
@@ -123,9 +88,12 @@ export const Overview = ({ assetId }: StakedProps) => {
           >
             <StakedRow
               assetSymbol={asset.symbol}
+              assetIcon={asset.icon}
               fiatRate={bnOrZero(marketData.price)}
-              cryptoStakedAmount={bnOrZero(totalBondings).div(`1e+${asset.precision}`)}
-              apr={bnOrZero('0.12')}
+              cryptoStakedAmount={bnOrZero(totalBondings)
+                .div(`1e+${asset.precision}`)
+                .decimalPlaces(asset.precision)}
+              apr={bnOrZero(validatorInfo?.apr)}
             />
           </Skeleton>
           <Skeleton isLoaded={isLoaded} width='100%' mb='40px' justifyContent='space-between'>
@@ -134,16 +102,21 @@ export const Overview = ({ assetId }: StakedProps) => {
               <AssetClaimCard
                 assetSymbol={asset.symbol}
                 assetName={asset.name}
-                cryptoRewardsAmount={bnOrZero(rewardsAmount).div(`1e+${asset.precision}`)}
+                assetIcon={asset.icon}
+                cryptoRewardsAmount={bnOrZero(rewardsAmount)
+                  .div(`1e+${asset.precision}`)
+                  .decimalPlaces(asset.precision)}
                 fiatRate={bnOrZero(marketData.price)}
-                renderButton={() => <ClaimButton assetId={assetId} />}
+                renderButton={() => (
+                  <ClaimButton assetId={assetId} validatorAddress={validatorAddress} />
+                )}
               />
             </Box>
           </Skeleton>
           <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mb='20px'>
             <Text translation={'defi.unstaking'} color='gray.500' />
             <Box width='100%'>
-              {undelegationEntries.map((undelegation, i) => (
+              {undelegationEntries?.map((undelegation, i) => (
                 <UnbondingRow
                   key={i}
                   assetSymbol={asset.symbol}

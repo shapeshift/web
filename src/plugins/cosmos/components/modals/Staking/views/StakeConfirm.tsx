@@ -52,8 +52,6 @@ function calculateYearlyYield(apy: string, amount: string = '') {
   return bnOrZero(amount).times(apy).toString()
 }
 
-const DEFAULT_VALIDATOR_NAME = 'Shapeshift Validator'
-
 export const StakeConfirm = ({
   assetId,
   accountSpecifier,
@@ -141,8 +139,12 @@ export const StakeConfirm = ({
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
-            <Link color={'blue.200'} target='_blank' href='#'>
-              {DEFAULT_VALIDATOR_NAME}
+            <Link
+              color={'blue.200'}
+              target='_blank'
+              href={`https://www.mintscan.io/cosmos/validators/${validatorAddress}`}
+            >
+              {validatorInfo.moniker}
             </Link>
           </Flex>
           <Flex width='100%' mb='35px' justifyContent='space-between'>

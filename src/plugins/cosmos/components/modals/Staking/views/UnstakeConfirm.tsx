@@ -1,5 +1,5 @@
 import { InfoOutlineIcon } from '@chakra-ui/icons'
-import { Flex } from '@chakra-ui/layout'
+import { Flex, Link } from '@chakra-ui/layout'
 import {
   Button,
   FormControl,
@@ -128,7 +128,13 @@ export const UnstakeConfirm = ({
                 <InfoOutlineIcon />
               </Tooltip>
             </CText>
-            <CText>{validatorInfo?.moniker}</CText>
+            <Link
+              color={'blue.200'}
+              target='_blank'
+              href={`https://www.mintscan.io/cosmos/validators/${validatorAddress}`}
+            >
+              {validatorInfo.moniker}
+            </Link>
           </Flex>
           <Flex mb='6px' width='100%'>
             <CText display='inline-flex' alignItems='center' color='gray.500'>

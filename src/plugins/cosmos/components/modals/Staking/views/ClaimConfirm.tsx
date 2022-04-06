@@ -10,63 +10,75 @@ import {
   Tooltip
 } from '@chakra-ui/react'
 import { CAIP10, CAIP19 } from '@shapeshiftoss/caip'
-import { chainAdapters } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
+// @ts-ignore this will fail at 'file differs in casing' error
+import { ChainAdapter as CosmosChainAdapter } from '@shapeshiftoss/chain-adapters/dist/cosmosSdk/cosmos/CosmosChainAdapter'
+import { FeeDataKey } from '@shapeshiftoss/types/dist/chain-adapters'
 import { TxFeeRadioGroup } from 'plugins/cosmos/components/TxFeeRadioGroup/TxFeeRadioGroup'
-import { useMemo } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FeePrice, getFormFees } from 'plugins/cosmos/utils'
+import { useEffect, useMemo, useState } from 'react'
+import { FormProvider, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useChainAdapters } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  ASSET_ID_TO_DENOM,
   selectAssetByCAIP19,
   selectMarketDataById,
-  selectRewardsAmountByDenom
+  selectRewardsAmountByAssetId
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ClaimPath } from '../StakingCommon'
-
-export enum Field {
-  FeeType = 'feeType'
-}
-
-export type StakingValues = {
-  [Field.FeeType]: chainAdapters.FeeDataKey
-}
+import { ClaimPath, Field, StakingValues } from '../StakingCommon'
 
 type ClaimConfirmProps = {
   assetId: CAIP19
   accountSpecifier: CAIP10
+  validatorAddress: string
 }
 
-const SHAPESHIFT_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+export const ClaimConfirm = ({
+  assetId,
+  accountSpecifier,
+  validatorAddress
+}: ClaimConfirmProps) => {
+  const [feeData, setFeeData] = useState<FeePrice | null>(null)
 
-export const ClaimConfirm = ({ assetId, accountSpecifier }: ClaimConfirmProps) => {
-  const methods = useForm<StakingValues>({
-    mode: 'onChange',
-    defaultValues: {
-      [Field.FeeType]: chainAdapters.FeeDataKey.Average
-    }
-  })
+  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
+
+  const methods = useFormContext<StakingValues>()
 
   const { handleSubmit } = methods
 
-  const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
-  const rewardsCryptoAmount = useAppSelector(state =>
-    selectRewardsAmountByDenom(
-      state,
-      accountSpecifier,
-      SHAPESHIFT_VALIDATOR_ADDRESS,
-      ASSET_ID_TO_DENOM[assetId]
-    )
-  )
+  const { cosmosStaking } = useModal()
+  const translate = useTranslate()
+  const memoryHistory = useHistory()
+  const chainAdapterManager = useChainAdapters()
+  const adapter = chainAdapterManager.byChain(asset.chain) as CosmosChainAdapter
 
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+
+  useEffect(() => {
+    ;(async () => {
+      const feeData = await adapter.getFeeData({})
+
+      const txFees = getFormFees(feeData, asset.precision, marketData.price)
+
+      setFeeData(txFees)
+    })()
+  }, [adapter, asset.precision, marketData.price])
+
+  const {
+    state: { wallet }
+  } = useWallet()
+
+  const rewardsCryptoAmount = useAppSelector(state =>
+    selectRewardsAmountByAssetId(state, accountSpecifier, validatorAddress, assetId)
+  )
 
   const rewardsCryptoAmountPrecision = useMemo(
     () => bnOrZero(rewardsCryptoAmount).div(`1e+${asset.precision}`).toString(),
@@ -77,18 +89,19 @@ export const ClaimConfirm = ({ assetId, accountSpecifier }: ClaimConfirmProps) =
     [marketData, rewardsCryptoAmountPrecision]
   )
 
-  const memoryHistory = useHistory()
+  const onSubmit = async ({ feeType }: { feeType: FeeDataKey }) => {
+    if (!wallet || !feeData) return
 
-  const onSubmit = (result: any) => {
-    memoryHistory.push(ClaimPath.Broadcast, {
-      cryptoAmount: rewardsCryptoAmount,
-      fiatRate: marketData.price
-    })
+    const fees = feeData[feeType]
+    const gas = fees.chainSpecific.gasLimit
+
+    methods.setValue(Field.GasLimit, gas)
+    methods.setValue(Field.TxFee, fees.txFee)
+    methods.setValue(Field.FiatFee, fees.fiatFee)
+    methods.setValue(Field.CryptoAmount, rewardsCryptoAmount)
+
+    memoryHistory.push(ClaimPath.Broadcast)
   }
-
-  const translate = useTranslate()
-
-  const { cosmosStaking } = useModal()
 
   const handleCancel = () => {
     memoryHistory.goBack()
@@ -137,24 +150,7 @@ export const ClaimConfirm = ({ assetId, accountSpecifier }: ClaimConfirmProps) =
             </CText>
           </Flex>
           <FormControl>
-            <TxFeeRadioGroup
-              asset={asset}
-              mb='10px'
-              fees={{
-                slow: {
-                  txFee: '0',
-                  fiatFee: '0'
-                },
-                average: {
-                  txFee: '0.01',
-                  fiatFee: '0.02'
-                },
-                fast: {
-                  txFee: '0.03',
-                  fiatFee: '0.04'
-                }
-              }}
-            />
+            <TxFeeRadioGroup asset={asset} mb='10px' fees={feeData} />
           </FormControl>
           <Text
             mt={1}

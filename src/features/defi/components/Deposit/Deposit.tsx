@@ -13,6 +13,7 @@ import {
   InputLeftElement,
   InputProps,
   InputRightElement,
+  Link,
   ModalBody,
   ModalFooter,
   Popover,
@@ -40,6 +41,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Slippage } from 'components/Slippage/Slippage'
 import { RawText, Text } from 'components/Text'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -125,6 +127,7 @@ export const Deposit = ({
   const amountRef = useRef<string | null>(null)
   const bgColor = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const { history: browserHistory } = useBrowserRouter()
 
   const {
     clearErrors,
@@ -147,6 +150,10 @@ export const Deposit = ({
   const cryptoError = get(errors, 'cryptoAmount.message', null)
   const fiatError = get(errors, 'fiatAmount.message', null)
   const fieldError = cryptoError || fiatError
+
+  const handleTosLink = () => {
+    browserHistory.push('/legal/terms-of-service')
+  }
 
   const handleInputToggle = () => {
     const field = cryptoField ? InputType.Fiat : InputType.Crypto
@@ -400,14 +407,13 @@ export const Deposit = ({
             </FormControl>
           </Stack>
         </ModalBody>
-        <ModalFooter>
-          <Text
-            fontSize='sm'
-            color='gray.500'
-            mb={2}
-            width='full'
-            translation='modals.deposit.footerDisclaimer'
-          />
+        <ModalFooter as={Stack} direction={{ base: 'column', md: 'row' }}>
+          <RawText color='gray.500' fontSize='sm' mb={2}>
+            {translate('modals.deposit.footerDisclaimer')}
+            <Link onClick={handleTosLink} color={useColorModeValue('blue.500', 'blue.200')}>
+              {translate('modals.deposit.footerDisclaimerLink')}
+            </Link>
+          </RawText>
           <Button
             colorScheme={fieldError ? 'red' : 'blue'}
             isDisabled={!isValid}

@@ -439,9 +439,9 @@ export const YearnWithdraw = ({ api }: YearnWithdrawProps) => {
     )
 
   return (
-    <Flex width='full' minWidth={{ base: '100%', xl: '500px' }} flexDir='column'>
+    <Flex width='full' minWidth={{ base: '100%', md: '500px' }} flexDir='column'>
       <RouteSteps routes={routes} location={location} />
-      <Flex flexDir='column' width='full' minWidth='400px'>
+      <Flex flexDir='column' width='full'>
         <AnimatePresence exitBeforeEnter initial={false}>
           <Switch location={location} key={location.key}>
             {routes.map(route => {

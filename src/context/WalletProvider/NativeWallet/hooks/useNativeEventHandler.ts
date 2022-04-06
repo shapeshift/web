@@ -30,7 +30,6 @@ export const useNativeEventHandler = (state: KeyringState, dispatch: Dispatch<Ac
       }
     }
 
-    // if (!nativePassword) return
     if (keyring) {
       keyring.on(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.on(['Native', '*', NativeEvents.READY], handleEvent)

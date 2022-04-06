@@ -153,6 +153,8 @@
         "risks": "risks",
         "ofParticipating": "of participating in this feature and agreeing to the",
         "terms": "terms",
+        "stakingYourTokens": "Staking your tokens",
+        "unstakingYourTokens": "Unstaking your tokens",
         "tooltip": {
           "validator": "The Validator is responsible for processing transactions, storing data and adding blocks to the blockchain.",
           "gasFees": "Gas fees on %{networkName} are much lower than those on Ethereum Mainnet. This fee is paid directly to the validators that secure and operate the network and is not paid to ShapeShift."
@@ -467,7 +469,8 @@
       "amountToDeposit": "Amount To Deposit",
       "estimatedReturns": "Estimated Yearly Returns*",
       "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "By continuing you agree to our terms of service.",
+      "footerDisclaimer": "By continuing you agree to our ",
+      "footerDisclaimerLink": "terms of service.",
       "slippageSettings": "Slippage Settings"
     },
     "withdraw": {
@@ -491,7 +494,7 @@
       }
     },
     "approve": {
-      "header": "Allow ShapeShift DAO Router to spend your %{asset}",
+      "header": "Allow ShapeShift DAO Router to use your %{asset}",
       "body": "We need your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be separate gas fee to deposit.",

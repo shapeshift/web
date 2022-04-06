@@ -6,7 +6,7 @@ import { Group } from '@visx/group'
 import { ScaleSVG } from '@visx/responsive'
 import { scaleLinear, scaleTime } from '@visx/scale'
 import { Bar, Line } from '@visx/shape'
-import { defaultStyles as defaultToopTipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
+import { defaultStyles as defaultTooltipStyles, TooltipWithBounds, useTooltip } from '@visx/tooltip'
 import { bisector, extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
 import numeral from 'numeral'
@@ -231,7 +231,7 @@ export const PrimaryChart = ({
             top={tooltipTop - 12}
             left={tooltipLeft}
             style={{
-              ...defaultToopTipStyles,
+              ...defaultTooltipStyles,
               background: toolTipBg,
               padding: '0.5rem',
               border: `1px solid ${toolTipBorder}`,

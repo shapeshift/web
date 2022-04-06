@@ -21,11 +21,11 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetByCAIP19,
-  selectMarketDataById,
-  selectTotalBondingsBalanceByAssetId
+  selectDelegationCryptoAmountByAssetIdAndValidator,
+  selectMarketDataById
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -58,10 +58,15 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, assetId)
+  const cryptoStakeBalance = useAppSelector(state =>
+    selectDelegationCryptoAmountByAssetIdAndValidator(
+      state,
+      accountSpecifier,
+      validatorAddress,
+      assetId
+    )
   )
-  const cryptoBalanceHuman = bnOrZero(totalBondings).div(`1e+${asset?.precision}`)
+  const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -90,31 +95,48 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
   }
 
   const handlePercentClick = (_percent: number) => {
-    const cryptoAmount = bnOrZero(cryptoBalanceHuman).times(_percent)
-    const fiat = bnOrZero(cryptoAmount).times(marketData.price)
+    if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
+    }
+
+    const cryptoAmount = bnOrZero(cryptoStakeBalanceHuman).times(_percent)
+    const fiatAmount = bnOrZero(cryptoAmount).times(marketData.price)
     if (activeField === InputType.Crypto) {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     } else {
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
     }
     setPercent(_percent)
   }
 
   const handleInputChange = (value: string) => {
-    if (bnOrZero(value).gt(cryptoBalanceHuman)) {
-      setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
-    } else if (values.amountFieldError) {
-      setValue(Field.AmountFieldError, '', { shouldValidate: true })
-    }
     setPercent(null)
     if (activeField === InputType.Crypto) {
-      const fiat = bnOrZero(value).times(marketData.price)
-      setValue(Field.FiatAmount, fiat.toString(), { shouldValidate: true })
+      const cryptoAmount = bnOrZero(value).dp(asset.precision, BigNumber.ROUND_DOWN)
+      const fiatAmount = bnOrZero(value).times(marketData.price)
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+
+      if (cryptoAmount.gt(cryptoStakeBalanceHuman)) {
+        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+        return
+      }
     } else {
-      const crypto = bnOrZero(value).div(marketData.price)
-      setValue(Field.CryptoAmount, crypto.toString(), { shouldValidate: true })
+      const cryptoAmount = bnOrZero(value)
+        .div(marketData.price)
+        .dp(asset.precision, BigNumber.ROUND_DOWN)
+      setValue(Field.CryptoAmount, cryptoAmount.toString(), { shouldValidate: true })
+
+      if (bnOrZero(cryptoAmount).gt(bnOrZero(cryptoStakeBalanceHuman))) {
+        setValue(Field.AmountFieldError, 'common.insufficientFunds', { shouldValidate: true })
+        return
+      }
+    }
+
+    if (values.amountFieldError) {
+      setValue(Field.AmountFieldError, '', { shouldValidate: true })
     }
   }
 
@@ -149,7 +171,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
             />
             <Amount.Crypto
               fontWeight='bold'
-              value={bnOrZero(totalBondings).div(`1e+${asset?.precision}`).toString()}
+              value={bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`).toString()}
               symbol={asset.symbol}
             />
           </Flex>

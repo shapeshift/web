@@ -57,7 +57,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
 
   const asset = useAppSelector(state => selectAssetByCAIP19(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const totalBondings = useAppSelector(state =>
+  const cryptoStakeBalance = useAppSelector(state =>
     selectDelegationCryptoAmountByAssetIdAndValidator(
       state,
       accountSpecifier,
@@ -65,7 +65,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
       assetId
     )
   )
-  const cryptoStakeBalanceHuman = bnOrZero(totalBondings).div(`1e+${asset?.precision}`)
+  const cryptoStakeBalanceHuman = bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`)
 
   const [percent, setPercent] = useState<number | null>(null)
   const [activeField, setActiveField] = useState<InputType>(InputType.Crypto)
@@ -170,7 +170,7 @@ export const Unstake = ({ assetId, apr, accountSpecifier, validatorAddress }: Un
             />
             <Amount.Crypto
               fontWeight='bold'
-              value={bnOrZero(totalBondings).div(`1e+${asset?.precision}`).toString()}
+              value={bnOrZero(cryptoStakeBalance).div(`1e+${asset?.precision}`).toString()}
               symbol={asset.symbol}
             />
           </Flex>

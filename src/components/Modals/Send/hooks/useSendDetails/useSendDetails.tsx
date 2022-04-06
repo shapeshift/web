@@ -337,7 +337,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleInputChange = useMemo(() => debounce(inputHandler, 1000, { trailing: true }), [])
+  const handleInputChange = useMemo(() => debounce(inputHandler, 1000, { leading: true }), [])
 
   const toggleCurrency = () => {
     setFieldName(

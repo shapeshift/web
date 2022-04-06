@@ -11,10 +11,11 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetByCAIP19, selectMarketDataById } from 'state/slices/selectors'
 import {
+  selectAllUnbondingsEntriesByAssetIdAndValidator,
   selectRewardsAmountByAssetId,
+  selectSingleValidator,
   selectStakingDataIsLoaded,
-  selectTotalBondingsBalanceByAccountSpecifier,
-  selectUnbondingEntriesByAccountSpecifier
+  selectTotalBondingsBalanceByAssetId
 } from 'state/slices/stakingDataSlice/selectors'
 import { stakingDataApi } from 'state/slices/stakingDataSlice/stakingDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -49,16 +50,20 @@ export const Overview: React.FC<StakedProps> = ({
     })()
   }, [accountSpecifier, isLoaded, dispatch])
 
+  const validatorInfo = useAppSelector(state =>
+    selectSingleValidator(state, accountSpecifier, validatorAddress)
+  )
+
   const totalBondings = useAppSelector(state =>
-    selectTotalBondingsBalanceByAccountSpecifier(
+    selectTotalBondingsBalanceByAssetId(state, accountSpecifier, validatorAddress, asset.caip19)
+  )
+  const undelegationEntries = useAppSelector(state =>
+    selectAllUnbondingsEntriesByAssetIdAndValidator(
       state,
       accountSpecifier,
       validatorAddress,
       asset.caip19
     )
-  )
-  const undelegationEntries = useAppSelector(state =>
-    selectUnbondingEntriesByAccountSpecifier(state, accountSpecifier, validatorAddress)
   )
 
   const rewardsAmount = useAppSelector(state =>
@@ -83,11 +88,12 @@ export const Overview: React.FC<StakedProps> = ({
           >
             <StakedRow
               assetSymbol={asset.symbol}
+              assetIcon={asset.icon}
               fiatRate={bnOrZero(marketData.price)}
               cryptoStakedAmount={bnOrZero(totalBondings)
                 .div(`1e+${asset.precision}`)
                 .decimalPlaces(asset.precision)}
-              apr={bnOrZero('0.12')}
+              apr={bnOrZero(validatorInfo?.apr)}
             />
           </Skeleton>
           <Skeleton isLoaded={isLoaded} width='100%' mb='40px' justifyContent='space-between'>
@@ -96,6 +102,7 @@ export const Overview: React.FC<StakedProps> = ({
               <AssetClaimCard
                 assetSymbol={asset.symbol}
                 assetName={asset.name}
+                assetIcon={asset.icon}
                 cryptoRewardsAmount={bnOrZero(rewardsAmount)
                   .div(`1e+${asset.precision}`)
                   .decimalPlaces(asset.precision)}
@@ -109,7 +116,7 @@ export const Overview: React.FC<StakedProps> = ({
           <Skeleton isLoaded={isLoaded} width='100%' minHeight='68px' mb='20px'>
             <Text translation={'defi.unstaking'} color='gray.500' />
             <Box width='100%'>
-              {undelegationEntries.map((undelegation, i) => (
+              {undelegationEntries?.map((undelegation, i) => (
                 <UnbondingRow
                   key={i}
                   assetSymbol={asset.symbol}

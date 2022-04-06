@@ -254,7 +254,7 @@
   "staking": {
     "staking": "Staking",
     "itWillTake": "It will take",
-    "toUnlock": "to unlock your %{assetSymbol} after you unstake. Staking rewards will need to withdrawn separately.",
+    "toUnlock": "to unlock your %{assetSymbol} after you unstake. Staking rewards will need to be withdrawn separately.",
     "assetStakingBalance": "%{assetSymbol} Staking Balance"
   },
   "navBar": {
